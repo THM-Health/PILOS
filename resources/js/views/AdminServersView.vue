@@ -560,6 +560,7 @@ function load() {
  */
 function saveServer() {
   isBusy.value = true;
+  formErrors.clear();
 
   const config = {
     method: props.id === "new" ? "post" : "put",
@@ -569,7 +570,6 @@ function saveServer() {
   api
     .call(props.id === "new" ? "servers" : `servers/${props.id}`, config)
     .then((response) => {
-      formErrors.clear();
       router.push({
         name: "admin.servers.view",
         params: { id: response.data.data.id },

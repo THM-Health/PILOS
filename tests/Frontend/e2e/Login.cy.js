@@ -282,9 +282,7 @@ describe("Login", function () {
       });
     });
 
-    // Unprocessable entity error gets displayed
-
-    // Intercept login request
+    // Unprocessable entity error
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 422,
       body: {
@@ -296,7 +294,6 @@ describe("Login", function () {
 
     cy.visit("/login");
 
-    // Try to log in the user
     cy.get('[data-test="login-tab-local"]').within(() => {
       cy.get("#local-email").type("john.doe@domain.tld");
       cy.get("#local-password").type("password");
@@ -309,8 +306,6 @@ describe("Login", function () {
     cy.contains("Password or Email wrong!").should("be.visible");
 
     // Error for to many login requests gets displayed
-
-    // Intercept login request
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 429,
       body: {
@@ -320,7 +315,6 @@ describe("Login", function () {
       },
     }).as("loginRequest");
 
-    // Try to log in the user
     cy.get('[data-test="login-tab-local"]').within(() => {
       cy.get('[data-test="login-button"]').click();
     });
@@ -331,25 +325,24 @@ describe("Login", function () {
     cy.contains("Too many logins. Please try again later!").should(
       "be.visible",
     );
+    // Check that 422 error message is hidden
     cy.contains("Password or Email wrong!").should("not.exist");
 
     // Other api errors
-
-    // Intercept login request
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 500,
     }).as("loginRequest");
 
-    // Try to log in the user
     cy.get('[data-test="login-tab-local"]').within(() => {
       cy.get('[data-test="login-button"]').click();
     });
 
     cy.wait("@loginRequest");
 
+    // Check that other error messages are hidden
     cy.contains("Too many logins. Please try again later!").should("not.exist");
-    cy.contains("Password or Email wrong!").should("not.exist");
 
+    // Check that error message is shown
     cy.checkToastMessage([
       "app.flash.server_error.empty_message",
       'app.flash.server_error.error_code_{"statusCode":500}',

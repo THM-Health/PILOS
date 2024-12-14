@@ -159,6 +159,18 @@ describe("User Profile Email", function () {
     cy.get("#current_password").type("secretPassword123#");
     cy.get('[data-test="user-tab-email-save-button"]').click();
 
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="email-tab-current-password-field"]').should(
+      "not.include.text",
+      "The current password is incorrect.",
+    );
+
+    cy.get('[data-test="email-field"]').should(
+      "not.include.text",
+      "The email field is required.",
+    );
+
+    // Check that the error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',

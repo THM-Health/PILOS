@@ -368,24 +368,6 @@ describe("Rooms view description", function () {
 
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
 
-    // Check saving with 500 error
-    cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("saveDescriptionRequest");
-
-    cy.get('[data-test="room-description-save-button"]').click();
-
-    cy.wait("@saveDescriptionRequest");
-
-    // Check that error message gets shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
-
     // Check saving with 422 error
     cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
       statusCode: 422,
@@ -406,6 +388,29 @@ describe("Rooms view description", function () {
     cy.contains(
       "The Description must not be greater than 65000 characters.",
     ).should("be.visible");
+
+    // Check saving with 500 error
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("saveDescriptionRequest");
+
+    cy.get('[data-test="room-description-save-button"]').click();
+
+    cy.wait("@saveDescriptionRequest");
+
+    // Check that 422 error message is hidden
+    cy.contains(
+      "The Description must not be greater than 65000 characters.",
+    ).should("not.exist");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
 
     // Cancel editing
     cy.get('[data-test="room-description-cancel-edit-button"]').click();

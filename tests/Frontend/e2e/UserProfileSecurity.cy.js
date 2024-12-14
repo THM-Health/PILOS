@@ -310,7 +310,7 @@ describe("User Profile Security", function () {
       "newSecretPassword123#",
     );
 
-    // Check 422 error
+    // Check 422 error when changing password
     cy.intercept("PUT", "api/v1/users/1/password", {
       statusCode: 422,
       body: {
@@ -343,7 +343,7 @@ describe("User Profile Security", function () {
       "The New password confirmation field is required.",
     );
 
-    // Check 500 error
+    // Check 500 error when changing password
     cy.get('[data-test="security-tab-current-password-field"]')
       .find("#current_password")
       .should("have.value", "")
@@ -368,12 +368,29 @@ describe("User Profile Security", function () {
 
     cy.wait("@saveChangesRequest");
 
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="security-tab-current-password-field"]').should(
+      "not.include.text",
+      "The Current password field is required.",
+    );
+
+    cy.get('[data-test="new-password-field"]').should(
+      "not.include.text",
+      "The New password field is required.",
+    );
+
+    cy.get('[data-test="new-password-confirmation-field"]').should(
+      "not.include.text",
+      "The New password confirmation field is required.",
+    );
+
+    // Cheock that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check 401 error
+    // Check 401 error when changing password
     cy.get('[data-test="security-tab-current-password-field"]')
       .find("#current_password")
       .should("have.value", "")
@@ -406,7 +423,7 @@ describe("User Profile Security", function () {
 
     cy.get('[data-test="security-tab-button"]').click();
 
-    // Check 500 error
+    // Check 500 error when deleting sessions
     cy.intercept("DELETE", "api/v1/sessions", {
       statusCode: 500,
       body: {
@@ -423,7 +440,7 @@ describe("User Profile Security", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check 401 error
+    // Check 401 error when deleting sessions
     cy.intercept("DELETE", "api/v1/sessions", {
       statusCode: 401,
     }).as("logoutAllRequest");

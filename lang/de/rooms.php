@@ -2,6 +2,7 @@
 
 return [
     'access_code' => 'Zugangscode',
+    'auth_throttled' => 'Zu viele Versuche. Bitte versuchen Sie es in :try_again Sekunden erneut.',
     'become_member' => 'Mitglied werden',
     'change_type' => [
         'changing_settings' => 'Es kommt zur folgenden Veränderung der Raumeinstellungen',
@@ -120,6 +121,7 @@ return [
         ],
         'terms_of_use' => [
             'accept' => 'Ich akzeptiere die Nutzungsbedingungen',
+            'required' => 'Sie müssen die Nutzungsbedingungen akzeptieren, bevor Sie diese Datei herunterladen können.',
             'title' => 'Nutzungsbedingungen',
         ],
         'title' => 'Dateien',
@@ -138,6 +140,7 @@ return [
         'recording_forbidden' => 'Der Zugriff auf die Aufzeichnung wurde verweigert.',
         'recording_gone' => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden' => 'Der Raum kann von Ihnen nicht gestartet werden.',
+        'token_gone' => 'Der personalisierte Raumlink wurde in der Zwischenzeit gelöscht.',
         'token_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [

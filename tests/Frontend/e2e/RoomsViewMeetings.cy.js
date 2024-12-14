@@ -386,6 +386,32 @@ describe("Rooms view meetings", function () {
       );
 
     cy.get("#guest-name").should("have.value", "John Doe 123!");
+
+    // Test 500 error
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("joinRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@joinRequest");
+
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The name contains the following non-permitted characters: 123!",
+      );
+
+    // Check if error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
   });
 
   it("join running meeting with access code", function () {
@@ -836,6 +862,20 @@ describe("Rooms view meetings", function () {
       });
 
     // Join meeting errors missing agreements
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 422,
+      body: {
+        message:
+          "The consent record attendance must be accepted. (and 1 more error)",
+        errors: {
+          consent_record_attendance: [
+            "The consent record attendance must be accepted.",
+          ],
+          consent_record: ["The consent record must be accepted."],
+        },
+      },
+    }).as("joinRequest");
+
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
     cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
@@ -860,9 +900,6 @@ describe("Rooms view meetings", function () {
         cy.contains("The consent record must be accepted.").should(
           "be.visible",
         );
-
-        // Close dialog
-        cy.get('[data-test="dialog-cancel-button"]').click();
       });
 
     // Test general errors
@@ -874,22 +911,25 @@ describe("Rooms view meetings", function () {
     }).as("joinRequest");
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"]')
-      .should("have.text", "rooms.join")
-      .click();
     cy.get('[data-test="room-join-dialog"]').should("be.visible");
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait("@joinRequest");
+
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The consent record attendance must be accepted.",
+      )
+      .and("not.include.text", "The consent record must be accepted.");
 
     // Check if error message is shown and close it
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    // Check that dialog is still open
-    cy.get('[data-test="room-join-dialog"]').should("be.visible");
 
     // Test meeting error room closed
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
@@ -1262,6 +1302,32 @@ describe("Rooms view meetings", function () {
       );
 
     cy.get("#guest-name").should("have.value", "John Doe 123!");
+
+    // Test 500 error
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("startRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@startRequest");
+
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The name contains the following non-permitted characters: 123!",
+      );
+
+    // Check if error message is shown and close it
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
   });
 
   it("start meeting with access code", function () {
@@ -1677,6 +1743,19 @@ describe("Rooms view meetings", function () {
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
 
     // Start meeting errors missing agreements
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 422,
+      body: {
+        message:
+          "The consent record attendance must be accepted. (and 1 more error)",
+        errors: {
+          consent_record_attendance: [
+            "The consent record attendance must be accepted.",
+          ],
+          consent_record: ["The consent record must be accepted."],
+        },
+      },
+    }).as("startRequest");
 
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
     cy.get('[data-test="room-start-button"]').click();
@@ -1703,9 +1782,6 @@ describe("Rooms view meetings", function () {
         cy.contains("The consent record must be accepted.").should(
           "be.visible",
         );
-
-        // Close dialog
-        cy.get('[data-test="dialog-cancel-button"]').click();
       });
 
     // Test general errors
@@ -1717,14 +1793,19 @@ describe("Rooms view meetings", function () {
     }).as("startRequest");
 
     // Try to start meeting
-    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="room-join-dialog"]').should("be.visible");
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait("@startRequest");
 
-    // Check that room join dialog is closed
-    cy.get('[data-test="room-join-dialog"]').should("be.visible");
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The consent record attendance must be accepted.",
+      )
+      .and("not.include.text", "The consent record must be accepted.");
 
     // Check if error message is shown and close it
     cy.checkToastMessage([

@@ -142,6 +142,7 @@ function loadReplacementRoomTypes() {
  */
 function deleteRoomType() {
   isBusy.value = true;
+  formErrors.clear();
 
   api
     .call(`roomTypes/${props.id}`, {

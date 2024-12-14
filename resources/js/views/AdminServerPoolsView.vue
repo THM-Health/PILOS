@@ -312,6 +312,7 @@ function loadServers(page = 1) {
  */
 function saveServerPool() {
   isBusy.value = true;
+  formErrors.clear();
 
   const config = {
     method: props.id === "new" ? "post" : "put",
@@ -326,7 +327,6 @@ function saveServerPool() {
       config,
     )
     .then((response) => {
-      formErrors.clear();
       router.push({
         name: "admin.server_pools.view",
         params: { id: response.data.data.id },

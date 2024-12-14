@@ -446,10 +446,11 @@ describe("Rooms index create new room", function () {
     cy.wait("@createRoomRequest");
     cy.wait("@roomTypeRequest");
 
-    // Check that error gets displayed
+    // Check that new error gets displayed and old error is not shown
     cy.get('[data-test="room-create-dialog"]')
       .should("be.visible")
-      .and("include.text", "The selected Room type is invalid.");
+      .and("include.text", "The selected Room type is invalid.")
+      .and("not.include.text", "The Room type field is required.");
 
     // Check refreshed list is shown and room type select is reset
     cy.get('[data-test="room-type-select-option"]').should("have.length", 4);
@@ -481,14 +482,45 @@ describe("Rooms index create new room", function () {
 
     cy.wait("@createRoomRequest");
 
-    // Check that error gets displayed
+    // Check that error is shown and previous errors are not shown
     cy.get('[data-test="room-create-dialog"]')
       .should("be.visible")
-      .and("include.text", "The Name field is required.");
-    cy.get('[data-test="room-create-dialog"]').should(
-      "not.include.text",
-      "The Room type field is required.",
-    );
+      .and("include.text", "The Name field is required.")
+      .and("not.include.text", "The selected Room type is invalid.");
+
+    // Check with other error (500)
+    cy.intercept("POST", "api/v1/rooms", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("createRoomRequest");
+
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Enter room name
+        cy.get("#room-name").should("have.value", "").type("New Room");
+
+        // Select a room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+
+        // Create new room
+        cy.get('[data-test="dialog-save-button"]').click();
+      });
+
+    cy.wait("@createRoomRequest");
+
+    // Check if error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The Name field is required.");
 
     // Create new room forbidden
     cy.intercept("POST", "api/v1/rooms", {
@@ -528,40 +560,6 @@ describe("Rooms index create new room", function () {
     });
 
     cy.reload();
-
-    // Other errors
-    cy.intercept("POST", "api/v1/rooms", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("createRoomRequest");
-
-    cy.get('[data-test="room-create-button"]').click();
-
-    cy.get('[data-test="room-create-dialog"]')
-      .should("be.visible")
-      .within(() => {
-        // Enter room name
-        cy.get("#room-name").should("have.value", "").type("New Room");
-
-        // Select a room type
-        cy.get('[data-test="room-type-select-option"]').eq(0).click();
-
-        // Create new room
-        cy.get('[data-test="dialog-save-button"]').click();
-      });
-
-    cy.wait("@createRoomRequest");
-
-    // Check that create room dialog is closed
-    cy.get('[data-test="room-create-dialog"]').should("not.exist");
-
-    // Check if error message is visible
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
 
     // Test with 401 error
     cy.intercept("POST", "api/v1/rooms", {

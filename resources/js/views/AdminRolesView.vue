@@ -504,6 +504,7 @@ function loadPermissions() {
  */
 function saveRole() {
   busyCounter.value++;
+  formErrors.clear();
 
   const config = {
     method: props.id === "new" ? "post" : "put",
@@ -518,7 +519,6 @@ function saveRole() {
   api
     .call(props.id === "new" ? "roles" : `roles/${props.id}`, config)
     .then((response) => {
-      formErrors.clear();
       router.push({
         name: "admin.roles.view",
         params: { id: response.data.data.id },

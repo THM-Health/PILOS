@@ -372,9 +372,11 @@ describe("Rooms view members member actions", function () {
 
     cy.wait("@addUserRequest");
 
+    // Check that error message is shown and previous error message is hidden
     cy.get('[data-test="room-members-add-single-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user is already member of the room.");
+      .and("include.text", "The user is already member of the room.")
+      .and("not.include.text", "The Role field is required.");
 
     // Try to add user to the room and respond with 500 error
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member", {
@@ -388,8 +390,13 @@ describe("Rooms view members member actions", function () {
 
     cy.wait("@addUserRequest");
 
-    // Check that dialog is still open and that error message gets shown
-    cy.get('[data-test="room-members-add-single-dialog"]').should("be.visible");
+    // Check that dialog is still open and 422 error messages are hidden
+    cy.get('[data-test="room-members-add-single-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The user is already member of the room.")
+      .and("not.include.text", "The Role field is required.");
+
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -590,8 +597,12 @@ describe("Rooms view members member actions", function () {
 
     cy.wait("@editUserRequest");
 
-    // Check that dialog is still open and that error message gets shown
-    cy.get('[data-test="room-members-edit-dialog"]').should("be.visible");
+    // Check that dialog is still open and that 422 error messages are hidden
+    cy.get('[data-test="room-members-edit-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The selected role is invalid.");
+
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
