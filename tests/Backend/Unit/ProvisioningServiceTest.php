@@ -3,8 +3,11 @@
 namespace Tests\Backend\Unit;
 
 use App\Enums\ServerStatus;
+use App\Models\RoomType;
 use App\Models\Server;
+use App\Models\ServerPool;
 use App\Services\ProvisioningService;
+use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Backend\TestCase;
 use UnexpectedValueException;
@@ -16,7 +19,9 @@ class ProvisioningServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->svc = new ProvisioningService;
+
         $this->testServer = (object) [
             'name' => 'Testserver',
             'description' => 'a fancy description',
@@ -26,34 +31,24 @@ class ProvisioningServiceTest extends TestCase
             'status' => 'enabled',
         ];
         $this->testServerPool = (object) [
-            'name' => 'Testserver',
+            'name' => 'Testserverpool',
             'description' => 'a fancy description',
-            'servers' => ['Test Server'],
+            'servers' => [$this->testServer->name],
         ];
-        Server::upsert(
-            [
-                [
-                    'name' => "Existing {$this->testServer->name} 1",
-                    'base_url' => $this->testServer->endpoint,
-                    'secret' => $this->testServer->secret,
-                    'status' => ServerStatus::ENABLED,
-                ],
-                [
-                    'name' => "Existing {$this->testServer->name} 2",
-                    'base_url' => $this->testServer->endpoint,
-                    'secret' => $this->testServer->secret,
-                    'status' => ServerStatus::ENABLED,
-                ],
-                [
-                    'name' => "Existing {$this->testServer->name} 3",
-                    'base_url' => $this->testServer->endpoint,
-                    'secret' => $this->testServer->secret,
-                    'status' => ServerStatus::ENABLED,
-                ],
-            ],
-            uniqueBy: ['name'],
-            update: ['base_url', 'secret', 'status'],
-        );
+
+        for ($i = 1; $i <= 3; $i++) {
+            $server = new Server;
+            $server->name = "Existing {$this->testServer->name} $i";
+            $server->base_url = $this->testServer->endpoint;
+            $server->secret = $this->testServer->secret;
+            $server->status = ServerStatus::ENABLED;
+            $server->save();
+
+            $serverPool = new ServerPool;
+            $serverPool->name = "Existing {$this->testServerPool->name} $i";
+            $serverPool->save();
+            $serverPool->servers()->save($server);
+        }
     }
 
     /**
@@ -80,6 +75,7 @@ class ProvisioningServiceTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid server status');
         $this->svc->server->create($this->testServer);
+        $this->assertNull(Server::firstWhere('name', $this->testServer->name));
     }
 
     /**
@@ -91,6 +87,7 @@ class ProvisioningServiceTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid server definition');
         $this->svc->server->create($this->testServer);
+        $this->assertNull(Server::firstWhere('name', $this->testServer->name));
     }
 
     /**
@@ -102,6 +99,7 @@ class ProvisioningServiceTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid server definition');
         $this->svc->server->create($this->testServer);
+        $this->assertNull(Server::firstWhere('name', $this->testServer->name));
     }
 
     /**
@@ -126,5 +124,76 @@ class ProvisioningServiceTest extends TestCase
         $this->assertNull(Server::firstWhere('name', "Existing {$this->testServer->name} 2"));
         $this->assertNotNull(Server::firstWhere('name', "Existing {$this->testServer->name} 1"));
         $this->assertNotNull(Server::firstWhere('name', "Existing {$this->testServer->name} 3"));
+    }
+
+    /**
+     * Test server pool creation
+     */
+    public function test_server_pool_create()
+    {
+        $this->svc->server->create($this->testServer);
+        $this->svc->serverPool->create($this->testServerPool);
+        $serverPool = ServerPool::firstWhere('name', $this->testServerPool->name);
+        $this->assertNotNull($serverPool);
+        $this->assertEquals($this->testServerPool->description, $serverPool->description);
+        $servers = array_map(fn ($it) => $it->name, $serverPool->servers->all());
+        $this->assertEquals($this->testServerPool->servers, $servers);
+    }
+
+    /**
+     * Test server pool creation with a non-existing server
+     */
+    public function test_server_pool_create_non_existing_server()
+    {
+        $this->expectException(RecordsNotFoundException::class);
+        $this->expectExceptionMessage("Could not find specified server(s) for pool '{$this->testServerPool->name}'");
+        $this->svc->serverPool->create($this->testServerPool);
+        $this->assertNull(ServerPool::firstWhere('name', $this->testServerPool->name));
+    }
+
+    /**
+     * Test server pool creation with incomplete properties
+     */
+    public function test_server_pool_create_incomplete()
+    {
+        unset($this->testServerPool->servers);
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid server pool definition');
+        $this->svc->serverPool->create($this->testServerPool);
+        $this->assertNull(ServerPool::firstWhere('name', $this->testServerPool->name));
+    }
+
+    /**
+     * Test deletion of all server pools
+     */
+    public function test_server_pool_delete_all()
+    {
+        $this->assertEquals(4, count(ServerPool::all()));
+        array_map(fn ($it) => $it->delete(), RoomType::all()->all());
+        $this->svc->serverPool->destroy();
+        $this->assertEquals(0, count(ServerPool::all()));
+    }
+
+    /**
+     * Test deletion of all server pools without prior room type deletion
+     */
+    public function test_server_pool_delete_all_with_room_types()
+    {
+        $this->assertEquals(4, count(ServerPool::all()));
+        $this->svc->serverPool->destroy();
+        $this->assertEquals(1, count(ServerPool::all()));
+    }
+
+    /**
+     * Test deletion of specified server pool
+     */
+    public function test_server_pool_delete_named()
+    {
+        $this->assertEquals(4, count(ServerPool::all()));
+        $this->svc->serverPool->destroy(['name' => "Existing {$this->testServerPool->name} 2"]);
+        $this->assertEquals(3, count(ServerPool::all()));
+        $this->assertNull(ServerPool::firstWhere('name', "Existing {$this->testServerPool->name} 2"));
+        $this->assertNotNull(ServerPool::firstWhere('name', "Existing {$this->testServerPool->name} 1"));
+        $this->assertNotNull(ServerPool::firstWhere('name', "Existing {$this->testServerPool->name} 3"));
     }
 }

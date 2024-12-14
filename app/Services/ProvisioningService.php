@@ -6,6 +6,7 @@ use App\Enums\ServerStatus;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\ServerPool;
+use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Log;
@@ -125,6 +126,11 @@ class ServerPoolProvisioner extends AbstractProvisioner
             $pool->description = $properties->description;
             $pool->save();
             $servers = Server::whereIn('name', $properties->servers)->get();
+            if (count($properties->servers) != count($servers)) {
+                $message = "Could not find specified server(s) for pool '{$pool->name}'";
+                Log::error($message);
+                throw new RecordsNotFoundException($message);
+            }
             $pool->servers()->sync($servers);
         });
     }
