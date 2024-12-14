@@ -35,6 +35,12 @@ class ProvisioningServiceTest extends TestCase
             'description' => 'a fancy description',
             'servers' => [$this->testServer->name],
         ];
+        $this->testRoomType = (object) [
+            'name' => 'Testroomtype',
+            'description' => 'a fancy description',
+            'color' => '#aaaaaa',
+            'server_pool' => $this->testServerPool->name,
+        ];
 
         for ($i = 1; $i <= 3; $i++) {
             $server = new Server;
@@ -48,6 +54,13 @@ class ProvisioningServiceTest extends TestCase
             $serverPool->name = "Existing {$this->testServerPool->name} $i";
             $serverPool->save();
             $serverPool->servers()->save($server);
+
+            $roomType = new RoomType;
+            $roomType->name = "Existing {$this->testRoomType->name} $i";
+            $roomType->description = $this->testRoomType->description;
+            $roomType->color = $this->testRoomType->color;
+            $roomType->serverPool()->associate($serverPool);
+            $roomType->save();
         }
     }
 
@@ -181,7 +194,7 @@ class ProvisioningServiceTest extends TestCase
     {
         $this->assertEquals(4, count(ServerPool::all()));
         $this->svc->serverPool->destroy();
-        $this->assertEquals(1, count(ServerPool::all()));
+        $this->assertEquals(4, count(ServerPool::all()));
     }
 
     /**
@@ -190,10 +203,72 @@ class ProvisioningServiceTest extends TestCase
     public function test_server_pool_delete_named()
     {
         $this->assertEquals(4, count(ServerPool::all()));
+        RoomType::firstWhere(['name' => "Existing {$this->testRoomType->name} 2"])->delete();
         $this->svc->serverPool->destroy(['name' => "Existing {$this->testServerPool->name} 2"]);
         $this->assertEquals(3, count(ServerPool::all()));
         $this->assertNull(ServerPool::firstWhere('name', "Existing {$this->testServerPool->name} 2"));
         $this->assertNotNull(ServerPool::firstWhere('name', "Existing {$this->testServerPool->name} 1"));
         $this->assertNotNull(ServerPool::firstWhere('name', "Existing {$this->testServerPool->name} 3"));
+    }
+
+    /**
+     * Test room type creation
+     */
+    public function test_room_type_create()
+    {
+        $this->svc->server->create($this->testServer);
+        $this->svc->serverPool->create($this->testServerPool);
+        $this->svc->roomType->create($this->testRoomType);
+        $roomType = RoomType::firstWhere('name', $this->testRoomType->name);
+        $this->assertNotNull($roomType);
+        $this->assertEquals($this->testRoomType->description, $roomType->description);
+        $this->assertEquals($this->testRoomType->color, $roomType->color);
+        $this->assertEquals($this->testRoomType->server_pool, $roomType->serverPool->name);
+    }
+
+    /**
+     * Test room type creation with non-existing server pool
+     */
+    public function test_room_type_create_non_existing_server_pool()
+    {
+        $this->expectException(RecordsNotFoundException::class);
+        $this->expectExceptionMessage("Could not find server pool '{$this->testServerPool->name}'");
+        $this->svc->roomType->create($this->testRoomType);
+        $this->assertNull(RoomType::firstWhere('name', $this->testRoomType->name));
+    }
+
+    /**
+     * Test room type creation with incomplete properties
+     */
+    public function test_room_type_create_incomplete()
+    {
+        unset($this->testRoomType->server_pool);
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid room type definition');
+        $this->svc->roomType->create($this->testRoomType);
+        $this->assertNull(RoomType::firstWhere('name', $this->testRoomType->name));
+    }
+
+    /**
+     * Test deletion of all room types
+     */
+    public function test_room_type_delete_all()
+    {
+        $this->assertEquals(7, count(RoomType::all()));
+        $this->svc->roomType->destroy();
+        $this->assertEquals(0, count(RoomType::all()));
+    }
+
+    /**
+     * Test deletion of specified room type
+     */
+    public function test_room_type_delete_named()
+    {
+        $this->assertEquals(7, count(RoomType::all()));
+        $this->svc->roomType->destroy(['name' => "Existing {$this->testRoomType->name} 2"]);
+        $this->assertEquals(6, count(RoomType::all()));
+        $this->assertNull(RoomType::firstWhere('name', "Existing {$this->testRoomType->name} 2"));
+        $this->assertNotNull(RoomType::firstWhere('name', "Existing {$this->testRoomType->name} 1"));
+        $this->assertNotNull(RoomType::firstWhere('name', "Existing {$this->testRoomType->name} 3"));
     }
 }

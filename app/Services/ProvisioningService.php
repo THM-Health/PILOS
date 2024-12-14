@@ -160,9 +160,9 @@ class RoomTypeProvisioner extends AbstractProvisioner
             $type->color = $properties->color;
             $pool = ServerPool::firstWhere('name', $properties->server_pool);
             if (is_null($pool)) {
-                Log::error("Could not find server pool '$properties->serverPool'");
-
-                return;
+                $message = "Could not find server pool '$properties->server_pool'";
+                Log::error($message);
+                throw new RecordsNotFoundException($message);
             }
             $type->serverPool()->associate($pool);
         });
