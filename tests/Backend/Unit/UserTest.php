@@ -250,7 +250,8 @@ class UserTest extends TestCase
         $this->assertEquals(30, $user->room_limit);
     }
 
-    public function test_superuser_attribute(){
+    public function test_superuser_attribute()
+    {
         $user = User::factory()->create();
 
         $role = Role::factory()->create();

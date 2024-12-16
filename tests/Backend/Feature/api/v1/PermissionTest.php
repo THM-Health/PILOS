@@ -55,7 +55,7 @@ class PermissionTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.permissions.index'))
             ->assertSuccessful()
             ->assertJsonPath('meta', [
-                'restrictions' => ['permission1', 'permission2']
+                'restrictions' => ['permission1', 'permission2'],
             ]);
     }
 }

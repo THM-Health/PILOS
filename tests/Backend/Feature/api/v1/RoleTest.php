@@ -121,7 +121,8 @@ class RoleTest extends TestCase
      * Test if admins can create roles with permissions that have been restricted
      * by system admins that only superusers should have and no other role
      */
-    public function test_create_restricted_permissions(){
+    public function test_create_restricted_permissions()
+    {
 
         config(['permissions.restrictions' => ['servers.create']]);
 
@@ -137,7 +138,7 @@ class RoleTest extends TestCase
             'name' => 'Test',
             'superuser' => false,
             'permissions' => [$createRolesPermission->id, $createServersPermission->id],
-            'room_limit' => 1
+            'room_limit' => 1,
         ];
 
         $this->actingAs($user)->postJson(route('api.v1.roles.store', $role))
@@ -295,7 +296,7 @@ class RoleTest extends TestCase
             'superuser' => false,
             'permissions' => [...$permission_ids, $createServersPermission->id],
             'room_limit' => 1,
-            'updated_at' => now()
+            'updated_at' => now(),
         ];
 
         $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role' => $roleA]), $role)

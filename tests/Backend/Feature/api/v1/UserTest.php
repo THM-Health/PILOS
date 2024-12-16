@@ -42,7 +42,6 @@ class UserTest extends TestCase
             'lastname' => 'Vader',
         ]);
 
-
         $user = User::factory()->create([
             'firstname' => 'John',
             'lastname' => 'Doe',
@@ -329,7 +328,8 @@ class UserTest extends TestCase
     /**
      * Test if only superusers can create new users with the superuser role
      */
-    public function test_create_superuser(){
+    public function test_create_superuser()
+    {
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
@@ -565,7 +565,7 @@ class UserTest extends TestCase
             'bbb_skip_check_audio' => true,
             'timezone' => 'Europe/Berlin',
             'roles' => [$superuserRole->id],
-            'updated_at' => Carbon::now()
+            'updated_at' => Carbon::now(),
         ];
 
         // Check if superusers can not be updated by admins that are not part of the superuser role
@@ -1540,7 +1540,7 @@ class UserTest extends TestCase
 
         $admin = User::factory()->create();
         $superuser = User::factory()->create();
-        $otherSuperuser = User::factory()->create([ 'initial_password_set' => false]);
+        $otherSuperuser = User::factory()->create(['initial_password_set' => false]);
 
         $admin->roles()->sync([$adminRole->id]);
         $superuser->roles()->sync([$superuserRole->id]);
