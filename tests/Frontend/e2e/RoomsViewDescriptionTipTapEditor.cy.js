@@ -1,4 +1,5 @@
-Cypress._.times(110, () => {
+import { selectTipTapContent } from "../support/utils/tiptapHelper.js";
+Cypress._.times(100, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
@@ -395,28 +396,8 @@ Cypress._.times(110, () => {
         "p-button-primary",
       );
 
-      function selectAll(limit = 5) {
-        if (limit < 0) {
-          throw new Error("Selecting the text failed");
-        }
+      selectTipTapContent();
 
-        cy.get(".tiptap").type("{selectall}");
-
-        cy.window().then((win) => {
-          const selection = win.getSelection();
-          const selectedText = selection.toString();
-          try {
-            expect(selectedText).to.eq("Test Link");
-            return;
-          } catch {
-            cy.log("Remaining tries to select text: " + limit);
-          }
-
-          selectAll(limit - 1);
-        });
-      }
-
-      selectAll();
 
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-primary")
