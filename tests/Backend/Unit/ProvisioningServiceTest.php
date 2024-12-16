@@ -9,6 +9,7 @@ use App\Models\Server;
 use App\Models\ServerPool;
 use App\Models\User;
 use App\Services\ProvisioningService;
+use App\Settings\GeneralSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -96,6 +97,20 @@ class ProvisioningServiceTest extends TestCase
             'roles' => ['User'],
             'locale' => 'en',
             'timezone' => 'Europe/London',
+        ];
+        $this->testSettings = (object) [
+            'general' => [
+                'name' => 'Example company - PILOS',
+                'help_url' => 'https://help.bbb.example.biz',
+                'legal_notice_url' => 'https://legal.bbb.example.biz',
+                'privacy_policy_url' => 'https://privacy.bbb.example.biz',
+                'default_timezone' => 'Europe/Germany',
+            ],
+            'recording' => [
+                'server_usage_enabled' => false,
+                'meeting_usage_enabled' => false,
+                'recording_retention_period' => 730,
+            ],
         ];
 
         for ($i = 1; $i <= 3; $i++) {
@@ -472,5 +487,36 @@ class ProvisioningServiceTest extends TestCase
             User::where('firstname', "{$this->testUser->firstname} 3")
                 ->where('lastname', $this->testUser->lastname)->first()
         );
+    }
+
+    /**
+     * Test modifying application settings
+     */
+    public function test_settings()
+    {
+        $this->svc->settings->set($this->testSettings);
+        $this->assertEquals($this->testSettings->general['name'], app(GeneralSettings::class)->name);
+    }
+
+    /**
+     * Test modifying application settings
+     */
+    public function test_settings_invalid_setting()
+    {
+        $this->testSettings->general['fnord'] = 'fnord';
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid settings definition');
+        $this->svc->settings->set($this->testSettings);
+    }
+
+    /**
+     * Test modifying application settings
+     */
+    public function test_settings_invalid_time_period()
+    {
+        $this->testSettings->recording['recording_retention_period'] = '42';
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage("Invalid time period '42'");
+        $this->svc->settings->set($this->testSettings);
     }
 }

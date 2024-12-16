@@ -3,18 +3,24 @@
 namespace App\Services;
 
 use App\Enums\ServerStatus;
+use App\Enums\TimePeriod;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\ServerPool;
 use App\Models\User;
+use App\Settings\GeneralSettings;
+use App\Settings\RecordingSettings;
+use App\Settings\RoomSettings;
+use App\Settings\UserSettings;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Log;
 use ReflectionClass;
 use UnexpectedValueException;
+use ValueError;
 
 abstract class AbstractProvisioner
 {
@@ -264,6 +270,70 @@ class UserProvisioner extends AbstractProvisioner
     }
 }
 
+class SettingsProvisioner
+{
+    public static array $expectedProperties = [
+        'general' => 'array:name,pagination_page_size,default_timezone,help_url,legal_notice_url,privacy_policy_url,toast_lifetime,no_welcome_page',
+        'general.pagination_page_size' => 'integer',
+        'general.default_timezone' => 'string',
+        'general.help_url' => 'string',
+        'general.legal_notice_url' => 'string',
+        'general.privacy_policy_url' => 'string',
+        'general.toast_lifetime' => 'integer',
+        'general.no_welcome_page' => 'boolean',
+        'room' => 'array:limit,token_expiration,auto_delete_inactive_period,auto_delete_never_used_period,auto_delete_deadline_period,file_terms_of_use',
+        'room.limit' => 'integer',
+        'room.token_expiration' => 'integer',
+        'room.auto_delete_inactive_period' => 'integer',
+        'room.auto_delete_never_used_period' => 'integer',
+        'room.auto_delete_deadline_period' => 'integer',
+        'room.file_terms_of_use' => 'string',
+        'user' => 'array:password_change_allowed',
+        'user.password_change_allowed' => 'boolean',
+        'recording' => 'array:server_usage_enabled,server_usage_retention_period,meeting_usage_enabled,meeting_usage_retention_period,attendance_retention_period,recording_retention_period',
+        'recording.server_usage_enabled' => 'boolean',
+        'recording.server_usage_retention_period' => 'integer',
+        'recording.meeting_usage_enabled' => 'boolean',
+        'recording.meeting_usage_retention_period' => 'integer',
+        'recording.attendance_retention_period' => 'integer',
+        'recording.recording_retention_period' => 'integer',
+    ];
+
+    public function __construct()
+    {
+        $this->settings = [
+            'general' => app(GeneralSettings::class),
+            'room' => app(RoomSettings::class),
+            'user' => app(UserSettings::class),
+            'recording' => app(RecordingSettings::class),
+        ];
+    }
+
+    public function set(object $settings)
+    {
+        $validator = Validator::make((array) $settings, self::$expectedProperties);
+        if ($validator->fails()) {
+            throw new UnexpectedValueException('Invalid settings definition');
+        }
+        foreach (get_object_vars($settings) as $sect => $items) {
+            $section = $this->settings[$sect];
+            foreach ($items as $name => $value) {
+                Log::notice("Provisioning setting '$sect.$name'");
+                if ($section->{$name} instanceof TimePeriod) {
+                    try {
+                        $value = TimePeriod::from($value);
+                    } catch (ValueError) {
+                        throw new UnexpectedValueException("Invalid time period '$value'");
+                    }
+                }
+                $section->{$name} = $value;
+            }
+            Log::notice("Saving $sect settings");
+            $section->save();
+        }
+    }
+}
+
 class ProvisioningService
 {
     public ServerProvisioner $server;
@@ -276,6 +346,8 @@ class ProvisioningService
 
     public UserProvisioner $user;
 
+    public SettingsProvisioner $settings;
+
     public function __construct()
     {
         $this->server = new ServerProvisioner;
@@ -283,5 +355,6 @@ class ProvisioningService
         $this->roomType = new RoomTypeProvisioner;
         $this->role = new RoleProvisioner;
         $this->user = new UserProvisioner;
+        $this->settings = new SettingsProvisioner;
     }
 }

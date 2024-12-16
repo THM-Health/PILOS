@@ -77,5 +77,12 @@ class ProvisionCommand extends Command
         foreach ($data->users->add as $item) {
             $this->provision->user->create($item);
         }
+
+        $n = array_sum(array_map(fn ($v) => count(get_object_vars($v)), get_object_vars($data->settings)));
+        Log::notice('Provisioning {n} settings', ['n' => $n]);
+        foreach (get_object_vars($data->settings) as $section => $settings) {
+            $data->settings->{$section} = (array) $settings;
+        }
+        $this->provision->settings->set($data->settings);
     }
 }
