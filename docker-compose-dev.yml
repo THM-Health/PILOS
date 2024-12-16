@@ -123,7 +123,7 @@ services:
       BUILD_FRONTEND: "yes"
     volumes:
       - "./:/var/www/html/"
-    profiles: [ 'test' ]
+    profiles: ["test"]
     depends_on:
       db:
         condition: service_healthy
