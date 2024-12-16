@@ -1,5 +1,8 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-import { selectTipTapContent } from "../support/utils/tiptapHelper.js";
+import {
+  clearTiptapContent,
+  selectTipTapContent,
+} from "../support/utils/tiptapHelper.js";
 Cypress._.times(100, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
@@ -163,7 +166,7 @@ Cypress._.times(100, () => {
           cy.get("p").should("have.text", "Room description").and("be.visible");
         });
 
-      cy.get(".tiptap").should("have.focus").clear();
+      clearTiptapContent();
 
       // Cancel editing
       cy.get('[data-test="room-description-cancel-edit-button"]')
@@ -193,7 +196,7 @@ Cypress._.times(100, () => {
         });
 
       // Edit description
-      cy.get(".tiptap").should("have.focus").clear();
+      clearTiptapContent();
       cy.get(".tiptap").should("have.focus").type("New test description");
 
       // Save description

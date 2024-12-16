@@ -20,3 +20,22 @@ export function selectTipTapContent(limit = 5) {
     });
   });
 }
+
+export function clearTiptapContent(limit = 5) {
+  if (limit < 0) {
+    throw new Error("Clearing the text failed");
+  }
+
+  cy.get(".tiptap").clear();
+
+  cy.get(".tiptap").then((tiptap) => {
+    try {
+      expect(tiptap.text()).to.eq("");
+      return;
+    } catch {
+      cy.log("Remaining tries to clear text: " + limit);
+    }
+
+    clearTiptapContent(limit - 1);
+  });
+}
