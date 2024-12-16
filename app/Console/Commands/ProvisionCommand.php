@@ -13,7 +13,7 @@ class ProvisionCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:provision {path : path to a JSON file containing provisioning data}';
+    protected $signature = 'provision:all {path : path to a JSON file containing provisioning data}';
 
     /**
      * The console command description.
