@@ -251,3 +251,15 @@ Cypress.Commands.add("interceptAdminServersViewRequests", () => {
     fixture: "server.json",
   }).as("serverRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin server pools index page
+ * @memberof cy
+ * @method interceptAdminServerPoolsIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminServerPoolsIndexRequests", () => {
+  cy.intercept("GET", "api/v1/serverPools*", {
+    fixture: "serverPools.json",
+  }).as("serverPoolsRequest");
+});

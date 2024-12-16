@@ -75,7 +75,7 @@ describe("Admin servers view server actions", function () {
     // Check loading
     cy.get('[data-test="dialog-cancel-button"]')
       .should("have.text", "app.no")
-      .should("not.disabled");
+      .should("be.disabled");
     cy.get('[data-test="dialog-continue-button"]')
       .should("be.disabled")
       .then(() => {

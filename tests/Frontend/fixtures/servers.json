@@ -69,17 +69,10 @@
       "updated_at": "2020-12-21T13:43:21.000000Z"
     }
   ],
-  "links": {
-    "first": "http://localhost/api/v1/servers?page=1",
-    "last": "http://localhost/api/v1/servers?page=1",
-    "prev": null,
-    "next": null
-  },
   "meta": {
     "current_page": 1,
     "from": 1,
     "last_page": 1,
-    "path": "http://localhost/api/v1/servers",
     "per_page": 15,
     "to": 2,
     "total": 4,

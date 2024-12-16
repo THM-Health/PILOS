@@ -81,7 +81,7 @@ describe("Admin users index user actions", function () {
     // Check loading
     cy.get('[data-test="dialog-cancel-button"]')
       .should("have.text", "app.no")
-      .should("not.disabled");
+      .should("be.disabled");
     cy.get('[data-test="dialog-continue-button"]')
       .should("be.disabled")
       .then(() => {
@@ -204,7 +204,7 @@ describe("Admin users index user actions", function () {
     // Check loading
     cy.get('[data-test="dialog-cancel-button"]')
       .should("have.text", "app.no")
-      .should("not.disabled");
+      .should("be.disabled");
     cy.get('[data-test="dialog-continue-button"]')
       .should("be.disabled")
       .then(() => {

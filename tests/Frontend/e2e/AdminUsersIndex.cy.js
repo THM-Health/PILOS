@@ -64,8 +64,8 @@ describe("Admin users index", function () {
     cy.get("[data-test=user-search]")
       .eq(0)
       .within(() => {
-        cy.get("input").should("be.disabled");
-        cy.get("button").should("be.disabled");
+        cy.get("input").should("be.visible").and("be.disabled");
+        cy.get("button").should("be.visible").and("be.disabled");
       });
 
     cy.get('[data-test="role-dropdown"]')
@@ -75,6 +75,8 @@ describe("Admin users index", function () {
       "have.class",
       "multiselect--disabled",
     );
+
+    cy.get('[data-test="users-add-button"]').should("not.exist");
 
     cy.get('[data-test="overlay"]')
       .should("be.visible")
@@ -90,8 +92,8 @@ describe("Admin users index", function () {
     cy.get("[data-test=user-search]")
       .eq(0)
       .within(() => {
-        cy.get("input").should("not.be.disabled");
-        cy.get("button").should("not.be.disabled");
+        cy.get("input").should("be.visible").and("not.be.disabled");
+        cy.get("button").should("be.visible").and("not.be.disabled");
       });
 
     cy.get('[data-test="role-dropdown"]')
@@ -101,6 +103,8 @@ describe("Admin users index", function () {
       "not.have.class",
       "multiselect--disabled",
     );
+
+    cy.get('[data-test="users-add-button"]').should("not.exist");
 
     // Check that headers are displayed correctly
     cy.get('[data-test="user-header-cell"]').should("have.length", 7);
@@ -256,8 +260,8 @@ describe("Admin users index", function () {
     cy.get("[data-test=user-search]")
       .eq(0)
       .within(() => {
-        cy.get("input").should("not.be.disabled");
-        cy.get("button").should("not.be.disabled");
+        cy.get("input").should("be.visible").and("not.be.disabled");
+        cy.get("button").should("be.visible").and("not.be.disabled");
       });
 
     cy.get('[data-test="role-dropdown"]')
@@ -324,8 +328,8 @@ describe("Admin users index", function () {
     cy.get("[data-test=user-search]")
       .eq(0)
       .within(() => {
-        cy.get("input").should("not.be.disabled");
-        cy.get("button").should("not.be.disabled");
+        cy.get("input").should("be.visible").and("not.be.disabled");
+        cy.get("button").should("be.visible").and("not.be.disabled");
       });
 
     cy.get('[data-test="role-dropdown"]')
@@ -466,6 +470,12 @@ describe("Admin users index", function () {
         page: "1",
       });
     });
+
+    // Check that pagination is shown correctly
+    cy.get('[data-test="paginator-page"]').should("have.length", 1);
+    cy.get('[data-test="paginator-page"]')
+      .eq(0)
+      .should("have.attr", "data-p-active", "true");
   });
 
   it("load roles errors", function () {

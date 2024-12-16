@@ -78,7 +78,7 @@ describe("Admin servers index server actions", function () {
     // Check loading
     cy.get('[data-test="dialog-cancel-button"]')
       .should("have.text", "app.no")
-      .should("not.disabled");
+      .should("be.disabled");
     cy.get('[data-test="dialog-continue-button"]')
       .should("be.disabled")
       .then(() => {
@@ -88,7 +88,7 @@ describe("Admin servers index server actions", function () {
     cy.wait("@deleteServerRequest");
     cy.wait("@serversRequest");
 
-    // Check that user was deleted
+    // Check that server was deleted
     cy.get('[data-test="server-item"]').should("have.length", 3);
 
     // Check that dialog is closed
@@ -110,7 +110,7 @@ describe("Admin servers index server actions", function () {
         'admin.servers.delete.confirm_{"name":"Server 03"}',
       );
 
-    // Cancel delete of user
+    // Cancel delete of server
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
   });

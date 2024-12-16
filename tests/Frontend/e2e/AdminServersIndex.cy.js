@@ -52,8 +52,8 @@ describe("Admin servers index", function () {
     cy.get('[data-test="server-search"]')
       .eq(0)
       .within(() => {
-        cy.get("input").should("be.disabled");
-        cy.get("button").should("be.disabled");
+        cy.get("input").should("be.visible").and("be.disabled");
+        cy.get("button").should("be.visible").and("be.disabled");
       });
 
     cy.get('[data-test="servers-reload-usage-button"]')
@@ -63,28 +63,34 @@ describe("Admin servers index", function () {
       "be.disabled",
     );
 
+    cy.get('[data-test="servers-add-button"]').should("not.exist");
+
+    cy.contains("admin.servers.usage_info").should("be.visible");
+
     cy.get('[data-test="overlay"]')
       .should("be.visible")
       .then(() => {
         serversRequest.sendResponse();
       });
 
-    cy.contains("admin.servers.usage_info").should("be.visible");
+    cy.wait("@serversRequest");
 
     // Check that loading is over
     cy.get('[data-test="overlay"]').should("not.exist");
 
     cy.get('[data-test="server-search"]').within(() => {
-      cy.get("input").should("not.be.disabled");
-      cy.get("button").should("not.be.disabled");
+      cy.get("input").should("be.visible").and("not.be.disabled");
+      cy.get("button").should("be.visible").and("not.be.disabled");
     });
 
-    cy.get('[data-test="servers-reload-usage-button"]').should(
-      "not.be.disabled",
-    );
-    cy.get('[data-test="servers-reload-no-usage-button"]').should(
-      "not.be.disabled",
-    );
+    cy.get('[data-test="servers-reload-usage-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="servers-reload-no-usage-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
+    cy.get('[data-test="servers-add-button"]').should("not.exist");
 
     cy.contains("admin.servers.usage_info").should("be.visible");
 
@@ -322,8 +328,8 @@ describe("Admin servers index", function () {
     cy.get('[data-test="server-search"]')
       .eq(0)
       .within(() => {
-        cy.get("input").should("not.be.disabled");
-        cy.get("button").should("not.be.disabled");
+        cy.get("input").should("be.visible").and("not.be.disabled");
+        cy.get("button").should("be.visible").and("not.be.disabled");
       });
 
     cy.get('[data-test="servers-reload-usage-button"]').should(
@@ -394,8 +400,8 @@ describe("Admin servers index", function () {
     cy.get('[data-test="server-search"]')
       .eq(0)
       .within(() => {
-        cy.get("input").should("not.be.disabled");
-        cy.get("button").should("not.be.disabled");
+        cy.get("input").should("be.visible").and("not.be.disabled");
+        cy.get("button").should("be.visible").and("not.be.disabled");
       });
 
     cy.get('[data-test="servers-reload-usage-button"]').should(
@@ -539,6 +545,12 @@ describe("Admin servers index", function () {
         page: "1",
       });
     });
+
+    // Check that pagination is shown correctly
+    cy.get('[data-test="paginator-page"]').should("have.length", 1);
+    cy.get('[data-test="paginator-page"]')
+      .eq(0)
+      .should("have.attr", "data-p-active", "true");
   });
 
   it("server search", function () {
@@ -590,7 +602,7 @@ describe("Admin servers index", function () {
       servers.meta.total = 0;
       servers.meta.total_no_filter = 0;
 
-      cy.intercept("GET", "api/v1/sertvers*", {
+      cy.intercept("GET", "api/v1/servers*", {
         statusCode: 200,
         body: servers,
       }).as("serversRequest");
@@ -644,7 +656,7 @@ describe("Admin servers index", function () {
       .eq(0)
       .should("include.text", "Server 01");
 
-    // Check that pagination shows the correct number of pages and switch to next page
+    // Check that pagination shows the correct number of pages
     cy.get('[data-test="paginator-page"]').should("have.length", 2);
 
     // Check that correct pagination is active
@@ -680,15 +692,15 @@ describe("Admin servers index", function () {
       });
     });
 
-    // Check that correct pagination is active
-    cy.get('[data-test="paginator-page"]')
-      .eq(1)
-      .should("have.attr", "data-p-active", "true");
-
     cy.get('[data-test="server-search"] > input').should(
       "have.value",
       "Server",
     );
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]')
+      .eq(1)
+      .should("have.attr", "data-p-active", "true");
 
     // Check that correct server is shown
     cy.get('[data-test="server-item"]').should("have.length", 1);
