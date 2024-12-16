@@ -97,6 +97,7 @@
                 :details-inline="false"
                 :hide-favorites="true"
                 :hide-membership="true"
+                :disable-reload="authThrottledFor > 0"
                 @reload="reload"
               />
               <Divider />
@@ -118,6 +119,7 @@
                     mask="999-999-999"
                     placeholder="123-456-789"
                     :invalid="accessCodeInvalid"
+                    :disabled="authThrottledFor > 0"
                     class="text-center"
                     @keydown.enter="login"
                   />
@@ -126,11 +128,22 @@
                     icon="fa-solid fa-lock"
                     :label="$t('rooms.login')"
                     data-test="room-login-button"
+                    :disabled="authThrottledFor > 0"
                     @click="login"
                   />
                 </InputGroup>
                 <p
-                  v-if="accessCodeInvalid"
+                  v-if="authThrottledFor > 0"
+                  class="mt-1 text-red-500"
+                  role="alert"
+                >
+                  {{
+                    $t("rooms.auth_throttled", { try_again: authThrottledFor })
+                  }}
+                </p>
+
+                <p
+                  v-else-if="accessCodeInvalid"
                   class="mt-1 text-red-500"
                   role="alert"
                 >
@@ -219,7 +232,7 @@
 import env from "../env.js";
 import { useAuthStore } from "../stores/auth";
 import { useSettingsStore } from "../stores/settings";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useToast } from "../composables/useToast.js";
 import { useRouter } from "vue-router";
@@ -250,6 +263,7 @@ const accessCodeInvalid = ref(null); // Is access code invalid
 const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
+const authThrottledFor = ref(0); // Throttled for authentication (seconds until next try)
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
@@ -402,6 +416,14 @@ function load() {
     });
 }
 
+watch(authThrottledFor, (value) => {
+  if (value > 0) {
+    setTimeout(() => {
+      authThrottledFor.value = value - 1;
+    }, 1000);
+  }
+});
+
 /**
  * Reload the room details/settings
  */
@@ -443,6 +465,14 @@ function reload() {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           router.push({ name: "404" });
           return;
+        }
+
+        // Room auth rate limit reached (throttled)
+        if (
+          error.response.status === env.HTTP_TOO_MANY_REQUESTS &&
+          error.response.data?.limit === "room_auth"
+        ) {
+          authThrottledFor.value = error.response.data.retry_after;
         }
 
         // Access code invalid

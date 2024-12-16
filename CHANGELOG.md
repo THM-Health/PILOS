@@ -10,16 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Configurable hook script for recording synchronization ([#1484], [#1604])
+- Rate limiting for room access code authentication ([#669], [#1617])
+- Logging for room authentication ([#669], [#1617])
 - Command to test email configuration ([#530], [#1618])
 
 ### Changed
 
 - The recording import task is now prevented from running until the previous run has finished ([#1484], [#1604])
+- Adjust frontend tests to better check the resetting of form errors ([#1679], [#1702])
+- Error handling in create room dialog ([#1704])
 
 ### Fixed
 
 - Reload room type list on form validation error in new room dialog ([#1523], [#1616])
 - Room overview buttons not disabled during loading ([#1595])
+- Form errors not always cleared correctly ([#1679], [#1702])
 
 ## [v4.1.2] - 2024-11-22
 
@@ -217,6 +222,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#617]: https://github.com/THM-Health/PILOS/pull/617
 [#649]: https://github.com/THM-Health/PILOS/issues/649
 [#650]: https://github.com/THM-Health/PILOS/pull/650
+[#669]: https://github.com/THM-Health/PILOS/issues/669
 [#681]: https://github.com/THM-Health/PILOS/pull/681
 [#686]: https://github.com/THM-Health/PILOS/pull/686
 [#695]: https://github.com/THM-Health/PILOS/issues/695
@@ -289,7 +295,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
 [#1616]: https://github.com/THM-Health/PILOS/pull/1616
+[#1617]: https://github.com/THM-Health/PILOS/pull/1617
 [#1618]: https://github.com/THM-Health/PILOS/pull/1618
+[#1679]: https://github.com/THM-Health/PILOS/issues/1679
+[#1702]: https://github.com/THM-Health/PILOS/pull/1702
+[#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

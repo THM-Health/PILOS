@@ -327,6 +327,7 @@ return [
             'title' => 'Name der Anwendung',
         ],
         'never' => 'Nie',
+        'no_welcome_page' => 'Willkommensseite ausblenden',
         'one_day' => '1 Tag (24 Stunden)',
         'one_month' => '1 Monat (30 Tage)',
         'one_week' => '1 Woche (7 Tage)',
@@ -360,6 +361,10 @@ return [
                 'description' => 'Räume die vor dem Zeitraum erstellt, aber bisher noch nicht verwendet wurden',
                 'title' => 'Zeitraum bis nie genutzte Räume gelöscht werden',
             ],
+        ],
+        'room_file_terms_of_use' => [
+            'description' => 'Benutzer müssen den Nutzungsbedingungen zustimmen, um Dateien herunterladen zu können. Wenn das Feld leer ist, ist keine Zustimmung erforderlich.',
+            'title' => 'Nutzungsbedingungen für das Herunterladen von Dateien',
         ],
         'room_limit' => [
             'description' => 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.',

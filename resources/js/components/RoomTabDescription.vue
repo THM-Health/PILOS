@@ -200,6 +200,7 @@ function edit() {
 function save() {
   // Set saving indicator
   isBusy.value = true;
+  formErrors.clear();
 
   const data = {
     description: newContent.value,
@@ -215,7 +216,6 @@ function save() {
       // Description successfully saved
       // inform parent component about changed description
       emit("settingsChanged");
-      formErrors.clear();
       editorOpen.value = false;
     })
     .catch((error) => {
