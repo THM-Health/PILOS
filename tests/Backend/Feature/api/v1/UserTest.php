@@ -41,6 +41,8 @@ class UserTest extends TestCase
             'firstname' => 'Darth',
             'lastname' => 'Vader',
         ]);
+
+
         $user = User::factory()->create([
             'firstname' => 'John',
             'lastname' => 'Doe',
@@ -54,7 +56,14 @@ class UserTest extends TestCase
             'lastname' => 'Doe',
         ]);
 
-        $this->assertDatabaseCount('users', 12);
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+        $superuser = User::factory()->create([
+            'firstname' => 'Peter',
+            'lastname' => 'Doe',
+        ]);
+        $superuser->roles()->attach($superuserRole);
+
+        $this->assertDatabaseCount('users', 13);
 
         // Unauthenticated user
         $this->getJson(route('api.v1.users.index'))->assertUnauthorized();
@@ -78,7 +87,7 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $users[0]->firstname])
             ->assertJsonFragment(['firstname' => $users[4]->firstname])
             ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 12])
+            ->assertJsonFragment(['total' => 13])
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -86,6 +95,7 @@ class UserTest extends TestCase
                     '*' => [
                         'id',
                         'authenticator',
+                        'superuser',
                         'email',
                         'roles',
                         'firstname',
