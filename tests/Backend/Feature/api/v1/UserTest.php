@@ -539,6 +539,7 @@ class UserTest extends TestCase
         $adminRole->permissions()->attach($permission->id);
         $superuserRole->permissions()->attach($permission->id);
 
+        $user = User::factory()->create();
         $admin = User::factory()->create();
         $superuser = User::factory()->create();
         $otherSuperuser = User::factory()->create();
@@ -564,6 +565,11 @@ class UserTest extends TestCase
         // Check if superusers can be updated by superusers
         $this->actingAs($superuser)->putJson(route('api.v1.users.update', ['user' => $otherSuperuser]), $changes)
             ->assertSuccessful();
+
+        // Check if superuser role can be cannot be assigned by admins that are not part of the superuser role
+        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['roles.0']);
     }
 
     /**
