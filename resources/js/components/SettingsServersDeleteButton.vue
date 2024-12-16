@@ -23,6 +23,7 @@
     <template #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
         @click="modalVisible = false"
       />

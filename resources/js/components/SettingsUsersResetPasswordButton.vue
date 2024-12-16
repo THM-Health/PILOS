@@ -42,6 +42,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
+        :disabled="isBusy"
         @click="modalVisible = false"
       />
       <Button
