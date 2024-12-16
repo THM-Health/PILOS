@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\ServerPool;
+use App\Models\User;
 use App\Services\ProvisioningService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Database\RecordsNotFoundException;
@@ -86,6 +87,16 @@ class ProvisioningServiceTest extends TestCase
                 ],
             ],
         ];
+        $this->testUser = (object) [
+            'firstname' => 'Maurice',
+            'lastname' => 'Moss',
+            'email' => 'moss@reynholm-industries.co.uk',
+            'password' => 'Xuper$3cre7',
+            'authenticator' => 'local',
+            'roles' => ['User'],
+            'locale' => 'en',
+            'timezone' => 'Europe/London',
+        ];
 
         for ($i = 1; $i <= 3; $i++) {
             $server = new Server;
@@ -106,6 +117,16 @@ class ProvisioningServiceTest extends TestCase
             $roomType->color = $this->testRoomType->color;
             $roomType->serverPool()->associate($serverPool);
             $roomType->save();
+
+            $user = new User;
+            $user->firstname = "{$this->testUser->firstname} $i";
+            $user->lastname = $this->testUser->lastname;
+            $user->email = $this->testUser->email;
+            $user->password = \Hash::make($this->testUser->password);
+            $user->authenticator = $this->testUser->authenticator;
+            $user->locale = $this->testUser->locale;
+            $user->timezone = $this->testUser->timezone;
+            $user->save();
         }
     }
 
@@ -390,5 +411,66 @@ class ProvisioningServiceTest extends TestCase
         $this->assertEquals(1, count(Role::all()));
         $this->assertNull(Role::firstWhere('name', 'User'));
         $this->assertNotNull(Role::firstWhere('name', 'Superuser'));
+    }
+
+    /**
+     * Test user creation
+     */
+    public function test_user_create()
+    {
+        $this->svc->user->create($this->testUser);
+        $user = User::where('firstname', $this->testUser->firstname)->where('lastname', $this->testUser->lastname)->first();
+        $this->assertEquals($this->testUser->email, $user->email);
+        $this->assertTrue(str_starts_with($user->password, '$2y$04$'));
+        $this->assertEquals($this->testUser->authenticator, $user->authenticator);
+        $this->assertEquals($this->testUser->locale, $user->locale);
+        $this->assertEquals($this->testUser->timezone, $user->timezone);
+        $this->assertEquals($this->testUser->roles, array_map(fn ($it) => $it->name, $user->roles->all()));
+    }
+
+    /**
+     * Test user creation with incomplete permissions spec
+     */
+    public function test_user_create_incomplete()
+    {
+        unset($this->testUser->password);
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid user definition');
+        $this->svc->user->create($this->testUser);
+        $this->assertNull(User::where('firstname', $this->testUser->firstname)->where('lastname', $this->testUser->lastname)->first());
+    }
+
+    /**
+     * Test deletion of all users
+     */
+    public function test_user_delete_all()
+    {
+        $this->assertEquals(3, count(User::all()));
+        $this->svc->user->destroy();
+        $this->assertEquals(0, count(User::all()));
+    }
+
+    /**
+     * Test deletion of specified user
+     */
+    public function test_user_delete_named()
+    {
+        $this->assertEquals(3, count(User::all()));
+        $this->svc->user->destroy([
+            'firstname' => "{$this->testUser->firstname} 2", 'lastname' => $this->testUser->lastname,
+        ]);
+        $this->assertEquals(2, count(User::all()));
+        $this->assertNull(
+            User::where('firstname', "{$this->testUser->firstname} 2")
+                ->where('lastname', $this->testUser->lastname)->first()
+        );
+        $this->assertNotNull(
+            User::where('firstname', "{$this->testUser->firstname} 1")
+                ->where('lastname', $this->testUser->lastname)->first()
+        );
+        $this->assertNotNull(
+            User::where('firstname', "{$this->testUser->firstname} 3")
+                ->where('lastname', $this->testUser->lastname)->first()
+        );
     }
 }

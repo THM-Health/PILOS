@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\ServerPool;
+use App\Models\User;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -31,7 +32,8 @@ abstract class AbstractProvisioner
 
     protected function createWrapper(object $properties, callable $callback)
     {
-        Log::notice("Provisioning {$this->modelName()} '$properties->name'");
+        $name = $properties->name ?? "$properties->firstname $properties->lastname";
+        Log::notice("Provisioning {$this->modelName()} '$name'");
         $validator = Validator::make((array) $properties, $this->expectedProperties);
         if ($validator->fails()) {
             throw new UnexpectedValueException("Invalid {$this->modelName()} definition");
@@ -58,7 +60,8 @@ abstract class AbstractProvisioner
                 $callback($item);
             }
             if (! $item->delete()) {
-                Log::error("Failed to delete {$this->modelName()} '$item->name'");
+                $name = $item->name ?? "$item->firstname $item->lastname";
+                Log::error("Failed to delete {$this->modelName()} '$name'");
             }
         }
     }
@@ -124,15 +127,15 @@ class ServerPoolProvisioner extends AbstractProvisioner
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($pool) use ($properties) {
-            $pool->name = $properties->name;
-            $pool->description = $properties->description;
-            $pool->save();
             $servers = Server::whereIn('name', $properties->servers)->get();
             if (count($properties->servers) != count($servers)) {
-                $message = "Could not find specified server(s) for pool '{$pool->name}'";
+                $message = "Could not find specified server(s) for pool '{$properties->name}'";
                 Log::error($message);
                 throw new RecordsNotFoundException($message);
             }
+            $pool->name = $properties->name;
+            $pool->description = $properties->description;
+            $pool->save();
             $pool->servers()->sync($servers);
         });
     }
@@ -218,6 +221,49 @@ class RoleProvisioner extends AbstractProvisioner
     }
 }
 
+class UserProvisioner extends AbstractProvisioner
+{
+    protected string $model = User::class;
+
+    protected array $expectedProperties = [
+        'firstname' => 'required|string',
+        'lastname' => 'required|string',
+        'email' => 'required|string',
+        'password' => 'required|string',
+        'authenticator' => 'required|string',
+        'roles' => 'required|list',
+        'roles.*' => 'string',
+        'locale' => 'required|string',
+        'timezone' => 'required|string',
+    ];
+
+    public function create(object $properties)
+    {
+        $this->createWrapper($properties, function ($user) use ($properties) {
+            $roles = Role::whereIn('name', $properties->roles)->get();
+            if (count($properties->roles) != count($roles)) {
+                $message = "Could not find specified role(s) for user '$properties->firstname $properties->lastname'";
+                Log::error($message);
+                throw new RecordsNotFoundException($message);
+            }
+            $user->firstname = $properties->firstname;
+            $user->lastname = $properties->lastname;
+            $user->email = $properties->email;
+            $user->password = \Hash::make($properties->password);
+            $user->authenticator = $properties->authenticator;
+            $user->locale = $properties->locale;
+            $user->timezone = $properties->timezone;
+            $user->save();
+            $user->roles()->sync($roles);
+        });
+    }
+
+    public function destroy(array $match = [])
+    {
+        $this->destroyWrapper($match);
+    }
+}
+
 class ProvisioningService
 {
     public ServerProvisioner $server;
@@ -228,11 +274,14 @@ class ProvisioningService
 
     public RoleProvisioner $role;
 
+    public UserProvisioner $user;
+
     public function __construct()
     {
         $this->server = new ServerProvisioner;
         $this->serverPool = new ServerPoolProvisioner;
         $this->roomType = new RoomTypeProvisioner;
         $this->role = new RoleProvisioner;
+        $this->user = new UserProvisioner;
     }
 }

@@ -47,6 +47,9 @@ class ProvisionCommand extends Command
         if ($data->roles->wipe) {
             $this->provision->role->destroy();
         }
+        if ($data->users->wipe) {
+            $this->provision->user->destroy();
+        }
 
         // Add new instances
         Log::notice('Provisioning {n} servers', ['n' => count($data->servers->add)]);
@@ -68,6 +71,11 @@ class ProvisionCommand extends Command
         foreach ($data->roles->add as $item) {
             $item->permissions = (array) $item->permissions;
             $this->provision->role->create($item);
+        }
+
+        Log::notice('Provisioning {n} users', ['n' => count($data->users->add)]);
+        foreach ($data->users->add as $item) {
+            $this->provision->user->create($item);
         }
     }
 }
