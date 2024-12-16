@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Enums\ServerStatus;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\ServerPool;
@@ -174,6 +176,48 @@ class RoomTypeProvisioner extends AbstractProvisioner
     }
 }
 
+class RoleProvisioner extends AbstractProvisioner
+{
+    protected string $model = Role::class;
+
+    protected array $expectedProperties = [
+        'name' => 'required|string',
+        'permissions' => 'required|array:rooms,meetings,settings,users,roles,roomTypes,servers,serverPools',
+        'permissions.rooms' => 'required|list',
+        'permissions.meetings' => 'required|list',
+        'permissions.settings' => 'required|list',
+        'permissions.users' => 'required|list',
+        'permissions.roles' => 'required|list',
+        'permissions.roomTypes' => 'required|list',
+        'permissions.servers' => 'required|list',
+        'permissions.serverPools' => 'required|list',
+    ];
+
+    public function create(object $properties)
+    {
+        $this->createWrapper($properties, function ($role) use ($properties) {
+            foreach ($properties->permissions as $group => $perms) {
+                foreach ($perms as $item) {
+                    $permName = "$group.$item";
+                    $perm = Permission::firstWhere('name', $permName);
+                    if (is_null($perm)) {
+                        throw new RecordsNotFoundException("Could not find permission with name '$permName'");
+                    }
+                    $permissions[] = $perm->id;
+                }
+            }
+            $role->name = $properties->name;
+            $role->save();
+            $role->permissions()->sync($permissions);
+        });
+    }
+
+    public function destroy(array $match = [])
+    {
+        $this->destroyWrapper($match);
+    }
+}
+
 class ProvisioningService
 {
     public ServerProvisioner $server;
@@ -182,10 +226,13 @@ class ProvisioningService
 
     public RoomTypeProvisioner $roomType;
 
+    public RoleProvisioner $role;
+
     public function __construct()
     {
         $this->server = new ServerProvisioner;
         $this->serverPool = new ServerPoolProvisioner;
         $this->roomType = new RoomTypeProvisioner;
+        $this->role = new RoleProvisioner;
     }
 }

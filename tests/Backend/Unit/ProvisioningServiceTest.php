@@ -3,10 +3,12 @@
 namespace Tests\Backend\Unit;
 
 use App\Enums\ServerStatus;
+use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\ServerPool;
 use App\Services\ProvisioningService;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Backend\TestCase;
@@ -19,6 +21,8 @@ class ProvisioningServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->seed(RolesAndPermissionsSeeder::class);
 
         $this->svc = new ProvisioningService;
 
@@ -40,6 +44,47 @@ class ProvisioningServiceTest extends TestCase
             'description' => 'a fancy description',
             'color' => '#aaaaaa',
             'server_pool' => $this->testServerPool->name,
+        ];
+        $this->testRole = (object) [
+            'name' => 'Testrole',
+            'permissions' => [
+                'rooms' => [
+                    'viewAll',
+                    'manage',
+                ],
+                'meetings' => [
+                    'viewAny',
+                ],
+                'settings' => [
+                    'viewAny',
+                    'update',
+                ],
+                'users' => [
+                    'viewAny',
+                    'view',
+                    'update',
+                    'create',
+                    'delete',
+                ],
+                'roles' => [
+                    'viewAny',
+                    'view',
+                ],
+                'roomTypes' => [
+                    'view',
+                    'update',
+                    'create',
+                    'delete',
+                ],
+                'servers' => [
+                    'viewAny',
+                    'view',
+                ],
+                'serverPools' => [
+                    'viewAny',
+                    'view',
+                ],
+            ],
         ];
 
         for ($i = 1; $i <= 3; $i++) {
@@ -270,5 +315,80 @@ class ProvisioningServiceTest extends TestCase
         $this->assertNull(RoomType::firstWhere('name', "Existing {$this->testRoomType->name} 2"));
         $this->assertNotNull(RoomType::firstWhere('name', "Existing {$this->testRoomType->name} 1"));
         $this->assertNotNull(RoomType::firstWhere('name', "Existing {$this->testRoomType->name} 3"));
+    }
+
+    /**
+     * Test role creation
+     */
+    public function test_role_create()
+    {
+        $this->svc->role->create($this->testRole);
+        $role = Role::firstWhere('name', $this->testRole->name);
+        $this->assertNotNull($role);
+        foreach ($this->testRole->permissions as $group => $perms) {
+            foreach ($perms as $perm) {
+                $wanted_permissions[] = "$group.$perm";
+            }
+        }
+        $saved_permissions = array_map(fn ($it) => $it->name, $role->permissions->all());
+        $this->assertEquals($wanted_permissions, $saved_permissions);
+    }
+
+    /**
+     * Test role creation with invalid permissions
+     */
+    public function test_role_create_invalid()
+    {
+        $this->testRole->permissions['fnord'] = ['foo', 'bar'];
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid role definition');
+        $this->svc->role->create($this->testRole);
+        $this->assertNull(Role::firstWhere('name', $this->testRole->name));
+    }
+
+    /**
+     * Test role creation with incomplete permissions spec
+     */
+    public function test_role_create_incomplete()
+    {
+        unset($this->testRole->permissions['rooms']);
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid role definition');
+        $this->svc->role->create($this->testRole);
+        $this->assertNull(Role::firstWhere('name', $this->testRole->name));
+    }
+
+    /**
+     * Test role creation with incomplete permissions spec
+     */
+    public function test_role_create_non_existing_permission()
+    {
+        $this->testRole->permissions['rooms'] = ['show'];
+        $this->expectException(RecordsNotFoundException::class);
+        $this->expectExceptionMessage("Could not find permission with name 'rooms.show'");
+        $this->svc->role->create($this->testRole);
+        $this->assertNull(Role::firstWhere('name', $this->testRole->name));
+    }
+
+    /**
+     * Test deletion of all roles
+     */
+    public function test_role_delete_all()
+    {
+        $this->assertEquals(2, count(Role::all()));
+        $this->svc->role->destroy();
+        $this->assertEquals(0, count(Role::all()));
+    }
+
+    /**
+     * Test deletion of specified role
+     */
+    public function test_role_delete_named()
+    {
+        $this->assertEquals(2, count(Role::all()));
+        $this->svc->role->destroy(['name' => 'User']);
+        $this->assertEquals(1, count(Role::all()));
+        $this->assertNull(Role::firstWhere('name', 'User'));
+        $this->assertNotNull(Role::firstWhere('name', 'Superuser'));
     }
 }
