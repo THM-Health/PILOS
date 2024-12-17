@@ -52,6 +52,11 @@ describe("Admin servers view", function () {
   it("add new server", function () {
     cy.visit("/admin/servers/new");
 
+    // Check that header buttons are hidden
+    cy.get('[data-test="servers-cancel-edit-button"]').should("not.exist");
+    cy.get('[data-test="servers-edit-button"]').should("not.exist");
+    cy.get('[data-test="servers-delete-button"]').should("not.exist");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "app.model_name")

@@ -404,6 +404,7 @@ describe("Admin users view", function () {
 
     // Check that overlay is not shown anymore
     cy.get('[data-test="overlay"]').should("not.exist");
+    cy.get('[data-test="loading-retry-button"]').should("not.exist");
 
     // Reload page with 404 errors
     cy.interceptAdminUsersIndexRequests();
@@ -439,6 +440,63 @@ describe("Admin users view", function () {
     cy.visit("/admin/users/2");
 
     cy.wait("@userRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/users/2");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("load timezones error", function () {
+    cy.intercept("GET", "api/v1/getTimezones", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("timezonesRequest");
+
+    cy.visit("/admin/users/2");
+
+    cy.wait("@userRequest");
+
+    cy.wait("@timezonesRequest");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    cy.get('[data-test="timezone-dropdown"]')
+      .should("have.text", "admin.users.timezone")
+      .find(".p-select-label")
+      .should("have.attr", "aria-disabled", "true");
+
+    // Reload timezones without error
+    cy.intercept("GET", "api/v1/getTimezones", {
+      fixture: "timezones.json",
+    }).as("timezonesRequest");
+
+    cy.get('[data-test="timezone-reload-button"]').click();
+
+    cy.wait("@timezonesRequest");
+
+    cy.get('[data-test="timezone-dropdown"]')
+      .should("have.text", "UTC")
+      .find(".p-select-label")
+      .should("have.attr", "aria-disabled", "true");
+
+    cy.get('[data-test="timezone-reload-button"]').should("not.exist");
+
+    // Check with 401 error
+    cy.intercept("GET", "api/v1/getTimezones", {
+      statusCode: 401,
+    }).as("timezonesRequest");
+
+    cy.reload();
+
+    cy.wait("@userRequest");
+
+    cy.wait("@timezonesRequest");
 
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/users/2");

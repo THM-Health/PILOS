@@ -558,6 +558,7 @@ describe("Admin servers view", function () {
 
     // Check that overlay is not shown anymore
     cy.get('[data-test="overlay"]').should("not.exist");
+    cy.get('[data-test="loading-retry-button"]').should("not.exist");
 
     // Reload page with 404 errors
     cy.interceptAdminServersIndexRequests();

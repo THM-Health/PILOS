@@ -263,3 +263,31 @@ Cypress.Commands.add("interceptAdminServerPoolsIndexRequests", () => {
     fixture: "serverPools.json",
   }).as("serverPoolsRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin server pools view page
+ * @memberof cy
+ * @method interceptAdminServerPoolsViewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminServerPoolsViewRequests", () => {
+  cy.intercept("GET", "api/v1/serverPools/1*", {
+    fixture: "serverPool.json",
+  }).as("serverPoolRequest");
+
+  cy.intercept("GET", "api/v1/servers*", {
+    fixture: "servers.json",
+  }).as("serversRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin server pools view page
+ * @memberof cy
+ * @method interceptAdminServerPoolsNewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminServerPoolsNewRequests", () => {
+  cy.intercept("GET", "api/v1/servers*", {
+    fixture: "servers.json",
+  }).as("serversRequest");
+});

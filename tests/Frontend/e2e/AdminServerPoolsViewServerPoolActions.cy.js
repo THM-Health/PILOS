@@ -1,9 +1,9 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Admin server pools index server pool actions", function () {
+describe("Admin server pools view", function () {
   beforeEach(function () {
     cy.init();
-    cy.interceptAdminServerPoolsIndexRequests();
+    cy.interceptAdminServerPoolsViewRequests();
 
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
@@ -23,18 +23,13 @@ describe("Admin server pools index server pool actions", function () {
   });
 
   it("delete server pool", function () {
-    cy.visit("/admin/server_pools");
+    cy.visit("/admin/server_pools/1");
 
-    cy.wait("@serverPoolsRequest");
-
-    cy.get('[data-test="server-pool-item"]').should("have.length", 2);
+    cy.wait("@serverPoolRequest");
 
     cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
 
-    cy.get('[data-test="server-pool-item"]')
-      .eq(0)
-      .find('[data-test="server-pools-delete-button"]')
-      .click();
+    cy.get('[data-test="server-pools-delete-button"]').click();
 
     cy.get('[data-test="server-pools-delete-dialog"]').should("be.visible");
 
@@ -84,45 +79,18 @@ describe("Admin server pools index server pool actions", function () {
     cy.wait("@deleteServerPoolRequest");
     cy.wait("@serverPoolsRequest");
 
-    // Check that server pool was deleted
-    cy.get('[data-test="server-pool-item"]').should("have.length", 1);
-
-    // Check that dialog is closed
-    cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
-
-    // Reopen dialog for different user
-    cy.get('[data-test="server-pool-item"]')
-      .eq(0)
-      .find('[data-test="server-pools-delete-button"]')
-      .click();
-
-    cy.get('[data-test="server-pools-delete-dialog"]').should("be.visible");
-
-    // Check that dialog shows correct data
-    cy.get('[data-test="server-pools-delete-dialog"]')
-      .should("include.text", "admin.server_pools.delete.title")
-      .should(
-        "include.text",
-        'admin.server_pools.delete.confirm_{"name":"Production"}',
-      );
-
-    // Cancel delete of server pool
-    cy.get('[data-test="dialog-cancel-button"]').click();
-    cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
+    // Check that redirect worked
+    cy.url().should("not.include", "/admin/server_pools/1");
+    cy.url().should("include", "/admin/server_pools");
   });
 
   it("delete server pool errors", function () {
-    cy.visit("/admin/server_pools");
-    cy.wait("@serverPoolsRequest");
-
-    cy.get('[data-test="server-pool-item"]').should("have.length", 2);
+    cy.visit("/admin/server_pools/1");
+    cy.wait("@serverPoolRequest");
 
     cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
 
-    cy.get('[data-test="server-pool-item"]')
-      .eq(0)
-      .find('[data-test="server-pools-delete-button"]')
-      .click();
+    cy.get('[data-test="server-pools-delete-button"]').click();
 
     cy.get('[data-test="server-pools-delete-dialog"]').should("be.visible");
 
@@ -173,10 +141,7 @@ describe("Admin server pools index server pool actions", function () {
     cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
 
     // Open dialog again
-    cy.get('[data-test="server-pool-item"]')
-      .eq(0)
-      .find('[data-test="server-pools-delete-button"]')
-      .click();
+    cy.get('[data-test="server-pools-delete-button"]').click();
 
     // Check with 500 error
     cy.intercept("DELETE", "api/v1/serverPools/1", {
@@ -207,51 +172,10 @@ describe("Admin server pools index server pool actions", function () {
     cy.wait("@deleteServerPoolRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "/login?redirect=/admin/server_pools");
+    cy.url().should("include", "/login?redirect=/admin/server_pools/1");
 
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("open add new server pool page", function () {
-    cy.visit("/admin/server_pools");
-
-    cy.wait("@serverPoolsRequest");
-
-    cy.interceptAdminServerPoolsNewRequests();
-
-    cy.get('[data-test="server-pools-add-button"]').click();
-
-    cy.url().should("include", "/admin/server_pools/new");
-  });
-
-  it("open edit server pool page", function () {
-    cy.visit("/admin/server_pools");
-
-    cy.wait("@serverPoolsRequest");
-
-    cy.interceptAdminServerPoolsViewRequests();
-
-    cy.get('[data-test="server-pool-item"]')
-      .eq(0)
-      .find('[data-test="server-pools-edit-button"]')
-      .click();
-
-    cy.url().should("include", "/admin/server_pools/1/edit");
-  });
-
-  it("open view server pool page", function () {
-    cy.visit("/admin/server_pools");
-
-    cy.wait("@serverPoolsRequest");
-
-    cy.interceptAdminServerPoolsViewRequests();
-
-    cy.get('[data-test="server-pool-item"]')
-      .eq(0)
-      .find('[data-test="server-pools-view-button"]')
-      .click();
-
-    cy.url().should("include", "/admin/server_pools/1");
-    cy.url().should("not.include", "/edit");
-  });
+  // ToDo switch between edit and view
 });

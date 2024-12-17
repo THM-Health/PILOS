@@ -775,7 +775,7 @@ describe("Admin server pools index", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
-        "servers.view",
+        "servers.viewAny",
         "serverPools.viewAny",
         "serverPools.view",
       ];
@@ -817,7 +817,7 @@ describe("Admin server pools index", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
-        "servers.view",
+        "servers.viewAny",
         "serverPools.viewAny",
         "serverPools.view",
         "serverPools.update",
@@ -864,7 +864,7 @@ describe("Admin server pools index", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
-        "servers.view",
+        "servers.viewAny",
         "serverPools.viewAny",
         "serverPools.view",
         "serverPools.update",
@@ -914,7 +914,7 @@ describe("Admin server pools index", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
-        "servers.view",
+        "servers.viewAny",
         "serverPools.viewAny",
         "serverPools.view",
         "serverPools.update",
