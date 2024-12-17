@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rate limiting for room access code authentication ([#669], [#1617])
 - Logging for room authentication ([#669], [#1617])
 - Command to test email configuration ([#530], [#1618])
+- Permission restrictions to prevent non-superusers from editing and deleting superusers ([#1651])
+- Permission restrictions to prevent non-superusers from assigning the superuser role ([#1651])
+- Environment variable for configuring restricted permissions that cannot be assigned to non-superuser roles ([#1651])
 
 ### Changed
 
@@ -311,6 +314,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1617]: https://github.com/THM-Health/PILOS/pull/1617
 [#1618]: https://github.com/THM-Health/PILOS/pull/1618
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
+[#1651]: https://github.com/THM-Health/PILOS/issues/1651
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
