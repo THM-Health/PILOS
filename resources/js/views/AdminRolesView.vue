@@ -459,8 +459,22 @@ function loadPermissions() {
 
       response.data.data.forEach((permission) => {
         permission.rawName = permission.name;
-        permission.restricted = permissionRestrictions.value.includes(
-          permission.name,
+
+        permission.restricted = permissionRestrictions.value.some(
+          (restriction) => {
+            if (restriction === permission.name) {
+              return true;
+            }
+
+            const restrictionPermission = restriction.split(".", 2)[1];
+            const restrictionGroup = restriction.split(".", 2)[0];
+            const permissionGroup = permission.name.split(".", 2)[0];
+
+            return (
+              restrictionPermission === "*" &&
+              permissionGroup === restrictionGroup
+            );
+          },
         );
 
         permission.name = permission.name

@@ -124,7 +124,7 @@ class RoleTest extends TestCase
     public function test_create_restricted_permissions()
     {
 
-        config(['permissions.restrictions' => ['servers.create']]);
+        config(['permissions.restrictions' => ['servers.create', 'serverPools.*']]);
 
         $user = User::factory()->create();
         $roleA = Role::factory()->create();
@@ -132,6 +132,7 @@ class RoleTest extends TestCase
 
         $createRolesPermission = Permission::firstOrCreate(['name' => 'roles.create']);
         $createServersPermission = Permission::firstOrCreate(['name' => 'servers.create']);
+        $createServerPoolPermission = Permission::firstOrCreate(['name' => 'serverPools.create']);
         $roleA->permissions()->attach([$createRolesPermission, $createServersPermission]);
 
         $role = [
@@ -274,7 +275,7 @@ class RoleTest extends TestCase
         $roleA = Role::factory()->create();
         $user->roles()->attach([$roleA->id]);
 
-        config(['permissions.restrictions' => ['servers.create']]);
+        config(['permissions.restrictions' => ['servers.create', 'serverPools.*']]);
 
         $permission_ids = [
             Permission::firstOrCreate(['name' => 'admin.view'])->id,
@@ -294,7 +295,7 @@ class RoleTest extends TestCase
         $role = [
             'name' => 'Test',
             'superuser' => false,
-            'permissions' => [...$permission_ids, $createServersPermission->id],
+            'permissions' => [...$permission_ids, $createServerPoolsPermission->id, $createServersPermission->id],
             'room_limit' => 1,
             'updated_at' => now(),
         ];

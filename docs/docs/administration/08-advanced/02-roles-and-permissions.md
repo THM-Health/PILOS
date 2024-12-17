@@ -96,7 +96,9 @@ To prevent regular admins from managing certain permissions:
 Example (regular admins cannot manage servers or server pools):
 
 ```bash
-PERMISSION_RESTRICTIONS=servers.viewAny,servers.view,servers.create,servers.update,servers.delete,serverPools.viewAny,serverPools.view,serverPools.create,serverPools.update,serverPools.delete
+PERMISSION_RESTRICTIONS=servers.*,serverPools.viewAny,serverPools.view,serverPools.create,serverPools.update,serverPools.delete
 ```
+
+The permissions can either be a specific permission or a wildcard `*` to restrict all permissions of a group.
 
 Permissions in this list cannot be assigned to roles by anyone except superusers.
