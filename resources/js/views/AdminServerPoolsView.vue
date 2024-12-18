@@ -159,8 +159,8 @@
                 @click="loadServers(serversCurrentPage)"
               />
             </InputGroup>
+            <FormError :errors="formErrors.fieldError('servers', true)" />
           </div>
-          <FormError :errors="formErrors.fieldError('servers', true)" />
         </div>
         <div v-if="!viewOnly">
           <div class="flex justify-end">
