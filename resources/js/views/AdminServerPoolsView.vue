@@ -379,7 +379,7 @@ function handleStaleError(staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
-      name.value = staleError.newMember.name;
+      name.value = staleError.new_model.name;
     },
   });
 }
