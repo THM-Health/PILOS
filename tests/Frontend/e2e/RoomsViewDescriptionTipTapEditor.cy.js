@@ -369,7 +369,7 @@ describe("Rooms view description TipTap Editor", function () {
         cy.get("a")
           .should("be.visible")
           .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
-          .should("have.text", "Test Link");
+          .and("have.text", "Test Link");
       });
 
     // Check that button is already active before selection
@@ -457,7 +457,7 @@ describe("Rooms view description TipTap Editor", function () {
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
     cy.get(".tiptap")
       .should("be.visible")
-      .should("have.focus")
+      .and("have.focus")
       .within(() => {
         cy.get("a")
           .should("be.visible")
