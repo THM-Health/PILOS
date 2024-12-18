@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Form errors not always cleared correctly ([#1679], [#1702])
 - Unnecessary loading of server pools in the room types read-only view ([#1721], [#1723])
 - Unnecessary loading of server in the server pools read-only view ([#1721], [#1723])
+- Missing permissions inheritance for user index view ([#1723])
 
 ## [v4.1.2] - 2024-11-22
 
