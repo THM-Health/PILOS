@@ -1,4 +1,4 @@
-export function selectTipTapContent(limit = 5) {
+export function selectTiptapContent(limit = 5) {
   if (limit < 0) {
     throw new Error("Selecting the text failed");
   }
@@ -16,7 +16,7 @@ export function selectTipTapContent(limit = 5) {
         cy.log("Remaining tries to select text: " + limit);
       }
 
-      selectTipTapContent(limit - 1);
+      selectTiptapContent(limit - 1);
     });
   });
 }

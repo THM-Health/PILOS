@@ -1,9 +1,9 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 import {
   clearTiptapContent,
-  selectTipTapContent,
+  selectTiptapContent,
 } from "../support/utils/tiptapHelper.js";
-Cypress._.times(50, () => {
+Cypress._.times(30, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();
@@ -132,7 +132,7 @@ Cypress._.times(50, () => {
         .and("not.be.disabled");
     });
 
-    it.only("edit description", function () {
+    it("edit description", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description = "<p>Room description</p>";
 
@@ -267,7 +267,7 @@ Cypress._.times(50, () => {
             .and("be.visible");
         });
 
-      selectTipTapContent();
+      selectTiptapContent();
 
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
         "have.length",

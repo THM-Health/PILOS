@@ -1,5 +1,5 @@
-import { selectTipTapContent } from "../support/utils/tiptapHelper.js";
-Cypress._.times(50, () => {
+import { selectTiptapContent } from "../support/utils/tiptapHelper.js";
+Cypress._.times(20, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
@@ -239,7 +239,7 @@ Cypress._.times(50, () => {
         });
     });
 
-    it.only("add link", function () {
+    it("add link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description = "<p>Room description</p>";
 
@@ -267,7 +267,7 @@ Cypress._.times(50, () => {
           cy.get("p").should("have.text", "Room description").and("be.visible");
         });
 
-      selectTipTapContent();
+      selectTiptapContent();
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
       cy.get('[data-test="tip-tap-link-button"]')
@@ -285,7 +285,7 @@ Cypress._.times(50, () => {
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
 
       // Open dialog again
-      selectTipTapContent();
+      selectTiptapContent();
 
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-secondary")
@@ -348,7 +348,7 @@ Cypress._.times(50, () => {
       });
     });
 
-    it.only("edit link", function () {
+    it("edit link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description =
           '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
@@ -383,7 +383,7 @@ Cypress._.times(50, () => {
         "p-button-primary",
       );
 
-      selectTipTapContent();
+      selectTiptapContent();
 
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-primary")
@@ -441,7 +441,7 @@ Cypress._.times(50, () => {
         });
     });
 
-    it.only("delete link", function () {
+    it("delete link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description =
           '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
@@ -470,7 +470,7 @@ Cypress._.times(50, () => {
             .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
         });
 
-      selectTipTapContent();
+      selectTiptapContent();
 
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-primary")
