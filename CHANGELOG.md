@@ -19,16 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The recording import task is now prevented from running until the previous run has finished ([#1484], [#1604])
 - Adjust frontend tests to better check the resetting of form errors ([#1679], [#1702])
 - Error handling in create room dialog ([#1704])
-- Removed unnecessary permission inheritance for the roomTypes.view and serverPools.view permissions ([#1721], [#1723])
+- Removed unnecessary permission inheritance for the roomTypes.view and serverPools.view permissions ([#1721], [#1724])
 
 ### Fixed
 
 - Reload room type list on form validation error in new room dialog ([#1523], [#1616])
 - Room overview buttons not disabled during loading ([#1595])
 - Form errors not always cleared correctly ([#1679], [#1702])
-- Unnecessary loading of server pools in the room types read-only view ([#1721], [#1723])
-- Unnecessary loading of server in the server pools read-only view ([#1721], [#1723])
-- Missing permissions inheritance for user index view ([#1723])
+- Unnecessary loading of server pools in the room types read-only view ([#1721], [#1724])
+- Unnecessary loading of server in the server pools read-only view ([#1721], [#1724])
+- Missing permissions inheritance for user index view ([#1724])
+- Wrong permission check when showing create new server pool button ([#1724])
+- Styling issue in the role selection dropdown on the user index view ([#1724])
+- Broken permission checks when loading the user view/edit page in the admin UI ([#1724])
 
 ## [v4.1.2] - 2024-11-22
 
@@ -305,7 +308,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
-[#1723]: https://github.com/THM-Health/PILOS/pull/1723
+[#1724]: https://github.com/THM-Health/PILOS/pull/1724
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
