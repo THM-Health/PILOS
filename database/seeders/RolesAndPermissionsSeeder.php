@@ -108,8 +108,8 @@ class RolesAndPermissionsSeeder extends Seeder
 
         Permission::setIncludedPermissions('roomTypes.delete', ['roomTypes.create', 'roomTypes.update', 'roomTypes.view', 'serverPools.viewAny', 'admin.view', 'roles.viewAny']);
         Permission::setIncludedPermissions('roomTypes.create', ['roomTypes.update', 'roomTypes.view', 'serverPools.viewAny', 'admin.view', 'roles.viewAny']);
-        Permission::setIncludedPermissions('roomTypes.update', ['roomTypes.view', 'serverPools.viewAny', 'admin.view', 'roles.viewAny']);
-        Permission::setIncludedPermissions('roomTypes.view', ['serverPools.viewAny', 'admin.view', 'roles.viewAny']);
+        Permission::setIncludedPermissions('roomTypes.update', ['roomTypes.view', 'serverPools.viewAny', 'serverPools.viewAny', 'admin.view', 'roles.viewAny']);
+        Permission::setIncludedPermissions('roomTypes.view', ['admin.view']);
 
         Permission::setIncludedPermissions('servers.delete', ['servers.create', 'servers.update', 'servers.view', 'servers.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('servers.create', ['servers.update', 'servers.view', 'servers.viewAny', 'admin.view']);
@@ -120,7 +120,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::setIncludedPermissions('serverPools.delete', ['serverPools.create', 'serverPools.update', 'serverPools.view', 'serverPools.viewAny', 'servers.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('serverPools.create', ['serverPools.update', 'serverPools.view', 'serverPools.viewAny', 'servers.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('serverPools.update', ['serverPools.view', 'serverPools.viewAny', 'servers.viewAny', 'admin.view']);
-        Permission::setIncludedPermissions('serverPools.view', ['serverPools.viewAny', 'servers.viewAny', 'admin.view']);
+        Permission::setIncludedPermissions('serverPools.view', ['serverPools.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('serverPools.viewAny', ['admin.view']);
     }
 }
