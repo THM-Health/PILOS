@@ -242,7 +242,7 @@ const serversMultiselectRef = ref(false);
  */
 onMounted(() => {
   load();
-  if(!props.viewOnly){
+  if (!props.viewOnly) {
     loadServers();
   }
 });
