@@ -258,7 +258,7 @@ describe("Rooms view description TipTap Editor", function () {
     // Check that correct data is displayed
     cy.get(".tiptap")
       .should("be.visible")
-      .should("have.focus")
+      .and("have.focus")
       .within(() => {
         cy.get("a").should("not.exist");
         cy.get("p").should("have.text", "Room description").and("be.visible");

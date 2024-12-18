@@ -339,7 +339,7 @@ describe("Rooms view description", function () {
     // Check that description was changed correctly
     cy.get(".tiptap")
       .should("be.visible")
-      .should("have.focus")
+      .and("have.focus")
       .within(() => {
         cy.get("h1")
           .find("strong")
