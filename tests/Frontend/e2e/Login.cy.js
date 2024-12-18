@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Login", function () {
+describe("Login", function () {
   beforeEach(function () {
     cy.intercept("GET", "api/v1/locale/en", {});
   });

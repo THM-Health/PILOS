@@ -1,4 +1,4 @@
-describe.skip("Logout", function () {
+describe("Logout", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomIndexRequests();

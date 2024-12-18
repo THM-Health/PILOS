@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Room View general", function () {
+describe("Room View general", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();

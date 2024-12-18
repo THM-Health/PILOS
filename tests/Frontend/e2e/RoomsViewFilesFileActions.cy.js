@@ -4,7 +4,7 @@ import {
 } from "../support/utils/formData.js";
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Rooms view files file actions", function () {
+describe("Rooms view files file actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
