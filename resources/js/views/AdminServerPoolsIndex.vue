@@ -18,7 +18,7 @@
         </InputGroup>
       </div>
       <Button
-        v-if="userPermissions.can('create', 'ServerPolicy')"
+        v-if="userPermissions.can('create', 'ServerPoolPolicy')"
         v-tooltip="$t('admin.server_pools.new')"
         as="router-link"
         icon="fa-solid fa-plus"
