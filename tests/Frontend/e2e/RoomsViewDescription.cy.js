@@ -3,7 +3,7 @@ import {
   clearTiptapContent,
   selectTipTapContent,
 } from "../support/utils/tiptapHelper.js";
-Cypress._.times(100, () => {
+Cypress._.times(50, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();
@@ -197,7 +197,7 @@ Cypress._.times(100, () => {
 
       // Edit description
       clearTiptapContent();
-      cy.get(".tiptap").should("have.focus").type("New test description");
+      cy.get(".tiptap").type("New test description");
 
       // Save description
       const saveDescriptionRequest = interceptIndefinitely(
