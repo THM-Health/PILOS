@@ -485,6 +485,11 @@ describe("Admin servers view server actions", function () {
     // Check that panic button is hidden
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
 
+    // Check that save button is shown
+    cy.get('[data-test="servers-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
     // Switch to view
     cy.get('[data-test="servers-cancel-edit-button"]').click();
 
@@ -534,6 +539,9 @@ describe("Admin servers view server actions", function () {
       .and("be.disabled");
     cy.get('[data-test="servers-panic-button"]').should("be.visible");
 
+    // Check that save button is hidden
+    cy.get('[data-test="servers-save-button"]').should("not.exist");
+
     // Switch back to edit
     cy.get('[data-test="servers-edit-button"]').click();
 
@@ -580,5 +588,10 @@ describe("Admin servers view server actions", function () {
 
     // Check that panic button is hidden
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
+
+    // Check that save button is shown
+    cy.get('[data-test="servers-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
   });
 });

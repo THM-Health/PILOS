@@ -90,11 +90,20 @@ describe("Admin users edit", function () {
 
     cy.get('[data-test="overlay"]').should("not.exist");
 
-    cy.get('[data-test="users-cancel-edit-button"]').should("be.visible");
+    cy.get('[data-test="users-cancel-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.cancel_editing")
+      .and("have.attr", "href", "/admin/users/2");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
-    cy.get('[data-test="users-reset-password-button"]').should("be.visible");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
-    cy.get('[data-test="user-tab-profile-save-button"]').should("be.visible");
+    cy.get('[data-test="user-tab-profile-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.save");
 
     cy.get('[data-test="base-tab-button"]').should("be.visible");
     cy.get('[data-test="email-tab-button"]').should("be.visible");
@@ -123,11 +132,21 @@ describe("Admin users edit", function () {
 
     cy.wait("@userRequest");
 
-    cy.get('[data-test="users-cancel-edit-button"]').should("be.visible");
+    cy.get('[data-test="users-cancel-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.cancel_editing")
+      .and("have.attr", "href", "/admin/users/2");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
-    cy.get('[data-test="users-reset-password-button"]').should("be.visible");
-    cy.get('[data-test="users-delete-button"]').should("be.visible");
-    cy.get('[data-test="user-tab-profile-save-button"]').should("be.visible");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="users-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="user-tab-profile-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
   });
 
   it("visit edit user page errors", function () {

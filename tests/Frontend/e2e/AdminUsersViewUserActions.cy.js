@@ -316,6 +316,11 @@ describe("Admin users view user actions", function () {
       "Europe/Berlin",
     );
 
+    // Check that save button is shown
+    cy.get('[data-test="user-tab-profile-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
     // Switch to view
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
@@ -342,6 +347,9 @@ describe("Admin users view user actions", function () {
       .within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
       });
+
+    // Check that save button is hidden
+    cy.get('[data-test="user-tab-profile-save-button"]').should("not.exist");
 
     // Switch to edit again
     cy.get('[data-test="users-edit-button"]').click();
@@ -380,11 +388,21 @@ describe("Admin users view user actions", function () {
         );
       });
 
+    // Check that save button is shown
+    cy.get('[data-test="user-tab-profile-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
     // Check email tab
     cy.get('[data-test="email-tab-button"]').click();
 
     // Change value of email field
     cy.get("#email").should("have.value", "LauraWRivera@domain.tld").type("e");
+
+    // Check that save button is shown
+    cy.get('[data-test="user-tab-email-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
 
     // Switch to view
     cy.get('[data-test="users-cancel-edit-button"]').click();
@@ -402,6 +420,9 @@ describe("Admin users view user actions", function () {
       .should("have.value", "LauraWRivera@domain.tld")
       .should("be.disabled");
 
+    // Check that save button is hidden
+    cy.get('[data-test="user-tab-email-save-button"]').should("not.exist");
+
     // Switch back to edit
     cy.get('[data-test="users-edit-button"]').click();
 
@@ -416,6 +437,11 @@ describe("Admin users view user actions", function () {
     cy.get("#email")
       .should("have.value", "LauraWRivera@domain.tld")
       .should("not.be.disabled");
+
+    // Check that save button is shown
+    cy.get('[data-test="user-tab-email-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
 
     // Check security tab
     cy.get('[data-test="security-tab-button"]').click();
@@ -471,6 +497,14 @@ describe("Admin users view user actions", function () {
     cy.get("#new_password").type("secretPassword123#");
     cy.get("#new_password_confirmation").type("secretPassword123#");
 
+    // Check that save buttons are shown
+    cy.get('[data-test="users-roles-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="change-password-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
     // Switch to view
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
@@ -503,6 +537,10 @@ describe("Admin users view user actions", function () {
 
     cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
 
+    // Check that save buttons are hidden
+    cy.get('[data-test="users-roles-save-button"]').should("not.exist");
+    cy.get('[data-test="change-password-save-button"]').should("not.exist");
+
     // Switch back to edit page
     cy.get('[data-test="users-edit-button"]').click();
 
@@ -532,11 +570,24 @@ describe("Admin users view user actions", function () {
     cy.get("#new_password").should("have.value", "");
     cy.get("#new_password_confirmation").should("have.value", "");
 
+    // Check that save buttons are shown
+    cy.get('[data-test="users-roles-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="change-password-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
     // Check other tab
     cy.get('[data-test="others-tab-button"]').click();
 
     // Change value of bbb_skip_check_audio
     cy.get("#bbb_skip_check_audio").click();
+
+    // Check that save button is shown
+    cy.get('[data-test="user-tab-others-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
 
     // Switch to view
     cy.get('[data-test="users-cancel-edit-button"]').click();
@@ -554,6 +605,9 @@ describe("Admin users view user actions", function () {
       .should("not.be.checked")
       .should("be.disabled");
 
+    // Check that save button is hidden
+    cy.get('[data-test="user-tab-others-save-button"]').should("not.exist");
+
     // Switch back to edit page
     cy.get('[data-test="users-edit-button"]').click();
 
@@ -568,5 +622,10 @@ describe("Admin users view user actions", function () {
     cy.get("#bbb_skip_check_audio")
       .should("not.be.checked")
       .should("not.be.disabled");
+
+    // Check that save button is shown
+    cy.get('[data-test="user-tab-others-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
   });
 });

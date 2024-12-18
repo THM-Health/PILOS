@@ -20,7 +20,7 @@ describe("Admin servers edit", function () {
   });
 
   it("visit with user that is not logged in", function () {
-    cy.testVisitWithoutCurrentUser("/admin/servers/1");
+    cy.testVisitWithoutCurrentUser("/admin/servers/1/edit");
   });
 
   it("visit with user without permission to edit servers", function () {
@@ -77,7 +77,8 @@ describe("Admin servers edit", function () {
     cy.get('[data-test="servers-cancel-edit-button"]')
       .should("be.visible")
       .and("not.be.disabled")
-      .and("include.text", "app.cancel_editing");
+      .and("include.text", "app.cancel_editing")
+      .and("have.attr", "href", "/admin/servers/1");
     cy.get('[data-test="servers-edit-button"]').should("not.exist");
     cy.get('[data-test="servers-delete-button"]').should("not.exist");
     cy.get('[data-test="servers-save-button"]')
@@ -295,187 +296,6 @@ describe("Admin servers edit", function () {
     // Check that redirect to server view worked
     cy.url().should("include", "/admin/servers/1");
     cy.url().should("not.include", "/edit");
-  });
-
-  it("check button visibility with delete permission", function () {
-    cy.fixture("currentUser.json").then((currentUser) => {
-      currentUser.data.permissions = [
-        "admin.view",
-        "servers.viewAny",
-        "servers.view",
-        "servers.update",
-        "servers.create",
-        "servers.delete",
-      ];
-      cy.intercept("GET", "api/v1/currentUser", {
-        statusCode: 200,
-        body: currentUser,
-      });
-    });
-
-    cy.visit("/admin/servers/1/edit");
-
-    cy.wait("@serverRequest");
-
-    // Check with server enabled
-    cy.get('[data-test="servers-cancel-edit-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.cancel_editing");
-    cy.get('[data-test="servers-edit-button"]').should("not.exist");
-    cy.get('[data-test="servers-delete-button"]').should("not.exist");
-    cy.get('[data-test="servers-save-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.save");
-
-    cy.get('[data-test="servers-test-connection-button"]')
-      .should("be.visible")
-      .and("have.text", "admin.servers.test_connection")
-      .and("not.be.disabled");
-
-    cy.get('[data-test="servers-panic-button"]').should("not.exist");
-
-    // Reload page but with server draining
-    cy.fixture("server.json").then((server) => {
-      server.data.status = 0;
-
-      cy.intercept("GET", "api/v1/servers/1", {
-        statusCode: 200,
-        body: server,
-      }).as("serverRequest");
-    });
-
-    cy.reload();
-
-    // Check with server draining
-    cy.get('[data-test="servers-cancel-edit-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.cancel_editing");
-    cy.get('[data-test="servers-edit-button"]').should("not.exist");
-    cy.get('[data-test="servers-delete-button"]').should("not.exist");
-    cy.get('[data-test="servers-save-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.save");
-
-    cy.get('[data-test="servers-test-connection-button"]')
-      .should("be.visible")
-      .and("have.text", "admin.servers.test_connection")
-      .and("not.be.disabled");
-
-    cy.get('[data-test="servers-panic-button"]').should("not.exist");
-
-    // Reload page but with server disabled
-    cy.fixture("server.json").then((server) => {
-      server.data.status = -1;
-
-      cy.intercept("GET", "api/v1/servers/1", {
-        statusCode: 200,
-        body: server,
-      }).as("serverRequest");
-    });
-
-    cy.reload();
-
-    // Check with server disabled
-    cy.get('[data-test="servers-cancel-edit-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.cancel_editing");
-    cy.get('[data-test="servers-edit-button"]').should("not.exist");
-    cy.get('[data-test="servers-delete-button"]')
-      .should("be.visible")
-      .and("not.be.disabled");
-    cy.get('[data-test="servers-save-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.save");
-
-    cy.get('[data-test="servers-test-connection-button"]')
-      .should("be.visible")
-      .and("have.text", "admin.servers.test_connection")
-      .and("not.be.disabled");
-
-    cy.get('[data-test="servers-panic-button"]').should("not.exist");
-  });
-
-  it("load server errors", function () {
-    cy.intercept("GET", "api/v1/servers/1", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("serverRequest");
-
-    cy.visit("/admin/servers/1/edit");
-
-    cy.wait("@serverRequest");
-
-    // Check that overlay is shown
-    cy.get('[data-test="overlay"]').should("be.visible");
-
-    // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
-
-    // Reload with correct data
-    cy.intercept("GET", "api/v1/servers/1", {
-      statusCode: 200,
-      fixture: "server.json",
-    }).as("serverRequest");
-
-    cy.get('[data-test="loading-retry-button"]')
-      .should("be.visible")
-      .and("have.text", "app.reload")
-      .click();
-
-    cy.wait("@serverRequest");
-
-    // Check that overlay is not shown anymore
-    cy.get('[data-test="overlay"]').should("not.exist");
-
-    // Reload page with 404 errors
-    cy.interceptAdminServersIndexRequests();
-
-    cy.intercept("GET", "api/v1/servers/1", {
-      statusCode: 404,
-      body: {
-        message: "No query results for model",
-      },
-    }).as("serverRequest");
-
-    cy.reload();
-
-    cy.wait("@serverRequest");
-
-    // Check that redirect worked
-    cy.url().should("not.include", "/admin/servers/1");
-    cy.url().should("include", "/admin/servers");
-
-    cy.wait("@serversRequest");
-
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
-    ]);
-
-    // Reload page with 401 error
-    cy.intercept("GET", "api/v1/servers/1", {
-      statusCode: 401,
-    }).as("serverRequest");
-
-    cy.visit("/admin/servers/1/edit");
-
-    cy.wait("@serverRequest");
-
-    // Check that redirect worked and error message is shown
-    cy.url().should("include", "/login?redirect=/admin/servers/1/edit");
-
-    cy.checkToastMessage("app.flash.unauthenticated");
   });
 
   it("save changes errors", function () {
@@ -765,11 +585,195 @@ describe("Admin servers edit", function () {
     // Check with 401 error
     cy.intercept("PUT", "api/v1/servers/1", {
       statusCode: 401,
-    }).as("newServerRequest");
+    }).as("saveChangesRequest");
 
     cy.get('[data-test="servers-save-button"]').click();
 
-    cy.wait("@newServerRequest");
+    cy.wait("@saveChangesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/servers/1/edit");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("check button visibility with delete permission", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "servers.viewAny",
+        "servers.view",
+        "servers.update",
+        "servers.create",
+        "servers.delete",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/servers/1/edit");
+
+    cy.wait("@serverRequest");
+
+    // Check with server enabled
+    cy.get('[data-test="servers-cancel-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.cancel_editing")
+      .and("have.attr", "href", "/admin/servers/1");
+    cy.get('[data-test="servers-edit-button"]').should("not.exist");
+    cy.get('[data-test="servers-delete-button"]').should("not.exist");
+    cy.get('[data-test="servers-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.save");
+
+    cy.get('[data-test="servers-test-connection-button"]')
+      .should("be.visible")
+      .and("have.text", "admin.servers.test_connection")
+      .and("not.be.disabled");
+
+    cy.get('[data-test="servers-panic-button"]').should("not.exist");
+
+    // Reload page but with server draining
+    cy.fixture("server.json").then((server) => {
+      server.data.status = 0;
+
+      cy.intercept("GET", "api/v1/servers/1", {
+        statusCode: 200,
+        body: server,
+      }).as("serverRequest");
+    });
+
+    cy.reload();
+
+    // Check with server draining
+    cy.get('[data-test="servers-cancel-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.cancel_editing")
+      .and("have.attr", "href", "/admin/servers/1");
+    cy.get('[data-test="servers-edit-button"]').should("not.exist");
+    cy.get('[data-test="servers-delete-button"]').should("not.exist");
+    cy.get('[data-test="servers-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.save");
+
+    cy.get('[data-test="servers-test-connection-button"]')
+      .should("be.visible")
+      .and("have.text", "admin.servers.test_connection")
+      .and("not.be.disabled");
+
+    cy.get('[data-test="servers-panic-button"]').should("not.exist");
+
+    // Reload page but with server disabled
+    cy.fixture("server.json").then((server) => {
+      server.data.status = -1;
+
+      cy.intercept("GET", "api/v1/servers/1", {
+        statusCode: 200,
+        body: server,
+      }).as("serverRequest");
+    });
+
+    cy.reload();
+
+    // Check with server disabled
+    cy.get('[data-test="servers-cancel-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.cancel_editing")
+      .and("have.attr", "href", "/admin/servers/1");
+    cy.get('[data-test="servers-edit-button"]').should("not.exist");
+    cy.get('[data-test="servers-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="servers-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.save");
+
+    cy.get('[data-test="servers-test-connection-button"]')
+      .should("be.visible")
+      .and("have.text", "admin.servers.test_connection")
+      .and("not.be.disabled");
+
+    cy.get('[data-test="servers-panic-button"]').should("not.exist");
+  });
+
+  it("load server errors", function () {
+    cy.intercept("GET", "api/v1/servers/1", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("serverRequest");
+
+    cy.visit("/admin/servers/1/edit");
+
+    cy.wait("@serverRequest");
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Reload with correct data
+    cy.intercept("GET", "api/v1/servers/1", {
+      statusCode: 200,
+      fixture: "server.json",
+    }).as("serverRequest");
+
+    cy.get('[data-test="loading-retry-button"]')
+      .should("be.visible")
+      .and("have.text", "app.reload")
+      .click();
+
+    cy.wait("@serverRequest");
+
+    // Check that overlay is not shown anymore
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Reload page with 404 errors
+    cy.interceptAdminServersIndexRequests();
+
+    cy.intercept("GET", "api/v1/servers/1", {
+      statusCode: 404,
+      body: {
+        message: "No query results for model",
+      },
+    }).as("serverRequest");
+
+    cy.reload();
+
+    cy.wait("@serverRequest");
+
+    // Check that redirect worked
+    cy.url().should("not.include", "/admin/servers/1");
+    cy.url().should("include", "/admin/servers");
+
+    cy.wait("@serversRequest");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Reload page with 401 error
+    cy.intercept("GET", "api/v1/servers/1", {
+      statusCode: 401,
+    }).as("serverRequest");
+
+    cy.visit("/admin/servers/1/edit");
+
+    cy.wait("@serverRequest");
 
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/servers/1/edit");

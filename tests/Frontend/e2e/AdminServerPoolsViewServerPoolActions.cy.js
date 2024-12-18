@@ -177,5 +177,141 @@ describe("Admin server pools view", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  // ToDo switch between edit and view
+  it("switch between edit and view", function () {
+    cy.visit("/admin/server_pools/1/edit");
+
+    cy.wait("@serverPoolRequest");
+    cy.wait("@serversRequest");
+
+    // Check values and change them
+    cy.get("#name").should("not.be.disabled").and("have.value", "Test").clear();
+    cy.get("#name").type("Server Pool 1");
+
+    cy.get("#description")
+      .should("not.be.disabled")
+      .and("have.value", "Pool for testing")
+      .clear();
+    cy.get("#description").type("Server Pool 1 description");
+
+    cy.get('[data-test="server-dropdown"]')
+      .should("not.have.class", "multiselect--disabled")
+      .within(() => {
+        cy.get('[data-test="server-chip"]').should("have.length", 2);
+        cy.get('[data-test="server-chip"]')
+          .eq(0)
+          .should("include.text", "Server 01")
+          .find('[data-test="remove-server-button"]')
+          .should("be.visible");
+        cy.get('[data-test="server-chip"]')
+          .eq(1)
+          .should("include.text", "Server 02")
+          .find('[data-test="remove-server-button"]')
+          .should("be.visible");
+      });
+
+    cy.get('[data-test="server-dropdown"]').click();
+    cy.get(".multiselect__content").should("be.visible");
+    cy.get(".multiselect__option").eq(2).click();
+
+    cy.get(".multiselect__content").should("be.visible");
+    cy.get('[data-test="server-dropdown"]').within(() => {
+      cy.get('[data-test="server-chip"]').should("have.length", 3);
+      cy.get('[data-test="server-chip"]')
+        .eq(0)
+        .should("include.text", "Server 01")
+        .find('[data-test="remove-server-button"]')
+        .should("be.visible");
+
+      cy.get('[data-test="server-chip"]')
+        .eq(1)
+        .should("include.text", "Server 02")
+        .find('[data-test="remove-server-button"]')
+        .should("be.visible");
+      cy.get('[data-test="server-chip"]')
+        .eq(2)
+        .should("include.text", "Server 03")
+        .find('[data-test="remove-server-button"]')
+        .should("be.visible");
+    });
+
+    // Close dropdown
+    cy.get(".multiselect__select").click();
+    cy.get(".multiselect__content").should("not.be.visible");
+
+    // Check that save button is shown
+    cy.get('[data-test="server-pools-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
+    // Switch to view
+    cy.get('[data-test="server-pools-cancel-edit-button"]').click();
+
+    // Check if redirected to view page
+    cy.url().should("include", "/admin/server_pools/1");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@serverPoolRequest");
+    cy.wait("@serversRequest");
+
+    // Check that changes were not saved
+    cy.get("#name").should("be.disabled").and("have.value", "Test");
+    cy.get("#description")
+      .should("be.disabled")
+      .and("have.value", "Pool for testing");
+
+    cy.get('[data-test="server-dropdown"]')
+      .should("have.class", "multiselect--disabled")
+      .within(() => {
+        cy.get('[data-test="server-chip"]').should("have.length", 2);
+        cy.get('[data-test="server-chip"]')
+          .eq(0)
+          .should("include.text", "Server 01")
+          .find('[data-test="remove-server-button"]')
+          .should("not.exist");
+        cy.get('[data-test="server-chip"]')
+          .eq(1)
+          .should("include.text", "Server 02")
+          .find('[data-test="remove-server-button"]')
+          .should("not.exist");
+      });
+
+    // Check that save button is hidden
+    cy.get('[data-test="server-pools-save-button"]').should("not.exist");
+
+    // Switch back to edit
+    cy.get('[data-test="server-pools-edit-button"]').click();
+
+    // Check if redirected to edit page
+    cy.url().should("include", "/admin/server_pools/1/edit");
+
+    cy.wait("@serverPoolRequest");
+    cy.wait("@serversRequest");
+
+    // Check that original values are shown
+    cy.get("#name").should("not.be.disabled").and("have.value", "Test");
+    cy.get("#description")
+      .should("not.be.disabled")
+      .and("have.value", "Pool for testing");
+
+    cy.get('[data-test="server-dropdown"]')
+      .should("not.have.class", "multiselect--disabled")
+      .within(() => {
+        cy.get('[data-test="server-chip"]').should("have.length", 2);
+        cy.get('[data-test="server-chip"]')
+          .eq(0)
+          .should("include.text", "Server 01")
+          .find('[data-test="remove-server-button"]')
+          .should("be.visible");
+        cy.get('[data-test="server-chip"]')
+          .eq(1)
+          .should("include.text", "Server 02")
+          .find('[data-test="remove-server-button"]')
+          .should("be.visible");
+      });
+
+    // Check that save button is shown
+    cy.get('[data-test="server-pools-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+  });
 });

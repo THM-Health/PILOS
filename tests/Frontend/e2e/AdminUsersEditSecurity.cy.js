@@ -791,8 +791,6 @@ describe("Admin users edit email", function () {
 
     cy.wait("@rolesRequest");
 
-    cy.url().should("include", "/login?redirect=/admin/users/2/edit");
-
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 

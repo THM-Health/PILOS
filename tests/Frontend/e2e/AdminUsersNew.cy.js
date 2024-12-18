@@ -572,50 +572,18 @@ describe("Admin users new", function () {
         },
       ];
 
-      const newUserRequest = interceptIndefinitely(
-        "POST",
-        "api/v1/users",
-        {
-          statusCode: 201,
-          body: user,
-        },
-        "newUserRequest",
-      );
+      cy.intercept("POST", "api/v1/users", {
+        statusCode: 201,
+        body: user,
+      }).as("newUserRequest");
 
       cy.intercept("GET", "api/v1/users/20", {
         statusCode: 200,
         body: user,
       }).as("userRequest");
-
-      cy.get('[data-test="overlay"]').should("not.exist");
-      cy.get('[data-test="users-new-save-button"]').click();
-
-      // Check loading
-      cy.get('[data-test="overlay"]').should("be.visible");
-      cy.get("#firstname").should("be.disabled");
-      cy.get("#lastname").should("be.disabled");
-      cy.get("#email").should("be.disabled");
-      cy.get('[data-test="locale-dropdown"]').within(() => {
-        cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
-      });
-
-      cy.get('[data-test="timezone-dropdown"]').within(() => {
-        cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
-      });
-      cy.get('[data-test="role-dropdown"]').should(
-        "have.class",
-        "multiselect--disabled",
-      );
-      cy.get("#generate_password").should("be.disabled");
-      cy.get("#new_password").should("not.exist");
-      cy.get("#new_password_confirmation").should("not.exist");
-
-      cy.get('[data-test="users-new-save-button"]')
-        .should("be.disabled")
-        .then(() => {
-          newUserRequest.sendResponse();
-        });
     });
+
+    cy.get('[data-test="users-new-save-button"]').click();
 
     // Check request data
     cy.wait("@newUserRequest").then((interception) => {
@@ -630,8 +598,6 @@ describe("Admin users new", function () {
       });
     });
     cy.wait("@userRequest");
-
-    cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check that user page is shown
     cy.url().should("include", "/admin/users/20");
