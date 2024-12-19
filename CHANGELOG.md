@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The recording import task is now prevented from running until the previous run has finished ([#1484], [#1604])
 - Adjust frontend tests to better check the resetting of form errors ([#1679], [#1702])
 - Error handling in create room dialog ([#1704])
-- Removed unnecessary permission inheritance for the roomTypes.view and serverPools.view permissions ([#1721], [#1724])
 
 ### Fixed
 
@@ -32,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wrong permission check when showing create new server pool button ([#1724])
 - Styling issue in the role selection dropdown on the user index view ([#1724])
 - Broken permission checks when loading the user view/edit page in the admin UI ([#1724])
+
+### Removed
+
+- Unnecessary permission inheritance for the roomTypes.view and serverPools.view permissions ([#1721], [#1724])
 
 ## [v4.1.2] - 2024-11-22
 
