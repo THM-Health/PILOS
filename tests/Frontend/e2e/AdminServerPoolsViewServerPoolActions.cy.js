@@ -251,7 +251,6 @@ describe("Admin server pools view", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@serverPoolRequest");
-    cy.wait("@serversRequest");
 
     // Check that changes were not saved
     cy.get("#name").should("be.disabled").and("have.value", "Test");

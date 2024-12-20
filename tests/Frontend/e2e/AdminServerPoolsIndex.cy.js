@@ -775,7 +775,6 @@ describe("Admin server pools index", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
-        "servers.viewAny",
         "serverPools.viewAny",
         "serverPools.view",
       ];

@@ -8,7 +8,6 @@ describe("Admin server pools view", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
-        "servers.viewAny",
         "serverPools.viewAny",
         "serverPools.view",
       ];
@@ -246,64 +245,6 @@ describe("Admin server pools view", function () {
     cy.visit("/admin/server_pools/1");
 
     cy.wait("@serverPoolRequest");
-
-    // Check that redirect worked and error message is shown
-    cy.url().should("include", "/login?redirect=/admin/server_pools/1");
-
-    cy.checkToastMessage("app.flash.unauthenticated");
-  });
-
-  it("load servers errors", function () {
-    cy.intercept("GET", "api/v1/servers*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("serversRequest");
-
-    cy.visit("/admin/server_pools/1");
-
-    cy.wait("@serverPoolRequest");
-
-    cy.wait("@serversRequest");
-
-    // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
-
-    cy.get('[data-test="server-dropdown"]').should(
-      "have.class",
-      "multiselect--disabled",
-    );
-
-    // Reload servers without errors
-    cy.intercept("GET", "api/v1/servers*", {
-      fixture: "servers.json",
-    }).as("serversRequest");
-
-    cy.get('[data-test="servers-reload-button"]').click();
-
-    cy.wait("@serversRequest");
-
-    cy.get('[data-test="server-dropdown"]').should(
-      "have.class",
-      "multiselect--disabled",
-    );
-
-    cy.get('[data-test="servers-reload-button"]').should("not.exist");
-
-    // Check with 401 error
-    cy.intercept("GET", "api/v1/servers*", {
-      statusCode: 401,
-    }).as("serversRequest");
-
-    cy.reload();
-
-    cy.wait("@serverPoolRequest");
-
-    cy.wait("@serversRequest");
 
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/server_pools/1");

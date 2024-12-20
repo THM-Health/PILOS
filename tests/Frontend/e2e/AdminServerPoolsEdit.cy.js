@@ -342,7 +342,6 @@ describe("Admin server pools edit", function () {
     });
 
     cy.wait("@serverPoolRequest");
-    cy.wait("@serversRequest");
 
     // Check that redirect to server pool view worked
     cy.url().should("include", "/admin/server_pools/1");
