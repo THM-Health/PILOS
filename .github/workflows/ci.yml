@@ -60,10 +60,10 @@ jobs:
           while ! pg_isready -h"127.0.0.1" -p"$PORT" > /dev/null 2> /dev/null; do
             sleep 1
           done
-      - name: Install pipe viewer tool
+      - name: Install packages
         run: |
           sudo apt-get update
-          sudo apt-get install pv
+          sudo apt-get install pv mariadb-client
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
@@ -135,10 +135,9 @@ jobs:
           LOG_CHANNEL: stack
         run: php artisan test --parallel --testsuite=Unit,Feature
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload laravel logs
         uses: actions/upload-artifact@v4
         if: failure()
@@ -263,10 +262,9 @@ jobs:
           name: cypress-screenshots
           path: tests/Frontend/screenshots
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
           directory: coverage
   system-tests:
     name: System Tests

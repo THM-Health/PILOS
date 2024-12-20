@@ -1471,7 +1471,9 @@ const serverPoolMultiselectRef = ref();
  */
 onMounted(() => {
   loadRoomType();
-  loadServerPools();
+  if (!props.viewOnly) {
+    loadServerPools();
+  }
 });
 
 /**

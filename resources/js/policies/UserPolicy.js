@@ -22,7 +22,7 @@ export default {
   view(user, model) {
     if (!user) {
       return false;
-    } else if (model.id === user.id) {
+    } else if (parseInt(model.id) === user.id) {
       return true;
     }
 
@@ -49,7 +49,7 @@ export default {
   update(user, model) {
     if (!user) {
       return false;
-    } else if (model.id === user.id) {
+    } else if (parseInt(model.id) === user.id) {
       return true;
     }
 
