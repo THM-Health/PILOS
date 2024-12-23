@@ -115,6 +115,20 @@ services:
     environment:
       PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'Local LDAP': [{'server': [{'host': 'openldap'}]},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org'},{'bind_pass': 'admin'},{'auth_type': 'config'}]}]}]"
       PHPLDAPADMIN_HTTPS: "false"
+  test:
+    <<: *app-image
+    environment:
+      DEV_MODE: "true"
+      ENABLE_XDEBUG: "yes"
+      BUILD_FRONTEND: "yes"
+    volumes:
+      - "./:/var/www/html/"
+    profiles: ["test"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 volumes:
   mariadb:
     driver: local

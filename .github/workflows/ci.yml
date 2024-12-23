@@ -100,7 +100,7 @@ jobs:
         run: php artisan migrate --no-interaction -vvv --force
       - name: Execute code style check via Laravel Pint
         run: vendor/bin/pint --test -v
-      - name: Execute tests (Unit and Feature tests) via PHPUnit
+      - name: Execute tests (Unit and Feature tests) via Pest
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
         env:
           DB_HOST: 127.0.0.1
@@ -110,7 +110,7 @@ jobs:
           DB_PASSWORD: password
           LOG_CHANNEL: stack
         run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
-      - name: Execute tests (Unit, Feature and Integration tests) via PHPUnit
+      - name: Execute tests (Unit, Feature and Integration tests) via Pest
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
         env:
           DB_HOST: 127.0.0.1
@@ -124,7 +124,7 @@ jobs:
 
         run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
 
-      - name: Execute tests (Unit and Feature tests) via PHPUnit using Postgres
+      - name: Execute tests (Unit and Feature tests) via Pest using Postgres
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
