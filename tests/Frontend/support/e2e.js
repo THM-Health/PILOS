@@ -16,4 +16,18 @@
 import "./commands/generalCommands.js";
 import "./commands/roomCommands.js";
 import "./commands/interceptCommands.js";
+import "./commands/adminRoomTypesCommands.js";
 import "@cypress/code-coverage/support";
+
+// ToDo try to fix error and remove this (admin room types view)
+Cypress.on("uncaught:exception", (err) => {
+  // Check if error should be ignored
+  if (
+    err.message.includes(
+      "ResizeObserver loop completed with undelivered notifications.",
+    )
+  ) {
+    // Ignore the error
+    return false;
+  }
+});

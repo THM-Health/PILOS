@@ -10,6 +10,7 @@
         selected: isColorSelected(color),
         'pointer-events-none cursor-not-allowed opacity-80': props.disabled,
       }"
+      data-test="color-button"
       @click="selectColor(color)"
     >
       <div class="overlay">

@@ -18,7 +18,7 @@ describe("Admin server pools view", function () {
     });
   });
 
-  it("visit with user tha is not logged in", function () {
+  it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/server_pools/1");
   });
 
@@ -212,7 +212,7 @@ describe("Admin server pools view", function () {
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="loading-retry-button"]').should("not.exist");
 
-    // reload page with 404 errors
+    // Reload page with 404 errors
     cy.interceptAdminServerPoolsIndexRequests();
 
     cy.intercept("GET", "api/v1/serverPools/1", {

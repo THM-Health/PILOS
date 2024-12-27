@@ -10,7 +10,8 @@
         "fr": "Français"
       },
       "default_locale": "en",
-      "default_timezone": "UTC"
+      "default_timezone": "UTC",
+      "pagination_page_size": 2
     },
     "theme": {
       "primary_color": "#14b8a6",

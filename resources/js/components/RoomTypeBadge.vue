@@ -5,6 +5,7 @@
     :pt="{
       root: { style: { background: roomType.color } },
     }"
+    data-test="room-type-badge"
   >
     {{ roomType.name }}
   </Tag>

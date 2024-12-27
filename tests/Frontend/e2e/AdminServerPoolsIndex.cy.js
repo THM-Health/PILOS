@@ -38,7 +38,7 @@ describe("Admin server pools index", function () {
   it("load server pools", function () {
     const serverPoolRequest = interceptIndefinitely(
       "GET",
-      "api/vi/serverPools*",
+      "api/v1/serverPools*",
       { fixture: "serverPools.json" },
       "serverPoolsRequest",
     );
@@ -73,7 +73,7 @@ describe("Admin server pools index", function () {
 
     cy.get('[data-test="server-pools-add-button"]').should("not.exist");
 
-    // Check that headers are displayed correctly
+    // Check that table headers are displayed correctly
     cy.get('[data-test="server-pool-header-cell"]').should("have.length", 3);
 
     cy.get('[data-test="server-pool-header-cell"]')

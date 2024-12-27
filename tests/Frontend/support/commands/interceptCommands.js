@@ -291,3 +291,51 @@ Cypress.Commands.add("interceptAdminServerPoolsNewRequests", () => {
     fixture: "servers.json",
   }).as("serversRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin room types index page
+ * @memberof cy
+ * @method interceptAdminRoomTypesIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminRoomTypesIndexRequests", () => {
+  cy.intercept("GET", "api/v1/roomTypes*", {
+    fixture: "roomTypes.json",
+  }).as("roomTypesRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin room types view page
+ * @memberof cy
+ * @method interceptAdminRoomTypesViewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminRoomTypesViewRequests", () => {
+  cy.intercept("GET", "api/v1/roomTypes/3", {
+    fixture: "roomType.json",
+  }).as("roomTypeRequest");
+
+  cy.intercept("GET", "api/v1/serverPools*", {
+    fixture: "serverPools.json",
+  }).as("serverPoolsRequest");
+
+  cy.intercept("GET", "api/v1/roles*", {
+    fixture: "userRoles.json",
+  }).as("userRolesRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin room types new page
+ * @memberof cy
+ * @method interceptAdminRoomTypesNewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminRoomTypesNewRequests", () => {
+  cy.intercept("GET", "api/v1/serverPools*", {
+    fixture: "serverPools.json",
+  }).as("serverPoolsRequest");
+
+  cy.intercept("GET", "api/v1/roles*", {
+    fixture: "userRoles.json",
+  }).as("userRolesRequest");
+});

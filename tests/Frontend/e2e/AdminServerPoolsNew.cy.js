@@ -128,7 +128,7 @@ describe("Admin server pools new", function () {
         .eq(0)
         .should("include.text", "Server 02")
         .find('[data-test="remove-server-button"]')
-        .should("be.visible"); // ToDo think about hiding this button
+        .should("be.visible");
     });
 
     // Select second role
@@ -210,7 +210,7 @@ describe("Admin server pools new", function () {
 
     cy.get('[data-test="overlay"]').should("not.exist");
 
-    // Check that user page is shown
+    // Check that server pool page is shown
     cy.url().should("include", "/admin/server_pools/20");
   });
 

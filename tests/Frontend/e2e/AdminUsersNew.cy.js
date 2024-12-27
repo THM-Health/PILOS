@@ -899,6 +899,8 @@ describe("Admin users new", function () {
       "multiselect--disabled",
     );
 
+    cy.get('[data-test="roles-reload-button"]').should("be.visible");
+
     cy.get('[data-test="users-new-save-button"]').should("be.disabled");
 
     // Check with 401 error
@@ -910,14 +912,12 @@ describe("Admin users new", function () {
 
     cy.wait("@rolesRequest");
 
-    cy.url().should("include", "/login?redirect=/admin/users/new");
-
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/users/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
 
-    // Visit edit page again with roles
+    // Visit new page again with roles
     cy.intercept("GET", "api/v1/roles*", {
       fixture: "userRoles.json",
     }).as("rolesRequest");
