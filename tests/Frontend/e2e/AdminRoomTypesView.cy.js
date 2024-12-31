@@ -20,7 +20,7 @@ describe("Admin room types view", function () {
 
   it("visit with user without permission to view room types", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
-      currentUser.data.permissions = ["admin.view", "roomTypes.viewAny"];
+      currentUser.data.permissions = ["admin.view"];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
         body: currentUser,
@@ -247,10 +247,12 @@ describe("Admin room types view", function () {
               .and("be.disabled");
           });
 
-        cy.get('[data-test="lobby-enforced"]').should(
-          "have.text",
-          "admin.room_types.default_room_settings.enforced",
-        );
+        cy.get('[data-test="lobby-enforced"]')
+          .should(
+            "have.text",
+            "admin.room_types.default_room_settings.enforced",
+          )
+          .and("be.disabled");
       });
 
     cy.contains("rooms.settings.recordings.title").should("be.visible");
@@ -440,17 +442,18 @@ describe("Admin room types view", function () {
         cy.get('[data-test="default-role-default-button"]')
           .eq(0)
           .should("have.text", "rooms.roles.participant")
-          .should("have.attr", "aria-pressed", "true");
+          .should("have.attr", "aria-pressed", "true")
+          .and("be.disabled");
 
         cy.get('[data-test="default-role-default-button"]')
           .eq(1)
           .should("have.text", "rooms.roles.moderator")
-          .should("not.have.attr", "aria-pressed", "true");
+          .and("not.have.attr", "aria-pressed", "true")
+          .and("be.disabled");
 
-        cy.get('[data-test="default-role-enforced"]').should(
-          "have.text",
-          "admin.room_types.default_room_settings.default",
-        );
+        cy.get('[data-test="default-role-enforced"]')
+          .should("have.text", "admin.room_types.default_room_settings.default")
+          .and("be.disabled");
       });
 
     cy.contains("rooms.settings.advanced.title").should("be.visible");
@@ -467,17 +470,18 @@ describe("Admin room types view", function () {
         cy.get('[data-test="visibility-default-button"]')
           .eq(0)
           .should("have.text", "rooms.settings.advanced.visibility.private")
-          .should("not.have.attr", "aria-pressed", "true");
+          .and("not.have.attr", "aria-pressed", "true")
+          .and("be.disabled");
 
         cy.get('[data-test="visibility-default-button"]')
           .eq(1)
           .should("have.text", "rooms.settings.advanced.visibility.public")
-          .should("have.attr", "aria-pressed", "true");
+          .and("have.attr", "aria-pressed", "true")
+          .and("be.disabled");
 
-        cy.get('[data-test="visibility-enforced"]').should(
-          "have.text",
-          "admin.room_types.default_room_settings.default",
-        );
+        cy.get('[data-test="visibility-enforced"]')
+          .should("have.text", "admin.room_types.default_room_settings.default")
+          .and("be.disabled");
       });
 
     // Check other settings

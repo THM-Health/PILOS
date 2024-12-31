@@ -328,10 +328,12 @@ describe("Admin room types edit", function () {
               .and("not.be.disabled");
           });
 
-        cy.get('[data-test="lobby-enforced"]').should(
-          "have.text",
-          "admin.room_types.default_room_settings.enforced",
-        );
+        cy.get('[data-test="lobby-enforced"]')
+          .should(
+            "have.text",
+            "admin.room_types.default_room_settings.enforced",
+          )
+          .and("not.be.disabled");
       });
 
     cy.get("#lobby-disabled").click();
@@ -545,17 +547,18 @@ describe("Admin room types edit", function () {
         cy.get('[data-test="default-role-default-button"]')
           .eq(0)
           .should("have.text", "rooms.roles.participant")
-          .should("have.attr", "aria-pressed", "true");
+          .and("have.attr", "aria-pressed", "true")
+          .and("not.be.disabled");
 
         cy.get('[data-test="default-role-default-button"]')
           .eq(1)
           .should("have.text", "rooms.roles.moderator")
-          .should("not.have.attr", "aria-pressed", "true");
+          .and("not.have.attr", "aria-pressed", "true")
+          .and("not.be.disabled");
 
-        cy.get('[data-test="default-role-enforced"]').should(
-          "have.text",
-          "admin.room_types.default_room_settings.default",
-        );
+        cy.get('[data-test="default-role-enforced"]')
+          .should("have.text", "admin.room_types.default_room_settings.default")
+          .and("not.be.disabled");
       });
 
     cy.get('[data-test="default-role-default-button"]').eq(1).click();
@@ -575,17 +578,18 @@ describe("Admin room types edit", function () {
         cy.get('[data-test="visibility-default-button"]')
           .eq(0)
           .should("have.text", "rooms.settings.advanced.visibility.private")
-          .should("not.have.attr", "aria-pressed", "true");
+          .and("not.have.attr", "aria-pressed", "true")
+          .and("not.be.disabled");
 
         cy.get('[data-test="visibility-default-button"]')
           .eq(1)
           .should("have.text", "rooms.settings.advanced.visibility.public")
-          .should("have.attr", "aria-pressed", "true");
+          .and("have.attr", "aria-pressed", "true")
+          .and("not.be.disabled");
 
-        cy.get('[data-test="visibility-enforced"]').should(
-          "have.text",
-          "admin.room_types.default_room_settings.default",
-        );
+        cy.get('[data-test="visibility-enforced"]')
+          .should("have.text", "admin.room_types.default_room_settings.default")
+          .and("not.be.disabled");
       });
 
     cy.get('[data-test="visibility-default-button"]').eq(0).click();
@@ -2111,5 +2115,354 @@ describe("Admin room types edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.save");
+  });
+
+  it("load roles errors", function () {
+    cy.fixture("roomType.json").then((roomType) => {
+      roomType.data.restrict = true;
+      roomType.data.roles = [
+        {
+          id: 1,
+          name: "Admin",
+        },
+        {
+          id: 2,
+          name: "Staff",
+        },
+      ];
+
+      cy.intercept("GET", "api/v1/roomTypes/3", {
+        statusCode: 200,
+        body: roomType,
+      }).as("roomTypeRequest");
+    });
+
+    // Check with 500 error
+    cy.intercept("GET", "api/v1/roles*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("rolesRequest");
+
+    cy.visit("/admin/room_types/3/edit");
+
+    cy.wait("@roomTypeRequest");
+    cy.wait("@rolesRequest");
+
+    // Check error message
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    cy.get('[data-test="role-dropdown"]').should(
+      "have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="role-dropdown"]').within(() => {
+      cy.get('[data-test="role-chip"]').should("have.length", 2);
+      cy.get('[data-test="role-chip"]')
+        .eq(0)
+        .should("include.text", "Admin")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+
+      cy.get('[data-test="role-chip"]')
+        .eq(1)
+        .should("include.text", "Staff")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+    });
+
+    cy.get('[data-test="room-types-save-button"]').should("not.be.disabled");
+
+    // Reload roles without errors
+    cy.intercept("GET", "api/v1/roles*", {
+      fixture: "userRoles.json",
+    }).as("rolesRequest");
+
+    cy.get('[data-test="roles-reload-button"]').click();
+
+    cy.wait("@rolesRequest");
+
+    cy.get('[data-test="role-dropdown"]').should(
+      "not.have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="role-dropdown"]').within(() => {
+      cy.get('[data-test="role-chip"]').should("have.length", 2);
+      cy.get('[data-test="role-chip"]')
+        .eq(0)
+        .should("include.text", "Admin")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+
+      cy.get('[data-test="role-chip"]')
+        .eq(1)
+        .should("include.text", "Staff")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+    });
+
+    cy.get('[data-test="room-types-save-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="roles-reload-button"]').should("not.exist");
+
+    cy.get('[data-test="role-dropdown"]').click();
+
+    cy.get(".multiselect__content")
+      .eq(1)
+      .should("be.visible")
+      .within(() => {
+        cy.get(".multiselect__option").should("have.length", 5);
+      });
+
+    // Check with 500 error when switching pages
+    cy.intercept("GET", "api/v1/roles*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("rolesRequest");
+
+    cy.get(".multiselect__content")
+      .eq(1)
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="next-page-button"]').click();
+      });
+
+    cy.wait("@rolesRequest");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    cy.get('[data-test="role-dropdown"]').should(
+      "have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="role-dropdown"]').within(() => {
+      cy.get('[data-test="role-chip"]').should("have.length", 2);
+      cy.get('[data-test="role-chip"]')
+        .eq(0)
+        .should("include.text", "Admin")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+
+      cy.get('[data-test="role-chip"]')
+        .eq(1)
+        .should("include.text", "Staff")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+    });
+
+    cy.get('[data-test="roles-reload-button"]').should("be.visible");
+
+    cy.get('[data-test="room-types-save-button"]').should("not.be.disabled");
+
+    // Check with 401 error
+    cy.intercept("GET", "api/v1/roles*", {
+      statusCode: 401,
+    }).as("rolesRequest");
+
+    cy.get("#restrict").click();
+    cy.get("#restrict").click();
+
+    cy.wait("@rolesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Visit new page again with roles
+    cy.intercept("GET", "api/v1/roles*", {
+      fixture: "userRoles.json",
+    }).as("rolesRequest");
+
+    cy.visit("/admin/room_types/3/edit");
+
+    cy.wait("@rolesRequest");
+
+    cy.get('[data-test="role-dropdown"]').click();
+
+    // Check with 401 error when switching pages
+    cy.intercept("GET", "api/v1/roles*", {
+      statusCode: 401,
+    }).as("rolesRequest");
+
+    cy.get(".multiselect__content")
+      .eq(1)
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="next-page-button"]').click();
+      });
+
+    cy.wait("@rolesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("load server pools errors", function () {
+    // Check with 500 error
+    cy.intercept("GET", "api/v1/serverPools*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("serverPoolsRequest");
+
+    cy.visit("/admin/room_types/3/edit");
+
+    cy.wait("@roomTypeRequest");
+    cy.wait("@serverPoolsRequest");
+
+    // Check error message
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    cy.get('[data-test="server-pool-dropdown"]').should(
+      "have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="server-pool-dropdown"]').within(() => {
+      cy.get(".multiselect__tags").should("include.text", "Test");
+    });
+
+    cy.get('[data-test="room-types-save-button"]').should("be.disabled");
+
+    // Reload server pools without errors
+    cy.fixture("serverPools.json").then((serverPools) => {
+      serverPools.data = serverPools.data.slice(0, 1);
+      serverPools.meta.last_page = 2;
+      serverPools.meta.per_page = 1;
+      serverPools.meta.to = 1;
+
+      cy.intercept("GET", "api/v1/serverPools*", {
+        statusCode: 200,
+        body: serverPools,
+      }).as("serverPoolsRequest");
+    });
+
+    cy.get('[data-test="server-pools-reload-button"]').click();
+
+    cy.wait("@serverPoolsRequest");
+
+    cy.get('[data-test="server-pool-dropdown"]').should(
+      "not.have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="room-types-save-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="server-pools-reload-button"]').should("not.exist");
+
+    cy.get('[data-test="server-pool-dropdown"]').click();
+
+    cy.get(".multiselect__content")
+      .eq(0)
+      .should("be.visible")
+      .within(() => {
+        cy.get(".multiselect__option").should("have.length", 3);
+      });
+
+    // Check with 500 error when switching pages
+    cy.intercept("GET", "api/v1/serverPools*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("serverPoolsRequest");
+
+    cy.get(".multiselect__content")
+      .eq(0)
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="next-page-button"]').click();
+      });
+
+    cy.wait("@serverPoolsRequest");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    cy.get('[data-test="server-pool-dropdown"]').should(
+      "have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="server-pool-dropdown"]').within(() => {
+      cy.get(".multiselect__tags").should("include.text", "Test");
+    });
+
+    cy.get('[data-test="server-pools-reload-button"]').should("be.visible");
+
+    cy.get('[data-test="room-types-save-button"]').should("be.disabled");
+
+    // Check with 401 error
+    cy.intercept("GET", "api/v1/serverPools*", {
+      statusCode: 401,
+    }).as("serverPoolsRequest");
+
+    cy.reload();
+
+    cy.wait("@serverPoolsRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Visit new page again with server pools
+    cy.fixture("serverPools.json").then((serverPools) => {
+      serverPools.data = serverPools.data.slice(0, 1);
+      serverPools.meta.last_page = 2;
+      serverPools.meta.per_page = 1;
+      serverPools.meta.to = 1;
+
+      cy.intercept("GET", "api/v1/serverPools*", {
+        statusCode: 200,
+        body: serverPools,
+      }).as("serverPoolsRequest");
+    });
+
+    cy.visit("/admin/room_types/3/edit");
+
+    cy.wait("@serverPoolsRequest");
+
+    cy.get('[data-test="server-pool-dropdown"]').click();
+
+    // Check with 401 error when switching pages
+    cy.intercept("GET", "api/v1/serverPools*", {
+      statusCode: 401,
+    }).as("serverPoolsRequest");
+
+    cy.get(".multiselect__content")
+      .eq(0)
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="next-page-button"]').click();
+      });
+
+    cy.wait("@serverPoolsRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
   });
 });

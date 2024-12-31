@@ -37,8 +37,19 @@ describe("Login", function () {
 
     // Check if ldap login tab is shown correctly and click on login button
     cy.get('[data-test="login-tab-ldap"]').within(() => {
-      cy.get("#ldap-username").type("user");
-      cy.get("#ldap-password").type("password");
+      cy.get('[data-test="username-field"]')
+        .should("be.visible")
+        .and("include.text", "auth.ldap.username")
+        .within(() => {
+          cy.get("#ldap-username").should("have.value", "").type("user");
+        });
+
+      cy.get('[data-test="password-field"]')
+        .should("be.visible")
+        .and("include.text", "auth.password")
+        .within(() => {
+          cy.get("#ldap-password").should("have.value", "").type("password");
+        });
 
       // Intercept requests that will be needed to show the room index page (needed to check redirect)
       cy.intercept("GET", "api/v1/currentUser", {
@@ -142,6 +153,7 @@ describe("Login", function () {
     // Intercept config request to only show local login tab
     cy.fixture("config.json").then((config) => {
       config.data.auth.local = true;
+      config.data.user.password_change_allowed = false;
 
       cy.intercept("GET", "api/v1/config", {
         statusCode: 200,
@@ -169,10 +181,26 @@ describe("Login", function () {
 
     cy.visit("/login");
 
-    // Check if ldap login tab is shown correctly and click on login button
+    // Check if local login tab is shown correctly and click on login button
     cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get("#local-email").type("john.doe@domain.tld");
-      cy.get("#local-password").type("password");
+      cy.get('[data-test="email-field"]')
+        .should("be.visible")
+        .and("include.text", "app.email")
+        .within(() => {
+          cy.get("#local-email")
+            .should("have.value", "")
+            .type("john.doe@domain.tld");
+        });
+
+      cy.get('[data-test="password-field"]')
+        .should("be.visible")
+        .and("include.text", "auth.password")
+        .within(() => {
+          cy.get("#local-password").should("have.value", "").type("password");
+        });
+
+      // Check that forgot password link is hidden because password change is not allowed
+      cy.get('[data-test="forgot-password-button"]').should("not.exist");
 
       // Intercept requests that will be needed to show the room index page (needed to check redirect)
       cy.intercept("GET", "api/v1/currentUser", {
@@ -183,6 +211,7 @@ describe("Login", function () {
       cy.get('[data-test="login-button"]')
         .should("have.text", "auth.login")
         .click();
+
       // Check if button is disabled after being clicked and loading and send response
       cy.get('[data-test="login-button"]')
         .should("be.disabled")

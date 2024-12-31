@@ -6,7 +6,7 @@ describe("Admin room types index", function () {
     cy.interceptAdminRoomTypesIndexRequests();
 
     cy.fixture("currentUser.json").then((currentUser) => {
-      currentUser.data.permissions = ["admin.view", "roomTypes.viewAny"];
+      currentUser.data.permissions = ["admin.view"];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
         body: currentUser,

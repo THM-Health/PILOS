@@ -521,7 +521,7 @@ describe("Admin servers index", function () {
         servers.meta.total = 2;
         servers.meta.total_no_filter = 2;
 
-        cy.intercept("GET", "api/v1/server*", {
+        cy.intercept("GET", "api/v1/servers*", {
           statusCode: 200,
           body: servers,
         })
@@ -854,7 +854,7 @@ describe("Admin servers index", function () {
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-    // Check that sorting stays  the same
+    // Check that sorting stays the same
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         page: "2",
