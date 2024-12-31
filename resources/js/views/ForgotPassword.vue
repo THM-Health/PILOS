@@ -8,7 +8,7 @@
           <template #title> {{ $t("auth.reset_password") }} </template>
           <template #content>
             <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2" data-test="email-field">
                 <label for="email">{{ $t("app.email") }}</label>
                 <InputText
                   id="email"
@@ -27,6 +27,7 @@
                 :disabled="loading"
                 :loading="loading"
                 :label="$t('auth.send_password_reset_link')"
+                data-test="send-reset-link-button"
               />
             </form>
           </template>

@@ -239,6 +239,38 @@ describe("Login", function () {
     cy.url().should("include", "/rooms").and("not.include", "/login");
   });
 
+  it("open forgot password page", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.auth.local = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/login");
+
+    // Check if local login tab is shown correctly
+    cy.get('[data-test="login-tab-local"]').within(() => {
+      cy.get("#local-email").should("be.visible").and("not.be.disabled");
+      cy.get("#local-password").should("be.visible").and("not.be.disabled");
+
+      cy.get('[data-test="login-button"]')
+        .should("be.visible")
+        .and("not.be.disabled");
+
+      // Check that forgot password link is shown
+      cy.get('[data-test="forgot-password-button"]')
+        .should("be.visible")
+        .and("not.be.disabled")
+        .and("have.text", "auth.forgot_password")
+        .click();
+    });
+
+    cy.url().should("include", "/forgot_password").and("not.include", "/login");
+  });
+
   it("hide local login if disabled", function () {
     cy.fixture("config.json").then((config) => {
       config.data.auth.local = false;

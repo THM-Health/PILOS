@@ -48,6 +48,7 @@
           link
           class="self-start p-0"
           to="/forgot_password"
+          data-test="forgot-password-button"
         >
           {{ $t("auth.forgot_password") }}
         </Button>
