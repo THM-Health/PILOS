@@ -339,3 +339,15 @@ Cypress.Commands.add("interceptAdminRoomTypesNewRequests", () => {
     fixture: "userRoles.json",
   }).as("userRolesRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the meetings index page
+ * @memberof cy
+ * @method interceptMeetingsIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptMeetingsIndexRequests", () => {
+  cy.intercept("GET", "api/v1/meetings*", {
+    fixture: "meetings.json",
+  }).as("meetingsRequest");
+});

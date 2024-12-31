@@ -10,7 +10,7 @@
       <template #content>
         <div class="flex justify-between">
           <div>
-            <InputGroup>
+            <InputGroup data-test="meeting-search">
               <InputText
                 v-model="search"
                 :disabled="isBusy"
@@ -32,6 +32,7 @@
               :disabled="isBusy"
               icon="fa-solid fa-sync"
               :loading="isBusy"
+              data-test="meetings-reload-button"
               @click="loadData()"
             />
           </div>
@@ -55,6 +56,30 @@
           "
           :loading="isBusy || loadingError"
           row-hover
+          :pt="{
+            bodyRow: {
+              'data-test': 'meeting-item',
+            },
+            mask: {
+              'data-test': 'overlay',
+            },
+            column: {
+              bodyCell: {
+                'data-test': 'meeting-item-cell',
+              },
+              headerCell: {
+                'data-test': 'meeting-header-cell',
+              },
+            },
+            pcPaginator: {
+              page: {
+                'data-test': 'paginator-page',
+              },
+              next: {
+                'data-test': 'paginator-next-button',
+              },
+            },
+          }"
           @update:first="paginator.setFirst($event)"
           @page="onPage"
           @sort="onSort"
@@ -204,6 +229,7 @@
                     params: { id: slotProps.data.room.id },
                   }"
                   :disabled="true"
+                  data-test="meeting-view-room-button"
                 >
                   <Button
                     v-tooltip="
