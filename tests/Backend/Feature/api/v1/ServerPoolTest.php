@@ -35,7 +35,7 @@ class ServerPoolTest extends TestCase
     /**
      * Test to get a list of all server pools
      */
-    public function testIndex()
+    public function test_index()
     {
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -133,7 +133,7 @@ class ServerPoolTest extends TestCase
     /**
      * Test to view single server pool
      */
-    public function testShow()
+    public function test_show()
     {
         $serverPool = ServerPool::factory()->create();
         $server = Server::factory()->count(5)->create();
@@ -175,7 +175,7 @@ class ServerPoolTest extends TestCase
     /**
      * Test to create new server pool
      */
-    public function testCreate()
+    public function test_create()
     {
         $serverPool = ServerPool::factory()->make();
         $data = [
@@ -250,7 +250,7 @@ class ServerPoolTest extends TestCase
     /**
      * Test to update a server pool
      */
-    public function testUpdate()
+    public function test_update()
     {
         $serverPool = ServerPool::factory()->create();
         $serverPool2 = ServerPool::factory()->create();
@@ -341,7 +341,7 @@ class ServerPoolTest extends TestCase
     /**
      * Test to delete a server pool
      */
-    public function testDelete()
+    public function test_delete()
     {
         $serverPool = ServerPool::factory()->create();
         $roomTypes = RoomType::factory()->count(2)->create(['server_pool_id' => $serverPool]);

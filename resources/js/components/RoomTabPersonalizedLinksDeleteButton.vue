@@ -6,6 +6,7 @@
     :disabled="disabled"
     icon="fa-solid fa-trash"
     :aria-label="$t('rooms.tokens.delete')"
+    data-test="room-personalized-links-delete-button"
     @click="showModal"
   />
 
@@ -20,6 +21,7 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="false"
     :closable="!isLoadingAction"
+    data-test="room-personalized-links-delete-dialog"
   >
     <template #footer>
       <div class="flex justify-end gap-2">
@@ -27,6 +29,7 @@
           :label="$t('app.no')"
           severity="secondary"
           :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
           @click="modalVisible = false"
         />
         <Button
@@ -34,6 +37,7 @@
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
+          data-test="dialog-continue-button"
           @click="deleteToken"
         />
       </div>

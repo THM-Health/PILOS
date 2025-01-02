@@ -6,6 +6,7 @@
     :disabled="disabled"
     icon="fa-solid fa-edit"
     :aria-label="$t('rooms.tokens.edit')"
+    data-test="room-personalized-links-edit-button"
     @click="showModal"
   />
 
@@ -20,6 +21,7 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="false"
     :closable="!isLoadingAction"
+    data-test="room-personalized-links-edit-dialog"
   >
     <template #footer>
       <div class="flex justify-end gap-2">
@@ -27,19 +29,21 @@
           :label="$t('app.cancel')"
           severity="secondary"
           :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
           @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
+          data-test="dialog-save-button"
           @click="save"
         />
       </div>
     </template>
 
     <!-- first name -->
-    <div class="mt-6 flex flex-col gap-2">
+    <div class="mt-6 flex flex-col gap-2" data-test="firstname-field">
       <label for="firstname">{{ $t("app.firstname") }}</label>
       <InputText
         id="firstname"
@@ -52,7 +56,7 @@
     </div>
 
     <!-- last name -->
-    <div class="mt-6 flex flex-col gap-2">
+    <div class="mt-6 flex flex-col gap-2" data-test="lastname-field">
       <label for="lastname">{{ $t("app.lastname") }}</label>
       <InputText
         id="lastname"
@@ -68,7 +72,7 @@
       <fieldset class="flex w-full flex-col gap-2">
         <legend>{{ $t("rooms.role") }}</legend>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="participant-role-group">
           <RadioButton
             v-model="newRole"
             :disabled="isLoadingAction"
@@ -81,7 +85,7 @@
           /></label>
         </div>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="moderator-role-group">
           <RadioButton
             v-model="newRole"
             :disabled="isLoadingAction"

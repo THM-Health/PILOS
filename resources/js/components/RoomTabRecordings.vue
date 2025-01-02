@@ -3,7 +3,7 @@
     <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
-          <InputGroup>
+          <InputGroup data-test="room-recordings-search">
             <InputText
               v-model="search"
               :disabled="isBusy"
@@ -30,11 +30,20 @@
               :options="filterOptions"
               option-label="name"
               option-value="value"
+              data-test="filter-dropdown"
+              :pt="{
+                listContainer: {
+                  'data-test': 'filter-dropdown-items',
+                },
+                option: {
+                  'data-test': 'filter-dropdown-option',
+                },
+              }"
               @change="loadData(1)"
             />
           </InputGroup>
 
-          <InputGroup>
+          <InputGroup data-test="sorting-type-inputgroup">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
@@ -44,6 +53,15 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
+              data-test="sorting-type-dropdown"
+              :pt="{
+                listContainer: {
+                  'data-test': 'sorting-type-dropdown-items',
+                },
+                option: {
+                  'data-test': 'sorting-type-dropdown-option',
+                },
+              }"
               @change="loadData(1)"
             />
             <InputGroupAddon class="p-0">
@@ -67,6 +85,7 @@
         <!-- Reload list -->
         <Button
           v-tooltip="$t('app.reload')"
+          data-test="room-recordings-reload-button"
           class="shrink-0"
           :aria-label="$t('app.reload')"
           severity="secondary"
@@ -96,6 +115,16 @@
         :loading="isBusy"
         row-hover
         class="mt-6"
+        :pt="{
+          pcPaginator: {
+            page: {
+              'data-test': 'paginator-page',
+            },
+            next: {
+              'data-test': 'paginator-next-button',
+            },
+          },
+        }"
         @update:first="paginator.setFirst($event)"
         @page="onPage"
       >
@@ -115,6 +144,7 @@
           <div class="px-2">
             <div v-for="item in slotProps.items" :key="item.id">
               <div
+                data-test="room-recording-item"
                 class="flex flex-col justify-between gap-4 border-t py-4 border-surface md:flex-row"
               >
                 <div class="flex flex-col gap-2">
@@ -167,6 +197,11 @@
                         $t('rooms.recordings.format_types.' + format.format)
                       "
                       :icon="format.disabled ? 'fa-solid fa-eye-slash' : ''"
+                      :data-test="
+                        format.disabled
+                          ? 'recording-format-disabled'
+                          : 'recording-format-enabled'
+                      "
                     />
                   </div>
                 </div>
@@ -235,6 +270,11 @@
       severity="secondary"
       aria-live="off"
       role="presentation"
+      :pt="{
+        content: {
+          'data-test': 'retention-period-message',
+        },
+      }"
     >
       <div class="font-normal leading-3">
         <p class="text-xl font-semibold">

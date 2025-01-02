@@ -34,7 +34,7 @@ class MembershipTest extends TestCase
         $this->viewAllPermission = Permission::factory()->create(['name' => 'rooms.viewAll']);
     }
 
-    public function testAccessCodeMembership()
+    public function test_access_code_membership()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -58,7 +58,7 @@ class MembershipTest extends TestCase
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
     }
 
-    public function testJoinMembership()
+    public function test_join_membership()
     {
         //Room types
         $roomTypeAllowMembershipEnforced = RoomType::factory()->create([
@@ -254,7 +254,7 @@ class MembershipTest extends TestCase
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
     }
 
-    public function testLeaveMembership()
+    public function test_leave_membership()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -281,7 +281,7 @@ class MembershipTest extends TestCase
     /**
      * Test list of room members for required permissions and response content
      */
-    public function testMemberList()
+    public function test_member_list()
     {
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -421,7 +421,7 @@ class MembershipTest extends TestCase
     /**
      * Test functionality room owner and co-owner adding member
      */
-    public function testAddMember()
+    public function test_add_member()
     {
         $newUser = User::factory()->create();
         $memberUser = User::factory()->create();
@@ -510,7 +510,7 @@ class MembershipTest extends TestCase
     /**
      * Test functionality room owner and co-owner removing member
      */
-    public function testRemoveMember()
+    public function test_remove_member()
     {
         $newUser = User::factory()->create();
         $memberUser = User::factory()->create();
@@ -589,7 +589,7 @@ class MembershipTest extends TestCase
     /**
      * Test functionality room owner and co-owner changing room membership role
      */
-    public function testChangeMemberRole()
+    public function test_change_member_role()
     {
         $newUser = User::factory()->create();
         $memberUser = User::factory()->create();
@@ -652,7 +652,7 @@ class MembershipTest extends TestCase
         $this->role->permissions()->detach($this->managePermission);
     }
 
-    public function testBulkImportMembers()
+    public function test_bulk_import_members()
     {
         $newUser = User::factory()->create();
         $user23Email = $this->faker->email();
@@ -810,7 +810,7 @@ class MembershipTest extends TestCase
         $this->role->permissions()->detach($this->managePermission);
     }
 
-    public function testBulkUpdateMembers()
+    public function test_bulk_update_members()
     {
         // create possible users for the test
         $newUser = User::factory()->create();
@@ -961,7 +961,7 @@ class MembershipTest extends TestCase
         )->assertForbidden();
     }
 
-    public function testBulkRemoveMembers()
+    public function test_bulk_remove_members()
     {
         // create possible users for the test
         $newUser = User::factory()->create();

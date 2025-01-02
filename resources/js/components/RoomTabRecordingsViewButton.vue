@@ -4,6 +4,7 @@
     :aria-label="$t('rooms.recordings.view_recording')"
     icon="fa-solid fa-eye"
     :disabled="props.disabled"
+    data-test="room-recordings-view-button"
     @click="modalVisible = true"
   />
 
@@ -17,6 +18,7 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="false"
     :closable="!isLoadingAction"
+    data-test="room-recordings-view-dialog"
   >
     <template #header>
       <div>
@@ -39,6 +41,7 @@
           severity="secondary"
           icon="fa-solid fa-times"
           :disabled="isLoadingAction"
+          data-test="dialog-close-button"
           @click="modalVisible = false"
         />
       </div>
@@ -55,6 +58,7 @@
           icon="fa-solid fa-play"
           :disabled="isLoadingAction"
           :label="$t('rooms.recordings.format_types.' + format.format)"
+          :data-test="format.format + '-button'"
           @click="downloadFormat(format)"
         />
       </div>

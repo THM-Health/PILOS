@@ -13,7 +13,7 @@ class CleanupAttendanceTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testClear()
+    public function test_clear()
     {
         $this->recordingSettings->attendance_retention_period = TimePeriod::TWO_WEEKS;
         $this->recordingSettings->save();

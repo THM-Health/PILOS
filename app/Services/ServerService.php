@@ -12,6 +12,7 @@ use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Support\Collection;
+use Log;
 
 class ServerService
 {
@@ -129,9 +130,10 @@ class ServerService
      */
     private function setMeetingsDetached()
     {
-        foreach ($this->server->meetings()->whereNull('end')->get() as $meeting) {
+        foreach ($this->server->meetings()->whereNull('end')->whereNull('detached')->get() as $meeting) {
             $meeting->detached = now();
             $meeting->save();
+            Log::warning('Meeting {meeting} for room {room} detached', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
         }
     }
 
@@ -144,7 +146,9 @@ class ServerService
             $meetingService = new MeetingService($meeting);
             try {
                 $meetingService->end();
+                Log::notice('Ended detached meeting {meeting} for room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
             } catch (\Exception $e) {
+                Log::error('Failed to end detached meeting {meeting} for room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
             }
         }
     }
@@ -186,7 +190,7 @@ class ServerService
 
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start');
+        $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start')->get();
         $allRunningMeetingsOnServers = new Collection;
 
         $bbbMeetings = $this->getMeetings();
@@ -212,7 +216,7 @@ class ServerService
                 $this->server->save();
 
                 // Clear current live room status
-                foreach ($allRunningMeetingsInDb->get() as $meeting) {
+                foreach ($allRunningMeetingsInDb as $meeting) {
                     // Double check if the meeting is the latest meeting in the room
                     if (! $meeting->is($meeting->room->latestMeeting)) {
                         continue;
@@ -304,6 +308,8 @@ class ServerService
         foreach ($meetingsNotRunningOnServers as $meetingId) {
             $meeting = Meeting::find($meetingId);
             if ($meeting != null && $meeting->end == null) {
+                Log::warning('Meeting {meeting} for room {room} is not running on the BBB server', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
+
                 (new MeetingService($meeting))->setEnd();
             }
         }

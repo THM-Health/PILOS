@@ -17,7 +17,7 @@ class ImportLocalesTest extends TestCase
     /**
      * Test if locales are imported correctly
      */
-    public function testImportLocales()
+    public function test_import_locales()
     {
         // Translation data for german (incomplete) in Poeditor
         $deLocale = [
@@ -147,7 +147,7 @@ class ImportLocalesTest extends TestCase
     /**
      * Test if locales are imported correctly
      */
-    public function testImportLocalesFailedLoadingList()
+    public function test_import_locales_failed_loading_list()
     {
         // Fake HTTP requests to poeditor api
         Http::fake([
@@ -180,7 +180,7 @@ class ImportLocalesTest extends TestCase
     /**
      * Test if locales are imported correctly
      */
-    public function testImportLocalesFailedFetchingLocale()
+    public function test_import_locales_failed_fetching_locale()
     {
         // Fake HTTP requests to poeditor api
         Http::fake([
@@ -242,7 +242,7 @@ class ImportLocalesTest extends TestCase
     /**
      * Test if locales are imported correctly
      */
-    public function testImportLocalesFailedDownload()
+    public function test_import_locales_failed_download()
     {
         // Fake HTTP requests to poeditor api
         Http::fake([

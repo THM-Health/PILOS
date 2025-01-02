@@ -95,6 +95,7 @@
               data-test="rooms-filter-all-button"
               :on-label="$t('rooms.index.show_all')"
               :off-label="$t('rooms.index.show_all')"
+              :disabled="loadingRooms"
               @change="loadRooms(1)"
             >
             </ToggleButton>
@@ -102,7 +103,7 @@
               v-if="!roomFilterAll && !onlyShowFavorites"
               v-model="roomFilter"
               :options="filterOptions"
-              :disabled="onlyShowFavorites"
+              :disabled="onlyShowFavorites || loadingRooms"
               option-label="name"
               option-value="value"
               multiple

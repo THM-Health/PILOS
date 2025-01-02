@@ -3,7 +3,7 @@
     <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
-          <InputGroup>
+          <InputGroup data-test="room-personalized-links-search">
             <InputText
               v-model="search"
               :disabled="isBusy"
@@ -26,24 +26,42 @@
             </InputGroupAddon>
             <Select
               v-model="filter"
+              data-test="filter-dropdown"
               :disabled="isBusy"
               :options="filterOptions"
               option-label="name"
               option-value="value"
+              :pt="{
+                listContainer: {
+                  'data-test': 'filter-dropdown-items',
+                },
+                option: {
+                  'data-test': 'filter-dropdown-option',
+                },
+              }"
               @change="loadData(1)"
             />
           </InputGroup>
 
-          <InputGroup>
+          <InputGroup data-test="sorting-type-inputgroup">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
               v-model="sortField"
+              data-test="sorting-type-dropdown"
               :disabled="isBusy"
               :options="sortFields"
               option-label="name"
               option-value="value"
+              :pt="{
+                listContainer: {
+                  'data-test': 'sorting-type-dropdown-items',
+                },
+                option: {
+                  'data-test': 'sorting-type-dropdown-option',
+                },
+              }"
               @change="loadData(1)"
             />
             <InputGroupAddon class="p-0">
@@ -75,6 +93,7 @@
         <!-- Reload list -->
         <Button
           v-tooltip="$t('app.reload')"
+          data-test="room-personalized-links-reload-button"
           class="shrink-0"
           :aria-label="$t('app.reload')"
           severity="secondary"
@@ -102,6 +121,16 @@
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         row-hover
         class="mt-6"
+        :pt="{
+          pcPaginator: {
+            page: {
+              'data-test': 'paginator-page',
+            },
+            next: {
+              'data-test': 'paginator-next-button',
+            },
+          },
+        }"
         @update:first="paginator.setFirst($event)"
         @page="onPage"
       >
@@ -121,6 +150,7 @@
           <div class="px-2">
             <div v-for="item in slotProps.items" :key="item.token">
               <div
+                data-test="room-personalized-link-item"
                 class="flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">

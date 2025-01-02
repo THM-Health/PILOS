@@ -97,9 +97,28 @@ class BigBlueButtonServerFaker
     public function addCreateMeetingRequest()
     {
         $response = function (Request $request) {
-            $uri = $request->toPsrRequest()->getUri();
-            parse_str($uri->getQuery(), $params);
-            $xml = '
+            return BigBlueButtonServerFaker::createCreateMeetingResponse($request);
+        };
+
+        $this->requests[] = ['request' => null, 'response' => $response];
+    }
+
+    /**
+     * Get the request data for a request
+     *
+     * @param  int  $id  Number of the request (starting with 0)
+     * @return mixed
+     */
+    public function getRequest(int $id)
+    {
+        return $this->requests[$id]['request'];
+    }
+
+    public static function createCreateMeetingResponse(Request $request): \GuzzleHttp\Promise\PromiseInterface
+    {
+        $uri = $request->toPsrRequest()->getUri();
+        parse_str($uri->getQuery(), $params);
+        $xml = '
                 <response>
                     <returncode>SUCCESS</returncode>
                     <meetingID>'.$params['meetingID'].'</meetingID>
@@ -116,20 +135,6 @@ class BigBlueButtonServerFaker
                     <message></message>
                 </response>';
 
-            return Http::response($xml);
-        };
-
-        $this->requests[] = ['request' => null, 'response' => $response];
-    }
-
-    /**
-     * Get the request data for a request
-     *
-     * @param  int  $id  Number of the request (starting with 0)
-     * @return mixed
-     */
-    public function getRequest(int $id)
-    {
-        return $this->requests[$id]['request'];
+        return Http::response($xml);
     }
 }

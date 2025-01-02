@@ -39,7 +39,7 @@ class ServerTest extends TestCase
     /**
      * Test to get a list of all servers
      */
-    public function testIndex()
+    public function test_index()
     {
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -195,7 +195,7 @@ class ServerTest extends TestCase
     /**
      * Test to view single server
      */
-    public function testShow()
+    public function test_show()
     {
         $server = Server::factory()->create();
 
@@ -249,7 +249,7 @@ class ServerTest extends TestCase
     /**
      * Test to create new server
      */
-    public function testCreate()
+    public function test_create()
     {
         $server = Server::factory()->make();
         $data = [
@@ -299,7 +299,7 @@ class ServerTest extends TestCase
     /**
      * Test to update a server
      */
-    public function testUpdate()
+    public function test_update()
     {
         $server = Server::factory()->create(['base_url' => 'https://host1.notld/bigbluebutton/', 'status' => ServerStatus::DISABLED]);
         $server2 = Server::factory()->create(['base_url' => 'https://host2.notld/bigbluebutton/', 'status' => ServerStatus::DISABLED]);
@@ -380,7 +380,7 @@ class ServerTest extends TestCase
     /**
      * Test to delete a server
      */
-    public function testDelete()
+    public function test_delete()
     {
         $server = Server::factory()->create();
 
@@ -431,7 +431,7 @@ class ServerTest extends TestCase
     /**
      * Test to check api connection
      */
-    public function testCheck()
+    public function test_check()
     {
         $invalidSecret = 't64e8rtefererrg43erbgffrgz';
         $validSecret = '8d8e8rtefererrg43erbgffrgz';
@@ -482,7 +482,7 @@ class ServerTest extends TestCase
     /**
      * Test panic server
      */
-    public function testPanic()
+    public function test_panic()
     {
         $server = Server::factory()->create();
 

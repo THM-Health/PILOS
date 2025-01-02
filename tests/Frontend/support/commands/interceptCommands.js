@@ -142,3 +142,39 @@ Cypress.Commands.add("interceptUserProfileRequests", () => {
   cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
   cy.intercept("GET", "api/v1/sessions", { fixture: "sessions.json" });
 });
+
+/**
+ * Intercept all requests that are needed when visiting the recordings tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomRecordingsRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptRoomRecordingsRequests", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+    fixture: "roomRecordings.json",
+  }).as("roomRecordingsRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the history tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomHistoryRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptRoomHistoryRequests", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/meetings*", {
+    fixture: "roomHistory.json",
+  }).as("roomHistoryRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the token/personalized links tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomPersonalizedLinksRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptRoomPersonalizedLinksRequests", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    fixture: "roomTokens.json",
+  }).as("roomTokensRequest");
+});

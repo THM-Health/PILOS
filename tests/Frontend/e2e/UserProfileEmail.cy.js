@@ -16,7 +16,7 @@ describe("User Profile Email", function () {
     cy.contains("admin.users.email").should("be.visible");
 
     // Check that fields are shown correctly and try to change email setting
-    cy.get('[data-test="email-tab-current-password-field')
+    cy.get('[data-test="email-tab-current-password-field"]')
       .should("be.visible")
       .and("include.text", "auth.current_password")
       .within(() => {
@@ -138,7 +138,7 @@ describe("User Profile Email", function () {
     cy.get("#current_password").type("secretPassword123#");
     cy.get('[data-test="user-tab-email-save-button"]').click();
 
-    cy.get('[data-test="email-tab-current-password-field').should(
+    cy.get('[data-test="email-tab-current-password-field"]').should(
       "include.text",
       "The current password is incorrect.",
     );
@@ -159,6 +159,18 @@ describe("User Profile Email", function () {
     cy.get("#current_password").type("secretPassword123#");
     cy.get('[data-test="user-tab-email-save-button"]').click();
 
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="email-tab-current-password-field"]').should(
+      "not.include.text",
+      "The current password is incorrect.",
+    );
+
+    cy.get('[data-test="email-field"]').should(
+      "not.include.text",
+      "The email field is required.",
+    );
+
+    // Check that the error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -188,7 +200,9 @@ describe("User Profile Email", function () {
     cy.get('[data-test="email-tab-button"]').click();
 
     // Check that email setting is disabled and save button is hidden
-    cy.get('[data-test="email-tab-current-password-field').should("not.exist");
+    cy.get('[data-test="email-tab-current-password-field"]').should(
+      "not.exist",
+    );
     cy.get("#email")
       .should("be.disabled")
       .and("have.value", "JohnDoe@domain.tld");
@@ -214,7 +228,9 @@ describe("User Profile Email", function () {
     cy.get('[data-test="email-tab-button"]').click();
 
     // Check that email setting is disabled and save button is hidden
-    cy.get('[data-test="email-tab-current-password-field').should("not.exist");
+    cy.get('[data-test="email-tab-current-password-field"]').should(
+      "not.exist",
+    );
     cy.get("#email")
       .should("be.disabled")
       .and("have.value", "JohnDoe@domain.tld");

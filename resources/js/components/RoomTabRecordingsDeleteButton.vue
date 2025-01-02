@@ -6,6 +6,7 @@
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-trash"
+    data-test="room-recordings-delete-button"
     @click="modalVisible = true"
   />
 
@@ -20,6 +21,7 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="false"
     :closable="!isLoadingAction"
+    data-test="room-recordings-delete-dialog"
   >
     <template #footer>
       <div class="flex justify-end gap-2">
@@ -27,6 +29,7 @@
           :label="$t('app.no')"
           severity="secondary"
           :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
           @click="modalVisible = false"
         />
         <Button
@@ -34,6 +37,7 @@
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
+          data-test="dialog-continue-button"
           @click="deleteRecording"
         />
       </div>

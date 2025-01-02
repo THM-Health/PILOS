@@ -4,6 +4,7 @@
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"
+    data-test="room-recordings-edit-button"
     @click="showModal"
   />
 
@@ -17,6 +18,7 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="false"
     :closable="!isLoadingAction"
+    data-test="room-recordings-edit-dialog"
   >
     <template #header>
       <div>
@@ -38,19 +40,21 @@
           :label="$t('app.cancel')"
           severity="secondary"
           :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
           @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
+          data-test="dialog-save-button"
           @click="save"
         />
       </div>
     </template>
 
     <!-- description -->
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2" data-test="description-field">
       <label for="description">{{ $t("rooms.recordings.description") }}</label>
       <Textarea
         id="description"
@@ -69,12 +73,13 @@
     </div>
 
     <!-- available formats -->
-    <div class="mt-6 flex flex-col gap-2">
+    <div class="mt-6 flex flex-col gap-2" data-test="available-formats-field">
       <label>{{ $t("rooms.recordings.available_formats") }}</label>
       <div
         v-for="format in newFormats"
         :key="format.id"
         class="flex items-center"
+        :data-test="'format-' + format.id + '-field'"
       >
         <ToggleSwitch
           v-model="format.disabled"
@@ -91,13 +96,14 @@
     </div>
 
     <!-- access -->
-    <div class="mt-6 flex flex-col gap-2">
+    <div class="mt-6 flex flex-col gap-2" data-test="access-field">
       <fieldset class="flex w-full flex-col gap-2">
         <label>{{ $t("rooms.recordings.access") }}</label>
         <div
           v-for="accessType in accessTypes"
           :key="accessType"
           class="flex items-center"
+          :data-test="'access-' + accessType + '-field'"
         >
           <RadioButton
             v-model="newAccess"

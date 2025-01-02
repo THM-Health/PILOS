@@ -15,8 +15,8 @@ Therefore, we only support overwriting a few selected components that are mostly
 
 The welcome page is stored in `resources/js/views/Home.vue` and consists of the two components:
 
--   LandingHeroSection (`resources/js/components/LandingHeroSection.vue`)
--   LandingFeaturesSection (`resources/js/components/LandingFeaturesSection.vue`)
+- LandingHeroSection (`resources/js/components/LandingHeroSection.vue`)
+- LandingFeaturesSection (`resources/js/components/LandingFeaturesSection.vue`)
 
 The LandingHeroSection contains the animated hero section with the title (`resources/js/components/LandingHeroTitle.vue`), description, the call to action button (`resources/js/components/LandingHeroCTA.vue`) and the images of users.
 

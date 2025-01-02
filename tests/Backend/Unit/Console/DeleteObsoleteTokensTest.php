@@ -21,7 +21,7 @@ class DeleteObsoleteTokensTest extends TestCase
         parent::setUp();
     }
 
-    public function testNoRoomTokenExpiration()
+    public function test_no_room_token_expiration()
     {
         $this->roomSettings->token_expiration = TimePeriod::UNLIMITED;
         $this->roomSettings->save();
@@ -32,7 +32,7 @@ class DeleteObsoleteTokensTest extends TestCase
         $this->assertDatabaseCount('room_tokens', 2);
     }
 
-    public function testDeletionOfExpiredRoomTokens()
+    public function test_deletion_of_expired_room_tokens()
     {
         $this->roomSettings->token_expiration = TimePeriod::ONE_WEEK;
         $this->roomSettings->save();

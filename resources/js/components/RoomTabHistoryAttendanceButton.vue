@@ -4,6 +4,7 @@
     :aria-label="$t('meetings.attendance.view')"
     :disabled="disabled"
     icon="fa-solid fa-user-clock"
+    data-test="room-history-attendance-button"
     @click="showModal"
   />
 
@@ -18,6 +19,14 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="!isLoadingAction"
     :closable="!isLoadingAction"
+    data-test="room-history-attendance-dialog"
+    :pt="{
+      pcCloseButton: {
+        root: {
+          'data-test': 'dialog-header-close-button',
+        },
+      },
+    }"
   >
     <template #header>
       <div>
@@ -51,6 +60,22 @@
       :loading="isLoadingAction"
       row-hover
       :global-filter-fields="['name']"
+      :pt="{
+        bodyRow: {
+          'data-test': 'room-history-attendance-item',
+        },
+        loadingIcon: {
+          'data-test': 'room-history-attendance-loading-icon',
+        },
+        mask: {
+          'data-test': 'overlay',
+        },
+        column: {
+          bodyCell: {
+            'data-test': 'room-history-attendance-item-cell',
+          },
+        },
+      }"
     >
       <template #header>
         <div class="flex justify-between gap-2">
@@ -58,7 +83,9 @@
             <InputIcon class="fa-solid fa-search"> </InputIcon>
             <InputText
               v-model="filters['global'].value"
+              autofocus
               :placeholder="$t('app.search')"
+              data-test="room-history-attendance-search"
             />
           </IconField>
 
@@ -70,6 +97,7 @@
             icon="fa-solid fa-file-excel"
             severity="secondary"
             :aria-label="$t('meetings.attendance.download')"
+            data-test="room-history-attendance-download-button"
           />
         </div>
       </template>

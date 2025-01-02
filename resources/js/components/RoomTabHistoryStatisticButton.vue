@@ -4,6 +4,7 @@
     :aria-label="$t('meetings.view_meeting_stats')"
     :disabled="disabled"
     icon="fa-solid fa-chart-line"
+    data-test="room-history-statistic-button"
     @click="showModal"
   />
 
@@ -18,6 +19,14 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="!isLoadingAction"
     :closable="!isLoadingAction"
+    data-test="room-history-statistic-dialog"
+    :pt="{
+      pcCloseButton: {
+        root: {
+          'data-test': 'dialog-header-close-button',
+        },
+      },
+    }"
   >
     <template #header>
       <div>
@@ -52,6 +61,7 @@
         :data="chartData"
         :options="chartOptions"
         class="h-64 lg:h-96 xl:h-[35rem]"
+        data-test="chart"
       />
     </OverlayComponent>
   </Dialog>
@@ -63,6 +73,7 @@ import { useI18n } from "vue-i18n";
 import "chartjs-adapter-date-fns";
 import { useColors } from "../composables/useColors.js";
 import { useCssVar } from "@vueuse/core";
+import { sansFontFamily } from "../font.js";
 
 const props = defineProps({
   roomId: {
@@ -151,6 +162,8 @@ const surfaceBorder = computed(() => {
   return useCssVar("--p-content-border-color").value;
 });
 
+const chartFontFamily = sansFontFamily.join(", ");
+
 // chart options for chart.js display of meeting statistics
 const chartOptions = computed(() => {
   return {
@@ -171,6 +184,9 @@ const chartOptions = computed(() => {
         title: {
           display: true,
           text: t("meetings.stats.time"),
+          font: {
+            family: chartFontFamily,
+          },
         },
         grid: {
           color: surfaceBorder.value,
@@ -181,11 +197,10 @@ const chartOptions = computed(() => {
           },
           color: textColor.value,
           font: function (context) {
-            if (context.tick && context.tick.major) {
-              return {
-                weight: "bold",
-              };
-            }
+            return {
+              family: chartFontFamily,
+              weight: context.tick && context.tick.major ? "bold" : "normal",
+            };
           },
           /**
            * Callback to set the ticks label of the x-axes
@@ -204,14 +219,38 @@ const chartOptions = computed(() => {
         title: {
           display: true,
           text: t("meetings.stats.amount"),
+          font: {
+            family: chartFontFamily,
+          },
         },
         grid: {
           color: surfaceBorder.value,
         },
+        ticks: {
+          font: {
+            family: chartFontFamily,
+          },
+        },
       },
     },
     plugins: {
+      legend: {
+        labels: {
+          font: {
+            family: chartFontFamily,
+          },
+        },
+      },
       tooltip: {
+        titleFont: {
+          family: chartFontFamily,
+        },
+        bodyFont: {
+          family: chartFontFamily,
+        },
+        footerFont: {
+          family: chartFontFamily,
+        },
         callbacks: {
           /**
            * Callback to set the title of the tooltip (hover on datapoint)

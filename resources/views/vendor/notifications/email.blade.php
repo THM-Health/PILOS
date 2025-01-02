@@ -7,7 +7,9 @@
 @endcomponent
 @endslot
 
+@isset($name)
 # @lang('mail.greeting', ['name' => $name])
+@endisset
 
 {{-- Intro Lines --}}
 @foreach ($introLines as $line)

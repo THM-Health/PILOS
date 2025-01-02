@@ -305,8 +305,12 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@uploadFileRequest");
 
-    // Check that dialog stayed open and error message is shown
-    cy.get('[data-test="room-files-upload-dialog"]').should("be.visible");
+    // Check that dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-files-upload-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The File must be a file of type: pdf, doc.");
+
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -451,7 +455,7 @@ describe("Rooms view files file actions", function () {
       .find('[data-test="room-files-delete-button"]')
       .click();
 
-    // Check tha dialog is shown for the correct file
+    // Check that dialog is shown for the correct file
     cy.get('[data-test="room-files-delete-dialog"]')
       .should("be.visible")
       .should(
@@ -557,13 +561,18 @@ describe("Rooms view files file actions", function () {
           }).as("roomFilesRequest");
         });
 
-        cy.get('[data-test="dialog-save-button')
+        cy.get('[data-test="dialog-save-button"]')
           .should("have.text", "app.save")
           .click();
 
+        // Check loading
         cy.get('[data-test="dialog-save-button"]').should("be.disabled");
 
-        cy.get('[data-test="dialog-cancel-button')
+        cy.get("#download").should("be.disabled");
+        cy.get("#use_in_meeting").should("be.disabled");
+        cy.get("#default").should("be.disabled");
+
+        cy.get('[data-test="dialog-cancel-button"]')
           .should("have.text", "app.cancel")
           .and("be.disabled")
           .then(() => {
@@ -681,14 +690,20 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@editFileRequest");
 
+    // Check that dialog is still open and 422 error messages are hidden
+    cy.get('[data-test="room-files-edit-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The Downloadable field is required.")
+      .and("not.include.text", "The Use in the next meeting field is required.")
+      .and("not.include.text", "The Default field is required.");
+
     // Check that error message gets shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that dialog is still open and close it
-    cy.get('[data-test="room-files-edit-dialog"]').should("be.visible");
+    // Close dialog
     cy.get('[data-test="room-files-edit-dialog"]')
       .find('[data-test="dialog-cancel-button"]')
       .click();
@@ -1140,7 +1155,7 @@ describe("Rooms view files file actions", function () {
       .click();
 
     cy.wait("@downloadFileRequest");
-    cy.wait("@roomRequest");
+    cy.wait("@roomFilesRequest");
 
     // Check that error message is shown and that file is not shown anymore
     cy.checkToastMessage("rooms.flash.file_gone");
@@ -1170,7 +1185,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/3", {
       statusCode: 403,
       body: {
-        message: "This action is unauthorized",
+        message: "This action is unauthorized.",
       },
     }).as("downloadFileRequest");
 
@@ -1182,7 +1197,7 @@ describe("Rooms view files file actions", function () {
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
         body: room,
-      }).as("roomRequest");
+      }).as("reloadRoomRequest");
     });
 
     cy.get('[data-test="room-file-item"]')
@@ -1191,7 +1206,7 @@ describe("Rooms view files file actions", function () {
       .click();
 
     cy.wait("@downloadFileRequest");
-    cy.wait("@roomRequest");
+    cy.wait("@reloadRoomRequest");
     cy.wait("@roomFilesRequest");
 
     cy.checkToastMessage("rooms.flash.file_forbidden");

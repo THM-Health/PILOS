@@ -87,4 +87,9 @@ class Meeting extends Model
     {
         return $this->hasMany(MeetingAttendee::class);
     }
+
+    public function getLogLabel()
+    {
+        return $this->id;
+    }
 }

@@ -28,7 +28,12 @@
       "password_change_allowed": true
     },
     "banner": {},
-    "recording": {},
+    "recording": {
+      "recording_retention_period": -1,
+      "meeting_usage_enabled": true,
+      "meeting_usage_retention_period": -1,
+      "attendance_retention_period": -1
+    },
     "auth": {}
   }
 }

@@ -1,0 +1,47 @@
+{
+  "data": [
+    {
+      "id": "6091532e-57c7-4a88-9b00-2bebfb969002",
+      "start": "2021-06-22T11:05:39.000000Z",
+      "end": null,
+      "attendance": true,
+      "statistical": false
+    },
+    {
+      "id": "2ba7ba60-91d7-49f5-b1bb-5353b9415406",
+      "start": "2021-06-23T10:04:50.000000Z",
+      "end": "2021-06-23T10:06:16.000000Z",
+      "attendance": false,
+      "statistical": false
+    },
+    {
+      "id": "bb861dda-225c-4243-a04a-d446f4497139",
+      "start": "2021-07-22T09:45:21.000000Z",
+      "end": "2021-07-22T09:46:47.000000Z",
+      "attendance": true,
+      "statistical": false
+    },
+    {
+      "id": "10b23d8a-9dc1-4377-a26f-bdc990cd2f36",
+      "start": "2020-06-22T08:51:10.000000Z",
+      "end": "2020-06-22T08:51:20.000000Z",
+      "attendance": false,
+      "statistical": true
+    },
+    {
+      "id": "3a3e504a-d2c4-431c-8ca1-a62598e66761",
+      "start": "2021-06-18T07:12:00.000000Z",
+      "end": "2021-06-18T07:15:00.000000Z",
+      "attendance": true,
+      "statistical": true
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 10,
+    "to": 5,
+    "total": 5
+  }
+}

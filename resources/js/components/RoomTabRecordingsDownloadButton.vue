@@ -8,6 +8,7 @@
     icon="fa-solid fa-download"
     :disabled="props.disabled"
     :aria-label="$t('rooms.recordings.download')"
+    data-test="room-recordings-download-button"
   />
 </template>
 <script setup>

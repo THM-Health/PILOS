@@ -10,6 +10,7 @@
       :aria-label="$t('app.reload')"
       :disabled="disabled || isLoadingAction"
       :icon="isLoadingAction ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
+      data-test="reload-room-types-button"
       @click="reloadRoomTypes"
     />
   </div>

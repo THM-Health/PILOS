@@ -283,53 +283,19 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
-      statusCode: 422,
-      body: {
-        message: "The given data was invalid",
-        errors: {
-          name: [
-            "The name contains the following non-permitted characters: 123!",
-          ],
-        },
-      },
-    }).as("joinRequest");
-
     cy.visit("/rooms/abc-def-123");
 
-    // Test with invalid name
-    cy.get('[data-test="room-join-button"').click();
-    cy.get('[data-test="room-join-dialog"]')
-      .should("be.visible")
-      .within(() => {
-        cy.contains("rooms.first_and_lastname");
-        cy.get("#guest-name").type("John Doe 123!");
-        cy.get("#record-attendance-agreement").should("not.be.checked").click();
-        cy.get("#record-agreement").should("not.be.checked").click();
-        cy.get("#record-video-agreement").should("not.be.checked").click();
-        cy.get('[data-test="dialog-continue-button"]').click();
-      });
-
-    // Check that correct query is sent
-    cy.wait("@joinRequest").then((interception) => {
-      expect(interception.request.body).to.eql({
-        name: "John Doe 123!",
-        consent_record_attendance: true,
-        consent_record: true,
-        consent_record_video: true,
-      });
-    });
+    cy.get('[data-test="room-join-button"]').click();
 
     // Test with valid name
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
+      .and("include.text", "rooms.first_and_lastname")
       .within(() => {
-        // Check that error message for invalid name is shown and set valid name
-        cy.contains(
-          "The name contains the following non-permitted characters: 123!",
-        ).should("be.visible");
-        cy.get("#guest-name").clear();
         cy.get("#guest-name").type("John Doe");
+        cy.get("#record-attendance-agreement").should("not.be.checked").click();
+        cy.get("#record-agreement").should("not.be.checked").click();
+        cy.get("#record-video-agreement").should("not.be.checked").click();
 
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
           statusCode: 200,
@@ -355,6 +321,97 @@ describe("Rooms view meetings", function () {
     cy.origin("https://example.org", () => {
       cy.url().should("eq", "https://example.org/?foo=a&bar=b");
     });
+  });
+
+  it("join running meeting guests errors", function () {
+    cy.intercept("GET", "api/v1/currentUser", {});
+
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      room.data.current_user = null;
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 422,
+      body: {
+        message: "The given data was invalid",
+        errors: {
+          name: [
+            "The name contains the following non-permitted characters: 123!",
+          ],
+        },
+      },
+    }).as("joinRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    // Test with invalid name
+    cy.get('[data-test="room-join-button"]').click();
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#guest-name").type("John Doe 123!");
+        cy.get("#record-attendance-agreement").should("not.be.checked").click();
+        cy.get("#record-agreement").should("not.be.checked").click();
+        cy.get("#record-video-agreement").should("not.be.checked").click();
+        cy.get('[data-test="dialog-continue-button"]').click();
+      });
+
+    // Check that correct query is sent
+    cy.wait("@joinRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "John Doe 123!",
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true,
+      });
+    });
+
+    // Check if error message is shown
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "include.text",
+        "The name contains the following non-permitted characters: 123!",
+      );
+
+    cy.get("#guest-name").should("have.value", "John Doe 123!");
+
+    // Test 500 error
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("joinRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@joinRequest");
+
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The name contains the following non-permitted characters: 123!",
+      );
+
+    // Check if error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
   });
 
   it("join running meeting with access code", function () {
@@ -505,7 +562,7 @@ describe("Rooms view meetings", function () {
     });
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
@@ -564,7 +621,7 @@ describe("Rooms view meetings", function () {
     }).as("joinRequest");
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
 
     // Check that header is set correctly
     cy.wait("@joinRequest").then((interception) => {
@@ -612,7 +669,7 @@ describe("Rooms view meetings", function () {
     );
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
@@ -805,6 +862,20 @@ describe("Rooms view meetings", function () {
       });
 
     // Join meeting errors missing agreements
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 422,
+      body: {
+        message:
+          "The consent record attendance must be accepted. (and 1 more error)",
+        errors: {
+          consent_record_attendance: [
+            "The consent record attendance must be accepted.",
+          ],
+          consent_record: ["The consent record must be accepted."],
+        },
+      },
+    }).as("joinRequest");
+
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
     cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
@@ -829,9 +900,6 @@ describe("Rooms view meetings", function () {
         cy.contains("The consent record must be accepted.").should(
           "be.visible",
         );
-
-        // Close dialog
-        cy.get('[data-test="dialog-cancel-button"]').click();
       });
 
     // Test general errors
@@ -843,22 +911,25 @@ describe("Rooms view meetings", function () {
     }).as("joinRequest");
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"]')
-      .should("have.text", "rooms.join")
-      .click();
     cy.get('[data-test="room-join-dialog"]').should("be.visible");
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait("@joinRequest");
+
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The consent record attendance must be accepted.",
+      )
+      .and("not.include.text", "The consent record must be accepted.");
 
     // Check if error message is shown and close it
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    // Check that dialog is still open
-    cy.get('[data-test="room-join-dialog"]').should("be.visible");
 
     // Test meeting error room closed
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
@@ -1133,52 +1204,19 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
-      statusCode: 422,
-      body: {
-        message: "The given data was invalid",
-        errors: {
-          name: [
-            "The name contains the following non-permitted characters: 123!",
-          ],
-        },
-      },
-    }).as("startRequest");
-
     cy.visit("/rooms/abc-def-123");
 
     // Test with invalid name
-    cy.get('[data-test="room-start-button"').click();
-    cy.get('[data-test="room-join-dialog"]')
-      .should("be.visible")
-      .within(() => {
-        cy.contains("rooms.first_and_lastname");
-        cy.get("#guest-name").type("John Doe 123!");
-        cy.get("#record-attendance-agreement").should("not.be.checked").click();
-        cy.get("#record-agreement").should("not.be.checked").click();
-        cy.get("#record-video-agreement").should("not.be.checked").click();
-        cy.get('[data-test="dialog-continue-button"]').click();
-      });
-
-    // Check that correct query is sent
-    cy.wait("@startRequest").then((interception) => {
-      expect(interception.request.body).to.eql({
-        name: "John Doe 123!",
-        consent_record_attendance: true,
-        consent_record: true,
-        consent_record_video: true,
-      });
-    });
+    cy.get('[data-test="room-start-button"]').click();
 
     // Test with valid name
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
-        cy.contains(
-          "The name contains the following non-permitted characters: 123!",
-        ).should("be.visible");
-        cy.get("#guest-name").clear();
         cy.get("#guest-name").type("John Doe");
+        cy.get("#record-attendance-agreement").should("not.be.checked").click();
+        cy.get("#record-agreement").should("not.be.checked").click();
+        cy.get("#record-video-agreement").should("not.be.checked").click();
 
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
           statusCode: 200,
@@ -1204,6 +1242,92 @@ describe("Rooms view meetings", function () {
     cy.origin("https://example.org", () => {
       cy.url().should("eq", "https://example.org/?foo=a&bar=b");
     });
+  });
+
+  it("start meeting guests errors", function () {
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.fixture("room.json").then((room) => {
+      room.data.record_attendance = true;
+      room.data.record = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 422,
+      body: {
+        message: "The given data was invalid",
+        errors: {
+          name: [
+            "The name contains the following non-permitted characters: 123!",
+          ],
+        },
+      },
+    }).as("startRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    // Test with invalid name
+    cy.get('[data-test="room-start-button"]').click();
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.contains("rooms.first_and_lastname");
+        cy.get("#guest-name").type("John Doe 123!");
+        cy.get("#record-attendance-agreement").should("not.be.checked").click();
+        cy.get("#record-agreement").should("not.be.checked").click();
+        cy.get("#record-video-agreement").should("not.be.checked").click();
+        cy.get('[data-test="dialog-continue-button"]').click();
+      });
+
+    // Check that correct query is sent
+    cy.wait("@startRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "John Doe 123!",
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true,
+      });
+    });
+
+    // Check if error message is shown
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .contains(
+        "The name contains the following non-permitted characters: 123!",
+      );
+
+    cy.get("#guest-name").should("have.value", "John Doe 123!");
+
+    // Test 500 error
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("startRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@startRequest");
+
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The name contains the following non-permitted characters: 123!",
+      );
+
+    // Check if error message is shown and close it
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
   });
 
   it("start meeting with access code", function () {
@@ -1240,20 +1364,7 @@ describe("Rooms view meetings", function () {
 
     cy.wait("@roomRequest");
 
-    // Test with invalid name
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
-      statusCode: 422,
-      body: {
-        message: "The given data was invalid",
-        errors: {
-          name: [
-            "The name contains the following non-permitted characters: 123!",
-          ],
-        },
-      },
-    }).as("startRequest");
-
-    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-start-button"]').click();
 
     // Try to start the meeting
     cy.get('[data-test="room-join-dialog"]')
@@ -1440,7 +1551,7 @@ describe("Rooms view meetings", function () {
     );
 
     // Try to start meeting
-    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
@@ -1632,6 +1743,19 @@ describe("Rooms view meetings", function () {
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
 
     // Start meeting errors missing agreements
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 422,
+      body: {
+        message:
+          "The consent record attendance must be accepted. (and 1 more error)",
+        errors: {
+          consent_record_attendance: [
+            "The consent record attendance must be accepted.",
+          ],
+          consent_record: ["The consent record must be accepted."],
+        },
+      },
+    }).as("startRequest");
 
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
     cy.get('[data-test="room-start-button"]').click();
@@ -1658,9 +1782,6 @@ describe("Rooms view meetings", function () {
         cy.contains("The consent record must be accepted.").should(
           "be.visible",
         );
-
-        // Close dialog
-        cy.get('[data-test="dialog-cancel-button"]').click();
       });
 
     // Test general errors
@@ -1672,14 +1793,19 @@ describe("Rooms view meetings", function () {
     }).as("startRequest");
 
     // Try to start meeting
-    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="room-join-dialog"]').should("be.visible");
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait("@startRequest");
 
-    // Check that room join dialog is closed
-    cy.get('[data-test="room-join-dialog"]').should("be.visible");
+    // Check that room join dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .and(
+        "not.include.text",
+        "The consent record attendance must be accepted.",
+      )
+      .and("not.include.text", "The consent record must be accepted.");
 
     // Check if error message is shown and close it
     cy.checkToastMessage([

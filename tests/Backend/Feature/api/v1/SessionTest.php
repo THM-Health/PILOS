@@ -60,7 +60,7 @@ class SessionTest extends TestCase
     /**
      * List of all sessions of the current user
      */
-    public function testIndex()
+    public function test_index()
     {
         // Try unauthenticated request
         $this->getJson(route('api.v1.sessions.index'))->assertUnauthorized();
@@ -94,7 +94,7 @@ class SessionTest extends TestCase
     /**
      * Delete all sessions of the current user except the current one
      */
-    public function testDelete()
+    public function test_delete()
     {
         // Check sessions of current user and other user
         $this->assertCount(2, $this->user->sessions);

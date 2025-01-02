@@ -138,6 +138,7 @@ function showModal() {
 
 function handleOk() {
   isLoadingAction.value = true;
+  formErrors.clear();
 
   const newRoom = _.clone(room);
   newRoom.room_type = newRoom.room_type ? newRoom.room_type.id : null;
@@ -148,7 +149,6 @@ function handleOk() {
       data: newRoom,
     })
     .then((response) => {
-      formErrors.clear();
       router.push({
         name: "rooms.view",
         params: { id: response.data.data.id },
@@ -159,8 +159,13 @@ function handleOk() {
       if (error.response) {
         // failed due to form validation errors
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          if (error.response.data.errors.room_type !== undefined) {
-            // roomTypeSelect.value.reloadRoomTypes();
+          // Room type validation error, a room type was sent, but it is invalid
+          // therefore we need to reload the room types
+          if (
+            error.response.data.errors.room_type !== undefined &&
+            newRoom.room_type !== null
+          ) {
+            roomTypeSelect.value.reloadRoomTypes();
           }
 
           formErrors.set(error.response.data.errors);
@@ -176,9 +181,10 @@ function handleOk() {
         // room limit exceeded
         if (error.response.status === env.HTTP_ROOM_LIMIT_EXCEEDED) {
           emit("limitReached");
+          modalVisible.value = false;
         }
       }
-      modalVisible.value = false;
+
       api.error(error);
     });
 }

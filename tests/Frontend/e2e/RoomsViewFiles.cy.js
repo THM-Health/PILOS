@@ -29,12 +29,12 @@ describe("Rooms View Files", function () {
       cy.get("button").should("be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
       });
 
@@ -59,12 +59,12 @@ describe("Rooms View Files", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "false");
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "false");
       });
 
@@ -482,7 +482,7 @@ describe("Rooms View Files", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should(
         "not.have.attr",
         "aria-disabled",
@@ -490,8 +490,8 @@ describe("Rooms View Files", function () {
       );
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -555,7 +555,7 @@ describe("Rooms View Files", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should(
         "not.have.attr",
         "aria-disabled",
@@ -563,8 +563,8 @@ describe("Rooms View Files", function () {
       );
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -636,7 +636,7 @@ describe("Rooms View Files", function () {
 
     cy.wait("@roomFilesRequest");
 
-    // Switch to next page but respond with no room members on second page
+    // Switch to next page but respond with no room files on second page
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data = [];
       roomFiles.meta.current_page = 2;
@@ -1327,7 +1327,7 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]').should("have.length", 0);
     cy.contains("rooms.files.nodata").should("be.visible");
 
-    // Check with 2 members on 2 pages
+    // Check with 2 files on 2 pages
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data = roomFiles.data.slice(0, 1);
       roomFiles.meta.last_page = 2;
@@ -1502,16 +1502,16 @@ describe("Rooms View Files", function () {
       });
     });
 
+    // Check if correct message is shown and no files are displayed
     cy.get('[data-test="filter-dropdown"]').should(
       "have.text",
       "rooms.files.filter.downloadable",
     );
 
-    // Check if correct message is shown and no files are displayed
     cy.get('[data-test="room-file-item"]').should("have.length", 0);
     cy.contains("app.filter_no_result").should("be.visible");
 
-    // Change filter again and respond with no members in room
+    // Change filter again and respond with no files in room
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data = [];
       roomFiles.meta.from = null;
@@ -1545,7 +1545,7 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]').should("have.length", 0);
     cy.contains("rooms.files.nodata").should("be.visible");
 
-    // Change filter again and respond with 2 members on 2 pages
+    // Change filter again and respond with 2 files on 2 pages
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data = roomFiles.data.slice(0, 1);
       roomFiles.meta.last_page = 2;
@@ -1704,7 +1704,7 @@ describe("Rooms View Files", function () {
           .eq(1)
           .should("have.attr", "aria-selected", "true");
 
-        // Change sorting type and respond with 3 members on 3 different pages
+        // Change sorting type and respond with 3 files on 3 different pages
         cy.fixture("roomFiles.json").then((roomFiles) => {
           roomFiles.data = roomFiles.data.slice(0, 1);
           roomFiles.meta.last_page = 3;

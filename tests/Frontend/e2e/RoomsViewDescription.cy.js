@@ -1,5 +1,8 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-
+import {
+  clearTiptapContent,
+  selectTiptapContent,
+} from "../support/utils/tiptapHelper.js";
 describe("Rooms view description", function () {
   beforeEach(function () {
     cy.init();
@@ -28,7 +31,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.get('[data-test="room-description-edit-button"]').should("not.exist");
@@ -59,13 +62,15 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
     // Check for co_owner
-    cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.intercept("GET", "api/v1/currentUser", {
+      fixture: "currentUser.json",
+    });
 
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
@@ -85,7 +90,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.get('[data-test="room-description-edit-button"]')
@@ -118,7 +123,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.get('[data-test="room-description-edit-button"]')
@@ -143,7 +148,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
@@ -155,10 +160,12 @@ describe("Rooms view description", function () {
     // Check that editor shows the correct description
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
-    cy.get(".tiptap").clear();
+
+    clearTiptapContent();
 
     // Cancel editing
     cy.get('[data-test="room-description-cancel-edit-button"]')
@@ -170,23 +177,25 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
 
     // Open editor again and check that description stayed the same
     cy.get('[data-test="room-description-edit-button"]').click();
+    cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
 
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     // Edit description
-    cy.get(".tiptap").clear();
+    clearTiptapContent();
     cy.get(".tiptap").type("New test description");
 
     // Save description
@@ -235,25 +244,37 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("New test description").should("be.visible");
+        cy.get("p")
+          .should("have.text", "New test description")
+          .and("be.visible");
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
     cy.get('[data-test="room-description-edit-button"]').should("be.visible");
 
     // Check with different description with different options
     cy.get('[data-test="room-description-edit-button"]').click();
+    cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
 
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
-        cy.get("p").contains("New test description").should("be.visible");
+        cy.get("p")
+          .should("have.text", "New test description")
+          .and("be.visible");
       });
 
-    cy.get(".tiptap").type("{selectall}");
+    selectTiptapContent();
+
+    cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
+      "have.length",
+      0,
+    );
 
     cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
+
     cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
       "have.length",
       4,
@@ -276,26 +297,54 @@ describe("Rooms view description", function () {
       .should("be.visible");
 
     cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').eq(0).click();
+    cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
+      "have.length",
+      0,
+    );
 
     // Check that description was changed correctly
     cy.get(".tiptap")
       .should("be.visible")
+      .should("have.focus")
       .within(() => {
-        cy.get("h1").contains("New test description").should("be.visible");
+        cy.get("h1")
+          .should("have.text", "New test description")
+          .and("be.visible");
         cy.get("p").should("not.exist");
       });
 
-    cy.get(".tiptap").type("{selectall}");
-    cy.get('[data-test="tip-tap-bold-button"]').click();
+    cy.window().should((win) => {
+      const selection = win.getSelection();
+      const selectedText = selection.toString();
+      expect(selectedText).to.eq("New test description");
+    });
+
+    cy.get('[data-test="tip-tap-bold-button"]')
+      .should("be.visible")
+      .and("have.class", "p-button-secondary")
+      .and("have.attr", "data-p-severity", "secondary")
+      .click();
+
+    cy.window().should((win) => {
+      const selection = win.getSelection();
+      const selectedText = selection.toString();
+      expect(selectedText).to.eq("New test description");
+    });
+
+    cy.get('[data-test="tip-tap-bold-button"]')
+      .should("be.visible")
+      .and("have.class", "p-button-primary")
+      .and("have.attr", "data-p-severity", "primary");
 
     // Check that description was changed correctly
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
         cy.get("h1")
           .find("strong")
-          .contains("New test description")
-          .should("be.visible");
+          .should("have.text", "New test description")
+          .and("be.visible");
         cy.get("p").should("not.exist");
       });
 
@@ -331,8 +380,8 @@ describe("Rooms view description", function () {
       .within(() => {
         cy.get("h1")
           .find("strong")
-          .contains("New test description")
-          .should("be.visible");
+          .should("have.text", "New test description")
+          .and("be.visible");
         cy.get("p").should("not.exist");
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
@@ -348,24 +397,6 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-edit-button"]').click();
 
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
-
-    // Check saving with 500 error
-    cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("saveDescriptionRequest");
-
-    cy.get('[data-test="room-description-save-button"]').click();
-
-    cy.wait("@saveDescriptionRequest");
-
-    // Check that error message gets shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
 
     // Check saving with 422 error
     cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
@@ -387,6 +418,29 @@ describe("Rooms view description", function () {
     cy.contains(
       "The Description must not be greater than 65000 characters.",
     ).should("be.visible");
+
+    // Check saving with 500 error
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("saveDescriptionRequest");
+
+    cy.get('[data-test="room-description-save-button"]').click();
+
+    cy.wait("@saveDescriptionRequest");
+
+    // Check that 422 error message is hidden
+    cy.contains(
+      "The Description must not be greater than 65000 characters.",
+    ).should("not.exist");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
 
     // Cancel editing
     cy.get('[data-test="room-description-cancel-edit-button"]').click();
@@ -433,7 +487,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.contains("rooms.description.missing").should("not.exist");
@@ -446,7 +500,7 @@ describe("Rooms view description", function () {
     cy.get(".tiptap")
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.get('[data-test="room-description-viewer"]').should("not.exist");
@@ -471,7 +525,7 @@ describe("Rooms view description", function () {
     cy.get(".tiptap")
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Room description").should("be.visible");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
     cy.get('[data-test="room-description-viewer"]').should("not.exist");
@@ -483,7 +537,9 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("p").contains("Changed room description").should("be.visible");
+        cy.get("p")
+          .should("have.text", "Changed room description")
+          .and("be.visible");
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
   });
@@ -508,7 +564,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("a").contains("Test Link").click();
+        cy.get("a").should("have.text", "Test Link").click();
       });
 
     // Check that modal is shown
@@ -534,7 +590,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-viewer"]')
       .should("be.visible")
       .within(() => {
-        cy.get("a").contains("Test Link").click();
+        cy.get("a").should("have.text", "Test Link").click();
       });
 
     cy.window().then((win) => {

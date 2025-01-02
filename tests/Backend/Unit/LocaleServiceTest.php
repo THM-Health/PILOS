@@ -13,7 +13,7 @@ class LocaleServiceTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testBuildCache()
+    public function test_build_cache()
     {
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
@@ -51,7 +51,7 @@ class LocaleServiceTest extends TestCase
         $this->assertEquals(['de', 'en'], $response);
     }
 
-    public function testJsonLocale()
+    public function test_json_locale()
     {
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
@@ -98,7 +98,7 @@ class LocaleServiceTest extends TestCase
         $this->assertEquals("{ 'key1': 'value_1' }", $response);
     }
 
-    public function testBuildJson()
+    public function test_build_json()
     {
         config([
             'app.default_locale_dir' => base_path('tests/Backend/Fixtures/Locales/default'),
@@ -112,7 +112,7 @@ class LocaleServiceTest extends TestCase
         $this->assertEquals('{"app":{"key_1":"value_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"value_4_1","key_4_2":{"key_4_2_1":"value_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 
-    public function testBuildJsonWithCustom()
+    public function test_build_json_with_custom()
     {
         config([
             'app.default_locale_dir' => base_path('tests/Backend/Fixtures/Locales/default'),
@@ -126,7 +126,7 @@ class LocaleServiceTest extends TestCase
         $this->assertEquals('{"app":{"key_1":"new_value_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"value_4_1","key_4_2":{"key_4_2_1":"value_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 
-    public function testBuildJsonWithFallback()
+    public function test_build_json_with_fallback()
     {
         config([
             'app.default_locale_dir' => base_path('tests/Backend/Fixtures/Locales/default'),
@@ -140,7 +140,7 @@ class LocaleServiceTest extends TestCase
         $this->assertEquals('{"app":{"key_1":"valeur_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"valeur_4_1","key_4_2":{"key_4_2_1":"valeur_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 
-    public function testBuildJsonWithFallbackAndCustom()
+    public function test_build_json_with_fallback_and_custom()
     {
         config([
             'app.default_locale_dir' => base_path('tests/Backend/Fixtures/Locales/default'),
@@ -154,7 +154,7 @@ class LocaleServiceTest extends TestCase
         $this->assertEquals('{"app":{"key_1":"nouvelle_valeur_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"valeur_4_1","key_4_2":{"key_4_2_1":"valeur_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 
-    public function testGetLocalesFromConfigFiles()
+    public function test_get_locales_from_config_files()
     {
         // Check if application default locales with a metadata file are loaded correctly
         $defaultLocales = LocaleService::getLocalesFromConfigFiles(base_path('tests/Backend/Fixtures/Locales/default'));
@@ -169,7 +169,7 @@ class LocaleServiceTest extends TestCase
         $this->assertEquals('English (US)', $customLocales['en']['name']);
     }
 
-    public function testGetEnabledLocales()
+    public function test_get_enabled_locales()
     {
         // List of application default locales
         $defaultLocales = [

@@ -188,12 +188,7 @@ function asyncFind(query) {
         return;
       }
 
-      // disable users that are already members of this room or the room owner
-      // const idOfMembers = this.members.map(user => user.id);
-      users.value = response.data.data.map((user) => {
-        // if (idOfMembers.includes(user.id) || this.room.owner.id === user.id) { user.$isDisabled = true; }
-        return user;
-      });
+      users.value = response.data.data;
       tooManyResults.value = false;
     })
     .catch((error) => {
