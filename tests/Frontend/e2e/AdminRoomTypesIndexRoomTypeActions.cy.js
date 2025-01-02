@@ -404,17 +404,31 @@ describe("Admin room types index room type actions", function () {
     cy.get('[data-test="room-types-delete-dialog"]').should("not.exist");
 
     // Check with 500 error
-    cy.intercept("GET", "api/v1/roomTypes*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const replacementRoomTypesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("replacementRoomTypesRequest");
+      "replacementRoomTypesRequest",
+    );
 
     cy.get('[data-test="room-type-item"]')
       .eq(0)
       .find('[data-test="room-types-delete-button"]')
       .click();
+
+    // Check loading
+    cy.get('[data-test="replacement-room-type-dropdown"]').within(() => {
+      cy.get(".p-select-label")
+        .should("have.attr", "aria-disabled", "true")
+        .then(() => {
+          replacementRoomTypesRequest.sendResponse();
+        });
+    });
 
     cy.wait("@replacementRoomTypesRequest");
 

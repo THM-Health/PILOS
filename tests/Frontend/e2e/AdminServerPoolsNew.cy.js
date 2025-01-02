@@ -521,14 +521,28 @@ describe("Admin server pools new", function () {
 
   it("load servers errors", function () {
     // Check with 500 error
-    cy.intercept("GET", "api/v1/servers*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const serversRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/servers*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("serversRequest");
+      "serversRequest",
+    );
 
     cy.visit("/admin/server_pools/new");
+
+    // Check loading
+    cy.get('[data-test="server-pools-save-button"]').should("be.disabled");
+
+    cy.get('[data-test="server-dropdown"]')
+      .should("have.class", "multiselect--disabled")
+      .then(() => {
+        serversRequest.sendResponse();
+      });
 
     cy.wait("@serversRequest");
 

@@ -479,16 +479,32 @@ describe("Admin users index", function () {
   });
 
   it("load roles errors", function () {
-    cy.intercept("GET", "api/v1/roles*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const rolesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roles*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("rolesRequest");
+      "rolesRequest",
+    );
 
     cy.visit("/admin/users");
 
     cy.wait("@usersRequest");
+
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check loading
+    cy.get('[data-test="role-dropdown"]')
+      .should("have.class", "multiselect--disabled")
+      .then(() => {
+        rolesRequest.sendResponse();
+      });
+
     cy.wait("@rolesRequest");
 
     // Check that error message gets shown

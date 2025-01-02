@@ -1496,16 +1496,30 @@ describe("Admin room types new", function () {
 
   it("load roles errors", function () {
     // Check with 500 error
-    cy.intercept("GET", "api/v1/roles*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const rolesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roles*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("rolesRequest");
+      "rolesRequest",
+    );
 
     cy.visit("/admin/room_types/new");
 
     cy.get("#restrict").click();
+
+    // Check loading
+    cy.get('[data-test="room-types-save-button"]').should("be.disabled");
+
+    cy.get('[data-test="role-dropdown"]')
+      .should("have.class", "multiselect--disabled")
+      .then(() => {
+        rolesRequest.sendResponse();
+      });
 
     cy.wait("@rolesRequest");
 
@@ -1630,14 +1644,28 @@ describe("Admin room types new", function () {
 
   it("load server pools errors", function () {
     // Check with 500 error
-    cy.intercept("GET", "api/v1/serverPools*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const serverPoolRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/serverPools*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("serverPoolsRequest");
+      "serverPoolsRequest",
+    );
 
     cy.visit("/admin/room_types/new");
+
+    // Check loading
+    cy.get('[data-test="room-types-save-button"]').should("be.disabled");
+
+    cy.get('[data-test="server-pool-dropdown"]')
+      .should("have.class", "multiselect--disabled")
+      .then(() => {
+        serverPoolRequest.sendResponse();
+      });
 
     cy.wait("@serverPoolsRequest");
 

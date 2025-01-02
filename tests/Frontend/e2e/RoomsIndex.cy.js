@@ -2264,14 +2264,27 @@ describe("Room Index", function () {
   });
 
   it("error loading room types", function () {
-    cy.intercept("GET", "api/v1/roomTypes", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const roomTypesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    });
+      "roomTypesRequest",
+    );
 
     cy.visit("/rooms");
+
+    // Check loading
+    cy.get('[data-test="room-type-dropdown"]')
+      .find(".p-select-label")
+      .should("have.attr", "aria-disabled", "true")
+      .then(() => {
+        roomTypesRequest.sendResponse();
+      });
 
     // Check that error message gets shown
     cy.checkToastMessage([

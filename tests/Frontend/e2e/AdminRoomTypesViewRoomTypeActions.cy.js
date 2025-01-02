@@ -337,6 +337,96 @@ describe("Admin room types view room type actions", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
+  it("load replacement room types errors", function () {
+    cy.visit("/admin/room_types/3");
+
+    cy.wait("@roomTypeRequest");
+
+    cy.get('[data-test="room-types-delete-dialog"]').should("not.exist");
+
+    // Check with 500 error
+    const replacementRoomTypesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
+      },
+      "replacementRoomTypesRequest",
+    );
+
+    cy.get('[data-test="room-types-delete-button"]').click();
+
+    // Check loading
+    cy.get('[data-test="replacement-room-type-dropdown"]').within(() => {
+      cy.get(".p-select-label")
+        .should("have.attr", "aria-disabled", "true")
+        .then(() => {
+          replacementRoomTypesRequest.sendResponse();
+        });
+    });
+
+    cy.wait("@replacementRoomTypesRequest");
+
+    // Check that dialog is still open and that error message is shown
+    cy.get('[data-test="room-types-delete-dialog"]').should("be.visible");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // ToDo this is not implemented yet!!!! so careful when keeping this part of the test !!!!
+    // Check that dropdown is disabled
+    cy.get('[data-test="replacement-room-type-dropdown"]').within(() => {
+      cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
+    });
+
+    // Reload with correct data
+    cy.intercept("GET", "api/v1/roomTypes*", {
+      statusCode: 200,
+      fixture: "roomTypes.json",
+    }).as("replacementRoomTypesRequest");
+
+    cy.get('[data-test="replacement-room-types-reload-button"]')
+      .should("be.visible")
+      .click();
+
+    cy.wait("@replacementRoomTypesRequest");
+
+    // Check that dropdown is enabled again
+    cy.get('[data-test="replacement-room-type-dropdown"]').within(() => {
+      cy.get(".p-select-label").should(
+        "not.have.attr",
+        "aria-disabled",
+        "true",
+      );
+    });
+
+    cy.get('[data-test="replacement-room-types-reload-button"]').should(
+      "not.exist",
+    );
+
+    // Close dialog and open again with 401 error
+    cy.get('[data-test="dialog-cancel-button"]').click();
+    cy.get('[data-test="room-types-delete-dialog"]').should("not.exist");
+
+    cy.intercept("GET", "api/v1/roomTypes*", {
+      statusCode: 401,
+    }).as("replacementRoomTypesRequest");
+
+    cy.get('[data-test="room-types-delete-button"]').click();
+
+    cy.wait("@replacementRoomTypesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/room_types/3");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
   it("switch between edit and view", function () {
     cy.fixture("roomType.json").then((roomType) => {
       roomType.data.restrict = true;

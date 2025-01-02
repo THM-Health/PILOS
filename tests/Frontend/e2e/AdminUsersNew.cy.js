@@ -771,8 +771,11 @@ describe("Admin users new", function () {
     cy.visit("/admin/users/new");
 
     // Check loading
-    cy.get('[data-test="users-new-save-button"]')
-      .should("be.disabled")
+    cy.get('[data-test="users-new-save-button"]').should("be.disabled");
+
+    cy.get('[data-test="timezone-dropdown"]')
+      .find(".p-select-label")
+      .should("have.attr", "aria-disabled", "true")
       .then(() => {
         loadTimezonesRequest.sendResponse();
       });
@@ -830,14 +833,28 @@ describe("Admin users new", function () {
 
   it("load roles errors", function () {
     // Check with 500 error
-    cy.intercept("GET", "api/v1/roles*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const rolesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roles*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("rolesRequest");
+      "rolesRequest",
+    );
 
     cy.visit("/admin/users/new");
+
+    // Check loading
+    cy.get('[data-test="users-new-save-button"]').should("be.disabled");
+
+    cy.get('[data-test="role-dropdown"]')
+      .should("have.class", "multiselect--disabled")
+      .then(() => {
+        rolesRequest.sendResponse();
+      });
 
     cy.wait("@rolesRequest");
 

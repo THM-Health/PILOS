@@ -448,16 +448,29 @@ describe("Admin users view", function () {
   });
 
   it("load timezones error", function () {
-    cy.intercept("GET", "api/v1/getTimezones", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const timezonesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/getTimezones",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("timezonesRequest");
+      "timezonesRequest",
+    );
 
     cy.visit("/admin/users/2");
 
     cy.wait("@userRequest");
+
+    // Check loading
+    cy.get('[data-test="timezone-dropdown"]')
+      .find(".p-select-label")
+      .should("have.attr", "aria-disabled", "true")
+      .then(() => {
+        timezonesRequest.sendResponse();
+      });
 
     cy.wait("@timezonesRequest");
 
