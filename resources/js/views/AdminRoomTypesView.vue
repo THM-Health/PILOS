@@ -694,7 +694,7 @@
               <div class="flex justify-between gap-6">
                 <FormError
                   :errors="
-                    formErrors.fieldError('auto_start_recording_enforced')
+                    formErrors.fieldError('auto_start_recording_default')
                   "
                 />
                 <FormError
