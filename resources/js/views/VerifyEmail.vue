@@ -14,6 +14,7 @@
                   severity="success"
                   icon="fa-solid fa-envelope-circle-check"
                   :closable="false"
+                  data-test="verify-success-message"
                 >
                   {{ $t("app.verify_email.success") }}
                 </Message>
@@ -22,6 +23,7 @@
                   severity="error"
                   icon="fa-solid fa-triangle-exclamation"
                   :closable="false"
+                  data-test="verify-invalid-message"
                 >
                   {{ $t("app.verify_email.invalid") }}
                 </Message>
@@ -30,6 +32,7 @@
                   severity="error"
                   icon="fa-solid fa-triangle-exclamation"
                   :closable="false"
+                  data-test="verify-error-message"
                 >
                   {{ $t("app.verify_email.fail") }}
                 </Message>
