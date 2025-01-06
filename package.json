@@ -38,7 +38,7 @@
   "dependencies": {
     "@floating-ui/vue": "^1.1.5",
     "@fortawesome/fontawesome-free": "^6.7.2",
-    "@noble/hashes": "^1.6.1",
+    "@noble/hashes": "^1.7.0",
     "@primevue/auto-import-resolver": "^4.2.5",
     "@primevue/themes": "^4.2.5",
     "@tiptap/extension-color": "^2.11.0",
