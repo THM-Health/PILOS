@@ -66,8 +66,7 @@ abstract class AbstractProvisioner
                 $callback($item);
             }
             if (! $item->delete()) {
-                $name = $item->name ?? "$item->firstname $item->lastname";
-                Log::error("Failed to delete {$this->modelName()} '$name'");
+                Log::error("Failed to delete {$this->modelName()} '{$item->getLogLabel()}'");
             }
         }
     }

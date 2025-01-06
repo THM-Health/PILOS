@@ -59,4 +59,9 @@ class ServerPool extends Model
     {
         return $query->whereLike('name', '%'.$name.'%');
     }
+
+    public function getLogLabel()
+    {
+        return $this->name.' ('.$this->id.')';
+    }
 }
