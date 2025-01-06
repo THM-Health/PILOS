@@ -167,7 +167,7 @@ class ProvisioningServiceTest extends TestCase
     {
         $this->testServer->status = 'fnord';
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Invalid server status');
+        $this->expectExceptionMessage('Invalid server definition');
         $this->svc->server->create($this->testServer);
         $this->assertNull(Server::firstWhere('name', $this->testServer->name));
     }
@@ -239,8 +239,8 @@ class ProvisioningServiceTest extends TestCase
      */
     public function test_server_pool_create_non_existing_server()
     {
-        $this->expectException(RecordsNotFoundException::class);
-        $this->expectExceptionMessage("Could not find specified server(s) for pool '{$this->testServerPool->name}'");
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid server pool definition');
         $this->svc->serverPool->create($this->testServerPool);
         $this->assertNull(ServerPool::firstWhere('name', $this->testServerPool->name));
     }
@@ -312,8 +312,8 @@ class ProvisioningServiceTest extends TestCase
      */
     public function test_room_type_create_non_existing_server_pool()
     {
-        $this->expectException(RecordsNotFoundException::class);
-        $this->expectExceptionMessage("Could not find server pool '{$this->testServerPool->name}'");
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid room type definition');
         $this->svc->roomType->create($this->testRoomType);
         $this->assertNull(RoomType::firstWhere('name', $this->testRoomType->name));
     }
@@ -449,6 +449,18 @@ class ProvisioningServiceTest extends TestCase
     public function test_user_create_incomplete()
     {
         unset($this->testUser->password);
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid user definition');
+        $this->svc->user->create($this->testUser);
+        $this->assertNull(User::where('firstname', $this->testUser->firstname)->where('lastname', $this->testUser->lastname)->first());
+    }
+
+    /**
+     * Test user creation with a non-existing role
+     */
+    public function test_user_create_non_existing_role()
+    {
+        $this->testUser->roles = ['fnord'];
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid user definition');
         $this->svc->user->create($this->testUser);

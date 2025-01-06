@@ -42,7 +42,7 @@ abstract class AbstractProvisioner
         Log::notice("Provisioning {$this->modelName()} '$name'");
         $validator = Validator::make((array) $properties, $this->expectedProperties);
         if ($validator->fails()) {
-            throw new UnexpectedValueException("Invalid {$this->modelName()} definition");
+            throw new UnexpectedValueException("Invalid {$this->modelName()} definition: {$validator->errors()}");
         }
         $item = new $this->model;
         $callback($item);
@@ -86,19 +86,19 @@ class ServerProvisioner extends AbstractProvisioner
     protected string $model = Server::class;
 
     protected array $expectedProperties = [
-        'name' => 'required|string',
+        'name' => 'required|string|unique:servers,name',
         'description' => 'required|string',
         'endpoint' => 'required|string',
         'secret' => 'required|string',
         'strength' => 'required|integer|min:1|max:10',
-        // TODO: Make something like this work
-        // 'status' => [Rule::required, Rule::enum(ServerStatus::class)->except(ServerStatus::DRAINING)],
-        'status' => 'required|string',
+        'status' => 'required|in:disabled,enabled',
     ];
 
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($srv) use ($properties) {
+            // TODO: PHP 8.3 allows the following syntax
+            // ServerStatus::{strtoupper($properties->status)}->value;
             $status = "App\Enums\ServerStatus::".strtoupper($properties->status);
             if (! defined($status)) {
                 throw new UnexpectedValueException('Invalid server status');
@@ -108,8 +108,6 @@ class ServerProvisioner extends AbstractProvisioner
             $srv->base_url = $properties->endpoint;
             $srv->secret = $properties->secret;
             $srv->strength = $properties->strength;
-            // TODO: PHP 8.3 allows the following syntax
-            // ServerStatus::{strtoupper($properties->status)}->value;
             $srv->status = constant($status)->value;
         });
     }
@@ -125,20 +123,16 @@ class ServerPoolProvisioner extends AbstractProvisioner
     protected string $model = ServerPool::class;
 
     protected array $expectedProperties = [
-        'name' => 'required|string',
+        'name' => 'required|string|unique:server_pools,name',
         'description' => 'required|string',
-        'servers' => 'required|list',
+        'servers' => 'required|list|distinct|exists:servers,name',
+        'servers.*' => 'string',
     ];
 
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($pool) use ($properties) {
             $servers = Server::whereIn('name', $properties->servers)->get();
-            if (count($properties->servers) != count($servers)) {
-                $message = "Could not find specified server(s) for pool '{$properties->name}'";
-                Log::error($message);
-                throw new RecordsNotFoundException($message);
-            }
             $pool->name = $properties->name;
             $pool->description = $properties->description;
             $pool->save();
@@ -157,10 +151,10 @@ class RoomTypeProvisioner extends AbstractProvisioner
     protected string $model = RoomType::class;
 
     protected array $expectedProperties = [
-        'name' => 'required|string',
+        'name' => 'required|string|unique:room_types,name',
         'description' => 'required|string',
         'color' => 'required|string',
-        'server_pool' => 'required|string',
+        'server_pool' => 'required|string|exists:server_pools,name',
     ];
 
     public function create(object $properties)
@@ -170,11 +164,6 @@ class RoomTypeProvisioner extends AbstractProvisioner
             $type->description = $properties->description;
             $type->color = $properties->color;
             $pool = ServerPool::firstWhere('name', $properties->server_pool);
-            if (is_null($pool)) {
-                $message = "Could not find server pool '$properties->server_pool'";
-                Log::error($message);
-                throw new RecordsNotFoundException($message);
-            }
             $type->serverPool()->associate($pool);
         });
     }
@@ -193,13 +182,21 @@ class RoleProvisioner extends AbstractProvisioner
         'name' => 'required|string',
         'permissions' => 'required|array:rooms,meetings,settings,users,roles,roomTypes,servers,serverPools',
         'permissions.rooms' => 'required|list',
+        'permissions.rooms.*' => 'string',
         'permissions.meetings' => 'required|list',
+        'permissions.meetings.*' => 'string',
         'permissions.settings' => 'required|list',
+        'permissions.settings.*' => 'string',
         'permissions.users' => 'required|list',
+        'permissions.users.*' => 'string',
         'permissions.roles' => 'required|list',
+        'permissions.roles.*' => 'string',
         'permissions.roomTypes' => 'required|list',
+        'permissions.roomTypes.*' => 'string',
         'permissions.servers' => 'required|list',
+        'permissions.servers.*' => 'string',
         'permissions.serverPools' => 'required|list',
+        'permissions.serverPools.*' => 'string',
     ];
 
     public function create(object $properties)
@@ -237,7 +234,7 @@ class UserProvisioner extends AbstractProvisioner
         'email' => 'required|string',
         'password' => 'required|string',
         'authenticator' => 'required|string',
-        'roles' => 'required|list',
+        'roles' => 'required|list|exists:roles,name',
         'roles.*' => 'string',
         'locale' => 'required|string',
         'timezone' => 'required|string',
@@ -274,6 +271,7 @@ class SettingsProvisioner
 {
     public static array $expectedProperties = [
         'general' => 'array:name,pagination_page_size,default_timezone,help_url,legal_notice_url,privacy_policy_url,toast_lifetime,no_welcome_page',
+        'general.name' => 'string',
         'general.pagination_page_size' => 'integer',
         'general.default_timezone' => 'string',
         'general.help_url' => 'string',
