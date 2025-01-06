@@ -28,6 +28,11 @@ abstract class AbstractProvisioner
 
     protected array $expectedProperties;
 
+    protected function instanceName(object $properties)
+    {
+        return $properties->name;
+    }
+
     protected function modelName()
     {
         $name = (new ReflectionClass($this->model))->getShortname();
@@ -38,8 +43,7 @@ abstract class AbstractProvisioner
 
     protected function createWrapper(object $properties, callable $callback)
     {
-        $name = $properties->name ?? "$properties->firstname $properties->lastname";
-        Log::notice("Provisioning {$this->modelName()} '$name'");
+        Log::notice("Provisioning {$this->modelName()} '{$this->instanceName($properties)}'");
         $validator = Validator::make((array) $properties, $this->expectedProperties);
         if ($validator->fails()) {
             throw new UnexpectedValueException("Invalid {$this->modelName()} definition: {$validator->errors()}");
@@ -238,6 +242,11 @@ class UserProvisioner extends AbstractProvisioner
         'locale' => 'required|string',
         'timezone' => 'required|string',
     ];
+
+    protected function instanceName(object $properties)
+    {
+        return "$properties->firstname $properties->lastname";
+    }
 
     public function create(object $properties)
     {
