@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wrong permission check when showing create new server pool button ([#1724])
 - Styling issue in the role selection dropdown on the user index view ([#1724])
 - Broken permission checks when loading the user view/edit page in the admin UI ([#1724])
+- xdebug always enabled ([#1727])
 
 ### Removed
 
