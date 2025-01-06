@@ -86,7 +86,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::whereNotIn('id', $permissions)->delete();
 
         // Setup permission inheritances
-        /// e.g. If you have permission x, you also get the permissions a,b,c
+        // / e.g. If you have permission x, you also get the permissions a,b,c
         Permission::setIncludedPermissions('rooms.manage', ['rooms.create', 'rooms.viewAll']);
 
         Permission::setIncludedPermissions('meetings.viewAny', ['rooms.viewAll']);

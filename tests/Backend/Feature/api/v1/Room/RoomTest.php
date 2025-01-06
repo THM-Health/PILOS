@@ -126,7 +126,7 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertCreated();
 
-        //Test if access code gets set correctly if enforced in the room type
+        // Test if access code gets set correctly if enforced in the room type
         // Access code enforced
         $roomType = RoomType::factory()->create([
             'has_access_code_default' => true,
@@ -288,13 +288,13 @@ class RoomTest extends TestCase
 
     public function test_transfer_room()
     {
-        //Create roles and users
-        //Roles
+        // Create roles and users
+        // Roles
         $role = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
         $role2 = Role::factory()->create();
         $role2->permissions()->attach($this->createPermission);
-        //Users
+        // Users
         $this->user->roles()->attach($role);
         $userThatCanHaveRooms = User::factory()->create();
         $userThatCanHaveRooms->roles()->attach($role);
@@ -306,110 +306,110 @@ class RoomTest extends TestCase
         $this->roomSettings->limit = 1;
         $this->roomSettings->save();
 
-        //create rooms
+        // create rooms
         $room = Room::factory()->create();
         $room->roomType->restrict = true;
         $room->roomType->save();
         $room->roomType->roles()->sync([$role->id]);
         $room->save();
-        //Limit room (lets userThatReachedLimit reach the limit)
+        // Limit room (lets userThatReachedLimit reach the limit)
         Room::factory()->create(['user_id' => $userThatReachedLimit->id]);
 
-        //Test unauthenticated user
+        // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.transfer', ['room' => $room]))
             ->assertUnauthorized();
 
-        //Test user that is not the owner of the room
+        // Test user that is not the owner of the room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => -1])
             ->assertForbidden();
 
-        //Test user that has manage permission
+        // Test user that has manage permission
         $role->permissions()->attach($this->managePermission);
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id])
             ->assertNoContent();
         $role->permissions()->detach($this->managePermission);
 
-        //Make sure that the owner was changed
+        // Make sure that the owner was changed
         $room->refresh();
         $this->assertEquals($room->owner->id, $this->user->id);
 
-        //Test transfer room to invalid user
+        // Test transfer room to invalid user
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => -1])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to current owner
+        // Test transfer room to current owner
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to user that can have rooms
+        // Test transfer room to user that can have rooms
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id])
             ->assertNoContent();
 
-        //Check if owner was changed and reset owner
+        // Check if owner was changed and reset owner
         $room->refresh();
         $this->assertEquals($room->owner->id, $userThatCanHaveRooms->id);
         $room->owner()->associate($this->user);
         $room->save();
 
-        //Test transfer room to user that can have rooms and stay in room as user
+        // Test transfer room to user that can have rooms and stay in room as user
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id, 'role' => RoomUserRole::USER])
             ->assertNoContent();
 
-        //Check if owner was changed and that the old owner was added as a user
+        // Check if owner was changed and that the old owner was added as a user
         $room->refresh();
         $this->assertEquals($room->owner->id, $userThatCanHaveRooms->id);
         $foundOldOwner = $room->members()->find($this->user);
         $this->assertNotNull($foundOldOwner);
         $this->assertEquals(RoomUserRole::USER, $foundOldOwner->pivot->role);
 
-        //Test transfer room to previous owner and stay in room as moderator
+        // Test transfer room to previous owner and stay in room as moderator
         $this->actingAs($userThatCanHaveRooms)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id, 'role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
 
-        //Check if owner was changed and that the old owner was added as a moderator
+        // Check if owner was changed and that the old owner was added as a moderator
         $room->refresh();
         $this->assertEquals($room->owner->id, $this->user->id);
         $foundOldOwner = $room->members()->find($userThatCanHaveRooms);
         $this->assertNotNull($foundOldOwner);
         $this->assertEquals(RoomUserRole::MODERATOR, $foundOldOwner->pivot->role);
 
-        //Make sure that the new owner was deleted from the members
+        // Make sure that the new owner was deleted from the members
         $foundNewOwner = $room->members()->find($this->user);
         $this->assertNull($foundNewOwner);
 
-        //Test transfer room to user that can have rooms and stay in room as co owner
+        // Test transfer room to user that can have rooms and stay in room as co owner
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id, 'role' => RoomUserRole::CO_OWNER])
             ->assertNoContent();
 
-        //Check if owner was changed and that the old owner was added as a co owner
+        // Check if owner was changed and that the old owner was added as a co owner
         $room->refresh();
         $this->assertEquals($room->owner->id, $userThatCanHaveRooms->id);
         $foundOldOwner = $room->members()->find($this->user);
         $this->assertNotNull($foundOldOwner);
         $this->assertEquals(RoomUserRole::CO_OWNER, $foundOldOwner->pivot->role);
 
-        //reset owner and membership
+        // reset owner and membership
         $room->owner()->associate($this->user);
         $room->members()->detach($this->user);
         $room->save();
 
-        //Test transfer room to user that can have rooms but with invalid role
+        // Test transfer room to user that can have rooms but with invalid role
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id, 'role' => 10])
             ->assertJsonValidationErrors(['role']);
 
-        //Make sure that the owner was not changed
+        // Make sure that the owner was not changed
         $room->refresh();
         $this->assertEquals($room->owner->id, $this->user->id);
 
-        //Test transfer room to user that can not have rooms
+        // Test transfer room to user that can not have rooms
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanNotHaveRooms->id])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to user that reached the room limit
+        // Test transfer room to user that reached the room limit
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatReachedLimit->id])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to user that can not have rooms of the room type of the room
+        // Test transfer room to user that can not have rooms of the room type of the room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanNotHaveRoomType->id])
             ->assertJsonValidationErrors(['user']);
     }
@@ -1242,12 +1242,12 @@ class RoomTest extends TestCase
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index'))->assertUnauthorized();
 
-        //Test without filter
+        // Test without filter
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertJsonValidationErrors(['filter_own', 'filter_shared', 'filter_public', 'filter_all']);
 
-        //Test with logged in user
-        //filter own
+        // Test with logged in user
+        // filter own
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data')
@@ -1277,7 +1277,7 @@ class RoomTest extends TestCase
                 ],
             ]);
 
-        //filter shared
+        // filter shared
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=1&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data')
@@ -1286,7 +1286,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter public
+        // filter public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data')
@@ -1300,7 +1300,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter own, shared
+        // filter own, shared
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(2, 'data')
@@ -1310,7 +1310,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter shared, public
+        // filter shared, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(7, 'data')
@@ -1325,7 +1325,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter own, public
+        // filter own, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(7, 'data')
@@ -1340,7 +1340,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter own, shared, public
+        // filter own, shared, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(8, 'data')
@@ -1356,18 +1356,18 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //Test Favorites
+        // Test Favorites
 
-        //Test without only_favorites
+        // Test without only_favorites
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&sort_by=last_started&page=1&per_page=12')
             ->assertJsonValidationErrors(['only_favorites']);
 
-        //Test Room List with only favorites (user has no favorites)
+        // Test Room List with only favorites (user has no favorites)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&only_favorites=1&sort_by=last_started&page=1&per_page=12')
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
-        //Test Room List with only favorites (user has favorites)
+        // Test Room List with only favorites (user has favorites)
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
@@ -1378,7 +1378,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name]);
 
-        //Test Room List with only favorites (user has several favorites)
+        // Test Room List with only favorites (user has several favorites)
         $this->user->roomFavorites()->attach($roomShared);
         $this->user->roomFavorites()->attach($roomPublicEnforced1);
         $this->user->roomFavorites()->attach($roomPrivateEnforced1);
@@ -1393,12 +1393,12 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
             ->assertJsonFragment(['id' => $roomPrivateEnforced1->id, 'name' => $roomPrivateEnforced1->name]);
 
-        //filter all (without permission to show all rooms)
-        //should lead to bad request because the other filters are set to 0 (false)
+        // filter all (without permission to show all rooms)
+        // should lead to bad request because the other filters are set to 0 (false)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=0&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertBadRequest();
 
-        //should show same result as showing all the other filters together
+        // should show same result as showing all the other filters together
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(8, 'data')
@@ -1414,8 +1414,8 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter all (with permission to show all rooms)
-        //should show all rooms
+        // filter all (with permission to show all rooms)
+        // should show all rooms
         $role = Role::factory()->create();
         $role->permissions()->attach($this->viewAllPermission);
         $this->user->roles()->attach($role);
@@ -1455,8 +1455,8 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter all (with permission to show all rooms) but with room type
-        //should show all rooms with the given room type
+        // filter all (with permission to show all rooms) but with room type
+        // should show all rooms with the given room type
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&room_type='.$roomType1->id.'&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(2, 'data')
@@ -1510,15 +1510,15 @@ class RoomTest extends TestCase
         $roomNeverStarted->owner()->associate($this->user);
         $roomNeverStarted->save();
 
-        //without sorting (without sort_by)
+        // without sorting (without sort_by)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&page=1&per_page=12')
             ->assertJsonValidationErrors(['sort_by']);
 
-        //with invalid sorting option
+        // with invalid sorting option
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=invalid_option&page=1&per_page=12')
             ->assertJsonValidationErrors(['sort_by']);
 
-        //last started
+        // last started
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data');
@@ -1530,7 +1530,7 @@ class RoomTest extends TestCase
         $this->assertEquals($roomFirstStarted->id, $results->json('data')[4]['id']);
         $this->assertEquals($roomNeverStarted->id, $results->json('data')[5]['id']);
 
-        //alphabetical
+        // alphabetical
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=alpha&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data');
@@ -1542,7 +1542,7 @@ class RoomTest extends TestCase
         $this->assertEquals($roomRunning1->id, $results->json('data')[4]['id']);
         $this->assertEquals($roomRunning2->id, $results->json('data')[5]['id']);
 
-        //by room type
+        // by room type
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=room_type&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data');
@@ -1561,49 +1561,49 @@ class RoomTest extends TestCase
         $roomOwn->owner()->associate($this->user);
         $roomOwn->save();
 
-        //Try to add room to the favorites (guest)
+        // Try to add room to the favorites (guest)
         $this->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertUnauthorized();
 
-        //Try to delete room from the favorites (guest)
+        // Try to delete room from the favorites (guest)
         $this->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertUnauthorized();
 
-        //Try to add room to the favorites (logged in user)
+        // Try to add room to the favorites (logged in user)
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room was added to the favorites
+        // Check if room was added to the favorites
         $this->assertNotNull($this->user->roomFavorites()->find($roomOwn));
 
-        //Try to add room again
+        // Try to add room again
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room was added to the favorites
+        // Check if room was added to the favorites
         $this->assertNotNull($this->user->roomFavorites()->find($roomOwn));
-        //Make sure that the room was not added again
+        // Make sure that the room was not added again
         $this->assertEquals(1, $this->user->roomFavorites()->count());
 
-        //Try to delete room from the favorites
+        // Try to delete room from the favorites
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room was deleted from the favorites
+        // Check if room was deleted from the favorites
         $this->assertNull($this->user->roomFavorites()->find($roomOwn));
 
-        //Try to delete favorite again
+        // Try to delete favorite again
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room is still deleted
+        // Check if room is still deleted
         $this->assertNull($this->user->roomFavorites()->find($roomOwn));
 
-        //Try to delete room from the favorites that is no favorite
+        // Try to delete room from the favorites that is no favorite
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room is still deleted
+        // Check if room is still deleted
         $this->assertNull($this->user->roomFavorites()->find($roomOwn));
         $this->assertEquals(0, $this->user->roomFavorites()->count());
     }
@@ -1662,7 +1662,7 @@ class RoomTest extends TestCase
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
-        //Find by owner name and room name
+        // Find by owner name and room name
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=test+john')
             ->assertOk()
             ->assertJsonFragment(['id' => $room1->id])
@@ -3024,15 +3024,15 @@ class RoomTest extends TestCase
         $this->actingAs($roomAttendanceEnforced3->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced3]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
-        //Create meeting attendance default
+        // Create meeting attendance default
         $this->actingAs($roomAttendanceDefault->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceDefault]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
-        //Create meeting attendance expert (room type default false)
+        // Create meeting attendance expert (room type default false)
         $this->actingAs($roomAttendanceExpert1->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert1]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
-        //Create meeting attendance expert (room type default true)
+        // Create meeting attendance expert (room type default true)
         $this->actingAs($roomAttendanceExpert2->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert2]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
