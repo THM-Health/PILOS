@@ -387,7 +387,7 @@ class ProvisioningServiceTest extends TestCase
      */
     public function test_role_create_incomplete()
     {
-        unset($this->testRole->permissions['rooms']);
+        unset($this->testRole->permissions);
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid role definition');
         $this->svc->role->create($this->testRole);
