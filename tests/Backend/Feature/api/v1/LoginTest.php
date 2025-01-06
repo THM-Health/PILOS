@@ -31,7 +31,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testLoginWrongCredentials()
+    public function test_login_wrong_credentials()
     {
         $user = User::factory()->create([
             'password' => Hash::make('bar'),
@@ -49,7 +49,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testLoginSuccessUserProvider()
+    public function test_login_success_user_provider()
     {
         $user = User::factory()->make();
         $password = $user->password;
@@ -75,7 +75,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testUnauthenticatedCurrentUser()
+    public function test_unauthenticated_current_user()
     {
         $response = $this->getJson(route('api.v1.currentUser'));
         $response->assertOk();
@@ -87,7 +87,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticatedCurrentUser()
+    public function test_authenticated_current_user()
     {
         $user = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
@@ -103,7 +103,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testCurrentUserPermissions()
+    public function test_current_user_permissions()
     {
         $permission = Permission::firstOrCreate(['name' => 'test']);
         $includedPermission = Permission::firstOrCreate(['name' => 'test2']);
@@ -141,7 +141,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testLogoutAuthenticated()
+    public function test_logout_authenticated()
     {
         $user = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
@@ -154,7 +154,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testLogoutUnauthenticated()
+    public function test_logout_unauthenticated()
     {
         $response = $this->postJson(route('api.v1.logout'));
         $response->assertUnauthorized();
@@ -168,7 +168,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testLogging()
+    public function test_logging()
     {
         $user = User::factory()->create([
             'password' => Hash::make('bar'),
@@ -206,7 +206,7 @@ class LoginTest extends TestCase
      *
      * @return void
      */
-    public function testLoginDisabled()
+    public function test_login_disabled()
     {
         config([
             'auth.local.enabled' => false,

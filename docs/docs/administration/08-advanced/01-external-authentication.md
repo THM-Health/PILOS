@@ -196,8 +196,8 @@ To negate the result of the regex, add the attribute `not` to the rule object an
 
 ##### Arrays
 
-The negation of arrays means: Check that regular expression doesn't match on any entry
-If the `all` attribute is also true: Check that regular expression doesn't match matches all entries
+The negation of arrays means: Check that regular expression doesn't match on any entry.
+If the `all` attribute is also `true`: Check that regular expression doesn't match all entries.
 
 ### Examples
 
@@ -209,9 +209,9 @@ In this example the LDAP schema uses the common name (CN) as username and has th
 
 #### Roles
 
--   The "superuser" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
+- The "superuser" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
 
--   The "user" role is given to everyone.
+- The "user" role is given to everyone.
 
 ```json
 {
@@ -260,9 +260,9 @@ The attribute names are the header names in which the attribute values are send 
 
 #### Roles
 
--   The "superuser" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
+- The "superuser" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
 
--   The "user" role is given to everyone.
+- The "user" role is given to everyone.
 
 ```json
 {

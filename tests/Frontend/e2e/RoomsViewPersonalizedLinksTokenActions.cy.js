@@ -192,11 +192,21 @@ describe("Rooms view personalized links token actions", function () {
 
     cy.wait("@addTokenRequest");
 
-    // Check that dialog stays open and error is shown
-    cy.get('[data-test="room-personalized-links-add-dialog"]').should(
-      "be.visible",
-    );
+    // Check that dialog stays open and 422 errors are hidden
+    cy.get('[data-test="room-personalized-links-add-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="firstname-field"]').should(
+          "not.include.text",
+          "The firstname field is required.",
+        );
+        cy.get('[data-test="lastname-field"]').should(
+          "not.include.text",
+          "The lastname field is required.",
+        );
+      });
 
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -476,10 +486,22 @@ describe("Rooms view personalized links token actions", function () {
 
     cy.wait("@editTokenRequest");
 
-    // Check that dialog stays open and error is shown
-    cy.get('[data-test="room-personalized-links-edit-dialog"]').should(
-      "be.visible",
-    );
+    // Check that dialog stays open and 422 errors are hidden
+    cy.get('[data-test="room-personalized-links-edit-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The selected role is invalid.")
+      .within(() => {
+        cy.get('[data-test="firstname-field"]').should(
+          "not.include.text",
+          "The firstname field is required.",
+        );
+        cy.get('[data-test="lastname-field"]').should(
+          "not.include.text",
+          "The lastname field is required.",
+        );
+      });
+
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',

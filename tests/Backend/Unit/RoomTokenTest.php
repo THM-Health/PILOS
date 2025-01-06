@@ -12,7 +12,7 @@ class RoomTokenTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testCreateRoomTokenUniqueID()
+    public function test_create_room_token_unique_id()
     {
         $room = Room::factory()->create();
         RoomToken::factory()->count(1000)->create([
@@ -21,7 +21,7 @@ class RoomTokenTest extends TestCase
         $this->assertDatabaseCount('room_tokens', 1000);
     }
 
-    public function testCreateRoomTokenUpdate()
+    public function test_create_room_token_update()
     {
         $token = RoomToken::factory()->create();
         $old_token = $token->token;

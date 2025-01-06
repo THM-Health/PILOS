@@ -68,7 +68,7 @@ class RoomTest extends TestCase
     /**
      * Check if the permission inheritance is setup correct
      */
-    public function testPermissionInheritances()
+    public function test_permission_inheritances()
     {
         $this->user->roles()->attach($this->role);
 
@@ -102,7 +102,7 @@ class RoomTest extends TestCase
     /**
      * Test to create a new room with and without the required permissions
      */
-    public function testCreateNewRoom()
+    public function test_create_new_room()
     {
         $this->roomSettings->limit = -1;
         $this->roomSettings->save();
@@ -126,7 +126,7 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertCreated();
 
-        //Test if access code gets set correctly if enforced in the room type
+        // Test if access code gets set correctly if enforced in the room type
         // Access code enforced
         $roomType = RoomType::factory()->create([
             'has_access_code_default' => true,
@@ -204,7 +204,7 @@ class RoomTest extends TestCase
     /**
      * Check if the room limit is reached and the creation of new rooms is prevented
      */
-    public function testCreateNewRoomReachLimit()
+    public function test_create_new_room_reach_limit()
     {
         $role = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
@@ -227,7 +227,7 @@ class RoomTest extends TestCase
     /**
      * Test to delete a room
      */
-    public function testDeleteRoom()
+    public function test_delete_room()
     {
         $room = Room::factory()->create();
 
@@ -286,15 +286,15 @@ class RoomTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testTransferRoom()
+    public function test_transfer_room()
     {
-        //Create roles and users
-        //Roles
+        // Create roles and users
+        // Roles
         $role = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
         $role2 = Role::factory()->create();
         $role2->permissions()->attach($this->createPermission);
-        //Users
+        // Users
         $this->user->roles()->attach($role);
         $userThatCanHaveRooms = User::factory()->create();
         $userThatCanHaveRooms->roles()->attach($role);
@@ -306,110 +306,110 @@ class RoomTest extends TestCase
         $this->roomSettings->limit = 1;
         $this->roomSettings->save();
 
-        //create rooms
+        // create rooms
         $room = Room::factory()->create();
         $room->roomType->restrict = true;
         $room->roomType->save();
         $room->roomType->roles()->sync([$role->id]);
         $room->save();
-        //Limit room (lets userThatReachedLimit reach the limit)
+        // Limit room (lets userThatReachedLimit reach the limit)
         Room::factory()->create(['user_id' => $userThatReachedLimit->id]);
 
-        //Test unauthenticated user
+        // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.transfer', ['room' => $room]))
             ->assertUnauthorized();
 
-        //Test user that is not the owner of the room
+        // Test user that is not the owner of the room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => -1])
             ->assertForbidden();
 
-        //Test user that has manage permission
+        // Test user that has manage permission
         $role->permissions()->attach($this->managePermission);
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id])
             ->assertNoContent();
         $role->permissions()->detach($this->managePermission);
 
-        //Make sure that the owner was changed
+        // Make sure that the owner was changed
         $room->refresh();
         $this->assertEquals($room->owner->id, $this->user->id);
 
-        //Test transfer room to invalid user
+        // Test transfer room to invalid user
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => -1])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to current owner
+        // Test transfer room to current owner
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to user that can have rooms
+        // Test transfer room to user that can have rooms
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id])
             ->assertNoContent();
 
-        //Check if owner was changed and reset owner
+        // Check if owner was changed and reset owner
         $room->refresh();
         $this->assertEquals($room->owner->id, $userThatCanHaveRooms->id);
         $room->owner()->associate($this->user);
         $room->save();
 
-        //Test transfer room to user that can have rooms and stay in room as user
+        // Test transfer room to user that can have rooms and stay in room as user
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id, 'role' => RoomUserRole::USER])
             ->assertNoContent();
 
-        //Check if owner was changed and that the old owner was added as a user
+        // Check if owner was changed and that the old owner was added as a user
         $room->refresh();
         $this->assertEquals($room->owner->id, $userThatCanHaveRooms->id);
         $foundOldOwner = $room->members()->find($this->user);
         $this->assertNotNull($foundOldOwner);
         $this->assertEquals(RoomUserRole::USER, $foundOldOwner->pivot->role);
 
-        //Test transfer room to previous owner and stay in room as moderator
+        // Test transfer room to previous owner and stay in room as moderator
         $this->actingAs($userThatCanHaveRooms)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id, 'role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
 
-        //Check if owner was changed and that the old owner was added as a moderator
+        // Check if owner was changed and that the old owner was added as a moderator
         $room->refresh();
         $this->assertEquals($room->owner->id, $this->user->id);
         $foundOldOwner = $room->members()->find($userThatCanHaveRooms);
         $this->assertNotNull($foundOldOwner);
         $this->assertEquals(RoomUserRole::MODERATOR, $foundOldOwner->pivot->role);
 
-        //Make sure that the new owner was deleted from the members
+        // Make sure that the new owner was deleted from the members
         $foundNewOwner = $room->members()->find($this->user);
         $this->assertNull($foundNewOwner);
 
-        //Test transfer room to user that can have rooms and stay in room as co owner
+        // Test transfer room to user that can have rooms and stay in room as co owner
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id, 'role' => RoomUserRole::CO_OWNER])
             ->assertNoContent();
 
-        //Check if owner was changed and that the old owner was added as a co owner
+        // Check if owner was changed and that the old owner was added as a co owner
         $room->refresh();
         $this->assertEquals($room->owner->id, $userThatCanHaveRooms->id);
         $foundOldOwner = $room->members()->find($this->user);
         $this->assertNotNull($foundOldOwner);
         $this->assertEquals(RoomUserRole::CO_OWNER, $foundOldOwner->pivot->role);
 
-        //reset owner and membership
+        // reset owner and membership
         $room->owner()->associate($this->user);
         $room->members()->detach($this->user);
         $room->save();
 
-        //Test transfer room to user that can have rooms but with invalid role
+        // Test transfer room to user that can have rooms but with invalid role
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id, 'role' => 10])
             ->assertJsonValidationErrors(['role']);
 
-        //Make sure that the owner was not changed
+        // Make sure that the owner was not changed
         $room->refresh();
         $this->assertEquals($room->owner->id, $this->user->id);
 
-        //Test transfer room to user that can not have rooms
+        // Test transfer room to user that can not have rooms
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanNotHaveRooms->id])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to user that reached the room limit
+        // Test transfer room to user that reached the room limit
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatReachedLimit->id])
             ->assertJsonValidationErrors(['user']);
 
-        //Test transfer room to user that can not have rooms of the room type of the room
+        // Test transfer room to user that can not have rooms of the room type of the room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanNotHaveRoomType->id])
             ->assertJsonValidationErrors(['user']);
     }
@@ -417,7 +417,7 @@ class RoomTest extends TestCase
     /**
      * Test if guests can access room
      */
-    public function testGuestAccess()
+    public function test_guest_access()
     {
         $roomTypeGuestAccessEnforced = RoomType::factory()->create([
             'allow_guests_default' => true,
@@ -472,7 +472,7 @@ class RoomTest extends TestCase
     /**
      * Test if guests are prevented from accessing room
      */
-    public function testDisableGuestAccess()
+    public function test_disable_guest_access()
     {
         $roomTypeNoGuestAccessEnforced = RoomType::factory()->create([
             'allow_guests_default' => false,
@@ -523,7 +523,7 @@ class RoomTest extends TestCase
     /**
      * Test how guests can log into room with or without valid access code
      */
-    public function testAccessCodeGuests()
+    public function test_access_code_guests()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -551,10 +551,38 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test access code authentication rate limiting
+     */
+    public function test_access_code_rate_limit()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code' => 111111111,
+        ]);
+
+        // Try 6 times with wrong access code
+        for ($i = 0; $i < 6; $i++) {
+            $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+                ->assertUnauthorized();
+        }
+
+        // Check if rate limit is reached
+        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(429);
+
+        // Time travel 1 minute to reset rate limit
+        $this->travel(1)->minutes();
+
+        // Try again
+        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertUnauthorized();
+    }
+
+    /**
      * Test that the existing access code setting is not changed if the default setting changes in the room type
      * (The access code in the room should not be automatically be overwritten by the room type setting)
      */
-    public function testAccessCodeDifferentSettings()
+    public function test_access_code_different_settings()
     {
         $roomType = RoomType::factory()->create([
             'has_access_code_default' => true,
@@ -616,7 +644,7 @@ class RoomTest extends TestCase
     /**
      * Test how users can log into room with or without valid access code
      */
-    public function testAccessCodeUser()
+    public function test_access_code_user()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -691,7 +719,7 @@ class RoomTest extends TestCase
     /**
      * Test data room api returns for different values for the record attendance setting
      */
-    public function testRoomViewRecordAttendance()
+    public function test_room_view_record_attendance()
     {
         $roomTypeAttendanceEnforced = RoomType::factory()->create([
             'record_attendance_default' => true,
@@ -843,7 +871,7 @@ class RoomTest extends TestCase
     /**
      * Test data room api returns for different values for the allow membership setting
      */
-    public function testRoomViewAllowMembership()
+    public function test_room_view_allow_membership()
     {
         $roomTypeMembershipEnforced = RoomType::factory()->create([
             'allow_membership_default' => true,
@@ -995,7 +1023,7 @@ class RoomTest extends TestCase
     /**
      * Test data room api returns
      */
-    public function testRoomView()
+    public function test_room_view()
     {
         $room = Room::factory()->create();
 
@@ -1101,7 +1129,7 @@ class RoomTest extends TestCase
     /**
      * Test list of rooms (filter, room type, favorites, own/shared/public/all)
      */
-    public function testRoomList()
+    public function test_room_list()
     {
         $roomType1 = RoomType::factory()->create();
         $roomTypePublicEnforced = RoomType::factory()->create([
@@ -1214,12 +1242,12 @@ class RoomTest extends TestCase
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index'))->assertUnauthorized();
 
-        //Test without filter
+        // Test without filter
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertJsonValidationErrors(['filter_own', 'filter_shared', 'filter_public', 'filter_all']);
 
-        //Test with logged in user
-        //filter own
+        // Test with logged in user
+        // filter own
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data')
@@ -1249,7 +1277,7 @@ class RoomTest extends TestCase
                 ],
             ]);
 
-        //filter shared
+        // filter shared
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=1&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data')
@@ -1258,7 +1286,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter public
+        // filter public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data')
@@ -1272,7 +1300,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter own, shared
+        // filter own, shared
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(2, 'data')
@@ -1282,7 +1310,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter shared, public
+        // filter shared, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(7, 'data')
@@ -1297,7 +1325,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter own, public
+        // filter own, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(7, 'data')
@@ -1312,7 +1340,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter own, shared, public
+        // filter own, shared, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(8, 'data')
@@ -1328,18 +1356,18 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //Test Favorites
+        // Test Favorites
 
-        //Test without only_favorites
+        // Test without only_favorites
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&sort_by=last_started&page=1&per_page=12')
             ->assertJsonValidationErrors(['only_favorites']);
 
-        //Test Room List with only favorites (user has no favorites)
+        // Test Room List with only favorites (user has no favorites)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&only_favorites=1&sort_by=last_started&page=1&per_page=12')
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
-        //Test Room List with only favorites (user has favorites)
+        // Test Room List with only favorites (user has favorites)
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
@@ -1350,7 +1378,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name]);
 
-        //Test Room List with only favorites (user has several favorites)
+        // Test Room List with only favorites (user has several favorites)
         $this->user->roomFavorites()->attach($roomShared);
         $this->user->roomFavorites()->attach($roomPublicEnforced1);
         $this->user->roomFavorites()->attach($roomPrivateEnforced1);
@@ -1365,12 +1393,12 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
             ->assertJsonFragment(['id' => $roomPrivateEnforced1->id, 'name' => $roomPrivateEnforced1->name]);
 
-        //filter all (without permission to show all rooms)
-        //should lead to bad request because the other filters are set to 0 (false)
+        // filter all (without permission to show all rooms)
+        // should lead to bad request because the other filters are set to 0 (false)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=0&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertBadRequest();
 
-        //should show same result as showing all the other filters together
+        // should show same result as showing all the other filters together
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(8, 'data')
@@ -1386,8 +1414,8 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter all (with permission to show all rooms)
-        //should show all rooms
+        // filter all (with permission to show all rooms)
+        // should show all rooms
         $role = Role::factory()->create();
         $role->permissions()->attach($this->viewAllPermission);
         $this->user->roles()->attach($role);
@@ -1427,8 +1455,8 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
-        //filter all (with permission to show all rooms) but with room type
-        //should show all rooms with the given room type
+        // filter all (with permission to show all rooms) but with room type
+        // should show all rooms with the given room type
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&room_type='.$roomType1->id.'&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(2, 'data')
@@ -1439,7 +1467,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(10, 'meta');
     }
 
-    public function testRoomListSorting()
+    public function test_room_list_sorting()
     {
         $this->roomSettings->pagination_page_size = 10;
         $this->roomSettings->save();
@@ -1482,15 +1510,15 @@ class RoomTest extends TestCase
         $roomNeverStarted->owner()->associate($this->user);
         $roomNeverStarted->save();
 
-        //without sorting (without sort_by)
+        // without sorting (without sort_by)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&page=1&per_page=12')
             ->assertJsonValidationErrors(['sort_by']);
 
-        //with invalid sorting option
+        // with invalid sorting option
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=invalid_option&page=1&per_page=12')
             ->assertJsonValidationErrors(['sort_by']);
 
-        //last started
+        // last started
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data');
@@ -1502,7 +1530,7 @@ class RoomTest extends TestCase
         $this->assertEquals($roomFirstStarted->id, $results->json('data')[4]['id']);
         $this->assertEquals($roomNeverStarted->id, $results->json('data')[5]['id']);
 
-        //alphabetical
+        // alphabetical
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=alpha&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data');
@@ -1514,7 +1542,7 @@ class RoomTest extends TestCase
         $this->assertEquals($roomRunning1->id, $results->json('data')[4]['id']);
         $this->assertEquals($roomRunning2->id, $results->json('data')[5]['id']);
 
-        //by room type
+        // by room type
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=room_type&page=1&per_page=12')
             ->assertStatus(200)
             ->assertJsonCount(6, 'data');
@@ -1527,55 +1555,55 @@ class RoomTest extends TestCase
         $this->assertEquals($roomRunning2->id, $results->json('data')[5]['id']);
     }
 
-    public function testFavorites()
+    public function test_favorites()
     {
         $roomOwn = Room::factory()->create(['name' => 'Own room']);
         $roomOwn->owner()->associate($this->user);
         $roomOwn->save();
 
-        //Try to add room to the favorites (guest)
+        // Try to add room to the favorites (guest)
         $this->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertUnauthorized();
 
-        //Try to delete room from the favorites (guest)
+        // Try to delete room from the favorites (guest)
         $this->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertUnauthorized();
 
-        //Try to add room to the favorites (logged in user)
+        // Try to add room to the favorites (logged in user)
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room was added to the favorites
+        // Check if room was added to the favorites
         $this->assertNotNull($this->user->roomFavorites()->find($roomOwn));
 
-        //Try to add room again
+        // Try to add room again
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room was added to the favorites
+        // Check if room was added to the favorites
         $this->assertNotNull($this->user->roomFavorites()->find($roomOwn));
-        //Make sure that the room was not added again
+        // Make sure that the room was not added again
         $this->assertEquals(1, $this->user->roomFavorites()->count());
 
-        //Try to delete room from the favorites
+        // Try to delete room from the favorites
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room was deleted from the favorites
+        // Check if room was deleted from the favorites
         $this->assertNull($this->user->roomFavorites()->find($roomOwn));
 
-        //Try to delete favorite again
+        // Try to delete favorite again
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room is still deleted
+        // Check if room is still deleted
         $this->assertNull($this->user->roomFavorites()->find($roomOwn));
 
-        //Try to delete room from the favorites that is no favorite
+        // Try to delete room from the favorites that is no favorite
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.favorites.add', ['room' => $roomOwn]))
             ->assertNoContent();
 
-        //Check if room is still deleted
+        // Check if room is still deleted
         $this->assertNull($this->user->roomFavorites()->find($roomOwn));
         $this->assertEquals(0, $this->user->roomFavorites()->count());
     }
@@ -1583,7 +1611,7 @@ class RoomTest extends TestCase
     /**
      * Test search for rooms
      */
-    public function testRoomSearch()
+    public function test_room_search()
     {
         $user = User::factory()->create(['firstname' => 'John', 'lastname' => 'Doe']);
         $room1 = Room::factory()->create(['name' => 'Test a', 'user_id' => $user->id]);
@@ -1634,7 +1662,7 @@ class RoomTest extends TestCase
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
-        //Find by owner name and room name
+        // Find by owner name and room name
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=test+john')
             ->assertOk()
             ->assertJsonFragment(['id' => $room1->id])
@@ -1649,7 +1677,7 @@ class RoomTest extends TestCase
     /**
      * Test callback route for meetings
      */
-    public function testEndMeetingCallback()
+    public function test_end_meeting_callback()
     {
         $room = Room::factory()->create();
         $server = Server::factory()->create();
@@ -1682,7 +1710,7 @@ class RoomTest extends TestCase
         self::assertEquals($meeting->end, $end);
     }
 
-    public function testSettingsAccess()
+    public function test_settings_access()
     {
         $room = Room::factory()->create();
 
@@ -1724,7 +1752,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
     }
 
-    public function testAccessCodeShown()
+    public function test_access_code_shown()
     {
         $room = Room::factory()->create([
             'access_code' => $this->faker->numberBetween(111111111, 999999999),
@@ -1779,7 +1807,7 @@ class RoomTest extends TestCase
     /**
      * Test the permissions to update the room settings
      */
-    public function testUpdateSettingsPermission()
+    public function test_update_settings_permission()
     {
         $room = Room::factory()->create();
 
@@ -1839,7 +1867,7 @@ class RoomTest extends TestCase
     /**
      * Test updating the room settings when the expert mode is deactivated and only the necessary parameters are send
      */
-    public function testUpdateSettingsNoExpertOnlyNecessary()
+    public function test_update_settings_no_expert_only_necessary()
     {
         $room = Room::factory()->create();
         $roomType = RoomType::factory()->create();
@@ -1942,7 +1970,7 @@ class RoomTest extends TestCase
     /**
      * Test updating the room settings when the expert mode is deactivated and all parameters are send
      */
-    public function testUpdateSettingsNoExpertAll()
+    public function test_update_settings_no_expert_all()
     {
         $room = Room::factory()->create();
         $roomType = RoomType::factory()->create([
@@ -2075,7 +2103,7 @@ class RoomTest extends TestCase
     /**
      * Test updating the room settings when the expert mode is activated
      */
-    public function testUpdateSettingsExpert()
+    public function test_update_settings_expert()
     {
         $room = Room::factory()->create();
         $roomType = RoomType::factory()->create([
@@ -2226,7 +2254,7 @@ class RoomTest extends TestCase
 
     }
 
-    public function testUpdateSettingsInvalid()
+    public function test_update_settings_invalid()
     {
         config(['bigbluebutton.welcome_message_limit' => 5]);
         $room = Room::factory()->create([
@@ -2345,7 +2373,7 @@ class RoomTest extends TestCase
     /**
      * Testing to start room but no server available
      */
-    public function testStartRestrictedNoServer()
+    public function test_start_restricted_no_server()
     {
         $room = Room::factory()->create([
             'access_code' => $this->faker->numberBetween(111111111, 999999999),
@@ -2405,7 +2433,7 @@ class RoomTest extends TestCase
     /**
      * Testing to start room with guests allowed, and everyone can start but no server available
      */
-    public function testStartNoServer()
+    public function test_start_no_server()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -2467,7 +2495,7 @@ class RoomTest extends TestCase
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
     }
 
-    public function testStartAndJoinWithWrongServerDetails()
+    public function test_start_and_join_with_wrong_server_details()
     {
         $room = Room::factory()->create();
 
@@ -2489,7 +2517,7 @@ class RoomTest extends TestCase
             ->assertStatus(CustomStatusCodes::ROOM_NOT_RUNNING->value);
     }
 
-    public function testStartServerErrors()
+    public function test_start_server_errors()
     {
         $room = Room::factory()->create();
 
@@ -2509,7 +2537,7 @@ class RoomTest extends TestCase
     /**
      * Tests starting new meeting with a running bbb server
      */
-    public function testStartWithServer()
+    public function test_start_with_server()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
@@ -2663,7 +2691,7 @@ class RoomTest extends TestCase
      *
      * The server usage is collected while the rooms start is still in progress
      */
-    public function testServerUsageUpdateDuringRoomStart()
+    public function test_server_usage_update_during_room_start()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
@@ -2743,7 +2771,7 @@ class RoomTest extends TestCase
      *
      * During the server usage update a new room start is started
      */
-    public function testRoomStartDuringServerUsageUpdate()
+    public function test_room_start_during_server_usage_update()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
@@ -2824,7 +2852,7 @@ class RoomTest extends TestCase
      * Tests starting new meeting with an already running meeting
      * (without checking if it is actually running, detecting detached meetings in the pollers responsibility)
      */
-    public function testStartWithServerMeetingRunning()
+    public function test_start_with_server_meeting_running()
     {
         $room = Room::factory()->create();
 
@@ -2843,7 +2871,7 @@ class RoomTest extends TestCase
     /**
      * Tests parallel starting of the same room
      */
-    public function testStartWhileStarting()
+    public function test_start_while_starting()
     {
         config(['bigbluebutton.server_timeout' => 2]);
         config(['bigbluebutton.server_connect_timeout' => 2]);
@@ -2868,7 +2896,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record attendance is set on start
      */
-    public function testRecordAttendanceStatus()
+    public function test_record_attendance_status()
     {
         // Room types
         $roomTypeAttendanceEnforced = RoomType::factory()->create([
@@ -2996,15 +3024,15 @@ class RoomTest extends TestCase
         $this->actingAs($roomAttendanceEnforced3->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced3]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
-        //Create meeting attendance default
+        // Create meeting attendance default
         $this->actingAs($roomAttendanceDefault->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceDefault]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
-        //Create meeting attendance expert (room type default false)
+        // Create meeting attendance expert (room type default false)
         $this->actingAs($roomAttendanceExpert1->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert1]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
-        //Create meeting attendance expert (room type default true)
+        // Create meeting attendance expert (room type default true)
         $this->actingAs($roomAttendanceExpert2->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert2]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
@@ -3122,7 +3150,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record is set on start
      */
-    public function testStartRecordStatus()
+    public function test_start_record_status()
     {
         $server = Server::factory()->create();
 
@@ -3211,7 +3239,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record parameter is validated according to the room and room type settings
      */
-    public function testStartRecordParameter()
+    public function test_start_record_parameter()
     {
         $server = Server::factory()->create();
 
@@ -3314,7 +3342,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record video parameter is validated and passed to BBB in the join url on start
      */
-    public function testStartRecordVideoParameter()
+    public function test_start_record_video_parameter()
     {
         $server = Server::factory()->create();
 
@@ -3355,7 +3383,7 @@ class RoomTest extends TestCase
     /**
      * Test joining a meeting with a running bbb server
      */
-    public function testJoin()
+    public function test_join()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -3585,7 +3613,7 @@ class RoomTest extends TestCase
     /**
      * Test joining a meeting with a server error in BBB
      */
-    public function testJoinServerError()
+    public function test_join_server_error()
     {
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetingInfo*' => Http::response('Error', 500),
@@ -3607,7 +3635,7 @@ class RoomTest extends TestCase
     /**
      * Test joining urls contains correct role and name
      */
-    public function testJoinUrl()
+    public function test_join_url()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -3758,7 +3786,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record parameter is validated based on the current running meeting
      */
-    public function testJoinRecordParameter()
+    public function test_join_record_parameter()
     {
         $server = Server::factory()->create();
 
@@ -3872,7 +3900,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record video parameter is validated and passed to BBB in the join url on join
      */
-    public function testJoinRecordVideoParameter()
+    public function test_join_record_video_parameter()
     {
         $server = Server::factory()->create();
 

@@ -1,5 +1,4 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-
 describe("Rooms view settings", function () {
   beforeEach(function () {
     cy.init();
@@ -1251,18 +1250,12 @@ describe("Rooms view settings", function () {
       "The Visibility field is required.",
     );
 
-    // Disable expert mode and save settings again without error
-    cy.get('[data-test="room-settings-expert-mode-button"]').click();
-    cy.get('[data-test="room-settings-expert-mode-dialog"]')
-      .find('[data-test="dialog-continue-button"]')
-      .click();
-
     // Generate new access code
     cy.get('[data-test="generate-access-code-button"]').click();
 
+    // Save settings without error
     cy.fixture("roomTypesWithSettings.json").then((roomTypes) => {
       cy.fixture("roomSettings.json").then((roomSettings) => {
-        roomSettings.data.expert_mode = false;
         roomSettings.data.welcome = "";
         roomSettings.data.room_type = roomTypes.data[0];
         roomSettings.data.room_type.has_access_code_enforced = true;
@@ -1292,6 +1285,82 @@ describe("Rooms view settings", function () {
         cy.get('[data-test="room-setting-enforced-icon"]');
         cy.get("#access-code").should("have.value", "123456789");
       });
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="everyone-can-start-setting"]').should(
+      "not.include.text",
+      "The Everyone can start field is required.",
+    );
+    cy.get('[data-test="mute-on-start-setting"]').should(
+      "not.include.text",
+      "The Mute on start field is required.",
+    );
+    cy.get('[data-test="lobby-setting"]').should(
+      "not.include.text",
+      "The Lobby field is required.",
+    );
+    cy.get('[data-test="welcome-setting"]').should(
+      "not.include.text",
+      "The Welcome message may not be greater than 250 characters.",
+    );
+    cy.get('[data-test="record-attendance-setting"]').should(
+      "not.include.text",
+      "The Record attendance field is required.",
+    );
+    cy.get('[data-test="record-setting"]').should(
+      "not.include.text",
+      "The Record field is required.",
+    );
+    cy.get('[data-test="auto-start-recording-setting"]').should(
+      "not.include.text",
+      "The Auto start recording field is required.",
+    );
+    cy.get('[data-test="lock-settings-disable-cam-setting"]').should(
+      "not.include.text",
+      "The Disable cam field is required.",
+    );
+    cy.get('[data-test="webcams-only-for-moderator-setting"]').should(
+      "not.include.text",
+      "The Webcams only for moderator field is required.",
+    );
+    cy.get('[data-test="lock-settings-disable-mic-setting"]').should(
+      "not.include.text",
+      "The Disable mic field is required.",
+    );
+    cy.get('[data-test="lock-settings-disable-public-chat-setting"]').should(
+      "not.include.text",
+      "The Disable public chat field is required.",
+    );
+    cy.get('[data-test="lock-settings-disable-private-chat-setting"]').should(
+      "not.include.text",
+      "The Disable private chat field is required.",
+    );
+    cy.get('[data-test="lock-settings-disable-note-setting"]').should(
+      "not.include.text",
+      "The Disable note field is required.",
+    );
+    cy.get('[data-test="lock-settings-hide-user-list-setting"]').should(
+      "not.include.text",
+      "The Hide user list field is required.",
+    );
+    cy.get('[data-test="allow-membership-setting"]').should(
+      "not.include.text",
+      "The Allow membership field is required.",
+    );
+    cy.get('[data-test="default-role-setting"]').should(
+      "not.include.text",
+      "The Default role field is required.",
+    );
+    cy.get('[data-test="visibility-setting"]').should(
+      "not.include.text",
+      "The Visibility field is required.",
+    );
+
+    // Disable expert mode
+    cy.get('[data-test="room-settings-expert-mode-button"]').click();
+    cy.get('[data-test="room-settings-expert-mode-dialog"]')
+      .find('[data-test="dialog-continue-button"]')
+      .click();
 
     // Save settings and respond with 422 errors
     cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
@@ -1348,6 +1417,28 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-settings-save-button"]').click();
 
     cy.wait("@roomSettingsSaveRequest");
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="access-code-setting"]').should(
+      "not.include.text",
+      "The room requires an access code because of its room type.",
+    );
+    cy.get('[data-test="room-type-setting"]').should(
+      "not.include.text",
+      "The room type is invalid.",
+    );
+    cy.get('[data-test="room-name-setting"]').should(
+      "not.include.text",
+      "The Name may not be greater than 50 characters.",
+    );
+    cy.get('[data-test="short-description-setting"]').should(
+      "not.include.text",
+      "The Short description may not be greater than 300 characters.",
+    );
+    cy.get('[data-test="allow-guests-setting"]').should(
+      "not.include.text",
+      "The Allow guests field is required.",
+    );
 
     // Check that error message is shown
     cy.checkToastMessage([
@@ -1514,16 +1605,24 @@ describe("Rooms view settings", function () {
     cy.get("[data-test=room-transfer-ownership-dialog]")
       .should("be.visible")
       .within(() => {
-        cy.get(".multiselect__content").should("not.be.visible");
+        // Check autofocus
+        cy.get(".multiselect__content").should("be.visible");
 
         // Start typing and respond with too many results
         cy.intercept("GET", "/api/v1/users/search?query=*", {
           statusCode: 204,
         }).as("userSearchRequest");
 
-        // Check that dialog is shown correctly
+        // Check prompt
+        cy.get('[data-test="new-owner-dropdown"]').should(
+          "include.text",
+          "rooms.members.modals.add.no_options",
+        );
+
+        // Check placeholder and type in input
         cy.get('[data-test="new-owner-dropdown"]')
-          .should("include.text", "app.user_name")
+          .find("input")
+          .should("have.attr", "placeholder", "app.user_name")
           .click();
 
         cy.get('[data-test="new-owner-dropdown"]').find("input").type("L");
@@ -1925,10 +2024,10 @@ describe("Rooms view settings", function () {
     cy.wait("@transferOwnershipRequest");
 
     // Check that error message is shown
-
     cy.get('[data-test="room-transfer-ownership-dialog"]')
       .should("be.visible")
-      .and("include.text", "The selected user can not own rooms.");
+      .and("include.text", "The selected user can not own rooms.")
+      .and("not.include.text", "The selected role is invalid.");
 
     // Transfer ownership with 500 error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
@@ -1942,15 +2041,18 @@ describe("Rooms view settings", function () {
 
     cy.wait("@transferOwnershipRequest");
 
+    // Check that dialog stays open and 422 error message is hidden
+    cy.get('[data-test="room-transfer-ownership-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The selected user can not own rooms.");
+
     // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that dialog stays open
-    cy.get('[data-test="room-transfer-ownership-dialog"]').should("be.visible");
-
+    // Close dialog
     cy.get('[data-test="dialog-cancel-button"]').click();
 
     cy.checkRoomAuthErrors(

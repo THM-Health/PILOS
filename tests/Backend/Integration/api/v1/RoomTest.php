@@ -44,7 +44,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled for everyone and enforced by room type
      */
-    public function testLobbyEnabledEnforced()
+    public function test_lobby_enabled_enforced()
     {
         $roomTypeLobbyEnabledEnforced = RoomType::factory()->create([
             'lobby_default' => RoomLobby::ENABLED,
@@ -135,7 +135,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled for everyone when expert mode is activated
      */
-    public function testLobbyEnabledExpertMode()
+    public function test_lobby_enabled_expert_mode()
     {
         $roomTypeLobbyDisabledDefault = RoomType::factory()->create([
             'lobby_default' => RoomLobby::DISABLED,
@@ -209,7 +209,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled for everyone when expert mode is deactivated
      */
-    public function testLobbyEnabledWithoutExpertMode()
+    public function test_lobby_enabled_without_expert_mode()
     {
         $roomTypeLobbyEnabledDefault = RoomType::factory()->create([
             'lobby_default' => RoomLobby::ENABLED,
@@ -260,7 +260,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled only for guests and enforced by room type
      */
-    public function testLobbyOnlyGuestsEnforced()
+    public function test_lobby_only_guests_enforced()
     {
         $roomTypeLobbyOnlyGuestsEnforced = RoomType::factory()->create([
             'lobby_default' => RoomLobby::ONLY_GUEST,
@@ -348,7 +348,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled only for guests when expert mode is activated
      */
-    public function testLobbyOnlyGuestsExpertMode()
+    public function test_lobby_only_guests_expert_mode()
     {
         $roomTypeLobbyDisabledDefault = RoomType::factory()->create([
             'lobby_default' => RoomLobby::DISABLED,
@@ -422,7 +422,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled only for guests when expert mode is deactivated
      */
-    public function testLobbyOnlyGuestsWithoutExpertMode()
+    public function test_lobby_only_guests_without_expert_mode()
     {
         $roomTypeLobbyOnlyGuestsDefault = RoomType::factory()->create([
             'lobby_default' => RoomLobby::ONLY_GUEST,

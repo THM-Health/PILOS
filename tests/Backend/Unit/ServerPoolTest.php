@@ -16,7 +16,7 @@ class ServerPoolTest extends TestCase
     /**
      * Test load balancing
      */
-    public function testLoadBalancing()
+    public function test_load_balancing()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,

@@ -12,7 +12,7 @@ class PasswordTest extends TestCase
      *
      * @return void
      */
-    public function testPasses()
+    public function test_passes()
     {
         $pw = new Password;
 
@@ -24,7 +24,7 @@ class PasswordTest extends TestCase
         $this->assertFalse($pw->passes('', '1_a'));
     }
 
-    public function testMessage()
+    public function test_message()
     {
         $this->assertEquals(__('validation.custom.password'), (new Password)->message());
     }

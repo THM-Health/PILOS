@@ -35,7 +35,7 @@ class MeetingTest extends TestCase
     /**
      * Test to get a list of all running meetings
      */
-    public function testIndex()
+    public function test_index()
     {
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;

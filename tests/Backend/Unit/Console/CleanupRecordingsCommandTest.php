@@ -15,7 +15,7 @@ class CleanupRecordingsCommandTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testRetentionPeriodDisabled()
+    public function test_retention_period_disabled()
     {
         // Create fake recordings
         $recording1 = Recording::factory()->create(['start' => now()->subDays(10)]);
@@ -32,7 +32,7 @@ class CleanupRecordingsCommandTest extends TestCase
         $this->assertModelExists($recording2);
     }
 
-    public function testRetentionPeriodEnabled()
+    public function test_retention_period_enabled()
     {
         Storage::fake('recordings');
 

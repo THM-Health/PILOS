@@ -21,13 +21,13 @@ class DeleteUnverifiedNewUsersTest extends TestCase
         parent::setUp();
     }
 
-    public function testNoUnverifiedUsers()
+    public function test_no_unverified_users()
     {
         $this->artisan('users:delete:unverified')
             ->assertExitCode(0);
     }
 
-    public function testDeletionOfUnverifiedUsersWithTokens()
+    public function test_deletion_of_unverified_users_with_tokens()
     {
         // Newly created user with expired token
         User::factory()->create([

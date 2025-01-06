@@ -14,7 +14,7 @@ class ValidRoomTypeTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testPasses()
+    public function test_passes()
     {
         $roleA = Role::factory()->create();
         $roleB = Role::factory()->create();
@@ -40,7 +40,7 @@ class ValidRoomTypeTest extends TestCase
         $this->assertTrue($validRoomType->passes('', $roomTypeC->id));
     }
 
-    public function testMessage()
+    public function test_message()
     {
         $user = User::factory()->create();
         $this->assertEquals(__('validation.custom.invalid_room_type'), (new ValidRoomType($user))->message());

@@ -1,3 +1,4 @@
+import { selectTiptapContent } from "../support/utils/tiptapHelper.js";
 describe("Rooms view description TipTap Editor", function () {
   beforeEach(function () {
     cy.init();
@@ -250,18 +251,20 @@ describe("Rooms view description TipTap Editor", function () {
     cy.wait("@roomRequest");
 
     cy.get('[data-test="room-description-edit-button"]').click();
+    cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
 
     // Check that correct data is displayed
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
         cy.get("a").should("not.exist");
-        cy.get("p").should("have.text", "Room description");
+        cy.get("p").should("have.text", "Room description").and("be.visible");
       });
 
-    cy.get(".tiptap").type("{selectall}");
+    selectTiptapContent();
 
     cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
     cy.get('[data-test="tip-tap-link-button"]')
@@ -279,7 +282,8 @@ describe("Rooms view description TipTap Editor", function () {
     cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
 
     // Open dialog again
-    cy.get(".tiptap").type("{selectall}");
+    selectTiptapContent();
+
     cy.get('[data-test="tip-tap-link-button"]')
       .should("have.class", "p-button-secondary")
       .click();
@@ -324,11 +328,19 @@ describe("Rooms view description TipTap Editor", function () {
     // Check that the link has been added
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
         cy.get("a")
-          .should("have.text", "Room description")
-          .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
+          .should("be.visible")
+          .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
+          .and("have.text", "Room description");
       });
+
+    cy.window().should((win) => {
+      const selection = win.getSelection();
+      const selectedText = selection.toString();
+      expect(selectedText).to.eq("Room description");
+    });
   });
 
   it("edit link", function () {
@@ -347,10 +359,12 @@ describe("Rooms view description TipTap Editor", function () {
     cy.wait("@roomRequest");
 
     cy.get('[data-test="room-description-edit-button"]').click();
+    cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
         cy.get("a")
           .should("be.visible")
@@ -358,7 +372,13 @@ describe("Rooms view description TipTap Editor", function () {
           .and("have.text", "Test Link");
       });
 
-    cy.get(".tiptap").type("{selectall}");
+    // Check that button is already active before selection
+    cy.get('[data-test="tip-tap-link-button"]').should(
+      "have.class",
+      "p-button-primary",
+    );
+
+    selectTiptapContent();
 
     cy.get('[data-test="tip-tap-link-button"]')
       .should("have.class", "p-button-primary")
@@ -397,9 +417,16 @@ describe("Rooms view description TipTap Editor", function () {
 
     cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
 
+    cy.window().should((win) => {
+      const selection = win.getSelection();
+      const selectedText = selection.toString();
+      expect(selectedText).to.eq("Test Link");
+    });
+
     // Check that the link has been changed
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
         cy.get("a")
           .should("be.visible")
@@ -425,19 +452,20 @@ describe("Rooms view description TipTap Editor", function () {
     cy.wait("@roomRequest");
 
     cy.get('[data-test="room-description-edit-button"]').click();
+    cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
     cy.get('[data-test="tip-tap-editor"]').should("be.visible");
     cy.get(".tiptap")
       .should("be.visible")
+      .and("have.focus")
       .within(() => {
         cy.get("a")
           .should("be.visible")
-          .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
-          .and("have.text", "Test Link");
+          .and("have.text", "Test Link")
+          .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
       });
 
-    cy.get(".tiptap").click();
-    cy.get(".tiptap").type("{selectall}");
+    selectTiptapContent();
 
     cy.get('[data-test="tip-tap-link-button"]')
       .should("have.class", "p-button-primary")
@@ -454,6 +482,12 @@ describe("Rooms view description TipTap Editor", function () {
       });
 
     cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
+
+    cy.window().should((win) => {
+      const selection = win.getSelection();
+      const selectedText = selection.toString();
+      expect(selectedText).to.eq("Test Link");
+    });
 
     // Check that the link has been deleted
     cy.get(".tiptap")

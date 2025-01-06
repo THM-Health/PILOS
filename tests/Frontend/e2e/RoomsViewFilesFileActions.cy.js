@@ -305,8 +305,12 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@uploadFileRequest");
 
-    // Check that dialog stayed open and error message is shown
-    cy.get('[data-test="room-files-upload-dialog"]').should("be.visible");
+    // Check that dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-files-upload-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The File must be a file of type: pdf, doc.");
+
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -686,14 +690,20 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@editFileRequest");
 
+    // Check that dialog is still open and 422 error messages are hidden
+    cy.get('[data-test="room-files-edit-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The Downloadable field is required.")
+      .and("not.include.text", "The Use in the next meeting field is required.")
+      .and("not.include.text", "The Default field is required.");
+
     // Check that error message gets shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that dialog is still open and close it
-    cy.get('[data-test="room-files-edit-dialog"]').should("be.visible");
+    // Close dialog
     cy.get('[data-test="room-files-edit-dialog"]')
       .find('[data-test="dialog-cancel-button"]')
       .click();

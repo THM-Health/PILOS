@@ -307,12 +307,18 @@ describe("Rooms view members bulk actions", function () {
       .find("input")
       .should("be.checked");
 
-    // Open dialog again and select moderator role
+    // Open dialog again
     cy.get('[data-test="room-members-bulk-edit-button"]')
       .should("be.visible")
       .click();
+
+    // Check that 422 error message is hidden
     cy.get('[data-test="room-members-bulk-edit-dialog"]')
       .should("be.visible")
+      .and("not.include.text", "The Role field is required.");
+
+    // Select moderator role
+    cy.get('[data-test="room-members-bulk-edit-dialog"]')
       .find("#moderator-role")
       .click();
 
@@ -350,8 +356,12 @@ describe("Rooms view members bulk actions", function () {
       .click();
     cy.wait("@bulkEditRequest");
 
-    // Check that dialog is still open and error is displayed
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').should("be.visible");
+    // Check that dialog is still open and 422 errors are hidden
+    cy.get('[data-test="room-members-bulk-edit-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The user 'Laura Rivera' isn't a member.");
+
+    // Check that error is displayed
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -620,10 +630,12 @@ describe("Rooms view members bulk actions", function () {
 
     cy.wait("@bulkDeleteRequest");
 
-    // Check that the dialog is still open and error is displayed
-    cy.get('[data-test="room-members-bulk-delete-dialog"]').should(
-      "be.visible",
-    );
+    // Check that dialog is still open and 422 errors are hidden
+    cy.get('[data-test="room-members-bulk-delete-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The user 'Laura Rivera' isn't a member.");
+
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -1324,7 +1336,8 @@ describe("Rooms view members bulk actions", function () {
 
     cy.get('[data-test="room-members-bulk-import-dialog"]')
       .should("be.visible")
-      .and("include.text", "The selected role is invalid.");
+      .and("include.text", "The selected role is invalid.")
+      .and("not.include.text", "The user emails field is required.");
 
     // Check with 500 error
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member/bulk", {
@@ -1340,15 +1353,16 @@ describe("Rooms view members bulk actions", function () {
 
     cy.wait("@bulkImportRequest");
 
+    // Check that dialog is still shown and 422 errors are hidden
+    cy.get('[data-test="room-members-bulk-import-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The selected role is invalid.");
+
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    // Check that dialog is still shown
-    cy.get('[data-test="room-members-bulk-import-dialog"]').should(
-      "be.visible",
-    );
 
     cy.get("#user-emails").should("have.value", "\nlaurawrivera@domain.tld");
 

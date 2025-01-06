@@ -54,7 +54,7 @@ class FileTest extends TestCase
     /**
      * Test to upload a valid file as different users
      */
-    public function testUploadValidFile()
+    public function test_upload_valid_file()
     {
         // Testing guests
         $this->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
@@ -105,7 +105,7 @@ class FileTest extends TestCase
     /**
      * Test to upload different invalid files
      */
-    public function testUploadInvalidFile()
+    public function test_upload_invalid_file()
     {
         // No file
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]))
@@ -125,7 +125,7 @@ class FileTest extends TestCase
     /**
      * Testing access to internal and public file list as different users and permissions
      */
-    public function testViewFiles()
+    public function test_view_files()
     {
         $document = RoomFile::factory()->create(['filename' => 'document.pdf', 'created_at' => '2024-04-01 08:00:00', 'download' => true, 'default' => true, 'use_in_meeting' => true, 'room_id' => $this->room->id]);
         $presentation = RoomFile::factory()->create(['filename' => 'presentation.pptx', 'created_at' => '2024-04-01 09:00:00', 'download' => false, 'default' => false, 'use_in_meeting' => true, 'room_id' => $this->room->id]);
@@ -283,7 +283,7 @@ class FileTest extends TestCase
     /**
      * Test getting file download url and download of file that is shared with participants of a room without an access code
      */
-    public function testDownloadFilesDownload()
+    public function test_download_files_download()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -319,7 +319,7 @@ class FileTest extends TestCase
     /**
      * Test get download url of file that is shared with participants of a room that requires an access code
      */
-    public function testDownloadFilesDownloadWithAccessCode()
+    public function test_download_files_download_with_access_code()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -390,7 +390,7 @@ class FileTest extends TestCase
     /**
      * Test get download url of file that is not with participants of a room
      */
-    public function testDownloadFilesDownloadDisabled()
+    public function test_download_files_download_disabled()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -431,7 +431,7 @@ class FileTest extends TestCase
     /**
      * Check if get download url of a file from an other room is working, if parameters in the url are changed
      */
-    public function testDownloadFilesDownloadUrlManipulation()
+    public function test_download_files_download_url_manipulation()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -454,7 +454,7 @@ class FileTest extends TestCase
     /**
      * Testing download link given to bbb to download files
      */
-    public function testDownloadForBBB()
+    public function test_download_for_bbb()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -470,7 +470,7 @@ class FileTest extends TestCase
     /**
      * Testing to delete uploaded files
      */
-    public function testFilesDelete()
+    public function test_files_delete()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -542,7 +542,7 @@ class FileTest extends TestCase
     /**
      * Testing to get file download url for file that was deleted on the drive
      */
-    public function testGetDownloadLinkForFileDeleteFromDrive()
+    public function test_get_download_link_for_file_delete_from_drive()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -566,7 +566,7 @@ class FileTest extends TestCase
     /**
      * Testing to access file that was deleted on the drive
      */
-    public function testDownloadDeletedFileFromDrive()
+    public function test_download_deleted_file_from_drive()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -594,7 +594,7 @@ class FileTest extends TestCase
     /**
      * Test if delete is working or bypassing permission by manipulating route parameters
      */
-    public function testDeleteFileUrlManipulation()
+    public function test_delete_file_url_manipulation()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -617,7 +617,7 @@ class FileTest extends TestCase
     /**
      * Test updating file attributes
      */
-    public function testUpdateFile()
+    public function test_update_file()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -716,7 +716,7 @@ class FileTest extends TestCase
     /**
      * Test setting file default
      */
-    public function testUpdateDefault()
+    public function test_update_default()
     {
         $file_1 = UploadedFile::fake()->create('document1.pdf', config('bigbluebutton.max_filesize') - 1, 'application/pdf');
         $file_2 = UploadedFile::fake()->create('document2.pdf', config('bigbluebutton.max_filesize') - 1, 'application/pdf');
@@ -768,7 +768,7 @@ class FileTest extends TestCase
     /**
      * Testing to start a meeting with a file
      */
-    public function testStartMeetingWithFile()
+    public function test_start_meeting_with_file()
     {
         $room = Room::factory()->create();
         $server = Server::factory()->create();

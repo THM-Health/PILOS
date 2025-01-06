@@ -2,6 +2,7 @@
 
 return [
     'access_code' => 'Access code',
+    'auth_throttled' => 'Too many attempts. Please try again in :try_again seconds.',
     'become_member' => 'Become member',
     'change_type' => [
         'changing_settings' => 'The following changes will be made to the room settings',

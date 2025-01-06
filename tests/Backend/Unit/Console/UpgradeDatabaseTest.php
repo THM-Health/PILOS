@@ -26,7 +26,7 @@ class UpgradeDatabaseTest extends TestCase
      *
      * @return void
      */
-    public function testV2Database()
+    public function test_v2_database()
     {
         // Create fresh v2 database
         $this->artisan('migrate:fresh', ['--path' => 'database/migrations/v2']);
@@ -62,7 +62,7 @@ class UpgradeDatabaseTest extends TestCase
      *
      * @return void
      */
-    public function testV4Database()
+    public function test_v4_database()
     {
         // Create new v4 db
         $this->artisan('migrate:fresh');
@@ -77,7 +77,7 @@ class UpgradeDatabaseTest extends TestCase
      *
      * @return void
      */
-    public function testEmptyDatabase()
+    public function test_empty_database()
     {
         // Drop all tables
         $this->artisan('db:wipe');
@@ -100,7 +100,7 @@ class UpgradeDatabaseTest extends TestCase
         $this->artisan('migrate:fresh');
     }
 
-    public function testMigrateSettings()
+    public function test_migrate_settings()
     {
         // Create fresh v2 database
         $this->artisan('migrate:fresh', ['--path' => 'database/migrations/v2']);

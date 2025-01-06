@@ -1171,14 +1171,31 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.wait("@editRecordingRequest");
 
+    // Check that dialog stays open and 422 error messages are hidden
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="description-field"]').should(
+          "not.include.text",
+          "The description field is required.",
+        );
+        cy.get('[data-test="available-formats-field"]').should(
+          "not.include.text",
+          "The formats field is required.",
+        );
+        cy.get('[data-test="access-field"]').should(
+          "not.include.text",
+          "The access field is required.",
+        );
+      });
+
     // Check that error message gets shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that dialog stayed open and close it
-    cy.get('[data-test="room-recordings-edit-dialog"]').should("be.visible");
+    // Close dialog
     cy.get('[data-test="room-recordings-edit-dialog"]')
       .find('[data-test="dialog-cancel-button"]')
       .click();

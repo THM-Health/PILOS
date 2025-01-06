@@ -51,7 +51,7 @@ class RecordingTest extends TestCase
         $this->managePermission = Permission::where('name', 'rooms.manage')->first();
     }
 
-    public function testIndexNoAccessCodeGuestsAllowed()
+    public function test_index_no_access_code_guests_allowed()
     {
         $page_size = 20;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -111,7 +111,7 @@ class RecordingTest extends TestCase
             ->assertJsonCount(18, 'data');
     }
 
-    public function testIndexWithAccessCodeGuestsAllowed()
+    public function test_index_with_access_code_guests_allowed()
     {
         $page_size = 20;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -195,7 +195,7 @@ class RecordingTest extends TestCase
             ->assertJsonCount(18, 'data');
     }
 
-    public function testIndexWithAccessCodeGuestsNotAllowed()
+    public function test_index_with_access_code_guests_not_allowed()
     {
         $page_size = 20;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -236,7 +236,7 @@ class RecordingTest extends TestCase
         $this->flushHeaders();
     }
 
-    public function testIndexPagination()
+    public function test_index_pagination()
     {
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -272,7 +272,7 @@ class RecordingTest extends TestCase
 
     }
 
-    public function testIndexOnlyListWithFormat()
+    public function test_index_only_list_with_format()
     {
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -304,7 +304,7 @@ class RecordingTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    public function testIndexRoomToken()
+    public function test_index_room_token()
     {
         $page_size = 20;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -347,7 +347,7 @@ class RecordingTest extends TestCase
             ->assertJsonCount(11, 'data');
     }
 
-    public function testShowNoAccessCodeGuestsAllowed()
+    public function test_show_no_access_code_guests_allowed()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -365,7 +365,7 @@ class RecordingTest extends TestCase
             ->assertOk();
     }
 
-    public function testShowAccessCodeGuestsAllowed()
+    public function test_show_access_code_guests_allowed()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -393,7 +393,7 @@ class RecordingTest extends TestCase
             ->assertOk();
     }
 
-    public function testShowAccessCodeGuestsNotAllowed()
+    public function test_show_access_code_guests_not_allowed()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -412,7 +412,7 @@ class RecordingTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testShowRoomToken()
+    public function test_show_room_token()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -472,7 +472,7 @@ class RecordingTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testShowDisabledFormat()
+    public function test_show_disabled_format()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -502,7 +502,7 @@ class RecordingTest extends TestCase
             ->assertOk();
     }
 
-    public function testShowAccess()
+    public function test_show_access()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -577,7 +577,7 @@ class RecordingTest extends TestCase
             ->assertOk();
     }
 
-    public function testShowWrongFormat()
+    public function test_show_wrong_format()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -589,7 +589,7 @@ class RecordingTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testShowUrl()
+    public function test_show_url()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -614,7 +614,7 @@ class RecordingTest extends TestCase
             ->assertJson(['url' => 'https://example.com/player/'.$recording->id.'/']);
     }
 
-    public function testUpdate()
+    public function test_update()
     {
         $recording = Recording::factory()->create();
         $room = $recording->room;
@@ -648,7 +648,7 @@ class RecordingTest extends TestCase
         $this->assertTrue($notes->disabled);
     }
 
-    public function testUpdatePermissions()
+    public function test_update_permissions()
     {
         $recording = Recording::factory()->create();
         $room = $recording->room;
@@ -712,7 +712,7 @@ class RecordingTest extends TestCase
             ->assertUnauthorized();
     }
 
-    public function testUpdateInvalidData()
+    public function test_update_invalid_data()
     {
         $recording = Recording::factory()->create();
         $room = $recording->room;
@@ -747,7 +747,7 @@ class RecordingTest extends TestCase
 
     }
 
-    public function testDelete()
+    public function test_delete()
     {
         Storage::fake('recordings');
 
@@ -777,7 +777,7 @@ class RecordingTest extends TestCase
         $this->assertDirectoryDoesNotExist(Storage::disk('recordings')->path($recording->id));
     }
 
-    public function testDeleteOnRoomDelete()
+    public function test_delete_on_room_delete()
     {
         Storage::fake('recordings');
 
@@ -808,7 +808,7 @@ class RecordingTest extends TestCase
         $this->assertDirectoryDoesNotExist(Storage::disk('recordings')->path($recording->id));
     }
 
-    public function testDeletePermissions()
+    public function test_delete_permissions()
     {
 
         // Check if user with manage rooms permission can delete
@@ -864,7 +864,7 @@ class RecordingTest extends TestCase
             ->assertUnauthorized();
     }
 
-    public function testDeleteInvalidData()
+    public function test_delete_invalid_data()
     {
         $recording = Recording::factory()->create();
 
@@ -876,7 +876,7 @@ class RecordingTest extends TestCase
     }
 
     /** Non-API Routes */
-    public function testAccessRecordingResource()
+    public function test_access_recording_resource()
     {
         Storage::fake('recordings');
 
@@ -926,7 +926,7 @@ class RecordingTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function testDownloadRecording()
+    public function test_download_recording()
     {
         config(['recording.download_allowlist' => '(.*)']);
 
@@ -989,7 +989,7 @@ class RecordingTest extends TestCase
         FileHelper::deleteDirectory($tempDir);
     }
 
-    public function testDownloadRecordingWithWhitelist()
+    public function test_download_recording_with_whitelist()
     {
         config(['recording.download_allowlist' => '^.*\.(pdf|mp4)$']);
 
@@ -1044,7 +1044,7 @@ class RecordingTest extends TestCase
         FileHelper::deleteDirectory($tempDir);
     }
 
-    public function testDownloadRecordingPermissions()
+    public function test_download_recording_permissions()
     {
         config(['recording.download_allowlist' => '.*']);
 

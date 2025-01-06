@@ -98,7 +98,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testRedirectRouteDisabled()
+    public function test_redirect_route_disabled()
     {
         Config::set('services.shibboleth.enabled', false);
         $response = $this->get(route('auth.shibboleth.redirect'));
@@ -110,7 +110,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testRedirectRoute()
+    public function test_redirect_route()
     {
         $response = $this->get(route('auth.shibboleth.redirect', ['redirect' => '/rooms/abc-123-def']));
         $response->assertRedirectToRoute('auth.shibboleth.callback', ['redirect' => '/rooms/abc-123-def']);
@@ -121,7 +121,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testCallbackRouteDisabled()
+    public function test_callback_route_disabled()
     {
         Config::set('services.shibboleth.enabled', false);
         $response = $this->get(route('auth.shibboleth.callback'));
@@ -133,7 +133,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testCallbackRouteAsLoggedInUser()
+    public function test_callback_route_as_logged_in_user()
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get(route('auth.shibboleth.callback'));
@@ -145,7 +145,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testCallbackRouteWithNoHeaders()
+    public function test_callback_route_with_no_headers()
     {
         $response = $this->get(route('auth.shibboleth.callback'));
         $response->assertRedirect('/external_login?error=missing_attributes');
@@ -156,7 +156,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testCallbackRouteWithValidData()
+    public function test_callback_route_with_valid_data()
     {
         $this->generalSettings->default_timezone = 'Europe/Paris';
         $this->generalSettings->save();
@@ -197,7 +197,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testCallbackRouteExistingUser()
+    public function test_callback_route_existing_user()
     {
         $user = User::factory()->create([
             'authenticator' => 'shibboleth',
@@ -254,7 +254,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testLoginWithSameSessionId()
+    public function test_login_with_same_session_id()
     {
         $header = [
             'Accept-Language' => 'fr',
@@ -285,7 +285,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testLoginSimultaneousSessionId()
+    public function test_login_simultaneous_session_id()
     {
         $header = [
             'Accept-Language' => 'fr',
@@ -329,7 +329,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testChangingShibbSession()
+    public function test_changing_shibb_session()
     {
         $header = [
             'Accept-Language' => 'fr',
@@ -362,7 +362,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testChangingShibbSessionWithMiddlewareDisabled()
+    public function test_changing_shibb_session_with_middleware_disabled()
     {
         config(['services.shibboleth.session_check_middleware_enabled' => false]);
 
@@ -397,7 +397,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testLogoutRouteDisabled()
+    public function test_logout_route_disabled()
     {
         Config::set('services.shibboleth.enabled', false);
         $response = $this->get(route('auth.shibboleth.logout'));
@@ -409,7 +409,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testLogout()
+    public function test_logout()
     {
         $header = [
             'Accept-Language' => 'fr',
@@ -438,7 +438,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testFrontChannelLogout()
+    public function test_front_channel_logout()
     {
         $header = [
             'Accept-Language' => 'fr',
@@ -466,7 +466,7 @@ class ShibbolethTest extends TestCase
      *
      * @return void
      */
-    public function testBackChannelLogout()
+    public function test_back_channel_logout()
     {
         $header = [
             'Accept-Language' => 'fr',

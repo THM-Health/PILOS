@@ -85,6 +85,29 @@ describe("User Profile Others", function () {
       "The bbb skip check audio field is required.",
     );
 
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/users/1", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="user-tab-others-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="bbb-skip-check-audio-field"]').should(
+      "not.include.text",
+      "The bbb skip check audio field is required.",
+    );
+
+    // Check that the error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
     // Check with 428 error (stale error)
     cy.fixture("user.json").then((user) => {
       const newModel = user.data;
@@ -114,25 +137,7 @@ describe("User Profile Others", function () {
     // Check that the changes are shown
     cy.get("#bbb_skip_check_audio").should("be.checked");
 
-    // Check with 500 error
-    cy.intercept("POST", "api/v1/users/1", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("saveChangesRequest");
-
-    cy.get('[data-test="user-tab-others-save-button"]').click();
-
-    cy.wait("@saveChangesRequest");
-
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
-
     // Check with 401 error
-
     cy.intercept("POST", "api/v1/users/1", {
       statusCode: 401,
     }).as("saveChangesRequest");
