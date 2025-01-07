@@ -16,7 +16,7 @@ use App\Settings\RoomSettings;
 use App\Settings\UserSettings;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Log;
 use ReflectionClass;
 use UnexpectedValueException;
@@ -24,29 +24,31 @@ use ValueError;
 
 abstract class AbstractProvisioner
 {
-    protected string $model;
+    private string $model;
 
-    protected array $expectedProperties;
+    private string $modelName;
+
+    private array $expectedProperties;
+
+    public function __construct(string $model, array $expectedProperties)
+    {
+        $name = (new ReflectionClass($model))->getShortname();
+        $this->modelName = Str::of($name)->snake()->replace('_', ' ')->value();
+        $this->model = $model;
+        $this->expectedProperties = $expectedProperties;
+    }
 
     protected function instanceName(object $properties)
     {
         return $properties->name;
     }
 
-    protected function modelName()
-    {
-        $name = (new ReflectionClass($this->model))->getShortname();
-        $name = preg_replace_callback('/[A-Z]/', fn ($match) => ' '.strtolower($match[0]), $name);
-
-        return ltrim($name);
-    }
-
     protected function createWrapper(object $properties, callable $callback)
     {
-        Log::notice("Provisioning {$this->modelName()} '{$this->instanceName($properties)}'");
+        Log::notice("Provisioning {$this->modelName} '{$this->instanceName($properties)}'");
         $validator = Validator::make((array) $properties, $this->expectedProperties);
         if ($validator->fails()) {
-            throw new UnexpectedValueException("Invalid {$this->modelName()} definition: {$validator->errors()}");
+            throw new UnexpectedValueException("Invalid {$this->modelName} definition: {$validator->errors()}");
         }
         $item = new $this->model;
         $callback($item);
@@ -57,9 +59,9 @@ abstract class AbstractProvisioner
     {
         if ($match) {
             $expression = implode(' && ', array_map(fn ($a, $b) => "$a = $b", array_keys($match), array_values($match)));
-            Log::notice("Deleting all {$this->modelName()}s matching '$expression'");
+            Log::notice("Deleting all {$this->modelName}s matching '$expression'");
         } else {
-            Log::notice("Deleting all {$this->modelName()}s");
+            Log::notice("Deleting all {$this->modelName}s");
         }
         $items = $this->model::lazy();
         foreach ($match as $key => $value) {
@@ -70,7 +72,7 @@ abstract class AbstractProvisioner
                 $callback($item);
             }
             if (! $item->delete()) {
-                Log::error("Failed to delete {$this->modelName()} '{$item->getLogLabel()}'");
+                Log::error("Failed to delete {$this->modelName} '{$item->getLogLabel()}'");
             }
         }
     }
@@ -86,16 +88,18 @@ abstract class AbstractProvisioner
 
 class ServerProvisioner extends AbstractProvisioner
 {
-    protected string $model = Server::class;
-
-    protected array $expectedProperties = [
-        'name' => 'required|string|unique:servers,name',
-        'description' => 'required|string',
-        'endpoint' => 'required|string',
-        'secret' => 'required|string',
-        'strength' => 'required|integer|min:1|max:10',
-        'status' => 'required|in:disabled,enabled',
-    ];
+    public function __construct()
+    {
+        $expectedProperties = [
+            'name' => 'required|string|unique:servers,name',
+            'description' => 'required|string',
+            'endpoint' => 'required|string',
+            'secret' => 'required|string',
+            'strength' => 'required|integer|min:1|max:10',
+            'status' => 'required|in:disabled,enabled',
+        ];
+        parent::__construct(Server::class, $expectedProperties);
+    }
 
     public function create(object $properties)
     {
@@ -123,14 +127,16 @@ class ServerProvisioner extends AbstractProvisioner
 
 class ServerPoolProvisioner extends AbstractProvisioner
 {
-    protected string $model = ServerPool::class;
-
-    protected array $expectedProperties = [
-        'name' => 'required|string|unique:server_pools,name',
-        'description' => 'required|string',
-        'servers' => 'required|list|distinct|exists:servers,name',
-        'servers.*' => 'string',
-    ];
+    public function __construct()
+    {
+        $expectedProperties = [
+            'name' => 'required|string|unique:server_pools,name',
+            'description' => 'required|string',
+            'servers' => 'required|list|distinct|exists:servers,name',
+            'servers.*' => 'string',
+        ];
+        parent::__construct(ServerPool::class, $expectedProperties);
+    }
 
     public function create(object $properties)
     {
@@ -151,14 +157,16 @@ class ServerPoolProvisioner extends AbstractProvisioner
 
 class RoomTypeProvisioner extends AbstractProvisioner
 {
-    protected string $model = RoomType::class;
-
-    protected array $expectedProperties = [
-        'name' => 'required|string|unique:room_types,name',
-        'description' => 'required|string',
-        'color' => 'required|string',
-        'server_pool' => 'required|string|exists:server_pools,name',
-    ];
+    public function __construct()
+    {
+        $expectedProperties = [
+            'name' => 'required|string|unique:room_types,name',
+            'description' => 'required|string',
+            'color' => 'required|string',
+            'server_pool' => 'required|string|exists:server_pools,name',
+        ];
+        parent::__construct(RoomType::class, $expectedProperties);
+    }
 
     public function create(object $properties)
     {
@@ -179,28 +187,30 @@ class RoomTypeProvisioner extends AbstractProvisioner
 
 class RoleProvisioner extends AbstractProvisioner
 {
-    protected string $model = Role::class;
-
-    protected array $expectedProperties = [
-        'name' => 'required|string',
-        'permissions' => 'required|array:rooms,meetings,settings,users,roles,roomTypes,servers,serverPools',
-        'permissions.rooms' => 'list',
-        'permissions.rooms.*' => 'string',
-        'permissions.meetings' => 'list',
-        'permissions.meetings.*' => 'string',
-        'permissions.settings' => 'list',
-        'permissions.settings.*' => 'string',
-        'permissions.users' => 'list',
-        'permissions.users.*' => 'string',
-        'permissions.roles' => 'list',
-        'permissions.roles.*' => 'string',
-        'permissions.roomTypes' => 'list',
-        'permissions.roomTypes.*' => 'string',
-        'permissions.servers' => 'list',
-        'permissions.servers.*' => 'string',
-        'permissions.serverPools' => 'list',
-        'permissions.serverPools.*' => 'string',
-    ];
+    public function __construct()
+    {
+        $expectedProperties = [
+            'name' => 'required|string',
+            'permissions' => 'required|array:rooms,meetings,settings,users,roles,roomTypes,servers,serverPools',
+            'permissions.rooms' => 'list',
+            'permissions.rooms.*' => 'string',
+            'permissions.meetings' => 'list',
+            'permissions.meetings.*' => 'string',
+            'permissions.settings' => 'list',
+            'permissions.settings.*' => 'string',
+            'permissions.users' => 'list',
+            'permissions.users.*' => 'string',
+            'permissions.roles' => 'list',
+            'permissions.roles.*' => 'string',
+            'permissions.roomTypes' => 'list',
+            'permissions.roomTypes.*' => 'string',
+            'permissions.servers' => 'list',
+            'permissions.servers.*' => 'string',
+            'permissions.serverPools' => 'list',
+            'permissions.serverPools.*' => 'string',
+        ];
+        parent::__construct(Role::class, $expectedProperties);
+    }
 
     public function create(object $properties)
     {
@@ -229,19 +239,21 @@ class RoleProvisioner extends AbstractProvisioner
 
 class UserProvisioner extends AbstractProvisioner
 {
-    protected string $model = User::class;
-
-    protected array $expectedProperties = [
-        'firstname' => 'required|string',
-        'lastname' => 'required|string',
-        'email' => 'required|string',
-        'password' => 'required|string',
-        'authenticator' => 'required|string',
-        'roles' => 'required|list|exists:roles,name',
-        'roles.*' => 'string',
-        'locale' => 'required|string',
-        'timezone' => 'required|string',
-    ];
+    public function __construct()
+    {
+        $expectedProperties = [
+            'firstname' => 'required|string',
+            'lastname' => 'required|string',
+            'email' => 'required|string',
+            'password' => 'required|string',
+            'authenticator' => 'required|string',
+            'roles' => 'required|list|exists:roles,name',
+            'roles.*' => 'string',
+            'locale' => 'required|string',
+            'timezone' => 'required|string',
+        ];
+        parent::__construct(User::class, $expectedProperties);
+    }
 
     protected function instanceName(object $properties)
     {
