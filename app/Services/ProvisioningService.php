@@ -63,18 +63,18 @@ abstract class AbstractProvisioner
         } else {
             Log::notice("Deleting all {$this->modelName}s");
         }
-        $items = $this->model::lazy();
+        $query = $this->model::query();
         foreach ($match as $key => $value) {
-            $items = $items->where($key, $value);
+            $query = $query->where($key, $value);
         }
-        foreach ($items as $item) {
+        $query->get()->each(function (object $item) use ($callback) {
             if ($callback) {
                 $callback($item);
             }
             if (! $item->delete()) {
                 Log::error("Failed to delete {$this->modelName} '{$item->getLogLabel()}'");
             }
-        }
+        });
     }
 
     abstract public function create(object $properties);
