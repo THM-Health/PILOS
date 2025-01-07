@@ -17,6 +17,7 @@ use App\Settings\UserSettings;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Log;
 use ReflectionClass;
 use UnexpectedValueException;
@@ -244,8 +245,8 @@ class UserProvisioner extends AbstractProvisioner
             'authenticator' => 'required|string',
             'roles' => 'required|list',
             'roles.*' => 'string|distinct|exists:roles,name',
-            'locale' => 'required|string',
-            'timezone' => 'required|string',
+            'locale' => ['required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
+            'timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
         ];
         parent::__construct(User::class, $expectedProperties);
     }
