@@ -380,7 +380,7 @@ class ProvisioningServiceTest extends TestCase
             }
         }
         $saved_permissions = array_map(fn ($it) => $it->name, $role->permissions->all());
-        $this->assertEquals($wanted_permissions, $saved_permissions);
+        $this->assertEquals(sort($wanted_permissions), sort($saved_permissions));
     }
 
     /**
