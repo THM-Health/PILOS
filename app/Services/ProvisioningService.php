@@ -259,11 +259,6 @@ class UserProvisioner extends AbstractProvisioner
     {
         $this->createWrapper($properties, function ($user) use ($properties) {
             $roles = Role::whereIn('name', $properties->roles)->get();
-            if (count($properties->roles) != count($roles)) {
-                $message = "Could not find specified role(s) for user '$properties->firstname $properties->lastname'";
-                Log::error($message);
-                throw new RecordsNotFoundException($message);
-            }
             $user->firstname = $properties->firstname;
             $user->lastname = $properties->lastname;
             $user->email = $properties->email;
