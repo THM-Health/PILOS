@@ -246,6 +246,19 @@ class ProvisioningServiceTest extends TestCase
     }
 
     /**
+     * Test server pool creation with a duplicate server
+     */
+    public function test_server_pool_create_duplicate_server()
+    {
+        $this->testServerPool->servers = [$this->testServer->name, $this->testServer->name];
+        $this->svc->server->create($this->testServer);
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid server pool definition');
+        $this->svc->serverPool->create($this->testServerPool);
+        $this->assertNull(ServerPool::firstWhere('name', $this->testServerPool->name));
+    }
+
+    /**
      * Test server pool creation with incomplete properties
      */
     public function test_server_pool_create_incomplete()
@@ -461,6 +474,18 @@ class ProvisioningServiceTest extends TestCase
     public function test_user_create_non_existing_role()
     {
         $this->testUser->roles = ['fnord'];
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid user definition');
+        $this->svc->user->create($this->testUser);
+        $this->assertNull(User::where('firstname', $this->testUser->firstname)->where('lastname', $this->testUser->lastname)->first());
+    }
+
+    /**
+     * Test user creation with a duplicate role
+     */
+    public function test_user_create_duplicate_role()
+    {
+        $this->testUser->roles = ['User', 'User'];
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid user definition');
         $this->svc->user->create($this->testUser);

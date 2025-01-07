@@ -127,8 +127,8 @@ class ServerPoolProvisioner extends AbstractProvisioner
         $expectedProperties = [
             'name' => 'required|string|unique:server_pools,name',
             'description' => 'required|string',
-            'servers' => 'required|list|distinct|exists:servers,name',
-            'servers.*' => 'string',
+            'servers' => 'required|list',
+            'servers.*' => 'string|distinct|exists:servers,name',
         ];
         parent::__construct(ServerPool::class, $expectedProperties);
     }
@@ -242,8 +242,8 @@ class UserProvisioner extends AbstractProvisioner
             'email' => 'required|string',
             'password' => 'required|string',
             'authenticator' => 'required|string',
-            'roles' => 'required|list|exists:roles,name',
-            'roles.*' => 'string',
+            'roles' => 'required|list',
+            'roles.*' => 'string|distinct|exists:roles,name',
             'locale' => 'required|string',
             'timezone' => 'required|string',
         ];
