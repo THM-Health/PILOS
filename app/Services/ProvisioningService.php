@@ -104,18 +104,13 @@ class ServerProvisioner extends AbstractProvisioner
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($srv) use ($properties) {
-            // TODO: PHP 8.3 allows the following syntax
-            // ServerStatus::{strtoupper($properties->status)}->value;
-            $status = "App\Enums\ServerStatus::".strtoupper($properties->status);
-            if (! defined($status)) {
-                throw new UnexpectedValueException('Invalid server status');
-            }
+            $status = ServerStatus::{strtoupper($properties->status)};
             $srv->name = $properties->name;
             $srv->description = $properties->description;
             $srv->base_url = $properties->endpoint;
             $srv->secret = $properties->secret;
             $srv->strength = $properties->strength;
-            $srv->status = constant($status)->value;
+            $srv->status = $status;
         });
     }
 
