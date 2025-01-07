@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.2.0] - 2025-01-06
+
 ### Added
 
 - Configurable hook script for recording synchronization ([#1484], [#1604])
@@ -31,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wrong permission check when showing create new server pool button ([#1724])
 - Styling issue in the role selection dropdown on the user index view ([#1724])
 - Broken permission checks when loading the user view/edit page in the admin UI ([#1724])
+- xdebug always enabled ([#1727])
 
 ### Removed
 
@@ -312,7 +315,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
 [#1724]: https://github.com/THM-Health/PILOS/pull/1724
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -321,3 +324,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.0
 [v4.1.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.1
 [v4.1.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.2
+[v4.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.2.0
