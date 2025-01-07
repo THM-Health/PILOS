@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ServerStatus;
 use App\Enums\TimePeriod;
+use App\Http\Requests\UpdateSettings;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoomType;
@@ -21,7 +22,6 @@ use Illuminate\Validation\Rule;
 use Log;
 use ReflectionClass;
 use UnexpectedValueException;
-use ValueError;
 
 abstract class AbstractProvisioner
 {
@@ -280,34 +280,6 @@ class UserProvisioner extends AbstractProvisioner
 
 class SettingsProvisioner
 {
-    public static array $expectedProperties = [
-        'general' => 'array:name,pagination_page_size,default_timezone,help_url,legal_notice_url,privacy_policy_url,toast_lifetime,no_welcome_page',
-        'general.name' => 'string',
-        'general.pagination_page_size' => 'integer',
-        'general.default_timezone' => 'string',
-        'general.help_url' => 'string',
-        'general.legal_notice_url' => 'string',
-        'general.privacy_policy_url' => 'string',
-        'general.toast_lifetime' => 'integer',
-        'general.no_welcome_page' => 'boolean',
-        'room' => 'array:limit,token_expiration,auto_delete_inactive_period,auto_delete_never_used_period,auto_delete_deadline_period,file_terms_of_use',
-        'room.limit' => 'integer',
-        'room.token_expiration' => 'integer',
-        'room.auto_delete_inactive_period' => 'integer',
-        'room.auto_delete_never_used_period' => 'integer',
-        'room.auto_delete_deadline_period' => 'integer',
-        'room.file_terms_of_use' => 'string',
-        'user' => 'array:password_change_allowed',
-        'user.password_change_allowed' => 'boolean',
-        'recording' => 'array:server_usage_enabled,server_usage_retention_period,meeting_usage_enabled,meeting_usage_retention_period,attendance_retention_period,recording_retention_period',
-        'recording.server_usage_enabled' => 'boolean',
-        'recording.server_usage_retention_period' => 'integer',
-        'recording.meeting_usage_enabled' => 'boolean',
-        'recording.meeting_usage_retention_period' => 'integer',
-        'recording.attendance_retention_period' => 'integer',
-        'recording.recording_retention_period' => 'integer',
-    ];
-
     public function __construct()
     {
         $this->settings = [
@@ -316,24 +288,36 @@ class SettingsProvisioner
             'user' => app(UserSettings::class),
             'recording' => app(RecordingSettings::class),
         ];
+        $this->expectedProperties = [
+            'general' => 'array:name,pagination_page_size,default_timezone,help_url,legal_notice_url,privacy_policy_url,toast_lifetime,no_welcome_page',
+            'room' => 'array:limit,token_expiration,auto_delete_inactive_period,auto_delete_never_used_period,auto_delete_deadline_period,file_terms_of_use',
+            'user' => 'array:password_change_allowed',
+            'recording' => 'array:server_usage_enabled,server_usage_retention_period,meeting_usage_enabled,meeting_usage_retention_period,attendance_retention_period,recording_retention_period',
+        ];
+        foreach ((new UpdateSettings)->rules() as $property => $validations) {
+            foreach (['banner', 'bbb', 'theme'] as $section) {
+                if (str_starts_with($property, $section)) {
+                    continue 2;
+                }
+            }
+            $property = Str::replaceFirst('_', '.', $property);
+            $validations = array_filter($validations, fn ($v) => $v != 'required');
+            $this->expectedProperties[$property] = $validations;
+        }
     }
 
     public function set(object $settings)
     {
-        $validator = Validator::make((array) $settings, self::$expectedProperties);
+        $validator = Validator::make((array) $settings, $this->expectedProperties);
         if ($validator->fails()) {
-            throw new UnexpectedValueException('Invalid settings definition');
+            throw new UnexpectedValueException("Invalid settings definition: {$validator->errors()}");
         }
         foreach (get_object_vars($settings) as $sect => $items) {
             $section = $this->settings[$sect];
             foreach ($items as $name => $value) {
                 Log::notice("Provisioning setting '$sect.$name'");
                 if ($section->{$name} instanceof TimePeriod) {
-                    try {
-                        $value = TimePeriod::from($value);
-                    } catch (ValueError) {
-                        throw new UnexpectedValueException("Invalid time period '$value'");
-                    }
+                    $value = TimePeriod::from($value);
                 }
                 $section->{$name} = $value;
             }

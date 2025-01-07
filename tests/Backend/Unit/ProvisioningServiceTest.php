@@ -104,7 +104,7 @@ class ProvisioningServiceTest extends TestCase
                 'help_url' => 'https://help.bbb.example.biz',
                 'legal_notice_url' => 'https://legal.bbb.example.biz',
                 'privacy_policy_url' => 'https://privacy.bbb.example.biz',
-                'default_timezone' => 'Europe/Germany',
+                'default_timezone' => 'Europe/Berlin',
             ],
             'recording' => [
                 'server_usage_enabled' => false,
@@ -553,7 +553,7 @@ class ProvisioningServiceTest extends TestCase
     {
         $this->testSettings->recording['recording_retention_period'] = '42';
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage("Invalid time period '42'");
+        $this->expectExceptionMessage('Invalid settings definition');
         $this->svc->settings->set($this->testSettings);
     }
 }
