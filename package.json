@@ -72,7 +72,7 @@
     "tailwindcss": "^3.4.17",
     "tailwindcss-primeui": "^0.3.3",
     "ua-parser-js": "^1.0.40",
-    "unplugin-vue-components": "^0.28.0",
+    "unplugin-vue-components": "^28.0.0",
     "vite": "^6.0.7",
     "vue": "^3.5",
     "vue-axe": "^3.1.2",
