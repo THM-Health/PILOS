@@ -49,6 +49,8 @@ describe("Admin servers view", function () {
     );
     cy.visit("/admin/servers/1");
 
+    cy.contains("admin.title");
+
     // Check loading
     cy.get('[data-test="servers-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="servers-edit-button"]').should("not.exist");

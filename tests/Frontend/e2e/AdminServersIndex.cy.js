@@ -48,6 +48,8 @@ describe("Admin servers index", function () {
 
     cy.visit("/admin/servers");
 
+    cy.contains("admin.title");
+
     // Test loading
     cy.get('[data-test="server-search"]')
       .eq(0)

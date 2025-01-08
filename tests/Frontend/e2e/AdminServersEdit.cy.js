@@ -56,11 +56,13 @@ describe("Admin servers edit", function () {
 
     cy.visit("/admin/servers/1/edit");
 
+    cy.contains("admin.title");
+
     // Check loading
     cy.get('[data-test="servers-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="servers-edit-button"]').should("not.exist");
     cy.get('[data-test="servers-delete-button"]').should("not.exist");
-    cy.get('[data-test="servers-save-button"]').should("not.exist");
+    cy.get('[data-test="servers-save-button"]').should("be.disabled");
 
     cy.get('[data-test="overlay"]')
       .should("be.visible")

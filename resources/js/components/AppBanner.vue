@@ -1,5 +1,6 @@
 <template>
   <Message
+    data-test="app-banner"
     :style="{
       'border-color': background,
       'background-color': background,
@@ -20,14 +21,19 @@
     <template #messageicon> </template>
 
     <div class="container flex flex-col gap-2">
-      <p v-if="title" class="m-0 text-lg font-bold">
-        <i v-if="icon" :class="`${icon}`" />
+      <p v-if="title" class="m-0 text-lg font-bold" data-test="banner-title">
+        <i v-if="icon" :class="`${icon}`" data-test="banner-icon" />
         {{ title }}
       </p>
-      <p class="m-0 whitespace-pre-wrap">
+      <p class="m-0 whitespace-pre-wrap" data-test="banner-message">
         {{ message }}
       </p>
-      <a v-if="link" :href="link" :target="`_${linkTarget}`">
+      <a
+        v-if="link"
+        :href="link"
+        :target="`_${linkTarget}`"
+        data-test="banner-link-button"
+      >
         <Button
           :link="linkStyle === 'link'"
           :style="linkStyle === 'link' ? { color: color } : {}"

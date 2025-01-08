@@ -13,7 +13,10 @@
 
         <div class="flex flex-col gap-6">
           <AdminPanel :title="$t('admin.settings.application')">
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="application-name-field"
+            >
               <label
                 for="application-name"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -35,7 +38,7 @@
                 <FormError :errors="formErrors.fieldError('general_name')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div class="grid grid-cols-12 gap-4" data-test="help-url-field">
               <label for="help-url" class="col-span-12 md:col-span-4 md:mb-0">{{
                 $t("admin.settings.help_url.title")
               }}</label>
@@ -56,7 +59,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="legal-notice-url-field"
+            >
               <label
                 for="legal-notice-url"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -79,7 +85,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="privacy-policy-url-field"
+            >
               <label
                 for="privacy-policy-url"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -104,7 +113,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="pagination-page-size-field"
+            >
               <label
                 for="pagination-page-size"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -132,13 +144,19 @@
                 />
               </div>
             </div>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="toast-lifetime-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.toast_lifetime.title") }}
               </legend>
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex flex-wrap gap-4">
-                  <div class="flex items-center">
+                  <div
+                    class="flex items-center"
+                    data-test="toast-lifetime-mode-unlimited-field"
+                  >
                     <RadioButton
                       v-model="toastLifetimeMode"
                       input-id="toast-lifetime-mode-unlimited"
@@ -156,7 +174,10 @@
                       $t("app.unlimited")
                     }}</label>
                   </div>
-                  <div class="flex items-center">
+                  <div
+                    class="flex items-center"
+                    data-test="toast-lifetime-mode-custom-field"
+                  >
                     <RadioButton
                       v-model="toastLifetimeMode"
                       input-id="toast-lifetime-mode-custom"
@@ -189,6 +210,7 @@
                   :disabled="disabled"
                   aria-labelledby="toast-lifetime-custom-label"
                   aria-describedby="toast-lifetime-custom-help"
+                  data-test="toast-lifetime-custom-input"
                 />
                 <small id="toast-lifetime-custom-help">{{
                   $t("admin.settings.toast_lifetime.description")
@@ -198,7 +220,10 @@
                 />
               </div>
             </fieldset>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="default-timezone-field"
+            >
               <label
                 id="default-timezone-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -220,7 +245,10 @@
                 />
               </div>
             </div>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="no-welcome-page-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.no_welcome_page") }}
               </legend>
@@ -245,7 +273,7 @@
           </AdminPanel>
 
           <AdminPanel :title="$t('admin.settings.theme.title')">
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset class="grid grid-cols-12 gap-4" data-test="favicon-field">
               <legend
                 id="favicon-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -271,7 +299,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="favicon-dark-field"
+            >
               <legend
                 id="favicon-dark-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -299,7 +330,7 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset class="grid grid-cols-12 gap-4" data-test="logo-field">
               <legend id="logo-label" class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.logo.title") }}
               </legend>
@@ -322,7 +353,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="logo-dark-field"
+            >
               <legend
                 id="logo-dark-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -350,7 +384,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="primary-color-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.theme.primary_color") }}
               </legend>
@@ -376,7 +413,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="theme-rounded-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.theme.rounded") }}
               </legend>
@@ -397,7 +437,10 @@
           </AdminPanel>
 
           <AdminPanel :title="$t('admin.settings.banner.title')">
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-enabled-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.banner.enabled") }}
               </legend>
@@ -415,7 +458,10 @@
                 <FormError :errors="formErrors.fieldError('banner_enabled')" />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-preview-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.banner.preview") }}
               </legend>
@@ -434,7 +480,7 @@
                 />
               </div>
             </fieldset>
-            <div class="grid grid-cols-12 gap-4">
+            <div class="grid grid-cols-12 gap-4" data-test="banner-title-field">
               <label
                 for="banner-title"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -451,7 +497,7 @@
                 <FormError :errors="formErrors.fieldError('banner_title')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div class="grid grid-cols-12 gap-4" data-test="banner-icon-field">
               <label
                 for="banner-icon"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -472,7 +518,10 @@
                 <FormError :errors="formErrors.fieldError('banner_icon')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-message-field"
+            >
               <label
                 for="banner-message"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -489,7 +538,7 @@
                 <FormError :errors="formErrors.fieldError('banner_message')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div class="grid grid-cols-12 gap-4" data-test="banner-link-field">
               <label
                 for="banner-link"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -506,7 +555,10 @@
                 <FormError :errors="formErrors.fieldError('banner_link')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-link-text-field"
+            >
               <label
                 for="banner-link-text"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -525,7 +577,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-link-style-field"
+            >
               <label
                 id="banner-link-style-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -534,6 +589,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.banner_link_style"
+                  data-test="banner-link-style-dropdown"
                   aria-labelledby="banner-link-style-label"
                   :options="linkBtnStyles"
                   :placeholder="$t('admin.settings.banner.select_link_style')"
@@ -541,13 +597,24 @@
                   option-value="value"
                   :invalid="formErrors.fieldInvalid('banner_link_style')"
                   :disabled="disabled"
+                  :pt="{
+                    listContainer: {
+                      'data-test': 'banner-link-style-dropdown-items',
+                    },
+                    option: {
+                      'data-test': 'banner-link-style-dropdown-option',
+                    },
+                  }"
                 />
                 <FormError
                   :errors="formErrors.fieldError('banner_link_style')"
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-link-target-field"
+            >
               <label
                 id="banner-link-target-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -556,6 +623,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.banner_link_target"
+                  data-test="banner-link-target-dropdown"
                   aria-labelledby="banner-link-target-label"
                   :options="linkTargets"
                   :placeholder="$t('admin.settings.banner.select_link_target')"
@@ -563,13 +631,24 @@
                   option-value="value"
                   :invalid="formErrors.fieldInvalid('banner_link_target')"
                   :disabled="disabled"
+                  :pt="{
+                    listContainer: {
+                      'data-test': 'banner-link-target-dropdown-items',
+                    },
+                    option: {
+                      'data-test': 'banner-link-target-dropdown-option',
+                    },
+                  }"
                 />
                 <FormError
                   :errors="formErrors.fieldError('banner_link_target')"
                 />
               </div>
             </div>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-color-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.banner.color") }}
               </legend>
@@ -593,7 +672,10 @@
                 <FormError :errors="formErrors.fieldError('banner_color')" />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="banner-background-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.banner.background") }}
               </legend>
@@ -622,12 +704,18 @@
           </AdminPanel>
 
           <AdminPanel :title="$t('app.rooms')">
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="room-limit-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.room_limit.title") }}
               </legend>
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
-                <div class="flex flex-wrap gap-4">
+                <div
+                  class="flex flex-wrap gap-4"
+                  data-test="room-limit-mode-unlimited-field"
+                >
                   <div class="flex items-center">
                     <RadioButton
                       v-model="roomLimitMode"
@@ -646,7 +734,10 @@
                       $t("app.unlimited")
                     }}</label>
                   </div>
-                  <div class="flex items-center">
+                  <div
+                    class="flex items-center"
+                    data-test="room-limit-mode-custom-field"
+                  >
                     <RadioButton
                       v-model="roomLimitMode"
                       input-id="room-limit-mode-custom"
@@ -687,7 +778,10 @@
                 <FormError :errors="formErrors.fieldError('room_limit')" />
               </div>
             </fieldset>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="room-token-expiration-field"
+            >
               <label
                 id="room-token-expiration-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -696,6 +790,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.room_token_expiration"
+                  data-test="room-token-expiration-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
@@ -705,6 +800,12 @@
                   :pt="{
                     input: {
                       'aria-describedby': 'room-token-expiration-help',
+                    },
+                    listContainer: {
+                      'data-test': 'room-token-expiration-dropdown-items',
+                    },
+                    option: {
+                      'data-test': 'room-token-expiration-dropdown-option',
                     },
                   }"
                 />
@@ -716,7 +817,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="room-auto-delete-deadline-period-field"
+            >
               <label
                 id="room-auto-delete-deadline-period-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -728,6 +832,7 @@
                 <Select
                   v-model="settings.room_auto_delete_deadline_period"
                   :options="roomDeleteDeadlineOptions"
+                  data-test="room-auto-delete-deadline-dropdown"
                   option-label="text"
                   option-value="value"
                   :invalid="
@@ -739,6 +844,12 @@
                     input: {
                       'aria-describedby':
                         'room-auto-delete-deadline-period-help',
+                    },
+                    listContainer: {
+                      'data-test': 'room-auto-delete-deadline-dropdown-items',
+                    },
+                    option: {
+                      'data-test': 'room-auto-delete-deadline-dropdown-option',
                     },
                   }"
                 />
@@ -754,7 +865,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="room-auto-delete-inactive-period-field"
+            >
               <label
                 id="room-auto-delete-inactive-period-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -765,6 +879,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.room_auto_delete_inactive_period"
+                  data-test="room-auto-delete-inactive-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
@@ -777,6 +892,12 @@
                     input: {
                       'aria-describedby':
                         'room-auto-delete-inactive-period-help',
+                    },
+                    listContainer: {
+                      'data-test': 'room-auto-delete-inactive-dropdown-items',
+                    },
+                    option: {
+                      'data-test': 'room-auto-delete-inactive-dropdown-option',
                     },
                   }"
                 />
@@ -792,7 +913,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="room-auto-delete-never-used-period-field"
+            >
               <label
                 id="room-auto-delete-never-used-period-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -803,6 +927,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.room_auto_delete_never_used_period"
+                  data-test="room-auto-delete-never-used-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
@@ -818,6 +943,13 @@
                       'aria-describedby':
                         'room-auto-delete-never-used-period-help',
                     },
+                    listContainer: {
+                      'data-test': 'room-auto-delete-never-used-dropdown-items',
+                    },
+                    option: {
+                      'data-test':
+                        'room-auto-delete-never-used-dropdown-option',
+                    },
                   }"
                 />
                 <small id="room-auto-delete-never-used-period-help">{{
@@ -832,7 +964,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="room-file-terms-of-use-field"
+            >
               <label
                 for="room-file-terms-of-use"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -859,7 +994,10 @@
           </AdminPanel>
 
           <AdminPanel :title="$t('app.users')">
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="password-change-allowed-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.password_change_allowed") }}
               </legend>
@@ -890,7 +1028,10 @@
           <AdminPanel
             :title="$t('admin.settings.recording_and_statistics_title')"
           >
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="statistics-servers-enabled-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.statistics.servers.enabled_title") }}
               </legend>
@@ -916,7 +1057,10 @@
                 />
               </div>
             </fieldset>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="statistics-servers-retention-period-field"
+            >
               <label
                 id="statistics-servers-retention-period-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -927,6 +1071,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_server_usage_retention_period"
+                  data-test="statistics-servers-retention-period-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
@@ -937,6 +1082,16 @@
                   "
                   :disabled="disabled"
                   aria-labelledby="statistics-servers-retention-period-label"
+                  :pt="{
+                    listContainer: {
+                      'data-test':
+                        'statistics-servers-retention-period-dropdown-items',
+                    },
+                    option: {
+                      'data-test':
+                        'statistics-servers-retention-period-dropdown-option',
+                    },
+                  }"
                 />
                 <FormError
                   :errors="
@@ -947,7 +1102,10 @@
                 />
               </div>
             </div>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="statistics-meetings-enabled-field"
+            >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.statistics.meetings.enabled_title") }}
               </legend>
@@ -973,7 +1131,10 @@
                 />
               </div>
             </fieldset>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="statistics-meetings-retention-period-field"
+            >
               <label
                 id="statistics-meetings-retention-period-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -986,6 +1147,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_meeting_usage_retention_period"
+                  data-test="statistics-meetings-retention-period-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
@@ -996,6 +1158,16 @@
                   "
                   :disabled="disabled"
                   aria-labelledby="statistics-meetings-retention-period-label"
+                  :pt="{
+                    listContainer: {
+                      'data-test':
+                        'statistics-meetings-retention-period-dropdown-items',
+                    },
+                    option: {
+                      'data-test':
+                        'statistics-meetings-retention-period-dropdown-option',
+                    },
+                  }"
                 />
                 <FormError
                   :errors="
@@ -1006,7 +1178,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="attendance-retention-period-field"
+            >
               <label
                 id="attendance-retention-period-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -1017,6 +1192,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_attendance_retention_period"
+                  data-test="attendance-retention-period-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
@@ -1027,6 +1203,15 @@
                   "
                   :disabled="disabled"
                   aria-labelledby="attendance-retention-period-label"
+                  :pt="{
+                    listContainer: {
+                      'data-test': 'attendance-retention-period-dropdown-items',
+                    },
+                    option: {
+                      'data-test':
+                        'attendance-retention-period-dropdown-option',
+                    },
+                  }"
                 />
                 <FormError
                   :errors="
@@ -1037,7 +1222,10 @@
                 />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4">
+            <div
+              class="grid grid-cols-12 gap-4"
+              data-test="recording-retention-period-field"
+            >
               <label
                 id="recording-retention-period-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -1048,6 +1236,7 @@
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_recording_retention_period"
+                  data-test="recording-retention-period-dropdown"
                   :options="recordingRetentionPeriods"
                   option-label="text"
                   option-value="value"
@@ -1058,6 +1247,14 @@
                   "
                   :disabled="disabled"
                   aria-labelledby="recording-retention-period-label"
+                  :pt="{
+                    listContainer: {
+                      'data-test': 'recording-retention-period-dropdown-items',
+                    },
+                    option: {
+                      'data-test': 'recording-retention-period-dropdown-option',
+                    },
+                  }"
                 />
                 <FormError
                   :errors="
@@ -1071,7 +1268,10 @@
           </AdminPanel>
 
           <AdminPanel :title="$t('admin.settings.bbb.title')">
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="bbb-logo-field"
+            >
               <legend
                 id="bbb-logo-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -1098,7 +1298,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="bbb-style-field"
+            >
               <legend
                 id="bbb-style-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -1120,7 +1323,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="default-presentation-field"
+            >
               <legend
                 id="default-presentation-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -1163,6 +1369,7 @@
             :loading="isBusy"
             icon="fa-solid fa-save"
             :label="$t('app.save')"
+            data-test="settings-save-button"
           />
         </div>
       </div>

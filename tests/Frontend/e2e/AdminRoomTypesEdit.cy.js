@@ -53,11 +53,13 @@ describe("Admin room types edit", function () {
 
     cy.visit("/admin/room_types/3/edit");
 
+    cy.contains("admin.title");
+
     // Check loading
     cy.get('[data-test="room-types-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="room-types-edit-button"]').should("not.exist");
     cy.get('[data-test="room-types-delete-button"]').should("not.exist");
-    cy.get('[data-test="room-types-save-button"]').should("not.exist");
+    cy.get('[data-test="room-types-save-button"]').should("be.disabled");
 
     cy.get('[data-test="overlay"]')
       .should("be.visible")
@@ -129,7 +131,7 @@ describe("Admin room types edit", function () {
           .and("not.be.disabled")
           .clear();
 
-        // Set custom color and check that color buttons is selected
+        // Set custom color and check that color button is selected
         cy.get("#custom-color").type("#06b6d4");
 
         for (let i = 0; i < 10; i++) {
@@ -138,7 +140,7 @@ describe("Admin room types edit", function () {
             .should(i === 2 ? "have.class" : "not.have.class", "selected");
         }
 
-        // Click on color button and check that color buttons is selected
+        // Click on color button and check that color button is selected
         cy.get('[data-test="color-button"]').eq(7).click();
 
         for (let i = 0; i < 10; i++) {

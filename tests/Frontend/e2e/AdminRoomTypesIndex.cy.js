@@ -27,6 +27,8 @@ describe("Admin room types index", function () {
     );
     cy.visit("/admin/room_types");
 
+    cy.contains("admin.title");
+
     // Test loading
     cy.get('[data-test="room-type-search"]').within(() => {
       cy.get("input").should("be.visible").and("be.disabled");

@@ -50,6 +50,8 @@ describe("Admin server pools view", function () {
 
     cy.visit("/admin/server_pools/1");
 
+    cy.contains("admin.title");
+
     // Check loading
     cy.get('[data-test="server-pools-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="server-pools-edit-button"]').should("not.exist");

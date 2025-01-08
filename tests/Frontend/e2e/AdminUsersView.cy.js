@@ -66,6 +66,8 @@ describe("Admin users view", function () {
 
     cy.visit("/admin/users/2");
 
+    cy.contains("admin.title");
+
     // Check loading
     cy.get('[data-test="users-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="users-edit-button"]').should("not.exist");

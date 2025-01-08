@@ -60,6 +60,8 @@ describe("Admin users index", function () {
 
     cy.visit("/admin/users");
 
+    cy.contains("admin.title");
+
     // Test loading
     cy.get("[data-test=user-search]")
       .eq(0)

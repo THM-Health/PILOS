@@ -70,11 +70,13 @@ describe("Admin server pools edit", function () {
 
     cy.visit("/admin/server_pools/1/edit");
 
+    cy.contains("admin.title");
+
     // Check loading
     cy.get('[data-test="server-pools-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="server-pools-edit-button"]').should("not.exist");
     cy.get('[data-test="server-pools-delete-button"]').should("not.exist");
-    cy.get('[data-test="server-pools-save-button"]').should("not.exist");
+    cy.get('[data-test="server-pools-save-button"]').should("be.disabled");
 
     cy.get('[data-test="overlay"]')
       .should("be.visible")

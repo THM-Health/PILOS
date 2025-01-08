@@ -46,6 +46,8 @@ describe("Admin room types view", function () {
 
     cy.visit("/admin/room_types/3");
 
+    cy.contains("admin.title");
+
     // Check loading
     cy.get('[data-test="room-types-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="room-types-edit-button"]').should("not.exist");

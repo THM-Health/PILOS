@@ -351,3 +351,17 @@ Cypress.Commands.add("interceptMeetingsIndexRequests", () => {
     fixture: "meetings.json",
   }).as("meetingsRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin settings page
+ * @memberof cy
+ * @method interceptAdminSettingsRequest
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminSettingsRequest", () => {
+  cy.intercept("GET", "api/v1/settings", {
+    fixture: "settings.json",
+  }).as("settingsRequest");
+
+  cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
+});

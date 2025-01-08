@@ -18,6 +18,7 @@
           severity="danger"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
+          data-test="settings-file-cancel-button"
           @click="resetFileUpload"
         />
 
@@ -27,6 +28,7 @@
           severity="danger"
           :label="$t('app.delete')"
           icon="fa-solid fa-trash"
+          data-test="settings-file-delete-button"
           @click="fileDeleted = true"
         />
         <Button
@@ -34,6 +36,7 @@
           severity="secondary"
           icon="fa-solid fa-undo"
           :label="$t('app.undo_delete')"
+          data-test="settings-file-undo-delete-button"
           @click="fileDeleted = false"
         />
 
@@ -44,6 +47,7 @@
           :href="fileUrl"
           target="_blank"
           :label="$t('app.view')"
+          data-test="settings-file-view-button"
           icon="fa-solid fa-eye"
         />
       </div>

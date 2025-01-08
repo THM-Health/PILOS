@@ -468,7 +468,7 @@ describe("Admin room types view room type actions", function () {
     cy.get("#custom-color").type("#ef4444");
 
     cy.get('[data-test="server-pool-dropdown"]').within(() => {
-      cy.get(".multiselect__tags").should("include.text", "Test").click();
+      cy.get(".multiselect__tags").should("include.text", "Test");
     });
     cy.get('[data-test="server-pool-dropdown"]').click();
     cy.get(".multiselect__content")
@@ -476,6 +476,7 @@ describe("Admin room types view room type actions", function () {
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 4);
+
         cy.get(".multiselect__option").eq(1).click();
       });
 
