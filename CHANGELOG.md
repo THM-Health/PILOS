@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Wrong error message shown for 422 errors when verifying email ([#1744], [#1758])
+
 ## [v4.2.0] - 2025-01-06
 
 ### Added
@@ -315,6 +319,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
 [#1724]: https://github.com/THM-Health/PILOS/pull/1724
+[#1744]: https://github.com/THM-Health/PILOS/issues/1744
+[#1758]: https://github.com/THM-Health/PILOS/pull/1758
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
