@@ -500,7 +500,6 @@ class SettingsTest extends TestCase
             'recording_attendance_retention_period' => 'notnumber',
             'recording_recording_retention_period' => 'notnumber',
 
-            'bbb_logo' => '',
             'bbb_logo_file' => 'notimagefile',
         ];
 
@@ -552,7 +551,6 @@ class SettingsTest extends TestCase
                 'recording_attendance_retention_period',
                 'recording_recording_retention_period',
 
-                'bbb_logo',
                 'bbb_logo_file',
             ]);
 
@@ -902,7 +900,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get('styles/bbb.css'));
 
         // Clear default presentation (file deleted and setting removed)
-        $payload['bbb_style'] = null;
+        $payload['bbb_style'] = '';
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
         $this->assertNull(app(BigBlueButtonSettings::class)->style);
@@ -985,6 +983,7 @@ class SettingsTest extends TestCase
 
         // Clear logo
         unset($payload['bbb_logo_file']);
+        $payload['bbb_logo'] = '';
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
         $this->assertNull(app(BigBlueButtonSettings::class)->logo);
