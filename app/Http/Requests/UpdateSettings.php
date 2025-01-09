@@ -77,7 +77,7 @@ class UpdateSettings extends FormRequest
             'recording_attendance_retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'recording_recording_retention_period' => ['required', 'numeric',  Rule::enum(TimePeriod::class)->except($disabledRecordingRetentionPeriods)],
 
-            'bbb_logo' => ['string', 'max:255'],
+            'bbb_logo' => ['nullable', 'string', 'max:255'],
             'bbb_logo_file' => ['image', 'max:500'],
             'bbb_style' => ['nullable', 'file', 'max:500'],
             'bbb_default_presentation' => ['nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],

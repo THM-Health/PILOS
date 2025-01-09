@@ -1285,7 +1285,9 @@ function updateSettings() {
 
   if (uploadBBBLogoFile.value) {
     formData.append("bbb_logo_file", uploadBBBLogoFile.value);
-  } else if (!bbbLogoDeleted.value && settings.value.bbb_logo != null) {
+  } else if (bbbLogoDeleted.value) {
+    formData.append("bbb_logo", "");
+  } else if (settings.value.bbb_logo !== null) {
     formData.append("bbb_logo", settings.value.bbb_logo);
   }
 
