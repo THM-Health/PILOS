@@ -776,7 +776,7 @@ class RoomTypeTest extends TestCase
                 'create_parameters',
             ]);
 
-        //Test with missing parameters
+        // Test with missing parameters
         $data = [
             'updated_at' => $roomType->updated_at,
         ];

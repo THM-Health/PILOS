@@ -241,7 +241,7 @@ const paginator = usePaginator();
 const isBusy = ref(false);
 const loadingError = ref(false);
 const meetings = ref([]);
-const sortField = ref("lastname");
+const sortField = ref("start");
 const sortOrder = ref(1);
 const search = ref("");
 

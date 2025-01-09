@@ -21,7 +21,7 @@ class UpdateRoomSettings extends FormRequest
 
         // Generate validation rules for all visible room settings
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
-            //Expert mode for room is deactivated and setting is an expert setting: do not update setting
+            // Expert mode for room is deactivated and setting is an expert setting: do not update setting
             if (! $this->expert_mode && $config['expert']) {
                 continue;
             }

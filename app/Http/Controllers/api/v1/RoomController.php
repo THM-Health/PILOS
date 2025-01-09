@@ -46,7 +46,7 @@ class RoomController extends Controller
         $additionalMeta = [];
 
         if ($request->only_favorites) {
-            //list if room favorites
+            // list if room favorites
             $roomFavorites = Auth::user()->roomFavorites->modelKeys();
             $collection = Room::whereIn('rooms.id', $roomFavorites);
         } else {
@@ -166,7 +166,7 @@ class RoomController extends Controller
 
         $room->save();
 
-        //Create access code if activated for this room type
+        // Create access code if activated for this room type
         if ($room->roomType->has_access_code_default) {
             $room->access_code = random_int(111111111, 999999999);
         }
@@ -369,7 +369,7 @@ class RoomController extends Controller
         DB::beginTransaction();
 
         try {
-            //delete the new owner from the members if he is a member of the room
+            // delete the new owner from the members if he is a member of the room
             if ($room->members->contains($newOwner)) {
                 $room->members()->detach($newOwner);
             }
@@ -377,7 +377,7 @@ class RoomController extends Controller
             $room->owner()->associate($newOwner);
             $room->save();
 
-            //add old owner to the members
+            // add old owner to the members
             if ($request->role) {
                 $room->members()->attach($oldOwner, ['role' => $request->role]);
             }

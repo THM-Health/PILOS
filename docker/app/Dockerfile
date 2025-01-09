@@ -32,7 +32,8 @@ RUN apk --no-cache add \
 # Add PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions \
-    && install-php-extensions redis pcntl bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap xdebug gd @composer
+    && install-php-extensions redis pcntl bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap xdebug gd @composer \
+    && rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Change www-data user and group id
 RUN apk add --no-cache --virtual .mod-deps shadow \
