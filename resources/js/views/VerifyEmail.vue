@@ -18,7 +18,9 @@
                   {{ $t("app.verify_email.success") }}
                 </Message>
                 <Message
-                  v-else-if="error === env.HTTP_UNPROCESSABLE_ENTITY"
+                  v-else-if="
+                    verificationError === env.HTTP_UNPROCESSABLE_ENTITY
+                  "
                   severity="error"
                   icon="fa-solid fa-triangle-exclamation"
                   :closable="false"
@@ -61,7 +63,7 @@ const props = defineProps({
 
 const loading = ref(true);
 const success = ref(true);
-const error = ref(null);
+const verificationError = ref(null);
 
 const api = useApi();
 
@@ -84,7 +86,7 @@ function verifyEmail() {
     })
     .catch((error) => {
       if (error.response) {
-        error.value = error.response.status;
+        verificationError.value = error.response.status;
         if (error.response.status !== env.HTTP_UNPROCESSABLE_ENTITY) {
           api.error(error);
         }
