@@ -2,6 +2,7 @@
 
 return [
     'access_code' => 'Code d\'accès',
+    'auth_throttled' => 'Trop de tentatives. Merci de retenter dans :try_again secondes.',
     'become_member' => 'Devenir membre',
     'change_type' => [
         'changing_settings' => 'Les changements suivants seront appliqués aux paramètres de la salle',
@@ -139,6 +140,7 @@ return [
         'recording_forbidden' => 'L\'accès à l\'enregistrement demandé a été refusé.',
         'recording_gone' => 'L\'enregistrement a été supprimé entre-temps.',
         'start_forbidden' => 'Vous n\'avez pas l\'autorisation nécessaire pour démarrer la salle.',
+        'token_gone' => 'Le lien de salle personnalisé a été supprimé entre-temps.',
         'token_invalid' => 'Le lien personnalisé d\'accès à la salle a expiré.',
     ],
     'index' => [
