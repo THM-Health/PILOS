@@ -11,7 +11,7 @@ Understanding roles and permissions in PILOS is essential for maintaining effect
 
 ## Permissions
 
-Permissions are the smallest unit of access control in PILOS. They define what actions a user can perform in the system, except in rooms, where a user's role also influences their abilities.
+Permissions are the smallest unit of access control in PILOS. They determine which actions a user can perform in the system. Rooms are an exception, where the role of a user within the room also influences their permissions.
 
 ### Common Permissions
 
