@@ -45,4 +45,17 @@ class PermissionTest extends TestCase
                 ['id' => $includedPermission2->id, 'name' => $includedPermission2->name],
             ]]);
     }
+
+    public function test_index_with_restrictions()
+    {
+        $user = User::factory()->create();
+
+        config(['permissions.restrictions' => ['permission1', 'permission2']]);
+
+        $this->actingAs($user)->getJson(route('api.v1.permissions.index'))
+            ->assertSuccessful()
+            ->assertJsonPath('meta', [
+                'restrictions' => ['permission1', 'permission2'],
+            ]);
+    }
 }

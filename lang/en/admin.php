@@ -38,6 +38,7 @@ return [
     'overview' => 'Overview',
     'overview_description' => 'Here you can manage the settings of the application. Please select one of the menu items on the left to adjust the settings.',
     'roles' => [
+        'automatic' => 'Automatic',
         'default' => 'Default',
         'delete' => [
             'confirm' => 'Do you really want to delete the role :name?',
@@ -134,6 +135,7 @@ return [
             ],
         ],
         'select_roles' => 'Please select at least one role',
+        'superuser' => 'Superuser',
         'tile_description' => 'The roles assign permissions, organise the users and define the maximum number of rooms per user.',
         'view' => 'Detailed information for the role :name',
     ],

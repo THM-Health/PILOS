@@ -53,6 +53,8 @@ export default {
       return true;
     }
 
+    if (model.superuser && !user.superuser) return false;
+
     return user.permissions.includes("users.update");
   },
 
@@ -64,9 +66,11 @@ export default {
    * @return {boolean}
    */
   delete(user, model) {
-    return !user
-      ? false
-      : user.permissions.includes("users.delete") && model.id !== user.id;
+    if (!user || model.id === user.id) return false;
+
+    if (model.superuser && !user.superuser) return false;
+
+    return user.permissions.includes("users.delete");
   },
 
   /**

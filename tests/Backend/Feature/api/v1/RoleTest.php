@@ -29,7 +29,7 @@ class RoleTest extends TestCase
         $this->generalSettings->save();
 
         $user = User::factory()->create();
-        $roleA = Role::factory()->create(['name' => 'Administrator']);
+        $roleA = Role::factory()->create(['name' => 'Administrator', 'superuser' => true]);
         $roleB = Role::factory()->create(['name' => 'User']);
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
@@ -42,13 +42,15 @@ class RoleTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleA->name])
+            ->assertJsonFragment(['superuser' => true])
             ->assertJsonFragment(['per_page' => $page_size])
             ->assertJsonFragment(['total' => 2]);
 
         $this->getJson(route('api.v1.roles.index').'?page=2')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['name' => $roleB->name]);
+            ->assertJsonFragment(['name' => $roleB->name])
+            ->assertJsonFragment(['superuser' => false]);
 
         $this->getJson(route('api.v1.roles.index').'?page=2&sort_by=id&sort_direction=desc')
             ->assertSuccessful()
@@ -113,6 +115,41 @@ class RoleTest extends TestCase
         // check if superuser cannot be set, even if it is sent
         $this->assertFalse($roleDB->superuser);
         $this->assertEquals(10, $roleDB->room_limit);
+    }
+
+    /**
+     * Test if admins can create roles with permissions that have been restricted
+     * by system admins that only superusers should have and no other role
+     */
+    public function test_create_restricted_permissions()
+    {
+
+        config(['permissions.restrictions' => ['servers.create', 'serverPools.*']]);
+
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create();
+        $user->roles()->attach([$roleA->id]);
+
+        $createRolesPermission = Permission::firstOrCreate(['name' => 'roles.create']);
+        $createServersPermission = Permission::firstOrCreate(['name' => 'servers.create']);
+        $createServerPoolPermission = Permission::firstOrCreate(['name' => 'serverPools.create']);
+        $roleA->permissions()->attach([$createRolesPermission, $createServersPermission]);
+
+        $role = [
+            'name' => 'Test',
+            'superuser' => false,
+            'permissions' => [$createRolesPermission->id, $createServersPermission->id],
+            'room_limit' => 1,
+        ];
+
+        $this->actingAs($user)->postJson(route('api.v1.roles.store', $role))
+            ->assertSuccessful();
+
+        // Check if the role has been created and only the allowed permission has been attached
+        $roleDB = Role::where(['name' => 'Test'])->first();
+        $this->assertNotNull($roleDB);
+        $this->assertCount(1, $roleDB->permissions);
+        $this->assertEquals($createRolesPermission->id, $roleDB->permissions->first()->id);
     }
 
     public function test_update()
@@ -232,10 +269,50 @@ class RoleTest extends TestCase
         $this->assertEquals($permission_ids, $roleA->permissions()->pluck('permissions.id')->toArray());
     }
 
-    public function test_show()
+    public function test_update_restricted_permissions()
     {
         $user = User::factory()->create();
         $roleA = Role::factory()->create();
+        $user->roles()->attach([$roleA->id]);
+
+        config(['permissions.restrictions' => ['servers.create', 'serverPools.*']]);
+
+        $permission_ids = [
+            Permission::firstOrCreate(['name' => 'admin.view'])->id,
+            Permission::firstOrCreate(['name' => 'roles.viewAny'])->id,
+            Permission::firstOrCreate(['name' => 'roles.view'])->id,
+            Permission::firstOrCreate(['name' => 'roles.update'])->id,
+            Permission::firstOrCreate(['name' => 'users.create'])->id,
+        ];
+
+        $roleA->permissions()->attach($permission_ids);
+
+        $createServersPermission = Permission::firstOrCreate(['name' => 'servers.create']);
+        $createServerPoolsPermission = Permission::firstOrCreate(['name' => 'serverPools.create']);
+
+        $roleA->permissions()->attach([$createServerPoolsPermission->id]);
+
+        $role = [
+            'name' => 'Test',
+            'superuser' => false,
+            'permissions' => [...$permission_ids, $createServerPoolsPermission->id, $createServersPermission->id],
+            'room_limit' => 1,
+            'updated_at' => now(),
+        ];
+
+        $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role' => $roleA]), $role)
+            ->assertSuccessful();
+
+        // Check if the role has been updated and only the allowed permission has been attached
+        // and the restricted permissions that were already attached have been removed
+        $roleA->refresh();
+        $this->assertCount(5, $roleA->permissions);
+    }
+
+    public function test_show()
+    {
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create(['superuser' => true]);
         $roleB = Role::factory()->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
@@ -244,6 +321,7 @@ class RoleTest extends TestCase
 
         $permission = Permission::firstOrCreate(['name' => 'roles.view']);
         $roleA->permissions()->attach($permission->id);
+        $roleB->permissions()->attach($permission->id);
 
         $this->actingAs($user)->getJson(route('api.v1.roles.show', ['role' => self::INVALID_ID]))
             ->assertNotFound();
@@ -251,6 +329,15 @@ class RoleTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment([
                 'name' => $roleA->name,
+                'superuser' => true,
+                'permissions' => [['name' => $permission->name, 'id' => $permission->id]],
+            ]);
+
+        $this->getJson(route('api.v1.roles.show', ['role' => $roleB]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'name' => $roleB->name,
+                'superuser' => false,
                 'permissions' => [['name' => $permission->name, 'id' => $permission->id]],
             ]);
     }

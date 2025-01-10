@@ -15,7 +15,8 @@
             :disabled="
               isBusy || viewOnly || !userPermissions.can('editUserRole', model)
             "
-            :disabled-roles="disabledRoles"
+            :automatic-roles="automaticRoles"
+            :disable-superuser="!authStore.currentUser.superuser"
             @loading-error="(value) => (rolesLoadingError = value)"
             @busy="(value) => (rolesLoading = value)"
           />
@@ -43,6 +44,7 @@ import { computed, onBeforeMount, ref, watch } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
+import { useAuthStore } from "../stores/auth.js";
 
 const props = defineProps({
   viewOnly: {
@@ -65,13 +67,16 @@ const isBusy = ref(false);
 const model = ref(null);
 const rolesLoadingError = ref(false);
 const rolesLoading = ref(false);
+const authStore = useAuthStore();
 
-const disabledRoles = computed(() => {
+const automaticRoles = computed(() => {
   if (!model.value.roles) {
     return [];
   }
   return model.value.roles
-    .filter((role) => role.automatic)
+    .filter((role) => {
+      return role.automatic;
+    })
     .map((role) => role.id);
 });
 
