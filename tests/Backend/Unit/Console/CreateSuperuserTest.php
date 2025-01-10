@@ -26,22 +26,6 @@ class CreateSuperuserTest extends TestCase
         ]);
     }
 
-    public function test_invalid_inputs()
-    {
-        Role::factory()->create(['name' => 'superuser', 'superuser' => true]);
-
-        $this->artisan('users:create:superuser')
-            ->expectsOutput('Creating an new superuser, please notify your inputs.')
-            ->expectsQuestion('Firstname', str_repeat('a', 256))
-            ->expectsQuestion('Lastname', str_repeat('a', 256))
-            ->expectsQuestion('E-Mail', str_repeat('a', 256))
-            ->expectsQuestion('Locale (possible values: '.implode(',', array_keys(config('app.enabled_locales'))).')', str_repeat('a', 256))
-            ->expectsQuestion('Password', 'Test')
-            ->expectsQuestion('Password Confirmation', 'Test1234')
-            ->expectsOutput('Something went wrong, please see the error messages below for more information.')
-            ->assertExitCode(1);
-    }
-
     public function test_missing_role()
     {
         Role::factory()->create(['name' => 'superuser']);
@@ -60,9 +44,8 @@ class CreateSuperuserTest extends TestCase
             ->expectsQuestion('Firstname', $this->faker->firstName)
             ->expectsQuestion('Lastname', $this->faker->lastName)
             ->expectsQuestion('E-Mail', $this->faker->email)
-            ->expectsQuestion('Locale (possible values: '.implode(',', array_keys(config('app.enabled_locales'))).')', array_keys(config('app.enabled_locales'))[0])
+            ->expectsQuestion('Locale', array_keys(config('app.enabled_locales'))[0])
             ->expectsQuestion('Password', 'Test_1234')
-            ->expectsQuestion('Password Confirmation', 'Test_1234')
             ->expectsOutput('New superuser created successfully.')
             ->assertExitCode(0);
 

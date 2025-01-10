@@ -41,6 +41,7 @@ class UserTest extends TestCase
             'firstname' => 'Darth',
             'lastname' => 'Vader',
         ]);
+
         $user = User::factory()->create([
             'firstname' => 'John',
             'lastname' => 'Doe',
@@ -54,7 +55,14 @@ class UserTest extends TestCase
             'lastname' => 'Doe',
         ]);
 
-        $this->assertDatabaseCount('users', 12);
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+        $superuser = User::factory()->create([
+            'firstname' => 'Peter',
+            'lastname' => 'Doe',
+        ]);
+        $superuser->roles()->attach($superuserRole);
+
+        $this->assertDatabaseCount('users', 13);
 
         // Unauthenticated user
         $this->getJson(route('api.v1.users.index'))->assertUnauthorized();
@@ -78,7 +86,7 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $users[0]->firstname])
             ->assertJsonFragment(['firstname' => $users[4]->firstname])
             ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 12])
+            ->assertJsonFragment(['total' => 13])
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -86,6 +94,7 @@ class UserTest extends TestCase
                     '*' => [
                         'id',
                         'authenticator',
+                        'superuser',
                         'email',
                         'roles',
                         'firstname',
@@ -311,9 +320,54 @@ class UserTest extends TestCase
                 'lastname' => $request['lastname'],
                 'user_locale' => $request['user_locale'],
                 'email' => $request['email'],
-                'roles' => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]],
+                'roles' => [['id' => $role->id, 'superuser' => false, 'name' => $role->name, 'automatic' => false]],
                 'authenticator' => 'local',
             ]);
+    }
+
+    /**
+     * Test if only superusers can create new users with the superuser role
+     */
+    public function test_create_superuser()
+    {
+        config([
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
+        ]);
+
+        $adminRole = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+
+        $permission = Permission::firstOrCreate(['name' => 'users.create']);
+        $adminRole->permissions()->attach($permission->id);
+        $superuserRole->permissions()->attach($permission->id);
+
+        $admin = User::factory()->create();
+        $superuser = User::factory()->create();
+
+        $admin->roles()->sync([$adminRole->id]);
+        $superuser->roles()->sync([$superuserRole->id]);
+
+        $request = [
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'de',
+            'email' => $this->faker->email,
+            'generate_password' => false,
+            'new_password' => 'aT2wqw_2',
+            'new_password_confirmation' => 'aT2wqw_2',
+            'roles' => [$superuserRole->id],
+            'authenticator' => 'local',
+            'timezone' => 'UTC',
+        ];
+
+        // Check if superusers cannot be created by admins that are not part of the superuser role
+        $this->actingAs($admin)->postJson(route('api.v1.users.store', $request))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['roles.0']);
+
+        // Check if superusers can be created by superusers
+        $this->actingAs($superuser)->postJson(route('api.v1.users.store', $request))
+            ->assertSuccessful();
     }
 
     /**
@@ -481,6 +535,51 @@ class UserTest extends TestCase
         $this->assertEquals($user->timezone, $changes['timezone']);
         $this->assertEquals($user->bbb_skip_check_audio, $changes['bbb_skip_check_audio']);
         $this->assertEquals($user->roles->pluck('id')->toArray(), [$roleA->id]);
+    }
+
+    /**
+     * Test if only superusers can update other superusers
+     */
+    public function test_update_superuser()
+    {
+        $adminRole = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
+        $adminRole->permissions()->attach($permission->id);
+        $superuserRole->permissions()->attach($permission->id);
+
+        $user = User::factory()->create();
+        $admin = User::factory()->create();
+        $superuser = User::factory()->create();
+        $otherSuperuser = User::factory()->create();
+
+        $admin->roles()->sync([$adminRole->id]);
+        $superuser->roles()->sync([$superuserRole->id]);
+        $otherSuperuser->roles()->sync([$superuserRole->id]);
+
+        $changes = [
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'de',
+            'bbb_skip_check_audio' => true,
+            'timezone' => 'Europe/Berlin',
+            'roles' => [$superuserRole->id],
+            'updated_at' => Carbon::now(),
+        ];
+
+        // Check if superusers can not be updated by admins that are not part of the superuser role
+        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => $otherSuperuser]), $changes)
+            ->assertForbidden();
+
+        // Check if superusers can be updated by superusers
+        $this->actingAs($superuser)->putJson(route('api.v1.users.update', ['user' => $otherSuperuser]), $changes)
+            ->assertSuccessful();
+
+        // Check if superuser role can be cannot be assigned by admins that are not part of the superuser role
+        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['roles.0']);
     }
 
     /**
@@ -818,6 +917,43 @@ class UserTest extends TestCase
     }
 
     /**
+     * Test if only superusers can change the email of other superusers
+     */
+    public function test_change_email_superuser()
+    {
+        Notification::fake();
+        $email = $this->faker->email;
+
+        $adminRole = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
+        $adminRole->permissions()->attach($permission->id);
+        $superuserRole->permissions()->attach($permission->id);
+
+        $admin = User::factory()->create();
+        $superuser = User::factory()->create();
+        $otherSuperuser = User::factory()->create(['email' => $email]);
+
+        $admin->roles()->sync([$adminRole->id]);
+        $superuser->roles()->sync([$superuserRole->id]);
+        $otherSuperuser->roles()->sync([$superuserRole->id]);
+
+        $newEmail = $this->faker->email;
+        $changes = [
+            'email' => $newEmail,
+        ];
+
+        // Check if superusers can not change email of other superusers
+        $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $otherSuperuser]), $changes)
+            ->assertForbidden();
+
+        // Check if superusers can change email of other superusers
+        $this->actingAs($superuser)->putJson(route('api.v1.users.email.change', ['user' => $otherSuperuser]), $changes)
+            ->assertSuccessful();
+    }
+
+    /**
      * Test if user can change his own password
      */
     public function test_change_password()
@@ -1057,6 +1193,45 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors('current_password');
     }
 
+    /**
+     * Test if only superusers can change the passwords of other superusers
+     */
+    public function test_change_password_superuser()
+    {
+        Notification::fake();
+        $this->userSettings->password_change_allowed = false;
+        $this->userSettings->save();
+
+        $adminRole = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
+        $adminRole->permissions()->attach($permission->id);
+        $superuserRole->permissions()->attach($permission->id);
+
+        $admin = User::factory()->create();
+        $superuser = User::factory()->create();
+        $otherSuperuser = User::factory()->create();
+
+        $admin->roles()->sync([$adminRole->id]);
+        $superuser->roles()->sync([$superuserRole->id]);
+        $otherSuperuser->roles()->sync([$superuserRole->id]);
+
+        $newPassword = '!SuperSecretPassword123';
+        $changes = [
+            'new_password' => $newPassword,
+            'new_password_confirmation' => $newPassword,
+        ];
+
+        // Check non-superusers cannot change password of superusers
+        $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $otherSuperuser]), $changes)
+            ->assertForbidden();
+
+        // Check superusers can change password of other superusers
+        $this->actingAs($superuser)->putJson(route('api.v1.users.password.change', ['user' => $otherSuperuser]), $changes)
+            ->assertSuccessful();
+    }
+
     public function test_update_new_image()
     {
         config([
@@ -1198,7 +1373,7 @@ class UserTest extends TestCase
                 'firstname' => $externalUser->firstname,
                 'lastname' => $externalUser->lastname,
                 'authenticator' => 'ldap',
-                'roles' => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]],
+                'roles' => [['id' => $role->id, 'name' => $role->name, 'superuser' => false, 'automatic' => false]],
             ]);
 
         // Check user image path
@@ -1260,6 +1435,35 @@ class UserTest extends TestCase
         $this->assertDatabaseCount('role_user', 1);
     }
 
+    /**
+     * Test if only superusers can delete other superusers
+     */
+    public function test_delete_superuser()
+    {
+        $adminRole = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+
+        $permission = Permission::firstOrCreate(['name' => 'users.delete']);
+        $adminRole->permissions()->attach($permission->id);
+        $superuserRole->permissions()->attach($permission->id);
+
+        $admin = User::factory()->create();
+        $superuser = User::factory()->create();
+        $otherSuperuser = User::factory()->create();
+
+        $admin->roles()->sync([$adminRole->id]);
+        $superuser->roles()->sync([$superuserRole->id]);
+        $otherSuperuser->roles()->sync([$superuserRole->id]);
+
+        // Check if superuser cannot be deleted by users that are not superusers
+        $this->actingAs($admin)->deleteJson(route('api.v1.users.destroy', ['user' => $otherSuperuser]))
+            ->assertForbidden();
+
+        // Check if superuser can be deleted by superuser
+        $this->actingAs($superuser)->deleteJson(route('api.v1.users.destroy', ['user' => $otherSuperuser]))
+            ->assertNoContent();
+    }
+
     public function test_reset_password()
     {
         config([
@@ -1316,6 +1520,39 @@ class UserTest extends TestCase
         ]);
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertNotFound();
+    }
+
+    /**
+     * Test if only superusers can trigger password reset for other superusers
+     */
+    public function test_reset_password_superuser()
+    {
+        config([
+            'auth.local.enabled' => true,
+        ]);
+
+        $adminRole = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
+        $adminRole->permissions()->attach($permission->id);
+        $superuserRole->permissions()->attach($permission->id);
+
+        $admin = User::factory()->create();
+        $superuser = User::factory()->create();
+        $otherSuperuser = User::factory()->create(['initial_password_set' => false]);
+
+        $admin->roles()->sync([$adminRole->id]);
+        $superuser->roles()->sync([$superuserRole->id]);
+        $otherSuperuser->roles()->sync([$superuserRole->id]);
+
+        // Check if superuser cannot reset password of other superuser
+        $this->actingAs($admin)->postJson(route('api.v1.users.password.reset', ['user' => $otherSuperuser]))
+            ->assertForbidden();
+
+        // Check if superuser can reset password of other superuser
+        $this->actingAs($superuser)->postJson(route('api.v1.users.password.reset', ['user' => $otherSuperuser]))
+            ->assertSuccessful();
     }
 
     public function test_create_user_with_generated_password()

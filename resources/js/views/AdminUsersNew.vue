@@ -103,6 +103,7 @@
                 aria-labelledby="roles-label"
                 :invalid="formErrors.fieldInvalid('roles', true)"
                 :disabled="isBusy"
+                :disable-superuser="!authStore.currentUser.superuser"
                 @loading-error="(value) => (rolesLoadingError = value)"
                 @busy="(value) => (rolesLoading = value)"
               />
@@ -205,10 +206,12 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { useSettingsStore } from "../stores/settings";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
 const isBusy = ref(false);

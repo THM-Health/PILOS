@@ -26,7 +26,22 @@
         {{ $t("admin.roles.no_data") }}
       </template>
       <template #option="{ option }">
-        {{ option.name }}
+        <div class="flex flex-wrap justify-between gap-2">
+          <span>{{ option.name }}</span>
+          <div class="flex gap-2">
+            <Tag
+              v-if="option.superuser"
+              icon="fa-solid fa-crown"
+              :value="$t('admin.roles.superuser')"
+              severity="warn"
+            />
+            <Tag
+              v-if="props.automaticRoles.some((role) => role === option.id)"
+              severity="secondary"
+              >{{ $t("admin.roles.automatic") }}</Tag
+            >
+          </div>
+        </div>
       </template>
       <template #tag="{ option, remove }">
         <Chip :label="option.name">
@@ -98,9 +113,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  disabledRoles: {
+  automaticRoles: {
     type: Array,
     default: () => [],
+  },
+  disableSuperuser: {
+    type: Boolean,
+    default: false,
   },
   allowEmpty: {
     type: Boolean,
@@ -132,7 +151,7 @@ watch(
 );
 
 watch(
-  () => props.disabledRoles,
+  () => props.automaticRoles,
   () => {
     disableRoles(selectedRoles.value);
     disableRoles(roles.value);
@@ -170,9 +189,9 @@ onBeforeMount(() => {
 function disableRoles(roles) {
   if (roles) {
     roles.forEach((role) => {
-      role.$isDisabled = props.disabledRoles.some(
-        (disabledRole) => disabledRole === role.id,
-      );
+      role.$isDisabled =
+        props.automaticRoles.some((disabledRole) => disabledRole === role.id) ||
+        (props.disableSuperuser && role.superuser);
     });
   }
 }

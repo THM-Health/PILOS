@@ -26,7 +26,7 @@
 
 .multiselect {
     &.is-invalid .multiselect__tags {
-        //border-color: $inputErrorBorderColor !important;
+        border-color: var(--p-form-field-invalid-border-color) !important;
     }
 
     &:focus {

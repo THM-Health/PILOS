@@ -74,7 +74,8 @@
             <Tag
               v-if="slotProps.data.superuser"
               icon="fa-solid fa-crown"
-              value="Superuser"
+              :value="$t('admin.roles.superuser')"
+              severity="warn"
             />
           </div>
         </template>
