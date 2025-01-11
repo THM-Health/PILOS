@@ -454,18 +454,32 @@ describe("User Profile Security", function () {
   });
 
   it("load sessions error", function () {
-    cy.intercept("GET", "api/v1/sessions", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const sessionsRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/sessions",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("getSessionsRequest");
+      "getSessionsRequest",
+    );
 
     cy.visit("/profile");
 
     cy.wait("@userRequest");
 
     cy.get('[data-test="security-tab-button"]').click();
+
+    // Check loading
+    cy.get('[data-test="session-panel"]').should("have.length", 0);
+    cy.get('[data-test="loading-retry-button"]').should("not.exist");
+    cy.get('[data-test="overlay"]')
+      .should("be.visible")
+      .then(() => {
+        sessionsRequest.sendResponse();
+      });
 
     cy.wait("@getSessionsRequest");
 
