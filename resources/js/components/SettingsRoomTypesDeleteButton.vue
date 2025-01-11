@@ -31,7 +31,7 @@
         id="replacement-room-type"
         v-model.number="replacement"
         autofocus
-        :disabled="isBusy"
+        :disabled="isBusy || loadingRoomTypes"
         :loading="loadingRoomTypes"
         :class="{
           'p-invalid': formErrors.fieldInvalid('replacement_room_type'),
