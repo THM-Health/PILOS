@@ -47,6 +47,11 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
+        // Prevent users of the super-user role to be updated by users without the super-user role
+        if ($model->superuser && ! $user->superuser) {
+            return false;
+        }
+
         return $user->can('users.update') || $model->id === $user->id;
     }
 
@@ -57,6 +62,11 @@ class UserPolicy
      */
     public function delete(User $user, User $model)
     {
+        // Prevent users of the super-user role to be deleted by users without the super-user role
+        if ($model->superuser && ! $user->superuser) {
+            return false;
+        }
+
         return $user->can('users.delete') && $model->id !== $user->id;
     }
 
@@ -102,6 +112,11 @@ class UserPolicy
      */
     public function resetPassword(User $user, User $model)
     {
+        // Prevent users of the super-user role to be deleted by users without the super-user role
+        if ($model->superuser && ! $user->superuser) {
+            return false;
+        }
+
         return $model->authenticator === 'local'
             && $user->can('update', $model)
             && $model->id !== $user->id

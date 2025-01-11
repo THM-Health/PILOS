@@ -25,9 +25,13 @@ class SettingsController extends Controller
      */
     public function view()
     {
+        $linkStyles = array_filter(LinkButtonStyle::cases(), function ($style) {
+            return ! in_array($style, LinkButtonStyle::getDeprecated());
+        });
+
         return (new Settings)->additional([
             'meta' => [
-                'link_btn_styles' => LinkButtonStyle::cases(),
+                'link_btn_styles' => $linkStyles,
                 'link_targets' => LinkTarget::cases(),
                 'recording_max_retention_period' => config('recording.max_retention_period'),
             ],

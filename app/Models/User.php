@@ -327,4 +327,12 @@ class User extends Authenticatable implements HasLocalePreference
 
         $this->notify(new PasswordReset($token, Carbon::parse($reset->created_at)));
     }
+
+    /**
+     * @return bool
+     */
+    public function getSuperuserAttribute()
+    {
+        return $this->roles->where('superuser', true)->isNotEmpty();
+    }
 }

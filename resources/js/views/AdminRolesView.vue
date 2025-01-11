@@ -122,7 +122,7 @@
                 class="fa-solid fa-circle-info"
             /></b>
           </div>
-          <div class="col-span-12 flex flex-col gap-4">
+          <div class="col-span-12 flex flex-col gap-6">
             <Divider class="m-0" />
             <div
               v-for="key in Object.keys(permissions)"
@@ -132,7 +132,7 @@
               <div class="col-span-12">
                 <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
               </div>
-              <div class="col-span-12">
+              <div class="col-span-12 flex flex-col gap-2">
                 <div
                   v-for="permission in permissions[key]"
                   :key="permission.id"
@@ -142,6 +142,11 @@
                     <label :for="permission.name">{{
                       $t(`admin.roles.permissions.${permission.name}`)
                     }}</label>
+                    <p
+                      class="font-monospace text-sm text-surface-400 dark:text-surface-300"
+                    >
+                      {{ permission.rawName }}
+                    </p>
                   </div>
                   <div class="col-span-2 flex">
                     <Checkbox
@@ -152,7 +157,8 @@
                         isBusy ||
                         modelLoadingError ||
                         viewOnly ||
-                        model.superuser
+                        model.superuser ||
+                        permission.restricted
                       "
                       :invalid="formErrors.fieldInvalid('permissions', true)"
                     />
@@ -337,6 +343,8 @@ const model = ref({
   permissions: [],
 });
 
+const permissionRestrictions = ref([]);
+
 const name = ref("");
 watch(
   () => name.value,
@@ -446,7 +454,29 @@ function loadPermissions() {
     .call("permissions")
     .then((response) => {
       const newPermissions = {};
+
+      permissionRestrictions.value = response.data.meta.restrictions;
+
       response.data.data.forEach((permission) => {
+        permission.rawName = permission.name;
+
+        permission.restricted = permissionRestrictions.value.some(
+          (restriction) => {
+            if (restriction === permission.name) {
+              return true;
+            }
+
+            const restrictionPermission = restriction.split(".", 2)[1];
+            const restrictionGroup = restriction.split(".", 2)[0];
+            const permissionGroup = permission.name.split(".", 2)[0];
+
+            return (
+              restrictionPermission === "*" &&
+              permissionGroup === restrictionGroup
+            );
+          },
+        );
+
         permission.name = permission.name
           .split(".")
           .map((fragment) => _.snakeCase(fragment))

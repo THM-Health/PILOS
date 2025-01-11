@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Permission restrictions to prevent non-superusers from editing and deleting superusers ([#1651])
+- Permission restrictions to prevent non-superusers from assigning the superuser role ([#1651])
+- Environment variable for configuring restricted permissions that cannot be assigned to non-superuser roles ([#1651])
+- Display raw permission names in the admin interface ([#1651])
+
+### Changed
+
+- Real-time input validation on create superuser command ([#1651])
+
+### Fixed
+
+- Wrong error message shown for 422 errors when verifying email ([#1744], [#1758])
+- Broken banner link style 'warning' ([#1759], [#1760])
+
 ## [v4.2.0] - 2025-01-06
 
 ### Added
@@ -311,10 +327,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1617]: https://github.com/THM-Health/PILOS/pull/1617
 [#1618]: https://github.com/THM-Health/PILOS/pull/1618
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
+[#1651]: https://github.com/THM-Health/PILOS/issues/1651
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
 [#1724]: https://github.com/THM-Health/PILOS/pull/1724
+[#1744]: https://github.com/THM-Health/PILOS/issues/1744
+[#1758]: https://github.com/THM-Health/PILOS/pull/1758
+[#1759]: https://github.com/THM-Health/PILOS/issues/1759
+[#1760]: https://github.com/THM-Health/PILOS/pull/1760
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

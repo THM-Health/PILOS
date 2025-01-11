@@ -249,4 +249,24 @@ class UserTest extends TestCase
         $roleB->save();
         $this->assertEquals(30, $user->room_limit);
     }
+
+    public function test_superuser_attribute()
+    {
+        $user = User::factory()->create();
+
+        $role = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
+
+        $user->roles()->sync([$role]);
+        $user->refresh();
+        $this->assertFalse($user->superuser);
+
+        $user->roles()->sync([$superuserRole]);
+        $user->refresh();
+        $this->assertTrue($user->superuser);
+
+        $user->roles()->sync([$role->id, $superuserRole]);
+        $user->refresh();
+        $this->assertTrue($user->superuser);
+    }
 }
