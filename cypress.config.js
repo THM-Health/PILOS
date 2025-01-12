@@ -16,6 +16,18 @@ export default defineConfig({
 
       // include any other plugin code...
 
+      on("before:browser:launch", (browser, launchOptions) => {
+        if (browser.family === "chromium" && browser.name !== "electron") {
+          launchOptions.preferences.default.intl = {
+            acceptLanguages: "en",
+            accept_languages: "en",
+            selected_languages: "en",
+          };
+
+          return launchOptions;
+        }
+      });
+
       // It's IMPORTANT to return the config object
       // with any changed environment variables
       return config;
