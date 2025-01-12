@@ -38,3 +38,17 @@ Cypress.Commands.add("checkToastMessage", (messages) => {
     cy.wrap($toast, { log: false }).should("not.exist");
   });
 });
+
+/**
+ * Enforces the light mode if the dark mode is currently active
+ * @memberof cy
+ * @method enforceLightMode
+ * @returns void
+ */
+Cypress.Commands.add("enforceLightMode", () => {
+  cy.get("html").then(($html) => {
+    if ($html.hasClass("dark")) {
+      cy.get(".fa-solid.fa-moon").click();
+    }
+  });
+});

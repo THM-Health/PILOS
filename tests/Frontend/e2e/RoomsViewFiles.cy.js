@@ -693,7 +693,7 @@ describe("Rooms View Files", function () {
 
   it("view with different permissions", function () {
     // Check view for guest without terms of use
-    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.intercept("GET", "api/v1/currentUser", { data: [] });
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;
 
@@ -858,7 +858,7 @@ describe("Rooms View Files", function () {
     });
 
     // Check view for guest with terms of use
-    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.intercept("GET", "api/v1/currentUser", { data: [] });
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;
 

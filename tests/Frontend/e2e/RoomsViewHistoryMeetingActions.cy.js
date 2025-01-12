@@ -12,6 +12,8 @@ describe("Rooms view history meeting actions", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomHistoryRequest");
 
+    cy.enforceLightMode();
+
     const statsRequest = interceptIndefinitely(
       "GET",
       "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
