@@ -65,41 +65,7 @@ Cypress.Commands.add(
         .should("have.attr", "src")
         .and("not.include", originalSrc)
         .then((src) => {
-          cy.wrap(null).then(async () => {
-            return new Cypress.Promise((resolve, reject) => {
-              fetch(src)
-                .then((response) => response.blob())
-                .then((blob) => {
-                  const contentType = blob.type;
-                  const reader = new FileReader();
-                  reader.readAsDataURL(blob);
-                  reader.onloadend = function () {
-                    try {
-                      const base64data = reader.result;
-                      expect(base64data).to.eql(
-                        "data:" + contentType + ";base64," + content,
-                      );
-                      resolve();
-                    } catch (error) {
-                      reject(error);
-                    }
-                  };
-                  // ToDo ???? use _arrayBufferToBase64???? (disadvantage: no content type)
-                  // .then((response) => response.arrayBuffer())
-                  // .then((arrayBuffer) => {
-                  //   const base64 = _arrayBufferToBase64(arrayBuffer);
-                  //   try {
-                  //     expect(base64).to.eql(content);
-                  //     resolve();
-                  //   } catch (error) {
-                  //     reject(error);
-                  //   }
-                })
-                .catch((error) => {
-                  reject(error);
-                });
-            });
-          });
+          cy.checkBlobSrcImage(src, content);
         });
     });
 
@@ -138,45 +104,57 @@ Cypress.Commands.add(
         .should("have.attr", "src")
         .and("not.include", originalSrc)
         .then((src) => {
-          cy.wrap(null).then(async () => {
-            return new Cypress.Promise((resolve, reject) => {
-              fetch(src)
-                .then((response) => response.blob())
-                .then((blob) => {
-                  const contentType = blob.type;
-                  const reader = new FileReader();
-                  reader.readAsDataURL(blob);
-                  reader.onloadend = function () {
-                    try {
-                      const base64data = reader.result;
-                      expect(base64data).to.eql(
-                        "data:" + contentType + ";base64," + content,
-                      );
-                      resolve();
-                    } catch (error) {
-                      reject(error);
-                    }
-                  };
-                  // ToDo ???? use _arrayBufferToBase64???? (disadvantage: no content type)
-                  // .then((response) => response.arrayBuffer())
-                  // .then((arrayBuffer) => {
-                  //   const base64 = _arrayBufferToBase64(arrayBuffer);
-                  //   try {
-                  //     expect(base64).to.eql(content);
-                  //     resolve();
-                  //   } catch (error) {
-                  //     reject(error);
-                  //   }
-                })
-                .catch((error) => {
-                  reject(error);
-                });
-            });
-          });
+          cy.checkBlobSrcImage(src, content);
         });
     });
   },
 );
+
+/**
+ * Checks if the image loaded from the blob url has the expected content
+ * @memberof cy
+ * @method checkBlobUrlData
+ * @param  {string} blobSrc
+ * @param  {string} expectedBase64Content
+ * @returns void
+ */
+Cypress.Commands.add("checkBlobSrcImage", (blobSrc, expectedBase64Content) => {
+  cy.wrap(null, { log: false }).then(async () => {
+    return new Cypress.Promise((resolve, reject) => {
+      fetch(blobSrc)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const contentType = blob.type;
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = function () {
+            try {
+              const base64data = reader.result;
+              expect(base64data).to.eql(
+                "data:" + contentType + ";base64," + expectedBase64Content,
+              );
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          };
+          // ToDo ???? use _arrayBufferToBase64???? (disadvantage: no content type)
+          // .then((response) => response.arrayBuffer())
+          // .then((arrayBuffer) => {
+          //   const base64 = _arrayBufferToBase64(arrayBuffer);
+          //   try {
+          //     expect(base64).to.eql(expectedBase64Content);
+          //     resolve();
+          //   } catch (error) {
+          //     reject(error);
+          //   }
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  });
+});
 
 /**
  * Checks if the image file upload works correctly
