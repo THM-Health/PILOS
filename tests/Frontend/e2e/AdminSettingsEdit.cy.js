@@ -452,8 +452,6 @@ describe("Admin settings with edit permission", function () {
 
       const uploadedFavicon = formData.get("theme_favicon_file");
 
-      //console.log(uploadedFavicon);
-
       expect(uploadedFavicon.name).to.eql("favicon.ico");
       expect(uploadedFavicon.type).to.eql("image/vnd.microsoft.icon");
       cy.fixture("files/favicon.ico", "base64").then((content) => {
@@ -482,6 +480,8 @@ describe("Admin settings with edit permission", function () {
         // });
       });
 
+      expect(formData.get("theme_favicon")).to.eql(null);
+
       const uploadedFaviconDark = formData.get("theme_favicon_dark_file");
       expect(uploadedFaviconDark.name).to.eql("favicon-dark.ico");
       expect(uploadedFaviconDark.type).to.eql("image/vnd.microsoft.icon");
@@ -491,6 +491,8 @@ describe("Admin settings with edit permission", function () {
           expect(content).to.eql(base64);
         });
       });
+
+      expect(formData.get("theme_favicon_dark")).to.eql(null);
 
       const uploadedLogo = formData.get("theme_logo_file");
       expect(uploadedLogo.name).to.eql("logo.svg");
@@ -502,6 +504,8 @@ describe("Admin settings with edit permission", function () {
         });
       });
 
+      expect(formData.get("theme_logo")).to.eql(null);
+
       const uploadedLogoDark = formData.get("theme_logo_dark_file");
       expect(uploadedLogoDark.name).to.eql("logo-dark.svg");
       expect(uploadedLogoDark.type).to.eql("image/svg+xml");
@@ -511,6 +515,8 @@ describe("Admin settings with edit permission", function () {
           expect(content).to.eql(base64);
         });
       });
+
+      expect(formData.get("theme_logo_dark")).to.eql(null);
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
@@ -547,6 +553,49 @@ describe("Admin settings with edit permission", function () {
       cy.get("#theme-primary-color").should("have.value", "#14b8a6");
     });
     cy.get("#theme-rounded").should("not.be.checked");
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon = "/images/favicon2.ico";
+      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
+      settings.data.theme_logo = "/images/logo2.svg";
+      settings.data.theme_logo_dark = "/images/logo-dark2.svg";
+      settings.data.theme_primary_color = "#14b8a6";
+      settings.data.theme_rounded = false;
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_favicon_file")).to.eql(null);
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon2.ico");
+
+      expect(formData.get("theme_favicon_dark_file")).to.eql(null);
+      expect(formData.get("theme_favicon_dark")).to.eql(
+        "/images/favicon-dark2.ico",
+      );
+
+      expect(formData.get("theme_logo_file")).to.eql(null);
+      expect(formData.get("theme_logo")).to.eql("/images/logo2.svg");
+
+      expect(formData.get("theme_logo_dark_file")).to.eql(null);
+      expect(formData.get("theme_logo_dark")).to.eql("/images/logo-dark2.svg");
+
+      expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
+      expect(formData.get("theme_rounded")).to.equal("0");
+    });
   });
 
   it("change banner settings", function () {
@@ -2214,6 +2263,8 @@ describe("Admin settings with edit permission", function () {
         });
       });
 
+      expect(formData.get("bbb_logo")).to.equal(null);
+
       const uploadedBBBStyle = formData.get("bbb_style");
       expect(uploadedBBBStyle.name).to.eql("bbb_style.css");
       expect(uploadedBBBStyle.type).to.eql("text/css");
@@ -2377,6 +2428,7 @@ describe("Admin settings with edit permission", function () {
         interception.request.headers,
       );
 
+      expect(formData.get("bbb_logo_file")).to.eql(null);
       expect(formData.get("bbb_logo")).to.eql("");
       expect(formData.get("bbb_style")).to.eql("");
       expect(formData.get("bbb_default_presentation")).to.be.eql("");
@@ -2410,6 +2462,34 @@ describe("Admin settings with edit permission", function () {
       cy.get('[data-test="settings-file-undo-delete-button"]').should(
         "not.exist",
       );
+    });
+
+    // Save settings again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.bbb_logo = null;
+      settings.data.bbb_style = null;
+      settings.data.bbb_default_presentation = null;
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+    });
+
+    cy.get('[data-test="settings-save-button"]')
+      .should("include.text", "app.save")
+      .click();
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("bbb_logo_file")).to.eql(null);
+      expect(formData.get("bbb_logo")).to.eql(null);
+      expect(formData.get("bbb_style")).to.eql(null);
+      expect(formData.get("bbb_default_presentation")).to.be.eql(null);
     });
   });
 
