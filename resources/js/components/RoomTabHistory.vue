@@ -154,6 +154,9 @@
                     :start="item.start"
                     :end="item.end"
                     :room-name="props.room.name"
+                    @not-found="loadData()"
+                    @not-ended="loadData()"
+                    @attendance-disabled="loadData()"
                   />
                 </div>
               </div>

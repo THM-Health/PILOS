@@ -152,7 +152,7 @@ describe("Rooms view history meeting actions", function () {
       .within(() => {
         // Check loading
         cy.get('[data-test="overlay"]').should("be.visible");
-        cy.get('[data-test="room-history-attendance-loading-icon"]')
+        cy.get(".fa-solid.fa-circle-notch")
           .should("be.visible")
           .then(() => {
             attendanceRequest.sendResponse();

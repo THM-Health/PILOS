@@ -35,8 +35,8 @@ return [
     'errors' => [
         'attendance_agreement_missing' => 'Consent to record attendance is required.',
         'join_failed' => 'Joining the room has failed because a connection error has occurred.',
-        'meeting_attendance_disabled' => 'The logging of attendance is unavailable.',
-        'meeting_attendance_not_ended' => 'The logging of attendance is not yet completed for this room.',
+        'meeting_attendance_disabled' => 'Attendance logging was not active at this meeting.',
+        'meeting_attendance_not_ended' => 'The attendance logs are not yet available for this meeting as it has not yet ended.',
         'meeting_statistics_disabled' => 'The usage data is unavailable.',
         'membership_disabled' => 'Membership failed! Membership for this room is currently not available.',
         'no_room_access' => 'You does not have the necessary permissions, to edit this room.',
