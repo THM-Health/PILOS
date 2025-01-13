@@ -2493,5 +2493,489 @@ describe("Admin settings with edit permission", function () {
     });
   });
 
-  // ToDo errors when saving changes
+  it("save changes errors", function () {
+    // Check with 422 errors
+    cy.visit("/admin/settings");
+
+    cy.wait("@settingsRequest");
+
+    cy.intercept("POST", "api/v1/settings", {
+      statusCode: 422,
+      body: {
+        message: "The given data was invalid.",
+        errors: {
+          general_name: ["The general name field is required."],
+          general_help_url: ["The selected general help url is invalid."],
+          general_legal_notice_url: [
+            "The selected general legal notice url is invalid.",
+          ],
+          general_privacy_policy_url: [
+            "The selected general privacy policy url is invalid.",
+          ],
+          general_pagination_page_size: [
+            "The general pagination page size field is required.",
+          ],
+          general_toast_lifetime: [
+            "The general toast lifetime field is required.",
+          ],
+          general_default_timezone: [
+            "The general default timezone field is required.",
+          ],
+          general_no_welcome_page: [
+            "The selected general no welcome page field is invalid.",
+          ],
+          theme_favicon: ["The theme favicon field is required."],
+          theme_favicon_file: ["The theme favicon file field is required."],
+          theme_favicon_dark: ["The theme favicon dark field is required."],
+          theme_favicon_dark_file: [
+            "The theme favicon dark file field is required.",
+          ],
+          theme_logo: ["The theme logo field is required."],
+          theme_logo_file: ["The theme logo file field is required."],
+          theme_logo_dark: ["The theme logo dark field is required."],
+          theme_logo_dark_file: ["The theme logo dark file field is required."],
+          theme_primary_color: ["The theme primary color field is required."],
+          theme_rounded: ["The theme rounded field is required."],
+          banner_enabled: ["The banner enabled field is required."],
+          banner_title: ["The selected banner title is invalid."],
+          banner_icon: ["The selected banner icon is invalid."],
+          banner_message: ["The selected banner message is invalid."],
+          banner_link: ["The selected banner link is invalid."],
+          banner_link_text: ["The selected banner link text is invalid."],
+          banner_link_style: ["The selected banner link style is invalid."],
+          banner_link_target: ["The selected banner link target is invalid."],
+          banner_color: ["The selected banner color is invalid."],
+          banner_background: [
+            "The selected banner background color is invalid.",
+          ],
+          room_limit: ["The room limit field is required."],
+          room_token_expiration: [
+            "The selected room token expiration is invalid.",
+          ],
+          room_auto_delete_deadline_period: [
+            "The selected room auto delete deadline period is invalid.",
+          ],
+          room_auto_delete_inactive_period: [
+            "The selected room auto delete inactive period is invalid.",
+          ],
+          room_auto_delete_never_used_period: [
+            "The selected room auto delete never used period is invalid.",
+          ],
+          room_file_terms_of_use: [
+            "The selected room file terms of use is invalid.",
+          ],
+          user_password_change_allowed: [
+            "The user password change allowed field is required.",
+          ],
+          recording_server_usage_enabled: [
+            "The recording server usage enabled field is required.",
+          ],
+          recording_server_usage_retention_period: [
+            "The selected recording server usage retention period is invalid.",
+          ],
+          recording_meeting_usage_enabled: [
+            "The recording meeting usage enabled field is required.",
+          ],
+          recording_meeting_usage_retention_period: [
+            "The selected recording meeting usage retention period is invalid.",
+          ],
+          recording_attendance_retention_period: [
+            "The selected recording attendance retention period is invalid.",
+          ],
+          recording_recording_retention_period: [
+            "The selected recording recording retention period is invalid.",
+          ],
+          bbb_logo: ["The bbb logo field is required."],
+          bbb_logo_file: ["The bbb logo file field is required."],
+          bbb_style: ["The bbb style field is required."],
+          bbb_default_presentation: [
+            "The bbb default presentation field is required.",
+          ],
+        },
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="settings-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    // Check that errors are shown correctly
+    cy.get('[data-test="application-name-field"]').should(
+      "include.text",
+      "The general name field is required.",
+    );
+    cy.get('[data-test="help-url-field"]').should(
+      "include.text",
+      "The selected general help url is invalid.",
+    );
+    cy.get('[data-test="legal-notice-url-field"]').should(
+      "include.text",
+      "The selected general legal notice url is invalid.",
+    );
+    cy.get('[data-test="privacy-policy-url-field"]').should(
+      "include.text",
+      "The selected general privacy policy url is invalid.",
+    );
+    cy.get('[data-test="pagination-page-size-field"]').should(
+      "include.text",
+      "The general pagination page size field is required.",
+    );
+    cy.get('[data-test="toast-lifetime-field"]').should(
+      "include.text",
+      "The general toast lifetime field is required.",
+    );
+    cy.get('[data-test="default-timezone-field"]').should(
+      "include.text",
+      "The general default timezone field is required.",
+    );
+    cy.get('[data-test="no-welcome-page-field"]').should(
+      "include.text",
+      "The selected general no welcome page field is invalid.",
+    );
+
+    cy.get('[data-test="favicon-field"]')
+      .should("include.text", "The theme favicon field is required.")
+      .and("include.text", "The theme favicon file field is required.");
+    cy.get('[data-test="favicon-dark-field"]')
+      .should("include.text", "The theme favicon dark field is required.")
+      .and("include.text", "The theme favicon dark file field is required.");
+    cy.get('[data-test="logo-field"]')
+      .should("include.text", "The theme logo field is required.")
+      .and("include.text", "The theme logo file field is required.");
+    cy.get('[data-test="logo-dark-field"]')
+      .should("include.text", "The theme logo dark field is required.")
+      .and("include.text", "The theme logo dark file field is required.");
+    cy.get('[data-test="primary-color-field"]').should(
+      "include.text",
+      "The theme primary color field is required.",
+    );
+    cy.get('[data-test="theme-rounded-field"]').should(
+      "include.text",
+      "The theme rounded field is required.",
+    );
+
+    cy.get('[data-test="banner-enabled-field"]').should(
+      "include.text",
+      "The banner enabled field is required.",
+    );
+    cy.get('[data-test="banner-title-field"]').should(
+      "include.text",
+      "The selected banner title is invalid.",
+    );
+    cy.get('[data-test="banner-icon-field"]').should(
+      "include.text",
+      "The selected banner icon is invalid.",
+    );
+    cy.get('[data-test="banner-message-field"]').should(
+      "include.text",
+      "The selected banner message is invalid.",
+    );
+    cy.get('[data-test="banner-link-field"]').should(
+      "include.text",
+      "The selected banner link is invalid.",
+    );
+    cy.get('[data-test="banner-link-text-field"]').should(
+      "include.text",
+      "The selected banner link text is invalid.",
+    );
+    cy.get('[data-test="banner-link-style-field"]').should(
+      "include.text",
+      "The selected banner link style is invalid.",
+    );
+    cy.get('[data-test="banner-link-target-field"]').should(
+      "include.text",
+      "The selected banner link target is invalid.",
+    );
+    cy.get('[data-test="banner-color-field"]').should(
+      "include.text",
+      "The selected banner color is invalid.",
+    );
+    cy.get('[data-test="banner-background-field"]').should(
+      "include.text",
+      "The selected banner background color is invalid.",
+    );
+
+    cy.get('[data-test="room-limit-field"]').should(
+      "include.text",
+      "The room limit field is required.",
+    );
+    cy.get('[data-test="room-token-expiration-field"]').should(
+      "include.text",
+      "The selected room token expiration is invalid.",
+    );
+    cy.get('[data-test="room-auto-delete-deadline-period-field"]').should(
+      "include.text",
+      "The selected room auto delete deadline period is invalid.",
+    );
+    cy.get('[data-test="room-auto-delete-inactive-period-field"]').should(
+      "include.text",
+      "The selected room auto delete inactive period is invalid.",
+    );
+    cy.get('[data-test="room-auto-delete-never-used-period-field"]').should(
+      "include.text",
+      "The selected room auto delete never used period is invalid.",
+    );
+    cy.get('[data-test="room-file-terms-of-use-field"]').should(
+      "include.text",
+      "The selected room file terms of use is invalid.",
+    );
+
+    cy.get('[data-test="password-change-allowed-field"]').should(
+      "include.text",
+      "The user password change allowed field is required.",
+    );
+
+    cy.get('[data-test="statistics-servers-enabled-field"]').should(
+      "include.text",
+      "The recording server usage enabled field is required.",
+    );
+    cy.get('[data-test="statistics-servers-retention-period-field"]').should(
+      "include.text",
+      "The selected recording server usage retention period is invalid.",
+    );
+    cy.get('[data-test="statistics-meetings-enabled-field"]').should(
+      "include.text",
+      "The recording meeting usage enabled field is required.",
+    );
+    cy.get('[data-test="statistics-meetings-retention-period-field"]').should(
+      "include.text",
+      "The selected recording meeting usage retention period is invalid.",
+    );
+    cy.get('[data-test="attendance-retention-period-field"]').should(
+      "include.text",
+      "The selected recording attendance retention period is invalid.",
+    );
+    cy.get('[data-test="recording-retention-period-field"]').should(
+      "include.text",
+      "The selected recording recording retention period is invalid.",
+    );
+
+    cy.get('[data-test="bbb-logo-field"]')
+      .should("include.text", "The bbb logo field is required.")
+      .and("include.text", "The bbb logo file field is required.");
+    cy.get('[data-test="bbb-style-field"]').should(
+      "include.text",
+      "The bbb style field is required.",
+    );
+    cy.get('[data-test="default-presentation-field"]').should(
+      "include.text",
+      "The bbb default presentation field is required.",
+    );
+
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/settings", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="settings-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    // Check error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="application-name-field"]').should(
+      "not.include.text",
+      "The general name field is required.",
+    );
+    cy.get('[data-test="help-url-field"]').should(
+      "not.include.text",
+      "The selected general help url is invalid.",
+    );
+    cy.get('[data-test="legal-notice-url-field"]').should(
+      "not.include.text",
+      "The selected general legal notice url is invalid.",
+    );
+    cy.get('[data-test="privacy-policy-url-field"]').should(
+      "not.include.text",
+      "The selected general privacy policy url is invalid.",
+    );
+    cy.get('[data-test="pagination-page-size-field"]').should(
+      "not.include.text",
+      "The general pagination page size field is required.",
+    );
+    cy.get('[data-test="toast-lifetime-field"]').should(
+      "not.include.text",
+      "The general toast lifetime field is required.",
+    );
+    cy.get('[data-test="default-timezone-field"]').should(
+      "not.include.text",
+      "The general default timezone field is required.",
+    );
+    cy.get('[data-test="no-welcome-page-field"]').should(
+      "not.include.text",
+      "The selected general no welcome page field is invalid.",
+    );
+
+    cy.get('[data-test="favicon-field"]')
+      .should("not.include.text", "The theme favicon field is required.")
+      .and("not.include.text", "The theme favicon file field is required.");
+    cy.get('[data-test="favicon-dark-field"]')
+      .should("not.include.text", "The theme favicon dark field is required.")
+      .and(
+        "not.include.text",
+        "The theme favicon dark file field is required.",
+      );
+    cy.get('[data-test="logo-field"]')
+      .should("not.include.text", "The theme logo field is required.")
+      .and("not.include.text", "The theme logo file field is required.");
+    cy.get('[data-test="logo-dark-field"]')
+      .should("not.include.text", "The theme logo dark field is required.")
+      .and("not.include.text", "The theme logo dark file field is required.");
+    cy.get('[data-test="primary-color-field"]').should(
+      "not.include.text",
+      "The theme primary color field is required.",
+    );
+    cy.get('[data-test="theme-rounded-field"]').should(
+      "not.include.text",
+      "The theme rounded field is required.",
+    );
+
+    cy.get('[data-test="banner-enabled-field"]').should(
+      "not.include.text",
+      "The banner enabled field is required.",
+    );
+    cy.get('[data-test="banner-title-field"]').should(
+      "not.include.text",
+      "The selected banner title is invalid.",
+    );
+    cy.get('[data-test="banner-icon-field"]').should(
+      "not.include.text",
+      "The selected banner icon is invalid.",
+    );
+    cy.get('[data-test="banner-message-field"]').should(
+      "not.include.text",
+      "The selected banner message is invalid.",
+    );
+    cy.get('[data-test="banner-link-field"]').should(
+      "not.include.text",
+      "The selected banner link is invalid.",
+    );
+    cy.get('[data-test="banner-link-text-field"]').should(
+      "not.include.text",
+      "The selected banner link text is invalid.",
+    );
+    cy.get('[data-test="banner-link-style-field"]').should(
+      "not.include.text",
+      "The selected banner link style is invalid.",
+    );
+    cy.get('[data-test="banner-link-target-field"]').should(
+      "not.include.text",
+      "The selected banner link target is invalid.",
+    );
+    cy.get('[data-test="banner-color-field"]').should(
+      "not.include.text",
+      "The selected banner color is invalid.",
+    );
+    cy.get('[data-test="banner-background-field"]').should(
+      "not.include.text",
+      "The selected banner background color is invalid.",
+    );
+
+    cy.get('[data-test="room-limit-field"]').should(
+      "not.include.text",
+      "The room limit field is required.",
+    );
+    cy.get('[data-test="room-token-expiration-field"]').should(
+      "not.include.text",
+      "The selected room token expiration is invalid.",
+    );
+    cy.get('[data-test="room-auto-delete-deadline-period-field"]').should(
+      "not.include.text",
+      "The selected room auto delete deadline period is invalid.",
+    );
+    cy.get('[data-test="room-auto-delete-inactive-period-field"]').should(
+      "not.include.text",
+      "The selected room auto delete inactive period is invalid.",
+    );
+    cy.get('[data-test="room-auto-delete-never-used-period-field"]').should(
+      "not.include.text",
+      "The selected room auto delete never used period is invalid.",
+    );
+    cy.get('[data-test="room-file-terms-of-use-field"]').should(
+      "not.include.text",
+      "The selected room file terms of use is invalid.",
+    );
+
+    cy.get('[data-test="password-change-allowed-field"]').should(
+      "not.include.text",
+      "The user password change allowed field is required.",
+    );
+
+    cy.get('[data-test="statistics-servers-enabled-field"]').should(
+      "not.include.text",
+      "The recording server usage enabled field is required.",
+    );
+    cy.get('[data-test="statistics-servers-retention-period-field"]').should(
+      "not.include.text",
+      "The selected recording server usage retention period is invalid.",
+    );
+    cy.get('[data-test="statistics-meetings-enabled-field"]').should(
+      "not.include.text",
+      "The recording meeting usage enabled field is required.",
+    );
+    cy.get('[data-test="statistics-meetings-retention-period-field"]').should(
+      "not.include.text",
+      "The selected recording meeting usage retention period is invalid.",
+    );
+    cy.get('[data-test="attendance-retention-period-field"]').should(
+      "not.include.text",
+      "The selected recording attendance retention period is invalid.",
+    );
+    cy.get('[data-test="recording-retention-period-field"]').should(
+      "not.include.text",
+      "The selected recording recording retention period is invalid.",
+    );
+
+    cy.get('[data-test="bbb-logo-field"]')
+      .should("not.include.text", "The bbb logo field is required.")
+      .and("not.include.text", "The bbb logo file field is required.");
+    cy.get('[data-test="bbb-style-field"]').should(
+      "not.include.text",
+      "The bbb style field is required.",
+    );
+    cy.get('[data-test="default-presentation-field"]').should(
+      "not.include.text",
+      "The bbb default presentation field is required.",
+    );
+
+    // Check with 413 error (payload too large)
+    cy.intercept("POST", "api/v1/settings", {
+      statusCode: 413,
+      body: {
+        message: "Test",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="settings-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    // Check error message is shown
+    cy.checkToastMessage("app.flash.too_large");
+
+    // Check with 401 error
+    cy.intercept("POST", "api/v1/settings", {
+      statusCode: 401,
+      body: {
+        message: "Test",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="settings-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/settings");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+  });
 });
