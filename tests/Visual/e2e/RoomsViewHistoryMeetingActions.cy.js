@@ -39,7 +39,11 @@ describe("Rooms view history meeting actions", function () {
       .should("have.attr", "style")
       .and("include", "display: block");
 
-    cy.get('[data-test="chart"] > canvas').should("have.attr", "width", 1163 * window.devicePixelRatio,);
+    cy.get('[data-test="chart"] > canvas').should(
+      "have.attr",
+      "width",
+      1163 * window.devicePixelRatio,
+    );
 
     cy.get('[data-test="chart"] > canvas').happoScreenshot();
   });
