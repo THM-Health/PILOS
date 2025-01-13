@@ -51,12 +51,18 @@
     </InlineNote>
 
     <OverlayComponent
-      :show="isLoadingAction"
+      :show="isLoadingAction || loadingError"
       style="min-height: 100px"
       class="mt-6"
     >
+      <template #overlay>
+        <LoadingRetryButton
+          :error="loadingError"
+          @reload="loadData"
+        ></LoadingRetryButton>
+      </template>
       <Chart
-        v-if="!isLoadingAction"
+        v-if="!isLoadingAction && !loadingError"
         type="line"
         :data="chartData"
         :options="chartOptions"
@@ -74,6 +80,7 @@ import "chartjs-adapter-date-fns";
 import { useColors } from "../composables/useColors.js";
 import { useCssVar } from "@vueuse/core";
 import { sansFontFamily } from "../font.js";
+import env from "../env";
 
 const props = defineProps({
   roomId: {
@@ -102,8 +109,11 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["featureDisabled", "notFound"]);
+
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
+const loadingError = ref(false);
 const chartDataRows = ref({
   participants: [],
   voices: [],
@@ -115,12 +125,20 @@ const { t, d } = useI18n();
 const colors = useColors();
 
 function showModal() {
+  // Reset chart data
+  chartDataRows.value = {
+    participants: [],
+    voices: [],
+    videos: [],
+  };
+
   modalVisible.value = true;
   loadData();
 }
 
 function loadData() {
   isLoadingAction.value = true;
+  loadingError.value = false;
 
   api
     .call("meetings/" + props.meetingId + "/stats")
@@ -146,6 +164,22 @@ function loadData() {
       });
     })
     .catch((error) => {
+      loadingError.value = true;
+
+      if (error.response) {
+        // feature disabled
+        if (error.response.status === env.HTTP_FEATURE_DISABLED) {
+          emit("featureDisabled");
+          modalVisible.value = false;
+        }
+
+        // meeting not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          emit("notFound");
+          modalVisible.value = false;
+        }
+      }
+
       // error during stats loading
       api.error(error, { redirectOnUnauthenticated: false });
     })
