@@ -109,6 +109,10 @@ class SettingsTest extends TestCase
         $role->permissions()->attach(Permission::where('name', 'settings.viewAny')->first());
         $this->user->roles()->attach($role);
 
+        $linkStyles = array_filter(LinkButtonStyle::cases(), function ($style) {
+            return ! in_array($style, LinkButtonStyle::getDeprecated());
+        });
+
         $this->getJson(route('api.v1.settings.view'))
             ->assertJson([
                 'data' => [
@@ -160,7 +164,7 @@ class SettingsTest extends TestCase
                     'bbb_default_presentation' => url('presentation.pdf'),
                 ],
                 'meta' => [
-                    'link_btn_styles' => array_column(LinkButtonStyle::cases(), 'value'),
+                    'link_btn_styles' => array_column($linkStyles, 'value'),
                     'link_targets' => array_column(LinkTarget::cases(), 'value'),
                     'recording_max_retention_period' => 90,
                 ],

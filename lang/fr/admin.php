@@ -38,6 +38,7 @@ return [
     'overview' => 'Aperçu',
     'overview_description' => 'Ici, vous pouvez gérer les paramètres de l\'application. Veuillez sélectionner l\'un des éléments de menu à gauche pour ajuster les paramètres.',
     'roles' => [
+        'automatic' => 'Automatique',
         'default' => 'Par défaut',
         'delete' => [
             'confirm' => 'Voulez-vous vraiment supprimer le rôle :name?',
@@ -134,6 +135,7 @@ return [
             ],
         ],
         'select_roles' => 'Merci de choisir au moins un rôle',
+        'superuser' => 'Administrateur',
         'tile_description' => 'Les rôles attribuent des autorisations, organisent les utilisateurs et définissent le nombre maximum de salles par utilisateur.',
         'view' => 'Informations détaillées pour le rôle :name',
     ],

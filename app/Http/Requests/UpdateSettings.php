@@ -55,7 +55,7 @@ class UpdateSettings extends FormRequest
             'banner_message' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'max:500'],
             'banner_link' => ['nullable', 'string', 'url', 'max:255'],
             'banner_link_text' => ['nullable', 'string', 'max:255'],
-            'banner_link_style' => ['required', 'string', 'max:255', Rule::enum(LinkButtonStyle::class)],
+            'banner_link_style' => ['required', 'string', 'max:255', Rule::enum(LinkButtonStyle::class)->except(LinkButtonStyle::getDeprecated())],
             'banner_link_target' => ['required', 'string', 'max:255', Rule::enum(LinkTarget::class)],
             'banner_icon' => ['nullable', 'string', 'max:255', 'regex:/^(fas|fa\\-solid) fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/'],
             'banner_color' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'hex_color'],

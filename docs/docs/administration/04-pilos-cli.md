@@ -50,7 +50,7 @@ docker compose exec app pilos-cli db:check
 Creates a new superuser account.
 
 ```bash
-docker compose exec app pilos-cli db:check
+docker compose exec app pilos-cli users:create:superuser
 ```
 
 ### db\:check
