@@ -128,7 +128,9 @@
                   $t("admin.settings.pagination_page_size.description")
                 }}</small>
                 <FormError
-                  :errors="formErrors.fieldError('pagination_page_size')"
+                  :errors="
+                    formErrors.fieldError('general_pagination_page_size')
+                  "
                 />
               </div>
             </div>
