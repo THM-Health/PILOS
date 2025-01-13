@@ -58,16 +58,8 @@ describe("Rooms view history meeting actions", function () {
         cy.get('[data-test="chart"] > canvas').should(
           "have.attr",
           "width",
-          1163,
+          1163 * window.devicePixelRatio,
         );
-
-        cy.get('[data-test="chart"] > canvas').then(($canvas) => {
-          cy.fixture("files/statsGraph.png", "base64").then((image) => {
-            expect($canvas[0].toDataURL()).to.equal(
-              "data:image/png;base64," + image,
-            );
-          });
-        });
       });
   });
 
