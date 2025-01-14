@@ -1,0 +1,39 @@
+{
+  "data": {
+    "general": {
+      "name": "PILOS Test",
+      "toast_lifetime": 0,
+      "no_welcome_page": false,
+      "enabled_locales": {
+        "de": "Deutsch",
+        "en": "English",
+        "fr": "Français"
+      }
+    },
+    "theme": {
+      "primary_color": "#14b8a6",
+      "rounded": true
+    },
+    "room": {
+      "refresh_rate": 5000,
+      "file_terms_of_use": null
+    },
+    "bbb": {
+      "file_mimes": "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png",
+      "max_filesize": 30,
+      "welcome_message_limit": 500,
+      "room_name_limit": 50
+    },
+    "user": {
+      "password_change_allowed": true
+    },
+    "banner": {},
+    "recording": {
+      "recording_retention_period": -1,
+      "meeting_usage_enabled": true,
+      "meeting_usage_retention_period": -1,
+      "attendance_retention_period": -1
+    },
+    "auth": {}
+  }
+}

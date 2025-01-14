@@ -57,15 +57,12 @@
       scroll-height="400px"
       :value="attendance"
       data-key="id"
-      :loading="isLoadingAction"
+      :loading="isLoadingAction || loadingError"
       row-hover
       :global-filter-fields="['name']"
       :pt="{
         bodyRow: {
           'data-test': 'room-history-attendance-item',
-        },
-        loadingIcon: {
-          'data-test': 'room-history-attendance-loading-icon',
         },
         mask: {
           'data-test': 'overlay',
@@ -101,14 +98,19 @@
           />
         </div>
       </template>
+      <template #loading>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
+      </template>
 
       <template #empty>
-        <InlineNote v-if="attendance.length == 0">{{
-          $t("meetings.attendance.no_data")
-        }}</InlineNote>
-        <InlineNote v-else>{{
-          $t("meetings.attendance.no_data_filtered")
-        }}</InlineNote>
+        <div v-if="!isLoadingAction && !loadingError">
+          <InlineNote v-if="attendance.length == 0">{{
+            $t("meetings.attendance.no_data")
+          }}</InlineNote>
+          <InlineNote v-else>{{
+            $t("meetings.attendance.no_data_filtered")
+          }}</InlineNote>
+        </div>
       </template>
 
       <Column field="name" sortable :header="$t('app.user_name')">
@@ -160,6 +162,7 @@ import { computed, ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import "chartjs-adapter-date-fns";
 import { useSettingsStore } from "../stores/settings.js";
+import env from "../env.js";
 
 const props = defineProps({
   roomId: {
@@ -188,8 +191,11 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["notFound", "notEnded", "attendanceDisabled"]);
+
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
+const loadingError = ref(false);
 const attendance = ref([]);
 const filters = ref({
   global: { value: null, matchMode: "contains" },
@@ -199,12 +205,14 @@ const api = useApi();
 const settingsStore = useSettingsStore();
 
 function showModal() {
+  attendance.value = [];
   modalVisible.value = true;
   loadData();
 }
 
 function loadData() {
   isLoadingAction.value = true;
+  loadingError.value = false;
 
   api
     .call("meetings/" + props.meetingId + "/attendance")
@@ -212,6 +220,28 @@ function loadData() {
       attendance.value = response.data.data;
     })
     .catch((error) => {
+      loadingError.value = true;
+
+      if (error.response) {
+        // meeting is still running, therefore attendance is not yet available
+        if (error.response.status === env.HTTP_MEETING_ATTENDANCE_NOT_ENDED) {
+          emit("notEnded");
+          modalVisible.value = false;
+        }
+
+        // attendance was not enabled for this meeting
+        if (error.response.status === env.HTTP_MEETING_ATTENDANCE_DISABLED) {
+          emit("attendanceDisabled");
+          modalVisible.value = false;
+        }
+
+        // meeting not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          emit("notFound");
+          modalVisible.value = false;
+        }
+      }
+
       // error during stats loading
       api.error(error, { redirectOnUnauthenticated: false });
     })
