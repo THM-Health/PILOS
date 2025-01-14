@@ -6,7 +6,9 @@ use App\Services\ProvisioningService;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Log;
+
+use function Laravel\Prompts\error;
+use function Laravel\Prompts\info;
 
 class ProvisionCommand extends Command
 {
@@ -57,34 +59,39 @@ class ProvisionCommand extends Command
             }
 
             // Add new instances
-            Log::notice('Provisioning {n} servers', ['n' => count($data->servers->add)]);
+            $n = count($data->servers->add);
+            info("Provisioning $n servers");
             foreach ($data->servers->add as $item) {
                 $this->provision->server->create($item);
             }
 
-            Log::notice('Provisioning {n} server pools', ['n' => count($data->server_pools->add)]);
+            $n = count($data->server_pools->add);
+            info("Provisioning $n server pools");
             foreach ($data->server_pools->add as $item) {
                 $this->provision->serverPool->create($item);
             }
 
-            Log::notice('Provisioning {n} room types', ['n' => count($data->room_types->add)]);
+            $n = count($data->room_types->add);
+            info("Provisioning $n room types");
             foreach ($data->room_types->add as $item) {
                 $this->provision->roomType->create($item);
             }
 
-            Log::notice('Provisioning {n} roles', ['n' => count($data->roles->add)]);
+            $n = count($data->roles->add);
+            info("Provisioning $n roles");
             foreach ($data->roles->add as $item) {
                 $item->permissions = (array) $item->permissions;
                 $this->provision->role->create($item);
             }
 
-            Log::notice('Provisioning {n} users', ['n' => count($data->users->add)]);
+            $n = count($data->users->add);
+            info("Provisioning $n users");
             foreach ($data->users->add as $item) {
                 $this->provision->user->create($item);
             }
 
             $n = array_sum(array_map(fn ($v) => count(get_object_vars($v)), get_object_vars($data->settings)));
-            Log::notice('Provisioning {n} settings', ['n' => $n]);
+            info("Provisioning $n settings");
             foreach (get_object_vars($data->settings) as $section => $settings) {
                 $data->settings->{$section} = (array) $settings;
             }
@@ -92,7 +99,7 @@ class ProvisionCommand extends Command
 
             DB::commit();
         } catch (Exception $err) {
-            Log::error("Provisioning failed, aborting transaction: {$err->getMessage()}");
+            error("Provisioning failed, aborting transaction: {$err->getMessage()}");
             DB::rollBack();
 
             return 1;

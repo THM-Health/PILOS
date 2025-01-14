@@ -19,9 +19,11 @@ use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Log;
 use ReflectionClass;
 use UnexpectedValueException;
+
+use function Laravel\Prompts\error;
+use function Laravel\Prompts\info;
 
 abstract class AbstractProvisioner
 {
@@ -40,7 +42,7 @@ abstract class AbstractProvisioner
 
     protected function createWrapper(object $properties, callable $callback)
     {
-        Log::notice("Provisioning {$this->modelName} '{$this->instanceName($properties)}'");
+        info("Provisioning {$this->modelName} '{$this->instanceName($properties)}'");
         $validator = Validator::make((array) $properties, $this->expectedProperties);
         if ($validator->fails()) {
             throw new UnexpectedValueException("Invalid {$this->modelName} definition: {$validator->errors()}");
@@ -54,9 +56,9 @@ abstract class AbstractProvisioner
     {
         if ($match) {
             $expression = implode(' && ', array_map(fn ($a, $b) => "$a = $b", array_keys($match), array_values($match)));
-            Log::notice("Deleting all {$this->modelName}s matching '$expression'");
+            info("Deleting all {$this->modelName}s matching '$expression'");
         } else {
-            Log::notice("Deleting all {$this->modelName}s");
+            info("Deleting all {$this->modelName}s");
         }
         $query = $this->model::query();
         foreach ($match as $key => $value) {
@@ -67,7 +69,7 @@ abstract class AbstractProvisioner
                 $callback($item);
             }
             if (! $item->delete()) {
-                Log::error("Failed to delete {$this->modelName} '{$item->getLogLabel()}'");
+                error("Failed to delete {$this->modelName} '{$item->getLogLabel()}'");
             }
         });
     }
@@ -309,13 +311,13 @@ class SettingsProvisioner
         foreach (get_object_vars($settings) as $sect => $items) {
             $section = $this->settings[$sect];
             foreach ($items as $name => $value) {
-                Log::notice("Provisioning setting '$sect.$name'");
+                info("Provisioning setting '$sect.$name'");
                 if ($section->{$name} instanceof TimePeriod) {
                     $value = TimePeriod::from($value);
                 }
                 $section->{$name} = $value;
             }
-            Log::notice("Saving $sect settings");
+            info("Saving $sect settings");
             $section->save();
         }
     }
