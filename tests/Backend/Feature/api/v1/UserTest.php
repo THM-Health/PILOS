@@ -37,20 +37,25 @@ class UserTest extends TestCase
         $this->generalSettings->save();
 
         // Create Users + Ldap User with roles
-        $users = User::factory()->count(10)->create([
-            'firstname' => 'Darth',
-            'lastname' => 'Vader',
-        ]);
+        $users = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $users[] = User::factory()->create([
+                'firstname' => 'Darth',
+                'lastname' => 'Vader',
+                'email' => 'darth.vader-'.$i.'@example.org',
+            ]);
+        }
 
         $user = User::factory()->create([
             'firstname' => 'John',
             'lastname' => 'Doe',
+            'email' => 'john.doe@example.org',
         ]);
 
         $externalUser = User::factory()->create([
             'external_id' => $this->faker->unique()->userName,
             'authenticator' => 'ldap',
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => 'jane.doe@example.org',
             'firstname' => 'Jane',
             'lastname' => 'Doe',
         ]);
@@ -59,6 +64,7 @@ class UserTest extends TestCase
         $superuser = User::factory()->create([
             'firstname' => 'Peter',
             'lastname' => 'Doe',
+            'email' => 'peter.doe@example.org',
         ]);
         $superuser->roles()->attach($superuserRole);
 
@@ -152,13 +158,6 @@ class UserTest extends TestCase
             ->assertJsonMissingExact(['firstname' => $user->firstname])
             ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
 
-        // Filtering by name
-        $this->getJson(route('api.v1.users.index').'?name=J%20Doe')
-            ->assertSuccessful()
-            ->assertJsonCount(2, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
-
         // Filtering by role
         $this->getJson(route('api.v1.users.index').'?role='.$role2->id)
             ->assertSuccessful()
@@ -170,7 +169,7 @@ class UserTest extends TestCase
         $this->getJson(route('api.v1.users.index').'?role=0')
             ->assertJsonValidationErrors(['role']);
 
-        // Filtering by name
+        // Filtering by name / email
         $this->getJson(route('api.v1.users.index').'?name=J%20Doe')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
