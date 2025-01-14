@@ -13,10 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Permission restrictions to prevent non-superusers from assigning the superuser role ([#1651])
 - Environment variable for configuring restricted permissions that cannot be assigned to non-superuser roles ([#1651])
 - Display raw permission names in the admin interface ([#1651])
+- Visual tests with [Happo.io](https://happo.io) ([#1600])
 
 ### Changed
 
 - Real-time input validation on create superuser command ([#1651])
+- Error handling in room statistics ([#1535], [#1600])
+- Error handling in room attendance ([#1535], [#1600])
 
 ### Fixed
 
@@ -310,6 +313,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1493]: https://github.com/THM-Health/PILOS/issues/1493
 [#1495]: https://github.com/THM-Health/PILOS/pull/1495
 [#1523]: https://github.com/THM-Health/PILOS/issues/1523
+[#1535]: https://github.com/THM-Health/PILOS/issues/1535
 [#1536]: https://github.com/THM-Health/PILOS/issues/1536
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
 [#1548]: https://github.com/THM-Health/PILOS/pull/1548
@@ -320,6 +324,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1565]: https://github.com/THM-Health/PILOS/pull/1565
 [#1569]: https://github.com/THM-Health/PILOS/pull/1569
 [#1595]: https://github.com/THM-Health/PILOS/pull/1595
+[#1600]: https://github.com/THM-Health/PILOS/pull/1600
 [#1604]: https://github.com/THM-Health/PILOS/pull/1604
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
