@@ -25,18 +25,12 @@ use UnexpectedValueException;
 
 abstract class AbstractProvisioner
 {
-    private string $model;
-
     private string $modelName;
 
-    private array $expectedProperties;
-
-    public function __construct(string $model, array $expectedProperties)
+    public function __construct(private string $model, private array $expectedProperties)
     {
         $name = (new ReflectionClass($model))->getShortname();
         $this->modelName = Str::of($name)->snake()->replace('_', ' ')->value();
-        $this->model = $model;
-        $this->expectedProperties = $expectedProperties;
     }
 
     protected function instanceName(object $properties)
