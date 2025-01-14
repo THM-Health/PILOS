@@ -13,6 +13,9 @@ PILOS provides a command to provision servers, server pools, room types, roles, 
 docker compose exec app pilos-cli provision:all provisioning_data.json
 ```
 
+The provided file must be readable inside the container. You can place it in a mounted folder or copy it into the container.
+Remember that this file contains sensitive data - you probably want to delete it after provisioning.
+
 An example JSON file showcasing most capabilities can be found in [test data](https://github.com/THM-Health/PILOS/blob/4.x/tests/Backend/Fixtures/provisioning_data.json).
 
 The following sections form a complete specification of the file format.
@@ -74,12 +77,12 @@ All fields are required and do not have default values.
 
 All items in the `add` array have the following format:
 
-| Field         | Type     | Description                                 |
-| ------------- | -------- | ------------------------------------------- |
-| `name`        | `string` | Room type name shown in frontend            |
-| `description` | `string` | Room type description shown in frontend     |
-| `color`       | `string` | Color used for the room type in frontend    |
-| `server_pool` | `string` | Name of the server pool to use for meetings |
+| Field         | Type     | Description                                                                   |
+| ------------- | -------- | ----------------------------------------------------------------------------- |
+| `name`        | `string` | Room type name shown in frontend                                              |
+| `description` | `string` | Room type description shown in frontend                                       |
+| `color`       | `string` | Color used for the room type in frontend, given as hex-string, e.g. `#f00baa` |
+| `server_pool` | `string` | Name of the server pool to use for meetings                                   |
 
 All fields are required and do not have default values.
 
@@ -119,16 +122,16 @@ All fields are required and do not have default values. The `permissions` object
 
 All items in the `add` array have the following format:
 
-| Field           | Type       | Description                            |
-| --------------- | ---------- | -------------------------------------- |
-| `firstname`     | `string`   | First name                             |
-| `lastname`      | `string`   | Last name                              |
-| `email`         | `string`   | Email address                          |
-| `password`      | `string`   | Password (plain text!)                 |
-| `authenticator` | `string`   | One of [`local`, `ldap`, `shibboleth`] |
-| `roles`         | `[string]` | List of role names                     |
-| `locale`        | `string`   | One of [`de`, `de-gender`, `en`, `fr`] |
-| `timezone`      | `string`   | Timezone, e.g. `Europe/Berlin`         |
+| Field           | Type       | Description                                                                                                                                                                                                           |
+| --------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `firstname`     | `string`   | First name                                                                                                                                                                                                            |
+| `lastname`      | `string`   | Last name                                                                                                                                                                                                             |
+| `email`         | `string`   | Email address                                                                                                                                                                                                         |
+| `password`      | `string`   | Password (plain text!)                                                                                                                                                                                                |
+| `authenticator` | `string`   | One of [`local`, `ldap`, `shibboleth`]                                                                                                                                                                                |
+| `roles`         | `[string]` | List of role names                                                                                                                                                                                                    |
+| `locale`        | `string`   | One of the `ENABLED_LOCALES` in `.env`; see [User Interface and Localization Configuration](https://thm-health.github.io/PILOS/docs/next/administration/configuration/#user-interface-and-localization-configuration) |
+| `timezone`      | `string`   | Timezone, e.g. `Europe/Berlin`                                                                                                                                                                                        |
 
 All fields are required and do not have default values.
 
