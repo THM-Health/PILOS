@@ -152,7 +152,7 @@ class RoomTypeProvisioner extends AbstractProvisioner
         $expectedProperties = [
             'name' => 'required|string|unique:room_types,name',
             'description' => 'required|string',
-            'color' => 'required|string',
+            'color' => 'required|string|hex_color',
             'server_pool' => 'required|string|exists:server_pools,name',
         ];
         parent::__construct(RoomType::class, $expectedProperties);
