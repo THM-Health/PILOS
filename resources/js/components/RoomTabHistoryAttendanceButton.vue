@@ -236,12 +236,6 @@ function loadData() {
         }
 
         // meeting not found
-        if (error.response.status === env.HTTP_MEETING_ATTENDANCE_NOT_ENDED) {
-          emit("notEnded");
-          modalVisible.value = false;
-        }
-
-        // meeting not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
           emit("notFound");
           modalVisible.value = false;

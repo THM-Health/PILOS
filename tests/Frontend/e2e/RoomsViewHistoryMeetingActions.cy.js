@@ -100,6 +100,69 @@ describe("Rooms view history meeting actions", function () {
 
     cy.get('[data-test="room-history-statistic-dialog"]').should("not.exist");
 
+    // Check feature disabled
+    cy.intercept(
+      "GET",
+      "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+      {
+        statusCode: 468,
+        body: {
+          message: "The usage data is unavailable.",
+        },
+      },
+    ).as("statsRequest");
+
+    cy.get('[data-test="room-history-item"]')
+      .eq(4)
+      .find('[data-test="room-history-statistic-button"]')
+      .click();
+
+    cy.wait("@statsRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"The usage data is unavailable."}',
+      'app.flash.server_error.error_code_{"statusCode":468}',
+    ]);
+
+    // Check if dialog is closed
+    cy.get('[data-test="room-history-statistic-dialog"]').should("not.exist");
+
+    // Check if meeting list is reloaded
+    cy.wait("@roomHistoryRequest");
+
+    // Check meeting not found
+    cy.intercept(
+      "GET",
+      "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+      {
+        statusCode: 404,
+        body: {
+          message:
+            "No query results for model [App\\Models\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761",
+        },
+      },
+    ).as("statsRequest");
+
+    cy.get('[data-test="room-history-item"]')
+      .eq(4)
+      .find('[data-test="room-history-statistic-button"]')
+      .click();
+
+    cy.wait("@statsRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Models\\\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Check if dialog is closed
+    cy.get('[data-test="room-history-statistic-dialog"]').should("not.exist");
+
+    // Check if meeting list is reloaded
+    cy.wait("@roomHistoryRequest");
+
     // Check auth errors
     cy.checkRoomAuthErrors(
       () => {
@@ -343,6 +406,100 @@ describe("Rooms view history meeting actions", function () {
     cy.get('[data-test="dialog-header-close-button"]').click();
 
     cy.get('[data-test="room-history-attendance-dialog"]').should("not.exist");
+
+    // Check meeting not ended
+    cy.intercept(
+      "GET",
+      "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+      {
+        statusCode: 469,
+        body: {
+          message:
+            "The attendance logs are not yet available for this meeting as it has not yet ended.",
+        },
+      },
+    ).as("attendanceRequest");
+    cy.get('[data-test="room-history-item"]')
+      .eq(4)
+      .find('[data-test="room-history-attendance-button"]')
+      .click();
+
+    cy.wait("@attendanceRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"The attendance logs are not yet available for this meeting as it has not yet ended."}',
+      'app.flash.server_error.error_code_{"statusCode":469}',
+    ]);
+
+    // Check if dialog is closed
+    cy.get('[data-test="room-history-attendance-dialog"]').should("not.exist");
+
+    // Check if meeting list is reloaded
+    cy.wait("@roomHistoryRequest");
+
+    // Check meeting attendance disabled
+    cy.intercept(
+      "GET",
+      "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+      {
+        statusCode: 470,
+        body: {
+          message: "Attendance logging was not active at this meeting.",
+        },
+      },
+    ).as("attendanceRequest");
+
+    cy.get('[data-test="room-history-item"]')
+      .eq(4)
+      .find('[data-test="room-history-attendance-button"]')
+      .click();
+
+    cy.wait("@attendanceRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Attendance logging was not active at this meeting."}',
+      'app.flash.server_error.error_code_{"statusCode":470}',
+    ]);
+
+    // Check if dialog is closed
+    cy.get('[data-test="room-history-attendance-dialog"]').should("not.exist");
+
+    // Check if meeting list is reloaded
+    cy.wait("@roomHistoryRequest");
+
+    // Check meeting not found
+    cy.intercept(
+      "GET",
+      "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+      {
+        statusCode: 404,
+        body: {
+          message:
+            "No query results for model [App\\Models\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761",
+        },
+      },
+    ).as("attendanceRequest");
+
+    cy.get('[data-test="room-history-item"]')
+      .eq(4)
+      .find('[data-test="room-history-attendance-button"]')
+      .click();
+
+    cy.wait("@attendanceRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Models\\\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Check if dialog is closed
+    cy.get('[data-test="room-history-attendance-dialog"]').should("not.exist");
+
+    // Check if meeting list is reloaded
+    cy.wait("@roomHistoryRequest");
 
     // Check auth errors
     cy.checkRoomAuthErrors(
