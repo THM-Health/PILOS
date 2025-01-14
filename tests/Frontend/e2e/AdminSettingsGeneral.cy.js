@@ -233,6 +233,4 @@ describe("Admin settings general", function () {
 
     cy.checkToastMessage("app.flash.unauthenticated");
   });
-
-  // ToDo onlyView
 });

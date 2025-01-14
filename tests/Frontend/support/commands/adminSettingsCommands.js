@@ -23,9 +23,13 @@ Cypress.Commands.add(
       .and("include", originalSrc);
 
     cy.get('[data-test="settings-image-cancel-button"]').should("not.exist");
-    cy.get('[data-test="settings-image-delete-button"]').should(
-      deletable ? "be.visible" : "not.exist",
-    );
+
+    if (originalSrc !== "" && deletable) {
+      cy.get('[data-test="settings-image-delete-button"]').should("be.visible");
+    } else {
+      cy.get('[data-test="settings-image-delete-button"]').should("not.exist");
+    }
+
     cy.get('[data-test="settings-image-undo-delete-button"]').should(
       "not.exist",
     );
@@ -78,9 +82,13 @@ Cypress.Commands.add(
       .and("have.value", originalSrc);
 
     cy.get('[data-test="settings-image-cancel-button"]').should("not.exist");
-    cy.get('[data-test="settings-image-delete-button"]').should(
-      deletable ? "be.visible" : "not.exist",
-    );
+
+    if (originalSrc !== "" && deletable) {
+      cy.get('[data-test="settings-image-delete-button"]').should("be.visible");
+    } else {
+      cy.get('[data-test="settings-image-delete-button"]').should("not.exist");
+    }
+
     cy.get('[data-test="settings-image-undo-delete-button"]').should(
       "not.exist",
     );
@@ -160,16 +168,16 @@ Cypress.Commands.add("checkBlobSrcImage", (blobSrc, expectedBase64Content) => {
  * Checks if the image file upload works correctly
  * @memberof cy
  * @method checkSettingsFileSelector
- * @param {string} currentFileName
+ * @param {string} originalHref
  * @param  {string} fileName
  * @param  {boolean} deletable
  * @returns void
  */
 Cypress.Commands.add(
   "checkSettingsFileSelector",
-  (currentFileName, fileName, deletable) => {
+  (originalHref, fileName, deletable) => {
     cy.get('[data-test="settings-file-cancel-button"]').should("not.exist");
-    if (currentFileName !== "" && deletable) {
+    if (originalHref !== "" && deletable) {
       cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
     } else {
       cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
@@ -177,6 +185,15 @@ Cypress.Commands.add(
     cy.get('[data-test="settings-file-undo-delete-button"]').should(
       "not.exist",
     );
+
+    if (originalHref !== "") {
+      cy.get('[data-test="settings-file-view-button"]')
+        .should("be.visible")
+        .and("include.text", "app.view")
+        .and("have.attr", "href", originalHref);
+    } else {
+      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+    }
 
     cy.get('[data-test="file-input-input"]').then((fileInput) => {
       cy.stub(fileInput[0], "click").as("fileInputClick");
@@ -210,7 +227,7 @@ Cypress.Commands.add(
 
     // Check that setting is shown correctly
     cy.get('[data-test="settings-file-cancel-button"]').should("not.exist");
-    if (currentFileName !== "" && deletable) {
+    if (originalHref !== "" && deletable) {
       cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
     } else {
       cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
@@ -218,6 +235,15 @@ Cypress.Commands.add(
     cy.get('[data-test="settings-file-undo-delete-button"]').should(
       "not.exist",
     );
+
+    if (originalHref !== "") {
+      cy.get('[data-test="settings-file-view-button"]')
+        .should("be.visible")
+        .and("include.text", "app.view")
+        .and("have.attr", "href", originalHref);
+    } else {
+      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+    }
 
     cy.get('[data-test="file-input-button"]').should(
       "include.text",
@@ -233,3 +259,49 @@ Cypress.Commands.add(
     );
   },
 );
+
+/**
+ * Checks if the SettingsImageSelector is shown correctly with only view permission
+ * @memberof cy
+ * @method checkSettingsImageSelectorOnlyView
+ * @param  {string} src
+ * @returns void
+ */
+Cypress.Commands.add("checkSettingsImageSelectorOnlyView", (src) => {
+  cy.get('[data-test="settings-image-url-input"]').should("not.exist");
+  cy.get('[data-test="settings-image-cancel-button"]').should("not.exist");
+  cy.get('[data-test="settings-image-delete-button"]').should("not.exist");
+  cy.get('[data-test="settings-image-undo-delete-button"]').should("not.exist");
+  cy.get('[data-test="file-input-button"]').should("not.exist");
+  cy.get('[data-test="file-input-input"]').should("not.exist");
+
+  if (src !== "") {
+    cy.get('[data-test="settings-image-preview"]')
+      .should("be.visible")
+      .and("have.attr", "src", src);
+  }
+});
+
+/**
+ * Checks if the SettingsFileSelector is shown correctly with only view permission
+ * @memberof cy
+ * @method checkSettingsFileSelectorOnlyView
+ * @param {string} href
+ * @returns void
+ */
+Cypress.Commands.add("checkSettingsFileSelectorOnlyView", (href) => {
+  cy.get('[data-test="settings-file-cancel-button"]').should("not.exist");
+  cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
+  cy.get('[data-test="settings-file-undo-delete-button"]').should("not.exist");
+  cy.get('[data-test="file-input-button"]').should("not.exist");
+  cy.get('[data-test="file-input-input"]').should("not.exist");
+
+  if (href !== "") {
+    cy.get('[data-test="settings-file-view-button"]')
+      .should("be.visible")
+      .and("include.text", "app.view")
+      .and("have.attr", "href", href);
+  } else {
+    cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+  }
+});

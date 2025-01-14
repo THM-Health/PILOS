@@ -1686,7 +1686,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_auto_delete_deadline_period = 7;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
-      settings.data.room_file_terms_of_use = "";
+      settings.data.room_file_terms_of_use = null;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
