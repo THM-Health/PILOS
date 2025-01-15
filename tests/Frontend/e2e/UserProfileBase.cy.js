@@ -745,16 +745,32 @@ describe("User Profile Base", function () {
   });
 
   it("load timezones error", function () {
-    cy.intercept("GET", "api/v1/getTimezones", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const timezonesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/getTimezones",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("timezonesRequest");
+      "timezonesRequest",
+    );
 
     cy.visit("/profile");
 
     cy.wait("@userRequest");
+
+    // Check loading
+    cy.get('[data-test="user-tab-profile-save-button"]').should("be.disabled");
+
+    cy.get('[data-test="timezone-dropdown"]')
+      .should("be.visible")
+      .find(".p-select-label")
+      .should("have.attr", "aria-disabled", "true")
+      .then(() => {
+        timezonesRequest.sendResponse();
+      });
 
     cy.wait("@timezonesRequest");
 
@@ -768,7 +784,7 @@ describe("User Profile Base", function () {
       .find(".p-select-label")
       .should("have.attr", "aria-disabled", "true");
 
-    // Reload timezones withouth error
+    // Reload timezones without error
     cy.intercept("GET", "api/v1/getTimezones", {
       fixture: "timezones.json",
     }).as("timezonesRequest");

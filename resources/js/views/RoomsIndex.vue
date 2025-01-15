@@ -141,6 +141,7 @@
                 v-model="selectedRoomType"
                 data-test="room-type-dropdown"
                 :disabled="loadingRooms || roomTypesBusy || onlyShowFavorites"
+                :loading="roomTypesBusy"
                 :placeholder="$t('rooms.room_types.all')"
                 :options="roomTypes"
                 show-clear
