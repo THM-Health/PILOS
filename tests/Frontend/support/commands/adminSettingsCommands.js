@@ -1,4 +1,4 @@
-// import { _arrayBufferToBase64 } from "../utils/formData.js";
+import { _arrayBufferToBase64 } from "../utils/formData.js";
 
 /**
  * Checks if the image file upload works correctly
@@ -106,7 +106,7 @@ Cypress.Commands.add(
       },
     );
 
-    // Check that correct image is shown
+    // Check that correct image is shown // ToDo try to get content type of fixture
     cy.fixture("files/" + imageName, "base64").then((content) => {
       cy.get('[data-test="settings-image-preview"]')
         .should("have.attr", "src")
@@ -130,32 +130,16 @@ Cypress.Commands.add("checkBlobSrcImage", (blobSrc, expectedBase64Content) => {
   cy.wrap(null, { log: false }).then(async () => {
     return new Cypress.Promise((resolve, reject) => {
       fetch(blobSrc)
-        .then((response) => response.blob())
-        .then((blob) => {
-          const contentType = blob.type;
-          const reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onloadend = function () {
-            try {
-              const base64data = reader.result;
-              expect(base64data).to.eql(
-                "data:" + contentType + ";base64," + expectedBase64Content,
-              );
-              resolve();
-            } catch (error) {
-              reject(error);
-            }
-          };
-          // ToDo ???? use _arrayBufferToBase64???? (disadvantage: no content type)
-          // .then((response) => response.arrayBuffer())
-          // .then((arrayBuffer) => {
-          //   const base64 = _arrayBufferToBase64(arrayBuffer);
-          //   try {
-          //     expect(base64).to.eql(expectedBase64Content);
-          //     resolve();
-          //   } catch (error) {
-          //     reject(error);
-          //   }
+        // ToDo try to check content type
+        .then((response) => response.arrayBuffer())
+        .then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          try {
+            expect(base64).to.eql(expectedBase64Content);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
         })
         .catch((error) => {
           reject(error);

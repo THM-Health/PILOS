@@ -459,25 +459,6 @@ describe("Admin settings with edit permission", function () {
           const base64 = _arrayBufferToBase64(arrayBuffer);
           expect(base64).to.eql(content);
         });
-
-        // ToDo Delete again (Just some testing)
-        // cy.wrap(null).then(() => {
-        //   return new Cypress.Promise((resolve, reject) => {
-        //     const reader = new FileReader();
-        //     reader.readAsDataURL(uploadedFavicon);
-        //     reader.onloadend = function () {
-        //       const base64data = reader.result;
-        //       try {
-        //         expect(base64data).to.eql(
-        //           "data:image/vnd.microsoft.icon;base64," + content,
-        //         );
-        //         resolve();
-        //       } catch (error) {
-        //         reject(error);
-        //       }
-        //     };
-        //   });
-        // });
       });
 
       expect(formData.get("theme_favicon")).to.eql(null);
