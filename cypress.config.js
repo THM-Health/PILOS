@@ -26,6 +26,11 @@ export default defineConfig({
 
           return launchOptions;
         }
+
+        if (browser.family === "firefox") {
+          launchOptions.preferences["intl.accept_languages"] = "en";
+          return launchOptions;
+        }
       });
 
       // It's IMPORTANT to return the config object
