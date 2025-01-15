@@ -44,13 +44,11 @@
         show-clear
       >
         <template #clearicon="{ clearCallback }">
-          <span
-            class="p-dropdown-clear"
+          <i
+            class="fa-solid fa-times p-icon p-select-clear-icon"
             role="button"
             @click.stop="clearCallback"
-          >
-            <i class="fa-solid fa-times" />
-          </span>
+          />
         </template>
       </Select>
       <FormError :errors="formErrors.fieldError('replacement_room_type')" />
