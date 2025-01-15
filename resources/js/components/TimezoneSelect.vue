@@ -7,7 +7,7 @@
       :options="timezones"
       :required="props.required"
       :invalid="props.invalid"
-      :disabled="props.disabled || loadingError"
+      :disabled="props.disabled || loading || loadingError"
       :placeholder="props.placeholder"
       :loading="loading"
       :pt="{

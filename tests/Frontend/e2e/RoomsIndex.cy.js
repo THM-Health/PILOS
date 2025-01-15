@@ -2278,13 +2278,18 @@ describe("Room Index", function () {
 
     cy.visit("/rooms");
 
+    cy.wait("@roomRequest");
+
     // Check loading
     cy.get('[data-test="room-type-dropdown"]')
+      .should("be.visible")
       .find(".p-select-label")
       .should("have.attr", "aria-disabled", "true")
       .then(() => {
         roomTypesRequest.sendResponse();
       });
+
+    cy.wait("@roomTypesRequest");
 
     // Check that error message gets shown
     cy.checkToastMessage([

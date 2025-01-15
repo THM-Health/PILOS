@@ -34,7 +34,7 @@
         v-model.number="replacement"
         data-test="replacement-room-type-dropdown"
         autofocus
-        :disabled="isBusy"
+        :disabled="isBusy || loadingRoomTypes"
         :loading="loadingRoomTypes"
         :class="{
           'p-invalid': formErrors.fieldInvalid('replacement_room_type'),

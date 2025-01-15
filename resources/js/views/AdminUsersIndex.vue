@@ -36,7 +36,7 @@
             :show-no-results="false"
             :show-labels="false"
             :options="roles"
-            :disabled="rolesLoadingError"
+            :disabled="rolesLoading || rolesLoadingError || isBusy"
             :loading="rolesLoading"
             :allow-empty="true"
             @update:model-value="loadData(1)"

@@ -157,6 +157,7 @@
                   :disabled="
                     isBusy ||
                     modelLoadingError ||
+                    serverPoolsLoading ||
                     serverPoolsLoadingError ||
                     viewOnly
                   "

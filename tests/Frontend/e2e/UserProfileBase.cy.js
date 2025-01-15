@@ -765,6 +765,7 @@ describe("User Profile Base", function () {
     cy.get('[data-test="user-tab-profile-save-button"]').should("be.disabled");
 
     cy.get('[data-test="timezone-dropdown"]')
+      .should("be.visible")
       .find(".p-select-label")
       .should("have.attr", "aria-disabled", "true")
       .then(() => {

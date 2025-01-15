@@ -103,7 +103,11 @@
                 :show-labels="false"
                 :options="servers"
                 :disabled="
-                  isBusy || modelLoadingError || serversLoadingError || viewOnly
+                  isBusy ||
+                  modelLoadingError ||
+                  serversLoading ||
+                  serversLoadingError ||
+                  viewOnly
                 "
                 :loading="serversLoading"
                 :allow-empty="true"
