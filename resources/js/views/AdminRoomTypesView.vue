@@ -284,6 +284,7 @@
                 />
                 <Button
                   icon="fa-solid fa-xmark"
+                  data-test="clear-max-participants-button"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   @click="model.max_participants = null"
                 />
@@ -314,6 +315,7 @@
                 />
                 <Button
                   icon="fa-solid fa-xmark"
+                  data-test="clear-max-duration-button"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   @click="model.max_duration = null"
                 />

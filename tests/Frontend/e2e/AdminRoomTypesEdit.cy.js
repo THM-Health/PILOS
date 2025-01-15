@@ -218,6 +218,9 @@ describe("Admin room types edit", function () {
       .within(() => {
         cy.get("#max-participants").should("have.value", "100").clear();
         cy.get("#max-participants").type("50");
+        cy.get('[data-test="clear-max-participants-button"]')
+          .should("be.visible")
+          .and("not.be.disabled");
       });
 
     cy.get('[data-test="max-duration-field"]')
@@ -226,6 +229,9 @@ describe("Admin room types edit", function () {
       .within(() => {
         cy.get("#max-duration").should("have.value", "120 min.").clear();
         cy.get("#max-duration").type("60");
+        cy.get('[data-test="clear-max-duration-button"]')
+          .should("be.visible")
+          .and("not.be.disabled");
       });
 
     // Change default and enforced values
@@ -716,7 +722,13 @@ describe("Admin room types edit", function () {
       cy.get("#restrict").should("be.disabled");
 
       cy.get("#max-participants").should("be.disabled");
+      cy.get('[data-test="clear-max-participants-button"]')
+        .should("be.visible")
+        .and("be.disabled");
       cy.get("#max-duration").should("be.disabled");
+      cy.get('[data-test="clear-max-duration-button"]')
+        .should("be.visible")
+        .and("be.disabled");
 
       cy.get("#has-access-code-default").should("be.disabled");
       cy.get('[data-test="has-access-code-enforced"]').should("be.disabled");
