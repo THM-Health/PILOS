@@ -1,0 +1,107 @@
+{
+  "servers": {
+    "wipe": true,
+    "add": [
+      {
+        "name": "Default server",
+        "description": "Our default BBB backend",
+        "endpoint": "https://default.bbb.example.biz",
+        "secret": "Xuper5ecr37",
+        "strength": 5,
+        "status": "enabled"
+      },
+      {
+        "name": "BFS",
+        "description": "Our powerful BBB backend",
+        "endpoint": "https://9001.bbb.example.biz",
+        "secret": "Xuper5ecr37",
+        "strength": 10,
+        "status": "enabled"
+      }
+    ]
+  },
+
+  "server_pools": {
+    "wipe": true,
+    "add": [
+      {
+        "name": "default",
+        "description": "Default pool",
+        "servers": ["Default server"]
+      },
+      {
+        "name": "performance",
+        "description": "Performance pool",
+        "servers": ["Default server"]
+      }
+    ]
+  },
+
+  "room_types": {
+    "wipe": true,
+    "add": [
+      {
+        "name": "Meeting",
+        "description": "A room type for small meetings",
+        "color": "#2c3e50",
+        "server_pool": "default"
+      },
+      {
+        "name": "Lecture",
+        "description": "A room type for big lectures",
+        "color": "#ef4444",
+        "server_pool": "performance"
+      }
+    ]
+  },
+
+  "roles": {
+    "wipe": false,
+    "add": [
+      {
+        "name": "Admin",
+        "permissions": {
+          "rooms": ["viewAll", "manage"],
+          "meetings": ["viewAny"],
+          "settings": ["viewAny", "update"],
+          "users": ["viewAny", "view", "update", "create", "delete"],
+          "roles": ["viewAny", "view"],
+          "roomTypes": ["view", "update", "create", "delete"],
+          "servers": ["viewAny", "view"],
+          "serverPools": ["viewAny", "view"]
+        }
+      }
+    ]
+  },
+
+  "users": {
+    "wipe": false,
+    "add": [
+      {
+        "firstname": "Maurice",
+        "lastname": "Moss",
+        "email": "moss@reynholm-industries.co.uk",
+        "password": "Xuper$3cre7",
+        "authenticator": "local",
+        "roles": ["Admin"],
+        "locale": "en",
+        "timezone": "Europe/London"
+      }
+    ]
+  },
+
+  "settings": {
+    "general": {
+      "name": "Example company - PILOS",
+      "help_url": "https://help.bbb.example.biz",
+      "legal_notice_url": "https://legal.bbb.example.biz",
+      "privacy_policy_url": "https://privacy.bbb.example.biz",
+      "default_timezone": "Europe/Berlin"
+    },
+    "recording": {
+      "server_usage_enabled": false,
+      "meeting_usage_enabled": false,
+      "recording_retention_period": "730"
+    }
+  }
+}

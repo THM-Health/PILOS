@@ -1,0 +1,39 @@
+{
+  "data": {
+    "id": "abc-def-123",
+    "name": "Meeting One",
+    "owner": {
+      "id": 1,
+      "name": "John Doe"
+    },
+    "last_meeting": null,
+    "type": {
+      "id": 2,
+      "name": "Meeting",
+      "color": "#4a5c66"
+    },
+    "model_name": "Room",
+    "short_description": null,
+    "is_favorite": false,
+    "authenticated": true,
+    "description": null,
+    "allow_membership": false,
+    "is_member": false,
+    "is_moderator": false,
+    "is_co_owner": false,
+    "can_start": true,
+    "access_code": 508307005,
+    "room_type_invalid": false,
+    "record_attendance": false,
+    "record": false,
+    "current_user": {
+      "id": 1,
+      "firstname": "John",
+      "lastname": "Doe",
+      "user_locale": "en",
+      "permissions": ["rooms.create"],
+      "model_name": "User",
+      "room_limit": -1
+    }
+  }
+}

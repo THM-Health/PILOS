@@ -1,0 +1,12 @@
+{
+  "data": {
+    "id": 1,
+    "firstname": "John",
+    "lastname": "Doe",
+    "user_locale": "en",
+    "permissions": [],
+    "timezone": "Europe/Berlin",
+    "model_name": "User",
+    "room_limit": -1
+  }
+}

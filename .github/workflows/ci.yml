@@ -266,6 +266,60 @@ jobs:
         with:
           fail_ci_if_error: true
           directory: coverage
+  visual-tests:
+    name: Visual Tests
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pilos-image
+          path: /tmp
+      - name: Load image
+        run: |
+          docker load --input /tmp/pilos-image.tar
+      - name: Copy .env
+        run: docker run --rm pilos:latest cat ./.env.ci > .env
+      - name: Generate key
+        run: |
+          docker run --rm \
+          --mount type=bind,source=${{ github.workspace }}/.env,target=/var/www/html/.env \
+          --entrypoint /bin/bash \
+          pilos:latest \
+          -c "chown www-data:www-data .env && pilos-cli key:generate"
+
+      - name: Adjust .env
+        run: |
+          sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
+          sed -i 's|APP_URL=.*|APP_URL=http://localhost:9080|g' .env
+          sed -i 's|BBB_TEST_SERVER_HOST=.*|BBB_TEST_SERVER_HOST=${{ secrets.BBB_TEST_SERVER_HOST }}|g' .env
+          sed -i 's|BBB_TEST_SERVER_SECRET=.*|BBB_TEST_SERVER_SECRET=${{ secrets.BBB_TEST_SERVER_SECRET }}|g' .env
+
+      - name: Start app
+        run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
+
+      - name: Run cypress
+        uses: cypress-io/github-action@v6
+        with:
+          command-prefix: happo-e2e -- npx
+          group: "Visual tests"
+          record: true
+          tag: ${{ github.event_name }}
+          project: ./tests/Visual
+        env:
+          NODE_OPTIONS: "--experimental-require-module"
+          HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
+          HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
+          CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          APP_URL: "http://localhost:9080"
+          TZ: "America/New_York"
   system-tests:
     name: System Tests
     runs-on: ubuntu-latest

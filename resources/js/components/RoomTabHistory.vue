@@ -144,6 +144,8 @@
                     :start="item.start"
                     :end="item.end"
                     :room-name="props.room.name"
+                    @feature-disabled="loadData()"
+                    @not-found="loadData()"
                   />
                   <RoomTabHistoryAttendanceButton
                     v-if="item.attendance && item.end != null"
@@ -152,6 +154,9 @@
                     :start="item.start"
                     :end="item.end"
                     :room-name="props.room.name"
+                    @not-found="loadData()"
+                    @not-ended="loadData()"
+                    @attendance-disabled="loadData()"
                   />
                 </div>
               </div>
