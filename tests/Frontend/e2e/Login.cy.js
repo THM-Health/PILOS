@@ -47,6 +47,10 @@ describe("Login", function () {
       cy.interceptRoomIndexRequests();
 
       cy.get("button").should("have.text", "auth.login").click();
+      // Check loading
+      cy.get("#ldap-username").should("be.disabled");
+      cy.get("#ldap-password").should("be.disabled");
+
       // Check if button is disabled after being clicked and loading and send response
       cy.get("button")
         .should("be.disabled")
@@ -183,6 +187,11 @@ describe("Login", function () {
       cy.get('[data-test="login-button"]')
         .should("have.text", "auth.login")
         .click();
+
+      // Check loading
+      cy.get("#local-email").should("be.disabled");
+      cy.get("#local-password").should("be.disabled");
+
       // Check if button is disabled after being clicked and loading and send response
       cy.get('[data-test="login-button"]')
         .should("be.disabled")
