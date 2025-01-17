@@ -10,8 +10,8 @@
     "prettier:fix": "prettier . --write",
     "docs:install": "cd docs && npm install",
     "docs:dev": "cd docs && npm run start -- --host 0.0.0.0",
-    "cypress:open": "TZ=America/New_York LANG=en cypress open",
-    "cypress:run": "TZ=America/New_York LANG=en cypress run",
+    "cypress:open": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress open",
+    "cypress:run": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress run",
     "create-coverage-report": "nyc report --reporter html -t coverage",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions"
@@ -36,7 +36,7 @@
     "happo.io": "^11.0.1",
     "nyc": "^17.1.0",
     "prettier": "^3.4.2",
-    "prettier-plugin-tailwindcss": "^0.6.9",
+    "prettier-plugin-tailwindcss": "^0.6.10",
     "vite-plugin-istanbul": "^6.0.2",
     "vue-eslint-parser": "^9.4.3"
   },
