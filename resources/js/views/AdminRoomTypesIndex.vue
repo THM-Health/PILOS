@@ -40,6 +40,28 @@
       :rows="settingsStore.getSetting('general.pagination_page_size')"
       :pt="{
         table: 'table-auto lg:table-fixed',
+        bodyRow: {
+          'data-test': 'room-type-item',
+        },
+        mask: {
+          'data-test': 'overlay',
+        },
+        column: {
+          bodyCell: {
+            'data-test': 'room-type-item-cell',
+          },
+          headerCell: {
+            'data-test': 'room-type-header-cell',
+          },
+        },
+        pcPaginator: {
+          page: {
+            'data-test': 'paginator-page',
+          },
+          next: {
+            'data-test': 'paginator-next-button',
+          },
+        },
       }"
     >
       <template #empty>
