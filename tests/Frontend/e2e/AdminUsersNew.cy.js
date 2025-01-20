@@ -545,7 +545,7 @@ describe("Admin users new", function () {
     });
 
     // Close dialog
-    cy.get(".multiselect__select").click();
+    cy.get(".multiselect__select").click({ force: true });
 
     // Check that dialog is closed
     cy.get(".multiselect__content").should("not.be.visible");

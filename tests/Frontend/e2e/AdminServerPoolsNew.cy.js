@@ -328,6 +328,11 @@ describe("Admin server pools new", function () {
 
     cy.wait("@serversRequest");
 
+    cy.get('[data-test="server-dropdown"]').should(
+      "not.have.class",
+      "multiselect--disabled",
+    );
+
     cy.get(".multiselect__content")
       .should("be.visible")
       .within(() => {
@@ -378,7 +383,7 @@ describe("Admin server pools new", function () {
     });
 
     // Close dialog
-    cy.get(".multiselect__select").click();
+    cy.get(".multiselect__select").click({ force: true });
 
     // Check that dialog is closed
     cy.get(".multiselect__content").should("not.be.visible");
