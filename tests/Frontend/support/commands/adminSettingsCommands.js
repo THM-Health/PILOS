@@ -1,4 +1,5 @@
 import { _arrayBufferToBase64 } from "../utils/formData.js";
+import { getFileContentType } from "../utils/fileHelper.js";
 
 /**
  * Checks if the image file upload works correctly
@@ -65,11 +66,13 @@ Cypress.Commands.add(
 
     // Check that correct image is shown
     cy.fixture("files/" + imageName, "base64").then((content) => {
+      const contentType = getFileContentType(imageName);
+
       cy.get('[data-test="settings-image-preview"]')
         .should("have.attr", "src")
         .and("not.include", originalSrc)
         .then((src) => {
-          cy.checkBlobSrcImage(src, content);
+          cy.checkBlobSrcImage(src, content, contentType);
         });
     });
 
@@ -106,47 +109,61 @@ Cypress.Commands.add(
       },
     );
 
-    // Check that correct image is shown // ToDo try to get content type of fixture
+    // Check that correct image is shown
     cy.fixture("files/" + imageName, "base64").then((content) => {
+      const contentType = getFileContentType(imageName);
+
       cy.get('[data-test="settings-image-preview"]')
         .should("have.attr", "src")
         .and("not.include", originalSrc)
         .then((src) => {
-          cy.checkBlobSrcImage(src, content);
+          cy.checkBlobSrcImage(src, content, contentType);
         });
     });
   },
 );
 
 /**
- * Checks if the image loaded from the blob url has the expected content
+ * Checks if the image loaded from the blob url has the expected content and content type
  * @memberof cy
  * @method checkBlobUrlData
  * @param  {string} blobSrc
  * @param  {string} expectedBase64Content
+ * @param  {string} expectedContentType
  * @returns void
  */
-Cypress.Commands.add("checkBlobSrcImage", (blobSrc, expectedBase64Content) => {
-  cy.wrap(null, { log: false }).then(async () => {
-    return new Cypress.Promise((resolve, reject) => {
-      fetch(blobSrc)
-        // ToDo try to check content type
-        .then((response) => response.arrayBuffer())
-        .then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          try {
-            expect(base64).to.eql(expectedBase64Content);
-            resolve();
-          } catch (error) {
+Cypress.Commands.add(
+  "checkBlobSrcImage",
+  (blobSrc, expectedBase64Content, expectedContentType) => {
+    cy.wrap(null, { log: false }).then(async () => {
+      return new Cypress.Promise((resolve, reject) => {
+        fetch(blobSrc)
+          .then((response) =>
+            // Get array buffer and content type
+            response.arrayBuffer().then((arrayBuffer) => ({
+              arrayBuffer,
+              contentType: response.headers.get("content-type"),
+            })),
+          )
+          .then(({ arrayBuffer, contentType }) => {
+            const base64 = _arrayBufferToBase64(arrayBuffer);
+
+            // Check if content and content type are correct
+            try {
+              expect(contentType).to.eql(expectedContentType);
+              expect(base64).to.eql(expectedBase64Content);
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          })
+          .catch((error) => {
             reject(error);
-          }
-        })
-        .catch((error) => {
-          reject(error);
-        });
+          });
+      });
     });
-  });
-});
+  },
+);
 
 /**
  * Checks if the image file upload works correctly
