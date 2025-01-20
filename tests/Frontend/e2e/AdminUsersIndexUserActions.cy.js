@@ -36,7 +36,7 @@ describe("Admin users index user actions", function () {
 
     cy.wait("@usersRequest");
 
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
 
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
 
@@ -64,7 +64,7 @@ describe("Admin users index user actions", function () {
     );
 
     cy.fixture("users.json").then((users) => {
-      users.data = users.data.slice(0, 2);
+      users.data = users.data.filter((user) => user.id !== 3);
       users.meta.to = 2;
       users.meta.total = 2;
       users.meta.total_no_filter = 2;
@@ -92,7 +92,7 @@ describe("Admin users index user actions", function () {
     cy.wait("@usersRequest");
 
     // Check that user was deleted
-    cy.get('[data-test="user-item"]').should("have.length", 2);
+    cy.get('[data-test="user-item"]').should("have.length", 3);
 
     // Check that dialog is closed
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
@@ -123,7 +123,7 @@ describe("Admin users index user actions", function () {
 
     cy.wait("@usersRequest");
 
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
 
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
 

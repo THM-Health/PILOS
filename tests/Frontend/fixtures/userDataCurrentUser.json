@@ -14,17 +14,20 @@
     "roles": [
       {
         "id": 1,
-        "name": "Admin",
-        "automatic": true
+        "name": "Superuser",
+        "automatic": true,
+        "superuser": true
       },
       {
         "id": 2,
         "name": "User",
-        "automatic": false
+        "automatic": false,
+        "superuser": false
       }
     ],
     "bbb_skip_check_audio": false,
     "initial_password_set": false,
     "timezone": "UTC"
-  }
+  },
+  "superuser": true
 }

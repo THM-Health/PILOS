@@ -58,6 +58,76 @@ describe("Admin users edit", function () {
     cy.get("h1").should("be.visible").and("include.text", "home.title");
   });
 
+  it("check visiting edit user page of a superuser", function () {
+    cy.fixture("userDataUser.json").then((user) => {
+      user.data.superuser = true;
+
+      user.data.roles.push({
+        id: 1,
+        name: "Superuser",
+        automatic: true,
+        superuser: true,
+      });
+
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
+    });
+
+    // Check with being a superuser
+    cy.visit("/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-cancel-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.cancel_editing")
+      .and("have.attr", "href", "/admin/users/2");
+    cy.get('[data-test="users-edit-button"]').should("not.exist");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="users-delete-button"]').should("not.exist");
+    cy.get('[data-test="user-tab-profile-save-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.save");
+
+    cy.get('[data-test="base-tab-button"]').should("be.visible");
+    cy.get('[data-test="email-tab-button"]').should("be.visible");
+    cy.get('[data-test="security-tab-button"]').should("be.visible");
+    cy.get('[data-test="others-tab-button"]').should("be.visible");
+
+    // Check without being a superuser
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.superuser = false;
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.update",
+        "users.create",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.reload();
+
+    cy.wait("@userRequest");
+
+    // Check that redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
+  });
+
   it("visit edit user page", function () {
     const userRequest = interceptIndefinitely(
       "GET",

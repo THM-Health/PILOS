@@ -12,11 +12,12 @@
     "room_limit": -1,
     "updated_at": "2024-09-13T14:20:26.000000Z",
     "roles": [
-      { "id": 3, "name": "Students", "automatic": true },
-      { "id": 2, "name": "Staff", "automatic": false }
+      { "id": 3, "name": "Students", "automatic": true, "superuser": false },
+      { "id": 2, "name": "Staff", "automatic": false, "superuser": false }
     ],
     "bbb_skip_check_audio": false,
     "initial_password_set": false,
-    "timezone": "UTC"
+    "timezone": "UTC",
+    "superuser": false
   }
 }

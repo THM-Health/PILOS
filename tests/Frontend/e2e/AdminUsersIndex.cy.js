@@ -134,7 +134,7 @@ describe("Admin users index", function () {
       .should("have.text", "app.actions");
 
     // Check that users are displayed correctly
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
 
     cy.get('[data-test="user-item"]')
       .eq(0)
@@ -154,7 +154,7 @@ describe("Admin users index", function () {
           .should("have.text", "admin.users.authenticator.local");
         cy.get('[data-test="user-item-cell"]')
           .eq(5)
-          .should("have.text", "Admin");
+          .should("have.text", "Superuser");
 
         cy.get('[data-test="user-item-cell"]')
           .eq(6)
@@ -223,6 +223,36 @@ describe("Admin users index", function () {
         cy.get('[data-test="user-item-cell"]')
           .eq(5)
           .should("have.text", "Students");
+
+        cy.get('[data-test="user-item-cell"]')
+          .eq(6)
+          .within(() => {
+            cy.get('[data-test="users-view-button"]').should("not.exist");
+            cy.get('[data-test="users-edit-button"]').should("not.exist");
+            cy.get('[data-test="users-delete-button"]').should("not.exist");
+            cy.get('[data-test="users-reset-password-button"]').should(
+              "not.exist",
+            );
+          });
+      });
+
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="user-item-cell"]').should("have.length", 7);
+
+        cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "100");
+        cy.get('[data-test="user-item-cell"]').eq(1).should("have.text", "Max");
+        cy.get('[data-test="user-item-cell"]').eq(2).should("have.text", "Doe");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(3)
+          .should("have.text", "MaxDoe@domain.tld");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(4)
+          .should("have.text", "admin.users.authenticator.local");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(5)
+          .should("have.text", "Superuser");
 
         cy.get('[data-test="user-item-cell"]')
           .eq(6)
@@ -344,7 +374,7 @@ describe("Admin users index", function () {
 
     cy.fixture("users.json").then((users) => {
       users.data = users.data.slice(0, 1);
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 1;
 
@@ -545,7 +575,7 @@ describe("Admin users index", function () {
     cy.get(".multiselect__option").should("have.length", 5);
     cy.get(".multiselect__option")
       .eq(0)
-      .should("include.text", "Admin")
+      .should("include.text", "Superuser")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)
@@ -616,7 +646,7 @@ describe("Admin users index", function () {
     cy.get(".multiselect__option").should("have.length", 5);
     cy.get(".multiselect__option")
       .eq(0)
-      .should("include.text", "Admin")
+      .should("include.text", "Superuser")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)
@@ -862,7 +892,7 @@ describe("Admin users index", function () {
     cy.get(".multiselect__option").should("have.length", 5);
     cy.get(".multiselect__option")
       .eq(0)
-      .should("include.text", "Admin")
+      .should("include.text", "Superuser")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)
@@ -1084,7 +1114,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="clear-roles-button"]').should("be.visible");
 
     // Check that pagination shows the correct number of pages and switch to next page
-    cy.get('[data-test="paginator-page"]').should("have.length", 3);
+    cy.get('[data-test="paginator-page"]').should("have.length", 4);
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
@@ -1095,7 +1125,7 @@ describe("Admin users index", function () {
       users.data = users.data.slice(1, 2);
       users.meta.current_page = 2;
       users.meta.from = 2;
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 2;
 
@@ -1133,7 +1163,7 @@ describe("Admin users index", function () {
     // Clear role and make sure that page is reset
     cy.fixture("users.json").then((users) => {
       users.data = users.data.slice(0, 1);
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 1;
 
@@ -1212,10 +1242,10 @@ describe("Admin users index", function () {
       .should("have.text", "app.actions")
       .and("not.have.attr", "data-p-sortable-column", "true");
 
-    // Change sorting type and response with 3 users on 3 different pages
+    // Change sorting type and response with 4 users on 4 different pages
     cy.fixture("users.json").then((users) => {
       users.data = users.data.slice(0, 1);
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 1;
 
@@ -1249,7 +1279,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-item"]').eq(0).should("include.text", "John");
 
     // Check that pagination shows the correct number of pages
-    cy.get('[data-test="paginator-page"]').should("have.length", 3);
+    cy.get('[data-test="paginator-page"]').should("have.length", 4);
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
@@ -1261,7 +1291,7 @@ describe("Admin users index", function () {
       users.data = users.data.slice(1, 2);
       users.meta.current_page = 2;
       users.meta.from = 2;
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 2;
 
@@ -1300,7 +1330,7 @@ describe("Admin users index", function () {
     // Change sorting direction and make sure that the page is reset
     cy.fixture("users.json").then((users) => {
       users.data = users.data.slice(0, 1);
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 1;
 
@@ -1362,7 +1392,7 @@ describe("Admin users index", function () {
       users.data = users.data.slice(1, 2);
       users.meta.current_page = 2;
       users.meta.from = 2;
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 2;
 
@@ -1401,7 +1431,7 @@ describe("Admin users index", function () {
     // Change sorting and make sure that the page is reset
     cy.fixture("users.json").then((users) => {
       users.data = users.data.slice(0, 1);
-      users.meta.last_page = 3;
+      users.meta.last_page = 4;
       users.meta.per_page = 1;
       users.meta.to = 1;
 
@@ -1481,7 +1511,7 @@ describe("Admin users index", function () {
     cy.wait("@usersRequest");
 
     cy.get('[data-test="users-add-button"]').should("not.exist");
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
     cy.get('[data-test="user-item"]')
       .eq(0)
       .within(() => {
@@ -1516,6 +1546,17 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
+
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100");
+        cy.get('[data-test="users-edit-button"]').should("not.exist");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
   });
 
   it("check button visibility with update permission", function () {
@@ -1537,7 +1578,7 @@ describe("Admin users index", function () {
     cy.visit("/admin/users");
 
     cy.get('[data-test="users-add-button"]').should("not.exist");
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
     cy.get('[data-test="user-item"]')
       .eq(0)
       .within(() => {
@@ -1575,6 +1616,19 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
 
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]').should("be.visible");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100/edit");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should(
+          "be.visible",
+        );
+      });
+
     // Check with local users disabled (Reset password button should not be visible)
     cy.intercept("GET", "api/v1/config", { fixture: "config.json" });
 
@@ -1582,7 +1636,7 @@ describe("Admin users index", function () {
 
     cy.get('[data-test="users-add-button"]').should("not.exist");
 
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
     cy.get('[data-test="user-item"]')
       .eq(0)
       .within(() => {
@@ -1614,6 +1668,17 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-edit-button"]')
           .should("be.visible")
           .and("have.attr", "href", "/admin/users/3/edit");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
+
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]').should("be.visible");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100/edit");
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
@@ -1642,7 +1707,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="users-add-button"]')
       .should("be.visible")
       .and("have.attr", "href", "/admin/users/new");
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
     cy.get('[data-test="user-item"]')
       .eq(0)
       .within(() => {
@@ -1684,13 +1749,28 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
 
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100/edit");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should(
+          "be.visible",
+        );
+      });
+
     // Check with local users disabled
     cy.intercept("GET", "api/v1/config", { fixture: "config.json" });
 
     cy.reload();
 
     cy.get('[data-test="users-add-button"]').should("not.exist");
-    cy.get('[data-test="user-item"]').should("have.length", 3);
+    cy.get('[data-test="user-item"]').should("have.length", 4);
     cy.get('[data-test="user-item"]')
       .eq(0)
       .within(() => {
@@ -1729,6 +1809,19 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
+
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100/edit");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
   });
 
   it("check button visibility with delete permission", function () {
@@ -1746,57 +1839,143 @@ describe("Admin users index", function () {
         statusCode: 200,
         body: currentUser,
       });
-
-      cy.visit("/admin/users");
-      cy.wait("@usersRequest");
-
-      cy.get('[data-test="users-add-button"]').should("be.visible");
-      cy.get('[data-test="user-item"]').should("have.length", 3);
-      // Check that delete button for current user does not exist
-      cy.get('[data-test="user-item"]')
-        .eq(0)
-        .within(() => {
-          cy.get('[data-test="users-view-button"]')
-            .should("be.visible")
-            .and("have.attr", "href", "/admin/users/1");
-          cy.get('[data-test="users-edit-button"]')
-            .should("be.visible")
-            .and("have.attr", "href", "/admin/users/1/edit");
-          cy.get('[data-test="users-delete-button"]').should("not.exist");
-          cy.get('[data-test="users-reset-password-button"]').should(
-            "not.exist",
-          );
-        });
-
-      cy.get('[data-test="user-item"]')
-        .eq(1)
-        .within(() => {
-          cy.get('[data-test="users-view-button"]')
-            .should("be.visible")
-            .and("have.attr", "href", "/admin/users/2");
-          cy.get('[data-test="users-edit-button"]')
-            .should("be.visible")
-            .and("have.attr", "href", "/admin/users/2/edit");
-          cy.get('[data-test="users-delete-button"]').should("be.visible");
-          cy.get('[data-test="users-reset-password-button"]').should(
-            "be.visible",
-          );
-        });
-
-      cy.get('[data-test="user-item"]')
-        .eq(2)
-        .within(() => {
-          cy.get('[data-test="users-view-button"]')
-            .should("be.visible")
-            .and("have.attr", "href", "/admin/users/3");
-          cy.get('[data-test="users-edit-button"]')
-            .should("be.visible")
-            .and("have.attr", "href", "/admin/users/3/edit");
-          cy.get('[data-test="users-delete-button"]').should("be.visible");
-          cy.get('[data-test="users-reset-password-button"]').should(
-            "not.exist",
-          );
-        });
     });
+
+    cy.visit("/admin/users");
+    cy.wait("@usersRequest");
+
+    cy.get('[data-test="users-add-button"]').should("be.visible");
+    cy.get('[data-test="user-item"]').should("have.length", 4);
+    // Check that delete button for current user does not exist
+    cy.get('[data-test="user-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/1");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/1/edit");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
+
+    cy.get('[data-test="user-item"]')
+      .eq(1)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/2");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/2/edit");
+        cy.get('[data-test="users-delete-button"]').should("be.visible");
+        cy.get('[data-test="users-reset-password-button"]').should(
+          "be.visible",
+        );
+      });
+
+    cy.get('[data-test="user-item"]')
+      .eq(2)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/3");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/3/edit");
+        cy.get('[data-test="users-delete-button"]').should("be.visible");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100/edit");
+        cy.get('[data-test="users-delete-button"]').should("be.visible");
+        cy.get('[data-test="users-reset-password-button"]').should(
+          "be.visible",
+        );
+      });
+  });
+
+  it("check button visibility for user that is no superuser", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.superuser = false;
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.delete",
+        "users.update",
+        "users.create",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users");
+    cy.wait("@usersRequest");
+
+    cy.get('[data-test="users-add-button"]').should("be.visible");
+    cy.get('[data-test="user-item"]').should("have.length", 4);
+    // Check that delete button for current user does not exist
+    cy.get('[data-test="user-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/1");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/1/edit");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
+
+    cy.get('[data-test="user-item"]')
+      .eq(1)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/2");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/2/edit");
+        cy.get('[data-test="users-delete-button"]').should("be.visible");
+        cy.get('[data-test="users-reset-password-button"]').should(
+          "be.visible",
+        );
+      });
+
+    cy.get('[data-test="user-item"]')
+      .eq(2)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/3");
+        cy.get('[data-test="users-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/3/edit");
+        cy.get('[data-test="users-delete-button"]').should("be.visible");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
+    cy.get('[data-test="user-item"]')
+      .eq(3)
+      .within(() => {
+        cy.get('[data-test="users-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/users/100");
+        cy.get('[data-test="users-edit-button"]').should("not.exist");
+        cy.get('[data-test="users-delete-button"]').should("not.exist");
+        cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
   });
 });

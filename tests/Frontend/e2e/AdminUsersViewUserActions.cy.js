@@ -484,7 +484,7 @@ describe("Admin users view user actions", function () {
         .should("be.visible");
       cy.get('[data-test="role-chip"]')
         .eq(2)
-        .should("include.text", "Admin")
+        .should("include.text", "Superuser")
         .find('[data-test="remove-role-button"]')
         .should("be.visible");
     });

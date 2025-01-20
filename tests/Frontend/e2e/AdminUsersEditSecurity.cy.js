@@ -150,16 +150,24 @@ describe("Admin users edit email", function () {
     cy.get(".multiselect__option").should("have.length", 5);
     cy.get(".multiselect__option")
       .eq(0)
-      .should("include.text", "Admin")
-      .and("be.visible");
+      .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("be.visible")
+      .and("not.have.class", "multiselect__option--disabled");
     cy.get(".multiselect__option")
       .eq(1)
       .should("include.text", "Staff")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
       .and("be.visible")
+      .and("not.have.class", "multiselect__option--disabled")
       .and("have.class", "multiselect__option--selected");
     cy.get(".multiselect__option")
       .eq(2)
       .should("include.text", "Students")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("include.text", "admin.roles.automatic")
       .and("be.visible")
       .and("have.class", "multiselect__option--disabled");
     cy.get(".multiselect__option")
@@ -173,6 +181,7 @@ describe("Admin users edit email", function () {
       .eq(4)
       .should("include.text", "admin.roles.no_data")
       .and("not.be.visible");
+    cy.get(".multiselect__option").eq(0).click();
 
     // Switch to next page
     const userRoleRequest = interceptIndefinitely(
@@ -263,14 +272,23 @@ describe("Admin users edit email", function () {
     cy.get(".multiselect__option")
       .eq(0)
       .should("include.text", "Dean")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("not.have.class", "multiselect__option--disabled")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)
       .should("include.text", "Faculty")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("not.have.class", "multiselect__option--disabled")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(2)
       .should("include.text", "Manager")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("not.have.class", "multiselect__option--disabled")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(3)
@@ -291,7 +309,7 @@ describe("Admin users edit email", function () {
     // Check that roles are shown correctly and remove one role
     cy.get(".multiselect__content").should("be.visible");
     cy.get('[data-test="role-dropdown"]').within(() => {
-      cy.get('[data-test="role-chip"]').should("have.length", 4);
+      cy.get('[data-test="role-chip"]').should("have.length", 5);
       cy.get('[data-test="role-chip"]')
         .eq(0)
         .should("include.text", "Students")
@@ -305,12 +323,17 @@ describe("Admin users edit email", function () {
         .should("be.visible");
       cy.get('[data-test="role-chip"]')
         .eq(2)
+        .should("include.text", "Superuser")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+      cy.get('[data-test="role-chip"]')
+        .eq(3)
         .should("include.text", "Dean")
         .find('[data-test="remove-role-button"]')
         .should("be.visible");
 
       cy.get('[data-test="role-chip"]')
-        .eq(3)
+        .eq(4)
         .should("include.text", "Manager")
         .find('[data-test="remove-role-button"]')
         .should("be.visible");
@@ -327,9 +350,10 @@ describe("Admin users edit email", function () {
     // Save new roles
     cy.fixture("userDataUser").then((user) => {
       user.data.roles = [
-        { id: 3, name: "Students", automatic: true },
-        { id: 4, name: "Dean", automatic: false },
-        { id: 6, name: "Manager", automatic: false },
+        { id: 1, name: "Superuser", automatic: false, superuser: true },
+        { id: 3, name: "Students", automatic: true, superuser: false },
+        { id: 4, name: "Dean", automatic: false, superuser: false },
+        { id: 6, name: "Manager", automatic: false, superuser: false },
       ];
 
       const saveChangesRequest = interceptIndefinitely(
@@ -365,7 +389,7 @@ describe("Admin users edit email", function () {
 
     cy.wait("@saveChangesRequest").then((interception) => {
       expect(interception.request.body).to.deep.include({
-        roles: [3, 4, 6],
+        roles: [3, 1, 4, 6],
       });
     });
 
@@ -374,6 +398,69 @@ describe("Admin users edit email", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
+  });
+
+  it("check that superuser role is disabled for users that are not superusers", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.superuser = false;
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.update",
+        "users.create",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="security-tab-button"]').click();
+
+    cy.get('[data-test="role-dropdown"]').click();
+
+    // Check if correct options are shown
+    cy.get(".multiselect__content").should("be.visible");
+    cy.get(".multiselect__option").should("have.length", 5);
+    cy.get(".multiselect__option")
+      .eq(0)
+      .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("be.visible")
+      .and("have.class", "multiselect__option--disabled");
+    cy.get(".multiselect__option")
+      .eq(1)
+      .should("include.text", "Staff")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("be.visible")
+      .and("not.have.class", "multiselect__option--disabled")
+      .and("have.class", "multiselect__option--selected");
+    cy.get(".multiselect__option")
+      .eq(2)
+      .should("include.text", "Students")
+      .and("include.text", "admin.roles.automatic")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("be.visible")
+      .and("have.class", "multiselect__option--disabled");
+    cy.get(".multiselect__option")
+      .eq(3)
+      .should(
+        "include.text",
+        "No elements found. Consider changing the search query.",
+      )
+      .and("not.be.visible");
+    cy.get(".multiselect__option")
+      .eq(4)
+      .should("include.text", "admin.roles.no_data")
+      .and("not.be.visible");
   });
 
   it("change role errors", function () {

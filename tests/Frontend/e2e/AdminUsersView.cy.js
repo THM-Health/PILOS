@@ -371,6 +371,139 @@ describe("Admin users view", function () {
       .and("not.be.disabled");
   });
 
+  it("check button visibility for user that is superuser", function () {
+    // Check when viewing user that is not a superuser
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "users.delete",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/2");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-cancel-edit-button"]').should("not.exist");
+    cy.get('[data-test="users-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.edit")
+      .and("have.attr", "href", "/admin/users/2/edit");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="users-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
+    // Check when viewing user that is a superuser
+    cy.fixture("userDataUser.json").then((user) => {
+      user.data.superuser = true;
+
+      user.data.roles.push({
+        id: 1,
+        name: "Superuser",
+        automatic: true,
+        superuser: true,
+      });
+
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
+    });
+
+    cy.reload();
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-cancel-edit-button"]').should("not.exist");
+    cy.get('[data-test="users-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.edit")
+      .and("have.attr", "href", "/admin/users/2/edit");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="users-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+  });
+
+  it("check button visibility for user that is no superuser", function () {
+    // Check when viewing user that is not a superuser
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.superuser = false;
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "users.delete",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/2");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-cancel-edit-button"]').should("not.exist");
+    cy.get('[data-test="users-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.edit")
+      .and("have.attr", "href", "/admin/users/2/edit");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="users-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
+    // Check when viewing user that is a superuser
+    cy.fixture("userDataUser.json").then((user) => {
+      user.data.superuser = true;
+
+      user.data.roles.push({
+        id: 1,
+        name: "Superuser",
+        automatic: true,
+        superuser: true,
+      });
+
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
+    });
+
+    cy.reload();
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-cancel-edit-button"]').should("not.exist");
+    cy.get('[data-test="users-edit-button"]').should("not.exist");
+    cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+    cy.get('[data-test="users-delete-button"]').should("not.exist");
+  });
+
   it("open view errors", function () {
     cy.intercept("GET", "api/v1/users/2", {
       statusCode: 500,

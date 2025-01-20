@@ -193,7 +193,7 @@ describe("Admin users new", function () {
     cy.get(".multiselect__option").should("have.length", 5);
     cy.get(".multiselect__option")
       .eq(0)
-      .should("include.text", "Admin")
+      .should("include.text", "Superuser")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)
@@ -393,7 +393,7 @@ describe("Admin users new", function () {
     cy.get(".multiselect__option").should("have.length", 5);
     cy.get(".multiselect__option")
       .eq(0)
-      .should("include.text", "Admin")
+      .should("include.text", "Superuser")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)
@@ -829,6 +829,65 @@ describe("Admin users new", function () {
     cy.url().should("include", "/login?redirect=/admin/users/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("check that superuser role is disabled for users that are not superusers", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.superuser = false;
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.update",
+        "users.create",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/new");
+
+    cy.get('[data-test="role-dropdown"]').click();
+
+    // Check if correct options are shown
+    cy.get(".multiselect__content").should("be.visible");
+    cy.get(".multiselect__option").should("have.length", 5);
+    cy.get(".multiselect__option")
+      .eq(0)
+      .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("be.visible")
+      .and("have.class", "multiselect__option--disabled");
+    cy.get(".multiselect__option")
+      .eq(1)
+      .should("include.text", "Staff")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("be.visible")
+      .and("not.have.class", "multiselect__option--disabled")
+      .and("not.have.class", "multiselect__option--selected");
+    cy.get(".multiselect__option")
+      .eq(2)
+      .should("include.text", "Students")
+      .and("not.include.text", "admin.roles.automatic")
+      .and("not.include.text", "admin.roles.superuser")
+      .and("be.visible")
+      .and("not.have.class", "multiselect__option--disabled");
+    cy.get(".multiselect__option")
+      .eq(3)
+      .should(
+        "include.text",
+        "No elements found. Consider changing the search query.",
+      )
+      .and("not.be.visible");
+    cy.get(".multiselect__option")
+      .eq(4)
+      .should("include.text", "admin.roles.no_data")
+      .and("not.be.visible");
   });
 
   it("load roles errors", function () {
