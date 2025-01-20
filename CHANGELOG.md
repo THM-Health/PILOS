@@ -21,12 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real-time input validation on create superuser command ([#1651])
 - Error handling in room statistics ([#1535], [#1600])
 - Error handling in room attendance ([#1535], [#1600])
+- Improve frontend tests for login page ([#1794])
 
 ### Fixed
 
 - Wrong error message shown for 422 errors when verifying email ([#1744], [#1758])
 - Broken banner link style 'warning' ([#1759], [#1760])
 - Inconsistent select/multiselect loading states ([#1772])
+- Input fields not disabled correctly on login page ([#1791], [#1794])
 
 ## [v4.2.0] - 2025-01-06
 
@@ -344,6 +346,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1759]: https://github.com/THM-Health/PILOS/issues/1759
 [#1760]: https://github.com/THM-Health/PILOS/pull/1760
 [#1772]: https://github.com/THM-Health/PILOS/pull/1772
+[#1791]: https://github.com/THM-Health/PILOS/issues/1791
+[#1794]: https://github.com/THM-Health/PILOS/pull/1794
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
