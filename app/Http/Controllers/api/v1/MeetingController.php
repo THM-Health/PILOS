@@ -79,7 +79,7 @@ class MeetingController extends Controller
             'desc' => 'DESC',
             default => 'ASC',
         };
-        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder)->orderBy('meetings.id');
 
         // Respond with paginated result
         $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);

@@ -53,7 +53,7 @@ class RoomTokenController extends Controller
         }
 
         // Get all tokens of the room and sort them
-        $resource = $room->tokens()->orderByRaw($sortQuery);
+        $resource = $room->tokens()->orderByRaw($sortQuery)->orderBy('room_tokens.token');
 
         // count all before applying filters
         $additional['meta']['total_no_filter'] = $resource->count();

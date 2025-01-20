@@ -41,7 +41,7 @@ class RecordingController extends Controller
         };
 
         // Get all recordings of the room
-        $resource = $room->recordings()->with('formats')->has('formats')->orderByRaw($sortBy.' '.$sortOrder);
+        $resource = $room->recordings()->with('formats')->has('formats')->orderByRaw($sortBy.' '.$sortOrder)->orderBy('recordings.id');
 
         // If user is not allowed to view all recordings, only query recordings that should be visible to the user
         if (! \Gate::allows('viewAllRecordings', $room)) {
