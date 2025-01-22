@@ -7,6 +7,7 @@
         <InputText
           :id="`${props.id}-username`"
           v-model="username"
+          :disabled="props.loading"
           type="text"
           autocomplete="username"
           :placeholder="props.usernameLabel"
@@ -34,6 +35,7 @@
           toggle-mask
           required
           fluid
+          :disabled="props.loading"
           :placeholder="props.passwordLabel"
           :state="
             props.errors !== null &&

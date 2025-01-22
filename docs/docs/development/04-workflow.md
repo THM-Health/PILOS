@@ -27,26 +27,10 @@ existing issue, the pull request will be checked by a maintainer of this reposit
 
 A new development shouldn't decrease the code testing coverage. Everything in the application must be covered by
 appropriate unit and feature tests, depending on the case. In case of bugfixes a test, that fails in the appropriate
-case should be implemented, to make regression tests possible for further changes in the application. For the backend the
-api can be tested by using feature tests and other functions just with unit tests. For more information about tests
-checkout the [Laravel testing guides](https://laravel.com/docs/11.x/testing).
+case should be implemented, to make regression tests possible for further changes in the application.
 
-To run the integration tests against a real BigBlueButton server you need to set the test server in
-the `.env` file:
-
-```bash
-BBB_TEST_SERVER_HOST=https://your-bbb-server.com/bigbluebutton/
-BBB_TEST_SERVER_SECRET=your-secret
-```
-
-### Frontend
-
-Since the refactoring of the frontend to Vue 3 and PrimeVue, the frontend tests are still a work in progress.
-We have started adding some basic [Cypress](https://www.cypress.io) tests, but they are currently incomplete, and code coverage is not yet implemented.
-The old Vitest tests have been removed. If you need to reference them, please check the old branches.
-
-If you have experience with Cypress and would like to contribute,
-your help is welcome! Please feel free to create a PR.
+Please have a look into the [Testing](./07-testing.md) documentation to learn more about the testing strategies
+and how to run the tests.
 
 ## Submit changes
 

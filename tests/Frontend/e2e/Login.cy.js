@@ -58,6 +58,10 @@ describe("Login", function () {
       cy.interceptRoomIndexRequests();
 
       cy.get("button").should("have.text", "auth.login").click();
+      // Check loading
+      cy.get("#ldap-username").should("be.disabled");
+      cy.get("#ldap-password").should("be.disabled");
+
       // Check if button is disabled after being clicked and loading and send response
       cy.get("button")
         .should("be.disabled")
@@ -212,6 +216,10 @@ describe("Login", function () {
         .should("have.text", "auth.login")
         .click();
 
+      // Check loading
+      cy.get("#local-email").should("be.disabled");
+      cy.get("#local-password").should("be.disabled");
+
       // Check if button is disabled after being clicked and loading and send response
       cy.get('[data-test="login-button"]')
         .should("be.disabled")
@@ -332,7 +340,7 @@ describe("Login", function () {
     cy.url().should("include", "/admin").and("not.include", "/login");
   });
 
-  it("login errors", function () {
+  it("local login errors", function () {
     // Intercept config request to only show local login tab
     cy.fixture("config.json").then((config) => {
       config.data.auth.local = true;
@@ -364,7 +372,35 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check if error gets displayed
-    cy.contains("Password or Email wrong!").should("be.visible");
+    cy.get('[data-test="email-field"]')
+      .should("be.visible")
+      .and("include.text", "Password or Email wrong!");
+
+    // Check with different 422 error
+    cy.intercept("POST", "api/v1/login/local", {
+      statusCode: 422,
+      body: {
+        errors: {
+          password: ["The Password field is required."],
+        },
+      },
+    }).as("loginRequest");
+
+    cy.get('[data-test="login-tab-local"]').within(() => {
+      cy.get('[data-test="login-button"]').click();
+    });
+
+    cy.wait("@loginRequest");
+
+    // Check that previous error message is hidden
+    cy.get('[data-test="email-field"]')
+      .should("be.visible")
+      .and("not.include.text", "Password or Email wrong!");
+
+    // Check if error gets displayed
+    cy.get('[data-test="password-field"]')
+      .should("be.visible")
+      .and("include.text", "The Password field is required.");
 
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/local", {
@@ -386,8 +422,9 @@ describe("Login", function () {
     cy.contains("Too many logins. Please try again later!").should(
       "be.visible",
     );
-    // Check that 422 error message is hidden
+    // Check that 422 error messages are hidden
     cy.contains("Password or Email wrong!").should("not.exist");
+    cy.contains("The Password field is required.").should("not.exist");
 
     // Other api errors
     cy.intercept("POST", "api/v1/login/local", {
@@ -415,6 +452,135 @@ describe("Login", function () {
     }).as("loginRequest");
 
     cy.get('[data-test="login-tab-local"]').within(() => {
+      cy.get('[data-test="login-button"]').click();
+    });
+    cy.wait("@loginRequest");
+
+    cy.checkToastMessage("app.flash.guests_only");
+    cy.url().should("not.include", "/login");
+  });
+
+  it("ldap login errors", function () {
+    // Intercept config request to only show ldap login tab
+    cy.fixture("config.json").then((config) => {
+      config.data.auth.ldap = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    // Intercept csrf-cookie request to set defined cookie that can be checked later
+    cy.intercept("GET", "/sanctum/csrf-cookie", {
+      statusCode: 200,
+      headers: {
+        "Set-Cookie": "XSRF-TOKEN=test-csrf; Path=/",
+      },
+    }).as("cookieRequest");
+
+    // Unprocessable entity error
+    cy.intercept("POST", "api/v1/login/ldap", {
+      statusCode: 422,
+      body: {
+        errors: {
+          username: ["These credentials do not match our records."],
+        },
+      },
+    }).as("loginRequest");
+
+    cy.visit("/login");
+
+    cy.get('[data-test="login-tab-ldap"]').within(() => {
+      cy.get("#ldap-username").type("user");
+      cy.get("#ldap-password").type("password");
+      cy.get('[data-test="login-button"]').click();
+    });
+
+    cy.wait("@loginRequest");
+
+    // Check if error gets displayed
+    cy.get('[data-test="username-field"]')
+      .should("be.visible")
+      .and("include.text", "These credentials do not match our records.");
+
+    // Check with different error
+    cy.intercept("POST", "api/v1/login/ldap", {
+      statusCode: 422,
+      body: {
+        errors: {
+          password: ["The Password field is required."],
+        },
+      },
+    }).as("loginRequest");
+
+    cy.get('[data-test="login-tab-ldap"]').within(() => {
+      cy.get('[data-test="login-button"]').click();
+    });
+
+    cy.wait("@loginRequest");
+
+    // Check that previous error message is hidden
+    cy.get('[data-test="username-field"]')
+      .should("be.visible")
+      .and("not.include.text", "These credentials do not match our records.");
+
+    // Check if error gets displayed
+    cy.get('[data-test="password-field"]')
+      .should("be.visible")
+      .and("include.text", "The Password field is required.");
+
+    // Error for to many login requests gets displayed
+    cy.intercept("POST", "api/v1/login/ldap", {
+      statusCode: 429,
+      body: {
+        errors: {
+          username: ["Too many logins. Please try again later!"],
+        },
+      },
+    }).as("loginRequest");
+
+    cy.get('[data-test="login-tab-ldap"]').within(() => {
+      cy.get('[data-test="login-button"]').click();
+    });
+
+    cy.wait("@loginRequest");
+
+    // Check if error gets displayed
+    cy.contains("Too many logins. Please try again later!").should(
+      "be.visible",
+    );
+    // Check that 422 error messages are hidden
+    cy.contains("These credentials do not match our records.").should(
+      "not.exist",
+    );
+    cy.contains("The Password field is required.").should("not.exist");
+
+    // Other api errors
+    cy.intercept("POST", "api/v1/login/ldap", {
+      statusCode: 500,
+    }).as("loginRequest");
+
+    cy.get('[data-test="login-tab-ldap"]').within(() => {
+      cy.get('[data-test="login-button"]').click();
+    });
+
+    cy.wait("@loginRequest");
+
+    // Check that other error messages are hidden
+    cy.contains("Too many logins. Please try again later!").should("not.exist");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      "app.flash.server_error.empty_message",
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Intercept login request with different error
+    cy.intercept("POST", "api/v1/login/ldap", {
+      statusCode: 420,
+    }).as("loginRequest");
+
+    cy.get('[data-test="login-tab-ldap"]').within(() => {
       cy.get('[data-test="login-button"]').click();
     });
     cy.wait("@loginRequest");

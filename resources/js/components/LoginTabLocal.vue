@@ -8,6 +8,7 @@
           :id="`${props.id}-email`"
           v-model="email"
           type="text"
+          :disabled="props.loading"
           autocomplete="email"
           :placeholder="props.emailLabel"
           aria-describedby="email-help-block"
@@ -31,6 +32,7 @@
           toggle-mask
           required
           fluid
+          :disabled="props.loading"
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
           :state="
