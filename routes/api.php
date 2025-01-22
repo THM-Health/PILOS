@@ -142,6 +142,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
 
+    Route::post('rooms/{room}/auth', [RoomController::class, 'authenticate'])->name('rooms.authenticate');
+
     Route::middleware('room.authenticate')->scopeBindings()->group(function () {
         Route::post('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
         Route::post('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');

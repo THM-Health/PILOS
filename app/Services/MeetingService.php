@@ -520,6 +520,8 @@ class MeetingService
             $joinMeetingParams->addUserData('bbb_custom_style_url', app(BigBlueButtonSettings::class)->style);
         }
 
+        // TODO BBB 3.0; add custom logoutUrl for each user to preserve accessCode or token
+
         return $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
     }
 }

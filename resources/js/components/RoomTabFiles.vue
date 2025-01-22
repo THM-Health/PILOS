@@ -11,12 +11,12 @@
       }"
     >
       <Accordion
-        :value="showTermsOfUse"
+        :value="termsOfUseActiveTab"
         expand-icon="fa-solid fa-plus"
         collapse-icon="fa-solid fa-minus"
-        @update:value="showTermsOfUse = $event"
+        @update:value="(tab: string) => (termsOfUseActiveTab = tab)"
       >
-        <AccordionPanel :value="true" class="border-0">
+        <AccordionPanel value="termsOfUse" class="border-0">
           <AccordionHeader class="bg-transparent p-0 pr-2 text-blue-600">
             {{ $t("rooms.files.terms_of_use.title") }}
           </AccordionHeader>
@@ -32,7 +32,10 @@
                 v-model="downloadAgreement"
                 input-id="terms_of_use"
                 :binary="true"
-                @update:model-value="(checked) => (showTermsOfUse = !checked)"
+                @update:model-value="
+                  (checked) =>
+                    (termsOfUseActiveTab = checked ? null : 'termsOfUse')
+                "
               />
               <label for="terms_of_use" class="ml-2">{{
                 $t("rooms.files.terms_of_use.accept")
@@ -256,17 +259,12 @@
                   class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
                   <RoomTabFilesViewButton
-                    :room-id="props.room.id"
-                    :file-id="item.id"
+                    :url="item.url"
                     :token="props.token"
-                    :access-code="props.accessCode"
                     :disabled="isBusy"
                     :require-terms-of-use-acceptance="
                       !downloadAgreement && requireAgreement
                     "
-                    @not-found="loadData()"
-                    @invalid-code="emit('invalidCode')"
-                    @invalid-token="emit('invalidToken')"
                   />
                   <RoomTabFilesEditButton
                     v-if="userPermissions.can('manageSettings', props.room)"
@@ -298,7 +296,7 @@
     </OverlayComponent>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import env from "../env.js";
 import { computed, onMounted, ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -307,23 +305,16 @@ import { usePaginator } from "../composables/usePaginator.js";
 import { useI18n } from "vue-i18n";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 import { useSettingsStore } from "../stores/settings.js";
+import { RoomGuestAuthenticationToken } from "../types/RoomGuestAuthenticationToken";
 
-const props = defineProps({
-  room: {
-    type: Object,
-    required: true,
-  },
-  accessCode: {
-    type: Number,
-    default: null,
-  },
-  token: {
-    type: String,
-    default: null,
-  },
-});
+interface Props {
+  room: Room;
+  token?: RoomGuestAuthenticationToken;
+}
 
-const emit = defineEmits(["invalidCode", "invalidToken"]);
+const props = defineProps<Props>();
+
+const emit = defineEmits(["invalidToken"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -337,7 +328,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const sortField = ref("uploaded");
 const sortOrder = ref(0);
-const showTermsOfUse = ref(true);
+const termsOfUseActiveTab = ref("termsOfUse");
 
 const search = ref("");
 const filter = ref("all");
@@ -383,14 +374,9 @@ function loadData(page = null) {
       sort_direction: sortOrder.value === 1 ? "asc" : "desc",
       search: search.value === "" ? null : search.value,
       filter: filter.value === "all" ? null : filter.value,
+      auth_token: props.token?.id,
     },
   };
-
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
-  }
 
   api
     .call("rooms/" + props.room.id + "/files", config)
@@ -411,7 +397,7 @@ function loadData(page = null) {
           error.response.status === env.HTTP_UNAUTHORIZED &&
           error.response.data.message === "invalid_code"
         ) {
-          return emit("invalidCode");
+          return emit("invalidToken");
         }
 
         // Room token is invalid
@@ -427,7 +413,7 @@ function loadData(page = null) {
           error.response.status === env.HTTP_FORBIDDEN &&
           error.response.data.message === "require_code"
         ) {
-          return emit("invalidCode");
+          return emit("invalidToken");
         }
       }
       api.error(error, { redirectOnUnauthenticated: false });

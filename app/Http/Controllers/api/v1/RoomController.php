@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomGuestAuthenticationTokenType;
 use App\Enums\RoomSortingType;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\JoinMeeting;
+use App\Http\Requests\RoomAuthenticationRequest;
 use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartMeeting;
 use App\Http\Requests\TransferOwnershipRequest;
@@ -16,6 +18,8 @@ use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Models\Room;
+use App\Models\RoomGuestAuthenticationToken;
+use App\Models\RoomToken;
 use App\Models\RoomType;
 use App\Models\User;
 use App\Services\RoomAuthService;
@@ -27,6 +31,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Log;
 
 class RoomController extends Controller
@@ -395,5 +400,73 @@ class RoomController extends Controller
 
             return abort(500);
         }
+    }
+
+    public function authenticate(Room $room, RoomAuthenticationRequest $request)
+    {
+        if ($request->type == RoomGuestAuthenticationTokenType::CODE->value) {
+            // Key used to rate limit access code attempts
+            $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
+
+            // Check if rate limit has been reached
+            if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
+                return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
+            }
+
+            $accessCode = $request->code;
+            // check if access code is correct
+            if (is_numeric($accessCode) && $room->access_code == $accessCode) {
+
+                $authToken = RoomGuestAuthenticationToken::firstOrCreate([
+                    'room_id' => $room->id,
+                    'session_id' => $request->session()->getId(),
+                    'type' => RoomGuestAuthenticationTokenType::CODE,
+                    'code' => $accessCode,
+                ]);
+
+                return new \App\Http\Resources\RoomGuestAuthenticationToken($authToken);
+
+            } else {
+                \Illuminate\Support\Facades\Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+
+                // Increment counter for failed access code attempts
+                RateLimiter::increment($rateLimitKey);
+
+                // access code is incorrect
+                abort(401, 'invalid_code');
+            }
+        }
+        if ($request->type == RoomGuestAuthenticationTokenType::TOKEN->value) {
+            if (! Auth::guest()) {
+                abort(403, 'tokens not allowed for authenticated users');
+            }
+
+            $token = RoomToken::where('token', $request->token)->where('room_id', $room->id)->first();
+            if ($token == null) {
+                \Illuminate\Support\Facades\Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                abort(401, 'invalid_token');
+            }
+
+            $token->last_usage = now();
+            $token->save();
+
+            $authToken = RoomGuestAuthenticationToken::firstOrCreate([
+                'room_id' => $room->id,
+                'session_id' => $request->session()->getId(),
+                'type' => RoomGuestAuthenticationTokenType::TOKEN,
+                'room_token_id' => $token->token,
+            ]);
+
+            return new \App\Http\Resources\RoomGuestAuthenticationToken($authToken);
+        }
+    }
+
+    public function tokenInfo(RoomGuestAuthenticationToken $token)
+    {
+        if ($token->session_id != request()->session()->getId()) {
+            abort(404);
+        }
+        dd($token);
+
     }
 }

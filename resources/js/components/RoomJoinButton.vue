@@ -46,7 +46,10 @@
       <div v-if="!isLoadingAction">
         <!-- Ask guests for their first and lastname -->
         <div
-          v-if="!authStore.isAuthenticated && !token"
+          v-if="
+            !authStore.isAuthenticated ||
+            props.token.type === RoomGuestAuthenticationTokenType.Code
+          "
           class="mb-4 flex flex-col gap-2"
         >
           <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
@@ -140,7 +143,7 @@
     </div>
   </Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
 import { useAuthStore } from "../stores/auth.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
@@ -150,44 +153,25 @@ import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
+import { AxiosRequestConfig } from "axios";
+import {
+  RoomGuestAuthenticationTokenType,
+  RoomGuestAuthenticationToken,
+} from "../types/RoomGuestAuthenticationToken";
 
-const props = defineProps({
-  roomId: {
-    type: String,
-    required: true,
-  },
-  canStart: {
-    type: Boolean,
-  },
-  running: {
-    type: Boolean,
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  token: {
-    type: String,
-    default: null,
-  },
-  accessCode: {
-    type: Number,
-    default: null,
-  },
-  recordAttendance: {
-    type: Boolean,
-  },
-  record: {
-    type: Boolean,
-  },
-});
+interface Props {
+  roomId: string;
+  canStart: boolean;
+  running: boolean;
+  disabled: boolean;
+  token?: RoomGuestAuthenticationToken;
+  recordAttendance: boolean;
+  record: boolean;
+}
 
-const emit = defineEmits([
-  "invalidCode",
-  "invalidToken",
-  "guestsNotAllowed",
-  "changed",
-]);
+const props = defineProps<Props>();
+
+const emit = defineEmits(["invalidToken", "guestsNotAllowed", "changed"]);
 
 const authStore = useAuthStore();
 
@@ -225,7 +209,10 @@ async function showModal() {
 }
 
 const autoJoin = computed(() => {
-  if (!authStore.isAuthenticated && !props.token) {
+  if (
+    !authStore.isAuthenticated &&
+    props.token.type === RoomGuestAuthenticationTokenType.Code
+  ) {
     return false;
   }
 
@@ -254,10 +241,13 @@ function getJoinUrl() {
   formErrors.clear();
 
   // Build url, add accessCode and token if needed
-  const config = {
+  const config: AxiosRequestConfig = {
     method: "post",
     data: {
-      name: props.token ? null : name.value,
+      name:
+        props.token.type !== RoomGuestAuthenticationTokenType.Code
+          ? null
+          : name.value,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
@@ -265,9 +255,7 @@ function getJoinUrl() {
   };
 
   if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+    config.data.auth_token = props.token.id;
   }
 
   const url =
@@ -292,7 +280,7 @@ function getJoinUrl() {
           error.response.status === env.HTTP_UNAUTHORIZED &&
           error.response.data.message === "invalid_code"
         ) {
-          emit("invalidCode");
+          emit("invalidToken");
           modalVisible.value = false;
           return;
         }
@@ -302,7 +290,7 @@ function getJoinUrl() {
           error.response.status === env.HTTP_FORBIDDEN &&
           error.response.data.message === "require_code"
         ) {
-          emit("invalidCode");
+          emit("invalidToken");
           modalVisible.value = false;
           return;
         }

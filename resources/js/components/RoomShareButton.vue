@@ -17,50 +17,41 @@
           {{ $t("rooms.invitation.title") }}
         </legend>
         <div class="grow">
-          <IconField icon-position="left">
-            <InputIcon>
+          <InputGroup>
+            <InputGroupAddon>
               <i
                 v-tooltip="$t('rooms.invitation.link')"
                 class="fa-solid fa-link"
                 :aria-label="$t('rooms.invitation.link')"
               />
-            </InputIcon>
+            </InputGroupAddon>
             <InputText
               id="invitationLink"
-              class="w-full text-ellipsis border-surface-0 shadow-none dark:border-surface-900"
               :aria-label="$t('rooms.invitation.link')"
               readonly
               :value="roomUrl"
               @focus="$event.target.select()"
             />
-          </IconField>
-
-          <IconField v-if="room.access_code" icon-position="left">
-            <InputIcon>
-              <i
-                v-tooltip="$t('rooms.invitation.code')"
-                class="fa-solid fa-key"
-                :aria-label="$t('rooms.invitation.code')"
+            <InputGroupAddon>
+              <Button
+                severity="secondary"
+                data-test="room-copy-invitation-link-button"
+                :label="$t('rooms.invitation.copy_link')"
+                icon="fa-solid fa-copy"
+                @click="copyLink"
               />
-            </InputIcon>
-            <InputText
-              id="invitationCode"
-              class="w-full border-surface-0 shadow-none dark:border-surface-900"
-              :aria-label="$t('rooms.invitation.code')"
-              readonly
-              :value="formattedAccessCode"
-              @focus="$event.target.select()"
-            />
-          </IconField>
+            </InputGroupAddon>
+          </InputGroup>
         </div>
+
+        <Button
+          data-test="room-copy-invitation-message-button"
+          :label="$t('rooms.invitation.copy_invitation_message')"
+          icon="fa-solid fa-copy"
+          autofocus
+          @click="copyInvitationText"
+        />
       </fieldset>
-      <Button
-        data-test="room-copy-invitation-button"
-        :label="$t('rooms.invitation.copy')"
-        icon="fa-solid fa-copy"
-        autofocus
-        @click="copyInvitationText"
-      />
     </div>
   </Popover>
 </template>
@@ -89,20 +80,27 @@ const props = defineProps({
 });
 
 function copyInvitationText() {
-  let message =
+  navigator.clipboard.writeText(invitationMessage.value);
+  toast.success(t("rooms.invitation.message_copied"));
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(roomUrl.value);
+  toast.success(t("rooms.invitation.link_copied"));
+}
+
+const invitationMessage = computed(() => {
+  return (
     t("rooms.invitation.room", {
       roomname: props.room.name,
       platform: settingsStore.getSetting("general.name"),
-    }) + "\n";
-  message += t("rooms.invitation.link") + ": " + roomUrl.value;
-  // If room has access code, include access code in the message
-  if (props.room.access_code) {
-    message +=
-      "\n" + t("rooms.invitation.code") + ": " + formattedAccessCode.value;
-  }
-  navigator.clipboard.writeText(message);
-  toast.success(t("rooms.invitation.copied"));
-}
+    }) +
+    "\n" +
+    t("rooms.invitation.link") +
+    ": " +
+    roomUrl.value
+  );
+});
 
 const roomUrl = computed(() => {
   return (
@@ -110,6 +108,9 @@ const roomUrl = computed(() => {
     router.resolve({
       name: "rooms.view",
       params: { id: props.room.id },
+      hash: props.room.access_code
+        ? "#accessCode=" + props.room.access_code
+        : "",
     }).href
   );
 });

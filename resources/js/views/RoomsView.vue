@@ -195,9 +195,7 @@
                     :record-attendance="room.record_attendance"
                     :record="room.record"
                     :can-start="room.can_start"
-                    :token="props.token"
-                    :access-code="accessCode"
-                    @invalid-code="handleInvalidCode"
+                    :token="authToken"
                     @invalid-token="handleInvalidToken"
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
@@ -215,10 +213,8 @@
           </Card>
           <!-- Show room tabs -->
           <RoomTabSection
-            :access-code="accessCode"
-            :token="token"
+            :token="authToken"
             :room="room"
-            @invalid-code="handleInvalidCode"
             @invalid-token="handleInvalidToken"
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
@@ -228,8 +224,13 @@
     </div>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import env from "../env.js";
+import {
+  AxiosResponse,
+  AxiosRequestConfig,
+  RawAxiosRequestHeaders,
+} from "axios";
 import { useAuthStore } from "../stores/auth";
 import { useSettingsStore } from "../stores/settings";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
@@ -242,21 +243,24 @@ import RoomHeader from "../components/RoomHeader.vue";
 import RoomShareButton from "../components/RoomShareButton.vue";
 import EventBus from "../services/EventBus.js";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
+import { useUrlSearchParams } from "@vueuse/core";
+import {
+  RoomGuestAuthenticationToken,
+  RoomGuestAuthenticationTokenType,
+} from "../types/RoomGuestAuthenticationToken";
 
 const props = defineProps({
   id: {
     type: String,
     required: true,
   },
-  token: {
-    type: String,
-    default: null,
-  },
 });
+
+const hashParams = useUrlSearchParams("hash-params");
 
 const reloadInterval = ref(null);
 const loading = ref(false); // Room settings/details loading
-const room = ref(null); // Room object
+const room = ref<Room>(null); // Room object
 const accessCode = ref(null); // Access code to use for requests
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
@@ -264,6 +268,8 @@ const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
 const authThrottledFor = ref(0); // Throttled for authentication (seconds until next try)
+
+const authToken = ref<RoomGuestAuthenticationToken>(null);
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
@@ -275,10 +281,23 @@ const api = useApi();
 
 onMounted(() => {
   // Prevent authenticated users from using a room token
-  if (props.token && authStore.isAuthenticated) {
+  // TODO
+  /*if (props.token && authStore.isAuthenticated) {
     toast.info(t("app.flash.guests_only"));
     router.replace({ name: "home" });
     return;
+  }*/
+
+  if (hashParams.authToken) {
+    authToken.value = JSON.parse(window.atob(getHashParamValue("authToken")));
+  }
+
+  if (hashParams.accessCode) {
+    auth("code", parseInt(getHashParamValue("accessCode")));
+  }
+
+  if (hashParams.token) {
+    auth("token", getHashParamValue("token"));
   }
 
   EventBus.on(EVENT_FORBIDDEN, reload);
@@ -293,6 +312,22 @@ onUnmounted(() => {
 
   clearInterval(reloadInterval.value);
 });
+
+watch(
+  () => hashParams.accessCode,
+  (value) => {
+    if (hashParams.authToken) {
+      return;
+    }
+    auth("code", parseInt(getHashParamValue("accessCode")));
+  },
+);
+
+function getHashParamValue(param) {
+  return Array.isArray(hashParams[param])
+    ? hashParams[param][0]
+    : hashParams[param];
+}
 
 /**
  * Reload room details in a set interval, change in the .env
@@ -345,11 +380,40 @@ function handleInvalidCode() {
  * Reset room due to token error
  */
 function handleInvalidToken() {
+  console.log("Invalid token");
+  console.log(authToken.value);
+
+  if (authToken.value.type == RoomGuestAuthenticationTokenType.Code) {
+    // Show access code is valid
+    accessCodeInvalid.value = true;
+    // Reset access code
+    accessCodeInput.value = null;
+    // Show error message
+    toast.error(t("rooms.flash.access_code_invalid"));
+
+    // Clear token
+    authToken.value = null;
+    hashParams.authToken = null;
+    reload();
+  }
+  if (authToken.value.type == RoomGuestAuthenticationTokenType.Token) {
+    tokenInvalid.value = true;
+    toast.error(t("rooms.flash.token_invalid"));
+
+    // Clear token
+    authToken.value = null;
+    hashParams.authToken = null;
+
+    // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
+    clearInterval(reloadInterval.value);
+  }
+
   // Show error message
-  tokenInvalid.value = true;
-  toast.error(t("rooms.flash.token_invalid"));
-  // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
-  clearInterval(reloadInterval.value);
+  // TODO
+  /*
+
+
+   */
 }
 
 /**
@@ -360,13 +424,9 @@ function load() {
   roomLoading.value = true;
 
   // Build room api url, include access code if set
-  const config = {};
+  const config: AxiosRequestConfig = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { "Access-Code": accessCode.value };
-  }
+  config.params = { auth_token: authToken.value?.id };
 
   const url = "rooms/" + props.id;
 
@@ -393,8 +453,7 @@ function load() {
           error.response.status === env.HTTP_UNAUTHORIZED &&
           error.response.data.message === "invalid_token"
         ) {
-          tokenInvalid.value = true;
-          return;
+          return handleInvalidToken();
         }
 
         // Forbidden, guests not allowed
@@ -424,6 +483,40 @@ watch(authThrottledFor, (value) => {
   }
 });
 
+function auth(type, codeOrToken) {
+  const url = "rooms/" + props.id + "/auth";
+  let data;
+
+  if (type === "code") {
+    data = {
+      type: 0,
+      code: codeOrToken,
+    };
+  } else {
+    data = {
+      type: 1,
+      token: codeOrToken,
+    };
+  }
+
+  // Load data
+  api
+    .call(url, {
+      method: "POST",
+      data: data,
+    })
+    .then((response) => {
+      authToken.value = response.data.data;
+
+      hashParams.authToken = window.btoa(JSON.stringify(authToken.value));
+
+      hashParams.accessCode = null;
+      hashParams.token = null;
+
+      reload();
+    });
+}
+
 /**
  * Reload the room details/settings
  */
@@ -431,13 +524,9 @@ function reload() {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
-  const config = {};
+  const config: AxiosRequestConfig = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { "Access-Code": accessCode.value };
-  }
+  config.params = { auth_token: authToken.value?.id };
 
   const url = "rooms/" + props.id;
 
@@ -519,10 +608,7 @@ function setPageTitle(roomName) {
  * Handle login with access code
  */
 function login() {
-  // Parse to int
-  accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, ""));
-  // Reload the room with an access code
-  reload();
+  auth("code", parseInt(accessCodeInput.value.replace(/[-]/g, "")));
 }
 
 const running = computed(() => {

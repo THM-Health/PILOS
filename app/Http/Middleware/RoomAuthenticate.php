@@ -2,13 +2,13 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\RoomGuestAuthenticationTokenType;
 use App\Models\Room;
-use App\Models\RoomToken;
+use App\Models\RoomGuestAuthenticationToken;
 use App\Services\RoomAuthService;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\RateLimiter;
 
 class RoomAuthenticate
 {
@@ -37,23 +37,35 @@ class RoomAuthenticate
         $authenticated = false;
         $room = $request->route('room');
         $token = null;
+        $authToken = null;
 
         // requested user is the owner or a member of the room
         if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
             $authenticated = true;
         }
 
-        if (! Auth::user() && $request->headers->has('Token')) {
-            $token = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->first();
+        if ($request->has('auth_token')) {
+            $authToken = RoomGuestAuthenticationToken::where('session_id', $request->session()->getId())
+                ->where('room_id', $room->id)
+                ->find($request->get('auth_token'));
 
-            if ($token == null) {
-                Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+            if ($authToken == null) {
                 abort(401, 'invalid_token');
             }
 
-            $token->last_usage = now();
-            $token->save();
-            $authenticated = true;
+            // Validate if token is still valid
+            if ($authToken->type == RoomGuestAuthenticationTokenType::CODE) {
+                if ($authToken->code != $room->access_code) {
+                    $authToken->delete();
+                    abort(401, 'invalid_token');
+                }
+            }
+
+            // Authenticated with token
+            if ($authToken->type == RoomGuestAuthenticationTokenType::TOKEN) {
+                $authenticated = true;
+                $token = $authToken->token;
+            }
         }
 
         // user is not authenticated and room is not allowed for guests
@@ -69,29 +81,11 @@ class RoomAuthenticate
         }
 
         // request provided access code
-        if ($request->headers->has('Access-Code')) {
-
-            // Key used to rate limit access code attempts
-            $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
-
-            // Check if rate limit has been reached
-            if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
-                return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
-            }
-
-            $accessCode = $request->header('Access-Code');
-            // check if access code is correct
-            if (is_numeric($accessCode) && $room->access_code == $accessCode) {
+        if ($authToken) {
+            if ($authToken->type == RoomGuestAuthenticationTokenType::CODE) {
                 $authenticated = true;
-            } else {
-                Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
-
-                // Increment counter for failed access code attempts
-                RateLimiter::increment($rateLimitKey);
-
-                // access code is incorrect
-                abort(401, 'invalid_code');
             }
+
         }
 
         // user is not authenticated and should not continue with the request

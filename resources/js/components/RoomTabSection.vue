@@ -69,9 +69,7 @@
           :is="tab.component"
           v-if="tab.active"
           :room="props.room"
-          :access-code="props.accessCode"
           :token="props.token"
-          @invalid-code="$emit('invalidCode')"
           @invalid-token="$emit('invalidToken')"
           @guests-not-allowed="$emit('guestsNotAllowed')"
           @settings-changed="$emit('settingsChanged')"
@@ -80,7 +78,7 @@
     </template>
   </Card>
 </template>
-<script setup>
+<script setup lang="ts">
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -93,6 +91,7 @@ import RoomTabSettings from "./RoomTabSettings.vue";
 import RoomTabRecordings from "./RoomTabRecordings.vue";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 import { useUrlSearchParams } from "@vueuse/core";
+import { RoomGuestAuthenticationToken } from "../types/RoomGuestAuthenticationToken";
 
 defineEmits([
   "invalidCode",
@@ -101,20 +100,12 @@ defineEmits([
   "settingsChanged",
 ]);
 
-const props = defineProps({
-  room: {
-    type: Object,
-    required: true,
-  },
-  accessCode: {
-    type: Number,
-    default: null,
-  },
-  token: {
-    type: String,
-    default: null,
-  },
-});
+interface Props {
+  room: Room;
+  token?: RoomGuestAuthenticationToken;
+}
+
+const props = defineProps<Props>();
 
 const userPermissions = useUserPermissions();
 const { t } = useI18n();
@@ -126,16 +117,24 @@ const toggle = (event) => {
 };
 
 // Current active tab
-const activeTabKey = ref("");
+const activeTabKey = ref<string>("");
 
 const hashParams = useUrlSearchParams("hash-params");
+
+function getHashParamValue(param) {
+  return Array.isArray(hashParams[param])
+    ? hashParams[param][0]
+    : hashParams[param];
+}
 
 // Initial tab selection
 onMounted(() => {
   // Check if tab selection is saved in URL hash and try to select it if it exists
   if (hashParams.tab) {
-    if (availableTabs.value.find((tab) => tab.key === hashParams.tab)) {
-      activeTabKey.value = hashParams.tab;
+    const hashTab = getHashParamValue("tab");
+
+    if (availableTabs.value.find((tab) => tab.key === hashTab)) {
+      activeTabKey.value = hashTab;
       return;
     }
   }

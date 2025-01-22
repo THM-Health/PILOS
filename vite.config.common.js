@@ -4,6 +4,7 @@ import * as fs from "fs";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { loadEnv } from "vite";
+import checker from "vite-plugin-checker";
 
 export default (mode) => {
   const ENV_PREFIX = ["VITE_"];
@@ -19,6 +20,9 @@ export default (mode) => {
         input: ["resources/js/app.js", "resources/sass/app.scss"],
       }),
       vue(),
+      checker({
+        vueTsc: true,
+      }),
       Components({
         dirs: ["resources/js", "resources/custom/js"],
         allowOverrides: true,
