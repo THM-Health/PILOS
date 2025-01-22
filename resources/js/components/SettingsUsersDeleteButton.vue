@@ -41,6 +41,7 @@
     <template #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
         data-test="dialog-cancel-button"
         @click="modalVisible = false"

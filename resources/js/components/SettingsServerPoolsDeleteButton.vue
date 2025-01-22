@@ -51,6 +51,7 @@
     <template v-if="deleteFailedRoomTypes == null" #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
         data-test="dialog-cancel-button"
         @click="modalVisible = false"

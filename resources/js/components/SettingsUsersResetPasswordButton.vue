@@ -44,6 +44,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
+        :disabled="isBusy"
         data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
