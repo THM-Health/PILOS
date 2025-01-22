@@ -182,7 +182,6 @@ function deleteRoomType() {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
         modalVisible.value = false;
         emit("notFound");
-        return;
       }
       api.error(error);
     })
