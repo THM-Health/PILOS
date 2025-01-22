@@ -21,7 +21,7 @@ describe("User Profile Security", function () {
       .and("include.text", "app.roles")
       .within(() => {
         cy.get('[data-test="role-dropdown"]')
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .should("include.text", "User")
           .should("have.class", "multiselect--disabled");
       });
@@ -193,7 +193,7 @@ describe("User Profile Security", function () {
       .and("include.text", "app.roles")
       .within(() => {
         cy.get('[data-test="role-dropdown"]')
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .should("include.text", "User")
           .should("have.class", "multiselect--disabled");
       });
@@ -256,7 +256,7 @@ describe("User Profile Security", function () {
       .and("include.text", "app.roles")
       .within(() => {
         cy.get('[data-test="role-dropdown"]')
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .should("include.text", "User")
           .should("have.class", "multiselect--disabled");
       });
