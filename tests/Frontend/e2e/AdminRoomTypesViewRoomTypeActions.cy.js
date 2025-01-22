@@ -433,7 +433,7 @@ describe("Admin room types view room type actions", function () {
       roomType.data.roles = [
         {
           id: 1,
-          name: "Admin",
+          name: "Superuser",
         },
         {
           id: 2,
@@ -484,7 +484,7 @@ describe("Admin room types view room type actions", function () {
       cy.get('[data-test="role-chip"]').should("have.length", 2);
       cy.get('[data-test="role-chip"]')
         .eq(0)
-        .should("include.text", "Admin")
+        .should("include.text", "Superuser")
         .find('[data-test="remove-role-button"]')
         .should("be.visible");
 
@@ -684,7 +684,7 @@ describe("Admin room types view room type actions", function () {
         cy.get('[data-test="role-chip"]').should("have.length", 2);
         cy.get('[data-test="role-chip"]')
           .eq(0)
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .find('[data-test="remove-role-button"]')
           .should("not.exist");
 
@@ -854,7 +854,7 @@ describe("Admin room types view room type actions", function () {
         cy.get('[data-test="role-chip"]').should("have.length", 2);
         cy.get('[data-test="role-chip"]')
           .eq(0)
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .find('[data-test="remove-role-button"]')
           .should("be.visible");
 

@@ -762,7 +762,7 @@ describe("Admin room types new", function () {
         cy.get(".multiselect__option").should("have.length", 5);
         cy.get(".multiselect__option")
           .eq(0)
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .and("be.visible");
         cy.get(".multiselect__option")
           .eq(1)
