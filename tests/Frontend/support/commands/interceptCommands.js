@@ -365,3 +365,15 @@ Cypress.Commands.add("interceptAdminSettingsRequest", () => {
 
   cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin roles index page
+ * @memberof cy
+ * @method interceptAdminRolesIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminRolesIndexRequests", () => {
+  cy.intercept("GET", "api/v1/roles*", {
+    fixture: "userRoles.json",
+  }).as("rolesRequest");
+});

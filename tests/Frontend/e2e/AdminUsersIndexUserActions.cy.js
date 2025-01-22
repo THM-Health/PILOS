@@ -65,9 +65,9 @@ describe("Admin users index user actions", function () {
 
     cy.fixture("users.json").then((users) => {
       users.data = users.data.filter((user) => user.id !== 3);
-      users.meta.to = 2;
-      users.meta.total = 2;
-      users.meta.total_no_filter = 2;
+      users.meta.to = 3;
+      users.meta.total = 3;
+      users.meta.total_no_filter = 3;
 
       cy.intercept("GET", "api/v1/users*", {
         statusCode: 200,
