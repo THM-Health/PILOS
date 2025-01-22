@@ -73,6 +73,7 @@
           outlined
           severity="secondary"
           icon="fa-solid fa-sync"
+          data-test="replacement-room-types-reload-button"
           @click="loadReplacementRoomTypes()"
         />
       </InputGroup>
