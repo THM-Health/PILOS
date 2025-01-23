@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Broken banner link style 'warning' ([#1759], [#1760])
 - Inconsistent select/multiselect loading states ([#1772])
 - Input fields not disabled correctly on login page ([#1791], [#1794])
+- Inconsistent result ordering in tables on equal primary sorting criteria ([#1601], [#1795])
 
 ## [v4.2.0] - 2025-01-06
 
@@ -329,6 +330,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1569]: https://github.com/THM-Health/PILOS/pull/1569
 [#1595]: https://github.com/THM-Health/PILOS/pull/1595
 [#1600]: https://github.com/THM-Health/PILOS/pull/1600
+[#1601]: https://github.com/THM-Health/PILOS/issues/1601
 [#1604]: https://github.com/THM-Health/PILOS/pull/1604
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
@@ -348,6 +350,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1772]: https://github.com/THM-Health/PILOS/pull/1772
 [#1791]: https://github.com/THM-Health/PILOS/issues/1791
 [#1794]: https://github.com/THM-Health/PILOS/pull/1794
+[#1795]: https://github.com/THM-Health/PILOS/pull/1795
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
