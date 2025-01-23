@@ -5,6 +5,7 @@
     :disabled="isBusy"
     severity="danger"
     icon="fa-solid fa-trash"
+    data-test="room-types-delete-button"
     @click="showModal"
   />
 
@@ -18,18 +19,20 @@
     :dismissable-mask="!isBusy"
     :closeable="!isBusy"
     :draggable="false"
+    data-test="room-types-delete-dialog"
   >
     <span>
       {{ $t("admin.room_types.delete.confirm", { name: props.name }) }}
     </span>
     <Divider />
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2" data-test="replacement-room-type-field">
       <label for="replacement-room-type">{{
         $t("admin.room_types.delete.replacement")
       }}</label>
       <Select
         id="replacement-room-type"
         v-model.number="replacement"
+        data-test="replacement-room-type-dropdown"
         autofocus
         :disabled="isBusy || loadingRoomTypes"
         :loading="loadingRoomTypes"
@@ -42,15 +45,21 @@
         option-label="text"
         aria-describedby="replacement-help"
         show-clear
+        :pt="{
+          listContainer: {
+            'data-test': 'replacement-room-type-dropdown-items',
+          },
+          option: {
+            'data-test': 'replacement-room-type-dropdown-option',
+          },
+        }"
       >
         <template #clearicon="{ clearCallback }">
-          <span
-            class="p-dropdown-clear"
+          <i
+            class="fa-solid fa-times p-icon p-select-clear-icon"
             role="button"
             @click.stop="clearCallback"
-          >
-            <i class="fa-solid fa-times" />
-          </span>
+          />
         </template>
       </Select>
       <FormError :errors="formErrors.fieldError('replacement_room_type')" />
