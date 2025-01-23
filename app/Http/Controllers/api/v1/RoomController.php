@@ -134,10 +134,13 @@ class RoomController extends Controller
         }
         // sort rooms by different strategies
         $collection = match ($request->sort_by) {
-            RoomSortingType::ALPHA->value => $collection->orderByRaw('LOWER(rooms.name)')->orderBy('id'),
-            RoomSortingType::ROOM_TYPE->value => $collection->orderByRaw('LOWER(room_types.name)')->orderByRaw('LOWER(rooms.name)')->orderBy('id'),
-            default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderByRaw('LOWER(rooms.name)')->orderBy('id'),
+            RoomSortingType::ALPHA->value => $collection->orderByRaw('LOWER(rooms.name)'),
+            RoomSortingType::ROOM_TYPE->value => $collection->orderByRaw('LOWER(room_types.name)')->orderByRaw('LOWER(rooms.name)'),
+            default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderByRaw('LOWER(rooms.name)'),
         };
+
+        // Add secondary sort by id to ensure consistent ordering
+        $collection = $collection->orderBy('id');
 
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
