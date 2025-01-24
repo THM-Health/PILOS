@@ -1,8 +1,6 @@
-import {
-  _arrayBufferToBase64,
-  parseFormData,
-} from "../support/utils/formData.js";
+import { parseFormData } from "../support/utils/formData.js";
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
 
 describe("Rooms view files file actions", function () {
   beforeEach(function () {

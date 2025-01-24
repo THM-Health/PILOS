@@ -383,7 +383,7 @@ describe("Admin server pools new", function () {
     });
 
     // Close dialog
-    cy.get(".multiselect__select").click({ force: true });
+    cy.get(".multiselect__select").click({ force: true }); // ToDo remove force when possible
 
     // Check that dialog is closed
     cy.get(".multiselect__content").should("not.be.visible");

@@ -1,5 +1,7 @@
-import { _arrayBufferToBase64 } from "../utils/formData.js";
-import { getFileContentType } from "../utils/fileHelper.js";
+import {
+  _arrayBufferToBase64,
+  getFileContentType,
+} from "../utils/fileHelper.js";
 
 /**
  * Checks if the image file upload works correctly

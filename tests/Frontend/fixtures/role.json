@@ -1,0 +1,19 @@
+{
+  "data": {
+    "id": 2,
+    "name": "Staff",
+    "superuser": false,
+    "updated_at": "2025-01-23T18:50:24.000000Z",
+    "permissions": [
+      { "id": 3, "name": "rooms.create" },
+      { "id": 4, "name": "rooms.viewAll" },
+      { "id": 6, "name": "meetings.viewAny" },
+      { "id": 15, "name": "users.viewAny" },
+      { "id": 22, "name": "roomTypes.update" },
+      { "id": 23, "name": "roomTypes.create" },
+      { "id": 24, "name": "roomTypes.delete" }
+    ],
+    "model_name": "Role",
+    "room_limit": null
+  }
+}

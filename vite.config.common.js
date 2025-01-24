@@ -49,7 +49,6 @@ export default (mode) => {
       hmr: {
         host: VITE_HMR_HOST,
       },
-      cors: true,
     },
     optimizeDeps: {
       include: ["axe-core"],

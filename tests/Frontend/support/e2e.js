@@ -18,6 +18,7 @@ import "./commands/roomCommands.js";
 import "./commands/interceptCommands.js";
 import "./commands/adminRoomTypesCommands.js";
 import "./commands/adminSettingsCommands.js";
+import "./commands/adminRolesCommands.js";
 import "@cypress/code-coverage/support";
 
 Cypress.on("uncaught:exception", (err) => {
