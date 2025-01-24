@@ -377,3 +377,31 @@ Cypress.Commands.add("interceptAdminRolesIndexRequests", () => {
     fixture: "userRoles.json",
   }).as("rolesRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin roles view page
+ * @memberof cy
+ * @method interceptAdminRolesViewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminRolesViewRequests", () => {
+  cy.intercept("GET", "api/v1/roles/2", {
+    fixture: "role.json",
+  }).as("roleRequest");
+
+  cy.intercept("GET", "api/v1/permissions", {
+    fixture: "permissions.json",
+  }).as("permissionsRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin roles new page
+ * @memberof cy
+ * @method interceptAdminRolesNewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminRolesNewRequests", () => {
+  cy.intercept("GET", "api/v1/permissions", {
+    fixture: "permissions.json",
+  }).as("permissionsRequest");
+});

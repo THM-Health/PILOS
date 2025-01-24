@@ -10,6 +10,7 @@
           :to="{ name: 'admin.roles.view', params: { id: model.id } }"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
+          data-test="roles-cancel-edit-button"
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
@@ -19,6 +20,7 @@
           :to="{ name: 'admin.roles.edit', params: { id: model.id } }"
           :label="$t('app.edit')"
           icon="fa-solid fa-edit"
+          data-test="roles-edit-button"
         />
         <SettingsRolesDeleteButton
           v-if="userPermissions.can('delete', model)"
@@ -30,7 +32,7 @@
     </div>
 
     <OverlayComponent :show="isBusy || modelLoadingError">
-      <template #loading>
+      <template #overlay>
         <LoadingRetryButton
           :error="modelLoadingError"
           @reload="load()"
@@ -42,7 +44,7 @@
         class="flex flex-col gap-4"
         @submit.prevent="saveRole"
       >
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4">{{
             $t("app.model_name")
           }}</label>
@@ -59,7 +61,7 @@
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="room-limit-field">
           <label for="room-limit" class="col-span-12 items-start md:col-span-4">
             <span class="flex items-center">
               {{ $t("app.room_limit") }}
@@ -68,6 +70,7 @@
                 class="secondary"
                 :disabled="isBusy || modelLoadingError"
                 icon="fa-solid fa-circle-info"
+                data-test="roles-room-limit-help-button"
                 @click="helpRoomLimitModalVisible = true"
               />
             </span>
@@ -77,6 +80,7 @@
               v-for="option in roomLimitModeOptions"
               :key="option.value"
               class="mb-2"
+              :data-test="'room-limit-mode-' + option.value + '-field'"
             >
               <RadioButton
                 v-model="roomLimitMode"
@@ -107,6 +111,7 @@
         <div
           v-if="!isBusy && Object.keys(permissions).length > 0"
           class="grid grid-cols-12 gap-4"
+          data-test="permission-list"
         >
           <div class="col-span-8">
             <b>{{ $t("admin.roles.permission_name") }}</b>
@@ -128,6 +133,7 @@
               v-for="key in Object.keys(permissions)"
               :key="key"
               class="grid grid-cols-12"
+              data-test="permission-category"
             >
               <div class="col-span-12">
                 <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
@@ -137,6 +143,7 @@
                   v-for="permission in permissions[key]"
                   :key="permission.id"
                   class="grid grid-cols-12 gap-4"
+                  data-test="permission-group"
                 >
                   <div class="col-span-8">
                     <label :for="permission.name">{{
@@ -174,6 +181,7 @@
                         })
                       "
                       class="fa-solid fa-check-circle text-green-500"
+                      data-test="permission-included-icon"
                     />
                     <i
                       v-else
@@ -185,6 +193,7 @@
                         })
                       "
                       class="fa-solid fa-minus-circle text-red-500"
+                      data-test="permission-not-included-icon"
                     />
                   </div>
                 </div>
@@ -207,6 +216,7 @@
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
+              data-test="roles-save-button"
             />
           </div>
         </div>
@@ -224,6 +234,14 @@
       dismissable-mask
       :draggable="false"
       :header="$t('app.room_limit')"
+      data-test="roles-room-limit-help-dialog"
+      :pt="{
+        pcCloseButton: {
+          root: {
+            'data-test': 'dialog-header-close-button',
+          },
+        },
+      }"
     >
       <div class="overflow-auto">
         <p>{{ $t("admin.roles.room_limit.help_modal.info") }}</p>

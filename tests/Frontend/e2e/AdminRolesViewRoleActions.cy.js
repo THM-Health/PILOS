@@ -1,9 +1,9 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Admin roles index role actions", function () {
+describe("Admin roles view role actions", function () {
   beforeEach(function () {
     cy.init();
-    cy.interceptAdminRolesIndexRequests();
+    cy.interceptAdminRolesViewRequests();
 
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
@@ -22,30 +22,25 @@ describe("Admin roles index role actions", function () {
   });
 
   it("delete role", function () {
-    cy.visit("/admin/roles");
+    cy.visit("/admin/roles/2");
 
-    cy.wait("@rolesRequest");
-
-    cy.get('[data-test="role-item"]').should("have.length", 3);
+    cy.wait("@roleRequest");
 
     cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
 
-    cy.get('[data-test="role-item"]')
-      .eq(2)
-      .find('[data-test="roles-delete-button"]')
-      .click();
+    cy.get('[data-test="roles-delete-button"]').click();
 
     cy.get('[data-test="roles-delete-dialog"]').should("be.visible");
 
     // Check that dialog shows correct data
     cy.get('[data-test="roles-delete-dialog"]')
       .should("include.text", "admin.roles.delete.title")
-      .should("include.text", 'admin.roles.delete.confirm_{"name":"Students"}');
+      .should("include.text", 'admin.roles.delete.confirm_{"name":"Staff"}');
 
     // Confirm deletion of role
     const deleteRoleRequest = interceptIndefinitely(
       "DELETE",
-      "api/v1/roles/3",
+      "api/v1/roles/2",
       {
         statusCode: 204,
       },
@@ -53,7 +48,7 @@ describe("Admin roles index role actions", function () {
     );
 
     cy.fixture("userRoles.json").then((roles) => {
-      roles.data = roles.data.filter((role) => role.id !== 3);
+      roles.data = roles.data.filter((role) => role.id !== 2);
       roles.meta.to = 2;
       roles.meta.total = 2;
       roles.meta.total_no_filter = 2;
@@ -81,50 +76,30 @@ describe("Admin roles index role actions", function () {
     cy.wait("@deleteRoleRequest");
     cy.wait("@rolesRequest");
 
+    // Check that redirect worked
+    cy.url().should("not.include", "/admin/roles/2");
+    cy.url().should("include", "/admin/roles");
+
     // Check that role was deleted
     cy.get('[data-test="role-item"]').should("have.length", 2);
 
     // Check that dialog was closed
     cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
-
-    // Reopen dialog for different user
-    cy.get('[data-test="role-item"]')
-      .eq(1)
-      .find('[data-test="roles-delete-button"]')
-      .click();
-
-    cy.get('[data-test="roles-delete-dialog"]').should("be.visible");
-
-    // Check that dialog shows correct data
-    cy.get('[data-test="roles-delete-dialog"]')
-      .should("include.text", "admin.roles.delete.title")
-      .should("include.text", 'admin.roles.delete.confirm_{"name":"Staff"}');
-
-    // Cancel deletion of role
-    cy.get('[data-test="dialog-cancel-button"]')
-      .should("have.text", "app.no")
-      .click();
-    cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
   });
 
   it("delete role errors", function () {
-    cy.visit("/admin/roles");
+    cy.visit("/admin/roles/2");
 
-    cy.wait("@rolesRequest");
-
-    cy.get('[data-test="role-item"]').should("have.length", 3);
+    cy.wait("@roleRequest");
 
     cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
 
-    cy.get('[data-test="role-item"]')
-      .eq(2)
-      .find('[data-test="roles-delete-button"]')
-      .click();
+    cy.get('[data-test="roles-delete-button"]').click();
 
     cy.get('[data-test="roles-delete-dialog"]').should("be.visible");
 
     // Check with 500 error
-    cy.intercept("DELETE", "api/v1/roles/3", {
+    cy.intercept("DELETE", "api/v1/roles/2", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -143,7 +118,7 @@ describe("Admin roles index role actions", function () {
     ]);
 
     // Check with 464 error
-    cy.intercept("DELETE", "api/v1/roles/3", {
+    cy.intercept("DELETE", "api/v1/roles/2", {
       statusCode: 464,
       body: {
         message:
@@ -163,7 +138,7 @@ describe("Admin roles index role actions", function () {
     ]);
 
     // Check with 401 error
-    cy.intercept("DELETE", "api/v1/roles/3", {
+    cy.intercept("DELETE", "api/v1/roles/2", {
       statusCode: 401,
     }).as("deleteRoleRequest");
 
@@ -172,44 +147,10 @@ describe("Admin roles index role actions", function () {
     cy.wait("@deleteRoleRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "/login?redirect=/admin/roles");
+    cy.url().should("include", "/login?redirect=/admin/roles/2");
 
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("open add new role page", function () {
-    cy.visit("/admin/roles");
-    cy.wait("@rolesRequest");
-
-    cy.interceptAdminRolesNewRequests();
-
-    cy.get('[data-test="roles-add-button"]').click();
-    cy.url().should("include", "/admin/roles/new");
-  });
-
-  it("open edit role page", function () {
-    cy.visit("/admin/roles");
-    cy.wait("@rolesRequest");
-
-    cy.interceptAdminRolesViewRequests();
-
-    cy.get('[data-test="role-item"]')
-      .eq(1)
-      .find('[data-test="roles-edit-button"]')
-      .click();
-    cy.url().should("include", "/admin/roles/2/edit");
-  });
-
-  it("open view role page", function () {
-    cy.visit("/admin/roles");
-    cy.wait("@rolesRequest");
-
-    cy.interceptAdminRolesViewRequests();
-
-    cy.get('[data-test="role-item"]')
-      .eq(1)
-      .find('[data-test="roles-view-button"]')
-      .click();
-    cy.url().should("include", "/admin/roles/2");
-  });
+  // ToDo switch between edit and view
 });
