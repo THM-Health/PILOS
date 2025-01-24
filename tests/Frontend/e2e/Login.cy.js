@@ -340,10 +340,8 @@ describe("Login", function () {
       .should("be.visible")
       .and("include.text", "Password or Email wrong!");
 
-    // Check input field is marked as invalid
-    cy.get('[data-test="email-field"] input')
-      .invoke("attr", "aria-invalid")
-      .should("eq", "true");
+    // Check email field is marked as invalid
+    cy.get("#local-email").should("have.attr", "aria-invalid", "true");
 
     // Check with different 422 error
     cy.intercept("POST", "api/v1/login/local", {
@@ -366,21 +364,16 @@ describe("Login", function () {
       .should("be.visible")
       .and("not.include.text", "Password or Email wrong!");
 
-    // Check input field invalid state is removed
-    cy.get('[data-test="email-field"] input').should(
-      "not.have.attr",
-      "aria-invalid",
-    );
+    // Check email field invalid state is removed
+    cy.get("#local-email").should("not.have.attr", "aria-invalid");
 
     // Check if error gets displayed
     cy.get('[data-test="password-field"]')
       .should("be.visible")
       .and("include.text", "The Password field is required.");
 
-    // Check input field is marked as invalid
-    cy.get('[data-test="password-field"] input')
-      .invoke("attr", "aria-invalid")
-      .should("eq", "true");
+    // Check password field is marked as invalid
+    cy.get("#local-password").should("have.attr", "aria-invalid", "true");
 
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/local", {
@@ -425,6 +418,9 @@ describe("Login", function () {
       "app.flash.server_error.empty_message",
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+
+    // Check password field invalid state is removed
+    cy.get("#local-password").should("not.have.attr", "aria-invalid");
 
     // Intercept login request with different error
     cy.intercept("POST", "api/v1/login/local", {
@@ -483,10 +479,8 @@ describe("Login", function () {
       .should("be.visible")
       .and("include.text", "These credentials do not match our records.");
 
-    // Check input field is marked as invalid
-    cy.get('[data-test="username-field"] input')
-      .invoke("attr", "aria-invalid")
-      .should("eq", "true");
+    // Check username field is marked as invalid
+    cy.get("#ldap-username").should("have.attr", "aria-invalid", "true");
 
     // Check with different error
     cy.intercept("POST", "api/v1/login/ldap", {
@@ -509,21 +503,16 @@ describe("Login", function () {
       .should("be.visible")
       .and("not.include.text", "These credentials do not match our records.");
 
-    // Check input field invalid state is removed
-    cy.get('[data-test="username-field"] input').should(
-      "not.have.attr",
-      "aria-invalid",
-    );
+    // Check username field invalid state is removed
+    cy.get("#ldap-username").should("not.have.attr", "aria-invalid");
 
     // Check if error gets displayed
     cy.get('[data-test="password-field"]')
       .should("be.visible")
       .and("include.text", "The Password field is required.");
 
-    // Check input field is marked as invalid
-    cy.get('[data-test="password-field"] input')
-      .invoke("attr", "aria-invalid")
-      .should("eq", "true");
+    // Check password field is marked as invalid
+    cy.get("#ldap-password").should("have.attr", "aria-invalid", "true");
 
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/ldap", {
@@ -550,6 +539,9 @@ describe("Login", function () {
       "not.exist",
     );
     cy.contains("The Password field is required.").should("not.exist");
+
+    // Check password field invalid state is removed
+    cy.get("#ldap-password").should("not.have.attr", "aria-invalid");
 
     // Other api errors
     cy.intercept("POST", "api/v1/login/ldap", {
