@@ -110,7 +110,7 @@
               v-tooltip="
                 $t('admin.server_pools.view', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :aria-label="
                 $t('admin.server_pools.view', { name: slotProps.data.name })
               "
@@ -127,7 +127,7 @@
               v-tooltip="
                 $t('admin.server_pools.edit', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :aria-label="
                 $t('admin.server_pools.edit', { name: slotProps.data.name })
               "
@@ -144,6 +144,7 @@
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
+              :disabled="isBusy"
               @deleted="loadData()"
             >
             </SettingsServerPoolsDeleteButton>

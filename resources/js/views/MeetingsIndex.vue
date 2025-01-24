@@ -232,8 +232,9 @@
                     name: 'rooms.view',
                     params: { id: slotProps.data.room.id },
                   }"
-				  data-test="meeting-view-room-button"                  
-				  as="router-link"
+                  data-test="meeting-view-room-button"
+                  :as="isBusy ? 'button' : 'router-link'"
+                  :disabled="isBusy"
                   :aria-label="
                     $t('meetings.view_room', {
                       name: slotProps.data.room.name,
