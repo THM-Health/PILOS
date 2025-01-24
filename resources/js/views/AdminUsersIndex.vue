@@ -307,8 +307,8 @@
               :id="slotProps.data.id"
               :firstname="slotProps.data.firstname"
               :lastname="slotProps.data.lastname"
-              @deleted="loadData()"
               :disabled="isBusy"
+              @deleted="loadData()"
             />
           </div>
         </template>
