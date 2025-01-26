@@ -223,7 +223,21 @@
       </form>
     </OverlayComponent>
 
-    <ConfirmDialog></ConfirmDialog>
+    <ConfirmDialog
+      data-test="stale-role-dialog"
+      :pt="{
+        pcAcceptButton: {
+          root: {
+            'data-test': 'stale-dialog-accept-button',
+          },
+        },
+        pcRejectButton: {
+          root: {
+            'data-test': 'stale-dialog-reject-button',
+          },
+        },
+      }"
+    ></ConfirmDialog>
 
     <Dialog
       v-model:visible="helpRoomLimitModalVisible"
