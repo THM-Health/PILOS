@@ -194,6 +194,7 @@ describe("Admin users new", function () {
     cy.get(".multiselect__option")
       .eq(0)
       .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)
@@ -394,6 +395,7 @@ describe("Admin users new", function () {
     cy.get(".multiselect__option")
       .eq(0)
       .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser")
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(1)

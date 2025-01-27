@@ -184,7 +184,10 @@ describe("Admin roles index", function () {
 
     // Check that roles are shown and contain the correct data
     cy.get('[data-test="role-item"]').should("have.length", 3);
-    cy.get('[data-test="role-item"]').eq(0).should("include.text", "Superuser");
+    cy.get('[data-test="role-item"]')
+      .eq(0)
+      .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser");
     cy.get('[data-test="role-item"]').eq(1).should("include.text", "Staff");
     cy.get('[data-test="role-item"]').eq(2).should("include.text", "Students");
 
@@ -249,7 +252,10 @@ describe("Admin roles index", function () {
 
     // Check that role is shown and contains the correct data
     cy.get('[data-test="role-item"]').should("have.length", 1);
-    cy.get('[data-test="role-item"]').eq(0).should("include.text", "Superuser");
+    cy.get('[data-test="role-item"]')
+      .eq(0)
+      .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser");
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
@@ -595,7 +601,10 @@ describe("Admin roles index", function () {
 
     // Check that correct role is shown
     cy.get('[data-test="role-item"]').should("have.length", 1);
-    cy.get('[data-test="role-item"]').eq(0).should("include.text", "Superuser");
+    cy.get('[data-test="role-item"]')
+      .eq(0)
+      .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser");
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
@@ -680,7 +689,10 @@ describe("Admin roles index", function () {
 
     // Check that correct role is shown
     cy.get('[data-test="role-item"]').should("have.length", 1);
-    cy.get('[data-test="role-item"]').eq(0).should("include.text", "Superuser");
+    cy.get('[data-test="role-item"]')
+      .eq(0)
+      .should("include.text", "Superuser")
+      .and("include.text", "admin.roles.superuser");
   });
 
   it("check button visibility with view permission", function () {
