@@ -16,7 +16,7 @@
               isBusy || viewOnly || !userPermissions.can('editUserRole', model)
             "
             :automatic-roles="automaticRoles"
-            :disable-superuser="!authStore.currentUser.superuser"
+            :disable-superuser="!authStore.currentUser?.superuser"
             @loading-error="(value) => (rolesLoadingError = value)"
             @busy="(value) => (rolesLoading = value)"
           />

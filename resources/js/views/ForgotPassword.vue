@@ -23,6 +23,7 @@
               </div>
 
               <Button
+                class="mt-6"
                 type="submit"
                 :disabled="loading"
                 :loading="loading"
@@ -43,6 +44,7 @@ import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
+import env from "../env.js";
 
 const email = ref(null);
 const loading = ref(false);
@@ -57,6 +59,8 @@ const router = useRouter();
  */
 function submit() {
   loading.value = true;
+  formErrors.clear();
+
   const config = {
     method: "post",
     data: {
@@ -71,6 +75,14 @@ function submit() {
       router.push({ name: "home" });
     })
     .catch((error) => {
+      // failed due to form validation errors
+      if (
+        error.response &&
+        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+        return;
+      }
       api.error(error);
     })
     .finally(() => {
