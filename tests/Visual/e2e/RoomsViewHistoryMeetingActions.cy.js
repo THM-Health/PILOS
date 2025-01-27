@@ -45,6 +45,8 @@ describe("Rooms view history meeting actions", function () {
       1163 * window.devicePixelRatio,
     );
 
-    cy.get('[data-test="chart"] > canvas').happoScreenshot();
+    cy.get('[data-test="chart"] > canvas').happoScreenshot({
+      component: "RoomHistoryChart",
+    });
   });
 });

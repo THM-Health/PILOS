@@ -82,7 +82,7 @@ cd "$current_path"
 rm -rf temp_versioned_docs
 
 # Return to the original branch
-git reset --hard HEAD
+git reset --hard HEAD && git clean -xdf ./docs
 
 # Edit docusaurus.config.js lastVersion to the last version
 sed -i 's/lastVersion: "current"/lastVersion: "'"${LAST_VERSION}"'"/g' docusaurus.config.js
