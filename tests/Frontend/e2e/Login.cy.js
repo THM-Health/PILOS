@@ -399,6 +399,9 @@ describe("Login", function () {
     cy.contains("Password or Email wrong!").should("not.exist");
     cy.contains("The Password field is required.").should("not.exist");
 
+    // Check password field invalid state is removed
+    cy.get("#local-password").should("not.have.attr", "aria-invalid");
+
     // Other api errors
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 500,
@@ -418,9 +421,6 @@ describe("Login", function () {
       "app.flash.server_error.empty_message",
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    // Check password field invalid state is removed
-    cy.get("#local-password").should("not.have.attr", "aria-invalid");
 
     // Intercept login request with different error
     cy.intercept("POST", "api/v1/login/local", {
