@@ -1,0 +1,87 @@
+{
+  "data": {
+    "id": 2,
+    "name": "Superuser",
+    "superuser": true,
+    "updated_at": "2025-01-23T18:50:24.000000Z",
+    "permissions": [
+      { "id": 3, "name": "rooms.create" },
+      { "id": 4, "name": "rooms.viewAll" },
+      { "id": 5, "name": "rooms.manage" },
+      { "id": 6, "name": "meetings.viewAny" },
+      { "id": 7, "name": "admin.view" },
+      { "id": 8, "name": "settings.viewAny" },
+      { "id": 9, "name": "settings.update" },
+      { "id": 10, "name": "roles.viewAny" },
+      { "id": 11, "name": "roles.view" },
+      { "id": 12, "name": "roles.update" },
+      {
+        "id": 13,
+        "name": "roles.create"
+      },
+      {
+        "id": 14,
+        "name": "roles.delete"
+      },
+      { "id": 15, "name": "users.viewAny" },
+      { "id": 16, "name": "users.view" },
+      {
+        "id": 17,
+        "name": "users.update"
+      },
+      {
+        "id": 18,
+        "name": "users.create"
+      },
+      {
+        "id": 19,
+        "name": "users.delete"
+      },
+      {
+        "id": 20,
+        "name": "users.updateOwnAttributes"
+      },
+      { "id": 21, "name": "roomTypes.view" },
+      {
+        "id": 22,
+        "name": "roomTypes.update"
+      },
+      {
+        "id": 23,
+        "name": "roomTypes.create"
+      },
+      {
+        "id": 24,
+        "name": "roomTypes.delete"
+      },
+      { "id": 25, "name": "servers.viewAny" },
+      { "id": 26, "name": "servers.view" },
+      { "id": 27, "name": "servers.update" },
+      {
+        "id": 28,
+        "name": "servers.create"
+      },
+      {
+        "id": 29,
+        "name": "servers.delete"
+      },
+      { "id": 30, "name": "serverPools.viewAny" },
+      { "id": 31, "name": "serverPools.view" },
+      {
+        "id": 32,
+        "name": "serverPools.update"
+      },
+      {
+        "id": 33,
+        "name": "serverPools.create"
+      },
+      {
+        "id": 34,
+        "name": "serverPools.delete"
+      },
+      { "id": 35, "name": "system.monitor" }
+    ],
+    "model_name": "Role",
+    "room_limit": -1
+  }
+}

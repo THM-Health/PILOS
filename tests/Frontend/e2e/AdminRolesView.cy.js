@@ -116,125 +116,7 @@ describe("Admin roles view", function () {
         cy.get('[data-test="roles-room-limit-help-button"]').click();
       });
 
-    cy.get('[data-test="roles-room-limit-help-dialog"]')
-      .should("be.visible")
-      .and("include.text", "app.room_limit")
-      .and("include.text", "admin.roles.room_limit.help_modal.info")
-      .and("include.text", "admin.roles.room_limit.help_modal.examples")
-      .and("include.text", "admin.roles.room_limit.help_modal.note")
-      .within(() => {
-        // Check that table is shown correctly
-        cy.get("tr").should("have.length", 8);
-
-        cy.get("tr")
-          .eq(0)
-          .within(() => {
-            cy.get("th").should("have.length", 4);
-            cy.get("th")
-              .eq(0)
-              .should(
-                "include.text",
-                "admin.roles.room_limit.help_modal.system_default",
-              );
-            cy.get("th")
-              .eq(1)
-              .should(
-                "include.text",
-                "admin.roles.room_limit.help_modal.role_a",
-              );
-            cy.get("th")
-              .eq(2)
-              .should(
-                "include.text",
-                "admin.roles.room_limit.help_modal.role_b",
-              );
-
-            cy.get("th").eq(3).should("include.text", "app.room_limit");
-          });
-
-        cy.get("tr")
-          .eq(1)
-          .within(() => {
-            cy.get("td").should("have.length", 4);
-            cy.get("td").eq(0).should("include.text", "5");
-            cy.get("td").eq(1).should("include.text", "X");
-            cy.get("td").eq(2).should("include.text", "X");
-            cy.get("td").eq(3).should("include.text", "5");
-          });
-
-        cy.get("tr")
-          .eq(2)
-          .within(() => {
-            cy.get("td").should("have.length", 4);
-            cy.get("td").eq(0).should("include.text", "1");
-            cy.get("td").eq(1).should("include.text", "5");
-            cy.get("td").eq(2).should("include.text", "X");
-            cy.get("td").eq(3).should("include.text", "5");
-          });
-
-        cy.get("tr")
-          .eq(3)
-          .within(() => {
-            cy.get("td").should("have.length", 4);
-            cy.get("td").eq(0).should("include.text", "5");
-            cy.get("td").eq(1).should("include.text", "1");
-            cy.get("td").eq(2).should("include.text", "X");
-            cy.get("td").eq(3).should("include.text", "1");
-          });
-
-        cy.get("tr")
-          .eq(4)
-          .within(() => {
-            cy.get("td").should("have.length", 4);
-            cy.get("td").eq(0).should("include.text", "5");
-            cy.get("td").eq(1).should("include.text", "1");
-            cy.get("td").eq(2).should("include.text", "2");
-            cy.get("td").eq(3).should("include.text", "2");
-          });
-
-        cy.get("tr")
-          .eq(5)
-          .within(() => {
-            cy.get("td").should("have.length", 4);
-            cy.get("td").eq(0).should("include.text", "5");
-            cy.get("td")
-              .eq(1)
-              .should(
-                "include.text",
-                "admin.roles.room_limit.help_modal.system_default",
-              );
-            cy.get("td").eq(2).should("include.text", "2");
-            cy.get("td").eq(3).should("include.text", "5");
-          });
-
-        cy.get("tr")
-          .eq(6)
-          .within(() => {
-            cy.get("td").should("have.length", 4);
-            cy.get("td").eq(0).should("include.text", "5");
-            cy.get("td")
-              .eq(1)
-              .should(
-                "include.text",
-                "admin.roles.room_limit.help_modal.system_default",
-              );
-            cy.get("td").eq(2).should("include.text", "10");
-            cy.get("td").eq(3).should("include.text", "10");
-          });
-
-        cy.get("tr")
-          .eq(7)
-          .within(() => {
-            cy.get("td").should("have.length", 4);
-            cy.get("td").eq(0).should("include.text", "5");
-            cy.get("td").eq(1).should("include.text", "app.unlimited");
-            cy.get("td").eq(2).should("include.text", "2");
-            cy.get("td").eq(3).should("include.text", "app.unlimited");
-          });
-
-        // Close room limit help dialog
-        cy.get('[data-test="dialog-header-close-button"]').click();
-      });
+    cy.checkRoomLimitHelpDialog();
 
     cy.get('[data-test="roles-room-limit-help-dialog"]').should("not.exist");
 
@@ -334,10 +216,10 @@ describe("Admin roles view", function () {
           .within(() => {
             cy.get('[data-test="permission-group"]').should("have.length", 4);
 
-            cy.checkPermissionGroup(0, "room_types.view", false, true, true);
-            cy.checkPermissionGroup(1, "room_types.update", true, true, true);
-            cy.checkPermissionGroup(2, "room_types.create", true, true, true);
-            cy.checkPermissionGroup(3, "room_types.delete", true, true, true);
+            cy.checkPermissionGroup(0, "roomTypes.view", false, true, true);
+            cy.checkPermissionGroup(1, "roomTypes.update", true, true, true);
+            cy.checkPermissionGroup(2, "roomTypes.create", true, true, true);
+            cy.checkPermissionGroup(3, "roomTypes.delete", true, true, true);
           });
 
         cy.get('[data-test="permission-category"]')
@@ -563,10 +445,10 @@ describe("Admin roles view", function () {
           .within(() => {
             cy.get('[data-test="permission-group"]').should("have.length", 4);
 
-            cy.checkPermissionGroup(0, "room_types.view", false, false, true);
-            cy.checkPermissionGroup(1, "room_types.update", true, true, true);
-            cy.checkPermissionGroup(2, "room_types.create", true, true, true);
-            cy.checkPermissionGroup(3, "room_types.delete", true, true, true);
+            cy.checkPermissionGroup(0, "roomTypes.view", false, false, true);
+            cy.checkPermissionGroup(1, "roomTypes.update", true, true, true);
+            cy.checkPermissionGroup(2, "roomTypes.create", true, true, true);
+            cy.checkPermissionGroup(3, "roomTypes.delete", true, true, true);
           });
 
         cy.get('[data-test="permission-category"]')

@@ -191,7 +191,7 @@ Cypress.Commands.add("interceptAdminUsersIndexRequests", () => {
   }).as("usersRequest");
 
   cy.intercept("GET", "api/v1/roles*", {
-    fixture: "userRoles.json",
+    fixture: "roles.json",
   });
 });
 
@@ -203,7 +203,7 @@ Cypress.Commands.add("interceptAdminUsersIndexRequests", () => {
  */
 Cypress.Commands.add("interceptAdminUsersNewRequests", () => {
   cy.intercept("GET", "api/v1/roles*", {
-    fixture: "userRoles.json",
+    fixture: "roles.json",
   });
 
   cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
@@ -221,7 +221,7 @@ Cypress.Commands.add("interceptAdminUsersViewRequests", () => {
   }).as("userRequest");
 
   cy.intercept("GET", "api/v1/roles*", {
-    fixture: "userRoles.json",
+    fixture: "roles.json",
   });
 
   cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
@@ -320,8 +320,8 @@ Cypress.Commands.add("interceptAdminRoomTypesViewRequests", () => {
   }).as("serverPoolsRequest");
 
   cy.intercept("GET", "api/v1/roles*", {
-    fixture: "userRoles.json",
-  }).as("userRolesRequest");
+    fixture: "roles.json",
+  }).as("rolesRequest");
 });
 
 /**
@@ -336,8 +336,8 @@ Cypress.Commands.add("interceptAdminRoomTypesNewRequests", () => {
   }).as("serverPoolsRequest");
 
   cy.intercept("GET", "api/v1/roles*", {
-    fixture: "userRoles.json",
-  }).as("userRolesRequest");
+    fixture: "roles.json",
+  }).as("rolesRequest");
 });
 
 /**
@@ -374,7 +374,7 @@ Cypress.Commands.add("interceptAdminSettingsRequest", () => {
  */
 Cypress.Commands.add("interceptAdminRolesIndexRequests", () => {
   cy.intercept("GET", "api/v1/roles*", {
-    fixture: "userRoles.json",
+    fixture: "roles.json",
   }).as("rolesRequest");
 });
 

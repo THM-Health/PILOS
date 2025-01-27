@@ -451,7 +451,7 @@ describe("Admin room types view room type actions", function () {
 
     cy.wait("@roomTypeRequest");
     cy.wait("@serverPoolsRequest");
-    cy.wait("@userRolesRequest");
+    cy.wait("@rolesRequest");
 
     // Check values and change them
     cy.get("#room-type-name").should("have.value", "Exam").clear();
@@ -830,7 +830,7 @@ describe("Admin room types view room type actions", function () {
 
     cy.wait("@roomTypeRequest");
     cy.wait("@serverPoolsRequest");
-    cy.wait("@userRolesRequest");
+    cy.wait("@rolesRequest");
 
     // Check that original values are shown
     cy.get("#room-type-name")

@@ -556,7 +556,7 @@ describe("Admin users index", function () {
 
     // Reload roles
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.get('[data-test="roles-reload-button"]').should("be.visible").click();
@@ -627,7 +627,7 @@ describe("Admin users index", function () {
 
     // Reload roles
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.get('[data-test="roles-reload-button"]').should("be.visible").click();

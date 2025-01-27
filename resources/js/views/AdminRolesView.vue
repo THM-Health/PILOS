@@ -223,7 +223,21 @@
       </form>
     </OverlayComponent>
 
-    <ConfirmDialog></ConfirmDialog>
+    <ConfirmDialog
+      data-test="stale-role-dialog"
+      :pt="{
+        pcAcceptButton: {
+          root: {
+            'data-test': 'stale-dialog-accept-button',
+          },
+        },
+        pcRejectButton: {
+          root: {
+            'data-test': 'stale-dialog-reject-button',
+          },
+        },
+      }"
+    ></ConfirmDialog>
 
     <Dialog
       v-model:visible="helpRoomLimitModalVisible"
@@ -637,6 +651,12 @@ function handleStaleError(staleError) {
         (permission) => permission.id,
       );
       name.value = staleError.new_model.name;
+      roomLimitMode.value =
+        model.value.room_limit === null
+          ? "default"
+          : model.value.room_limit === -1
+            ? "unlimited"
+            : "custom";
     },
   });
 }
