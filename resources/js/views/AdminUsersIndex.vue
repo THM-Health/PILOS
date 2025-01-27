@@ -22,7 +22,7 @@
       <div class="flex flex-col justify-end gap-2 md:flex-row">
         <InputGroup class="min-w-80 shrink-0 grow">
           <multiselect
-            ref="rolesMultiselectRef"
+            ref="roles-multiselect"
             v-model="filter.role"
             :placeholder="$t('admin.users.role_filter')"
             track-by="id"
@@ -248,7 +248,7 @@
 
 <script setup>
 import { useApi } from "../composables/useApi.js";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useSettingsStore } from "../stores/settings";
 import { Multiselect } from "vue-multiselect";
@@ -284,7 +284,7 @@ const rolesLoading = ref(false);
 const rolesLoadingError = ref(false);
 const rolesCurrentPage = ref(1);
 const rolesHasNextPage = ref(false);
-const rolesMultiselectRef = ref();
+const rolesMultiselectRef = useTemplateRef("roles-multiselect");
 
 /**
  * Loads the user, part of roles that can be selected and enables an event listener
