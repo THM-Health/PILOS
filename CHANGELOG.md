@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error handling in room statistics ([#1535], [#1600])
 - Error handling in room attendance ([#1535], [#1600])
 - Improve frontend tests for login page ([#1794])
+- Access code input type on room settings section to hide browser arrow buttons ([#1827], [#1829])
 
 ### Fixed
 
@@ -356,6 +357,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1802]: https://github.com/THM-Health/PILOS/pull/1802
 [#1824]: https://github.com/THM-Health/PILOS/issues/1824
 [#1825]: https://github.com/THM-Health/PILOS/pull/1825
+[#1827]: https://github.com/THM-Health/PILOS/issues/1827
+[#1829]: https://github.com/THM-Health/PILOS/pull/1829
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
