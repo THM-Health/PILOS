@@ -133,6 +133,25 @@ describe("Forgot password", function () {
 
     cy.get("#email").type("JohnDoe@domain.tld");
 
+    // Check with 422 error
+    cy.intercept("POST", "api/v1/password/email", {
+      statusCode: 422,
+      body: {
+        errors: {
+          email: ["The email fiel is required."],
+        },
+      },
+    }).as("forgotPasswordRequest");
+
+    cy.get('[data-test="send-reset-link-button"]').click();
+
+    cy.wait("@forgotPasswordRequest");
+
+    // Check that error message is shown
+    cy.get('[data-test="email-field"]')
+      .should("be.visible")
+      .and("include.text", "The email fiel is required.");
+
     // Check with 500 error
     cy.intercept("POST", "api/v1/password/email", {
       statusCode: 500,
@@ -150,5 +169,10 @@ describe("Forgot password", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+
+    // Check that 422 error message is hidden
+    cy.get('[data-test="email-field"]')
+      .should("be.visible")
+      .and("not.include.text", "The email fiel is required.");
   });
 });
