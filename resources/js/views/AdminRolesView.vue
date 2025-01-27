@@ -619,6 +619,12 @@ function handleStaleError(staleError) {
         (permission) => permission.id,
       );
       name.value = staleError.new_model.name;
+      roomLimitMode.value =
+        model.value.room_limit === null
+          ? "default"
+          : model.value.room_limit === -1
+            ? "unlimited"
+            : "custom";
     },
   });
 }
