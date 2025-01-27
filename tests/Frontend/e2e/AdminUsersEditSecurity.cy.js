@@ -835,7 +835,7 @@ describe("Admin users edit email", function () {
 
     // Reload roles without errors
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.get('[data-test="roles-reload-button"]').click();
@@ -899,7 +899,7 @@ describe("Admin users edit email", function () {
 
     // Visit edit page again with roles
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.visit("/admin/users/2/edit");

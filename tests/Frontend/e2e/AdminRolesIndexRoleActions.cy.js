@@ -52,7 +52,7 @@ describe("Admin roles index role actions", function () {
       "deleteRoleRequest",
     );
 
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = roles.data.filter((role) => role.id !== 3);
       roles.meta.to = 2;
       roles.meta.total = 2;

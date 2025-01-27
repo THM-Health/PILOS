@@ -842,7 +842,7 @@ describe("Admin room types edit", function () {
     cy.visit("/admin/room_types/3/edit");
     cy.wait("@roomTypeRequest");
     cy.wait("@serverPoolsRequest");
-    cy.wait("@userRolesRequest");
+    cy.wait("@rolesRequest");
 
     cy.get('[data-test="restrict-field"]')
       .should("be.visible")
@@ -947,7 +947,7 @@ describe("Admin room types edit", function () {
           },
         },
       },
-      "userRolesRequest",
+      "rolesRequest",
     );
 
     cy.get(".multiselect__content")
@@ -980,7 +980,7 @@ describe("Admin room types edit", function () {
         userRoleRequest.sendResponse();
       });
 
-    cy.wait("@userRolesRequest");
+    cy.wait("@rolesRequest");
 
     cy.get(".multiselect__content")
       .eq(1)
@@ -1151,7 +1151,7 @@ describe("Admin room types edit", function () {
 
     cy.wait("@roomTypeRequest");
     cy.wait("@serverPoolsRequest");
-    cy.wait("@userRolesRequest");
+    cy.wait("@rolesRequest");
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/roomTypes/3", {
@@ -2209,7 +2209,7 @@ describe("Admin room types edit", function () {
 
     // Reload roles without errors
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.get('[data-test="roles-reload-button"]').click();
@@ -2312,7 +2312,7 @@ describe("Admin room types edit", function () {
 
     // Visit new page again with roles
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.visit("/admin/room_types/3/edit");

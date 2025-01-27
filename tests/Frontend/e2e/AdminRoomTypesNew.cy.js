@@ -1550,7 +1550,7 @@ describe("Admin room types new", function () {
 
     // Reload roles without errors
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.get('[data-test="roles-reload-button"]').click();
@@ -1623,7 +1623,7 @@ describe("Admin room types new", function () {
 
     // Visit new page again with roles
     cy.intercept("GET", "api/v1/roles*", {
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     cy.visit("/admin/room_types/new");

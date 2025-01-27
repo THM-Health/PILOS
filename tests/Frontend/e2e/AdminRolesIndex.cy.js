@@ -19,7 +19,7 @@ describe("Admin roles index", function () {
   });
 
   it("visit with user without permission to view roles", function () {
-    // Check with missing userRoles.viewAny permission
+    // Check with missing roles.viewAny permission
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = ["admin.view"];
       cy.intercept("GET", "api/v1/currentUser", {
@@ -42,7 +42,7 @@ describe("Admin roles index", function () {
       "GET",
       "api/v1/roles*",
       {
-        fixture: "userRoles.json",
+        fixture: "roles.json",
       },
       "rolesRequest",
     );
@@ -167,7 +167,7 @@ describe("Admin roles index", function () {
 
     cy.intercept("GET", "api/v1/roles*", {
       statusCode: 200,
-      fixture: "userRoles.json",
+      fixture: "roles.json",
     }).as("rolesRequest");
 
     // Check if reload button exists and click it
@@ -219,15 +219,15 @@ describe("Admin roles index", function () {
       cy.get("button").should("be.visible").and("not.be.disabled");
     });
 
-    cy.fixture("userRoles.json").then((userRoles) => {
-      userRoles.data = userRoles.data.slice(0, 1);
-      userRoles.meta.last_page = 1;
-      userRoles.meta.per_page = 1;
-      userRoles.meta.to = 1;
+    cy.fixture("roles.json").then((roles) => {
+      roles.data = roles.data.slice(0, 1);
+      roles.meta.last_page = 1;
+      roles.meta.per_page = 1;
+      roles.meta.to = 1;
 
       cy.intercept("GET", "api/v1/roles*", {
         statusCode: 200,
-        body: userRoles,
+        body: roles,
       }).as("rolesRequest");
     });
 
@@ -282,16 +282,16 @@ describe("Admin roles index", function () {
   });
 
   it("load roles page out of bounds", function () {
-    cy.fixture("userRoles.json").then((userRoles) => {
-      userRoles.data = userRoles.data.slice(0, 1);
-      userRoles.meta.last_page = 2;
-      userRoles.meta.per_page = 1;
-      userRoles.meta.to = 1;
-      userRoles.meta.total = 2;
+    cy.fixture("roles.json").then((roles) => {
+      roles.data = roles.data.slice(0, 1);
+      roles.meta.last_page = 2;
+      roles.meta.per_page = 1;
+      roles.meta.to = 1;
+      roles.meta.total = 2;
 
       cy.intercept("GET", "api/v1/roles*", {
         statusCode: 200,
-        body: userRoles,
+        body: roles,
       }).as("rolesRequest");
     });
 
@@ -300,38 +300,38 @@ describe("Admin roles index", function () {
     cy.wait("@rolesRequest");
 
     // Switch to next page but respond with no roles on second page
-    cy.fixture("userRoles.json").then((userRoles) => {
-      userRoles.data = [];
-      userRoles.meta.current_page = 2;
-      userRoles.meta.last_page = 1;
-      userRoles.meta.from = null;
-      userRoles.meta.per_page = 2;
-      userRoles.meta.to = null;
-      userRoles.meta.total = 2;
-      userRoles.meta.total_no_filter = 2;
+    cy.fixture("roles.json").then((roles) => {
+      roles.data = [];
+      roles.meta.current_page = 2;
+      roles.meta.last_page = 1;
+      roles.meta.from = null;
+      roles.meta.per_page = 2;
+      roles.meta.to = null;
+      roles.meta.total = 2;
+      roles.meta.total_no_filter = 2;
 
       const emptyRolesRequest = interceptIndefinitely(
         "GET",
         "api/v1/roles*",
         {
           statusCode: 200,
-          body: userRoles,
+          body: roles,
         },
         "rolesRequest",
       );
 
       cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-      cy.fixture("userRoles.json").then((userRoles) => {
-        userRoles.data = userRoles.data.slice(0, 2);
-        userRoles.meta.per_page = 2;
-        userRoles.meta.to = 2;
-        userRoles.meta.total = 2;
-        userRoles.meta.total_no_filter = 2;
+      cy.fixture("roles.json").then((roles) => {
+        roles.data = roles.data.slice(0, 2);
+        roles.meta.per_page = 2;
+        roles.meta.to = 2;
+        roles.meta.total = 2;
+        roles.meta.total_no_filter = 2;
 
         cy.intercept("GET", "api/v1/roles*", {
           statusCode: 200,
-          body: userRoles,
+          body: roles,
         })
           .as("rolesRequest")
           .then(() => {
@@ -372,7 +372,7 @@ describe("Admin roles index", function () {
     });
 
     // Check with no roles found for this search query
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = [];
       roles.meta.from = null;
       roles.meta.per_page = 1;
@@ -401,7 +401,7 @@ describe("Admin roles index", function () {
     cy.get('[data-test="role-item"]').should("not.exist");
 
     // Check with no roles available
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = [];
       roles.meta.from = null;
       roles.meta.per_page = 1;
@@ -431,7 +431,7 @@ describe("Admin roles index", function () {
     cy.get('[data-test="role-item"]').should("have.length", 0);
 
     // Check with 2 roles on 2 pages
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = roles.data.slice(0, 1);
       roles.meta.last_page = 2;
       roles.meta.per_page = 1;
@@ -470,7 +470,7 @@ describe("Admin roles index", function () {
       .eq(0)
       .should("have.attr", "data-p-active", "true");
 
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = roles.data.slice(1, 2);
       roles.meta.current_page = 2;
       roles.meta.from = 2;
@@ -509,7 +509,7 @@ describe("Admin roles index", function () {
     cy.get('[data-test="role-item"]').eq(0).should("include.text", "Staff");
 
     // Change search query and make sure that the page is reset
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = roles.data.slice(0, 1);
       roles.meta.last_page = 2;
       roles.meta.per_page = 1;
@@ -565,7 +565,7 @@ describe("Admin roles index", function () {
       .and("not.have.attr", "data-p-sortable-column", "true");
 
     // Change sorting direction and response with 3 roles on 3 pages
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = roles.data.slice(0, 1);
       roles.meta.last_page = 3;
       roles.meta.per_page = 1;
@@ -603,7 +603,7 @@ describe("Admin roles index", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Switch to next page
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = roles.data.slice(1, 2);
       roles.meta.current_page = 2;
       roles.meta.from = 2;
@@ -644,7 +644,7 @@ describe("Admin roles index", function () {
     cy.get('[data-test="role-item"]').eq(0).should("include.text", "Staff");
 
     // Change sorting direction and make sure that the page is reset
-    cy.fixture("userRoles.json").then((roles) => {
+    cy.fixture("roles.json").then((roles) => {
       roles.data = roles.data.slice(0, 1);
       roles.meta.last_page = 3;
       roles.meta.per_page = 1;
