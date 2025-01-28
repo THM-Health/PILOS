@@ -170,8 +170,10 @@ return [
     'invalid_personal_link' => 'This personalised room link is invalid.',
     'invitation' => [
         'code' => 'Access code',
-        'copied' => 'Copied access information to clipboard',
-        'copy' => 'Copy',
+        'link_copied' => 'Copied link to clipboard',
+        'message_copied' => 'Copied invitation message to clipboard',
+        'copy_link' => 'Copy link',
+        'copy_invitation_message' => 'Copy invitation message',
         'link' => 'Link',
         'room' => 'Join ":roomname" with :platform',
         'share' => 'Share',

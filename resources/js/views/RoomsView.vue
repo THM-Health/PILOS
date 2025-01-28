@@ -195,7 +195,7 @@
                     :record-attendance="room.record_attendance"
                     :record="room.record"
                     :can-start="room.can_start"
-                    :token="props.token"
+                    :token="token"
                     :access-code="accessCode"
                     @invalid-code="handleInvalidCode"
                     @invalid-token="handleInvalidToken"
@@ -242,17 +242,20 @@ import RoomHeader from "../components/RoomHeader.vue";
 import RoomShareButton from "../components/RoomShareButton.vue";
 import EventBus from "../services/EventBus.js";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
+import { useUrlSearchParams } from "@vueuse/core";
 
 const props = defineProps({
   id: {
     type: String,
     required: true,
   },
-  token: {
+  legacyToken: {
     type: String,
     default: null,
   },
 });
+
+const hashParams = useUrlSearchParams("hash-params");
 
 const reloadInterval = ref(null);
 const loading = ref(false); // Room settings/details loading
@@ -260,6 +263,7 @@ const room = ref(null); // Room object
 const accessCode = ref(null); // Access code to use for requests
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
+const token = ref(null); // Room token used for personalised room access links
 const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
@@ -275,10 +279,22 @@ const api = useApi();
 
 onMounted(() => {
   // Prevent authenticated users from using a room token
-  if (props.token && authStore.isAuthenticated) {
+  if ((props.legacyToken || hashParams.token) && authStore.isAuthenticated) {
     toast.info(t("app.flash.guests_only"));
     router.replace({ name: "home" });
     return;
+  }
+
+  if (hashParams.accessCode) {
+    accessCodeInput.value = getHashParamValue("accessCode");
+    hashParams.accessCode = null;
+    login();
+  }
+
+  if (props.legacyToken) {
+    token.value = props.legacyToken;
+  } else {
+    token.value = getHashParamValue("token");
   }
 
   EventBus.on(EVENT_FORBIDDEN, reload);
@@ -293,6 +309,33 @@ onUnmounted(() => {
 
   clearInterval(reloadInterval.value);
 });
+
+watch(
+  () => hashParams.accessCode,
+  (value) => {
+    if (!value) return;
+    accessCodeInput.value = getHashParamValue("accessCode");
+    hashParams.accessCode = null;
+    login();
+  },
+);
+
+watch(
+  () => hashParams.token,
+  (value) => {
+    if (!value) return;
+    token.value = getHashParamValue("token");
+    clearInterval(reloadInterval.value);
+    tokenInvalid.value = false;
+    load();
+  },
+);
+
+function getHashParamValue(param) {
+  return Array.isArray(hashParams[param])
+    ? hashParams[param][0]
+    : hashParams[param];
+}
 
 /**
  * Reload room details in a set interval, change in the .env
@@ -362,8 +405,8 @@ function load() {
   // Build room api url, include access code if set
   const config = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
+  if (token.value) {
+    config.headers = { Token: token.value };
   } else if (accessCode.value != null) {
     config.headers = { "Access-Code": accessCode.value };
   }
@@ -433,8 +476,8 @@ function reload() {
   // Build room api url, include access code if set
   const config = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
+  if (token.value) {
+    config.headers = { Token: token.value };
   } else if (accessCode.value != null) {
     config.headers = { "Access-Code": accessCode.value };
   }

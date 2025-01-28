@@ -141,7 +141,7 @@ export const routes = [
     props: (route) => {
       return {
         id: route.params.id,
-        token: route.params.token,
+        legacyToken: route.params.token,
       };
     },
   },
