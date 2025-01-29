@@ -84,7 +84,6 @@
                   $t('rooms.settings.general.unprotected_placeholder')
                 "
                 readonly="readonly"
-                type="number"
               />
               <!-- Clear access code -->
               <Button
