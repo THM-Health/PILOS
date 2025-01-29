@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Missing loading retry button (Admin RoomTypesIndex) ([#1588])
-- Reload button for replacement room type (RoomTypesDeleteButton) ([#1588])
+- Missing loading retry button on room types overview page ([#1588])
+- Reload button for replacement room type in delete dialog on room types overview page ([#1588])
 - Permission restrictions to prevent non-superusers from editing and deleting superusers ([#1651])
 - Permission restrictions to prevent non-superusers from assigning the superuser role ([#1651])
 - Environment variable for configuring restricted permissions that cannot be assigned to non-superuser roles ([#1651])
@@ -24,21 +24,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error handling in room statistics ([#1535], [#1600])
 - Error handling in room attendance ([#1535], [#1600])
 - Close multiselect dropdowns on selection ([#1588])
-- Permissions loading behaviour (AdminRolesView) ([#1588])
+- Permissions loading behaviour on view/edit page of roles ([#1588])
 - Improve frontend tests for login page ([#1794])
 - Access code input type on room settings section to hide browser arrow buttons ([#1827], [#1829])
 
 ### Fixed
 
-- Search not disabled during loading (admin index pages) ([#1675], [#1588])
-- Overlays not shown after loading error (admin view pages) ([#1677], [#1588])
-- Dialog buttons not disabled correctly during actions on admin pages ([#1711], [#1588])
-- Error messages (AdminServerPoolsView, AdminRoomTypesView, AdminSettings) ([#1588])
-- Error handling (AdminUsersIndex, AdminServerPoolsView (staleError), RoomTypesDeleteButton (404 error)) ([#1588])
-- BBB logo image url input ([#1751], [#1588])
-- Access superuser attribute ([#1588])
-- Accessing multiselect ref ([#1588])
-- Overlay reload buttons ([#1588])
+- Search not disabled during loading on the overview pages for roles, room types, servers and server pools ([#1675], [#1588])
+- Overlays not shown after loading error on view/edit pages of servers and server pools ([#1677], [#1588])
+- Dialog buttons not disabled correctly during actions on the overview/view/edit pages for roles, room types, servers and server pools ([#1711], [#1588])
+- Form validation error messages on view/edit pages room types, server pools and application settings ([#1588])
+- Error handling on the overview page of users ([#1588])
+- Stale error handling on the view/edit page of sever pools ([#1588])
+- 404 error handling on the room types delete dialog ([#1588])
+- Set empty BBB logo image url ([#1751], [#1588])
+- 401 error handling on view/edit/create page of users ([#1588])
+- Overlay reload buttons on view/edit/create page of roles, room types, servers and server pools ([#1588])
 - Wrong error message shown for 422 errors when verifying email ([#1744], [#1758])
 - Broken banner link style 'warning' ([#1759], [#1760])
 - Inconsistent select/multiselect loading states ([#1772])
