@@ -26,7 +26,7 @@
     </span>
     <Divider />
     <div class="flex flex-col gap-2" data-test="replacement-room-type-field">
-      <label for="replacement-room-type">{{
+      <label for="replacement-room-type" data-test="dummy">{{
         $t("admin.room_types.delete.replacement")
       }}</label>
       <InputGroup>
