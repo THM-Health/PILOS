@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search not disabled during loading on the overview pages for roles, room types, servers and server pools ([#1675], [#1588])
 - Overlays not shown after loading error on view/edit pages of servers and server pools ([#1677], [#1588])
 - Dialog buttons not disabled correctly during actions on the overview/view/edit pages for roles, room types, servers and server pools ([#1711], [#1588])
+- Dialogs being closable during loading on the overview/view/edit pages for roles, room types, servers and server pools ([#1588])
 - Form validation error messages on view/edit pages room types, server pools and application settings ([#1588])
 - Error handling on the overview page of users ([#1588])
 - Stale error handling on the view/edit page of sever pools ([#1588])
