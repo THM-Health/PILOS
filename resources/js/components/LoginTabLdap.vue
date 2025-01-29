@@ -37,12 +37,10 @@
           fluid
           :disabled="props.loading"
           :placeholder="props.passwordLabel"
-          :state="
+          :invalid="
             props.errors !== null &&
             props.errors.password &&
             props.errors.password.length > 0
-              ? false
-              : null
           "
         />
         <FormError :errors="props.errors?.password" />

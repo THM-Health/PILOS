@@ -20,7 +20,7 @@ return [
     'listener_count' => 'Listener',
     'no_data' => 'There are currently no meetings running!',
     'no_data_filtered' => 'No running meetings were found for the search query!',
-    'no_historical_data' => 'There are no historical meetings available',
+    'no_historical_data' => 'There is no meeting history available',
     'now' => 'now',
     'owner' => 'Owner',
     'participant_count' => 'Participant(s)',
