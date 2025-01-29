@@ -12,7 +12,7 @@
     v-model:visible="modalVisible"
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :dismissable-mask="!isBusy"
     :draggable="false"
     :header="$t('admin.server_pools.delete.title')"
