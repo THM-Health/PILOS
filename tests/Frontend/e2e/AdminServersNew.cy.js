@@ -57,12 +57,24 @@ describe("Admin servers view", function () {
     cy.get('[data-test="servers-edit-button"]').should("not.exist");
     cy.get('[data-test="servers-delete-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breakcrumbs.servers.new");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "app.model_name")
       .within(() => {
         cy.get("#name").should("have.value", "").type("Server 01");
       });
+
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breakcrumbs.servers.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -269,6 +281,15 @@ describe("Admin servers view", function () {
 
     // Check that redirect to server view worked
     cy.url().should("include", "/admin/servers/30");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.view_{"name":"Server 01"}',
+      );
   });
 
   it("add new server errors", function () {

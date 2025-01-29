@@ -35,12 +35,10 @@
           :disabled="props.loading"
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
-          :state="
+          :invalid="
             props.errors !== null &&
             props.errors.password &&
             props.errors.password.length > 0
-              ? false
-              : null
           "
         />
         <Button

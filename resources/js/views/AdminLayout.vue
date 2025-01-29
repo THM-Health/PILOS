@@ -12,6 +12,7 @@
             :home="home"
             class="px-0 py-2"
             :model="breakcrumbs"
+            data-test="admin-breadcrumb"
           >
             <template #item="{ item, props }">
               <router-link

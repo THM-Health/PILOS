@@ -88,6 +88,15 @@ describe("Admin servers edit", function () {
       .and("not.be.disabled")
       .and("include.text", "app.save");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+      );
+
     // Change server settings
     cy.get('[data-test="name-field"]')
       .should("be.visible")
@@ -96,6 +105,15 @@ describe("Admin servers edit", function () {
         cy.get("#name").and("have.value", "Server 01").clear();
         cy.get("#name").type("Server 02");
       });
+
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+      );
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -298,10 +316,28 @@ describe("Admin servers edit", function () {
     // Check that redirect to server view worked
     cy.url().should("include", "/admin/servers/1");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.view_{"name":"Server 02"}',
+      );
   });
 
   it("save changes errors", function () {
     cy.visit("/admin/servers/1/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+      );
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/servers/1", {
@@ -470,6 +506,15 @@ describe("Admin servers edit", function () {
 
     cy.get('[data-test="stale-server-dialog"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.edit_{"name":"Server 03"}',
+      );
+
     // Check that correct data is shown
     cy.get("#name").should("have.value", "Server 03");
     cy.get("#description").should(
@@ -542,6 +587,11 @@ describe("Admin servers edit", function () {
         body: server,
       }).as("saveChangesRequest");
 
+      cy.intercept("GET", "api/v1/servers/1", {
+        statusCode: 200,
+        body: server,
+      }).as("serverRequest");
+
       cy.get('[data-test="stale-dialog-accept-button"]').click();
 
       // Check that correct data is sent
@@ -553,6 +603,15 @@ describe("Admin servers edit", function () {
     // Check that redirect worked
     cy.url().should("include", "/admin/servers/1");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.view_{"name":"Server 03"}',
+      );
 
     // Reload
     cy.visit("/admin/servers/1/edit");

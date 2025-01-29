@@ -39,6 +39,15 @@ describe("Admin users edit base", function () {
 
     cy.contains("admin.users.base_data").should("be.visible");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+      );
+
     cy.get('[data-test="default-profile-image-preview"]')
       .should("be.visible")
       .and("include.text", "LR");
@@ -66,6 +75,15 @@ describe("Admin users edit base", function () {
         cy.get("#lastname").clear();
         cy.get("#lastname").type("Walter");
       });
+
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+      );
 
     // Check authenticator setting
     cy.get('[data-test="authenticator-field"]')
@@ -412,6 +430,15 @@ describe("Admin users edit base", function () {
     cy.url().should("include", "/admin/users/2");
     cy.url().should("not.include", "/edit");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
+      );
+
     cy.wait("@userRequest");
 
     // Reload edit page and save again
@@ -532,6 +559,15 @@ describe("Admin users edit base", function () {
 
     cy.wait("@userRequest");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+      );
+
     // Check with 422 error
     cy.intercept("POST", "api/v1/users/2", {
       statusCode: 422,
@@ -646,6 +682,15 @@ describe("Admin users edit base", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
+      );
 
     // Visit edit page again
     cy.visit("/admin/users/2/edit");

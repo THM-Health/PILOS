@@ -103,6 +103,15 @@ describe("Admin server pools edit", function () {
       .and("not.be.disabled")
       .and("include.text", "app.save");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.server_pools.edit_{"name":"Test"}',
+      );
+
     // Change server pool settings
     cy.get('[data-test="name-field"]')
       .should("be.visible")
@@ -111,6 +120,15 @@ describe("Admin server pools edit", function () {
         cy.get("#name").should("have.value", "Test").clear();
         cy.get("#name").type("Server Pool 1");
       });
+
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.server_pools.edit_{"name":"Test"}',
+      );
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -348,10 +366,28 @@ describe("Admin server pools edit", function () {
     // Check that redirect to server pool view worked
     cy.url().should("include", "/admin/server_pools/1");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.server_pools.view_{"name":"Server Pool 1"}',
+      );
   });
 
   it("save changes errors", function () {
     cy.visit("/admin/server_pools/1/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.server_pools.edit_{"name":"Test"}',
+      );
 
     // Set values
     cy.get("#name").clear();
@@ -473,6 +509,15 @@ describe("Admin server pools edit", function () {
 
     cy.get('[data-test="stale-server-pool-dialog"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.server_pools.edit_{"name":"Server Pool 1"}',
+      );
+
     // Check that correct data is shown
     cy.get("#name").should("have.value", "Server Pool 1");
     cy.get("#description").should("have.value", "Server Pool 1 description");
@@ -528,6 +573,11 @@ describe("Admin server pools edit", function () {
         body: serverPool,
       }).as("saveChangesRequest");
 
+      cy.intercept("GET", "api/v1/serverPools/1", {
+        statusCode: 200,
+        body: serverPool,
+      }).as("serverPoolRequest");
+
       cy.get('[data-test="stale-dialog-accept-button"]').click();
 
       const serverPoolRequestData = { ...serverPool.data };
@@ -542,6 +592,15 @@ describe("Admin server pools edit", function () {
     // Check that redirect worked
     cy.url().should("include", "/admin/server_pools/1");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.server_pools.view_{"name":"Server Pool 1"}',
+      );
 
     // Reload
     cy.visit("/admin/server_pools/1/edit");

@@ -7,7 +7,10 @@
         v-if="userPermissions.can('viewAny', 'SettingsPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.settings' }">
+        <router-link
+          :to="{ name: 'admin.settings' }"
+          data-test="admin-settings-link"
+        >
           <Card
             :pt="{
               title: { class: 'text-center text-primary' },
@@ -33,7 +36,7 @@
         v-if="userPermissions.can('viewAny', 'UserPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.users' }">
+        <router-link :to="{ name: 'admin.users' }" data-test="admin-users-link">
           <Card
             :pt="{
               title: { class: 'text-center text-primary' },
@@ -59,7 +62,7 @@
         v-if="userPermissions.can('viewAny', 'RolePolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.roles' }">
+        <router-link :to="{ name: 'admin.roles' }" data-test="admin-roles-link">
           <Card
             :pt="{
               title: { class: 'text-center text-primary' },
@@ -85,7 +88,10 @@
         v-if="userPermissions.can('viewAny', 'RoomTypePolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.room_types' }">
+        <router-link
+          :to="{ name: 'admin.room_types' }"
+          data-test="admin-room-types-link"
+        >
           <Card
             :pt="{
               title: { class: 'text-center text-primary' },
@@ -111,7 +117,10 @@
         v-if="userPermissions.can('viewAny', 'ServerPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.servers' }">
+        <router-link
+          :to="{ name: 'admin.servers' }"
+          data-test="admin-servers-link"
+        >
           <Card
             :pt="{
               title: { class: 'text-center text-primary' },
@@ -137,7 +146,10 @@
         v-if="userPermissions.can('viewAny', 'ServerPoolPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.server_pools' }">
+        <router-link
+          :to="{ name: 'admin.server_pools' }"
+          data-test="admin-server-pools-link"
+        >
           <Card
             :pt="{
               title: { class: 'text-center text-primary' },

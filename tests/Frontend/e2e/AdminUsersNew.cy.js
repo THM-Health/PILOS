@@ -74,6 +74,12 @@ describe("Admin users new", function () {
     // Check general settings and change them
     cy.contains("rooms.settings.general.title").should("be.visible");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breakcrumbs.users.new");
+
     cy.get('[data-test="firstname-field"]')
       .should("be.visible")
       .and("include.text", "app.firstname")
@@ -87,6 +93,12 @@ describe("Admin users new", function () {
       .within(() => {
         cy.get("#lastname").should("have.value", "").type("Doe");
       });
+
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breakcrumbs.users.new");
 
     cy.get('[data-test="email-field"]')
       .should("be.visible")
@@ -281,7 +293,8 @@ describe("Admin users new", function () {
     cy.fixture("userDataUser.json").then((user) => {
       user.data.id = 20;
       user.data.firstname = "Max";
-      user.data.email = "Doe";
+      user.data.lastname = "Doe";
+      user.data.email = "maxdoe@domain.tld";
       user.data.roles = [
         {
           id: 2,
@@ -358,6 +371,15 @@ describe("Admin users new", function () {
 
     // Check that user page is shown
     cy.url().should("include", "/admin/users/20");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.users.view_{"firstname":"Max","lastname":"Doe"}',
+      );
   });
 
   it("add new user with generated password and several roles", function () {

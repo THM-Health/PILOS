@@ -295,7 +295,6 @@ describe("Rooms view members", function () {
       .eq(0)
       .should("have.attr", "data-p-active", "true");
 
-    // ToDo Change to custom command (difficult because members need to be loaded "normally" first)
     // Switch to next page with 401 error
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;

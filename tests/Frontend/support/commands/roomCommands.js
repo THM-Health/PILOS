@@ -294,8 +294,6 @@ Cypress.Commands.add(
  * @param  {string} roomTabName
  * @returns void
  */
-// ToDo add possibility to load with correct data and then trigger error
-// ToDo add possibility to change room data (maybe get room data(additional room data as parameter)
 Cypress.Commands.add(
   "checkRoomAuthErrors",
   (triggerRequestActions, requestMethod, requestUrl, roomTabName) => {

@@ -56,12 +56,24 @@ describe("Admin room types new", function () {
     cy.get('[data-test="room-types-edit-button"]').should("not.exist");
     cy.get('[data-test="room-types-delete-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breakcrumbs.room_types.new");
+
     cy.get('[data-test="room-type-name-field"]')
       .should("be.visible")
       .and("include.text", "app.model_name")
       .within(() => {
         cy.get("#room-type-name").should("have.value", "").type("Exam 01");
       });
+
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breakcrumbs.room_types.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -709,6 +721,15 @@ describe("Admin room types new", function () {
 
     // Check that room type page is shown
     cy.url().should("include", "/admin/room_types/30");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+      );
   });
 
   it("add new room type with restrictions", function () {

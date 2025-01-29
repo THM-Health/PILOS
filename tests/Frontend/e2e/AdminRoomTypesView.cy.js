@@ -71,6 +71,15 @@ describe("Admin room types view", function () {
     cy.get('[data-test="room-types-delete-button"]').should("not.exist");
     cy.get('[data-test="room-types-save-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.view_{"name":"Exam"}',
+      );
+
     // Check that room type data is shown correctly
     cy.get('[data-test="room-type-name-field"]')
       .should("be.visible")

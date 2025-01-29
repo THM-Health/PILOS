@@ -75,6 +75,11 @@ describe("Admin server pools index", function () {
 
     cy.get('[data-test="server-pools-add-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index");
+
     // Check that table headers are displayed correctly
     cy.get('[data-test="server-pool-header-cell"]').should("have.length", 3);
 

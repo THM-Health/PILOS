@@ -74,6 +74,15 @@ describe("Admin servers view", function () {
     cy.get('[data-test="servers-delete-button"]').should("not.exist");
     cy.get('[data-test="servers-save-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.servers.view_{"name":"Server 01"}',
+      );
+
     // Check that server data is shown correctly
     cy.get('[data-test="name-field"]')
       .should("be.visible")

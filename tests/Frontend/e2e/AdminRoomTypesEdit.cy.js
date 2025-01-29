@@ -86,6 +86,15 @@ describe("Admin room types edit", function () {
       .and("not.be.disabled")
       .and("include.text", "app.save");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+      );
+
     // Change room type settings
     cy.get('[data-test="room-type-name-field"]')
       .should("be.visible")
@@ -94,6 +103,16 @@ describe("Admin room types edit", function () {
         cy.get("#room-type-name").should("have.value", "Exam").clear();
         cy.get("#room-type-name").type("Exam 01");
       });
+
+    // Check that breadcrumbs stay the same
+
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+      );
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -817,6 +836,15 @@ describe("Admin room types edit", function () {
     // Check that room type view page is shown
     cy.url().should("include", "/admin/room_types/3");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+      );
   });
 
   it("edit room type with restrictions", function () {
@@ -1153,6 +1181,15 @@ describe("Admin room types edit", function () {
     cy.wait("@roomTypeRequest");
     cy.wait("@serverPoolsRequest");
     cy.wait("@rolesRequest");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+      );
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/roomTypes/3", {
@@ -1692,6 +1729,15 @@ describe("Admin room types edit", function () {
 
     cy.get('[data-test="stale-room-type-dialog"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.edit_{"name":"Exam 01"}',
+      );
+
     // Check that correct data is shown
     cy.get("#room-type-name").should("have.value", "Exam 01");
     cy.get("#description").should(
@@ -1955,6 +2001,11 @@ describe("Admin room types edit", function () {
         body: roomType,
       }).as("saveChangesRequest");
 
+      cy.intercept("GET", "api/v1/roomTypes/3", {
+        statusCode: 200,
+        body: roomType,
+      }).as("roomTypeRequest");
+
       cy.get('[data-test="stale-dialog-accept-button"]').click();
 
       const roomTypeRequestData = { ...roomType.data };
@@ -1972,6 +2023,15 @@ describe("Admin room types edit", function () {
     // Check that redirect worked
     cy.url().should("include", "/admin/room_types/3");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+      );
 
     // Reload
     cy.visit("/admin/room_types/3/edit");
