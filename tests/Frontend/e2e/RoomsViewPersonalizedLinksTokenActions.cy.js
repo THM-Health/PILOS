@@ -747,7 +747,7 @@ describe("Rooms view personalized links token actions", function () {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
           Cypress.config("baseUrl") +
-            "/rooms/abc-def-123/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
+            "/rooms/abc-def-123#token=1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
         );
       });
     });
