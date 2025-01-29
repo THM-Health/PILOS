@@ -55,6 +55,11 @@ describe("Admin room types index", function () {
 
     cy.get('[data-test="room-types-add-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.room_types.index");
+
     // Check that table headers are displayed correctly
     cy.get('[data-test="room-type-header-cell"]').should("have.length", 2);
 

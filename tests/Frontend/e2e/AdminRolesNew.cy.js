@@ -53,6 +53,12 @@ describe("Admin roles new", function () {
     cy.get('[data-test="roles-edit-button"]').should("not.exist");
     cy.get('[data-test="roles-delete-button"]').should("not.exist");
 
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breakcrumbs.roles.new");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "app.model_name")
@@ -473,6 +479,15 @@ describe("Admin roles new", function () {
 
     // Check that role page is shown
     cy.url().should("include", "/admin/roles/40");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+      );
   });
 
   it("add new role with different room limits", function () {

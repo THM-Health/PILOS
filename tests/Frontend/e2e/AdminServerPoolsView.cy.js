@@ -75,6 +75,15 @@ describe("Admin server pools view", function () {
     cy.get('[data-test="server-pools-delete-button"]').should("not.exist");
     cy.get('[data-test="server-pools-save-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.server_pools.view_{"name":"Test"}',
+      );
+
     // Check that server pool data is shown correctly
     cy.get('[data-test="name-field"]')
       .should("be.visible")

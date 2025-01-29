@@ -74,6 +74,11 @@ describe("Admin settings general", function () {
 
     // Check if settings are shown
     cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.settings");
   });
 
   it("check loading with edit permission", function () {
@@ -102,6 +107,11 @@ describe("Admin settings general", function () {
 
     // Check if settings are shown
     cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.settings");
   });
 
   it("load settings errors", function () {

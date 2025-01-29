@@ -88,6 +88,12 @@ describe("Admin roles edit", function () {
       .and("not.be.disabled")
       .and("include.text", "app.save");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+
     // Change role settings
     cy.get('[data-test="name-field"]')
       .should("be.visible")
@@ -96,6 +102,12 @@ describe("Admin roles edit", function () {
         cy.get("#name").should("have.value", "Staff").clear();
         cy.get("#name").type("Standard role");
       });
+
+    // Check that breadcrumbs stays the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
 
     cy.get('[data-test="roles-room-limit-help-dialog"]').should("not.exist");
     cy.get('[data-test="room-limit-field"]')
@@ -494,6 +506,15 @@ describe("Admin roles edit", function () {
     // Check that role page is shown
     cy.url().should("include", "/admin/roles/2");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+      );
   });
 
   it("edit role with different room limits", function () {
@@ -1362,6 +1383,12 @@ describe("Admin roles edit", function () {
 
     cy.wait("@roleRequest");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+
     // Check with 422 error
     cy.intercept("PUT", "api/v1/roles/2", {
       statusCode: 422,
@@ -1457,6 +1484,15 @@ describe("Admin roles edit", function () {
     cy.get('[data-test="stale-dialog-reject-button"]').click();
 
     cy.get('[data-test="stale-role-dialog"]').should("not.exist");
+
+    // Check that breadcrumbs is updated
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.roles.edit_{"name":"Standard role"}',
+      );
 
     // Check that correct data is shown
     cy.get("#name").should("have.value", "Standard role");
@@ -1554,6 +1590,11 @@ describe("Admin roles edit", function () {
         body: role,
       }).as("saveChangesRequest");
 
+      cy.intercept("GET", "api/v1/roles/2", {
+        statusCode: 200,
+        body: role,
+      }).as("roleRequest");
+
       cy.get('[data-test="stale-dialog-accept-button"]').click();
 
       // Check that correct data is sent
@@ -1570,6 +1611,15 @@ describe("Admin roles edit", function () {
     // Check that redirect worked
     cy.url().should("include", "/admin/roles/2");
     cy.url().should("not.include", "/edit");
+
+    // Check that breadcrumbs stays the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+      );
 
     // Reload
     cy.visit("/admin/roles/2/edit");
@@ -1692,6 +1742,89 @@ describe("Admin roles edit", function () {
     cy.intercept("GET", "api/v1/permissions", {
       statusCode: 401,
     }).as("permissionsRequest");
+
+    cy.visit("/admin/roles/2/edit");
+
+    cy.wait("@roleRequest");
+    cy.wait("@permissionsRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/roles/2/edit");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("load role errors", function () {
+    cy.intercept("GET", "api/v1/roles/2", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("roleRequest");
+
+    cy.visit("/admin/roles/2/edit");
+
+    cy.wait("@roleRequest");
+    cy.wait("@permissionsRequest");
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Reload with correct data
+    cy.intercept("GET", "api/v1/roles/2", {
+      statusCode: 200,
+      fixture: "role.json",
+    }).as("roleRequest");
+
+    cy.get('[data-test="loading-retry-button"]')
+      .should("be.visible")
+      .and("have.text", "app.reload")
+      .click();
+
+    cy.wait("@roleRequest");
+    cy.wait("@permissionsRequest");
+
+    // Check that overlay is not shown anymore
+    cy.get('[data-test="overlay"]').should("not.exist");
+    cy.get('[data-test="loading-retry-button"]').should("not.exist");
+
+    // Reload with 404 error
+    cy.interceptAdminRolesIndexRequests();
+
+    cy.intercept("GET", "api/v1/roles/2", {
+      statusCode: 404,
+      body: {
+        message: "No query results for model",
+      },
+    }).as("roleRequest");
+
+    cy.reload();
+
+    cy.wait("@roleRequest");
+    cy.wait("@permissionsRequest");
+
+    // Check that redirect worked
+    cy.url().should("not.include", "/admin/roles/2/edit");
+    cy.url().should("include", "/admin/roles");
+
+    cy.wait("@rolesRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Reload page with 401 error
+    cy.intercept("GET", "api/v1/roles/2", {
+      statusCode: 401,
+    }).as("roleRequest");
 
     cy.visit("/admin/roles/2/edit");
 

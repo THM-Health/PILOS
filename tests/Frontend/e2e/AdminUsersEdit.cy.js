@@ -177,6 +177,15 @@ describe("Admin users edit", function () {
       .and("not.be.disabled")
       .and("include.text", "app.save");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.users.index")
+      .should(
+        "include.text",
+        'admin.breakcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+      );
+
     cy.get('[data-test="base-tab-button"]').should("be.visible");
     cy.get('[data-test="email-tab-button"]').should("be.visible");
     cy.get('[data-test="security-tab-button"]').should("be.visible");

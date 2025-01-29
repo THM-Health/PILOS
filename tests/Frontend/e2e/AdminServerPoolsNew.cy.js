@@ -58,12 +58,24 @@ describe("Admin server pools new", function () {
     cy.get('[data-test="server-pools-edit-button"]').should("not.exist");
     cy.get('[data-test="server-pools-delete-button"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breakcrumbs.server_pools.new");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "app.model_name")
       .within(() => {
         cy.get("#name").should("have.value", "").type("Server Pool 1");
       });
+
+    // Check that breadcrumbs stay the same
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breakcrumbs.server_pools.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")

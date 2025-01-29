@@ -76,6 +76,11 @@ describe("Admin roles index", function () {
 
     cy.get('[data-test="roles-add-buton"]').should("not.exist");
 
+    // Check that breadcrumbs are shown correctly
+    cy.get('[data-test="admin-breadcrumb"]')
+      .should("be.visible")
+      .should("include.text", "admin.breakcrumbs.roles.index");
+
     // Check that table headers are shown correctly
     cy.get('[data-test="role-header-cell"]').should("have.length", 2);
 
