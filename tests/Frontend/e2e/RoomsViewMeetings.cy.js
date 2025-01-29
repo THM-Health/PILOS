@@ -283,6 +283,8 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
+    cy.interceptRoomFilesRequest();
+
     cy.visit("/rooms/abc-def-123");
 
     cy.get('[data-test="room-join-button"]').click();
@@ -352,6 +354,8 @@ describe("Rooms view meetings", function () {
         },
       },
     }).as("joinRequest");
+
+    cy.interceptRoomFilesRequest();
 
     cy.visit("/rooms/abc-def-123");
 
@@ -430,6 +434,7 @@ describe("Rooms view meetings", function () {
         body: room,
       }).as("roomRequest");
     });
+    cy.interceptRoomFilesRequest();
 
     cy.visit("/rooms/abc-def-123");
 
@@ -662,6 +667,8 @@ describe("Rooms view meetings", function () {
         url: "https://example.org/?foo=a&bar=b",
       },
     }).as("joinRequest");
+
+    cy.interceptRoomFilesRequest();
 
     // Visit room with token
     cy.visit(
@@ -1204,6 +1211,8 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
+    cy.interceptRoomFilesRequest();
+
     cy.visit("/rooms/abc-def-123");
 
     // Test with invalid name
@@ -1268,6 +1277,8 @@ describe("Rooms view meetings", function () {
         },
       },
     }).as("startRequest");
+
+    cy.interceptRoomFilesRequest();
 
     cy.visit("/rooms/abc-def-123");
 
@@ -1342,6 +1353,7 @@ describe("Rooms view meetings", function () {
         body: room,
       }).as("roomRequest");
     });
+    cy.interceptRoomFilesRequest();
 
     cy.visit("/rooms/abc-def-123");
 
@@ -1544,6 +1556,8 @@ describe("Rooms view meetings", function () {
         url: "https://example.org/?foo=a&bar=b",
       },
     }).as("startRequest");
+
+    cy.interceptRoomFilesRequest();
 
     // Visit room with token
     cy.visit(
