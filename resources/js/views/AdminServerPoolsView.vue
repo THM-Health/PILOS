@@ -156,6 +156,7 @@
                 outlined
                 severity="secondary"
                 icon="fa-solid fa-sync"
+                :aria-label="$t('app.reload')"
                 @click="loadServers(serversCurrentPage)"
               />
             </InputGroup>

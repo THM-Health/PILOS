@@ -190,6 +190,7 @@
                   severity="secondary"
                   outlined
                   icon="fa-solid fa-sync"
+                  :aria-label="$t('app.reload')"
                   @click="loadServerPools(serverPoolsCurrentPage)"
                 />
               </InputGroup>
