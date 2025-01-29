@@ -287,41 +287,6 @@ describe("Admin room types view room type actions", function () {
       "Replacement room type required! Rooms are still assigned to this room type.",
     );
 
-    // Check with 404 error //ToDo not implemented yet on view page
-    // cy.intercept("DELETE", "api/v1/roomTypes/3", {
-    //   statusCode: 404,
-    //   body: {
-    //     message: "No query results for model",
-    //   },
-    // }).as("deleteRoomTypeRequest");
-    //
-    // cy.get('[data-test="dialog-continue-button"]').click();
-    //
-    // cy.wait("@deleteRoomTypeRequest");
-    // cy.wait("@roomTypesRequest");
-    //
-    // // Check that redirect worked
-    // cy.url().should("not.include", "/admin/room_types/3");
-    // cy.url().should("include", "/admin/room_types");
-    //
-    // // Check that error message
-    // cy.checkToastMessage([
-    //   'app.flash.server_error.message_{"message":"No query results for model"}',
-    //   'app.flash.server_error.error_code_{"statusCode":404}',
-    // ]);
-    //
-    // // Reload page
-    // cy.visit("/admin/room_types/3");
-    //
-    // cy.wait("@roomTypeRequest");
-    //
-    // cy.get('[data-test="room-types-delete-button"]').click();
-    //
-    // // Check that replacement room types are loaded
-    // cy.wait("@roomTypesRequest");
-    //
-    // cy.get('[data-test="room-types-delete-dialog"]').should("be.visible");
-
     // Check with 401 error
     cy.intercept("DELETE", "api/v1/roomTypes/3", {
       statusCode: 401,
@@ -378,7 +343,6 @@ describe("Admin room types view room type actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // ToDo this is not implemented yet!!!! so careful when keeping this part of the test !!!!
     // Check that dropdown is disabled
     cy.get('[data-test="replacement-room-type-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");

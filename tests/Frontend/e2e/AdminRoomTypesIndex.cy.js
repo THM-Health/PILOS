@@ -127,7 +127,7 @@ describe("Admin room types index", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that overlay is shown ToDo this is not implemented yet!!!! so careful when keeping this part of the test !!!!
+    // Check that overlay is shown
     cy.get('[data-test="overlay"]').should("be.visible");
 
     // Check that components are not disabled
@@ -135,8 +135,7 @@ describe("Admin room types index", function () {
       cy.get("input").should("be.visible").and("not.be.disabled");
       cy.get("button").should("be.visible").and("not.be.disabled");
     });
-    // ToDo this is not implemented yet!!!! so careful when keeping this part of the test !!!!
-    //  (Only important for 500 error part)
+
     cy.intercept("GET", "api/v1/roomTypes*", {
       statusCode: 200,
       fixture: "roomTypes.json",

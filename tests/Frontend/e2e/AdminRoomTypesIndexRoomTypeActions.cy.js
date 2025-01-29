@@ -440,7 +440,6 @@ describe("Admin room types index room type actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // ToDo this is not implemented yet!!!! so careful when keeping this part of the test !!!!
     // Check that dropdown is disabled
     cy.get('[data-test="replacement-room-type-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
