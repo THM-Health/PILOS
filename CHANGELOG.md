@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error handling in room statistics ([#1535], [#1600])
 - Error handling in room attendance ([#1535], [#1600])
 - Close multiselect dropdowns on selection ([#1588])
+- Permissions loading behaviour (AdminRolesView) ([#1588])
 - Improve frontend tests for login page ([#1794])
 
 ### Fixed
