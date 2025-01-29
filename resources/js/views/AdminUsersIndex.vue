@@ -22,7 +22,7 @@
       <div class="flex flex-col justify-end gap-2 md:flex-row">
         <InputGroup class="min-w-80 shrink-0 grow">
           <multiselect
-            ref="rolesMultiselectRef"
+            ref="roles-multiselect"
             v-model="filter.role"
             data-test="role-dropdown"
             :placeholder="$t('admin.users.role_filter')"
@@ -32,7 +32,7 @@
             :searchable="false"
             :internal-search="false"
             :clear-on-select="false"
-            :close-on-select="false"
+            :close-on-select="true"
             :show-no-results="false"
             :show-labels="false"
             :options="roles"
@@ -87,6 +87,7 @@
             outlined
             severity="secondary"
             icon="fa-solid fa-sync"
+            :aria-label="$t('app.reload')"
             data-test="roles-reload-button"
             @click="loadRoles(rolesCurrentPage)"
           />
@@ -278,7 +279,7 @@
 
 <script setup>
 import { useApi } from "../composables/useApi.js";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useSettingsStore } from "../stores/settings";
 import { Multiselect } from "vue-multiselect";
@@ -314,7 +315,7 @@ const rolesLoading = ref(false);
 const rolesLoadingError = ref(false);
 const rolesCurrentPage = ref(1);
 const rolesHasNextPage = ref(false);
-const rolesMultiselectRef = ref();
+const rolesMultiselectRef = useTemplateRef("roles-multiselect");
 
 /**
  * Loads the user, part of roles that can be selected and enables an event listener
@@ -351,7 +352,7 @@ function loadRoles(page = 1) {
     .catch((error) => {
       rolesMultiselectRef.value.deactivate();
       rolesLoadingError.value = true;
-      error(error, this.$root, error.message);
+      api.error(error);
     })
     .finally(() => {
       rolesLoading.value = false;

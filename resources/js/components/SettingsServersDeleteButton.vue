@@ -15,7 +15,7 @@
     :breakpoints="{ '575px': '90vw' }"
     modal
     :close-on-escape="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :dismissable-mask="!isBusy"
     :draggable="false"
     data-test="servers-delete-dialog"
@@ -25,6 +25,7 @@
     <template #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
         data-test="dialog-cancel-button"
         @click="modalVisible = false"

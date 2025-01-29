@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Missing loading retry button on room types overview page ([#1588])
+- Reload button for replacement room type in delete dialog on room types overview page ([#1588])
 - Permission restrictions to prevent non-superusers from editing and deleting superusers ([#1651])
 - Permission restrictions to prevent non-superusers from assigning the superuser role ([#1651])
 - Environment variable for configuring restricted permissions that cannot be assigned to non-superuser roles ([#1651])
@@ -21,11 +23,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real-time input validation on create superuser command ([#1651])
 - Error handling in room statistics ([#1535], [#1600])
 - Error handling in room attendance ([#1535], [#1600])
+- Close multiselect dropdowns on selection ([#1588])
+- Permissions loading behaviour on view/edit page of roles ([#1588])
 - Improve frontend tests for login page ([#1794])
 - Access code input type on room settings section to hide browser arrow buttons ([#1827], [#1829])
 
 ### Fixed
 
+- Search not disabled during loading on the overview pages for roles, room types, servers and server pools ([#1675], [#1588])
+- Overlays not shown after loading error on view/edit pages of servers and server pools ([#1677], [#1588])
+- Dialog buttons not disabled correctly during actions on the overview/view/edit pages for roles, room types, servers and server pools ([#1711], [#1588])
+- Dialogs being closable during loading on the overview/view/edit pages for roles, room types, servers and server pools ([#1588])
+- Form validation error messages on view/edit pages room types, server pools and application settings ([#1588])
+- Error handling on the overview page of users ([#1588])
+- Stale error handling on the view/edit page of sever pools ([#1588])
+- 404 error handling on the room types delete dialog ([#1588])
+- Set empty BBB logo image url ([#1751], [#1588])
+- 401 error handling on view/edit/create page of users ([#1588])
+- Overlay reload buttons on view/edit/create page of roles, room types, servers and server pools ([#1588])
 - Wrong error message shown for 422 errors when verifying email ([#1744], [#1758])
 - Broken banner link style 'warning' ([#1759], [#1760])
 - Inconsistent select/multiselect loading states ([#1772])
@@ -331,6 +346,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1559]: https://github.com/THM-Health/PILOS/issues/1559
 [#1561]: https://github.com/THM-Health/PILOS/pull/1561
 [#1565]: https://github.com/THM-Health/PILOS/pull/1565
+[#1588]: https://github.com/THM-Health/PILOS/pull/1588
 [#1569]: https://github.com/THM-Health/PILOS/pull/1569
 [#1595]: https://github.com/THM-Health/PILOS/pull/1595
 [#1600]: https://github.com/THM-Health/PILOS/pull/1600
@@ -340,13 +356,19 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1616]: https://github.com/THM-Health/PILOS/pull/1616
 [#1617]: https://github.com/THM-Health/PILOS/pull/1617
 [#1618]: https://github.com/THM-Health/PILOS/pull/1618
+[#1636]: https://github.com/THM-Health/PILOS/issues/1636
 [#1651]: https://github.com/THM-Health/PILOS/issues/1651
+[#1675]: https://github.com/THM-Health/PILOS/issues/1675
+[#1677]: https://github.com/THM-Health/PILOS/issues/1677
+[#1678]: https://github.com/THM-Health/PILOS/pull/1678
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
+[#1711]: https://github.com/THM-Health/PILOS/issues/1711
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
 [#1724]: https://github.com/THM-Health/PILOS/pull/1724
 [#1744]: https://github.com/THM-Health/PILOS/issues/1744
+[#1751]: https://github.com/THM-Health/PILOS/issues/1751
 [#1758]: https://github.com/THM-Health/PILOS/pull/1758
 [#1759]: https://github.com/THM-Health/PILOS/issues/1759
 [#1760]: https://github.com/THM-Health/PILOS/pull/1760

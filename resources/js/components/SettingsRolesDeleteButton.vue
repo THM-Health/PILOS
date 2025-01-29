@@ -17,7 +17,7 @@
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
     :dismissable-mask="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :draggable="false"
     data-test="roles-delete-dialog"
   >
@@ -27,6 +27,7 @@
     <template #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
         data-test="dialog-cancel-button"
         @click="modalVisible = false"

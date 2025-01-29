@@ -165,6 +165,7 @@
                 severity="secondary"
                 outlined
                 icon="fa-solid fa-sync"
+                :aria-label="$t('app.reload')"
                 :loading="roomTypesBusy"
                 @click="loadRoomTypes"
               />

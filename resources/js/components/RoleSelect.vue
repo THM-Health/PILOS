@@ -1,7 +1,7 @@
 <template>
   <InputGroup>
     <multiselect
-      ref="rolesMultiselectRef"
+      ref="roles-multiselect"
       :aria-labelledby="ariaLabelledby"
       data-test="role-dropdown"
       :placeholder="$t('admin.roles.select_roles')"
@@ -90,6 +90,7 @@
       severity="secondary"
       outlined
       icon="fa-solid fa-sync"
+      :aria-label="$t('app.reload')"
       data-test="roles-reload-button"
       @click="loadRoles(currentPage)"
     />
@@ -97,7 +98,7 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, watch } from "vue";
+import { onBeforeMount, ref, useTemplateRef, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { Multiselect } from "vue-multiselect";
 
@@ -142,7 +143,7 @@ const loading = ref(false);
 const loadingError = ref(false);
 const currentPage = ref(1);
 const hasNextPage = ref(false);
-const rolesMultiselectRef = ref(null);
+const rolesMultiselectRef = useTemplateRef("roles-multiselect");
 
 watch(
   () => props.modelValue,

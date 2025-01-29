@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="mb-6 flex justify-end">
-      <div v-if="model.id && id !== 'new'" class="flex gap-2">
+      <div
+        v-if="model.id && id !== 'new' && permissionsLoaded"
+        class="flex gap-2"
+      >
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
           as="router-link"
@@ -31,16 +34,18 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy || modelLoadingError">
+    <OverlayComponent
+      :show="isBusy || modelLoadingError || permissionsLoadingError"
+    >
       <template #overlay>
         <LoadingRetryButton
-          :error="modelLoadingError"
+          :error="modelLoadingError || permissionsLoadingError"
           @reload="load()"
         ></LoadingRetryButton>
       </template>
 
       <form
-        :aria-hidden="modelLoadingError"
+        :aria-hidden="modelLoadingError || permissionsLoadingError"
         class="flex flex-col gap-4"
         @submit.prevent="saveRole"
       >
@@ -55,7 +60,7 @@
               class="w-full"
               type="text"
               :invalid="formErrors.fieldInvalid('name')"
-              :disabled="isBusy || modelLoadingError || viewOnly"
+              :disabled="formFieldsDisabled"
             />
             <FormError :errors="formErrors.fieldError('name')" />
           </div>
@@ -68,7 +73,9 @@
               <Button
                 severity="link"
                 class="secondary"
-                :disabled="isBusy || modelLoadingError"
+                :disabled="
+                  isBusy || modelLoadingError || permissionsLoadingError
+                "
                 icon="fa-solid fa-circle-info"
                 data-test="roles-room-limit-help-button"
                 @click="helpRoomLimitModalVisible = true"
@@ -86,9 +93,7 @@
                 v-model="roomLimitMode"
                 :input-id="option.value"
                 :value="option.value"
-                :disabled="
-                  isBusy || modelLoadingError || viewOnly || model.superuser
-                "
+                :disabled="formFieldsDisabled || model.superuser"
                 @change="roomLimitModeChanged(option.value)"
               />
               <label :for="option.value" class="ml-2">{{ option.text }}</label>
@@ -102,7 +107,7 @@
               show-buttons
               :min="0"
               :invalid="formErrors.fieldInvalid('room_limit')"
-              :disabled="isBusy || modelLoadingError || viewOnly"
+              :disabled="formFieldsDisabled"
             />
             <FormError :errors="formErrors.fieldError('room_limit')" />
           </div>
@@ -161,9 +166,7 @@
                       :input-id="permission.name"
                       :value="permission.id"
                       :disabled="
-                        isBusy ||
-                        modelLoadingError ||
-                        viewOnly ||
+                        formFieldsDisabled ||
                         model.superuser ||
                         permission.restricted
                       "
@@ -212,7 +215,7 @@
         <div v-if="!viewOnly">
           <div class="flex justify-end">
             <Button
-              :disabled="isBusy || modelLoadingError"
+              :disabled="formFieldsDisabled"
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
@@ -389,6 +392,8 @@ watch(
 
 const includedPermissionMap = ref({});
 const permissions = ref({});
+const permissionsLoaded = ref(false);
+const permissionsLoadingError = ref(false);
 const roomLimitMode = ref("default");
 const busyCounter = ref(0);
 const modelLoadingError = ref(false);
@@ -422,6 +427,15 @@ const includedPermissions = computed(() => {
     model.value.permissions.flatMap((permission) =>
       [permission, includedPermissionMap.value[permission]].flat(),
     ),
+  );
+});
+
+const formFieldsDisabled = computed(() => {
+  return (
+    isBusy.value ||
+    modelLoadingError.value ||
+    props.viewOnly ||
+    permissionsLoadingError.value
   );
 });
 
@@ -480,6 +494,7 @@ function load() {
  * Loads the permissions that can be selected through checkboxes.
  */
 function loadPermissions() {
+  permissionsLoadingError.value = false;
   busyCounter.value++;
 
   api
@@ -550,9 +565,10 @@ function loadPermissions() {
         .forEach((key) => {
           permissions.value[key] = newPermissions[key];
         });
+      permissionsLoaded.value = true;
     })
     .catch((error) => {
-      modelLoadingError.value = true;
+      permissionsLoadingError.value = true;
       api.error(error);
     })
     .finally(() => {

@@ -32,8 +32,8 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy">
-      <template #loading>
+    <OverlayComponent :show="isBusy || modelLoadingError">
+      <template #overlay>
         <LoadingRetryButton
           :error="modelLoadingError"
           @reload="load"
@@ -165,12 +165,13 @@
                 outlined
                 severity="secondary"
                 icon="fa-solid fa-sync"
+                :aria-label="$t('app.reload')"
                 data-test="servers-reload-button"
                 @click="loadServers(serversCurrentPage)"
               />
             </InputGroup>
+            <FormError :errors="formErrors.fieldError('servers', true)" />
           </div>
-          <FormError :errors="formErrors.fieldError('servers', true)" />
         </div>
         <div v-if="!viewOnly">
           <div class="flex justify-end">
@@ -406,7 +407,7 @@ function handleStaleError(staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
-      name.value = staleError.newMember.name;
+      name.value = staleError.new_model.name;
     },
   });
 }

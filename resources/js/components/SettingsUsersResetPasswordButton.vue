@@ -28,7 +28,7 @@
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
     :dismissable-mask="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :draggable="false"
     data-test="users-reset-password-dialog"
   >
@@ -44,6 +44,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
+        :disabled="isBusy"
         data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />

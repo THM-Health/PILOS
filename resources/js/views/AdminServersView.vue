@@ -31,8 +31,8 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy">
-      <template #loading>
+    <OverlayComponent :show="isBusy || modelLoadingError">
+      <template #overlay>
         <LoadingRetryButton
           :error="modelLoadingError"
           @reload="load"
