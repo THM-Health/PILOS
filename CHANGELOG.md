@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add missing loading retry button (Admin RoomTypesIndex) ([#1588])
+- Add reload button for replacement room type (RoomTypesDeleteButton) ([#1588])
 - Permission restrictions to prevent non-superusers from editing and deleting superusers ([#1651])
 - Permission restrictions to prevent non-superusers from assigning the superuser role ([#1651])
 - Environment variable for configuring restricted permissions that cannot be assigned to non-superuser roles ([#1651])
@@ -21,10 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real-time input validation on create superuser command ([#1651])
 - Error handling in room statistics ([#1535], [#1600])
 - Error handling in room attendance ([#1535], [#1600])
+- Close multiselect dropdowns on selection ([#1588])
 - Improve frontend tests for login page ([#1794])
 
 ### Fixed
 
+- Search not disabled during loading (admin index pages) ([#1675], [#1588])
+- Overlays not shown after loading error (admin view pages) ([#1677], [#1588])
+- Dialog buttons not disabled correctly during actions on admin pages ([#1711], [#1588])
+- Error messages (AdminServerPoolsView, AdminRoomTypesView, AdminSettings) ([#1588])
+- Error handling (AdminUsersIndex, AdminServerPoolsView (staleError), RoomTypesDeleteButton (404 error)) ([#1588])
+- BBB logo image url input ([#1751], [#1588])
+- Access superuser attribute ([#1588])
+- Accessing multiselect ref ([#1588])
+- Overlay reload buttons ([#1588])
 - Wrong error message shown for 422 errors when verifying email ([#1744], [#1758])
 - Broken banner link style 'warning' ([#1759], [#1760])
 - Inconsistent select/multiselect loading states ([#1772])
@@ -328,6 +340,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1559]: https://github.com/THM-Health/PILOS/issues/1559
 [#1561]: https://github.com/THM-Health/PILOS/pull/1561
 [#1565]: https://github.com/THM-Health/PILOS/pull/1565
+[#1588]: https://github.com/THM-Health/PILOS/pull/1588
 [#1569]: https://github.com/THM-Health/PILOS/pull/1569
 [#1595]: https://github.com/THM-Health/PILOS/pull/1595
 [#1600]: https://github.com/THM-Health/PILOS/pull/1600
@@ -338,12 +351,16 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1617]: https://github.com/THM-Health/PILOS/pull/1617
 [#1618]: https://github.com/THM-Health/PILOS/pull/1618
 [#1651]: https://github.com/THM-Health/PILOS/issues/1651
+[#1675]: https://github.com/THM-Health/PILOS/issues/1675
+[#1677]: https://github.com/THM-Health/PILOS/issues/1677
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
+[#1711]: https://github.com/THM-Health/PILOS/issues/1711
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
 [#1724]: https://github.com/THM-Health/PILOS/pull/1724
 [#1744]: https://github.com/THM-Health/PILOS/issues/1744
+[#1751]: https://github.com/THM-Health/PILOS/issues/1751
 [#1758]: https://github.com/THM-Health/PILOS/pull/1758
 [#1759]: https://github.com/THM-Health/PILOS/issues/1759
 [#1760]: https://github.com/THM-Health/PILOS/pull/1760
