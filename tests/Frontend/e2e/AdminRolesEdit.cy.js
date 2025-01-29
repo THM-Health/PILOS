@@ -1679,11 +1679,7 @@ describe("Admin roles edit", function () {
     cy.wait("@roleRequest");
 
     // Check loading
-    cy.get('[data-test="roles-cancel-edit-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/roles/2");
+    cy.get('[data-test="roles-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="roles-edit-button"]').should("not.exist");
     cy.get('[data-test="roles-delete-button"]').should("not.exist");
     cy.get('[data-test="roles-save-button"]')
@@ -1703,11 +1699,7 @@ describe("Admin roles edit", function () {
     cy.get('[data-test="overlay"]').should("be.visible");
 
     // Check that buttons are still hidden
-    cy.get('[data-test="roles-cancel-edit-button"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/roles/2");
+    cy.get('[data-test="roles-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="roles-edit-button"]').should("not.exist");
     cy.get('[data-test="roles-delete-button"]').should("not.exist");
     cy.get('[data-test="roles-save-button"]')
