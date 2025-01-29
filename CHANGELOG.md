@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Display raw permission names in the admin interface ([#1651])
 - Visual tests with [Happo.io](https://happo.io) ([#1600])
 - Artisan command for provisioning via JSON file ([#1636], [#1678])
+- Frontend tests for Footer ([#1150], [#1844])
+- Frontend tests for Banner ([#1150], [#1844])
+- Frontend tests for Forgot Password, Password Reset, Verify Email pages ([#1150], [#1844])
+- Frontend tests for Admin Index page ([#1150], [#1844])
+- Frontend tests for Admin Settings page ([#1150], [#1844])
+- Frontend tests for Admin Users page ([#1150], [#1844])
+- Frontend tests for Admin Roles page ([#1150], [#1844])
+- Frontend tests for Admin Room Types page ([#1150], [#1844])
+- Frontend tests for Admin Servers page ([#1150], [#1844])
+- Frontend tests for Admin Server Pools page ([#1150], [#1844])
+- Frontend tests for Meetings Index page ([#1150], [#1844])
 
 ### Changed
 
@@ -27,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Permissions loading behaviour on view/edit page of roles ([#1588])
 - Improve frontend tests for login page ([#1794])
 - Access code input type on room settings section to hide browser arrow buttons ([#1827], [#1829])
+- Improve current Frontend tests ([#1150], [#1844])
 
 ### Fixed
 
@@ -383,6 +395,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1825]: https://github.com/THM-Health/PILOS/pull/1825
 [#1827]: https://github.com/THM-Health/PILOS/issues/1827
 [#1829]: https://github.com/THM-Health/PILOS/pull/1829
+[#1844]: https://github.com/THM-Health/PILOS/pull/1844
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
