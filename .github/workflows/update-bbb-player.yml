@@ -1,0 +1,37 @@
+name: Check for BBB Player Updates
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # Run every day at midnight
+
+jobs:
+  check-for-updates:
+    name: Check for BBB Player Updates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get the latest BBB Player version
+        run: echo "LATEST_PLAYER_VERSION=$(curl -s https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest | jq -r '.tag_name' | sed 's/^v//')" >> $GITHUB_ENV
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Extract the current BBB Player version from Docker file
+        run: echo "CURRENT_PLAYER_VERSION=$(sed -n 's/ARG PLAYBACK_PLAYER_VERSION=//p' docker/app/Dockerfile)" >> $GITHUB_ENV
+      - name: Compare the versions
+        run: echo "NEEDS_UPDATE=$(dpkg --compare-versions ${{ env.LATEST_PLAYER_VERSION }} gt ${{ env.CURRENT_PLAYER_VERSION }} && echo true || echo false)" >> $GITHUB_ENV
+      - name: Update the BBBPlayer
+        if: ${{ env.NEEDS_UPDATE == 'true' }}
+        run: |
+          sed -i "s/ARG PLAYBACK_PLAYER_VERSION=.*/ARG PLAYBACK_PLAYER_VERSION=${LATEST_PLAYER_VERSION}/" docker/app/Dockerfile
+      - name: Create PR with the update
+        if: ${{ env.NEEDS_UPDATE == 'true' }}
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: "docker/app/Dockerfile"
+          commit-message: "Update BBB Player to version ${{ env.LATEST_PLAYER_VERSION }}"
+          title: "Update BBB Player to version ${{ env.LATEST_PLAYER_VERSION }}"
+          body: "This PR updates the BBB Player to version ${{ env.LATEST_PLAYER_VERSION }}"
+          branch: "update-bbb-player-${{ env.LATEST_PLAYER_VERSION }}"
