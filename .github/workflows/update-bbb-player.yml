@@ -1,6 +1,9 @@
 name: Check for BBB Player Updates
 
 on:
+  push:
+    branches:
+      - move-bbb-player-build
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *" # Run every day at midnight
