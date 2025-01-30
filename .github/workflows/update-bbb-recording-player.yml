@@ -26,7 +26,7 @@ jobs:
           sed -i "s/ARG PLAYBACK_PLAYER_VERSION=.*/ARG PLAYBACK_PLAYER_VERSION=${LATEST_PLAYER_VERSION}/" docker/app/Dockerfile
       - name: Create PR with the update
         if: ${{ env.NEEDS_UPDATE == 'true' }}
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           add-paths: "docker/app/Dockerfile"
