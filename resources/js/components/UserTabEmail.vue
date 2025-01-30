@@ -121,7 +121,7 @@ const isBusy = ref(false);
 const validationRequiredEmail = ref(null);
 
 const isOwnUser = computed(() => {
-  return authStore.currentUser.id === props.user.id;
+  return authStore.currentUser?.id === props.user.id;
 });
 
 onBeforeMount(() => {

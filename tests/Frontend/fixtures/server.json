@@ -1,0 +1,21 @@
+{
+  "data": {
+    "id": 1,
+    "name": "Server 01",
+    "description": "Testserver 01",
+    "base_url": "https://localhost/bigbluebutton",
+    "secret": "123456789",
+    "strength": 2,
+    "status": 1,
+    "health": 1,
+    "participant_count": 14,
+    "listener_count": 7,
+    "voice_participant_count": 7,
+    "video_count": 7,
+    "meeting_count": 3,
+    "own_meeting_count": 2,
+    "version": "2.4.5",
+    "model_name": "Server",
+    "updated_at": "2020-12-21T13:43:21.000000Z"
+  }
+}

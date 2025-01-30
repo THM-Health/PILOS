@@ -35,12 +35,10 @@
           :disabled="props.loading"
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
-          :state="
+          :invalid="
             props.errors !== null &&
             props.errors.password &&
             props.errors.password.length > 0
-              ? false
-              : null
           "
         />
         <Button
@@ -50,6 +48,7 @@
           link
           class="self-start p-0"
           to="/forgot_password"
+          data-test="forgot-password-button"
         >
           {{ $t("auth.forgot_password") }}
         </Button>

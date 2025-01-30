@@ -157,6 +157,7 @@ describe("Login", function () {
     // Intercept config request to only show local login tab
     cy.fixture("config.json").then((config) => {
       config.data.auth.local = true;
+      config.data.user.password_change_allowed = false;
 
       cy.intercept("GET", "api/v1/config", {
         statusCode: 200,
@@ -202,6 +203,9 @@ describe("Login", function () {
           cy.get("#local-password").should("have.value", "").type("password");
         });
 
+      // Check that forgot password link is hidden because password change is not allowed
+      cy.get('[data-test="forgot-password-button"]').should("not.exist");
+
       // Intercept requests that will be needed to show the room index page (needed to check redirect)
       cy.intercept("GET", "api/v1/currentUser", {
         fixture: "currentUser.json",
@@ -241,6 +245,38 @@ describe("Login", function () {
     cy.checkToastMessage("auth.flash.login");
     // Check if redirect works
     cy.url().should("include", "/rooms").and("not.include", "/login");
+  });
+
+  it("open forgot password page", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.auth.local = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/login");
+
+    // Check if local login tab is shown correctly
+    cy.get('[data-test="login-tab-local"]').within(() => {
+      cy.get("#local-email").should("be.visible").and("not.be.disabled");
+      cy.get("#local-password").should("be.visible").and("not.be.disabled");
+
+      cy.get('[data-test="login-button"]')
+        .should("be.visible")
+        .and("not.be.disabled");
+
+      // Check that forgot password link is shown
+      cy.get('[data-test="forgot-password-button"]')
+        .should("be.visible")
+        .and("not.be.disabled")
+        .and("have.text", "auth.forgot_password")
+        .click();
+    });
+
+    cy.url().should("include", "/forgot_password").and("not.include", "/login");
   });
 
   it("hide local login if disabled", function () {
@@ -340,6 +376,9 @@ describe("Login", function () {
       .should("be.visible")
       .and("include.text", "Password or Email wrong!");
 
+    // Check email field is marked as invalid
+    cy.get("#local-email").should("have.attr", "aria-invalid", "true");
+
     // Check with different 422 error
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 422,
@@ -361,10 +400,16 @@ describe("Login", function () {
       .should("be.visible")
       .and("not.include.text", "Password or Email wrong!");
 
+    // Check email field invalid state is removed
+    cy.get("#local-email").should("not.have.attr", "aria-invalid");
+
     // Check if error gets displayed
     cy.get('[data-test="password-field"]')
       .should("be.visible")
       .and("include.text", "The Password field is required.");
+
+    // Check password field is marked as invalid
+    cy.get("#local-password").should("have.attr", "aria-invalid", "true");
 
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/local", {
@@ -389,6 +434,9 @@ describe("Login", function () {
     // Check that 422 error messages are hidden
     cy.contains("Password or Email wrong!").should("not.exist");
     cy.contains("The Password field is required.").should("not.exist");
+
+    // Check password field invalid state is removed
+    cy.get("#local-password").should("not.have.attr", "aria-invalid");
 
     // Other api errors
     cy.intercept("POST", "api/v1/login/local", {
@@ -467,6 +515,9 @@ describe("Login", function () {
       .should("be.visible")
       .and("include.text", "These credentials do not match our records.");
 
+    // Check username field is marked as invalid
+    cy.get("#ldap-username").should("have.attr", "aria-invalid", "true");
+
     // Check with different error
     cy.intercept("POST", "api/v1/login/ldap", {
       statusCode: 422,
@@ -488,10 +539,16 @@ describe("Login", function () {
       .should("be.visible")
       .and("not.include.text", "These credentials do not match our records.");
 
+    // Check username field invalid state is removed
+    cy.get("#ldap-username").should("not.have.attr", "aria-invalid");
+
     // Check if error gets displayed
     cy.get('[data-test="password-field"]')
       .should("be.visible")
       .and("include.text", "The Password field is required.");
+
+    // Check password field is marked as invalid
+    cy.get("#ldap-password").should("have.attr", "aria-invalid", "true");
 
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/ldap", {
@@ -518,6 +575,9 @@ describe("Login", function () {
       "not.exist",
     );
     cy.contains("The Password field is required.").should("not.exist");
+
+    // Check password field invalid state is removed
+    cy.get("#ldap-password").should("not.have.attr", "aria-invalid");
 
     // Other api errors
     cy.intercept("POST", "api/v1/login/ldap", {

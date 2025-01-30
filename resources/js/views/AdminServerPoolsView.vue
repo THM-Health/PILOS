@@ -10,6 +10,7 @@
           severity="secondary"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
+          data-test="server-pools-cancel-edit-button"
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
@@ -19,6 +20,7 @@
           severity="info"
           icon="fa-solid fa-edit"
           :label="$t('app.edit')"
+          data-test="server-pools-edit-button"
         />
         <SettingsServerPoolsDeleteButton
           v-if="userPermissions.can('delete', model)"
@@ -30,8 +32,8 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy">
-      <template #loading>
+    <OverlayComponent :show="isBusy || modelLoadingError">
+      <template #overlay>
         <LoadingRetryButton
           :error="modelLoadingError"
           @reload="load"
@@ -43,7 +45,7 @@
         class="flex flex-col gap-4"
         @submit.prevent="saveServerPool"
       >
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{
             $t("app.model_name")
           }}</label>
@@ -59,7 +61,10 @@
             <FormError :errors="formErrors.fieldError('name')" />
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="description-field"
+        >
           <label for="description" class="col-span-12 md:col-span-4 md:mb-0">{{
             $t("app.description")
           }}</label>
@@ -75,7 +80,7 @@
             <FormError :errors="formErrors.fieldError('description')" />
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="server-field">
           <label id="servers-label" class="col-span-12 md:col-span-4 md:mb-0">{{
             $t("app.servers")
           }}</label>
@@ -84,6 +89,7 @@
               <multiselect
                 ref="serversMultiselectRef"
                 v-model="model.servers"
+                data-test="server-dropdown"
                 aria-labelledby="servers-label"
                 :placeholder="$t('admin.server_pools.select_servers')"
                 track-by="id"
@@ -116,7 +122,7 @@
                   {{ option.name }}
                 </template>
                 <template #tag="{ option, remove }">
-                  <Chip :label="option.name">
+                  <Chip :label="option.name" data-test="server-chip">
                     <span>{{ option.name }}</span>
                     <Button
                       v-if="!viewOnly"
@@ -128,6 +134,7 @@
                           name: option.name,
                         })
                       "
+                      data-test="remove-server-button"
                       @click="remove(option)"
                     />
                   </Chip>
@@ -139,6 +146,7 @@
                     severity="secondary"
                     icon="fa-solid fa-arrow-left"
                     :label="$t('app.previous_page')"
+                    data-test="previous-page-button"
                     @click="loadServers(Math.max(1, serversCurrentPage - 1))"
                   />
                   <Button
@@ -147,6 +155,7 @@
                     severity="secondary"
                     icon="fa-solid fa-arrow-right"
                     :label="$t('app.next_page')"
+                    data-test="next-page-button"
                     @click="loadServers(serversCurrentPage + 1)"
                   />
                 </template>
@@ -156,11 +165,13 @@
                 outlined
                 severity="secondary"
                 icon="fa-solid fa-sync"
+                :aria-label="$t('app.reload')"
+                data-test="servers-reload-button"
                 @click="loadServers(serversCurrentPage)"
               />
             </InputGroup>
+            <FormError :errors="formErrors.fieldError('servers', true)" />
           </div>
-          <FormError :errors="formErrors.fieldError('servers', true)" />
         </div>
         <div v-if="!viewOnly">
           <div class="flex justify-end">
@@ -174,12 +185,27 @@
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
+              data-test="server-pools-save-button"
             />
           </div>
         </div>
       </form>
     </OverlayComponent>
-    <ConfirmDialog></ConfirmDialog>
+    <ConfirmDialog
+      data-test="stale-server-pool-dialog"
+      :pt="{
+        pcAcceptButton: {
+          root: {
+            'data-test': 'stale-dialog-accept-button',
+          },
+        },
+        pcRejectButton: {
+          root: {
+            'data-test': 'stale-dialog-reject-button',
+          },
+        },
+      }"
+    ></ConfirmDialog>
   </div>
 </template>
 
@@ -381,7 +407,7 @@ function handleStaleError(staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
-      name.value = staleError.newMember.name;
+      name.value = staleError.new_model.name;
     },
   });
 }

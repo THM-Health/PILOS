@@ -5,6 +5,7 @@
     icon="fa-solid fa-trash"
     :disabled="isBusy"
     :aria-label="$t('admin.servers.delete.item', { name: props.name })"
+    data-test="servers-delete-button"
     @click="showModal()"
   />
   <Dialog
@@ -14,22 +15,26 @@
     :breakpoints="{ '575px': '90vw' }"
     modal
     :close-on-escape="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :dismissable-mask="!isBusy"
     :draggable="false"
+    data-test="servers-delete-dialog"
   >
     <span>{{ $t("admin.servers.delete.confirm", { name: props.name }) }}</span>
 
     <template #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
+        data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
         :loading="isBusy"
         severity="danger"
+        data-test="dialog-continue-button"
         @click="deleteServer"
       />
     </template>

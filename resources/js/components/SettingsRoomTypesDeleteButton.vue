@@ -17,7 +17,7 @@
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
     :dismissable-mask="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :draggable="false"
     data-test="room-types-delete-dialog"
   >
@@ -29,39 +29,53 @@
       <label for="replacement-room-type">{{
         $t("admin.room_types.delete.replacement")
       }}</label>
-      <Select
-        id="replacement-room-type"
-        v-model.number="replacement"
-        data-test="replacement-room-type-dropdown"
-        autofocus
-        :disabled="isBusy || loadingRoomTypes"
-        :loading="loadingRoomTypes"
-        :class="{
-          'p-invalid': formErrors.fieldInvalid('replacement_room_type'),
-        }"
-        :options="replacementRoomTypes"
-        :placeholder="$t('admin.room_types.delete.no_replacement')"
-        option-value="value"
-        option-label="text"
-        aria-describedby="replacement-help"
-        show-clear
-        :pt="{
-          listContainer: {
-            'data-test': 'replacement-room-type-dropdown-items',
-          },
-          option: {
-            'data-test': 'replacement-room-type-dropdown-option',
-          },
-        }"
-      >
-        <template #clearicon="{ clearCallback }">
-          <i
-            class="fa-solid fa-times p-icon p-select-clear-icon"
-            role="button"
-            @click.stop="clearCallback"
-          />
-        </template>
-      </Select>
+      <InputGroup>
+        <Select
+          id="replacement-room-type"
+          v-model.number="replacement"
+          data-test="replacement-room-type-dropdown"
+          autofocus
+          :disabled="
+            isBusy || loadingRoomTypes || replacementRoomTypesLoadingError
+          "
+          :loading="loadingRoomTypes"
+          :class="{
+            'p-invalid': formErrors.fieldInvalid('replacement_room_type'),
+          }"
+          :options="replacementRoomTypes"
+          :placeholder="$t('admin.room_types.delete.no_replacement')"
+          option-value="value"
+          option-label="text"
+          aria-describedby="replacement-help"
+          show-clear
+          :pt="{
+            listContainer: {
+              'data-test': 'replacement-room-type-dropdown-items',
+            },
+            option: {
+              'data-test': 'replacement-room-type-dropdown-option',
+            },
+          }"
+        >
+          <template #clearicon="{ clearCallback }">
+            <i
+              class="fa-solid fa-times p-icon p-select-clear-icon"
+              role="button"
+              @click.stop="clearCallback"
+            />
+          </template>
+        </Select>
+        <Button
+          v-if="replacementRoomTypesLoadingError"
+          :disabled="isBusy"
+          outlined
+          severity="secondary"
+          icon="fa-solid fa-sync"
+          :aria-label="$t('app.reload')"
+          data-test="replacement-room-types-reload-button"
+          @click="loadReplacementRoomTypes()"
+        />
+      </InputGroup>
       <FormError :errors="formErrors.fieldError('replacement_room_type')" />
       <small id="replacement-help">{{
         $t("admin.room_types.delete.replacement_info")
@@ -70,13 +84,16 @@
     <template #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
+        data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
         severity="danger"
         :loading="isBusy"
+        data-test="dialog-continue-button"
         @click="deleteRoomType"
       />
     </template>
@@ -110,6 +127,7 @@ const isBusy = ref(false);
 const replacement = ref(null);
 const replacementRoomTypes = ref([]);
 const loadingRoomTypes = ref(false);
+const replacementRoomTypesLoadingError = ref(false);
 
 /**
  * Shows the delete modal
@@ -124,6 +142,8 @@ function showModal() {
 
 function loadReplacementRoomTypes() {
   loadingRoomTypes.value = true;
+  replacementRoomTypesLoadingError.value = false;
+
   api
     .call("roomTypes")
     .then((response) => {
@@ -139,6 +159,7 @@ function loadReplacementRoomTypes() {
         });
     })
     .catch((error) => {
+      replacementRoomTypesLoadingError.value = true;
       api.error(error);
     })
     .finally(() => {
@@ -174,7 +195,6 @@ function deleteRoomType() {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
         modalVisible.value = false;
         emit("notFound");
-        return;
       }
       api.error(error);
     })

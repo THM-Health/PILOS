@@ -1,0 +1,94 @@
+{
+  "data": [
+    { "id": 3, "name": "rooms.create", "included_permissions": [] },
+    { "id": 4, "name": "rooms.viewAll", "included_permissions": [] },
+    { "id": 5, "name": "rooms.manage", "included_permissions": [3, 4] },
+    { "id": 6, "name": "meetings.viewAny", "included_permissions": [4] },
+    { "id": 7, "name": "admin.view", "included_permissions": [] },
+    { "id": 8, "name": "settings.viewAny", "included_permissions": [7] },
+    { "id": 9, "name": "settings.update", "included_permissions": [7, 8] },
+    { "id": 10, "name": "roles.viewAny", "included_permissions": [7] },
+    { "id": 11, "name": "roles.view", "included_permissions": [7, 10] },
+    { "id": 12, "name": "roles.update", "included_permissions": [7, 10, 11] },
+    {
+      "id": 13,
+      "name": "roles.create",
+      "included_permissions": [7, 10, 11, 12]
+    },
+    {
+      "id": 14,
+      "name": "roles.delete",
+      "included_permissions": [7, 10, 11, 12, 13]
+    },
+    { "id": 15, "name": "users.viewAny", "included_permissions": [7, 10] },
+    { "id": 16, "name": "users.view", "included_permissions": [7, 10, 15] },
+    {
+      "id": 17,
+      "name": "users.update",
+      "included_permissions": [7, 10, 15, 16, 20]
+    },
+    {
+      "id": 18,
+      "name": "users.create",
+      "included_permissions": [7, 10, 15, 16, 17, 20]
+    },
+    {
+      "id": 19,
+      "name": "users.delete",
+      "included_permissions": [7, 10, 15, 16, 17, 18, 20]
+    },
+    {
+      "id": 20,
+      "name": "users.updateOwnAttributes",
+      "included_permissions": []
+    },
+    { "id": 21, "name": "roomTypes.view", "included_permissions": [7] },
+    {
+      "id": 22,
+      "name": "roomTypes.update",
+      "included_permissions": [7, 10, 21, 30]
+    },
+    {
+      "id": 23,
+      "name": "roomTypes.create",
+      "included_permissions": [7, 10, 21, 22, 30]
+    },
+    {
+      "id": 24,
+      "name": "roomTypes.delete",
+      "included_permissions": [7, 10, 21, 22, 23, 30]
+    },
+    { "id": 25, "name": "servers.viewAny", "included_permissions": [7] },
+    { "id": 26, "name": "servers.view", "included_permissions": [7, 25] },
+    { "id": 27, "name": "servers.update", "included_permissions": [7, 25, 26] },
+    {
+      "id": 28,
+      "name": "servers.create",
+      "included_permissions": [7, 25, 26, 27]
+    },
+    {
+      "id": 29,
+      "name": "servers.delete",
+      "included_permissions": [7, 25, 26, 27, 28]
+    },
+    { "id": 30, "name": "serverPools.viewAny", "included_permissions": [7] },
+    { "id": 31, "name": "serverPools.view", "included_permissions": [7, 30] },
+    {
+      "id": 32,
+      "name": "serverPools.update",
+      "included_permissions": [7, 25, 30, 31]
+    },
+    {
+      "id": 33,
+      "name": "serverPools.create",
+      "included_permissions": [7, 25, 30, 31, 32]
+    },
+    {
+      "id": 34,
+      "name": "serverPools.delete",
+      "included_permissions": [7, 25, 30, 31, 32, 33]
+    },
+    { "id": 35, "name": "system.monitor", "included_permissions": [] }
+  ],
+  "meta": { "restrictions": [""] }
+}

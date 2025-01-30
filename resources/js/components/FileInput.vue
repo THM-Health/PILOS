@@ -4,6 +4,7 @@
     class="p-button p-component shrink-0"
     :class="{ 'p-disabled': disabled }"
     tabindex="0"
+    data-test="file-input-button"
     @keyup.enter="fileInputRef.click()"
     @keyup.space="fileInputRef.click()"
   >
@@ -17,6 +18,7 @@
     class="sr-only"
     :disabled="disabled"
     :accept="accept"
+    data-test="file-input-input"
     @input="fileSelected"
   />
 </template>

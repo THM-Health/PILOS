@@ -2,14 +2,16 @@
   <div>
     <div class="mb-6 flex flex-col justify-between md:flex-row">
       <div>
-        <InputGroup>
+        <InputGroup data-test="room-type-search">
           <InputText
             v-model="nameSearch"
+            :disabled="isBusy"
             :placeholder="$t('app.search')"
             @keyup.enter="filters['name'].value = nameSearch"
           />
           <Button
             v-tooltip="$t('app.search')"
+            :disabled="isBusy"
             :aria-label="$t('app.search')"
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
@@ -23,6 +25,7 @@
         as="router-link"
         icon="fa-solid fa-plus"
         :to="{ name: 'admin.room_types.new' }"
+        data-test="room-types-add-button"
       />
     </div>
 
@@ -36,7 +39,7 @@
       :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       striped-rows
       row-hover
-      :loading="isBusy"
+      :loading="isBusy || loadingError"
       :rows="settingsStore.getSetting('general.pagination_page_size')"
       :pt="{
         table: 'table-auto lg:table-fixed',
@@ -64,6 +67,9 @@
         },
       }"
     >
+      <template #loading>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
+      </template>
       <template #empty>
         <InlineNote v-if="roomTypes.length === 0">{{
           $t("admin.room_types.no_data")
@@ -106,6 +112,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-eye"
+              data-test="room-types-view-button"
             />
             <Button
               v-if="userPermissions.can('update', slotProps.data)"
@@ -123,6 +130,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-edit"
+              data-test="room-types-edit-button"
             />
             <SettingsRoomTypesDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"
@@ -157,6 +165,7 @@ const actionColumn = useActionColumn([
 ]);
 
 const isBusy = ref(false);
+const loadingError = ref(false);
 const roomTypes = ref([]);
 const nameSearch = ref("");
 const filters = ref({
@@ -172,6 +181,8 @@ onMounted(() => {
  */
 function loadData() {
   isBusy.value = true;
+  loadingError.value = false;
+
   api
     .call("roomTypes")
     .then((response) => {
@@ -179,6 +190,7 @@ function loadData() {
     })
     .catch((error) => {
       api.error(error);
+      loadingError.value = true;
     })
     .finally(() => {
       isBusy.value = false;

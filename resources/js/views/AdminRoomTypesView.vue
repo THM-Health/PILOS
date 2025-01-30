@@ -10,6 +10,7 @@
           :to="{ name: 'admin.room_types.view', params: { id: model.id } }"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
+          data-test="room-types-cancel-edit-button"
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
@@ -19,6 +20,7 @@
           :to="{ name: 'admin.room_types.edit', params: { id: model.id } }"
           :label="$t('app.edit')"
           icon="fa-solid fa-edit"
+          data-test="room-types-edit-button"
         />
         <SettingsRoomTypesDeleteButton
           v-if="userPermissions.can('delete', model)"
@@ -29,7 +31,7 @@
       </div>
     </div>
     <OverlayComponent :show="isBusy || modelLoadingError">
-      <template #loading>
+      <template #overlay>
         <LoadingRetryButton
           :error="modelLoadingError"
           @reload="loadRoomType"
@@ -39,7 +41,10 @@
         <!-- General room type settings -->
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <!-- Room type name -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="room-type-name-field"
+          >
             <label
               for="room-type-name"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -59,7 +64,10 @@
           </div>
 
           <!-- Room type description -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="description-field"
+          >
             <label
               for="description"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -78,7 +86,10 @@
           </div>
 
           <!-- Room type color -->
-          <fieldset class="field grid grid-cols-12 gap-4">
+          <fieldset
+            class="field grid grid-cols-12 gap-4"
+            data-test="color-field"
+          >
             <legend class="col-span-12 items-start md:col-span-4 md:mb-0">
               {{ $t("admin.room_types.color") }}
             </legend>
@@ -105,7 +116,7 @@
           </fieldset>
 
           <!-- Preview -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="preview-field">
             <label class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("admin.room_types.preview")
             }}</label>
@@ -115,7 +126,10 @@
           </div>
 
           <!-- Server pool for this room type -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="server-pool-field"
+          >
             <label
               id="server-pool-label"
               class="col-span-12 items-start md:col-span-4 md:mb-0"
@@ -126,6 +140,7 @@
                 <multiselect
                   ref="serverPoolMultiselectRef"
                   v-model="model.server_pool"
+                  data-test="server-pool-dropdown"
                   aria-labelledby="server-pool-label"
                   :placeholder="$t('admin.room_types.select_server_pool')"
                   track-by="id"
@@ -135,7 +150,7 @@
                   :searchable="false"
                   :internal-search="false"
                   :clear-on-select="false"
-                  :close-on-select="false"
+                  :close-on-select="true"
                   :show-no-results="false"
                   :show-labels="false"
                   :options="serverPools"
@@ -166,6 +181,7 @@
                         outlined
                         icon="fa-solid fa-arrow-left"
                         :label="$t('app.previous_page')"
+                        data-test="previous-page-button"
                         @click="
                           loadServerPools(
                             Math.max(1, serverPoolsCurrentPage - 1),
@@ -180,6 +196,7 @@
                         outlined
                         icon="fa-solid fa-arrow-right"
                         :label="$t('app.next_page')"
+                        data-test="next-page-button"
                         @click="loadServerPools(serverPoolsCurrentPage + 1)"
                       />
                     </div>
@@ -190,6 +207,8 @@
                   severity="secondary"
                   outlined
                   icon="fa-solid fa-sync"
+                  :aria-label="$t('app.reload')"
+                  data-test="server-pools-reload-button"
                   @click="loadServerPools(serverPoolsCurrentPage)"
                 />
               </InputGroup>
@@ -201,7 +220,7 @@
           </div>
 
           <!-- Option to restrict the usage of this room type to selected roles-->
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="restrict-field">
             <label
               for="restrict"
               class="col-span-12 items-start md:col-span-4 md:mb-0"
@@ -225,7 +244,11 @@
           </div>
 
           <!-- Selection of the roles -->
-          <div v-if="model.restrict" class="field grid grid-cols-12 gap-4">
+          <div
+            v-if="model.restrict"
+            class="field grid grid-cols-12 gap-4"
+            data-test="role-field"
+          >
             <label id="roles-label" class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("app.roles")
             }}</label>
@@ -243,7 +266,10 @@
           </div>
 
           <!-- Maximum number of participants -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="max-participants-field"
+          >
             <label
               for="max-participants"
               class="col-span-12 items-start md:col-span-4 md:mb-0"
@@ -260,6 +286,7 @@
                 />
                 <Button
                   icon="fa-solid fa-xmark"
+                  data-test="clear-max-participants-button"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   @click="model.max_participants = null"
                 />
@@ -269,7 +296,10 @@
           </div>
 
           <!-- Maximum duration -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="max-duration-field"
+          >
             <label
               for="max-duration"
               class="col-span-12 items-start md:col-span-4 md:mb-0"
@@ -287,6 +317,7 @@
                 />
                 <Button
                   icon="fa-solid fa-xmark"
+                  data-test="clear-max-duration-button"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   @click="model.max_duration = null"
                 />
@@ -303,7 +334,10 @@
           </h4>
 
           <!-- Has access code setting (defines if the room should have an access code) -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="has-access-code-field"
+          >
             <label
               for="has-access-code-default"
               class="col-span-12 items-center md:col-span-4 md:m-0"
@@ -330,7 +364,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="has-access-code-enforced"
+                  data-test="has-access-code-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -346,7 +380,10 @@
           </div>
 
           <!-- Allow guests to access the room -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="allow-guests-field"
+          >
             <label
               for="allow-guests-default"
               class="col-span-12 items-center md:col-span-4 md:m-0"
@@ -372,7 +409,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="allow-guests-enforced"
+                  data-test="allow-guests-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -396,7 +433,10 @@
             {{ $t("rooms.settings.video_conference.title") }}
           </h4>
 
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="everyone-can-start-field"
+          >
             <label
               for="everyone-can-start-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -428,7 +468,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="everyone-can-start-enforced"
+                  data-test="everyone-can-start-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -445,7 +485,10 @@
           </div>
 
           <!-- Mute everyone*s microphone on meeting join -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="mute-on-start-field"
+          >
             <label
               for="mute-on-start-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -471,7 +514,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="mute-on-start-enforced"
+                  data-test="mute-on-start-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -488,14 +531,17 @@
           </div>
 
           <!-- Usage of the waiting room/guest lobby -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="lobby-field">
             <label class="col-span-12 items-center md:col-span-4 md:mb-0">{{
               $t("rooms.settings.video_conference.lobby.title")
             }}</label>
             <div class="col-span-12 mb-2 md:col-span-8">
               <div class="flex flex-row items-center justify-between">
                 <div class="flex flex-col gap-2">
-                  <div class="flex items-center gap-2">
+                  <div
+                    class="flex items-center gap-2"
+                    data-test="lobby-disabled-field"
+                  >
                     <RadioButton
                       v-model.number="model.lobby_default"
                       :disabled="isBusy || modelLoadingError || viewOnly"
@@ -505,7 +551,10 @@
                     />
                     <label for="lobby-disabled">{{ $t("app.disabled") }}</label>
                   </div>
-                  <div class="flex items-center gap-2">
+                  <div
+                    class="flex items-center gap-2"
+                    data-test="lobby-enabled-field"
+                  >
                     <RadioButton
                       v-model.number="model.lobby_default"
                       :disabled="isBusy || modelLoadingError || viewOnly"
@@ -515,7 +564,10 @@
                     />
                     <label for="lobby-enabled">{{ $t("app.enabled") }}</label>
                   </div>
-                  <div class="flex items-center gap-2">
+                  <div
+                    class="flex items-center gap-2"
+                    data-test="lobby-only-for-guests-field"
+                  >
                     <RadioButton
                       v-model.number="model.lobby_default"
                       :disabled="isBusy || modelLoadingError || viewOnly"
@@ -542,7 +594,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="lobby-enforced"
+                  data-test="lobby-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -568,7 +620,10 @@
           </h4>
 
           <!-- Record attendance of users and guests -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="record-attendance-field"
+          >
             <label
               for="record-attendance-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -598,7 +653,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="record-attendance-enforced"
+                  data-test="record-attendance-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -615,7 +670,7 @@
           </div>
 
           <!-- Record video-conf -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="record-field">
             <label
               for="record-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -643,7 +698,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="record-attendance-enforced"
+                  data-test="record-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -658,7 +713,10 @@
           </div>
 
           <!-- Auto start recording video-conf -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="auto-start-recording-field"
+          >
             <label
               for="auto-start-recording-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -688,14 +746,14 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="record-attendance-enforced"
+                  data-test="auto-start-recording-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
               <div class="flex justify-between gap-6">
                 <FormError
                   :errors="
-                    formErrors.fieldError('auto_start_recording_enforced')
+                    formErrors.fieldError('auto_start_recording_default')
                   "
                 />
                 <FormError
@@ -714,7 +772,10 @@
           </h4>
 
           <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="disable-cam-field"
+          >
             <label
               for="disable-cam-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -748,7 +809,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="disable-cam-enforced"
+                  data-test="disable-cam-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -772,7 +833,10 @@
           Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
           can be changed during the meeting
           -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="webcams-only-for-moderator-field"
+          >
             <label
               for="webcams-only-for-moderator-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -809,7 +873,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="webcams-only-for-moderator-enforced"
+                  data-test="webcams-only-for-moderator-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -830,7 +894,10 @@
           </div>
 
           <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="disable-mic-field"
+          >
             <label
               for="disable-mic-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -864,7 +931,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="disable-mic-enforced"
+                  data-test="disable-mic-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -885,7 +952,10 @@
           </div>
 
           <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="disable-public-chat-field"
+          >
             <label
               for="disable-public-chat-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -923,7 +993,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="disable-public-chat-enforced"
+                  data-test="disable-public-chat-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -952,7 +1022,10 @@
           private chats with the moderators is still possible
           can be changed during the meeting
           -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="disable-private-chat-field"
+          >
             <label
               for="disable-private-chat-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -990,7 +1063,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="disable-private-chat-enforced"
+                  data-test="disable-private-chat-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -1015,7 +1088,10 @@
           </div>
 
           <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="disable-note-field"
+          >
             <label
               for="disable-note-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -1051,7 +1127,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="disable-note-enforced"
+                  data-test="disable-note-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -1072,7 +1148,10 @@
           </div>
 
           <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="hide-user-list-field"
+          >
             <label
               for="hide-user-list-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -1108,7 +1187,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="hide-user-list-enforced"
+                  data-test="hide-user-list-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -1138,7 +1217,10 @@
           </h4>
 
           <!-- Allow users to become room members -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="allow-membership-field"
+          >
             <label
               for="allow-membership-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -1166,7 +1248,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="allow-membership-enforced"
+                  data-test="allow-membership-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -1183,7 +1265,10 @@
           </div>
 
           <!-- Default user role for logged in users only -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="default-role-field"
+          >
             <label
               id="default-role-label"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -1210,6 +1295,13 @@
                   aria-labelledby="default-role-label"
                   option-label="label"
                   option-value="role"
+                  :pt="{
+                    pcToggleButton: {
+                      root: {
+                        'data-test': 'default-role-default-button',
+                      },
+                    },
+                  }"
                 />
                 <ToggleButton
                   v-model="model.default_role_enforced"
@@ -1223,7 +1315,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="default-role-enforced"
+                  data-test="default-role-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -1245,7 +1337,10 @@
           </h4>
 
           <!-- Room visibility setting -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="visibility-field"
+          >
             <label
               id="visibility-label"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -1273,6 +1368,13 @@
                   aria-labelledby="visibility-label"
                   option-label="label"
                   option-value="visibility"
+                  :pt="{
+                    pcToggleButton: {
+                      root: {
+                        'data-test': 'visibility-default-button',
+                      },
+                    },
+                  }"
                 />
                 <ToggleButton
                   v-model="model.visibility_enforced"
@@ -1286,7 +1388,7 @@
                   "
                   on-icon="fa-solid fa-lock"
                   off-icon="fa-solid fa-lock-open"
-                  input-id="visibility-enforced"
+                  data-test="visibility-enforced"
                   :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
@@ -1306,7 +1408,10 @@
         <!-- BBB api settings -->
         <AdminPanel :title="$t('admin.room_types.bbb_api.title')">
           <!-- Create meeting plugin config -->
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="create-parameters-field"
+          >
             <label
               for="create-parameters"
               class="col-span-12 items-start md:col-span-4 md:mb-0"
@@ -1351,12 +1456,27 @@
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
+              data-test="room-types-save-button"
             />
           </div>
         </div>
       </form>
     </OverlayComponent>
-    <ConfirmDialog></ConfirmDialog>
+    <ConfirmDialog
+      data-test="stale-room-type-dialog"
+      :pt="{
+        pcAcceptButton: {
+          root: {
+            'data-test': 'stale-dialog-accept-button',
+          },
+        },
+        pcRejectButton: {
+          root: {
+            'data-test': 'stale-dialog-reject-button',
+          },
+        },
+      }"
+    ></ConfirmDialog>
   </div>
 </template>
 

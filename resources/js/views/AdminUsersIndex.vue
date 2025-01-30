@@ -2,7 +2,7 @@
   <div>
     <div class="mb-6 flex flex-col justify-between gap-4 md:flex-row">
       <div>
-        <InputGroup>
+        <InputGroup data-test="user-search">
           <InputText
             v-model="filter.name"
             :disabled="isBusy"
@@ -22,8 +22,9 @@
       <div class="flex flex-col justify-end gap-2 md:flex-row">
         <InputGroup class="min-w-80 shrink-0 grow">
           <multiselect
-            ref="rolesMultiselectRef"
+            ref="roles-multiselect"
             v-model="filter.role"
+            data-test="role-dropdown"
             :placeholder="$t('admin.users.role_filter')"
             track-by="id"
             open-direction="bottom"
@@ -31,7 +32,7 @@
             :searchable="false"
             :internal-search="false"
             :clear-on-select="false"
-            :close-on-select="false"
+            :close-on-select="true"
             :show-no-results="false"
             :show-labels="false"
             :options="roles"
@@ -57,6 +58,7 @@
                   severity="secondary"
                   icon="fa-solid fa-arrow-left"
                   :label="$t('app.previous_page')"
+                  data-test="previous-page-button"
                   @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
                 />
                 <Button
@@ -65,6 +67,7 @@
                   severity="secondary"
                   icon="fa-solid fa-arrow-right"
                   :label="$t('app.next_page')"
+                  data-test="next-page-button"
                   @click="loadRoles(rolesCurrentPage + 1)"
                 />
               </div>
@@ -75,6 +78,7 @@
             outlined
             severity="secondary"
             icon="fa-solid fa-xmark"
+            data-test="clear-roles-button"
             @click="clearFilterRole"
           />
 
@@ -83,6 +87,8 @@
             outlined
             severity="secondary"
             icon="fa-solid fa-sync"
+            :aria-label="$t('app.reload')"
+            data-test="roles-reload-button"
             @click="loadRoles(rolesCurrentPage)"
           />
         </InputGroup>
@@ -97,6 +103,7 @@
           :aria-label="$t('admin.users.new')"
           icon="fa-solid fa-plus"
           :to="{ name: 'admin.users.new' }"
+          data-test="users-add-button"
         />
       </div>
     </div>
@@ -118,6 +125,28 @@
       striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
+        bodyRow: {
+          'data-test': 'user-item',
+        },
+        mask: {
+          'data-test': 'overlay',
+        },
+        column: {
+          bodyCell: {
+            'data-test': 'user-item-cell',
+          },
+          headerCell: {
+            'data-test': 'user-header-cell',
+          },
+        },
+        pcPaginator: {
+          page: {
+            'data-test': 'paginator-page',
+          },
+          next: {
+            'data-test': 'paginator-next-button',
+          },
+        },
       }"
       @update:first="paginator.setFirst($event)"
       @page="onPage"
@@ -198,6 +227,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-eye"
+              data-test="users-view-button"
             />
             <Button
               v-if="userPermissions.can('update', slotProps.data)"
@@ -221,6 +251,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-edit"
+              data-test="users-edit-button"
             />
             <SettingsUsersResetPasswordButton
               v-if="
@@ -248,7 +279,7 @@
 
 <script setup>
 import { useApi } from "../composables/useApi.js";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useSettingsStore } from "../stores/settings";
 import { Multiselect } from "vue-multiselect";
@@ -284,7 +315,7 @@ const rolesLoading = ref(false);
 const rolesLoadingError = ref(false);
 const rolesCurrentPage = ref(1);
 const rolesHasNextPage = ref(false);
-const rolesMultiselectRef = ref();
+const rolesMultiselectRef = useTemplateRef("roles-multiselect");
 
 /**
  * Loads the user, part of roles that can be selected and enables an event listener
@@ -321,7 +352,7 @@ function loadRoles(page = 1) {
     .catch((error) => {
       rolesMultiselectRef.value.deactivate();
       rolesLoadingError.value = true;
-      error(error, this.$root, error.message);
+      api.error(error);
     })
     .finally(() => {
       rolesLoading.value = false;

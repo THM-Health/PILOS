@@ -21,7 +21,7 @@ describe("User Profile Security", function () {
       .and("include.text", "app.roles")
       .within(() => {
         cy.get('[data-test="role-dropdown"]')
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .should("include.text", "User")
           .should("have.class", "multiselect--disabled");
       });
@@ -55,7 +55,7 @@ describe("User Profile Security", function () {
       });
 
     // Try to change password
-    cy.fixture("user").then((user) => {
+    cy.fixture("userDataCurrentUser").then((user) => {
       const saveChangesRequest = interceptIndefinitely(
         "PUT",
         "api/v1/users/1/password",
@@ -193,7 +193,7 @@ describe("User Profile Security", function () {
       .and("include.text", "app.roles")
       .within(() => {
         cy.get('[data-test="role-dropdown"]')
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .should("include.text", "User")
           .should("have.class", "multiselect--disabled");
       });
@@ -204,6 +204,7 @@ describe("User Profile Security", function () {
     );
     cy.get('[data-test="new-password-field"]').should("not.exist");
     cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
+    cy.get('[data-test="change-password-save-button"]').should("not.exist");
 
     // Check that all sessions are shown
     cy.get('[data-test="session-panel"]').should("have.length", 2);
@@ -231,7 +232,7 @@ describe("User Profile Security", function () {
   });
 
   it("view as external user", function () {
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.authenticator = "ldap";
       user.data.external_id = "jdo";
 
@@ -255,7 +256,7 @@ describe("User Profile Security", function () {
       .and("include.text", "app.roles")
       .within(() => {
         cy.get('[data-test="role-dropdown"]')
-          .should("include.text", "Admin")
+          .should("include.text", "Superuser")
           .should("include.text", "User")
           .should("have.class", "multiselect--disabled");
       });
@@ -266,6 +267,7 @@ describe("User Profile Security", function () {
     );
     cy.get('[data-test="new-password-field"]').should("not.exist");
     cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
+    cy.get('[data-test="change-password-save-button"]').should("not.exist");
 
     // Check that all sessions are shown
     cy.get('[data-test="session-panel"]').should("have.length", 2);

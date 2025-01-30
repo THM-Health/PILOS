@@ -1,0 +1,81 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "authenticator": "local",
+      "email": "JohnDoe@domain.tld",
+      "external_id": null,
+      "firstname": "John",
+      "lastname": "Doe",
+      "user_locale": "en",
+      "model_name": "User",
+      "room_limit": 0,
+      "roles": [
+        { "id": 1, "name": "Superuser", "automatic": false, "superuser": true }
+      ],
+      "updated_at": "2020-01-01T01:00:00.000000Z",
+      "initial_password_set": true,
+      "superuser": true
+    },
+    {
+      "id": 2,
+      "authenticator": "local",
+      "email": "LauraWRivera@domain.tld",
+      "external_id": null,
+      "firstname": "Laura",
+      "lastname": "Rivera",
+      "user_locale": null,
+      "model_name": "User",
+      "room_limit": 0,
+      "roles": [
+        { "id": 3, "name": "Students", "automatic": true, "superuser": false },
+        { "id": 2, "name": "Staff", "automatic": false, "superuser": false }
+      ],
+      "updated_at": "2020-01-01T01:00:00.000000Z",
+      "initial_password_set": false,
+      "superuser": false
+    },
+    {
+      "id": 3,
+      "authenticator": "ldap",
+      "email": "JuanMWalter@domain.tld",
+      "external_id": "JMW",
+      "firstname": "Juan",
+      "lastname": "Walter",
+      "user_locale": "de",
+      "model_name": "User",
+      "room_limit": 0,
+      "roles": [
+        { "id": 3, "name": "Students", "automatic": true, "superuser": false }
+      ],
+      "updated_at": "2020-01-01T01:00:00.000000Z",
+      "superuser": false
+    },
+    {
+      "id": 100,
+      "authenticator": "local",
+      "email": "MaxDoe@domain.tld",
+      "external_id": null,
+      "firstname": "Max",
+      "lastname": "Doe",
+      "user_locale": "en",
+      "model_name": "User",
+      "room_limit": 0,
+      "roles": [
+        { "id": 1, "name": "Superuser", "automatic": false, "superuser": true }
+      ],
+      "updated_at": "2020-01-01T01:00:00.000000Z",
+      "initial_password_set": false,
+      "superuser": true
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 4,
+    "to": 4,
+    "total": 4,
+    "total_no_filter": 4
+  }
+}

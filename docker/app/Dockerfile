@@ -62,6 +62,11 @@ COPY ./docker/app/playback-player /usr/local/etc/playback-player
 RUN chmod +x /usr/local/etc/playback-player/build.sh
 RUN chown www-data:www-data /usr/local/etc/playback-player/
 
+# Install BBB Recording Player
+RUN mkdir -p /var/www/html/public/playback-player
+RUN chown -R www-data:www-data /var/www/html
+RUN pilos-cli playback-player:build $PLAYBACK_PLAYER_VERSION
+
 # Copy supervisor config
 RUN mkdir -p /var/log/supervisor
 COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
@@ -98,9 +103,6 @@ RUN if [ "$VITE_COVERAGE" != "true" ] ; then \
 # Run and optimize composer for production
 RUN su-exec www-data composer install --no-dev
 RUN su-exec www-data composer dump-autoload -o
-
-# Install BBB Recording Player
-RUN pilos-cli playback-player:build $PLAYBACK_PLAYER_VERSION
 
 EXPOSE 80
 EXPOSE 443

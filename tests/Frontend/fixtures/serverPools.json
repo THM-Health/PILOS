@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Test",
+      "description": "Pool for testing",
+      "servers_count": 2,
+      "model_name": "ServerPool",
+      "updated_at": "2020-12-21T13:43:21.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "Production",
+      "description": "Pool for production",
+      "servers_count": 1,
+      "model_name": "ServerPool",
+      "updated_at": "2020-12-21T13:43:21.000000Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 15,
+    "to": 2,
+    "total": 2,
+    "total_no_filter": 2
+  }
+}

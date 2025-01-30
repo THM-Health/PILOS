@@ -2,14 +2,16 @@
   <div>
     <div class="flex flex-col justify-between md:flex-row">
       <div>
-        <InputGroup>
+        <InputGroup data-test="server-search">
           <InputText
             v-model="filter"
+            :disabled="isBusy"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1, false)"
           />
           <Button
             v-tooltip="$t('app.search')"
+            :disabled="isBusy"
             :aria-label="$t('app.search')"
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
@@ -23,6 +25,7 @@
           severity="info"
           icon="fa-solid fa-repeat"
           :label="$t('admin.servers.reload')"
+          data-test="servers-reload-usage-button"
           @click="loadData(null, true)"
         />
         <Button
@@ -31,6 +34,7 @@
           severity="secondary"
           icon="fa-solid fa-sync"
           :aria-label="$t('app.reload')"
+          data-test="servers-reload-no-usage-button"
           @click="loadData(null, false)"
         />
         <Button
@@ -40,6 +44,7 @@
           :aria-label="$t('admin.servers.new')"
           :to="{ name: 'admin.servers.new' }"
           icon="fa-solid fa-plus"
+          data-test="servers-add-button"
         />
       </div>
     </div>
@@ -61,6 +66,28 @@
       striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
+        bodyRow: {
+          'data-test': 'server-item',
+        },
+        mask: {
+          'data-test': 'overlay',
+        },
+        column: {
+          bodyCell: {
+            'data-test': 'server-item-cell',
+          },
+          headerCell: {
+            'data-test': 'server-header-cell',
+          },
+        },
+        pcPaginator: {
+          page: {
+            'data-test': 'paginator-page',
+          },
+          next: {
+            'data-test': 'paginator-next-button',
+          },
+        },
       }"
       @update:first="paginator.setFirst($event)"
       @page="onPage"
@@ -219,6 +246,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-eye"
+              data-test="servers-view-button"
             />
             <Button
               v-if="userPermissions.can('update', slotProps.data)"
@@ -236,6 +264,7 @@
               }"
               severity="info"
               icon="fa-solid fa-edit"
+              data-test="servers-edit-button"
             />
             <SettingsServersDeleteButton
               v-if="

@@ -1,8 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-import {
-  _arrayBufferToBase64,
-  parseFormData,
-} from "../support/utils/formData.js";
+import { parseFormData } from "../support/utils/formData.js";
+import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
 
 describe("User Profile Base", function () {
   beforeEach(function () {
@@ -307,12 +305,13 @@ describe("User Profile Base", function () {
     );
 
     // Save changes
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.firstname = "Laura";
       user.data.lastname = "Rivera";
       user.data.user_locale = "de";
       user.data.timezone = "Europe/Berlin";
       user.data.image = Cypress.config("baseUrl") + "/test.jpg";
+      user.data.updated_at = "2024-09-13T14:22:26.000000Z";
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -329,7 +328,6 @@ describe("User Profile Base", function () {
         currentUser.data.lastname = "Rivera";
         currentUser.data.user_locale = "de";
         currentUser.data.permissions = ["users.updateOwnAttributes"];
-        user.data.updated_at = "2024-09-13T14:22:26.000000Z";
 
         cy.intercept("GET", "api/v1/currentUser", {
           statusCode: 200,
@@ -459,7 +457,7 @@ describe("User Profile Base", function () {
     // Delete again and save changes
     cy.get('[data-test="delete-image-button"]').click();
 
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.firstname = "Laura";
       user.data.lastname = "Rivera";
       user.data.user_locale = "de";
@@ -582,7 +580,7 @@ describe("User Profile Base", function () {
     ]);
 
     // Check with 428 error (stale error)
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       const newModel = user.data;
       newModel.firstname = "Laura";
       newModel.lastname = "Rivera";
@@ -687,7 +685,7 @@ describe("User Profile Base", function () {
   });
 
   it("view as external user", function () {
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.authenticator = "ldap";
       user.data.external_id = "jdo";
 
@@ -816,5 +814,21 @@ describe("User Profile Base", function () {
     cy.get('[data-test="timezone-dropdown-option"]')
       .eq(3)
       .should("have.attr", "aria-selected", "true");
+
+    // Check with 401 error
+    cy.intercept("GET", "api/v1/getTimezones", {
+      statusCode: 401,
+    }).as("timezonesRequest");
+
+    cy.reload();
+
+    cy.wait("@userRequest");
+
+    cy.wait("@timezonesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/profile");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
   });
 });

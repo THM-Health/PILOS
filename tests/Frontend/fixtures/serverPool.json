@@ -1,0 +1,46 @@
+{
+  "data": {
+    "id": 1,
+    "name": "Test",
+    "description": "Pool for testing",
+    "server_count": 2,
+    "servers": [
+      {
+        "id": 1,
+        "name": "Server 01",
+        "description": "Testserver 01",
+        "strength": 1,
+        "status": 1,
+        "health": 1,
+        "participant_count": 10,
+        "listener_count": 5,
+        "voice_participant_count": 5,
+        "video_count": 5,
+        "meeting_count": 2,
+        "own_meeting_count": 2,
+        "version": "2.4.5",
+        "model_name": "Server",
+        "updated_at": "2020-12-21T13:43:21.000000Z"
+      },
+      {
+        "id": 2,
+        "name": "Server 02",
+        "description": "Testserver 02",
+        "strength": 1,
+        "status": 1,
+        "health": 0,
+        "participant_count": 50,
+        "listener_count": 25,
+        "voice_participant_count": 30,
+        "video_count": 5,
+        "meeting_count": 10,
+        "own_meeting_count": 9,
+        "version": null,
+        "model_name": "Server",
+        "updated_at": "2020-12-21T13:43:21.000000Z"
+      }
+    ],
+    "model_name": "ServerPool",
+    "updated_at": "2020-12-21T13:43:21.000000Z"
+  }
+}

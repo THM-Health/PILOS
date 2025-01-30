@@ -9,6 +9,7 @@
           type="text"
           :invalid="urlInvalid"
           :required="!showDelete"
+          data-test="settings-image-url-input"
         />
 
         <FileInput
@@ -27,6 +28,7 @@
           severity="danger"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
+          data-test="settings-image-cancel-button"
           @click="resetFileUpload"
         />
 
@@ -36,6 +38,7 @@
           severity="danger"
           :label="$t('app.delete')"
           icon="fa-solid fa-trash"
+          data-test="settings-image-delete-button"
           @click="imageDeleted = true"
         />
         <Button
@@ -43,6 +46,7 @@
           severity="secondary"
           :label="$t('app.undo_delete')"
           icon="fa-solid fa-undo"
+          data-test="settings-image-undo-delete-button"
           @click="imageDeleted = false"
         />
       </div>
@@ -66,6 +70,7 @@
         :src="newImageUrl ?? imageUrl"
         :width="previewWidth"
         :alt="previewAlt"
+        data-test="settings-image-preview"
       />
     </div>
   </div>

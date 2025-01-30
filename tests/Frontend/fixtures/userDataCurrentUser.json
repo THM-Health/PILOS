@@ -1,0 +1,33 @@
+{
+  "data": {
+    "id": 1,
+    "authenticator": "local",
+    "image": null,
+    "email": "JohnDoe@domain.tld",
+    "external_id": null,
+    "firstname": "John",
+    "lastname": "Doe",
+    "model_name": "User",
+    "user_locale": "en",
+    "room_limit": -1,
+    "updated_at": "2024-09-13T14:20:26.000000Z",
+    "roles": [
+      {
+        "id": 1,
+        "name": "Superuser",
+        "automatic": true,
+        "superuser": true
+      },
+      {
+        "id": 2,
+        "name": "User",
+        "automatic": false,
+        "superuser": false
+      }
+    ],
+    "bbb_skip_check_audio": false,
+    "initial_password_set": false,
+    "timezone": "UTC"
+  },
+  "superuser": true
+}

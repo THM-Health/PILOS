@@ -186,4 +186,38 @@ describe("General", function () {
     // Check if the welcome page is shown
     cy.get("h1").should("be.visible").and("contain", "home.title");
   });
+
+  it("check help button if help url specified", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.general.help_url = "https://example.org/?foo=a&bar=b";
+
+      cy.intercept("GET", "/api/v1/config", config).as("configRequest");
+    });
+    cy.visit("/");
+
+    cy.get(".fa-solid.fa-circle-question")
+      .should("be.visible")
+      .parent()
+      .should("have.attr", "href", "https://example.org/?foo=a&bar=b")
+      .and("have.attr", "target", "_blank")
+      .invoke("removeAttr", "target");
+
+    cy.get(".fa-solid.fa-circle-question").click();
+
+    // Check that redirect worked
+    cy.origin("https://example.org", () => {
+      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    });
+  });
+
+  it("check help button hidden if help url not specified", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.general.help_url = "";
+
+      cy.intercept("GET", "/api/v1/config", config).as("configRequest");
+    });
+    cy.visit("/");
+
+    cy.get(".fa-solid.fa-circle-question").should("not.exist");
+  });
 });

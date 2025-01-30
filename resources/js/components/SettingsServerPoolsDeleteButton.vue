@@ -5,6 +5,7 @@
     :disabled="isBusy"
     icon="fa-solid fa-trash"
     severity="danger"
+    data-test="server-pools-delete-button"
     @click="showModal"
   />
 
@@ -12,12 +13,20 @@
     v-model:visible="modalVisible"
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :dismissable-mask="!isBusy"
     :draggable="false"
     :header="$t('admin.server_pools.delete.title')"
     :style="{ width: '500px' }"
     modal
+    data-test="server-pools-delete-dialog"
+    :pt="{
+      pcCloseButton: {
+        root: {
+          'data-test': 'dialog-header-close-button',
+        },
+      },
+    }"
   >
     <span>
       {{ $t("admin.server_pools.delete.confirm", { name: props.name }) }}
@@ -42,13 +51,16 @@
     <template v-if="deleteFailedRoomTypes == null" #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
+        data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
         :loading="isBusy"
         severity="danger"
+        data-test="dialog-continue-button"
         @click="deleteServerPool"
       />
     </template>

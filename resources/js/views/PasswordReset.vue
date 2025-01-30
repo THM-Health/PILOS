@@ -14,7 +14,7 @@
           </template>
           <template #content>
             <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2" data-test="new-password-field">
                 <label for="new_password">{{ $t("auth.new_password") }}</label>
                 <InputText
                   id="new_password"
@@ -28,7 +28,10 @@
                 <FormError :errors="formErrors.fieldError('password')" />
               </div>
 
-              <div class="flex flex-col gap-2">
+              <div
+                class="flex flex-col gap-2"
+                data-test="password-confirmation-field"
+              >
                 <label for="password_confirmation">{{
                   $t("auth.new_password_confirmation")
                 }}</label>
@@ -56,6 +59,7 @@
                 :label="
                   welcome ? $t('auth.set_password') : $t('auth.change_password')
                 "
+                data-test="reset-password-button"
               />
             </form>
           </template>

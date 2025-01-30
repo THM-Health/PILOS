@@ -3,22 +3,30 @@
     {
       "id": 1,
       "name": "Lecture",
-      "color": "#80BA27"
+      "description": null,
+      "color": "#80BA27",
+      "model_name": "RoomType"
     },
     {
       "id": 2,
       "name": "Meeting",
-      "color": "#4a5c66"
+      "description": null,
+      "color": "#4a5c66",
+      "model_name": "RoomType"
     },
     {
       "id": 3,
       "name": "Exam",
-      "color": "#9C132E"
+      "description": null,
+      "color": "#9C132E",
+      "model_name": "RoomType"
     },
     {
       "id": 4,
       "name": "Seminar",
-      "color": "#00B8E4"
+      "description": null,
+      "color": "#00B8E4",
+      "model_name": "RoomType"
     }
   ]
 }

@@ -35,8 +35,8 @@ return [
     'errors' => [
         'attendance_agreement_missing' => 'Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.',
         'join_failed' => 'Der Beitritt zum Raum ist fehlgeschlagen, da ein Verbindungsfehler aufgetreten ist.',
-        'meeting_attendance_disabled' => 'Die Protokollierung der Anwesenheit ist nicht verfügbar.',
-        'meeting_attendance_not_ended' => 'Die Protokollierung der Anwesenheit ist für diesen Raum noch nicht abgeschlossen.',
+        'meeting_attendance_disabled' => 'Die Anwesenheitserfassung war bei diesem Meeting nicht aktiv.',
+        'meeting_attendance_not_ended' => 'Die Anwesenheitsprotokolle sind für dieses Meeting noch nicht verfügbar, da es noch nicht beendet ist.',
         'meeting_statistics_disabled' => 'Die Auslastungsdaten sind nicht verfügbar.',
         'membership_disabled' => 'Mitgliedschaft fehlgeschlagen! Eine Mitgliedschaft ist in diesem Raum aktuell nicht möglich.',
         'no_room_access' => 'Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.',

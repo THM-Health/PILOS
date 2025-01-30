@@ -5,6 +5,7 @@
     :disabled="isBusy"
     severity="danger"
     icon="fa-solid fa-trash"
+    data-test="roles-delete-button"
     @click="showModal"
   />
 
@@ -16,8 +17,9 @@
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
     :dismissable-mask="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :draggable="false"
+    data-test="roles-delete-dialog"
   >
     <span>
       {{ $t("admin.roles.delete.confirm", { name: props.name }) }}
@@ -25,13 +27,16 @@
     <template #footer>
       <Button
         :label="$t('app.no')"
+        :disabled="isBusy"
         severity="secondary"
+        data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
         severity="danger"
         :loading="isBusy"
+        data-test="dialog-continue-button"
         @click="deleteRole"
       />
     </template>
