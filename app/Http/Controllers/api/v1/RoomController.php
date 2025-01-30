@@ -140,7 +140,7 @@ class RoomController extends Controller
         };
 
         // Add secondary sort by id to ensure consistent ordering
-        $collection = $collection->orderBy('id');
+        $collection = $collection->orderBy('rooms.id');
 
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
