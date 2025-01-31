@@ -249,10 +249,6 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  legacyToken: {
-    type: String,
-    default: null,
-  },
 });
 
 const hashParams = useUrlSearchParams("hash-params");
@@ -278,22 +274,19 @@ const router = useRouter();
 const api = useApi();
 
 onMounted(() => {
-  // Prevent authenticated users from using a room token
-  if ((props.legacyToken || hashParams.token) && authStore.isAuthenticated) {
-    toast.info(t("app.flash.guests_only"));
-    router.replace({ name: "home" });
-    return;
-  }
-
   if (hashParams.accessCode) {
     accessCodeInput.value = getHashParamValue("accessCode");
     hashParams.accessCode = null;
     login();
   }
 
-  if (props.legacyToken) {
-    token.value = props.legacyToken;
-  } else {
+  if (hashParams.token) {
+    // Prevent authenticated users from using a room token
+    if (hashParams.token && authStore.isAuthenticated) {
+      toast.info(t("app.flash.guests_only"));
+      router.replace({ name: "home" });
+      return;
+    }
     token.value = getHashParamValue("token");
   }
 
@@ -324,6 +317,14 @@ watch(
   () => hashParams.token,
   (value) => {
     if (!value) return;
+
+    // Prevent authenticated users from using a room token
+    if (hashParams.token && authStore.isAuthenticated) {
+      toast.info(t("app.flash.guests_only"));
+      router.replace({ name: "home" });
+      return;
+    }
+
     token.value = getHashParamValue("token");
     clearInterval(reloadInterval.value);
     tokenInvalid.value = false;
@@ -564,6 +565,7 @@ function setPageTitle(roomName) {
 function login() {
   // Parse to int
   accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, ""));
+
   // Reload the room with an access code
   reload();
 }

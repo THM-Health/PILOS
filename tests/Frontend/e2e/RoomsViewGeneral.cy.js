@@ -449,24 +449,33 @@ describe("Room View general", function () {
     // Check that correct tab is shown
     cy.contains("rooms.files.title").should("be.visible");
 
-    // Check if share button is shown correctly
+    // Copy invitation link
     cy.get('[data-test="room-share-button"]').click();
     cy.get("#invitationLink").should(
       "have.value",
-      Cypress.config("baseUrl") + "/rooms/abc-def-123",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=508307005",
     );
-    cy.get("#invitationCode").should("have.value", "508-307-005");
 
-    cy.get('[data-test="room-copy-invitation-button"]').click();
+    cy.get('[data-test="room-copy-invitation-link-button"]').click();
+    cy.checkToastMessage("rooms.invitation.link_copied");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq(
+          Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=508307005",
+        );
+      });
+    });
 
-    cy.checkToastMessage("rooms.invitation.copied");
-
+    // Copy invitation message
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get('[data-test="room-copy-invitation-message-button"]').click();
+    cy.checkToastMessage("rooms.invitation.message_copied");
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
           'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
             Cypress.config("baseUrl") +
-            "/rooms/abc-def-123\nrooms.invitation.code: 508-307-005",
+            "/rooms/abc-def-123#accessCode=508307005",
         );
       });
     });
@@ -523,8 +532,10 @@ describe("Room View general", function () {
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').click();
-    cy.get("#invitationLink").should("include.value", "/rooms/abc-def-123");
-    cy.get("#invitationCode").should("have.value", "508-307-005");
+    cy.get("#invitationLink").should(
+      "include.value",
+      "/rooms/abc-def-123#accessCode=508307005",
+    );
   });
 
   it("room view as owner", function () {
@@ -568,10 +579,36 @@ describe("Room View general", function () {
     // Check that correct tab is shown
     cy.contains("rooms.description.title").should("be.visible");
 
-    // Check if share button is shown correctly
+    // Copy invitation link
     cy.get('[data-test="room-share-button"]').click();
-    cy.get("#invitationLink").should("include.value", "/rooms/abc-def-123");
-    cy.get("#invitationCode").should("have.value", "508-307-005");
+    cy.get("#invitationLink").should(
+      "have.value",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=508307005",
+    );
+
+    cy.get('[data-test="room-copy-invitation-link-button"]').click();
+    cy.checkToastMessage("rooms.invitation.link_copied");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq(
+          Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=508307005",
+        );
+      });
+    });
+
+    // Copy invitation message
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get('[data-test="room-copy-invitation-message-button"]').click();
+    cy.checkToastMessage("rooms.invitation.message_copied");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq(
+          'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
+            Cypress.config("baseUrl") +
+            "/rooms/abc-def-123#accessCode=508307005",
+        );
+      });
+    });
   });
 
   it("room view with token (participant)", function () {
@@ -760,8 +797,10 @@ describe("Room View general", function () {
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').click();
-    cy.get("#invitationLink").should("include.value", "/rooms/abc-def-123");
-    cy.get("#invitationCode").should("have.value", "508-307-005");
+    cy.get("#invitationLink").should(
+      "include.value",
+      "/rooms/abc-def-123#accessCode=508307005",
+    );
   });
 
   it("membership button", function () {

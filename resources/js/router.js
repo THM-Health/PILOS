@@ -134,14 +134,23 @@ export const routes = [
   },
 
   {
-    path: "/rooms/:id/:token?",
+    path: "/rooms/:id",
     name: "rooms.view",
     component: RoomView,
     meta: { redirectBackAfterLogin: true },
     props: (route) => {
       return {
         id: route.params.id,
-        legacyToken: route.params.token,
+      };
+    },
+  },
+  {
+    path: "/rooms/:id/:token",
+    redirect: (route) => {
+      return {
+        name: "rooms.view",
+        params: { id: route.params.id },
+        hash: "#token=" + route.params.token,
       };
     },
   },
