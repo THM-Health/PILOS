@@ -114,10 +114,4 @@ const roomUrl = computed(() => {
     }).href
   );
 });
-
-const formattedAccessCode = computed(() => {
-  return String(props.room.access_code)
-    .match(/.{1,3}/g)
-    .join("-");
-});
 </script>
