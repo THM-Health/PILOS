@@ -147,10 +147,16 @@ export const routes = [
   {
     path: "/rooms/:id/:token",
     redirect: (route) => {
+      // Parse hash parameters
+      const searchParams = new URLSearchParams(route.hash.substring(1));
+
+      // Append or overwrite token parameter
+      searchParams.set("token", route.params.token);
+
       return {
         name: "rooms.view",
         params: { id: route.params.id },
-        hash: "#token=" + route.params.token,
+        hash: "#" + searchParams.toString(),
       };
     },
   },
