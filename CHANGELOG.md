@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve frontend tests for login page ([#1794])
 - Access code input type on room settings section to hide browser arrow buttons ([#1827], [#1829])
 - Improve current Frontend tests ([#1150], [#1844])
+- Bumped BBB Recording Player to 5.2.1 ([#1855])
 
 ### Fixed
 
@@ -399,6 +400,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1827]: https://github.com/THM-Health/PILOS/issues/1827
 [#1829]: https://github.com/THM-Health/PILOS/pull/1829
 [#1844]: https://github.com/THM-Health/PILOS/pull/1844
+[#1855]: https://github.com/THM-Health/PILOS/pull/1855
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
