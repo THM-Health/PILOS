@@ -217,7 +217,7 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
-     * Scope a query to only get users that have a name like the passed one.
+     * Scope a query to only get users that have a name/email like the passed one.
      *
      * The name gets split up by the whitespaces and each part will be searched
      * in the corresponding name fields.
@@ -326,5 +326,13 @@ class User extends Authenticatable implements HasLocalePreference
             ->first();
 
         $this->notify(new PasswordReset($token, Carbon::parse($reset->created_at)));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSuperuserAttribute()
+    {
+        return $this->roles->where('superuser', true)->isNotEmpty();
     }
 }

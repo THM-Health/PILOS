@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.3.0] - 2025-02-03
+
+### Added
+
+- Missing loading retry button on room types overview page ([#1588])
+- Reload button for replacement room type in delete dialog on room types overview page ([#1588])
+- Permission restrictions to prevent non-superusers from editing and deleting superusers ([#1651])
+- Permission restrictions to prevent non-superusers from assigning the superuser role ([#1651])
+- Environment variable for configuring restricted permissions that cannot be assigned to non-superuser roles ([#1651])
+- Display raw permission names in the admin interface ([#1651])
+- Visual tests with [Happo.io](https://happo.io) ([#1600])
+- Artisan command for provisioning via JSON file ([#1636], [#1678])
+- Frontend tests for Footer ([#1150], [#1844])
+- Frontend tests for Banner ([#1150], [#1844])
+- Frontend tests for Forgot Password, Password Reset, Verify Email pages ([#1150], [#1844])
+- Frontend tests for Admin Index page ([#1150], [#1844])
+- Frontend tests for Admin Settings page ([#1150], [#1844])
+- Frontend tests for Admin Users page ([#1150], [#1844])
+- Frontend tests for Admin Roles page ([#1150], [#1844])
+- Frontend tests for Admin Room Types page ([#1150], [#1844])
+- Frontend tests for Admin Servers page ([#1150], [#1844])
+- Frontend tests for Admin Server Pools page ([#1150], [#1844])
+- Frontend tests for Meetings Index page ([#1150], [#1844])
+
+### Changed
+
+- Real-time input validation on create superuser command ([#1651])
+- Error handling in room statistics ([#1535], [#1600])
+- Error handling in room attendance ([#1535], [#1600])
+- Close multiselect dropdowns on selection ([#1588])
+- Permissions loading behaviour on view/edit page of roles ([#1588])
+- Improve frontend tests for login page ([#1794])
+- Access code input type on room settings section to hide browser arrow buttons ([#1827], [#1829])
+- Improve current Frontend tests ([#1150], [#1844])
+- Bumped BBB Recording Player to 5.2.1 ([#1855])
+
+### Fixed
+
+- Search not disabled during loading on the overview pages for roles, room types, servers and server pools ([#1675], [#1588])
+- Overlays not shown after loading error on view/edit pages of servers and server pools ([#1677], [#1588])
+- Dialog buttons not disabled correctly during actions on the overview/view/edit pages for roles, room types, servers and server pools ([#1711], [#1588])
+- Dialogs being closable during loading on the overview/view/edit pages for roles, room types, servers and server pools ([#1588])
+- Form validation error messages on view/edit pages room types, server pools and application settings ([#1588])
+- Error handling on the overview page of users ([#1588])
+- Stale error handling on the view/edit page of sever pools ([#1588])
+- 404 error handling on the room types delete dialog ([#1588])
+- Set empty BBB logo image url ([#1751], [#1588])
+- 401 error handling on view/edit/create page of users ([#1588])
+- Overlay reload buttons on view/edit/create page of roles, room types, servers and server pools ([#1588])
+- Wrong error message shown for 422 errors when verifying email ([#1744], [#1758])
+- Broken banner link style 'warning' ([#1759], [#1760])
+- Inconsistent select/multiselect loading states ([#1772])
+- Input fields not disabled correctly on login page ([#1791], [#1794])
+- Style of 'clear' button of the room replacement selector in the 'Delete room type' dialog ([#1784], [#1787])
+- Inconsistent result ordering in tables on equal primary sorting criteria ([#1601], [#1795])
+- Missing form validation feedback for password fields on login page ([#1801])
+- Missing form validation feedback on forgot password page ([#1802])
+- Room limit radio on edit roles page not reset on stale error ([#1824], [#1825])
+
 ## [v4.2.0] - 2025-01-06
 
 ### Added
@@ -294,6 +353,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1493]: https://github.com/THM-Health/PILOS/issues/1493
 [#1495]: https://github.com/THM-Health/PILOS/pull/1495
 [#1523]: https://github.com/THM-Health/PILOS/issues/1523
+[#1535]: https://github.com/THM-Health/PILOS/issues/1535
 [#1536]: https://github.com/THM-Health/PILOS/issues/1536
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
 [#1548]: https://github.com/THM-Health/PILOS/pull/1548
@@ -302,20 +362,48 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1559]: https://github.com/THM-Health/PILOS/issues/1559
 [#1561]: https://github.com/THM-Health/PILOS/pull/1561
 [#1565]: https://github.com/THM-Health/PILOS/pull/1565
+[#1588]: https://github.com/THM-Health/PILOS/pull/1588
 [#1569]: https://github.com/THM-Health/PILOS/pull/1569
 [#1595]: https://github.com/THM-Health/PILOS/pull/1595
+[#1600]: https://github.com/THM-Health/PILOS/pull/1600
+[#1601]: https://github.com/THM-Health/PILOS/issues/1601
 [#1604]: https://github.com/THM-Health/PILOS/pull/1604
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
 [#1616]: https://github.com/THM-Health/PILOS/pull/1616
 [#1617]: https://github.com/THM-Health/PILOS/pull/1617
 [#1618]: https://github.com/THM-Health/PILOS/pull/1618
+[#1636]: https://github.com/THM-Health/PILOS/issues/1636
+[#1651]: https://github.com/THM-Health/PILOS/issues/1651
+[#1675]: https://github.com/THM-Health/PILOS/issues/1675
+[#1677]: https://github.com/THM-Health/PILOS/issues/1677
+[#1678]: https://github.com/THM-Health/PILOS/pull/1678
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
+[#1711]: https://github.com/THM-Health/PILOS/issues/1711
 [#1721]: https://github.com/THM-Health/PILOS/issues/1721
 [#1724]: https://github.com/THM-Health/PILOS/pull/1724
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.2.0...develop
+[#1744]: https://github.com/THM-Health/PILOS/issues/1744
+[#1751]: https://github.com/THM-Health/PILOS/issues/1751
+[#1758]: https://github.com/THM-Health/PILOS/pull/1758
+[#1759]: https://github.com/THM-Health/PILOS/issues/1759
+[#1760]: https://github.com/THM-Health/PILOS/pull/1760
+[#1772]: https://github.com/THM-Health/PILOS/pull/1772
+[#1784]: https://github.com/THM-Health/PILOS/issues/1784
+[#1787]: https://github.com/THM-Health/PILOS/pull/1787
+[#1791]: https://github.com/THM-Health/PILOS/issues/1791
+[#1794]: https://github.com/THM-Health/PILOS/pull/1794
+[#1795]: https://github.com/THM-Health/PILOS/pull/1795
+[#1801]: https://github.com/THM-Health/PILOS/pull/1801
+[#1802]: https://github.com/THM-Health/PILOS/pull/1802
+[#1824]: https://github.com/THM-Health/PILOS/issues/1824
+[#1825]: https://github.com/THM-Health/PILOS/pull/1825
+[#1827]: https://github.com/THM-Health/PILOS/issues/1827
+[#1829]: https://github.com/THM-Health/PILOS/pull/1829
+[#1844]: https://github.com/THM-Health/PILOS/pull/1844
+[#1855]: https://github.com/THM-Health/PILOS/pull/1855
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -325,3 +413,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.1.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.1
 [v4.1.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.2
 [v4.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.2.0
+[v4.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.0

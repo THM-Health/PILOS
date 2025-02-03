@@ -109,6 +109,10 @@ class SettingsTest extends TestCase
         $role->permissions()->attach(Permission::where('name', 'settings.viewAny')->first());
         $this->user->roles()->attach($role);
 
+        $linkStyles = array_filter(LinkButtonStyle::cases(), function ($style) {
+            return ! in_array($style, LinkButtonStyle::getDeprecated());
+        });
+
         $this->getJson(route('api.v1.settings.view'))
             ->assertJson([
                 'data' => [
@@ -160,7 +164,7 @@ class SettingsTest extends TestCase
                     'bbb_default_presentation' => url('presentation.pdf'),
                 ],
                 'meta' => [
-                    'link_btn_styles' => array_column(LinkButtonStyle::cases(), 'value'),
+                    'link_btn_styles' => array_column($linkStyles, 'value'),
                     'link_targets' => array_column(LinkTarget::cases(), 'value'),
                     'recording_max_retention_period' => 90,
                 ],
@@ -500,7 +504,6 @@ class SettingsTest extends TestCase
             'recording_attendance_retention_period' => 'notnumber',
             'recording_recording_retention_period' => 'notnumber',
 
-            'bbb_logo' => '',
             'bbb_logo_file' => 'notimagefile',
         ];
 
@@ -552,7 +555,6 @@ class SettingsTest extends TestCase
                 'recording_attendance_retention_period',
                 'recording_recording_retention_period',
 
-                'bbb_logo',
                 'bbb_logo_file',
             ]);
 
@@ -902,7 +904,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get('styles/bbb.css'));
 
         // Clear default presentation (file deleted and setting removed)
-        $payload['bbb_style'] = null;
+        $payload['bbb_style'] = '';
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
         $this->assertNull(app(BigBlueButtonSettings::class)->style);
@@ -985,6 +987,7 @@ class SettingsTest extends TestCase
 
         // Clear logo
         unset($payload['bbb_logo_file']);
+        $payload['bbb_logo'] = '';
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
         $this->assertNull(app(BigBlueButtonSettings::class)->logo);

@@ -34,7 +34,7 @@ Build the BigBlueButton recording player with the release version you want.
 docker compose exec app pilos-cli playback-player:build 5.0.2
 ```
 
-See [Recording](./08-advanced/02-recording.md#update-the-bigbluebutton-recording-player) for more information.
+See [Recording](./08-advanced/03-recording.md#update-the-bigbluebutton-recording-player) for more information.
 
 ### locales\:cache
 
@@ -50,7 +50,7 @@ docker compose exec app pilos-cli db:check
 Creates a new superuser account.
 
 ```bash
-docker compose exec app pilos-cli db:check
+docker compose exec app pilos-cli users:create:superuser
 ```
 
 ### db\:check

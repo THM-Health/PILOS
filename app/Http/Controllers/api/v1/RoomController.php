@@ -139,6 +139,9 @@ class RoomController extends Controller
             default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderByRaw('LOWER(rooms.name)'),
         };
 
+        // Add secondary sort by id to ensure consistent ordering
+        $collection = $collection->orderBy('rooms.id');
+
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 

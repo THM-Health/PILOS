@@ -55,7 +55,7 @@ class UpdateSettings extends FormRequest
             'banner_message' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'max:500'],
             'banner_link' => ['nullable', 'string', 'url', 'max:255'],
             'banner_link_text' => ['nullable', 'string', 'max:255'],
-            'banner_link_style' => ['required', 'string', 'max:255', Rule::enum(LinkButtonStyle::class)],
+            'banner_link_style' => ['required', 'string', 'max:255', Rule::enum(LinkButtonStyle::class)->except(LinkButtonStyle::getDeprecated())],
             'banner_link_target' => ['required', 'string', 'max:255', Rule::enum(LinkTarget::class)],
             'banner_icon' => ['nullable', 'string', 'max:255', 'regex:/^(fas|fa\\-solid) fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/'],
             'banner_color' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'hex_color'],
@@ -77,7 +77,7 @@ class UpdateSettings extends FormRequest
             'recording_attendance_retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'recording_recording_retention_period' => ['required', 'numeric',  Rule::enum(TimePeriod::class)->except($disabledRecordingRetentionPeriods)],
 
-            'bbb_logo' => ['string', 'max:255'],
+            'bbb_logo' => ['nullable', 'string', 'max:255'],
             'bbb_logo_file' => ['image', 'max:500'],
             'bbb_style' => ['nullable', 'file', 'max:500'],
             'bbb_default_presentation' => ['nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],

@@ -1,0 +1,67 @@
+{
+  "data": [
+    {
+      "id": "34d0b4eb-0de9-4bd4-b158-a8edc0f71674",
+      "start": "2021-02-12T18:09:29.000000Z",
+      "end": null,
+      "room": {
+        "id": "abc-def-123",
+        "owner": "John Doe",
+        "name": "Meeting One",
+        "participant_count": 10,
+        "listener_count": 5,
+        "voice_participant_count": 5,
+        "video_count": 3
+      },
+      "server": {
+        "id": 1,
+        "name": "Server 01"
+      }
+    },
+    {
+      "id": "5866d99e-ea44-4221-afa8-54f397ab07c8",
+      "start": "2021-02-12T18:10:20.000000Z",
+      "end": null,
+      "room": {
+        "id": "def-abc-123",
+        "owner": "Max Doe",
+        "name": "Meeting Two",
+        "participant_count": 50,
+        "listener_count": 30,
+        "voice_participant_count": 20,
+        "video_count": 10
+      },
+      "server": {
+        "id": 2,
+        "name": "Server 02"
+      }
+    },
+    {
+      "id": "520671dc-cde5-40d0-86c8-341446051a43",
+      "start": "2021-02-12T17:14:48.000000Z",
+      "end": null,
+      "room": {
+        "id": "def-abc-456",
+        "owner": "John Doe",
+        "name": "Meeting Three",
+        "participant_count": null,
+        "listener_count": null,
+        "voice_participant_count": null,
+        "video_count": null
+      },
+      "server": {
+        "id": 1,
+        "name": "Server 01"
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 3,
+    "to": 3,
+    "total": 3,
+    "total_no_filter": 3
+  }
+}

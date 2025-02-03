@@ -23,7 +23,7 @@ describe("User Profile Others", function () {
       .click();
 
     // Save changes
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.bbb_skip_check_audio = true;
 
       const saveChangesRequest = interceptIndefinitely(
@@ -109,7 +109,7 @@ describe("User Profile Others", function () {
     ]);
 
     // Check with 428 error (stale error)
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       const newModel = user.data;
       newModel.bbb_skip_check_audio = true;
 

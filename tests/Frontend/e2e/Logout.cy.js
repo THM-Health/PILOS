@@ -11,7 +11,7 @@ describe("Logout", function () {
         redirect: false,
       },
     }).as("logoutRequest");
-    cy.visit("rooms");
+    cy.visit("/rooms");
 
     // Click on logout
     cy.get('[data-test="user-avatar"]').click();
@@ -42,7 +42,7 @@ describe("Logout", function () {
         redirect: "https://example.org/?foo=a&bar=b",
       },
     }).as("logoutRequest");
-    cy.visit("rooms");
+    cy.visit("/rooms");
     // Click on logout
     cy.get("[data-test=user-avatar]").click();
     cy.get("[data-test=submenu]")

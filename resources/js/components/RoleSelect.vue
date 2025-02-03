@@ -1,7 +1,7 @@
 <template>
   <InputGroup>
     <multiselect
-      ref="rolesMultiselectRef"
+      ref="roles-multiselect"
       :aria-labelledby="ariaLabelledby"
       data-test="role-dropdown"
       :placeholder="$t('admin.roles.select_roles')"
@@ -26,10 +26,25 @@
         {{ $t("admin.roles.no_data") }}
       </template>
       <template #option="{ option }">
-        {{ option.name }}
+        <div class="flex flex-wrap justify-between gap-2">
+          <span>{{ option.name }}</span>
+          <div class="flex gap-2">
+            <Tag
+              v-if="option.superuser"
+              icon="fa-solid fa-crown"
+              :value="$t('admin.roles.superuser')"
+              severity="warn"
+            />
+            <Tag
+              v-if="props.automaticRoles.some((role) => role === option.id)"
+              severity="secondary"
+              >{{ $t("admin.roles.automatic") }}</Tag
+            >
+          </div>
+        </div>
       </template>
       <template #tag="{ option, remove }">
-        <Chip :label="option.name">
+        <Chip :label="option.name" data-test="role-chip">
           <span>{{ option.name }}</span>
           <Button
             v-if="
@@ -41,6 +56,7 @@
             class="h-5 w-5 rounded-full text-sm"
             icon="fas fa-xmark"
             :aria-label="$t('admin.users.remove_role', { name: option.name })"
+            data-test="remove-role-button"
             @click="remove(option)"
           />
         </Chip>
@@ -53,6 +69,7 @@
             outlined
             icon="fa-solid fa-arrow-left"
             :label="$t('app.previous_page')"
+            data-test="previous-page-button"
             @click="loadRoles(Math.max(1, currentPage - 1))"
           />
           <Button
@@ -61,6 +78,7 @@
             outlined
             icon="fa-solid fa-arrow-right"
             :label="$t('app.next_page')"
+            data-test="next-page-button"
             @click="loadRoles(currentPage + 1)"
           />
         </div>
@@ -72,6 +90,7 @@
       severity="secondary"
       outlined
       icon="fa-solid fa-sync"
+      :aria-label="$t('app.reload')"
       data-test="roles-reload-button"
       @click="loadRoles(currentPage)"
     />
@@ -79,7 +98,7 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, watch } from "vue";
+import { onBeforeMount, ref, useTemplateRef, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { Multiselect } from "vue-multiselect";
 
@@ -98,9 +117,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  disabledRoles: {
+  automaticRoles: {
     type: Array,
     default: () => [],
+  },
+  disableSuperuser: {
+    type: Boolean,
+    default: false,
   },
   allowEmpty: {
     type: Boolean,
@@ -120,7 +143,7 @@ const loading = ref(false);
 const loadingError = ref(false);
 const currentPage = ref(1);
 const hasNextPage = ref(false);
-const rolesMultiselectRef = ref(null);
+const rolesMultiselectRef = useTemplateRef("roles-multiselect");
 
 watch(
   () => props.modelValue,
@@ -132,7 +155,7 @@ watch(
 );
 
 watch(
-  () => props.disabledRoles,
+  () => props.automaticRoles,
   () => {
     disableRoles(selectedRoles.value);
     disableRoles(roles.value);
@@ -170,9 +193,9 @@ onBeforeMount(() => {
 function disableRoles(roles) {
   if (roles) {
     roles.forEach((role) => {
-      role.$isDisabled = props.disabledRoles.some(
-        (disabledRole) => disabledRole === role.id,
-      );
+      role.$isDisabled =
+        props.automaticRoles.some((disabledRole) => disabledRole === role.id) ||
+        (props.disableSuperuser && role.superuser);
     });
   }
 }

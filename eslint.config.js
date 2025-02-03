@@ -71,6 +71,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.browser,
+        ...globals.node,
         Atomics: "readonly",
         SharedArrayBuffer: "readonly",
         expect: "readonly",

@@ -2,14 +2,16 @@
   <div>
     <div class="mb-6 flex flex-col justify-between md:flex-row">
       <div>
-        <InputGroup>
+        <InputGroup data-test="role-search">
           <InputText
             v-model="filter"
+            :disabled="isBusy"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1)"
           />
           <Button
             v-tooltip="$t('app.search')"
+            :disabled="isBusy"
             :aria-label="$t('app.search')"
             severity="primary"
             icon="fa-solid fa-magnifying-glass"
@@ -25,6 +27,7 @@
         icon="fa-solid fa-plus"
         :aria-label="$t('admin.roles.new')"
         :to="{ name: 'admin.roles.new' }"
+        data-test="roles-add-button"
       />
     </div>
 
@@ -45,6 +48,28 @@
       striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
+        bodyRow: {
+          'data-test': 'role-item',
+        },
+        mask: {
+          'data-test': 'overlay',
+        },
+        column: {
+          bodyCell: {
+            'data-test': 'role-item-cell',
+          },
+          headerCell: {
+            'data-test': 'role-header-cell',
+          },
+        },
+        pcPaginator: {
+          page: {
+            'data-test': 'paginator-page',
+          },
+          next: {
+            'data-test': 'paginator-next-button',
+          },
+        },
       }"
       @update:first="paginator.setFirst($event)"
       @page="onPage"
@@ -74,7 +99,8 @@
             <Tag
               v-if="slotProps.data.superuser"
               icon="fa-solid fa-crown"
-              value="Superuser"
+              :value="$t('admin.roles.superuser')"
+              severity="warn"
             />
           </div>
         </template>
@@ -100,6 +126,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-eye"
+              data-test="roles-view-button"
             />
             <Button
               v-if="userPermissions.can('update', slotProps.data)"
@@ -115,6 +142,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-edit"
+              data-test="roles-edit-button"
             />
             <SettingsRolesDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"

@@ -81,7 +81,7 @@ describe("User Profile Email", function () {
     cy.get("#email").clear();
     cy.get("#email").type("john.doe@example.com");
 
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.email = "john.doe@example.com";
 
       cy.intercept("PUT", "api/v1/users/1/email", {
@@ -190,7 +190,7 @@ describe("User Profile Email", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("view without users.update permission", function () {
+  it("view without users.updateOwnAttributes permission", function () {
     cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
 
     cy.visit("/profile");
@@ -211,7 +211,7 @@ describe("User Profile Email", function () {
   });
 
   it("view as external user", function () {
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.authenticator = "ldap";
       user.data.external_id = "jdo";
 

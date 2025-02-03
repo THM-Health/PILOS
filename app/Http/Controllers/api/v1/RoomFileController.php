@@ -44,7 +44,7 @@ class RoomFileController extends Controller
         };
 
         // Get all files of the room
-        $resource = $room->files()->orderBy($sortBy, $sortOrder);
+        $resource = $room->files()->orderBy($sortBy, $sortOrder)->orderBy('room_files.id');
 
         // If user is not allowed to view all files, only query files that are downloadable
         if (! \Gate::allows('viewAllFiles', $room)) {

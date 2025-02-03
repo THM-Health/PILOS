@@ -58,10 +58,13 @@ class RoomTypeController extends Controller
                     });
             }
         }
+
+        $roomTypes = $roomTypes->orderByRaw('LOWER(name)')->orderBy('room_types.id');
+
         if ($request->boolean('with_room_settings')) {
-            return (new RoomTypeResourceCollection($roomTypes->orderByRaw('LOWER(name)')->get()))->withDefaultRoomSettings();
+            return (new RoomTypeResourceCollection($roomTypes->get()))->withDefaultRoomSettings();
         } else {
-            return new RoomTypeResourceCollection($roomTypes->orderByRaw('LOWER(name)')->get());
+            return new RoomTypeResourceCollection($roomTypes->get());
         }
 
     }

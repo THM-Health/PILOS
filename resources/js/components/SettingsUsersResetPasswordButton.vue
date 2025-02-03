@@ -16,6 +16,7 @@
     :disabled="isBusy"
     severity="warn"
     icon="fa-solid fa-key"
+    data-test="users-reset-password-button"
     @click="showModal"
   />
 
@@ -27,8 +28,9 @@
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
     :dismissable-mask="!isBusy"
-    :closeable="!isBusy"
+    :closable="!isBusy"
     :draggable="false"
+    data-test="users-reset-password-dialog"
   >
     <span>
       {{
@@ -42,12 +44,15 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
+        :disabled="isBusy"
+        data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
         severity="danger"
         :loading="isBusy"
+        data-test="dialog-continue-button"
         @click="resetPassword"
       />
     </template>

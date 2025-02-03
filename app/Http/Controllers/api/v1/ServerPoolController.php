@@ -44,6 +44,11 @@ class ServerPoolController extends Controller
         };
         $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
+        // Add secondary sort by id to ensure consistent ordering
+        if ($sortBy != 'id') {
+            $resource = $resource->orderBy('id');
+        }
+
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 

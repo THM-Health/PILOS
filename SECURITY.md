@@ -6,10 +6,10 @@ We actively support PILOS through the matrix chat and through security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 4.0.x   | :white_check_mark: |
-| 3.0.x   | :x:                |
-| 2.0.x   | :x:                |
-| 1.9.x   | :x:                |
+| 4.x     | :white_check_mark: |
+| 3.x     | :x:                |
+| 2.x     | :x:                |
+| 1.x     | :x:                |
 
 ## Reporting a Vulnerability
 

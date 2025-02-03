@@ -3,7 +3,10 @@
     <OverlayComponent :show="isBusy">
       <form class="flex flex-col gap-4" @submit.prevent="save">
         <AdminPanel :title="$t('rooms.settings.general.title')">
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="firstname-field"
+          >
             <label for="firstname" class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("app.firstname")
             }}</label>
@@ -20,7 +23,7 @@
               <FormError :errors="formErrors.fieldError('firstname')" />
             </div>
           </div>
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="lastname-field">
             <label for="lastname" class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("app.lastname")
             }}</label>
@@ -37,7 +40,7 @@
               <FormError :errors="formErrors.fieldError('lastname')" />
             </div>
           </div>
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="email-field">
             <label for="email" class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("app.email")
             }}</label>
@@ -55,7 +58,7 @@
               <FormError :errors="formErrors.fieldError('email')" />
             </div>
           </div>
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="locale-field">
             <label
               id="locale-label"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -73,7 +76,7 @@
               <FormError :errors="formErrors.fieldError('user_locale')" />
             </div>
           </div>
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="timezone-field">
             <label
               id="timezone-label"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -93,7 +96,7 @@
               <FormError :errors="formErrors.fieldError('timezone')" />
             </div>
           </div>
-          <div class="field grid grid-cols-12 gap-4">
+          <div class="field grid grid-cols-12 gap-4" data-test="role-field">
             <label id="roles-label" class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("app.roles")
             }}</label>
@@ -103,6 +106,7 @@
                 aria-labelledby="roles-label"
                 :invalid="formErrors.fieldInvalid('roles', true)"
                 :disabled="isBusy"
+                :disable-superuser="!authStore.currentUser?.superuser"
                 @loading-error="(value) => (rolesLoadingError = value)"
                 @busy="(value) => (rolesLoading = value)"
               />
@@ -111,7 +115,10 @@
           </div>
         </AdminPanel>
         <AdminPanel :title="$t('auth.password')">
-          <div class="field grid grid-cols-12 gap-4">
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="generate-password-field"
+          >
             <label
               for="generate_password"
               class="col-span-12 items-start md:col-span-4 md:mb-0"
@@ -133,7 +140,11 @@
               }}</small>
             </div>
           </div>
-          <div v-if="!generatePassword" class="field grid grid-cols-12 gap-4">
+          <div
+            v-if="!generatePassword"
+            class="field grid grid-cols-12 gap-4"
+            data-test="new-password-field"
+          >
             <label
               for="new_password"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -155,7 +166,11 @@
             </div>
           </div>
 
-          <div v-if="!generatePassword" class="field grid grid-cols-12 gap-4">
+          <div
+            v-if="!generatePassword"
+            class="field grid grid-cols-12 gap-4"
+            data-test="new-password-confirmation-field"
+          >
             <label
               for="new_password_confirmation"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -191,6 +206,7 @@
             type="submit"
             icon="fa-solid fa-save"
             :label="$t('app.save')"
+            data-test="users-new-save-button"
           />
         </div>
       </form>
@@ -205,10 +221,12 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { useSettingsStore } from "../stores/settings";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
 const isBusy = ref(false);

@@ -11,6 +11,7 @@ services:
         WWWUSER: "${WWWUSER}"
     volumes:
       - "./:/var/www/html/"
+      - /var/www/html/storage/
     environment:
       APP_URL: http://localhost:9080
       APP_ENV: local

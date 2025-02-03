@@ -19,6 +19,7 @@ services:
     environment:
       DEV_MODE: "true"
       ENABLE_XDEBUG: "${ENABLE_XDEBUG:-no}"
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       PHP_FPM_PM_MAX_CHILDREN: "${PHP_FPM_PM_MAX_CHILDREN:-100}"
       NGINX_WORKER_PROCESSES: "${NGINX_WORKER_PROCESSES:-auto}"
       TRUSTED_PROXIES: "*"

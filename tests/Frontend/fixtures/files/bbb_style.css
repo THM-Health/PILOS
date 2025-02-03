@@ -1,0 +1,34 @@
+:root {
+    --color-primary: #74b943;
+    --color-success: #74b943;
+    --color-danger: #9c132e;
+    --color-warning: #f4aa00;
+    --poll-blue: var(--color-primary);
+    --color-background: #273035;
+    --color-content-background: var(--color-background);
+    --loader-bg: var(--color-background);
+}
+
+.react-toggle-track {
+    background-color: var(--color-danger);
+}
+
+.react-toggle--checked .react-toggle-track {
+    background-color: var(--color-success);
+}
+
+div[class^="branding-"] {
+    margin-top: 10px;
+}
+
+div[class^="react-toggle-track invertBackground--"] {
+    background-color: var(--color-success) !important;
+}
+
+div[class^="react-toggle-track invertBackground--"][class*="checked--"] {
+    background-color: var(--color-danger) !important;
+}
+
+body {
+    background-color: var(--color-background);
+}

@@ -52,4 +52,9 @@ class RoomType extends Model
     {
         return $this->belongsTo(ServerPool::class);
     }
+
+    public function getLogLabel()
+    {
+        return $this->name.' ('.$this->id.')';
+    }
 }

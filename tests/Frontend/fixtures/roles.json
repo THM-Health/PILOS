@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Superuser",
+      "default": true,
+      "updated_at": "2021-01-08T15:51:08.000000Z",
+      "model_name": "Role",
+      "room_limit": -1,
+      "superuser": true
+    },
+    {
+      "id": 2,
+      "name": "Staff",
+      "default": false,
+      "updated_at": "2021-03-19T09:12:44.000000Z",
+      "model_name": "Role",
+      "room_limit": 20,
+      "superuser": false
+    },
+    {
+      "id": 3,
+      "name": "Students",
+      "default": false,
+      "updated_at": "2021-05-22T11:55:21.000000Z",
+      "model_name": "Role",
+      "room_limit": 1,
+      "superuser": false
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 2,
+    "per_page": 3,
+    "to": 3,
+    "total": 6
+  }
+}

@@ -7,7 +7,7 @@
       :options="timezones"
       :required="props.required"
       :invalid="props.invalid"
-      :disabled="props.disabled || loadingError"
+      :disabled="props.disabled || loading || loadingError"
       :placeholder="props.placeholder"
       :loading="loading"
       :pt="{
@@ -25,6 +25,7 @@
       outlined
       severity="secondary"
       icon="fa-solid fa-sync"
+      :aria-label="$t('app.reload')"
       data-test="timezone-reload-button"
       @click="loadTimezones()"
     />

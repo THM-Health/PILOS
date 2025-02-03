@@ -1,0 +1,81 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Server 01",
+      "description": "Testserver 01",
+      "strength": 1,
+      "status": 1,
+      "health": 1,
+      "participant_count": 10,
+      "listener_count": 5,
+      "voice_participant_count": 5,
+      "video_count": 5,
+      "meeting_count": 2,
+      "own_meeting_count": 2,
+      "version": "2.4.5",
+      "model_name": "Server",
+      "updated_at": "2020-12-21T13:43:21.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "Server 02",
+      "description": "Testserver 02",
+      "strength": 1,
+      "status": 1,
+      "health": 0,
+      "participant_count": 50,
+      "listener_count": 25,
+      "voice_participant_count": 30,
+      "video_count": 5,
+      "meeting_count": 10,
+      "own_meeting_count": 9,
+      "version": null,
+      "model_name": "Server",
+      "updated_at": "2020-12-21T13:43:21.000000Z"
+    },
+    {
+      "id": 3,
+      "name": "Server 03",
+      "description": "Testserver 03",
+      "strength": 1,
+      "status": -1,
+      "health": -1,
+      "participant_count": null,
+      "listener_count": null,
+      "voice_participant_count": null,
+      "video_count": null,
+      "meeting_count": null,
+      "own_meeting_count": null,
+      "version": null,
+      "model_name": "Server",
+      "updated_at": "2020-12-21T13:43:21.000000Z"
+    },
+    {
+      "id": 4,
+      "name": "Server 04",
+      "description": "Testserver 04",
+      "strength": 1,
+      "status": 0,
+      "health": 1,
+      "participant_count": null,
+      "listener_count": null,
+      "voice_participant_count": null,
+      "video_count": null,
+      "meeting_count": null,
+      "own_meeting_count": null,
+      "version": null,
+      "model_name": "Server",
+      "updated_at": "2020-12-21T13:43:21.000000Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 15,
+    "to": 4,
+    "total": 4,
+    "total_no_filter": 4
+  }
+}

@@ -47,6 +47,11 @@ class RoleController extends Controller
 
         $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
+        // Add secondary sort by id to ensure consistent ordering
+        if ($sortBy != 'id') {
+            $resource = $resource->orderBy('id');
+        }
+
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
@@ -72,7 +77,10 @@ class RoleController extends Controller
         $role->superuser = false;
 
         $role->save();
-        $role->permissions()->sync($request->permissions);
+
+        $new_permissions = $role->filterRestrictedPermissions(collect($request->permissions));
+
+        $role->permissions()->sync($new_permissions);
 
         return (new RoleResource($role))->withPermissions();
     }
@@ -98,7 +106,9 @@ class RoleController extends Controller
         if (! $role->superuser) {
             $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
 
-            $role->permissions()->sync($request->permissions);
+            $new_permissions = $role->filterRestrictedPermissions(collect($request->permissions));
+
+            $role->permissions()->sync($new_permissions);
 
             $user = Auth::user();
 

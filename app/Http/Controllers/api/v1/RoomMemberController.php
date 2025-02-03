@@ -54,7 +54,7 @@ class RoomMemberController extends Controller
         };
 
         // Get all members of the room and sort them
-        $resource = $room->members()->orderByRaw($sortBy.' '.$sortOrder);
+        $resource = $room->members()->orderByRaw($sortBy.' '.$sortOrder)->orderBy('users.id');
 
         // count all before applying filters
         $additional['meta']['total_no_filter'] = $resource->count();

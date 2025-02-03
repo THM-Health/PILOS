@@ -9,6 +9,7 @@
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
           severity="secondary"
+          data-test="users-cancel-edit-button"
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', user)"
@@ -18,6 +19,7 @@
           :label="$t('app.edit')"
           icon="fa-solid fa-edit"
           severity="info"
+          data-test="users-edit-button"
         />
         <SettingsUsersResetPasswordButton
           v-if="

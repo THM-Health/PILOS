@@ -79,7 +79,7 @@ class MeetingController extends Controller
             'desc' => 'DESC',
             default => 'ASC',
         };
-        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder)->orderBy('meetings.id');
 
         // Respond with paginated result
         $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
@@ -148,7 +148,7 @@ class MeetingController extends Controller
         // check if attendance recording is enabled for this meeting
         if (! $meeting->record_attendance) {
             Log::info('Failed to show attendace for meeting {meeting} of room {room}; attendance is disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
-            abort(CustomStatusCodes::FEATURE_DISABLED->value, __('app.errors.meeting_attendance_disabled'));
+            abort(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED->value, __('app.errors.meeting_attendance_disabled'));
         }
 
         // check if meeting is ended

@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="mb-6 flex justify-end">
-      <div v-if="model.id && id !== 'new'" class="flex gap-2">
+      <div
+        v-if="model.id && id !== 'new' && permissionsLoaded"
+        class="flex gap-2"
+      >
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
           as="router-link"
@@ -10,6 +13,7 @@
           :to="{ name: 'admin.roles.view', params: { id: model.id } }"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
+          data-test="roles-cancel-edit-button"
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
@@ -19,6 +23,7 @@
           :to="{ name: 'admin.roles.edit', params: { id: model.id } }"
           :label="$t('app.edit')"
           icon="fa-solid fa-edit"
+          data-test="roles-edit-button"
         />
         <SettingsRolesDeleteButton
           v-if="userPermissions.can('delete', model)"
@@ -29,20 +34,22 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy || modelLoadingError">
-      <template #loading>
+    <OverlayComponent
+      :show="isBusy || modelLoadingError || permissionsLoadingError"
+    >
+      <template #overlay>
         <LoadingRetryButton
-          :error="modelLoadingError"
+          :error="modelLoadingError || permissionsLoadingError"
           @reload="load()"
         ></LoadingRetryButton>
       </template>
 
       <form
-        :aria-hidden="modelLoadingError"
+        :aria-hidden="modelLoadingError || permissionsLoadingError"
         class="flex flex-col gap-4"
         @submit.prevent="saveRole"
       >
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4">{{
             $t("app.model_name")
           }}</label>
@@ -53,21 +60,24 @@
               class="w-full"
               type="text"
               :invalid="formErrors.fieldInvalid('name')"
-              :disabled="isBusy || modelLoadingError || viewOnly"
+              :disabled="formFieldsDisabled"
             />
             <FormError :errors="formErrors.fieldError('name')" />
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="room-limit-field">
           <label for="room-limit" class="col-span-12 items-start md:col-span-4">
             <span class="flex items-center">
               {{ $t("app.room_limit") }}
               <Button
                 severity="link"
                 class="secondary"
-                :disabled="isBusy || modelLoadingError"
+                :disabled="
+                  isBusy || modelLoadingError || permissionsLoadingError
+                "
                 icon="fa-solid fa-circle-info"
+                data-test="roles-room-limit-help-button"
                 @click="helpRoomLimitModalVisible = true"
               />
             </span>
@@ -77,14 +87,13 @@
               v-for="option in roomLimitModeOptions"
               :key="option.value"
               class="mb-2"
+              :data-test="'room-limit-mode-' + option.value + '-field'"
             >
               <RadioButton
                 v-model="roomLimitMode"
                 :input-id="option.value"
                 :value="option.value"
-                :disabled="
-                  isBusy || modelLoadingError || viewOnly || model.superuser
-                "
+                :disabled="formFieldsDisabled || model.superuser"
                 @change="roomLimitModeChanged(option.value)"
               />
               <label :for="option.value" class="ml-2">{{ option.text }}</label>
@@ -98,7 +107,7 @@
               show-buttons
               :min="0"
               :invalid="formErrors.fieldInvalid('room_limit')"
-              :disabled="isBusy || modelLoadingError || viewOnly"
+              :disabled="formFieldsDisabled"
             />
             <FormError :errors="formErrors.fieldError('room_limit')" />
           </div>
@@ -107,6 +116,7 @@
         <div
           v-if="!isBusy && Object.keys(permissions).length > 0"
           class="grid grid-cols-12 gap-4"
+          data-test="permission-list"
         >
           <div class="col-span-8">
             <b>{{ $t("admin.roles.permission_name") }}</b>
@@ -122,26 +132,33 @@
                 class="fa-solid fa-circle-info"
             /></b>
           </div>
-          <div class="col-span-12 flex flex-col gap-4">
+          <div class="col-span-12 flex flex-col gap-6">
             <Divider class="m-0" />
             <div
               v-for="key in Object.keys(permissions)"
               :key="key"
               class="grid grid-cols-12"
+              data-test="permission-category"
             >
               <div class="col-span-12">
                 <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
               </div>
-              <div class="col-span-12">
+              <div class="col-span-12 flex flex-col gap-2">
                 <div
                   v-for="permission in permissions[key]"
                   :key="permission.id"
                   class="grid grid-cols-12 gap-4"
+                  data-test="permission-group"
                 >
                   <div class="col-span-8">
                     <label :for="permission.name">{{
                       $t(`admin.roles.permissions.${permission.name}`)
                     }}</label>
+                    <p
+                      class="font-monospace text-sm text-surface-400 dark:text-surface-300"
+                    >
+                      {{ permission.rawName }}
+                    </p>
                   </div>
                   <div class="col-span-2 flex">
                     <Checkbox
@@ -149,10 +166,9 @@
                       :input-id="permission.name"
                       :value="permission.id"
                       :disabled="
-                        isBusy ||
-                        modelLoadingError ||
-                        viewOnly ||
-                        model.superuser
+                        formFieldsDisabled ||
+                        model.superuser ||
+                        permission.restricted
                       "
                       :invalid="formErrors.fieldInvalid('permissions', true)"
                     />
@@ -168,6 +184,7 @@
                         })
                       "
                       class="fa-solid fa-check-circle text-green-500"
+                      data-test="permission-included-icon"
                     />
                     <i
                       v-else
@@ -179,6 +196,7 @@
                         })
                       "
                       class="fa-solid fa-minus-circle text-red-500"
+                      data-test="permission-not-included-icon"
                     />
                   </div>
                 </div>
@@ -197,17 +215,32 @@
         <div v-if="!viewOnly">
           <div class="flex justify-end">
             <Button
-              :disabled="isBusy || modelLoadingError"
+              :disabled="formFieldsDisabled"
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
+              data-test="roles-save-button"
             />
           </div>
         </div>
       </form>
     </OverlayComponent>
 
-    <ConfirmDialog></ConfirmDialog>
+    <ConfirmDialog
+      data-test="stale-role-dialog"
+      :pt="{
+        pcAcceptButton: {
+          root: {
+            'data-test': 'stale-dialog-accept-button',
+          },
+        },
+        pcRejectButton: {
+          root: {
+            'data-test': 'stale-dialog-reject-button',
+          },
+        },
+      }"
+    ></ConfirmDialog>
 
     <Dialog
       v-model:visible="helpRoomLimitModalVisible"
@@ -218,6 +251,14 @@
       dismissable-mask
       :draggable="false"
       :header="$t('app.room_limit')"
+      data-test="roles-room-limit-help-dialog"
+      :pt="{
+        pcCloseButton: {
+          root: {
+            'data-test': 'dialog-header-close-button',
+          },
+        },
+      }"
     >
       <div class="overflow-auto">
         <p>{{ $t("admin.roles.room_limit.help_modal.info") }}</p>
@@ -337,6 +378,8 @@ const model = ref({
   permissions: [],
 });
 
+const permissionRestrictions = ref([]);
+
 const name = ref("");
 watch(
   () => name.value,
@@ -349,6 +392,8 @@ watch(
 
 const includedPermissionMap = ref({});
 const permissions = ref({});
+const permissionsLoaded = ref(false);
+const permissionsLoadingError = ref(false);
 const roomLimitMode = ref("default");
 const busyCounter = ref(0);
 const modelLoadingError = ref(false);
@@ -382,6 +427,15 @@ const includedPermissions = computed(() => {
     model.value.permissions.flatMap((permission) =>
       [permission, includedPermissionMap.value[permission]].flat(),
     ),
+  );
+});
+
+const formFieldsDisabled = computed(() => {
+  return (
+    isBusy.value ||
+    modelLoadingError.value ||
+    props.viewOnly ||
+    permissionsLoadingError.value
   );
 });
 
@@ -440,13 +494,36 @@ function load() {
  * Loads the permissions that can be selected through checkboxes.
  */
 function loadPermissions() {
+  permissionsLoadingError.value = false;
   busyCounter.value++;
 
   api
     .call("permissions")
     .then((response) => {
       const newPermissions = {};
+
+      permissionRestrictions.value = response.data.meta.restrictions;
+
       response.data.data.forEach((permission) => {
+        permission.rawName = permission.name;
+
+        permission.restricted = permissionRestrictions.value.some(
+          (restriction) => {
+            if (restriction === permission.name) {
+              return true;
+            }
+
+            const restrictionPermission = restriction.split(".", 2)[1];
+            const restrictionGroup = restriction.split(".", 2)[0];
+            const permissionGroup = permission.name.split(".", 2)[0];
+
+            return (
+              restrictionPermission === "*" &&
+              permissionGroup === restrictionGroup
+            );
+          },
+        );
+
         permission.name = permission.name
           .split(".")
           .map((fragment) => _.snakeCase(fragment))
@@ -488,9 +565,10 @@ function loadPermissions() {
         .forEach((key) => {
           permissions.value[key] = newPermissions[key];
         });
+      permissionsLoaded.value = true;
     })
     .catch((error) => {
-      modelLoadingError.value = true;
+      permissionsLoadingError.value = true;
       api.error(error);
     })
     .finally(() => {
@@ -589,6 +667,12 @@ function handleStaleError(staleError) {
         (permission) => permission.id,
       );
       name.value = staleError.new_model.name;
+      roomLimitMode.value =
+        model.value.room_limit === null
+          ? "default"
+          : model.value.room_limit === -1
+            ? "unlimited"
+            : "custom";
     },
   });
 }

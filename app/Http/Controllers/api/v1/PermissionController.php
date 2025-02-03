@@ -15,6 +15,10 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        return new PermissionResourceCollection(Permission::all());
+        return (new PermissionResourceCollection(Permission::all()))->additional([
+            'meta' => [
+                'restrictions' => config('permissions.restrictions'),
+            ],
+        ]);
     }
 }

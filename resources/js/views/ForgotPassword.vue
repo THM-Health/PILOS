@@ -8,7 +8,7 @@
           <template #title> {{ $t("auth.reset_password") }} </template>
           <template #content>
             <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2" data-test="email-field">
                 <label for="email">{{ $t("app.email") }}</label>
                 <InputText
                   id="email"
@@ -23,10 +23,12 @@
               </div>
 
               <Button
+                class="mt-6"
                 type="submit"
                 :disabled="loading"
                 :loading="loading"
                 :label="$t('auth.send_password_reset_link')"
+                data-test="send-reset-link-button"
               />
             </form>
           </template>
@@ -42,6 +44,7 @@ import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
+import env from "../env.js";
 
 const email = ref(null);
 const loading = ref(false);
@@ -56,6 +59,8 @@ const router = useRouter();
  */
 function submit() {
   loading.value = true;
+  formErrors.clear();
+
   const config = {
     method: "post",
     data: {
@@ -70,6 +75,14 @@ function submit() {
       router.push({ name: "home" });
     })
     .catch((error) => {
+      // failed due to form validation errors
+      if (
+        error.response &&
+        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+        return;
+      }
       api.error(error);
     })
     .finally(() => {

@@ -38,6 +38,7 @@ return [
     'overview' => 'Übersicht',
     'overview_description' => 'Hier können die Einstellungen der Anwendung verwaltet werden. Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.',
     'roles' => [
+        'automatic' => 'Automatisch',
         'default' => 'Standard',
         'delete' => [
             'confirm' => 'Wollen Sie die Rolle :name wirklich löschen?',
@@ -134,6 +135,7 @@ return [
             ],
         ],
         'select_roles' => 'Bitte wählen Sie mindestens eine Rolle aus',
+        'superuser' => 'Superuser',
         'tile_description' => 'Die Rollen vergeben Berechtigungen, gliedern die Benutzer und legen das Maximum an Räumen pro Benutzer fest.',
         'view' => 'Detaillierte Informationen für die Rolle :name',
     ],

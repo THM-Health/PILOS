@@ -2,12 +2,13 @@
   <div data-test="login-tab-local">
     <h1 class="p-card-title">{{ props.title }}</h1>
     <form @submit.prevent="submit">
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2" data-test="email-field">
         <label :for="`${props.id}-email`">{{ props.emailLabel }}</label>
         <InputText
           :id="`${props.id}-email`"
           v-model="email"
           type="text"
+          :disabled="props.loading"
           autocomplete="email"
           :placeholder="props.emailLabel"
           aria-describedby="email-help-block"
@@ -21,7 +22,7 @@
         <FormError :errors="props.errors?.email" />
       </div>
 
-      <div class="mt-6 flex flex-col gap-2">
+      <div class="mt-6 flex flex-col gap-2" data-test="password-field">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
           v-model="password"
@@ -31,14 +32,13 @@
           toggle-mask
           required
           fluid
+          :disabled="props.loading"
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
-          :state="
+          :invalid="
             props.errors !== null &&
             props.errors.password &&
             props.errors.password.length > 0
-              ? false
-              : null
           "
         />
         <Button
@@ -48,6 +48,7 @@
           link
           class="self-start p-0"
           to="/forgot_password"
+          data-test="forgot-password-button"
         >
           {{ $t("auth.forgot_password") }}
         </Button>

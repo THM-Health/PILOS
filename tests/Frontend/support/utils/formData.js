@@ -1,13 +1,3 @@
-export function _arrayBufferToBase64(buffer) {
-  let binary = "";
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
-
 export function parseFormData(data, headers) {
   const boundary = headers["content-type"].split(
     "multipart/form-data; boundary=",
@@ -57,12 +47,19 @@ export function parseFormData(data, headers) {
         .replaceAll("\x00", "");
       lines.shift();
 
-      const fileBits = new Uint8Array(
-        lines
-          .join(new TextEncoder().encode("\r\n").join(";") + ";")
-          .split(";")
-          .slice(0, -1),
-      );
+      let lineFileBits = lines
+        .join(new TextEncoder().encode("\r\n").join(";") + ";")
+        .split(";")
+        .slice(0, -1);
+
+      if (
+        lineFileBits.slice(-2).join(";") ===
+        new TextEncoder().encode("\r\n").join(";")
+      ) {
+        lineFileBits = lineFileBits.slice(0, -2);
+      }
+
+      const fileBits = new Uint8Array(lineFileBits);
 
       const file = new Blob([fileBits], {
         type: contentType,

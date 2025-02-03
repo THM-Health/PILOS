@@ -9,6 +9,7 @@
       "
       ref="footer_container"
       class="border-t bg-white p-2 border-surface dark:bg-surface-900"
+      data-test="app-footer"
     >
       <div class="container">
         <div
@@ -21,6 +22,7 @@
               link
               :href="settingsStore.getSetting('general.legal_notice_url')"
               class="p-0 text-sm"
+              data-test="legal-notice-button"
             >
               {{ $t("app.footer.legal_notice") }}
             </Button>
@@ -41,6 +43,7 @@
               rel="privacy-policy nofollow"
               :href="settingsStore.getSetting('general.privacy_policy_url')"
               class="p-0 text-sm"
+              data-test="privacy-policy-button"
             >
               {{ $t("app.footer.privacy_policy") }}
             </Button>
@@ -53,11 +56,13 @@
               class="p-0 text-sm"
               href="https://github.com/THM-Health/PILOS"
               target="_blank"
+              data-test="github-button"
               ><raw-text>PILOS</raw-text></Button
             >
             <span
               v-if="settingsStore.getSetting('general.version')"
               class="ml-2 text-sm"
+              data-test="version"
             >
               {{ $t("app.version") }}
               {{ settingsStore.getSetting("general.version") }}
