@@ -275,19 +275,45 @@ jobs:
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-screenshots
+          name: frontend-cypress-screenshots-${{ strategy.job-index }}
           path: tests/Frontend/screenshots
-      - name: Upload coverage reports
+      - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage-report-${{ strategy.job-index }}
+          name: frontend-cypress-split-results-${{ strategy.job-index }}
+          path: |
+            coverage
+          if-no-files-found: ignore
+  merge-coverage:
+    needs: frontend-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: cypress-io/github-action@v6
+        with:
+          runTests: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: frontend-cypress-split-results-*
+          path: split-results
+      - name: Display structure of downloaded files
+        run: ls -R split-results
+      - name: Merge coverage reports
+        run: npx cc-merge split-results
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-coverage
           path: coverage
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          name: frontend-coverage-${{ strategy.job-index }}
+          name: frontend-coverage
           fail_ci_if_error: true
           directory: coverage
+
   visual-tests:
     name: Visual Tests
     runs-on: ubuntu-latest

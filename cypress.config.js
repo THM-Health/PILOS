@@ -1,6 +1,6 @@
 import { defineConfig } from "cypress";
 import cypressSplit from "cypress-split";
-import configCodeCoverage from "@cypress/code-coverage/task.js";
+import configCodeCoverage from "@bahmutov/cypress-code-coverage/plugin";
 import "dotenv/config";
 
 const baseUrl = process.env.APP_URL || "http://localhost";
