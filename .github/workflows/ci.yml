@@ -267,7 +267,7 @@ jobs:
           wait-on: "http://localhost:9080" # Waits for above
           group: "Frontend tests"
           parallel: true
-          record: true
+          record: ${{ runner.debug == '1' }}
           tag: ${{ github.event_name }}
         env:
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
@@ -329,7 +329,7 @@ jobs:
         with:
           command-prefix: happo-e2e -- npx
           group: "Visual tests"
-          record: true
+          record: ${{ runner.debug == '1' }}
           tag: ${{ github.event_name }}
           project: ./tests/Visual
         env:
@@ -389,7 +389,7 @@ jobs:
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: "System tests"
-          record: true
+          record: ${{ runner.debug == '1' }}
           tag: ${{ github.event_name }}
           project: ./tests/System
         env:
