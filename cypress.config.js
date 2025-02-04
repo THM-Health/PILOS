@@ -1,4 +1,5 @@
 import { defineConfig } from "cypress";
+import cypressSplit from "cypress-split";
 import configCodeCoverage from "@cypress/code-coverage/task.js";
 import "dotenv/config";
 
@@ -12,6 +13,7 @@ export default defineConfig({
 
   e2e: {
     setupNodeEvents(on, config) {
+      cypressSplit(on, config);
       configCodeCoverage(on, config);
 
       // include any other plugin code...

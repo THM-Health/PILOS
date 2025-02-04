@@ -265,16 +265,9 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           wait-on: "http://localhost:9080" # Waits for above
-          group: "Frontend tests"
-          parallel: true
-          record: ${{ runner.debug == '1' }}
-          tag: ${{ github.event_name }}
         env:
-          CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          SPLIT: ${{ strategy.job-total }}
+          SPLIT_INDEX: ${{ strategy.job-index }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
           ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
