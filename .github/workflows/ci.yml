@@ -137,6 +137,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
+          name: backend-coverage
           fail_ci_if_error: true
       - name: Upload laravel logs
         uses: actions/upload-artifact@v4
@@ -284,6 +285,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
+          name: frontend-coverage-${{ strategy.job-index }}
           fail_ci_if_error: true
           directory: coverage
   visual-tests:
