@@ -266,12 +266,15 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           wait-on: "http://localhost:9080" # Waits for above
+          publish-summary: false
         env:
           SPLIT: ${{ strategy.job-total }}
           SPLIT_INDEX: ${{ strategy.job-index }}
+          SPLIT_FILE: "tests/Frontend/timings.json"
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
           ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
+          DEBUG: "cypress-split"
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
@@ -283,6 +286,7 @@ jobs:
           name: frontend-cypress-split-results-${{ strategy.job-index }}
           path: |
             coverage
+            tests/Frontend/timings.json
           if-no-files-found: ignore
   merge-coverage:
     needs: frontend-tests
@@ -313,7 +317,48 @@ jobs:
           name: frontend-coverage
           fail_ci_if_error: true
           directory: coverage
-
+  merge-split-timings:
+    needs: frontend-tests
+    runs-on: ubuntu-latest
+    outputs:
+      timings: ${{ steps.merge.outputs.merged-timings }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: cypress-io/github-action@v6
+        with:
+          runTests: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: frontend-cypress-split-results-*
+          path: split-results
+      - name: Display structure of downloaded files
+        run: ls -R split-results
+      - name: Merge split timings
+        id: merge
+        run: |
+          npx cypress-split-merge \
+            --parent-folder split-results \
+            --split-file "tests/Frontend/timings.json" \
+            --output "tests/Frontend/timings.json" \
+            --set-gha-output merged-timings
+        env:
+          DEBUG: "cypress-split"
+      - name: Print timings
+        run: |
+          echo off
+          echo Merged timings
+          echo '${{ steps.merge.outputs.merged-timings }}'
+      - name: Commit changed spec timings
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Updated spec timings
+          file_pattern: "tests/Frontend/timings.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merged-split-file
+          path: "tests/Frontend/timings.json"
   visual-tests:
     name: Visual Tests
     runs-on: ubuntu-latest

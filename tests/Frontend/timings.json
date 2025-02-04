@@ -1,0 +1,292 @@
+{
+  "durations": [
+    {
+      "spec": "tests/Frontend/e2e/AdminIndex.cy.js",
+      "duration": 8155
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRolesEdit.cy.js",
+      "duration": 91900
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRolesIndex.cy.js",
+      "duration": 35204
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRolesIndexRoleActions.cy.js",
+      "duration": 26142
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRolesNew.cy.js",
+      "duration": 52133
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRolesView.cy.js",
+      "duration": 43938
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRolesViewRoleActions.cy.js",
+      "duration": 32429
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRoomTypesEdit.cy.js",
+      "duration": 96059
+    },
+    {
+      "spec": "tests/Frontend/e2e/ForgotPassword.cy.js",
+      "duration": 17455
+    },
+    {
+      "spec": "tests/Frontend/e2e/GeneralApplication.cy.js",
+      "duration": 15421
+    },
+    {
+      "spec": "tests/Frontend/e2e/Login.cy.js",
+      "duration": 53726
+    },
+    {
+      "spec": "tests/Frontend/e2e/Logout.cy.js",
+      "duration": 8134
+    },
+    {
+      "spec": "tests/Frontend/e2e/MeetingsIndex.cy.js",
+      "duration": 35937
+    },
+    {
+      "spec": "tests/Frontend/e2e/PasswordReset.cy.js",
+      "duration": 22611
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsIndex.cy.js",
+      "duration": 89605
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsIndexCreateNewRoom.cy.js",
+      "duration": 52987
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewBrowserNotification.cy.js",
+      "duration": 40762
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewDescription.cy.js",
+      "duration": 46206
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewDescriptionTipTapEditor.cy.js",
+      "duration": 54741
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewFiles.cy.js",
+      "duration": 59290
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewFilesFileActions.cy.js",
+      "duration": 173931
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewGeneral.cy.js",
+      "duration": 98569
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewHistory.cy.js",
+      "duration": 61541
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewHistoryMeetingActions.cy.js",
+      "duration": 88492
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewMeetings.cy.js",
+      "duration": 121014
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewMembers.cy.js",
+      "duration": 84560
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewMembersBulkActions.cy.js",
+      "duration": 162440
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewMembersMemberActions.cy.js",
+      "duration": 179858
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewPersonalizedLinks.cy.js",
+      "duration": 74595
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewPersonalizedLinksTokenActions.cy.js",
+      "duration": 139370
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewRecordings.cy.js",
+      "duration": 62380
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewRecordingsRecordingActions.cy.js",
+      "duration": 150349
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewSettings.cy.js",
+      "duration": 215349
+    },
+    {
+      "spec": "tests/Frontend/e2e/RoomsViewSettingsRoomTypeActions.cy.js",
+      "duration": 88287
+    },
+    {
+      "spec": "tests/Frontend/e2e/UserProfile.cy.js",
+      "duration": 11732
+    },
+    {
+      "spec": "tests/Frontend/e2e/UserProfileBase.cy.js",
+      "duration": 48152
+    },
+    {
+      "spec": "tests/Frontend/e2e/UserProfileEmail.cy.js",
+      "duration": 22017
+    },
+    {
+      "spec": "tests/Frontend/e2e/UserProfileOthers.cy.js",
+      "duration": 15539
+    },
+    {
+      "spec": "tests/Frontend/e2e/UserProfileSecurity.cy.js",
+      "duration": 39900
+    },
+    {
+      "spec": "tests/Frontend/e2e/VerifyEmail.cy.js",
+      "duration": 22613
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRoomTypesIndex.cy.js",
+      "duration": 20595
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRoomTypesIndexRoomTypeActions.cy.js",
+      "duration": 48712
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRoomTypesNew.cy.js",
+      "duration": 66607
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRoomTypesView.cy.js",
+      "duration": 24416
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminRoomTypesViewRoomTypeActions.cy.js",
+      "duration": 43995
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServerPoolsEdit.cy.js",
+      "duration": 66601
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServerPoolsIndex.cy.js",
+      "duration": 34254
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServerPoolsIndexServerPoolActions.cy.js",
+      "duration": 23829
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServerPoolsNew.cy.js",
+      "duration": 45452
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServerPoolsView.cy.js",
+      "duration": 21961
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServerPoolsViewServerPoolActions.cy.js",
+      "duration": 22611
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServersEdit.cy.js",
+      "duration": 56530
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServersIndex.cy.js",
+      "duration": 39460
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServersIndexServerActions.cy.js",
+      "duration": 23056
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServersNew.cy.js",
+      "duration": 30937
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServersView.cy.js",
+      "duration": 24999
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminServersViewServerActions.cy.js",
+      "duration": 45230
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminSettingsEdit.cy.js",
+      "duration": 83080
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminSettingsGeneral.cy.js",
+      "duration": 27877
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminSettingsView.cy.js",
+      "duration": 11342
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersEdit.cy.js",
+      "duration": 22165
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersEditBase.cy.js",
+      "duration": 52230
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersEditEmail.cy.js",
+      "duration": 17492
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersEditOthers.cy.js",
+      "duration": 19087
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersEditSecurity.cy.js",
+      "duration": 65730
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersIndex.cy.js",
+      "duration": 64197
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersIndexUserActions.cy.js",
+      "duration": 41969
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersNew.cy.js",
+      "duration": 66721
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersView.cy.js",
+      "duration": 36971
+    },
+    {
+      "spec": "tests/Frontend/e2e/AdminUsersViewUserActions.cy.js",
+      "duration": 53720
+    },
+    {
+      "spec": "tests/Frontend/e2e/Banner.cy.js",
+      "duration": 4469
+    },
+    {
+      "spec": "tests/Frontend/e2e/Footer.cy.js",
+      "duration": 9751
+    }
+  ]
+}

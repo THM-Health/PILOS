@@ -10,6 +10,11 @@ export default defineConfig({
   fixturesFolder: "tests/Frontend/fixtures",
   screenshotsFolder: "tests/Frontend/screenshots",
   videosFolder: "tests/Frontend/videos",
+  env: {
+    coverage: {
+      reportAfterEachSpec: false,
+    },
+  },
 
   e2e: {
     setupNodeEvents(on, config) {
