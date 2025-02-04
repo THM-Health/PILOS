@@ -279,7 +279,7 @@ jobs:
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
+          name: frontend-coverage-report-${{ strategy.job-index }}
           path: coverage
       - name: Upload coverage
         uses: codecov/codecov-action@v5
@@ -325,9 +325,6 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           command-prefix: happo-e2e -- npx
-          group: "Visual tests"
-          record: ${{ runner.debug == '1' }}
-          tag: ${{ github.event_name }}
           project: ./tests/Visual
         env:
           NODE_OPTIONS: "--experimental-require-module"
@@ -385,9 +382,6 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           wait-on: "http://localhost:9080" # Waits for above
-          group: "System tests"
-          record: ${{ runner.debug == '1' }}
-          tag: ${{ github.event_name }}
           project: ./tests/System
         env:
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
