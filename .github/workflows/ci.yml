@@ -271,6 +271,7 @@ jobs:
           SPLIT: ${{ strategy.job-total }}
           SPLIT_INDEX: ${{ strategy.job-index }}
           SPLIT_FILE: "tests/Frontend/timings.json"
+          SPLIT_TIME_THRESHOLD: "0.0"
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
           ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
