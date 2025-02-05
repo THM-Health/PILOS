@@ -46,7 +46,7 @@
     },
     {
       "spec": "tests/Frontend/e2e/Logout.cy.js",
-      "duration": 8134
+      "duration": 8134.002321243286
     },
     {
       "spec": "tests/Frontend/e2e/MeetingsIndex.cy.js",
@@ -110,7 +110,7 @@
     },
     {
       "spec": "tests/Frontend/e2e/RoomsViewMembersMemberActions.cy.js",
-      "duration": 179858
+      "duration": 179857.9981765747
     },
     {
       "spec": "tests/Frontend/e2e/RoomsViewPersonalizedLinks.cy.js",
@@ -238,7 +238,7 @@
     },
     {
       "spec": "tests/Frontend/e2e/AdminSettingsView.cy.js",
-      "duration": 11342
+      "duration": 11341.999990463257
     },
     {
       "spec": "tests/Frontend/e2e/AdminUsersEdit.cy.js",
