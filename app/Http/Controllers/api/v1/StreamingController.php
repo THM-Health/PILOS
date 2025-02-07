@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Controllers\api\v1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateStreamingSettings;
+use App\Http\Resources\StreamingSettings;
+use Illuminate\Support\Facades\Storage;
+
+class StreamingController extends Controller
+{
+    public function view()
+    {
+        return new StreamingSettings;
+    }
+
+    public function update(UpdateStreamingSettings $request)
+    {
+        $settings = app(\App\Settings\StreamingSettings::class);
+
+        // Pause image
+        if ($request->file('default_pause_image')) {
+            $path = $request->file('default_pause_image')->store('images', 'public');
+            $url = Storage::url($path);
+            $settings->default_pause_image = url($url);
+        } elseif ($request->has('default_pause_image') && trim($request->input('default_pause_image') == '')) {
+            $settings->default_pause_image = null;
+        }
+
+        $settings->save();
+
+        return new StreamingSettings;
+    }
+}

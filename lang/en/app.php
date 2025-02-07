@@ -119,6 +119,7 @@ return [
     'server_pool' => 'Server pool',
     'server_pools' => 'Server pools',
     'servers' => 'Server',
+    'streaming' => 'Streaming',
     'time_formats' => [
         'day' => 'Day',
         'days' => 'Days',

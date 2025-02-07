@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\CustomStatusCodes;
+use App\Events\RoomStarted;
 use App\Models\Meeting;
 use App\Models\Room;
 use Illuminate\Contracts\Cache\LockTimeoutException;
@@ -20,12 +21,8 @@ class RoomService
 
     /**
      * Start a new meeting
-     *
-     * @return MeetingService
-     *
-     * @throws \Exception
      */
-    public function start(bool $agreedToAttendance = false, bool $agreedToRecord = false)
+    public function start(): MeetingService
     {
         Log::info('Starting room {room}', ['room' => $this->room->id, 'room-name' => $this->room->name]);
 
@@ -111,6 +108,8 @@ class RoomService
             $this->room->video_count = 0;
             $this->room->save();
 
+            RoomStarted::dispatch($this->room);
+
             $lock->release();
         } catch (LockTimeoutException $e) {
             abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
@@ -124,10 +123,8 @@ class RoomService
 
     /**
      * Join a running meeting
-     *
-     * @return MeetingService
      */
-    public function join(bool $agreedToAttendance = false, bool $agreedToRecord = false)
+    public function join(): MeetingService
     {
         Log::info('Joining room {room}', ['room' => $this->room->getLogLabel()]);
 

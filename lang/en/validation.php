@@ -125,6 +125,7 @@ return [
         'room_file_terms_of_use' => 'Terms of use for file download',
         'room_limit' => 'Room limit',
         'room_token_expiration' => 'Expiration time for personalized room links',
+        'streaming_url' => 'RTMP(S) URL',
         'room_type' => 'Room type',
         'search' => 'Search',
         'second' => 'Second',
@@ -137,6 +138,8 @@ return [
         'sort_by' => 'Sort by',
         'status' => 'Status',
         'strength' => 'Server strength',
+        'streaming_pause_image' => 'Pause image',
+        'default_pause_image' => 'Default pause image',
         'theme_favicon' => 'Favicon',
         'theme_favicon_dark' => 'Dark version favicon',
         'theme_favicon_dark_file' => 'Dark version favicon file',
@@ -181,6 +184,15 @@ return [
             'prohibited' => 'The room is not allowed to have an access code because of its room type.',
             'required' => 'The room requires an access code because of its room type.',
         ],
+        'default_pause_image' => [
+            'dimensions' => 'The :attribute must have a resolution of 1920x1080 pixels.',
+        ],
+        'streaming_pause_image_file' => [
+            'dimensions' => 'The :attribute must have a resolution of 1920x1080 pixels.',
+        ],
+        'streaming_url' => [
+            'url' => 'The :attribute must be a URL.',
+        ],
         'banner' => [
             'array' => 'The message banner settings are missing!',
             'icon' => [
@@ -193,6 +205,9 @@ return [
         ],
         'consent_record_attendance' => [
             'accepted' => 'Consent to the logging of attendance must be given.',
+        ],
+        'consent_streaming' => [
+            'accepted' => 'Consent to the streaming of the video conference must be given.',
         ],
         'invalid_room_type' => 'You have not the necessary permissions to have a room with the passed room type.',
         'locale' => [

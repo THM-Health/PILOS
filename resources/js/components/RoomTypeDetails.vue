@@ -16,6 +16,22 @@
           }}
         </div>
 
+        <!-- Features of the room type -->
+        <span class="font-bold">{{
+          $t("rooms.room_types.features.title")
+        }}</span>
+        <div class="flex flex-row gap-2">
+          <RoomTypeFeatureField
+            v-if="
+              settingsStore.getSetting('streaming.enabled') ||
+              !settingsStore.getSetting('general.hide_disabled_features')
+            "
+            icon="fas fa-broadcast-tower"
+            :enabled="roomType.features.streaming.enabled"
+            :label="$t('rooms.room_types.features.streaming')"
+          />
+        </div>
+
         <!-- Information about the default and enforced room settings for the room type -->
         <Accordion
           class="mt-4"
@@ -60,8 +76,11 @@
 
 <script setup>
 import { useRoomTypeSettings } from "../composables/useRoomTypeSettings.js";
+import RoomTypeFeatureField from "./RoomTypeFeatureField.vue";
+import { useSettingsStore } from "../stores/settings.js";
 
 const roomTypeSettings = useRoomTypeSettings();
+const settingsStore = useSettingsStore();
 
 defineProps({
   roomType: {

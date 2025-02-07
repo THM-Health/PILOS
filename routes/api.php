@@ -15,12 +15,15 @@ use App\Http\Controllers\api\v1\RoleController;
 use App\Http\Controllers\api\v1\RoomController;
 use App\Http\Controllers\api\v1\RoomFileController;
 use App\Http\Controllers\api\v1\RoomMemberController;
+use App\Http\Controllers\api\v1\RoomStreamingController;
 use App\Http\Controllers\api\v1\RoomTokenController;
 use App\Http\Controllers\api\v1\RoomTypeController;
+use App\Http\Controllers\api\v1\RoomTypeStreamingController;
 use App\Http\Controllers\api\v1\ServerController;
 use App\Http\Controllers\api\v1\ServerPoolController;
 use App\Http\Controllers\api\v1\SessionController;
 use App\Http\Controllers\api\v1\SettingsController;
+use App\Http\Controllers\api\v1\StreamingController;
 use App\Http\Controllers\api\v1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +63,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('roles', RoleController::class);
         Route::apiResource('roomTypes', RoomTypeController::class);
 
+        Route::get('streaming', [StreamingController::class, 'view'])->name('streaming.view')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.viewAny']);
+        Route::put('streaming', [StreamingController::class, 'update'])->name('streaming.update')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.update']);
+        Route::get('roomTypes/{roomType}/streaming', [RoomTypeStreamingController::class, 'view'])->name('roomTypes.streaming.view')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.viewAny']);
+        Route::put('roomTypes/{roomType}/streaming', [RoomTypeStreamingController::class, 'update'])->name('roomTypes.streaming.update')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.update']);
+
         Route::get('permissions', [PermissionController::class, 'index'])->name('permissions.index');
 
         Route::get('rooms', [RoomController::class, 'index'])->name('rooms.index');
@@ -94,6 +102,17 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::middleware('can:manageRecordings,room')->scopeBindings()->group(function () {
             Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class, 'update'])->name('rooms.recordings.update');
             Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class, 'destroy'])->name('rooms.recordings.destroy');
+        });
+
+        // Streaming operations
+        Route::middleware('can:manageStreaming,room')->scopeBindings()->group(function () {
+            Route::get('rooms/{room}/streaming/config', [RoomStreamingController::class, 'getConfig'])->name('rooms.streaming.config.get');
+            Route::put('rooms/{room}/streaming/config', [RoomStreamingController::class, 'updateConfig'])->name('rooms.streaming.config.update');
+            Route::get('rooms/{room}/streaming/status', [RoomStreamingController::class, 'status'])->name('rooms.streaming.status');
+            Route::post('rooms/{room}/streaming/start', [RoomStreamingController::class, 'start'])->name('rooms.streaming.start');
+            Route::post('rooms/{room}/streaming/stop', [RoomStreamingController::class, 'stop'])->name('rooms.streaming.stop');
+            Route::post('rooms/{room}/streaming/pause', [RoomStreamingController::class, 'pause'])->name('rooms.streaming.pause');
+            Route::post('rooms/{room}/streaming/resume', [RoomStreamingController::class, 'resume'])->name('rooms.streaming.resume');
         });
 
         // Personalized room tokens
@@ -143,6 +162,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
 
     Route::middleware('room.authenticate')->scopeBindings()->group(function () {
+        Route::options('rooms/{room}/start', [RoomController::class, 'getStartRequirements'])->name('rooms.join-requirements');
+        Route::options('rooms/{room}/join', [RoomController::class, 'getJoinRequirements'])->name('rooms.start-requirements');
+
         Route::post('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
         Route::post('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
         Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get');
@@ -153,6 +175,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class, 'endMeetingCallback'])->name('meetings.endcallback');
+    Route::post('meetings/{meeting}/streaming/callback', [RoomStreamingController::class, 'callback'])->name('meetings.streaming.callback')->middleware('signed');
 });
 
 if (! env('DISABLE_CATCHALL_ROUTES')) {

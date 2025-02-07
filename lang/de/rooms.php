@@ -416,6 +416,16 @@ return [
     ],
     'start' => 'Starten',
     'start_room' => 'Raum starten',
+    'streaming' => [
+        'title' => 'Streaming',
+        'config' => [
+            'button' => 'Einstellungen',
+            'title' => 'Einstellungen',
+            'enabled' => 'Streaming aktiviert',
+            'url' => 'RTMP(S) URL',
+            'pause_image' => 'Bild für Streaming-Pause',
+        ],
+    ],
     'tokens' => [
         'add' => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete' => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',

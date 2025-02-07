@@ -63,8 +63,6 @@ class Room extends JsonResource
             'can_start' => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
             'access_code' => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
-            'record_attendance' => ($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record_attendance : ($this->getRoomSetting('record_attendance')),
-            'record' => ($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record : ($this->getRoomSetting('record')),
             'current_user' => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles(),
         ];
     }
@@ -103,7 +101,7 @@ class Room extends JsonResource
                 'id' => $this->owner->id,
                 'name' => $this->owner->fullname,
             ],
-            'last_meeting' => $this->getLastMeeting($latestMeeting),
+            'last_meeting' => new LastMeeting($latestMeeting),
             'type' => new RoomType($this->roomType),
             'model_name' => $this->model_name,
             'short_description' => $this->short_description,

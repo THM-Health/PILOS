@@ -27,12 +27,17 @@ return [
             'view' => ':name',
         ],
         'settings' => 'Settings',
+        'streaming_settings' => 'Streaming',
         'users' => [
             'edit' => 'Edit :firstname :lastname',
             'index' => 'Users',
             'new' => 'New',
             'view' => ':firstname :lastname',
         ],
+    ],
+    'feature_disabled' => [
+        'description' => ':name is not enabled for this system.',
+        'title' => 'Disabled',
     ],
     'home_button' => 'Back to the overview',
     'overview' => 'Overview',
@@ -404,6 +409,21 @@ return [
         'two_weeks' => '2 Weeks (14 Days)',
         'two_years' => '2 Year (730 Days)',
         'user_settings' => 'User settings',
+    ],
+    'streaming' => [
+        'tile_description' => 'Global and room type specific settings for streaming.',
+        'general' => [
+            'title' => 'General settings',
+        ],
+        'enabled' => 'Enabled',
+        'default_pause_image' => 'Default pause image',
+        'room_types' => [
+            'title' => 'Room type specific settings',
+            'edit' => 'Edit streaming settings for :name',
+            'edit_dialog' => [
+                'title' => 'Edit streaming settings for :name',
+            ],
+        ],
     ],
     'title' => 'Administration',
     'users' => [

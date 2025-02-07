@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Events\RoomEnded;
 use App\Http\Requests\JoinMeeting;
 use App\Http\Requests\StartMeeting;
 use App\Models\Meeting;
@@ -354,6 +355,8 @@ class MeetingService
     {
         $this->meeting->end = now();
         $this->meeting->save();
+
+        RoomEnded::dispatch($this->meeting->room);
 
         // set end time of the attendance to the end time of the meeting
         // for all users that have been present to the end

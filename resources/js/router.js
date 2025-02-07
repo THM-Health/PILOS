@@ -19,6 +19,7 @@ import ServersIndex from "./views/AdminServersIndex.vue";
 import ServersView from "./views/AdminServersView.vue";
 import ServerPoolsIndex from "./views/AdminServerPoolsIndex.vue";
 import ServerPoolsView from "./views/AdminServerPoolsView.vue";
+import AdminStreamingSettings from "./views/AdminStreamingSettings.vue";
 import MeetingsIndex from "./views/MeetingsIndex.vue";
 import PasswordReset from "./views/PasswordReset.vue";
 import ForgotPassword from "./views/ForgotPassword.vue";
@@ -541,6 +542,26 @@ export const routes = [
                 userPermissions.can("update", "ServerPoolPolicy"),
             );
           },
+        },
+      },
+      {
+        path: "streaming_settings",
+        name: "admin.streaming_settings",
+        component: AdminStreamingSettings,
+        beforeEnter: (to, from, next) => {
+          if (!useSettingsStore().getSetting("streaming.enabled")) {
+            next({ name: "404" });
+          } else {
+            next();
+          }
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (userPermissions) =>
+            Promise.resolve(
+              userPermissions.can("view", "AdminPolicy") &&
+                userPermissions.can("viewAny", "StreamingPolicy"),
+            ),
         },
       },
     ],

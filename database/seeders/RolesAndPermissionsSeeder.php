@@ -64,6 +64,9 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => 'serverPools.delete'])->id,
 
             Permission::firstOrCreate(['name' => 'system.monitor'])->id,
+
+            Permission::firstOrCreate(['name' => 'streaming.viewAny'])->id,
+            Permission::firstOrCreate(['name' => 'streaming.update'])->id,
         ];
 
         // Setup superuser role and give all permissions

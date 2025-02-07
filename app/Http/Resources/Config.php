@@ -47,6 +47,7 @@ class Config extends JsonResource
                 'version' => config('app.version'),
                 'whitelabel' => config('app.whitelabel'),
                 'base_url' => config('app.url'),
+                'hide_disabled_features' => config('app.hide_disabled_features'),
             ],
             'theme' => [
                 'logo' => $theme->logo,
@@ -96,6 +97,9 @@ class Config extends JsonResource
                 'attendance_retention_period' => $recordingSettings->attendance_retention_period,
                 'recording_retention_period' => $recordingSettings->recording_retention_period,
                 'recording_description_limit' => config('recording.description_limit'),
+            ],
+            'streaming' => [
+                'enabled' => config('streaming.enabled'),
             ],
             'auth' => [
                 'local' => config('auth.local.enabled'),

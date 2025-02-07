@@ -74,6 +74,12 @@ class RoomType extends JsonResource
             'color' => $this->color,
             'model_name' => $this->model_name,
 
+            'features' => [
+                'streaming' => [
+                    'enabled' => $this->streamingSettings->enabled,
+                ],
+            ],
+
             $this->mergeWhen($this->withDetails, [
                 'server_pool' => new ServerPool($this->serverPool),
                 'updated_at' => $this->updated_at,

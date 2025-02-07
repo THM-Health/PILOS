@@ -98,6 +98,8 @@ return [
         'add' => 'Add to favorites',
         'remove' => 'Remove from favorites',
     ],
+    'feature_disabled_system' => ':name is disabled. Please contact the administrator.',
+    'feature_disabled_roomtype' => 'This feature is disabled for this room type. Try selecting a different room type or contact the administrator.',
     'files' => [
         'confirm_delete' => 'Do you want to delete this file :filename?',
         'default' => 'Default',
@@ -341,6 +343,12 @@ return [
         'all' => 'All room types',
         'loading_error' => 'An error occurred during loading of the room types.',
         'reload' => 'Reload room types',
+        'features' => [
+            'title' => 'Features',
+            'streaming' => 'Streaming',
+            'enabled' => ':name enabled',
+            'disabled' => ':name disabled',
+        ],
     ],
     'settings' => [
         'advanced' => [
@@ -414,6 +422,28 @@ return [
             'welcome_message' => 'Welcome message',
         ],
     ],
+    'streaming' => [
+        'title' => 'Streaming',
+        'config' => [
+            'button' => 'Configure streaming',
+            'default_pause_image' => 'Default pause image',
+            'title' => 'Streaming configuration',
+            'enabled' => 'Enabled',
+            'url' => 'RTMP(S) URL',
+            'pause_image' => 'Pause image',
+            'pause_image_format' => 'Format: PNG, JPEG, GIF, SVG; Resolution: 1920x1080px',
+        ],
+        'no_running_meeting' => 'No running meeting',
+        'not_enabled_for_running_meeting' => 'Streaming is not enabled for the current meeting',
+        'stats' => ':fps FPS, :bitrate kbps',
+        'start' => 'Start',
+        'stop' => 'Stop',
+        'pause' => 'Pause',
+        'resume' => 'Resume',
+    ],
+    'streaming_info' => 'This room may be streamed.',
+    'streaming_hint' => 'If you prefer not to have your voice or video streamed, please keep your microphone muted and your camera off.',
+    'streaming_accept' => 'I consent to the streaming.',
     'start' => 'Start',
     'start_room' => 'Start room',
     'tokens' => [

@@ -9,7 +9,9 @@
     @keyup.space="fileInputRef.click()"
   >
     <i class="fa-solid fa-upload mr-2"></i>
-    <span class="p-button-label">{{ model?.name ?? $t("app.browse") }}</span>
+    <span v-tooltip.bottom="model?.name" class="p-button-label">{{
+      shownFilename ?? $t("app.browse")
+    }}</span>
   </label>
   <input
     :id="inputId"
@@ -86,4 +88,15 @@ watch(
 function fileSelected(event) {
   model.value = event.target.files[0];
 }
+
+const shownFilename = computed(() => {
+  if (model.value) {
+    const filename = model.value.name;
+    const maxLength = 20;
+    return filename.length > maxLength
+      ? filename.slice(0, maxLength - 1) + "..."
+      : filename;
+  }
+  return null;
+});
 </script>

@@ -167,6 +167,10 @@ const breakcrumbs = computed(() => {
         : "",
       previous: "admin.server_pools",
     },
+    "admin.streaming_settings": {
+      title: t("admin.breakcrumbs.streaming_settings"),
+      previous: null,
+    },
   };
 
   const currentRoute = routes[route.name];

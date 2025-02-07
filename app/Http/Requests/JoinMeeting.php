@@ -16,27 +16,53 @@ class JoinMeeting extends FormRequest
         $this->roomAuthService = $roomAuthService;
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'name' => auth()->check() || $this->roomAuthService->getRoomToken($this->room) ? [] : ['required', 'min:2', 'max:50',  new ValidName],
-            'consent_record_attendance' => ['required', 'boolean'],
-            'consent_record' => ['required', 'boolean'], // Consent to join meeting with recording enabled
-            'consent_record_video' => ['required', 'boolean'], // Permission to record own video
         ];
 
-        $meeting = $this->room->latestMeeting;
-
-        // If running meeting was started with attendance recording, the user must agree to it
-        if ($meeting?->record_attendance) {
-            $rules['consent_record_attendance'][] = 'accepted';
-        }
-
-        // If running meeting was started with recording, the user must agree to it
-        if ($meeting?->record) {
-            $rules['consent_record'][] = 'accepted';
-        }
+        $rules += $this->getAttendanceRecordingRules();
+        $rules += $this->getRecordingRules();
+        $rules += $this->getStreamingRules();
 
         return $rules;
+    }
+
+    private function getAttendanceRecordingRules(): array
+    {
+        $meeting = $this->room->latestMeeting;
+        if ($meeting?->record_attendance) {
+            return [
+                'consent_record_attendance' => ['required', 'boolean', 'accepted'],
+            ];
+        }
+
+        return [];
+    }
+
+    private function getRecordingRules(): array
+    {
+        $meeting = $this->room->latestMeeting;
+        if ($meeting?->record) {
+            return [
+                'consent_record' => ['required', 'boolean', 'accepted'], // Consent to join meeting with recording enabled
+                'consent_record_video' => ['required', 'boolean'], // Permission to record own video
+            ];
+        }
+
+        return [];
+    }
+
+    private function getStreamingRules(): array
+    {
+        $streaming = $this->room->streaming;
+        if ($streaming->enabled_for_current_meeting) {
+            return [
+                'consent_streaming' => ['required', 'boolean', 'accepted'],
+            ];
+        }
+
+        return [];
     }
 }

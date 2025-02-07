@@ -192,8 +192,6 @@
                     :room-id="room.id"
                     :running="running"
                     :disabled="room.room_type_invalid"
-                    :record-attendance="room.record_attendance"
-                    :record="room.record"
                     :can-start="room.can_start"
                     :token="props.token"
                     :access-code="accessCode"

@@ -61,7 +61,7 @@
         </div>
 
         <div
-          v-if="recordAttendance"
+          v-if="features.attendance_recording"
           class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
         >
           <span class="font-semibold">{{
@@ -84,7 +84,7 @@
         </div>
 
         <div
-          v-if="record"
+          v-if="features.recording"
           class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
         >
           <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
@@ -117,6 +117,26 @@
             }}</label>
           </div>
           <FormError :errors="formErrors.fieldError('consent_record_video')" />
+        </div>
+
+        <div
+          v-if="features.streaming"
+          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
+        >
+          <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
+          <i>{{ $t("rooms.streaming_hint") }}</i>
+          <div class="flex items-center gap-2">
+            <Checkbox
+              v-model="streamingAgreement"
+              input-id="streaming-agreement"
+              binary
+              :invalid="formErrors.fieldInvalid('consent_streaming')"
+            />
+            <label for="streaming-agreement">{{
+              $t("rooms.streaming_accept")
+            }}</label>
+          </div>
+          <FormError :errors="formErrors.fieldError('consent_streaming')" />
         </div>
       </div>
     </OverlayComponent>
@@ -174,12 +194,6 @@ const props = defineProps({
     type: Number,
     default: null,
   },
-  recordAttendance: {
-    type: Boolean,
-  },
-  record: {
-    type: Boolean,
-  },
 });
 
 const emit = defineEmits([
@@ -197,12 +211,15 @@ const recordAttendanceAgreement = ref(false);
 const showRunningMessage = ref(false);
 const recordAgreement = ref(false);
 const recordVideoAgreement = ref(false);
+const streamingAgreement = ref(false);
 const name = ref(""); // Name of guest
 
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 const formErrors = useFormErrors();
+
+const features = ref({});
 
 /**
  * Show the modal for joining / starting a room
@@ -219,9 +236,33 @@ async function showModal() {
   formErrors.clear();
   modalVisible.value = true;
 
-  if (autoJoin.value) {
-    getJoinUrl();
-  }
+  loadStartJoinRequirements().then(() => {
+    if (autoJoin.value) {
+      getJoinUrl();
+    }
+  });
+}
+
+function loadStartJoinRequirements() {
+  return new Promise((resolve, reject) => {
+    isLoadingAction.value = true;
+    const url =
+      "rooms/" + props.roomId + "/" + (props.running ? "join" : "start");
+    api
+      .call(url, {
+        method: "options",
+      })
+      .then((response) => {
+        features.value = response.data.data.features;
+        resolve();
+      })
+      .catch((error) => {
+        reject(error);
+      })
+      .finally(() => {
+        isLoadingAction.value = false;
+      });
+  });
 }
 
 const autoJoin = computed(() => {
@@ -229,11 +270,15 @@ const autoJoin = computed(() => {
     return false;
   }
 
-  if (props.recordAttendance) {
+  if (features.value.attendance_recording) {
     return false;
   }
 
-  if (props.record) {
+  if (features.value.recording) {
+    return false;
+  }
+
+  if (features.value.streaming) {
     return false;
   }
 
@@ -261,6 +306,7 @@ function getJoinUrl() {
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
+      consent_streaming: streamingAgreement.value,
     },
   };
 
@@ -340,6 +386,7 @@ function getJoinUrl() {
         // Form validation error
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
+          loadStartJoinRequirements();
           emit("changed");
           return;
         }

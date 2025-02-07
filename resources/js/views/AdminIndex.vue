@@ -171,10 +171,25 @@
           </Card>
         </router-link>
       </div>
+      <div
+        v-if="userPermissions.can('viewAny', 'StreamingPolicy')"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
+      >
+        <admin-overview-card
+          :to="{ name: 'admin.streaming_settings' }"
+          icon="fa-broadcast-tower"
+          :title="$t('app.streaming')"
+          :description="$t('admin.streaming.tile_description')"
+          :disabled="!settingsStore.getSetting('streaming.enabled')"
+        />
+      </div>
     </div>
   </div>
 </template>
 <script setup>
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useSettingsStore } from "../stores/settings";
+import AdminOverviewCard from "../components/AdminOverviewCard.vue";
 const userPermissions = useUserPermissions();
+const settingsStore = useSettingsStore();
 </script>

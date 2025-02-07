@@ -41,7 +41,7 @@
         />
 
         <Button
-          v-if="fileUrl && !file && !fileDeleted"
+          v-if="fileUrl && !file && !fileDeleted && showView"
           as="a"
           severity="secondary"
           :href="fileUrl"
@@ -78,6 +78,10 @@ defineProps({
   showDelete: {
     type: Boolean,
     default: false,
+  },
+  showView: {
+    type: Boolean,
+    default: true,
   },
   maxFileSize: {
     type: Number,
