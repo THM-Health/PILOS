@@ -88,6 +88,13 @@ const props = defineProps({
   },
 });
 
+/**
+ * Check if there is a running meeting for this room
+ */
+const running = computed(() => {
+  return props.room.last_meeting != null && props.room.last_meeting.end == null;
+});
+
 // queued
 // starting
 // running
@@ -176,10 +183,7 @@ watch(streamingState, () => {
   }
 });
 
-/**
- * Check if there is a running meeting for this room
- */
-const running = computed(() => {
-  return props.room.last_meeting != null && props.room.last_meeting.end == null;
+watch(running, () => {
+  reload();
 });
 </script>
