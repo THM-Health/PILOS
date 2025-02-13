@@ -37,7 +37,7 @@
     "nyc": "^17.1.0",
     "prettier": "^3.5.0",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "vite-plugin-istanbul": "^6.0.2",
+    "vite-plugin-istanbul": "^7.0.0",
     "vue-eslint-parser": "^9.4.3"
   },
   "dependencies": {
