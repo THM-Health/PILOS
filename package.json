@@ -30,7 +30,7 @@
     "eslint-plugin-jsonc": "^2.19.1",
     "eslint-plugin-mocha": "^10.5.0",
     "eslint-plugin-vue": "^9.32.0",
-    "globals": "^15.14.0",
+    "globals": "^15.15.0",
     "happo-cypress": "^4.3.0",
     "happo-e2e": "^3.3.3",
     "happo.io": "^11.0.1",
