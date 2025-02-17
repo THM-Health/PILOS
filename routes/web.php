@@ -40,7 +40,7 @@ if (config('greenlight.compatibility')) {
         Route::redirect('/ldap_signin', '/login');
         Route::redirect('/signin', '/login');
         // default room
-        Route::redirect('/default_room', '/rooms/own');
+        Route::redirect('/default_room', '/rooms');
         // all other routes
         Route::redirect('/', '/');
         Route::redirect('/{any}', '/')->where('any', '.*');

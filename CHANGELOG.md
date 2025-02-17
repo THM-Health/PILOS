@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.3.1] - 2025-02-17
+
+### Fixed
+
+- Greenlight compatibility default_room route ([5c9059b](https://github.com/THM-Health/PILOS/commit/5c9059b54a3707d160f200a0f896679afcbf66d6))
+- Recording documentation ([d6962c4](https://github.com/THM-Health/PILOS/commit/d6962c41130664d75ba8797544442f2f087f84aa), [603fd3d](https://github.com/THM-Health/PILOS/commit/603fd3dca29bc4dd743bae2eafa0ca12c113f509))
+
 ## [v4.3.0] - 2025-02-03
 
 ### Added
@@ -403,7 +410,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1829]: https://github.com/THM-Health/PILOS/pull/1829
 [#1844]: https://github.com/THM-Health/PILOS/pull/1844
 [#1855]: https://github.com/THM-Health/PILOS/pull/1855
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -414,3 +421,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.1.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.2
 [v4.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.2.0
 [v4.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.0
+[v4.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.1
