@@ -69,7 +69,7 @@
     "laravel-vite-plugin": "^1.2.0",
     "lodash": "^4.17.19",
     "mitt": "^3.0.1",
-    "pinia": "^2.3.1",
+    "pinia": "^3.0.1",
     "postcss": "^8.5.2",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.5",
