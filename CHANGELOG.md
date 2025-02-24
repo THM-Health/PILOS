@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Logo url in emails for logos with absolute path ([#1900])
+- Logo height and width in emails ([#1900])
+
 ## [v4.3.1] - 2025-02-17
 
 ### Fixed
@@ -410,6 +415,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1829]: https://github.com/THM-Health/PILOS/pull/1829
 [#1844]: https://github.com/THM-Health/PILOS/pull/1844
 [#1855]: https://github.com/THM-Health/PILOS/pull/1855
+[#1900]: https://github.com/THM-Health/PILOS/pull/1900
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
