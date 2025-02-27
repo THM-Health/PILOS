@@ -100,6 +100,7 @@ class Config extends JsonResource
             ],
             'streaming' => [
                 'enabled' => config('streaming.enabled'),
+                'refresh_interval' => config('streaming.refresh_interval'),
             ],
             'auth' => [
                 'local' => config('auth.local.enabled'),

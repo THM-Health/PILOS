@@ -25,7 +25,7 @@ class ConfigureStreamingOnRoomStart
         $room = $event->getRoom();
 
         $room->streaming->enabled_for_current_meeting = $room->streaming->enabled;
-        $room->streaming->status = 'stopped';
+        $room->streaming->status = null;
         $room->streaming->fps = null;
         $room->streaming->bitrate = null;
         $room->streaming->save();

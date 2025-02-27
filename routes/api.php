@@ -175,7 +175,6 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class, 'endMeetingCallback'])->name('meetings.endcallback');
-    Route::post('meetings/{meeting}/streaming/callback', [RoomStreamingController::class, 'callback'])->name('meetings.streaming.callback')->middleware('signed');
 });
 
 if (! env('DISABLE_CATCHALL_ROUTES')) {

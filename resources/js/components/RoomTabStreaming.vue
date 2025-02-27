@@ -14,9 +14,55 @@
           severity="warn"
           :value="$t('rooms.streaming.not_enabled_for_running_meeting')"
         />
-        <Tag v-else severity="info" :value="streamingState" />
+        <Tag
+          v-else-if="streamingState === 'queued'"
+          severity="info"
+          :value="$t('rooms.streaming.queued')"
+        />
+        <Tag
+          v-else-if="streamingState === 'starting'"
+          severity="success"
+          :value="$t('rooms.streaming.starting')"
+        />
+        <Tag
+          v-else-if="streamingState === 'running'"
+          severity="success"
+          :value="$t('rooms.streaming.running')"
+        />
 
-        <Tag v-if="streamingState === 'running' && fps">{{
+        <Tag
+          v-else-if="streamingState === 'pausing'"
+          severity="warning"
+          :value="$t('rooms.streaming.pausing')"
+        />
+        <Tag
+          v-else-if="streamingState === 'paused'"
+          severity="warning"
+          :value="$t('rooms.streaming.paused')"
+        />
+
+        <Tag
+          v-else-if="streamingState === 'resuming'"
+          severity="success"
+          :value="$t('rooms.streaming.resuming')"
+        />
+        <Tag
+          v-else-if="streamingState === 'stopping'"
+          severity="info"
+          :value="$t('rooms.streaming.stopping')"
+        />
+        <Tag
+          v-else-if="streamingState === 'stopped'"
+          severity="info"
+          :value="$t('rooms.streaming.stopped')"
+        />
+        <Tag
+          v-else-if="streamingState === 'failed'"
+          severity="danger"
+          :value="$t('rooms.streaming.failed')"
+        />
+
+        <Tag severity="info" v-if="fps">{{
           $t("rooms.streaming.stats", { fps, bitrate })
         }}</Tag>
       </div>
@@ -26,9 +72,16 @@
           <Button
             :label="$t('rooms.streaming.start')"
             icon="fa-solid fa-play"
-            :disabled="streamingState !== 'stopped' || !running"
+            :disabled="
+              !(
+                (streamingState === null ||
+                  streamingState === 'stopped' ||
+                  streamingState === 'failed') &&
+                running
+              )
+            "
             severity="success"
-            @click="startStream"
+            @click="streamingCommand('start')"
           />
           <Button
             :label="$t('rooms.streaming.stop')"
@@ -42,7 +95,7 @@
               ) || !running
             "
             severity="danger"
-            @click="stopStream"
+            @click="streamingCommand('stop')"
           />
         </ButtonGroup>
         <ButtonGroup>
@@ -51,21 +104,25 @@
             icon="fa-solid fa-pause"
             :disabled="streamingState !== 'running' || !running"
             severity="warn"
-            @click="pauseStream"
+            @click="streamingCommand('pause')"
           />
           <Button
             :label="$t('rooms.streaming.resume')"
             icon="fa-solid fa-play"
             :disabled="streamingState !== 'paused' || !running"
             severity="success"
-            @click="resumeStream"
+            @click="streamingCommand('resume')"
           />
         </ButtonGroup>
       </div>
     </div>
     <div class="flex gap-2 self-end sm:self-start">
       <RoomTabStreamingConfigButton :room-id="props.room.id" />
-      <Button severity="secondary" icon="fa-solid fa-rotate" @click="reload" />
+      <Button
+        severity="secondary"
+        icon="fa-solid fa-rotate"
+        @click="streamingCommand('status')"
+      />
     </div>
   </div>
 </template>
@@ -73,6 +130,8 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import RoomTabStreamingConfigButton from "./RoomTabStreamingConfigButton.vue";
+import env from "../env.js";
+import { useSettingsStore } from "../stores/settings.js";
 
 const streamingState = ref("stopped");
 const streamingEnabled = ref(false);
@@ -80,6 +139,9 @@ const fps = ref(0);
 const bitrate = ref(0);
 
 const api = useApi();
+const settingsStore = useSettingsStore();
+
+const emit = defineEmits(["settingsChanged"]);
 
 const props = defineProps({
   room: {
@@ -95,75 +157,63 @@ const running = computed(() => {
   return props.room.last_meeting != null && props.room.last_meeting.end == null;
 });
 
-// queued
-// starting
-// running
-// pausing
-// paused
-// resuming
-// stopping
-// stopped
+async function streamingCommand(command) {
+  let apiCommand;
+  let apiMethod;
 
-function startStream() {
-  api
-    .call("rooms/" + props.room.id + "/streaming/start", {
-      method: "POST",
+  switch (command) {
+    case "start":
+      apiCommand = "start";
+      apiMethod = "POST";
+      break;
+    case "stop":
+      apiCommand = "stop";
+      apiMethod = "POST";
+      break;
+    case "pause":
+      apiCommand = "pause";
+      apiMethod = "POST";
+      break;
+    case "resume":
+      apiCommand = "resume";
+      apiMethod = "POST";
+      break;
+    case "status":
+      apiCommand = "status";
+      apiMethod = "GET";
+      break;
+    default:
+      console.error("Unknown streaming command: " + command);
+      return;
+  }
+
+  return api
+    .call("rooms/" + props.room.id + "/streaming/" + apiCommand, {
+      method: apiMethod,
     })
     .then((response) => {
-      handleStreamingActionResponse(response);
-    });
-}
-
-function stopStream() {
-  api
-    .call("rooms/" + props.room.id + "/streaming/stop", {
-      method: "POST",
+      streamingState.value = response.data.data.status;
+      fps.value = response.data.data.fps;
+      bitrate.value = response.data.data.bitrate;
+      streamingEnabled.value = response.data.data.enabled_for_current_meeting;
     })
-    .then((response) => {
-      handleStreamingActionResponse(response);
+    .catch((error) => {
+      console.log(error.response.status);
+      if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
+        emit("settingsChanged");
+      }
     });
-}
-
-function pauseStream() {
-  api
-    .call("rooms/" + props.room.id + "/streaming/pause", {
-      method: "POST",
-    })
-    .then((response) => {
-      handleStreamingActionResponse(response);
-    });
-}
-
-function resumeStream() {
-  api
-    .call("rooms/" + props.room.id + "/streaming/resume", {
-      method: "POST",
-    })
-    .then((response) => {
-      handleStreamingActionResponse(response);
-    });
-}
-
-function handleStreamingActionResponse(response) {
-  streamingState.value = response.data.data.status;
-  fps.value = response.data.data.fps;
-  bitrate.value = response.data.data.bitrate;
-}
-
-function reload() {
-  api.call("rooms/" + props.room.id + "/streaming/status").then((response) => {
-    streamingState.value = response.data.data.status;
-    fps.value = response.data.data.fps;
-    bitrate.value = response.data.data.bitrate;
-    streamingEnabled.value = response.data.data.enabled_for_current_meeting;
-  });
 }
 
 const reloadInterval = ref(null);
 
 // Call reload on mounted every 5 seconds
 onMounted(() => {
-  reload();
+  streamingCommand("status");
+  reloadInterval.value = setInterval(
+    () => streamingCommand("status"),
+    settingsStore.getSetting("streaming.refresh_interval") * 1000,
+  );
 });
 
 // Stop the interval when the component is unmounted
@@ -172,18 +222,7 @@ onUnmounted(() => {
   reloadInterval.value = null;
 });
 
-watch(streamingState, () => {
-  if (streamingState.value !== "stopped" && reloadInterval.value == null) {
-    reloadInterval.value = setInterval(reload, 5000);
-  }
-
-  if (streamingState.value === "stopped" && reloadInterval.value != null) {
-    clearInterval(reloadInterval.value);
-    reloadInterval.value = null;
-  }
-});
-
 watch(running, () => {
-  reload();
+  streamingCommand("status");
 });
 </script>

@@ -4,33 +4,16 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StreamingCallbackRequest;
 use App\Http\Requests\UpdateRoomStreamingSettings;
 use App\Http\Resources\RoomStreamingSettings;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Services\StreamingService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class RoomStreamingController extends Controller
 {
-    public function callback(Meeting $meeting, StreamingCallbackRequest $request)
-    {
-        $room = $meeting->room;
-
-        if (! $meeting->is($room->latestMeeting)) {
-            abort(400);
-        }
-
-        $streaming = $room->streaming;
-        $streaming->status = $request->input('status');
-        $streaming->fps = $request->integer('fps');
-        $streaming->bitrate = $request->integer('bitrate');
-        $streaming->save();
-
-        return 'OK';
-    }
-
     /**
      * Get the streaming configuration for the room
      */
@@ -62,10 +45,13 @@ class RoomStreamingController extends Controller
 
     public function status(Room $room)
     {
-        $streamingService = $this->getStreamingService($room);
-        $streamingService->getStatus();
-
-        $room->streaming->refresh();
+        $cacheKey = 'streaming-status-'.$room->id;
+        if (! Cache::has($cacheKey)) {
+            Cache::add($cacheKey, true, config('streaming.refresh_interval'));
+            $streamingService = $this->getStreamingService($room);
+            $streamingService->getStatus();
+            $room->streaming->refresh();
+        }
 
         return new \App\Http\Resources\RoomStreaming($room->streaming);
     }

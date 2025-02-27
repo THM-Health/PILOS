@@ -6,7 +6,6 @@ use App\Models\Meeting;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Support\Facades\Http;
-use URL;
 
 class StreamingService
 {
@@ -49,7 +48,7 @@ aside[data-test="pollingContainer"] {
 }
 
 body {
-    background-color: var(--color-background);
+    background-color: var(--color-background) !important;
 }';
 
         $joinMeetingParams->addUserData('bbb_custom_style', $style);
@@ -78,9 +77,9 @@ body {
     private function handleResponse($response)
     {
         if ($response->status() === 404) {
-            $this->meeting->room->streaming->status = 'stopped';
-            $this->meeting->room->streaming->fps = 0;
-            $this->meeting->room->streaming->bitrate = 0;
+            $this->meeting->room->streaming->status = null;
+            $this->meeting->room->streaming->fps = null;
+            $this->meeting->room->streaming->bitrate = null;
             $this->meeting->room->streaming->save();
 
             return true;
@@ -109,8 +108,6 @@ body {
 
     public function start($pauseImageUrl, $rtmpUrl)
     {
-        $webhookUrl = URL::signedRoute('api.v1.meetings.streaming.callback', ['meeting' => $this->meeting->id]);
-
         // Fallback if no pause image is configured in room settings
         if ($pauseImageUrl === null) {
 
@@ -128,7 +125,6 @@ body {
             'joinUrl' => $this->getJoinUrl(),
             'pauseImageUrl' => $pauseImageUrl,
             'rtmpUrl' => $rtmpUrl,
-            'webhookUrl' => $webhookUrl,
         ]);
 
         return $this->handleResponse($response);
