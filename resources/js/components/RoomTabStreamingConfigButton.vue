@@ -38,7 +38,7 @@
     </template>
 
     <OverlayComponent :show="isLoading">
-      <form class="flex flex-col gap-4">
+      <form class="flex flex-col gap-4" @submit.prevent="save">
         <div
           class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
           data-test="streaming-enabled-setting"
