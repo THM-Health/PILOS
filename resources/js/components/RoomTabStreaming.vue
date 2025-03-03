@@ -201,24 +201,33 @@ async function streamingCommand(command) {
       if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
         emit("settingsChanged");
       }
+    })
+    .finally(() => {
+      autoReload();
     });
 }
 
-const reloadInterval = ref(null);
+const reloadTimeout = ref(null);
 
 // Call reload on mounted every 5 seconds
 onMounted(() => {
   streamingCommand("status");
-  reloadInterval.value = setInterval(
+});
+
+function autoReload() {
+  if (reloadTimeout.value) {
+    clearTimeout(reloadTimeout.value);
+  }
+  reloadTimeout.value = setTimeout(
     () => streamingCommand("status"),
     settingsStore.getSetting("streaming.refresh_interval") * 1000,
   );
-});
+}
 
-// Stop the interval when the component is unmounted
+// Stop the timeout when the component is unmounted
 onUnmounted(() => {
-  clearInterval(reloadInterval.value);
-  reloadInterval.value = null;
+  clearTimeout(reloadTimeout.value);
+  reloadTimeout.value = null;
 });
 
 watch(running, () => {
