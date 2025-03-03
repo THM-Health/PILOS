@@ -87,12 +87,11 @@
             :label="$t('rooms.streaming.stop')"
             icon="fa-solid fa-stop"
             :disabled="
-              !(
-                streamingState === 'running' ||
-                streamingState === 'paused' ||
-                streamingState === 'pausing' ||
-                streamingState === 'resuming'
-              ) || !running
+              streamingState === null ||
+              streamingState === 'starting' ||
+              streamingState === 'stopping' ||
+              streamingState === 'stopped' ||
+              !running
             "
             severity="danger"
             @click="streamingCommand('stop')"
