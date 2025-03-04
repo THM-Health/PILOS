@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.13.11",
-    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.18.0",
     "@eslint/json": "^0.10.0",
     "@intlify/eslint-plugin-vue-i18n": "^3.2.0",
