@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Hide locale select in main nav if only one locale is enabled ([#1920])
+
 ### Fixed
 
 - Logo url in emails for logos with absolute path ([#1900])
 - Logo height and width in emails ([#1900])
+- Allow removing English from the list of enabled locales ([#1919], [#1920])
 
 ## [v4.3.1] - 2025-02-17
 
@@ -416,6 +421,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1844]: https://github.com/THM-Health/PILOS/pull/1844
 [#1855]: https://github.com/THM-Health/PILOS/pull/1855
 [#1900]: https://github.com/THM-Health/PILOS/pull/1900
+[#1919]: https://github.com/THM-Health/PILOS/issues/1919
+[#1920]: https://github.com/THM-Health/PILOS/pull/1920
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
