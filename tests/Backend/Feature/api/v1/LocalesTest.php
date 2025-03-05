@@ -43,7 +43,6 @@ class LocalesTest extends TestCase
 
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
-            'app.fallback_locale' => 'ru',
             'app.locale' => 'en',
         ]);
     }
@@ -58,7 +57,25 @@ class LocalesTest extends TestCase
         $response = $this->withHeaders([
             'Accept-Language' => 'foo',
         ])->get('/');
-        $response->assertSee('<html lang="ru">', false);
+        $response->assertSee('<html lang="en">', false);
+    }
+
+    /**
+     * Test that the first enabled locale should be used if the fallback locale is not in the list of enabled locales.
+     *
+     * @return void
+     */
+    public function test_fallback_locale_not_enabled()
+    {
+        config([
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []],  'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
+            'app.locale' => 'en',
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept-Language' => 'en',
+        ])->get('/');
+        $response->assertSee('<html lang="de">', false);
     }
 
     /**
@@ -75,7 +92,7 @@ class LocalesTest extends TestCase
         $response = $this->actingAs($user)->withHeaders([
             'Accept-Language' => '',
         ])->get('/');
-        $response->assertSee('<html lang="ru">', false);
+        $response->assertSee('<html lang="en">', false);
 
         $user->update(['locale' => 'de']);
         $response = $this->actingAs($user)->get('/');
@@ -158,7 +175,7 @@ class LocalesTest extends TestCase
         $response = $this->withHeaders([
             'Accept-Language' => '',
         ])->get('/');
-        $response->assertSee('<html lang="ru">', false);
+        $response->assertSee('<html lang="en">', false);
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'us',
