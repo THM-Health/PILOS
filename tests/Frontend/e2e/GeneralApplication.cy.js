@@ -27,6 +27,17 @@ describe("General", function () {
       });
   });
 
+  it("hide locale menu if only one locale is available", function () {
+    cy.intercept("GET", "/api/v1/locales", {
+      statusCode: 200,
+      body: ["en"],
+    });
+    cy.visit("/rooms");
+
+    // Check locale select is not shown
+    cy.get(".fa-solid.fa-language").should("not.exist");
+  });
+
   it("changing selected locale", function () {
     // Intercept locale and de request
     const localeRequest = interceptIndefinitely(
