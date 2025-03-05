@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import _ from "lodash";
 import { useLocaleStore } from "./locale";
 import { useApi } from "../composables/useApi";
+import { useSettingsStore } from "./settings.js";
 
 export const useAuthStore = defineStore("auth", {
   state: () => {
@@ -30,6 +31,7 @@ export const useAuthStore = defineStore("auth", {
 
     async getCurrentUser() {
       const api = useApi();
+      const settings = useSettingsStore();
 
       let currentUser = await api.call("currentUser").then((response) => {
         return response.data.data;
@@ -45,9 +47,15 @@ export const useAuthStore = defineStore("auth", {
         currentUser != null ? currentUser.timezone : undefined,
       );
 
+      const enabledLocales = Object.keys(
+        settings.getSetting("general.enabled_locales"),
+      );
+
       // set locale of i18n, if user is logged in and has a locale set use this locale, otherwise use the locale of the html tag
       await locale.setLocale(
-        currentUser != null && currentUser.user_locale != null
+        currentUser != null &&
+          currentUser.user_locale != null &&
+          enabledLocales.includes(currentUser.user_locale)
           ? currentUser.user_locale
           : document.documentElement.lang,
       );
