@@ -17,6 +17,10 @@
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
 	"workspaceFolder": "/var/www/html/",
 
+	"initializeCommand" : [
+		"cp .env.example .env"
+	],
+
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
