@@ -41,107 +41,109 @@
     <Message v-if="showRunningMessage" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-
-    <OverlayComponent :show="isLoadingAction" :opacity="0">
-      <div v-if="!isLoadingAction">
-        <!-- Ask guests for their first and lastname -->
-        <div
-          v-if="!authStore.isAuthenticated && !token"
-          class="mb-4 flex flex-col gap-2"
-        >
-          <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
-          <InputText
-            id="guest-name"
-            v-model="name"
-            autofocus
-            :placeholder="$t('rooms.placeholder_name')"
-            :invalid="formErrors.fieldInvalid('name')"
-          />
-          <FormError :errors="formErrors.fieldError('name')" />
-        </div>
-
-        <div
-          v-if="features.attendance_recording"
-          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
-        >
-          <span class="font-semibold">{{
-            $t("rooms.recording_attendance_info")
-          }}</span>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="recordAttendanceAgreement"
-              input-id="record-attendance-agreement"
-              binary
-              :invalid="formErrors.fieldInvalid('consent_record_attendance')"
+    <form @submit.prevent="getJoinUrl">
+      <OverlayComponent :show="isLoadingAction" :opacity="0">
+        <div v-if="!isLoadingAction">
+          <!-- Ask guests for their first and lastname -->
+          <div
+            v-if="!authStore.isAuthenticated && !token"
+            class="mb-4 flex flex-col gap-2"
+          >
+            <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
+            <InputText
+              id="guest-name"
+              v-model="name"
+              autofocus
+              :placeholder="$t('rooms.placeholder_name')"
+              :invalid="formErrors.fieldInvalid('name')"
             />
-            <label for="record-attendance-agreement">{{
-              $t("rooms.recording_attendance_accept")
-            }}</label>
+            <FormError :errors="formErrors.fieldError('name')" />
           </div>
-          <FormError
-            :errors="formErrors.fieldError('consent_record_attendance')"
-          />
-        </div>
 
-        <div
-          v-if="features.recording"
-          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
-        >
-          <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
-          <i>{{ $t("rooms.recording_hint") }}</i>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="recordAgreement"
-              input-id="record-agreement"
-              binary
-              :class="{
-                'p-invalid': formErrors.fieldInvalid('consent_record'),
-              }"
+          <div
+            v-if="features.attendance_recording"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
+          >
+            <span class="font-semibold">{{
+              $t("rooms.recording_attendance_info")
+            }}</span>
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="recordAttendanceAgreement"
+                input-id="record-attendance-agreement"
+                binary
+                :invalid="formErrors.fieldInvalid('consent_record_attendance')"
+              />
+              <label for="record-attendance-agreement">{{
+                $t("rooms.recording_attendance_accept")
+              }}</label>
+            </div>
+            <FormError
+              :errors="formErrors.fieldError('consent_record_attendance')"
             />
-            <label for="record-agreement" class="required">{{
-              $t("rooms.recording_accept")
-            }}</label>
           </div>
-          <FormError :errors="formErrors.fieldError('consent_record')" />
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="recordVideoAgreement"
-              input-id="record-video-agreement"
-              binary
-              :class="{
-                'p-invalid': formErrors.fieldInvalid('consent_record_video'),
-              }"
-            />
-            <label for="record-video-agreement">{{
-              $t("rooms.recording_video_accept")
-            }}</label>
-          </div>
-          <FormError :errors="formErrors.fieldError('consent_record_video')" />
-        </div>
 
-        <div
-          v-if="features.streaming"
-          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
-        >
-          <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
-          <i>{{ $t("rooms.streaming_hint") }}</i>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="streamingAgreement"
-              input-id="streaming-agreement"
-              binary
-              :invalid="formErrors.fieldInvalid('consent_streaming')"
+          <div
+            v-if="features.recording"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
+          >
+            <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
+            <i>{{ $t("rooms.recording_hint") }}</i>
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="recordAgreement"
+                input-id="record-agreement"
+                binary
+                :class="{
+                  'p-invalid': formErrors.fieldInvalid('consent_record'),
+                }"
+              />
+              <label for="record-agreement" class="required">{{
+                $t("rooms.recording_accept")
+              }}</label>
+            </div>
+            <FormError :errors="formErrors.fieldError('consent_record')" />
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="recordVideoAgreement"
+                input-id="record-video-agreement"
+                binary
+                :class="{
+                  'p-invalid': formErrors.fieldInvalid('consent_record_video'),
+                }"
+              />
+              <label for="record-video-agreement">{{
+                $t("rooms.recording_video_accept")
+              }}</label>
+            </div>
+            <FormError
+              :errors="formErrors.fieldError('consent_record_video')"
             />
-            <label for="streaming-agreement">{{
-              $t("rooms.streaming_accept")
-            }}</label>
           </div>
-          <FormError :errors="formErrors.fieldError('consent_streaming')" />
-        </div>
-      </div>
-    </OverlayComponent>
 
-    <div class="mt-6 flex items-center justify-end gap-2">
+          <div
+            v-if="features.streaming"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
+          >
+            <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
+            <i>{{ $t("rooms.streaming_hint") }}</i>
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="streamingAgreement"
+                input-id="streaming-agreement"
+                binary
+                :invalid="formErrors.fieldInvalid('consent_streaming')"
+              />
+              <label for="streaming-agreement">{{
+                $t("rooms.streaming_accept")
+              }}</label>
+            </div>
+            <FormError :errors="formErrors.fieldError('consent_streaming')" />
+          </div>
+        </div>
+      </OverlayComponent>
+    </form>
+    <template #footer>
       <Button
         :label="$t('app.cancel')"
         data-test="dialog-cancel-button"
@@ -157,7 +159,7 @@
         size="small"
         @click="getJoinUrl"
       />
-    </div>
+    </template>
   </Dialog>
 </template>
 <script setup>
