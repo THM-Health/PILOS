@@ -63,7 +63,7 @@
         />
 
         <Tag severity="info" v-if="fps">{{
-          $t("rooms.streaming.stats", { fps, bitrate })
+          $t("rooms.streaming.fps", { fps })
         }}</Tag>
       </div>
 
@@ -135,7 +135,6 @@ import { useSettingsStore } from "../stores/settings.js";
 const streamingState = ref("stopped");
 const streamingEnabled = ref(false);
 const fps = ref(0);
-const bitrate = ref(0);
 
 const api = useApi();
 const settingsStore = useSettingsStore();
@@ -193,7 +192,6 @@ async function streamingCommand(command) {
     .then((response) => {
       streamingState.value = response.data.data.status;
       fps.value = response.data.data.fps;
-      bitrate.value = response.data.data.bitrate;
       streamingEnabled.value = response.data.data.enabled_for_current_meeting;
     })
     .catch((error) => {

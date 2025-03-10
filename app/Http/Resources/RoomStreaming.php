@@ -18,7 +18,6 @@ class RoomStreaming extends JsonResource
             'enabled_for_current_meeting' => $this->enabled_for_current_meeting,
             'status' => $this->status,
             'fps' => $this->fps,
-            'bitrate' => $this->bitrate,
         ];
     }
 }

@@ -435,7 +435,7 @@ return [
         ],
         'no_running_meeting' => 'No running meeting',
         'not_enabled_for_running_meeting' => 'Streaming is not enabled for the current meeting',
-        'stats' => ':fps FPS, :bitrate kbps',
+        'fps' => ':fps FPS',
         'start' => 'Start',
         'stop' => 'Stop',
         'pause' => 'Pause',

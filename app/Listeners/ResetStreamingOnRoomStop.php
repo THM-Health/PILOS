@@ -25,7 +25,6 @@ class ResetStreamingOnRoomStop
 
         $room->streaming->status = null;
         $room->streaming->fps = null;
-        $room->streaming->bitrate = null;
         $room->streaming->save();
     }
 }

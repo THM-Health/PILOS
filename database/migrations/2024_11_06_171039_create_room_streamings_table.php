@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('pause_image')->nullable();
             $table->text('status')->nullable();
             $table->integer('fps')->nullable();
-            $table->integer('bitrate')->nullable();
             $table->primary('room_id');
             $table->timestamps();
         });

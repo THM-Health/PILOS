@@ -79,7 +79,6 @@ body {
         if ($response->status() === 404) {
             $this->meeting->room->streaming->status = null;
             $this->meeting->room->streaming->fps = null;
-            $this->meeting->room->streaming->bitrate = null;
             $this->meeting->room->streaming->save();
 
             return true;
@@ -90,7 +89,6 @@ body {
 
             $this->meeting->room->streaming->status = $data['status'];
             $this->meeting->room->streaming->fps = $data['fps'];
-            $this->meeting->room->streaming->bitrate = $data['bitrate'];
             $this->meeting->room->streaming->save();
 
             return true;
