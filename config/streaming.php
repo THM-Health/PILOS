@@ -1,9 +1,10 @@
 <?php
 
 return [
-    'enabled' => env('STREAMING_ENABLED', false),
+    'enabled' => (bool) env('STREAMING_ENABLED', false),
     'api' => env('STREAMING_API'),
-    'refresh_interval' => intval(env('STREAMING_REFRESH_INTERVAL', 10)),
+    'refresh_interval' => (int) env('STREAMING_REFRESH_INTERVAL', 10),
+    'show_fps' => (bool) env('STREAMING_SHOW_FPS', false),
     'auth' => [
         'type' => env('STREAMING_AUTH_TYPE', 'none'),
         'basic' => [

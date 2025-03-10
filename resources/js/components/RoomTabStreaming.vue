@@ -62,9 +62,11 @@
           :value="$t('rooms.streaming.failed')"
         />
 
-        <Tag severity="info" v-if="fps">{{
-          $t("rooms.streaming.fps", { fps })
-        }}</Tag>
+        <Tag
+          severity="info"
+          v-if="fps && settingsStore.getSetting('streaming.show_fps')"
+          >{{ $t("rooms.streaming.fps", { fps }) }}</Tag
+        >
       </div>
 
       <div class="flex flex-row flex-wrap gap-2">
@@ -119,7 +121,10 @@
       <RoomTabStreamingConfigButton :room-id="props.room.id" />
       <Button
         severity="secondary"
-        icon="fa-solid fa-rotate"
+        icon="fa-solid fa-sync"
+        v-tooltip="$t('app.reload')"
+        :aria-label="$t('app.reload')"
+        data-test="streaming-reload-button"
         @click="streamingCommand('status')"
       />
     </div>
