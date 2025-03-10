@@ -17,10 +17,10 @@
         </div>
 
         <!-- Features of the room type -->
-        <span class="font-bold">{{
+        <span class="font-bold" v-if="visibleFeaturesCount > 0">{{
           $t("rooms.room_types.features.title")
         }}</span>
-        <div class="flex flex-row gap-2">
+        <div class="flex flex-row gap-2" v-if="visibleFeaturesCount > 0">
           <RoomTypeFeatureField
             v-if="
               settingsStore.getSetting('streaming.enabled') ||
@@ -78,6 +78,7 @@
 import { useRoomTypeSettings } from "../composables/useRoomTypeSettings.js";
 import RoomTypeFeatureField from "./RoomTypeFeatureField.vue";
 import { useSettingsStore } from "../stores/settings.js";
+import { computed } from "vue";
 
 const roomTypeSettings = useRoomTypeSettings();
 const settingsStore = useSettingsStore();
@@ -87,5 +88,18 @@ defineProps({
     type: Object,
     required: true,
   },
+});
+
+const visibleFeaturesCount = computed(() => {
+  let count = 0;
+
+  // Check if streaming is enabled and not hidden
+  if (
+    settingsStore.getSetting("streaming.enabled") ||
+    !settingsStore.getSetting("general.hide_disabled_features")
+  )
+    count++;
+
+  return count;
 });
 </script>
