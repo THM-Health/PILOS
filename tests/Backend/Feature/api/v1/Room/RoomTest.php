@@ -717,158 +717,6 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Test data room api returns for different values for the record attendance setting
-     */
-    public function test_room_view_record_attendance()
-    {
-        $roomTypeAttendanceEnforced = RoomType::factory()->create([
-            'record_attendance_default' => true,
-            'record_attendance_enforced' => true,
-        ]);
-
-        $roomTypeNoAttendanceEnforced = RoomType::factory()->create([
-            'record_attendance_default' => false,
-            'record_attendance_enforced' => true,
-        ]);
-
-        $roomTypeAttendanceDefault = RoomType::factory()->create([
-            'record_attendance_default' => true,
-            'record_attendance_enforced' => false,
-        ]);
-
-        $roomTypeNoAttendanceDefault = RoomType::factory()->create([
-            'record_attendance_default' => false,
-            'record_attendance_enforced' => false,
-        ]);
-
-        $room = Room::factory()->create();
-
-        // Test for record attendance enforced in room type and expert mode deactivated
-        $room->roomType()->associate($roomTypeAttendanceEnforced);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        // Test for record attendance as default in room type and expert mode deactivated
-        $room->roomType()->associate($roomTypeAttendanceDefault);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        // Test for no record attendance enforced in room type and expert mode deactivated
-        $room->roomType()->associate($roomTypeNoAttendanceEnforced);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-        // Test for record attendance as default in room type and expert mode deactivated
-        $room->roomType()->associate($roomTypeNoAttendanceDefault);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-        // Test for record attendance enforced and expert mode activated (room setting true)
-        $room->expert_mode = true;
-        $room->record_attendance = true;
-        $room->roomType()->associate($roomTypeAttendanceEnforced);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        // Test for record attendance default and expert mode activated (room setting true)
-        $room->roomType()->associate($roomTypeAttendanceDefault);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        // Test for no record attendance enforced and expert mode activated (room setting true)
-        $room->roomType()->associate($roomTypeNoAttendanceEnforced);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-        // Test for no record attendance default and expert mode activated (room setting true)
-        $room->roomType()->associate($roomTypeNoAttendanceDefault);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        // Test for record attendance enforced and expert mode activated (room setting false)
-        $room->record_attendance = false;
-        $room->roomType()->associate($roomTypeAttendanceEnforced);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        // Test for record attendance default and expert mode activated (room setting true)
-        $room->roomType()->associate($roomTypeAttendanceDefault);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-        // Test for no record attendance enforced and expert mode activated (room setting true)
-        $room->roomType()->associate($roomTypeNoAttendanceEnforced);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-        // Test for no record attendance default and expert mode activated (room setting true)
-        $room->roomType()->associate($roomTypeNoAttendanceDefault);
-        $room->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-    }
-
-    /**
      * Test data room api returns for different values for the allow membership setting
      */
     public function test_room_view_allow_membership()
@@ -1061,7 +909,6 @@ class RoomTest extends TestCase
                     'is_moderator' => false,
                     'is_co_owner' => false,
                     'can_start' => false,
-                    'record_attendance' => false,
                     'current_user' => [
                         'id' => $this->user->id,
                         'firstname' => $this->user->firstname,
@@ -2371,6 +2218,255 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Tests the behavior of the attendance recording feature in the start endpoint
+     *
+     * - The room feature for attendance recording is returned correctly for the options request
+     *   on the start endpoint depending on the room settings and the room type settings
+     * - The room can only be started if the user agrees to record attendance
+     *   if it is enabled
+     * - The record attendance value in the meetings table after the room is started
+     *
+     * @return void
+     */
+    public function test_start_attendance_recording()
+    {
+        // Create Fake BBB-Server
+        $server = Server::factory()->create();
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // List of test cases
+        // [record_attendance, expert_mode, roomType_default, roomType_enforced, expected_result]
+        $testCases = [
+            // Test cases with expert mode deactivated, checking if the rooms setting is always ignored in favor of the room type setting
+            [false, false, false, false, false],    // Disabled, No expert mode, room type default disabled, not enforced
+            [true, false, false, false, false],     // Enabled, No expert mode, room type default disabled, not enforced
+            [false, false, true, false, true],      // Disabled, No expert mode, room type default enabled, not enforced
+            [true, false, true, false, true],       // Enabled, No expert mode, room type default enabled, not enforced
+
+            // Test cases with expert mode enabled, checking if the rooms setting is always preferred above the room type setting
+            [false, true, false, false, false],     // Disabled, Expert mode, room type default disabled, not enforced
+            [true, true, false, false, true],       // Enabled, Expert mode, room type default disabled, not enforced
+            [false, true, true, false, false],      // Disabled, Expert mode, room type default enabled, not enforced
+            [true, true, true, false, true],        // Enabled, Expert mode, room type default enabled, not enforced
+
+            // Test cases with expert mode enabled, checking if the rooms setting is always ignored in favor of the room type setting due to being enforced
+            [false, true, false, true, false],      // Disabled, Expert mode, room type default disabled, enforced
+            [true, true, false, true, false],       // Enabled, Expert mode, room type default disabled, enforced
+            [false, true, true, true, true],        // Disabled, Expert mode, room type default enabled, enforced
+            [true, true, true, true, true],         // Enabled, Expert mode, room type default enabled, enforced
+        ];
+
+        foreach ($testCases as $case) {
+            // Create new room with room settings
+            $room = Room::factory()->create();
+            $room->record_attendance = $case[0];
+            $room->expert_mode = $case[1];
+            $room->save();
+
+            // Attach server to pool of the room type
+            $room->roomType->serverPool->servers()->attach($server);
+
+            // Configure room type settings
+            $room->roomType->record_attendance_default = $case[2];
+            $room->roomType->record_attendance_enforced = $case[3];
+            $room->roomType->save();
+
+            // Get result from the option request on the start endpoint
+            $result = $this->actingAs($room->owner)
+                ->optionsJson(route('api.v1.rooms.start', ['room' => $room]))
+                ->assertSuccessful();
+
+            // Create label for the test case
+            $label = sprintf(
+                'Record attendance: %s, Expert mode: %s, RoomType default: %s, RoomType enforced: %s',
+                $case[0] ? 'enabled' : 'disabled',
+                $case[1] ? 'enabled' : 'disabled',
+                $case[2] ? 'enabled' : 'disabled',
+                $case[3] ? 'enabled' : 'disabled',
+            );
+
+            // Test the expected result
+            $this->assertEquals($case[4], $result->json('data.features.attendance_recording'), $label);
+
+            // If attendance recording is enabled
+            if ($case[4]) {
+                // Try starting the room with agreement, should succeed
+                $bbbFaker->addCreateMeetingRequest();
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]), [
+                        'consent_record_attendance' => true,
+                    ])
+                    ->assertSuccessful();
+
+                // Try starting the room without agreement, should fail
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+                    ->assertJsonValidationErrors(['consent_record_attendance']);
+            } else {
+                // Try starting the room without agreement, should succeed
+                $bbbFaker->addCreateMeetingRequest();
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+                    ->assertSuccessful();
+            }
+
+            // Check if the created meeting has the correct 'record_attendance' value
+            $room->refresh();
+            $this->assertEquals($case[4], $room->latestMeeting->record_attendance, $label);
+        }
+    }
+
+    /**
+     * Tests the behavior of the recording feature in the start endpoint
+     *
+     * - The room feature for recording is returned correctly for the options request
+     *   on the start endpoint depending on the room settings and the room type settings
+     * - The room can only be started if the user agrees to record if it is enabled
+     * - The record value in the meetings table after the room is started
+     *
+     * @return void
+     */
+    public function test_start_recording()
+    {
+        // Create Fake BBB-Server
+        $server = Server::factory()->create();
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // List of test cases
+        // [record, roomType_enabled, global_enabled, expected_result]
+        $testCases = [
+            // Test cases with expert mode deactivated, checking if the rooms setting is always ignored in favor of the room type setting
+            [false, false, false, false, false],    // Disabled, No expert mode, room type default disabled, not enforced
+            [true, false, false, false, false],     // Enabled, No expert mode, room type default disabled, not enforced
+            [false, false, true, false, true],      // Disabled, No expert mode, room type default enabled, not enforced
+            [true, false, true, false, true],       // Enabled, No expert mode, room type default enabled, not enforced
+
+            // Test cases with expert mode enabled, checking if the rooms setting is always preferred above the room type setting
+            [false, true, false, false, false],     // Disabled, Expert mode, room type default disabled, not enforced
+            [true, true, false, false, true],       // Enabled, Expert mode, room type default disabled, not enforced
+            [false, true, true, false, false],      // Disabled, Expert mode, room type default enabled, not enforced
+            [true, true, true, false, true],        // Enabled, Expert mode, room type default enabled, not enforced
+
+            // Test cases with expert mode enabled, checking if the rooms setting is always ignored in favor of the room type setting due to being enforced
+            [false, true, false, true, false],      // Disabled, Expert mode, room type default disabled, enforced
+            [true, true, false, true, false],       // Enabled, Expert mode, room type default disabled, enforced
+            [false, true, true, true, true],        // Disabled, Expert mode, room type default enabled, enforced
+            [true, true, true, true, true],         // Enabled, Expert mode, room type default enabled, enforced
+        ];
+
+        foreach ($testCases as $case) {
+            // Create new room with room settings
+            $room = Room::factory()->create();
+            $room->record = $case[0];
+            $room->expert_mode = $case[1];
+            $room->save();
+
+            // Attach server to pool of the room type
+            $room->roomType->serverPool->servers()->attach($server);
+
+            // Configure room type settings
+            $room->roomType->record_default = $case[2];
+            $room->roomType->record_enforced = $case[3];
+            $room->roomType->save();
+
+            // Get result from the option request on the start endpoint
+            $result = $this->actingAs($room->owner)
+                ->optionsJson(route('api.v1.rooms.start', ['room' => $room]))
+                ->assertSuccessful();
+
+            // Create label for the test case
+            $label = sprintf(
+                'Record: %s, Expert mode: %s, RoomType default: %s, RoomType enforced: %s',
+                $case[0] ? 'enabled' : 'disabled',
+                $case[1] ? 'enabled' : 'disabled',
+                $case[2] ? 'enabled' : 'disabled',
+                $case[3] ? 'enabled' : 'disabled',
+            );
+
+            // Test the expected result
+            $this->assertEquals($case[4], $result->json('data.features.recording'), $label);
+
+            // If recording is enabled
+            if ($case[4]) {
+                // Try starting the room with agreement, should succeed
+                $bbbFaker->addCreateMeetingRequest();
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]), [
+                        'consent_record' => true,
+                        'consent_record_video' => true,
+                    ])
+                    ->assertSuccessful();
+
+                // Try starting the room without agreement, should fail
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+                    ->assertJsonValidationErrors(['consent_record']);
+            } else {
+                // Try starting the room without agreement, should succeed
+                $bbbFaker->addCreateMeetingRequest();
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+                    ->assertSuccessful();
+            }
+
+            // Check if the created meeting has the correct 'record' value
+            $room->refresh();
+            $this->assertEquals($case[4], $room->latestMeeting->record, $label);
+        }
+    }
+
+    /**
+     * Test if the room feature for streaming is returned correctly
+     * for the options request on the start endpoint
+     * depending on the room settings, the room type settings and the global setting
+     *
+     * @return void
+     */
+    public function test_start_option_streaming()
+    {
+        // Create new room
+        $room = Room::factory()->create();
+
+        // List of test cases with enabled on room, roomType and global level
+        // [room, roomType, global, expected_result]
+        $testCases = [
+            [true, true, true, true],    // Enabled on all levels
+            [true, false, true, false],  // Enabled on room, disabled on room type, enabled globally
+            [true, true, false, false],  // Enabled on room, enabled on room type, disabled globally
+            [false, true, true, false],  // Disabled on room, enabled on room type, enabled globally
+        ];
+
+        foreach ($testCases as $case) {
+            // Configure streaming settings for room
+            $room->streaming->enabled = $case[0];
+            $room->streaming->save();
+
+            // Configure streaming settings for room type
+            $room->roomType->streamingSettings->enabled = $case[1];
+            $room->roomType->streamingSettings->save();
+
+            // Global setting for streaming
+            config(['streaming.enabled' => $case[2]]);
+
+            // Test the API response
+            $result = $this->actingAs($room->owner)
+                ->optionsJson(route('api.v1.rooms.start', ['room' => $room]))
+                ->assertSuccessful();
+
+            // Create label for the test case
+            $label = sprintf(
+                'Room: %s, RoomType: %s, Global: %s',
+                $case[0] ? 'enabled' : 'disabled',
+                $case[1] ? 'enabled' : 'disabled',
+                $case[2] ? 'enabled' : 'disabled',
+            );
+
+            // Test the expected result
+            $this->assertEquals($case[3], $result->json('data.features.streaming'), $label);
+        }
+    }
+
+    /**
      * Testing to start room but no server available
      */
     public function test_start_restricted_no_server()
@@ -2894,452 +2990,6 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Tests if record attendance is set on start
-     */
-    public function test_record_attendance_status()
-    {
-        // Room types
-        $roomTypeAttendanceEnforced = RoomType::factory()->create([
-            'record_attendance_default' => true,
-            'record_attendance_enforced' => true,
-        ]);
-
-        $roomTypeNoAttendanceEnforced = RoomType::factory()->create([
-            'record_attendance_default' => false,
-            'record_attendance_enforced' => true,
-        ]);
-
-        $roomTypeAttendanceDefault = RoomType::factory()->create([
-            'record_attendance_default' => true,
-            'record_attendance_enforced' => false,
-        ]);
-
-        $roomTypeNoAttendanceDefault = RoomType::factory()->create([
-            'record_attendance_default' => false,
-            'record_attendance_enforced' => false,
-        ]);
-
-        // Rooms
-        $roomAttendanceEnforced1 = Room::factory()->create([
-            'expert_mode' => true,
-            'record_attendance' => false,
-            'room_type_id' => $roomTypeAttendanceEnforced->id,
-
-        ]);
-        $roomAttendanceEnforced2 = Room::factory()->create([
-            'expert_mode' => true,
-            'record_attendance' => true,
-            'room_type_id' => $roomTypeAttendanceEnforced->id,
-
-        ]);
-        $roomAttendanceEnforced3 = Room::factory()->create([
-            'expert_mode' => false,
-            'room_type_id' => $roomTypeAttendanceEnforced->id,
-        ]);
-        $roomAttendanceDefault = Room::factory()->create([
-            'expert_mode' => false,
-            'room_type_id' => $roomTypeAttendanceDefault->id,
-        ]);
-
-        $roomAttendanceExpert1 = Room::factory()->create([
-            'expert_mode' => true,
-            'record_attendance' => true,
-            'room_type_id' => $roomTypeNoAttendanceDefault->id,
-        ]);
-        $roomAttendanceExpert2 = Room::factory()->create([
-            'expert_mode' => true,
-            'record_attendance' => true,
-            'room_type_id' => $roomTypeAttendanceDefault->id,
-        ]);
-        $roomNoAttendanceEnforced1 = Room::factory()->create([
-            'expert_mode' => true,
-            'record_attendance' => true,
-            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
-        ]);
-        $roomNoAttendanceEnforced2 = Room::factory()->create([
-            'expert_mode' => true,
-            'record_attendance' => false,
-            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
-        ]);
-        $roomNoAttendanceEnforced3 = Room::factory()->create([
-            'expert_mode' => false,
-            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
-        ]);
-        $roomNoAttendanceDefault = Room::factory()->create([
-            'expert_mode' => false,
-            'room_type_id' => $roomTypeNoAttendanceDefault->id,
-            'record_attendance' => true,
-        ]);
-        $roomNoAttendanceExpert1 = Room::factory()->create([
-            'expert_mode' => true,
-            'room_type_id' => $roomTypeAttendanceDefault->id,
-            'record_attendance' => false,
-        ]);
-        $roomNoAttendanceExpert2 = Room::factory()->create([
-            'expert_mode' => true,
-            'room_type_id' => $roomTypeNoAttendanceDefault->id,
-            'record_attendance' => false,
-        ]);
-
-        $server = Server::factory()->create();
-        $roomAttendanceEnforced1->roomType->serverPool->servers()->attach($server);
-        $roomAttendanceEnforced2->roomType->serverPool->servers()->attach($server);
-        $roomAttendanceEnforced3->roomType->serverPool->servers()->attach($server);
-        $roomAttendanceDefault->roomType->serverPool->servers()->attach($server);
-        $roomAttendanceExpert1->roomType->serverPool->servers()->attach($server);
-        $roomAttendanceExpert2->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceEnforced1->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceEnforced2->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceEnforced3->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceDefault->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceExpert1->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceExpert2->roomType->serverPool->servers()->attach($server);
-
-        // Create Fake BBB-Server
-        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
-
-        // Create 12 meetings
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-        $bbbfaker->addCreateMeetingRequest();
-
-        // Create meeting attendance enforced expert mode activated (room setting false)
-        $this->actingAs($roomAttendanceEnforced1->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced1]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting attendance enforced expert mode activated (room setting true)
-        $this->actingAs($roomAttendanceEnforced2->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced2]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting attendance enforced expert mode deactivated
-        $this->actingAs($roomAttendanceEnforced3->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced3]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting attendance default
-        $this->actingAs($roomAttendanceDefault->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceDefault]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting attendance expert (room type default false)
-        $this->actingAs($roomAttendanceExpert1->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert1]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting attendance expert (room type default true)
-        $this->actingAs($roomAttendanceExpert2->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert2]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting with no attendance enforced expert mode activated (room setting true)
-        $this->actingAs($roomNoAttendanceEnforced1->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceEnforced1]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting with no attendance enforced expert mode activated (room setting false)
-        $this->actingAs($roomNoAttendanceEnforced2->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceEnforced2]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting with no attendance enforced expert mode deactivated
-        $this->actingAs($roomNoAttendanceEnforced3->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceEnforced3]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting with no attendance default
-        $this->actingAs($roomNoAttendanceDefault->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceDefault]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting with no attendance expert (room type default true)
-        $this->actingAs($roomNoAttendanceExpert1->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceExpert1]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Create meeting with no attendance expert (room type default false)
-        $this->actingAs($roomNoAttendanceExpert2->owner)->postJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceExpert2]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // check correct record attendance after start
-        $roomAttendanceEnforced1->refresh();
-        $roomAttendanceEnforced2->refresh();
-        $roomAttendanceEnforced3->refresh();
-        $roomAttendanceDefault->refresh();
-        $roomAttendanceExpert1->refresh();
-        $roomAttendanceExpert2->refresh();
-        $roomNoAttendanceEnforced1->refresh();
-        $roomNoAttendanceEnforced2->refresh();
-        $roomNoAttendanceEnforced3->refresh();
-        $roomNoAttendanceDefault->refresh();
-        $roomNoAttendanceExpert1->refresh();
-        $roomNoAttendanceExpert2->refresh();
-        $this->assertTrue($roomAttendanceEnforced1->latestMeeting->record_attendance);
-        $this->assertTrue($roomAttendanceEnforced2->latestMeeting->record_attendance);
-        $this->assertTrue($roomAttendanceEnforced3->latestMeeting->record_attendance);
-        $this->assertTrue($roomAttendanceDefault->latestMeeting->record_attendance);
-        $this->assertTrue($roomAttendanceExpert1->latestMeeting->record_attendance);
-        $this->assertTrue($roomAttendanceExpert2->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceEnforced1->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceEnforced2->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceEnforced3->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceDefault->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceExpert1->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceExpert2->latestMeeting->record_attendance);
-
-        // check if api return the record attendance status of the currently running meeting, not the room
-        $roomAttendanceExpert1->record_attendance = false;
-        $roomAttendanceExpert1->save();
-        $roomNoAttendanceExpert1->record_attendance = true;
-        $roomNoAttendanceExpert1->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceExpert1]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceExpert1]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        // Test changing of the room type settings while running meeting
-        $roomAttendanceExpert2->roomType->record_attendance_enforced = true;
-        $roomAttendanceExpert2->roomType->record_attendance_default = false;
-        $roomAttendanceExpert2->roomType->save();
-        $roomNoAttendanceExpert2->roomType->record_attendance_enforced = true;
-        $roomNoAttendanceExpert2->roomType->record_attendance_default = true;
-        $roomNoAttendanceExpert2->roomType->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceExpert2]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceExpert2]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-        // Test changing of the room type while running meeting
-
-        $roomAttendanceDefault->roomType()->associate($roomTypeNoAttendanceEnforced);
-        $roomNoAttendanceDefault->save();
-        $roomNoAttendanceDefault->roomType()->associate($roomTypeAttendanceEnforced);
-        $roomNoAttendanceDefault->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceDefault]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ]);
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceDefault]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ]);
-
-    }
-
-    /**
-     * Tests if record is set on start
-     */
-    public function test_start_record_status()
-    {
-        $server = Server::factory()->create();
-
-        // Create Fake BBB-Server
-        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
-
-        // Check record status on starting a room with recording disabled in expert mode, room type enabled but not enforced
-        $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = true;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-        $room->refresh();
-        $meeting = $room->latestMeeting;
-        $this->assertFalse($meeting->record);
-
-        // Check record status on starting a room with recording disabled in expert mode, room type enabled and enforced
-        $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = true;
-        $room->roomType->record_enforced = true;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
-            ->assertSuccessful();
-        $room->refresh();
-        $meeting = $room->latestMeeting;
-        $this->assertTrue($meeting->record);
-
-        // Check record status on starting a room with recording disabled without expert mode, room type enabled but not enforced
-        $room = Room::factory()->create(['record' => false, 'expert_mode' => false]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = true;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
-            ->assertSuccessful();
-        $room->refresh();
-        $meeting = $room->latestMeeting;
-        $this->assertTrue($meeting->record);
-
-        // Check record status on starting a room with recording enabled in expert mode, room type disabled but not enforced
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
-            ->assertSuccessful();
-        $room->refresh();
-        $meeting = $room->latestMeeting;
-        $this->assertTrue($meeting->record);
-
-        // Check record status on starting a room with recording enabled in expert mode, room type disabled and enforced
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = true;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-        $room->refresh();
-        $meeting = $room->latestMeeting;
-        $this->assertFalse($meeting->record);
-
-        // Check record status on starting a room with recording enabled without expert mode, room type disabled but not enforced
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => false]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-        $room->refresh();
-        $meeting = $room->latestMeeting;
-        $this->assertFalse($meeting->record);
-    }
-
-    /**
-     * Tests if record parameter is validated according to the room and room type settings
-     */
-    public function test_start_record_parameter()
-    {
-        $server = Server::factory()->create();
-
-        // Create Fake BBB-Server
-        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
-
-        // Agree to record when room is set to record
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Don't agree when room is set to record
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertJsonValidationErrors(['consent_record']);
-
-        // Agree to record when room is set to record but room type has recording disabled
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = true;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Don't agree when room is set to record but room type has recording disabled
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = true;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Don't agree when room is set to record but not expert and room type has recording disabled
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => false]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Don't agree when room is set to record not record, not expert and room type has recording enabled
-        $room = Room::factory()->create(['record' => true, 'expert_mode' => false]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = true;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertJsonValidationErrors(['consent_record']);
-
-        // Agree when room is not set to record
-        $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $room->roomType->serverPool->servers()->attach($server);
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Don't agree when room is not set to record
-        $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
-        $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
-        $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertSuccessful();
-
-        // Check error on invalid record value
-        $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => 'hello', 'consent_record_video' => false])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['consent_record']);
-
-        // Check error on missing record value
-        $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record_video' => false])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['consent_record']);
-    }
-
-    /**
      * Tests if record video parameter is validated and passed to BBB in the join url on start
      */
     public function test_start_record_video_parameter()
@@ -3350,34 +3000,43 @@ class RoomTest extends TestCase
         $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
 
         // Agree to record own video
-        $room = Room::factory()->create(['record' => true]);
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
         $room->roomType->serverPool->servers()->attach($server);
         $bbbFaker->addCreateMeetingRequest();
-        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => true]);
+        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record' => true, 'consent_record_video' => true]);
         $result->assertSuccessful();
         $joinUrl = $result->json('url');
         $this->assertStringContainsString('userdata-bbb_record_video=true', $joinUrl);
 
         // Don't record own video
-        $room = Room::factory()->create(['record' => true]);
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
         $room->roomType->serverPool->servers()->attach($server);
         $bbbFaker->addCreateMeetingRequest();
-        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false]);
+        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record' => true, 'consent_record_video' => false]);
         $result->assertSuccessful();
         $joinUrl = $result->json('url');
         $this->assertStringContainsString('userdata-bbb_record_video=false', $joinUrl);
 
         // Check error on invalid record video value
-        $room = Room::factory()->create(['record' => false]);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => 'hello'])
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record' => false, 'consent_record_video' => 'hello'])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['consent_record_video']);
 
         // Check error on missing record video value
-        $room = Room::factory()->create(['record' => false]);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false])
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record' => false])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['consent_record_video']);
+
+        // Check if parameter is not validated and not passed if recording is disabled
+        $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]));
+        $result->assertSuccessful();
+        $joinUrl = $result->json('url');
+        $this->assertStringNotContainsString('userdata-bbb_record_video', $joinUrl);
     }
 
     /**
