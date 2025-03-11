@@ -521,7 +521,10 @@ class MeetingService
         }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
 
-        $joinMeetingParams->addUserData('bbb_record_video', $request->consent_record_video);
+        // If meeting has recording enabled, add parameter to allow recording of own video
+        if ($this->meeting->record) {
+            $joinMeetingParams->addUserData('bbb_record_video', $request->consent_record_video);
+        }
 
         // If a custom style file is set, pass url to bbb html5 client
         if (app(BigBlueButtonSettings::class)->style) {
