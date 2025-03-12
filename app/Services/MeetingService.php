@@ -503,6 +503,13 @@ class MeetingService
             default => Role::VIEWER,
         };
 
+        if ($roomUserRole == RoomUserRole::GUEST) {
+            $bbbRole = match ($this->meeting->room->getRoomSetting('default_guest_role')) {
+                RoomUserRole::MODERATOR => Role::MODERATOR,
+                default => Role::VIEWER,
+            };
+        }
+
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setErrorRedirectUrl(url('rooms/'.$this->meeting->room->id));

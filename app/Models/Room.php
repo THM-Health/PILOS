@@ -132,6 +132,16 @@ class Room extends Model
             'expert' => true,
             'only' => [RoomUserRole::USER, RoomUserRole::MODERATOR],
         ],
+        'default_member_role' => [
+            'cast' => RoomUserRole::class,
+            'expert' => true,
+            'only' => [RoomUserRole::USER, RoomUserRole::MODERATOR],
+        ],
+        'default_guest_role' => [
+            'cast' => RoomUserRole::class,
+            'expert' => true,
+            'only' => [RoomUserRole::USER, RoomUserRole::MODERATOR],
+        ],
         'lobby' => [
             'cast' => RoomLobby::class,
             'expert' => true,

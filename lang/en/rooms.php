@@ -380,8 +380,16 @@ return [
         'participants' => [
             'allow_membership' => 'Allow new members',
             'default_role' => [
-                'only_logged_in' => '(only for authenticated users)',
+                'description' => 'for authenticated users',
                 'title' => 'Default role',
+            ],
+            'default_member_role' => [
+                'description' => '',
+                'title' => 'Default role for new members',
+            ],
+            'default_guest_role' => [
+                'description' => '',
+                'title' => 'Default role for guests',
             ],
             'title' => 'Participants',
         ],
@@ -398,7 +406,7 @@ return [
             'lock_settings_disable_private_chat' => 'Disable private chat',
             'lock_settings_disable_public_chat' => 'Disable public chat',
             'lock_settings_hide_user_list' => 'Hide list of participants',
-            'title' => 'Restrict participant rights in video conferences',
+            'title' => 'Restrict participant permissions in video conferences',
             'webcams_only_for_moderator' => 'Only moderators can see the webcam',
         ],
         'title' => 'Settings',

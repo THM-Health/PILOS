@@ -657,32 +657,7 @@
             </h4>
           </div>
 
-          <!-- Checkbox allow users to become room members -->
-          <div
-            class="col-span-12 md:col-span-6 xl:col-span-3"
-            data-test="allow-membership-setting"
-          >
-            <div class="flex items-center gap-2">
-              <ToggleSwitch
-                v-model="settings.allow_membership"
-                :disabled="
-                  disabled || settings.room_type.allow_membership_enforced
-                "
-                :invalid="formErrors.fieldInvalid('allow_membership')"
-                class="shrink-0"
-                input-id="allow-membership"
-              />
-              <label for="allow-membership" class="flex items-center gap-2">
-                <RoomSettingEnforcedIcon
-                  v-if="settings.room_type.allow_membership_enforced"
-                />
-                {{ $t("rooms.settings.participants.allow_membership") }}
-              </label>
-            </div>
-            <FormError :errors="formErrors.fieldError('allow_membership')" />
-          </div>
-
-          <!-- Default user role for logged in users only -->
+          <!-- Default user role for logged in users -->
           <div
             class="col-span-12 flex flex-col md:col-span-6 xl:col-span-3"
             data-test="default-role-setting"
@@ -694,9 +669,7 @@
               {{ $t("rooms.settings.participants.default_role.title") }}
             </label>
             <small>
-              {{
-                $t("rooms.settings.participants.default_role.only_logged_in")
-              }}
+              {{ $t("rooms.settings.participants.default_role.description") }}
             </small>
 
             <div class="flex">
@@ -724,6 +697,131 @@
               />
             </div>
             <FormError :errors="formErrors.fieldError('default_role')" />
+          </div>
+
+          <!-- Default user role for guests -->
+          <div
+            class="col-span-12 flex flex-col md:col-span-6 xl:col-span-3"
+            data-test="default-guest-role-setting"
+          >
+            <label
+              id="default-guest-role-label"
+              class="flex items-center gap-2"
+            >
+              <RoomSettingEnforcedIcon
+                v-if="settings.room_type.default_guest_role_enforced"
+              />
+              {{ $t("rooms.settings.participants.default_guest_role.title") }}
+            </label>
+            <small>
+              {{
+                $t("rooms.settings.participants.default_guest_role.description")
+              }}
+            </small>
+
+            <div class="flex">
+              <SelectButton
+                v-model="settings.default_guest_role"
+                :allow-empty="false"
+                :disabled="
+                  disabled || settings.room_type.default_guest_role_enforced
+                "
+                :invalid="formErrors.fieldInvalid('default_guest_role')"
+                :options="[
+                  { role: 1, label: $t('rooms.roles.participant') },
+                  { role: 2, label: $t('rooms.roles.moderator') },
+                ]"
+                class="shrink-0"
+                data-key="role"
+                aria-labelledby="default-guest-role-label"
+                option-label="label"
+                option-value="role"
+                :pt="{
+                  pcToggleButton: {
+                    root: {
+                      'data-test': 'room-settings-default-guest-role-button',
+                    },
+                  },
+                }"
+              />
+            </div>
+            <FormError :errors="formErrors.fieldError('default_guest_role')" />
+          </div>
+
+          <!-- Checkbox allow users to become room members -->
+          <div
+            class="col-span-12 md:col-span-6 xl:col-span-3"
+            data-test="allow-membership-setting"
+          >
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
+                v-model="settings.allow_membership"
+                :disabled="
+                  disabled || settings.room_type.allow_membership_enforced
+                "
+                :invalid="formErrors.fieldInvalid('allow_membership')"
+                class="shrink-0"
+                input-id="allow-membership"
+              />
+              <label for="allow-membership" class="flex items-center gap-2">
+                <RoomSettingEnforcedIcon
+                  v-if="settings.room_type.allow_membership_enforced"
+                />
+                {{ $t("rooms.settings.participants.allow_membership") }}
+              </label>
+            </div>
+            <FormError :errors="formErrors.fieldError('allow_membership')" />
+          </div>
+
+          <!-- Default user role for new members -->
+          <div
+            class="col-span-12 flex flex-col md:col-span-6 xl:col-span-3"
+            data-test="default-member-role-setting"
+          >
+            <label
+              id="default-member-role-label"
+              class="flex items-center gap-2"
+            >
+              <RoomSettingEnforcedIcon
+                v-if="settings.room_type.default_member_role_enforced"
+              />
+              {{ $t("rooms.settings.participants.default_member_role.title") }}
+            </label>
+            <small>
+              {{
+                $t(
+                  "rooms.settings.participants.default_member_role.description",
+                )
+              }}
+            </small>
+
+            <div class="flex">
+              <SelectButton
+                v-model="settings.default_member_role"
+                :allow-empty="false"
+                :disabled="
+                  disabled || settings.room_type.default_member_role_enforced
+                "
+                :invalid="formErrors.fieldInvalid('default_member_role')"
+                :options="[
+                  { role: 1, label: $t('rooms.roles.participant') },
+                  { role: 2, label: $t('rooms.roles.moderator') },
+                ]"
+                class="shrink-0"
+                data-key="role"
+                aria-labelledby="default-member-role-label"
+                option-label="label"
+                option-value="role"
+                :pt="{
+                  pcToggleButton: {
+                    root: {
+                      'data-test': 'room-settings-default-member-role-button',
+                    },
+                  },
+                }"
+              />
+            </div>
+            <FormError :errors="formErrors.fieldError('default_member_role')" />
           </div>
 
           <Divider class="col-span-12" />
