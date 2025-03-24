@@ -4,35 +4,36 @@ namespace App\Support;
 
 use Spatie\Csp\Directive;
 use Spatie\Csp\Keyword;
-use Spatie\Csp\Policies\Policy;
+use Spatie\Csp\Policy;
+use Spatie\Csp\Preset;
 
-class CSPPolicy extends Policy
+class CSPPolicy implements Preset
 {
-    public function configure()
+    public function configure(Policy $policy): void
     {
-        $this
-            ->addDirective(Directive::BASE, Keyword::SELF)
-            ->addDirective(Directive::CONNECT, Keyword::SELF)
-            ->addDirective(Directive::DEFAULT, Keyword::SELF)
-            ->addDirective(Directive::FORM_ACTION, Keyword::SELF)
-            ->addDirective(Directive::IMG, ['*', 'data:', 'blob:'])
-            ->addDirective(Directive::MEDIA, Keyword::SELF)
-            ->addDirective(Directive::OBJECT, Keyword::NONE)
-            ->addDirective(Directive::STYLE, [Keyword::SELF, Keyword::UNSAFE_INLINE])
-            ->addNonceForDirective(Directive::SCRIPT);
+        $policy
+            ->add(Directive::BASE, Keyword::SELF)
+            ->add(Directive::CONNECT, Keyword::SELF)
+            ->add(Directive::DEFAULT, Keyword::SELF)
+            ->add(Directive::FORM_ACTION, Keyword::SELF)
+            ->add(Directive::IMG, ['*', 'data:', 'blob:'])
+            ->add(Directive::MEDIA, Keyword::SELF)
+            ->add(Directive::OBJECT, Keyword::NONE)
+            ->add(Directive::STYLE, [Keyword::SELF, Keyword::UNSAFE_INLINE])
+            ->addNonce(Directive::SCRIPT);
 
         // Add Vite dev server to CSP in local environment if vite dev server is running
         if (config('app.env') == 'local' && file_exists(public_path('hot'))) {
             $viteURL = file_get_contents(public_path('hot'));
             $viteURLParts = parse_url($viteURL);
 
-            $this->addDirective(Directive::BASE, $viteURL);
-            $this->addDirective(Directive::CONNECT, $viteURL);
-            $this->addDirective(Directive::CONNECT, 'wss://'.$viteURLParts['host'].':'.$viteURLParts['port']);
-            $this->addDirective(Directive::CONNECT, 'ws://'.$viteURLParts['host'].':'.$viteURLParts['port']);
-            $this->addDirective(Directive::DEFAULT, $viteURL);
-            $this->addDirective(Directive::MEDIA, $viteURL);
-            $this->addDirective(Directive::STYLE, $viteURL);
+            $policy->add(Directive::BASE, $viteURL)
+                ->add(Directive::CONNECT, $viteURL)
+                ->add(Directive::CONNECT, 'wss://'.$viteURLParts['host'].':'.$viteURLParts['port'])
+                ->add(Directive::CONNECT, 'ws://'.$viteURLParts['host'].':'.$viteURLParts['port'])
+                ->add(Directive::DEFAULT, $viteURL)
+                ->add(Directive::MEDIA, $viteURL)
+                ->add(Directive::STYLE, $viteURL);
         }
     }
 }

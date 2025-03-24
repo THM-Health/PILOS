@@ -6,7 +6,7 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="csp-nonce" content="{{ csp_nonce() }}">
+    <meta name="csp-nonce" content="{{ app('csp-nonce') }}">
     <link type="image/x-icon" rel="icon" media="(prefers-color-scheme: light)" href="{{ app(\App\Settings\ThemeSettings::class)->favicon }}">
     <link type="image/x-icon" rel="icon" media="(prefers-color-scheme: dark)" href="{{ app(\App\Settings\ThemeSettings::class)->favicon_dark }}">
     <title>{{ app(\App\Settings\GeneralSettings::class)->name }}</title>
