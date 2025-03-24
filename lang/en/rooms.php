@@ -364,7 +364,7 @@ return [
             'access_code_enforced' => 'The room type enforces the existence of an access code',
             'access_code_prohibited' => 'The room type enforces the absence of an access code',
             'allow' => 'Allow',
-            'allow_everyone' => 'Allow everyone',
+            'everyone_can_start' => 'Allow everyone to start meeting',
             'allow_guests' => 'Allow guests',
             'chars' => 'Characters: :chars',
             'delete_access_code' => 'Remove access code',
