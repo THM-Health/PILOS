@@ -29,7 +29,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsonc": "^2.19.1",
     "eslint-plugin-mocha": "^10.5.0",
-    "eslint-plugin-vue": "^9.32.0",
+    "eslint-plugin-vue": "^10.0.0",
     "globals": "^15.15.0",
     "happo-cypress": "^4.3.0",
     "happo-e2e": "^3.3.3",
@@ -38,7 +38,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "vite-plugin-istanbul": "^7.0.0",
-    "vue-eslint-parser": "^9.4.3"
+    "vue-eslint-parser": "^10.0.0"
   },
   "dependencies": {
     "@floating-ui/vue": "^1.1.6",
