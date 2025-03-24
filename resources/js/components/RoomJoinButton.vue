@@ -279,6 +279,7 @@ function getJoinUrl() {
     .then((response) => {
       // Check if response has a join url, if yes redirect
       if (response.data.url !== undefined) {
+        modalVisible.value = false;
         window.location = response.data.url;
       }
     })
