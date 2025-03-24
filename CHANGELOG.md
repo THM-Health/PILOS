@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump base PHP image to 8.4 ([#1937])
+
 ### Fixed
 
 - Logo url in emails for logos with absolute path ([#1900])
@@ -417,6 +421,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1844]: https://github.com/THM-Health/PILOS/pull/1844
 [#1855]: https://github.com/THM-Health/PILOS/pull/1855
 [#1900]: https://github.com/THM-Health/PILOS/pull/1900
+[#1937]: https://github.com/THM-Health/PILOS/pull/1937
 [#1960]: https://github.com/THM-Health/PILOS/pull/1960
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
