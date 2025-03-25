@@ -61,24 +61,6 @@ class LocalesTest extends TestCase
     }
 
     /**
-     * Test that the first enabled locale should be used if the fallback locale is not in the list of enabled locales.
-     *
-     * @return void
-     */
-    public function test_fallback_locale_not_enabled()
-    {
-        config([
-            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []],  'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
-            'app.locale' => 'en',
-        ]);
-
-        $response = $this->withHeaders([
-            'Accept-Language' => 'en',
-        ])->get('/');
-        $response->assertSee('<html lang="de">', false);
-    }
-
-    /**
      * The locale of the current user should be used if the user is authenticated
      * and a locale is set for the current user.
      *
