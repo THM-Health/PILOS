@@ -58,7 +58,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vueuse/components": "^13.0.0",
     "@vueuse/core": "^13.0.0",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.21",
     "axe-core": "^4.10.3",
     "axios": "^1.8.3",
     "chart.js": "^4.4.8",
