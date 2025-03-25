@@ -48,16 +48,20 @@ class LocalesTest extends TestCase
     }
 
     /**
-     * Test that the fallback locale gets used if the client sends a not existing locale with Accept-Language-Header.
+     * Test that the default locale gets used if the client sends a not existing locale with Accept-Language-Header.
      *
      * @return void
      */
     public function test_not_existing_locale_in_accept_header()
     {
+        config([
+            'app.locale' => 'de',
+        ]);
+
         $response = $this->withHeaders([
             'Accept-Language' => 'foo',
         ])->get('/');
-        $response->assertSee('<html lang="en">', false);
+        $response->assertSee('<html lang="de">', false);
     }
 
     /**
