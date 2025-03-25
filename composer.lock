@@ -372,16 +372,16 @@
         },
         {
             "name": "directorytree/ldaprecord",
-            "version": "v3.8.0",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord.git",
-                "reference": "86c95c46862a525169a3d9b57db180027ff09bf1"
+                "reference": "9eb34c1b3588a853406373720a772ae4f3ed23d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/86c95c46862a525169a3d9b57db180027ff09bf1",
-                "reference": "86c95c46862a525169a3d9b57db180027ff09bf1",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/9eb34c1b3588a853406373720a772ae4f3ed23d3",
+                "reference": "9eb34c1b3588a853406373720a772ae4f3ed23d3",
                 "shasum": ""
             },
             "require": {
@@ -444,20 +444,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-02-26T00:55:14+00:00"
+            "time": "2025-03-06T00:35:47+00:00"
         },
         {
             "name": "directorytree/ldaprecord-laravel",
-            "version": "v3.4.0",
+            "version": "v3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord-Laravel.git",
-                "reference": "bb0aa206723ed07e2b42eadd7311d5949cc770dd"
+                "reference": "15f56e01319852d41023633d3688ac4aa139aa6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/bb0aa206723ed07e2b42eadd7311d5949cc770dd",
-                "reference": "bb0aa206723ed07e2b42eadd7311d5949cc770dd",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/15f56e01319852d41023633d3688ac4aa139aa6e",
+                "reference": "15f56e01319852d41023633d3688ac4aa139aa6e",
                 "shasum": ""
             },
             "require": {
@@ -503,7 +503,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/LdapRecord-Laravel/issues",
-                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.4.0"
+                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.4.1"
             },
             "funding": [
                 {
@@ -511,7 +511,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-02-26T01:41:53+00:00"
+            "time": "2025-03-21T19:16:44+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -3378,16 +3378,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "3.8.1",
+            "version": "3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "aef6ee73a77a66e404dd6540934a9ef1b3c855b4"
+                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/aef6ee73a77a66e404dd6540934a9ef1b3c855b4",
-                "reference": "aef6ee73a77a66e404dd6540934a9ef1b3c855b4",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/10d85740180ecba7896c87e06a166e0c95a0e3b6",
+                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6",
                 "shasum": ""
             },
             "require": {
@@ -3465,7 +3465,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/3.8.1"
+                "source": "https://github.com/Seldaek/monolog/tree/3.9.0"
             },
             "funding": [
                 {
@@ -3477,7 +3477,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-05T17:15:07+00:00"
+            "time": "2025-03-24T10:02:05+00:00"
         },
         {
             "name": "nesbot/carbon",
