@@ -15,7 +15,7 @@
     "ext-zip": "*",
     "directorytree/ldaprecord-laravel": "^3.0",
     "guzzlehttp/guzzle": "^7.0.1",
-    "laravel/framework": "^11.0",
+    "laravel/framework": "^12.3",
     "laravel/horizon": "^5.21",
     "laravel/prompts": "^0.3.2",
     "laravel/pulse": "^1.0@beta",
