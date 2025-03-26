@@ -17,7 +17,7 @@
     "happo-ci-github-actions": "happo-ci-github-actions"
   },
   "devDependencies": {
-    "@cypress/code-coverage": "^3.13.12",
+    "@cypress/code-coverage": "^3.14.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
     "@eslint/json": "^0.10.0",
