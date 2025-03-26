@@ -11,12 +11,12 @@
   >
     <span
       :id="'room-setting-' + setting + '-label'"
-      class="flex items-center gap-2"
+      class="mb-2 flex items-center gap-2"
     >
       <RoomSettingEnforcedIcon v-if="model.room_type[setting + '_enforced']" />
       {{ label }}
     </span>
-    <div>
+    <div class="flex flex-col gap-2">
       <div v-for="option in options" class="flex items-center gap-2">
         <RadioButton
           :input-id="'room-setting-' + setting + '-' + option.value"
@@ -24,14 +24,17 @@
           v-model="model[setting]"
           :value="parseInt(option.value)"
           :disabled="disabled || model.room_type[setting + '_enforced']"
-          :invalid="formErrors.fieldInvalid(setting)"
+          :invalid="invalid"
           class="shrink-0"
         />
         <label :for="'room-setting-' + setting + '-' + option.value">{{
           option.label
         }}</label>
       </div>
-      <FormError :errors="formErrors.fieldError(setting)" />
+      <FormError :errors="errors" />
+      <InlineNote v-if="warningMessage" severity="warn">
+        {{ warningMessage }}
+      </InlineNote>
     </div>
   </div>
 </template>
@@ -44,15 +47,15 @@ import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 const model = defineModel({ type: Object });
 
 const props = defineProps({
-  room: {
-    type: Object,
-    required: true,
-  },
   disabled: {
     type: Boolean,
     required: true,
   },
-  formErrors: {
+  invalid: {
+    type: Boolean,
+    required: false,
+  },
+  errors: {
     type: Object,
     required: true,
   },
@@ -72,6 +75,10 @@ const props = defineProps({
   label: {
     type: String,
     required: true,
+  },
+  warningMessage: {
+    type: String,
+    required: false,
   },
 });
 </script>

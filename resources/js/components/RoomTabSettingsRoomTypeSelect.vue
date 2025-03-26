@@ -4,14 +4,14 @@
     class="col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3"
   >
     <label :for="'room-setting-' + setting" class="mb-2">{{ label }}</label>
-    <div>
+    <div class="flex flex-col gap-2">
       <InputGroup v-if="model.room_type">
         <InputText
-          :id="inputId"
+          :id="'room-setting-' + setting"
           :value="model.room_type.name"
           readonly
           :disabled="disabled"
-          :invalid="formErrors.fieldInvalid('room_type')"
+          :invalid="invalid"
         />
         <Button
           v-if="!disabled"
@@ -21,7 +21,10 @@
           @click="showModal"
         />
       </InputGroup>
-      <FormError :errors="formErrors.fieldError('room_type')" />
+      <FormError :errors="errors" />
+      <InlineNote v-if="warningMessage" severity="warn">
+        {{ warningMessage }}
+      </InlineNote>
 
       <Dialog
         v-model:visible="modalVisible"
@@ -87,6 +90,7 @@ import { ref } from "vue";
 import _ from "lodash";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
 import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
+import { resetSetting } from "../composables/useRoomHelpers.js";
 const model = defineModel({ type: Object });
 
 const emit = defineEmits(["roomTypeChanged"]);
@@ -99,13 +103,21 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  formErrors: {
+  invalid: {
+    type: Boolean,
+    required: false,
+  },
+  errors: {
     type: Object,
     required: true,
   },
   label: {
     type: String,
     required: true,
+  },
+  warningMessage: {
+    type: String,
+    required: false,
   },
 });
 
@@ -138,6 +150,11 @@ function handleOk() {
  * @returns {boolean} boolean that indicates if the setting is changed
  */
 function roomSettingChanged(settingName) {
+  // Ignore setting with no room type default
+  if (ROOM_SETTINGS_DEFINITION[settingName].has_no_room_type_default === true) {
+    return false;
+  }
+
   // Check if default value of the setting changed / is different to the current setting
   if (
     model.value[settingName] !== newRoomType.value[settingName + "_default"]
@@ -188,6 +205,9 @@ function changeRoomType(resetToDefaults = false) {
   modalVisible.value = false;
   confirmationModalVisible.value = false;
 
-  emit("roomTypeChanged", resetToDefaults);
+  // Reset the value of all other settings
+  for (const setting in ROOM_SETTINGS_DEFINITION) {
+    resetSetting(model, setting, resetToDefaults);
+  }
 }
 </script>

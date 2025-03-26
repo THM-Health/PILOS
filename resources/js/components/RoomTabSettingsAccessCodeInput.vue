@@ -9,7 +9,7 @@
       />
       {{ label }}</label
     >
-    <div>
+    <div class="flex flex-col gap-2">
       <InputGroup>
         <!-- Generate random access code -->
         <Button
@@ -25,7 +25,7 @@
           :id="'room-setting-' + setting"
           v-model.number="model[setting]"
           :disabled="disabled"
-          :invalid="formErrors.fieldInvalid(setting)"
+          :invalid="invalid"
           :placeholder="placeholder"
           readonly="readonly"
         />
@@ -46,7 +46,10 @@
             : $t("rooms.settings.general.access_code_prohibited")
         }}
       </small>
-      <FormError :errors="formErrors.fieldError(setting)" />
+      <FormError :errors="errors" />
+      <InlineNote v-if="warningMessage" severity="warn">
+        {{ warningMessage }}
+      </InlineNote>
     </div>
   </div>
 </template>
@@ -58,15 +61,15 @@ import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 const model = defineModel({ type: Object });
 
 const props = defineProps({
-  room: {
-    type: Object,
-    required: true,
-  },
   disabled: {
     type: Boolean,
     required: true,
   },
-  formErrors: {
+  invalid: {
+    type: Boolean,
+    required: false,
+  },
+  errors: {
     type: Object,
     required: true,
   },
@@ -81,6 +84,10 @@ const props = defineProps({
   label: {
     type: String,
     required: true,
+  },
+  warningMessage: {
+    type: String,
+    required: false,
   },
 });
 

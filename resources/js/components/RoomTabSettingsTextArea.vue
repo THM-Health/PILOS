@@ -8,7 +8,7 @@
     "
   >
     <label :for="'room-setting-' + setting" class="mb-2">{{ label }}</label>
-    <div>
+    <div class="flex flex-col gap-2">
       <Textarea
         :id="'room-setting-' + setting"
         v-model="model[setting]"
@@ -16,7 +16,7 @@
         :disabled="disabled"
         :rows="rows"
         :placeholder="placeholder"
-        :invalid="formErrors.fieldInvalid(setting)"
+        :invalid="invalid"
         :maxlength="max"
       />
       <small v-if="max">
@@ -26,7 +26,10 @@
           })
         }}
       </small>
-      <FormError :errors="formErrors.fieldError(setting)" />
+      <FormError :errors="errors" />
+      <InlineNote v-if="warningMessage" severity="warn">
+        {{ warningMessage }}
+      </InlineNote>
     </div>
   </div>
 </template>
@@ -38,15 +41,15 @@ import { computed } from "vue";
 const model = defineModel({ type: Object });
 
 const props = defineProps({
-  room: {
-    type: Object,
-    required: true,
-  },
   disabled: {
     type: Boolean,
     required: true,
   },
-  formErrors: {
+  invalid: {
+    type: Boolean,
+    required: false,
+  },
+  errors: {
     type: Object,
     required: true,
   },
@@ -74,6 +77,10 @@ const props = defineProps({
   label: {
     type: String,
     required: true,
+  },
+  warningMessage: {
+    type: String,
+    required: false,
   },
 });
 

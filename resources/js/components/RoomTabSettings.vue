@@ -6,22 +6,33 @@
           <LoadingRetryButton :error="loadingError" @reload="load" />
         </template>
 
-        <div v-for="section in form" class="grid grid-cols-12 gap-4">
+        <div
+          v-for="(section, index) in form"
+          class="grid grid-cols-12 gap-4"
+          :key="index"
+        >
           <div class="col-span-12">
             <h4 class="m-0 text-lg font-semibold">
               {{ section.title }}
             </h4>
           </div>
 
-          <component
-            v-for="item in section.items"
-            :is="item.component"
-            v-model="settings"
-            :formErrors="formErrors"
-            v-bind="item"
-          />
+          <template v-for="(item, index) in section.items" :key="index">
+            <component
+              v-if="
+                settings.expert_mode ||
+                !ROOM_SETTINGS_DEFINITION[item.setting]?.expert_setting
+              "
+              :is="item.component"
+              v-model="settings"
+              :invalid="formErrors.fieldInvalid(item.setting)"
+              :errors="formErrors.fieldError(item.setting)"
+              :disabled="disabled"
+              v-bind="item"
+            />
+          </template>
 
-          <Divider class="col-span-12" />
+          <Divider v-if="index + 1 < form.length" class="col-span-12" />
         </div>
 
         <div v-if="settingsDirty" class="sticky bottom-0 px-px py-4">
@@ -100,11 +111,11 @@ import env from "../env.js";
 import _ from "lodash";
 import { useSettingsStore } from "../stores/settings";
 import { useApi } from "../composables/useApi.js";
+import { resetSetting } from "../composables/useRoomHelpers.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { onMounted, ref, computed } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
-import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 import { sha256 } from "@noble/hashes/sha2";
 import { useElementVisibility } from "@vueuse/core";
 import RoomTabSettingsTextInput from "./RoomTabSettingsTextInput.vue";
@@ -153,26 +164,22 @@ const form = computed(() => {
           setting: "room_type",
           label: t("rooms.settings.general.type"),
           component: RoomTabSettingsRoomTypeSelect,
-          expert: false,
         },
         {
           setting: "name",
           label: t("rooms.name"),
           component: RoomTabSettingsTextInput,
-          expert: false,
         },
         {
           setting: "access_code",
           label: t("rooms.access_code"),
           component: RoomTabSettingsAccessCodeInput,
           placeholder: t("rooms.settings.general.unprotected_placeholder"),
-          expert: false,
         },
         {
           setting: "allow_guests",
           label: t("rooms.settings.general.access_by_guests"),
           component: RoomTabSettingsToggleSwitch,
-          expert: false,
         },
         {
           setting: "short_description",
@@ -182,7 +189,6 @@ const form = computed(() => {
           full_width: true,
           max: 300,
           row: 3,
-          expert: true,
         },
       ],
     },
@@ -193,13 +199,11 @@ const form = computed(() => {
           setting: "everyone_can_start",
           label: t("rooms.settings.video_conference.everyone_can_start"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "mute_on_start",
           label: t("rooms.settings.video_conference.mute_on_start"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "lobby",
@@ -215,7 +219,7 @@ const form = computed(() => {
             },
           ],
           component: RoomTabSettingsRadioGroup,
-          expert: true,
+          warningMessage: lobbyAlert.value,
         },
         {
           setting: "welcome",
@@ -223,9 +227,8 @@ const form = computed(() => {
           component: RoomTabSettingsTextArea,
           placeholder: t("rooms.settings.none_placeholder"),
           full_width: true,
-          max: 500,
+          max: settingsStore.getSetting("bbb.welcome_message_limit"),
           row: 3,
-          expert: true,
         },
       ],
     },
@@ -236,19 +239,16 @@ const form = computed(() => {
           setting: "record_attendance",
           label: t("rooms.settings.recordings.record_attendance"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "record",
           label: t("rooms.settings.recordings.record_video_conference"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "auto_start_recording",
           label: t("rooms.settings.recordings.auto_start_recording"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
       ],
     },
@@ -259,19 +259,16 @@ const form = computed(() => {
           setting: "lock_settings_disable_cam",
           label: t("rooms.settings.restrictions.lock_settings_disable_cam"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "webcams_only_for_moderator",
           label: t("rooms.settings.restrictions.webcams_only_for_moderator"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "lock_settings_disable_mic",
           label: t("rooms.settings.restrictions.lock_settings_disable_mic"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "lock_settings_disable_public_chat",
@@ -279,7 +276,6 @@ const form = computed(() => {
             "rooms.settings.restrictions.lock_settings_disable_public_chat",
           ),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "lock_settings_disable_private_chat",
@@ -287,19 +283,16 @@ const form = computed(() => {
             "rooms.settings.restrictions.lock_settings_disable_private_chat",
           ),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "lock_settings_disable_note",
           label: t("rooms.settings.restrictions.lock_settings_disable_note"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "lock_settings_hide_user_list",
           label: t("rooms.settings.restrictions.lock_settings_hide_user_list"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
       ],
     },
@@ -310,7 +303,6 @@ const form = computed(() => {
           setting: "allow_membership",
           label: t("rooms.settings.participants.allow_membership"),
           component: RoomTabSettingsToggleSwitch,
-          expert: true,
         },
         {
           setting: "default_role",
@@ -320,7 +312,6 @@ const form = computed(() => {
             { value: 1, label: t("rooms.roles.participant") },
             { value: 2, label: t("rooms.roles.moderator") },
           ],
-          expert: true,
         },
       ],
     },
@@ -338,7 +329,6 @@ const form = computed(() => {
             },
             { value: 1, label: t("rooms.settings.advanced.visibility.public") },
           ],
-          expert: true,
         },
       ],
     },
@@ -351,7 +341,9 @@ const form = computed(() => {
   // Filter sections based on the expert mode
   // remove section if expert mode is disabled and all items are expert items
   return sections.filter((section) => {
-    return section.items.some((item) => !item.expert);
+    return section.items.some(
+      (item) => !ROOM_SETTINGS_DEFINITION[item.setting]?.expert_setting,
+    );
   });
 });
 
@@ -441,14 +433,6 @@ function load() {
 }
 
 /**
- * Create a new access code for the room
- */
-function createAccessCode() {
-  settings.value.access_code =
-    Math.floor(Math.random() * (999999999 - 111111112)) + 111111111;
-}
-
-/**
  * Toggle the expert mode for this room and reset expert settings when opening expert mode
  */
 function toggleExpertMode() {
@@ -460,50 +444,21 @@ function toggleExpertMode() {
 }
 
 /**
- * Reset the room settings to the values defined in the room type
- * @param resetToDefaults indicates if the settings should be reset to the default values of the room type
- */
-function resetToRoomTypeSettings(resetToDefaults = false) {
-  // Reset the value of all other settings
-  for (const setting in ROOM_SETTINGS_DEFINITION) {
-    resetSetting(setting, resetToDefaults);
-  }
-}
-
-/**
  *  Reset all expert settings back to the default values defined in the room type.
  *  Clear the settings that don't have a default setting in the room type.
  */
 function resetExpertSettings() {
   // Reset settings that have a default setting in the room type
   for (const setting in ROOM_SETTINGS_DEFINITION) {
-    if (ROOM_SETTINGS_DEFINITION[setting].expert_setting) {
-      resetSetting(setting);
+    if (
+      ROOM_SETTINGS_DEFINITION[setting].expert_setting &&
+      ROOM_SETTINGS_DEFINITION[setting].has_no_room_type_default !== true
+    ) {
+      resetSetting(settings, setting);
     }
   }
   // Reset settings that don't have a default setting in the room type
   settings.value.welcome = "";
-}
-
-/**
- * Reset the value of a single setting
- * (must exist in the room and have an enforced and default setting in the room type)
- * @param settingName setting name of the setting that should be reset
- * @param resetToDefaults indicates if setting should be reset to the default value of the room type
- */
-function resetSetting(settingName, resetToDefaults = true) {
-  // Reset value of the setting in the room back to the default setting of the room type
-  // if the setting is enforced or resetToDefaults is true
-  // or the expert mode is not active and the setting is an expert setting
-  if (
-    resetToDefaults ||
-    settings.value.room_type[settingName + "_enforced"] ||
-    (ROOM_SETTINGS_DEFINITION[settingName]?.expert_setting &&
-      !settings.value.expert_mode)
-  ) {
-    settings.value[settingName] =
-      settings.value.room_type[settingName + "_default"];
-  }
 }
 
 /**
@@ -518,30 +473,12 @@ const disabled = computed(() => {
 });
 
 /**
- * Count the chars of the welcome message
- * @returns {string} amount of chars in comparison to the limit
- */
-const charactersLeftWelcomeMessage = computed(() => {
-  const char = settings.value.welcome ? settings.value.welcome.length : 0;
-  return char + " / " + settingsStore.getSetting("bbb.welcome_message_limit");
-});
-
-/**
- * Count the chars of the short description
- * @returns {string} amount of chars in comparison to the limit
- */
-const charactersLeftShortDescription = computed(() => {
-  const char = settings.value.short_description
-    ? settings.value.short_description.length
-    : 0;
-  return char + " / " + 300;
-});
-
-/**
  * Show alert if simultaneously default role is moderator and waiting room is active
  */
-const showLobbyAlert = computed(() => {
-  return settings.value.default_role === 2 && settings.value.lobby === 1;
+const lobbyAlert = computed(() => {
+  if (settings.value.default_role === 2 && settings.value.lobby === 1)
+    return t("rooms.settings.video_conference.lobby.alert");
+  return null;
 });
 
 onMounted(() => {

@@ -5,29 +5,34 @@
     :data-test="'room-setting-' + setting"
     :class="
       full_width
-        ? 'col-span-12 row-span-2 grid grid-rows-subgrid'
-        : 'col-span-12 row-span-2 grid grid-rows-subgrid md:col-span-6 xl:col-span-3'
+        ? 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
+        : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
   >
     <span
       :id="'room-setting-' + setting + '-label'"
-      class="flex items-center gap-2"
+      class="mb-2 flex items-center gap-2"
     >
       <RoomSettingEnforcedIcon v-if="model.room_type[setting + '_enforced']" />
       {{ label }}
     </span>
-    <SelectButton
-      :allow-empty="false"
-      class="shrink-0"
-      data-key="value"
-      option-label="label"
-      option-value="value"
-      v-model="model[setting]"
-      :options="options"
-      :disabled="disabled || model.room_type[setting + '_enforced']"
-      :invalid="formErrors.fieldInvalid(setting)"
-    />
-    <FormError :errors="formErrors.fieldError(setting)" />
+    <div class="flex flex-col gap-2">
+      <SelectButton
+        :allow-empty="false"
+        class="shrink-0"
+        data-key="value"
+        option-label="label"
+        option-value="value"
+        v-model="model[setting]"
+        :options="options"
+        :disabled="disabled || model.room_type[setting + '_enforced']"
+        :invalid="invalid"
+      />
+      <FormError :errors="errors" />
+      <InlineNote v-if="warningMessage" severity="warn">
+        {{ warningMessage }}
+      </InlineNote>
+    </div>
   </div>
 </template>
 
@@ -39,15 +44,15 @@ import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 const model = defineModel({ type: Object });
 
 const props = defineProps({
-  room: {
-    type: Object,
-    required: true,
-  },
   disabled: {
     type: Boolean,
     required: true,
   },
-  formErrors: {
+  invalid: {
+    type: Boolean,
+    required: false,
+  },
+  errors: {
     type: Object,
     required: true,
   },
@@ -67,6 +72,10 @@ const props = defineProps({
   label: {
     type: String,
     required: true,
+  },
+  warningMessage: {
+    type: String,
+    required: false,
   },
 });
 </script>

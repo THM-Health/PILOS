@@ -10,11 +10,11 @@
     <div class="row-start-2">
       <div class="flex items-center gap-2">
         <ToggleSwitch
-          :id="'room-setting-' + setting"
+          :input-id="'room-setting-' + setting"
           v-model="model[setting]"
           :disabled="disabled || model.room_type[setting + '_enforced']"
           :placeholder="placeholder"
-          :invalid="formErrors.fieldInvalid(setting)"
+          :invalid="invalid"
           class="shrink-0"
         />
         <label :for="'room-setting-' + setting" class="flex items-center gap-2">
@@ -24,7 +24,10 @@
           {{ label }}</label
         >
       </div>
-      <FormError :errors="formErrors.fieldError(setting)" />
+      <FormError :errors="errors" />
+      <InlineNote v-if="warningMessage" severity="warn">
+        {{ warningMessage }}
+      </InlineNote>
     </div>
   </div>
 </template>
@@ -37,15 +40,15 @@ import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 const model = defineModel({ type: Object });
 
 const props = defineProps({
-  room: {
-    type: Object,
-    required: true,
-  },
   disabled: {
     type: Boolean,
     required: true,
   },
-  formErrors: {
+  invalid: {
+    type: Boolean,
+    required: false,
+  },
+  errors: {
     type: Object,
     required: true,
   },
@@ -65,6 +68,10 @@ const props = defineProps({
   label: {
     type: String,
     required: true,
+  },
+  warningMessage: {
+    type: String,
+    required: false,
   },
 });
 </script>
