@@ -20,7 +20,7 @@
     "@cypress/code-coverage": "^3.13.12",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
-    "@eslint/json": "^0.10.0",
+    "@eslint/json": "^0.11.0",
     "@intlify/eslint-plugin-vue-i18n": "^4.0.0",
     "cypress": "^14.2.0",
     "eslint": "^9.23.0",
