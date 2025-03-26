@@ -27,7 +27,7 @@
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-cypress": "^4.1.0",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jsonc": "^2.19.1",
+    "eslint-plugin-jsonc": "^2.20.0",
     "eslint-plugin-mocha": "^10.5.0",
     "eslint-plugin-vue": "^10.0.0",
     "globals": "^15.15.0",
