@@ -10,8 +10,8 @@
     <div class="row-start-2">
       <div class="flex items-center gap-2">
         <ToggleSwitch
-          :input-id="'room-setting-' + setting"
           v-model="model[setting]"
+          :input-id="'room-setting-' + setting"
           :disabled="disabled || model.room_type[setting + '_enforced']"
           :placeholder="placeholder"
           :invalid="invalid"
@@ -34,12 +34,11 @@
 
 <script setup>
 import FormError from "./FormError.vue";
-import { computed } from "vue";
 import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 
 const model = defineModel({ type: Object });
 
-const props = defineProps({
+defineProps({
   disabled: {
     type: Boolean,
     required: true,

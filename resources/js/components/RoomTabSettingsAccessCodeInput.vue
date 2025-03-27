@@ -3,12 +3,14 @@
     :data-test="'room-setting-' + setting"
     class="col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3"
   >
-    <label :for="'room-setting-' + setting" class="mb-2">
-      <RoomSettingEnforcedIcon
-        v-if="model.room_type.has_access_code_enforced"
-      />
-      {{ label }}</label
-    >
+    <div class="mb-2 flex flex-col justify-end">
+      <label :for="'room-setting-' + setting">
+        <RoomSettingEnforcedIcon
+          v-if="model.room_type.has_access_code_enforced"
+        />
+        {{ label }}</label
+      >
+    </div>
     <div class="flex flex-col gap-2">
       <InputGroup>
         <!-- Generate random access code -->

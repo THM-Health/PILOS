@@ -7,9 +7,9 @@
         </template>
 
         <div
-          v-for="(section, index) in form"
+          v-for="(section, sectionIndex) in form"
+          :key="sectionIndex"
           class="grid grid-cols-12 gap-4"
-          :key="index"
         >
           <div class="col-span-12">
             <h4 class="m-0 text-lg font-semibold">
@@ -17,13 +17,16 @@
             </h4>
           </div>
 
-          <template v-for="(item, index) in section.items" :key="index">
+          <template
+            v-for="(item, inputIndex) in section.items"
+            :key="inputIndex"
+          >
             <component
+              :is="item.component"
               v-if="
                 settings.expert_mode ||
                 !ROOM_SETTINGS_DEFINITION[item.setting]?.expert_setting
               "
-              :is="item.component"
               v-model="settings"
               :invalid="formErrors.fieldInvalid(item.setting)"
               :errors="formErrors.fieldError(item.setting)"
@@ -32,7 +35,7 @@
             />
           </template>
 
-          <Divider v-if="index + 1 < form.length" class="col-span-12" />
+          <Divider v-if="sectionIndex + 1 < form.length" class="col-span-12" />
         </div>
 
         <div v-if="settingsDirty" class="sticky bottom-0 px-px py-4">
@@ -186,7 +189,7 @@ const form = computed(() => {
           label: t("rooms.settings.general.short_description"),
           component: RoomTabSettingsTextArea,
           placeholder: t("rooms.settings.none_placeholder"),
-          full_width: true,
+          fullWidth: true,
           max: 300,
           row: 3,
         },
@@ -226,7 +229,7 @@ const form = computed(() => {
           label: t("rooms.settings.video_conference.welcome_message"),
           component: RoomTabSettingsTextArea,
           placeholder: t("rooms.settings.none_placeholder"),
-          full_width: true,
+          fullWidth: true,
           max: settingsStore.getSetting("bbb.welcome_message_limit"),
           row: 3,
         },
@@ -307,6 +310,7 @@ const form = computed(() => {
         {
           setting: "default_role",
           label: t("rooms.settings.participants.default_role.title"),
+          hint: t("rooms.settings.participants.default_role.only_logged_in"),
           component: RoomTabSettingsSelectButton,
           options: [
             { value: 1, label: t("rooms.roles.participant") },

@@ -3,7 +3,10 @@
     :data-test="'room-setting-' + setting"
     class="col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3"
   >
-    <label :for="'room-setting-' + setting" class="mb-2">{{ label }}</label>
+    <div class="mb-2 flex flex-col justify-end">
+      <label :for="'room-setting-' + setting">{{ label }}</label>
+      <small v-if="hint">{{ hint }}</small>
+    </div>
     <div class="flex flex-col gap-2">
       <InputText
         :id="'room-setting-' + setting"
@@ -26,7 +29,7 @@ import FormError from "./FormError.vue";
 
 const model = defineModel({ type: Object });
 
-const props = defineProps({
+defineProps({
   disabled: {
     type: Boolean,
     required: true,
@@ -52,6 +55,10 @@ const props = defineProps({
     required: true,
   },
   warningMessage: {
+    type: String,
+    required: false,
+  },
+  hint: {
     type: String,
     required: false,
   },

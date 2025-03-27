@@ -9,24 +9,36 @@
         : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
   >
-    <span
-      :id="'room-setting-' + setting + '-label'"
-      class="mb-2 flex items-center gap-2"
-    >
-      <RoomSettingEnforcedIcon v-if="model.room_type[setting + '_enforced']" />
-      {{ label }}
-    </span>
+    <div class="mb-2 flex flex-col justify-end">
+      <span
+        :id="'room-setting-' + setting + '-label'"
+        class="flex items-center gap-2"
+      >
+        <RoomSettingEnforcedIcon
+          v-if="model.room_type[setting + '_enforced']"
+        />
+        {{ label }}
+      </span>
+      <small v-if="hint">{{ hint }}</small>
+    </div>
     <div class="flex flex-col gap-2">
       <SelectButton
+        v-model="model[setting]"
         :allow-empty="false"
         class="shrink-0"
         data-key="value"
         option-label="label"
         option-value="value"
-        v-model="model[setting]"
         :options="options"
         :disabled="disabled || model.room_type[setting + '_enforced']"
         :invalid="invalid"
+        :pt="{
+          pcToggleButton: {
+            root: {
+              'data-test': 'room-setting-' + setting + '-button',
+            },
+          },
+        }"
       />
       <FormError :errors="errors" />
       <InlineNote v-if="warningMessage" severity="warn">
@@ -38,12 +50,11 @@
 
 <script setup>
 import FormError from "./FormError.vue";
-import { computed } from "vue";
 import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 
 const model = defineModel({ type: Object });
 
-const props = defineProps({
+defineProps({
   disabled: {
     type: Boolean,
     required: true,
@@ -74,6 +85,10 @@ const props = defineProps({
     required: true,
   },
   warningMessage: {
+    type: String,
+    required: false,
+  },
+  hint: {
     type: String,
     required: false,
   },

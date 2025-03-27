@@ -9,19 +9,28 @@
         : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
   >
-    <span
-      :id="'room-setting-' + setting + '-label'"
-      class="mb-2 flex items-center gap-2"
-    >
-      <RoomSettingEnforcedIcon v-if="model.room_type[setting + '_enforced']" />
-      {{ label }}
-    </span>
+    <div class="mb-2 flex flex-col justify-end">
+      <span
+        :id="'room-setting-' + setting + '-label'"
+        class="flex items-center gap-2"
+      >
+        <RoomSettingEnforcedIcon
+          v-if="model.room_type[setting + '_enforced']"
+        />
+        {{ label }}
+      </span>
+      <small v-if="hint">{{ hint }}</small>
+    </div>
     <div class="flex flex-col gap-2">
-      <div v-for="option in options" class="flex items-center gap-2">
+      <div
+        v-for="option in options"
+        :key="option.value"
+        class="flex items-center gap-2"
+      >
         <RadioButton
+          v-model="model[setting]"
           :input-id="'room-setting-' + setting + '-' + option.value"
           :name="'room-setting-' + setting"
-          v-model="model[setting]"
           :value="parseInt(option.value)"
           :disabled="disabled || model.room_type[setting + '_enforced']"
           :invalid="invalid"
@@ -41,12 +50,11 @@
 
 <script setup>
 import FormError from "./FormError.vue";
-import { computed } from "vue";
 import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 
 const model = defineModel({ type: Object });
 
-const props = defineProps({
+defineProps({
   disabled: {
     type: Boolean,
     required: true,
@@ -77,6 +85,10 @@ const props = defineProps({
     required: true,
   },
   warningMessage: {
+    type: String,
+    required: false,
+  },
+  hint: {
     type: String,
     required: false,
   },

@@ -7,7 +7,10 @@
         : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
   >
-    <label :for="'room-setting-' + setting" class="mb-2">{{ label }}</label>
+    <div class="mb-2 flex flex-col justify-end">
+      <label :for="'room-setting-' + setting">{{ label }}</label>
+      <small v-if="hint">{{ hint }}</small>
+    </div>
     <div class="flex flex-col gap-2">
       <Textarea
         :id="'room-setting-' + setting"
@@ -57,7 +60,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  full_width: {
+  fullWidth: {
     type: Boolean,
     required: false,
     default: false,
@@ -79,6 +82,10 @@ const props = defineProps({
     required: true,
   },
   warningMessage: {
+    type: String,
+    required: false,
+  },
+  hint: {
     type: String,
     required: false,
   },

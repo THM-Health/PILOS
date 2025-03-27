@@ -3,7 +3,9 @@
     :data-test="'room-setting-' + setting"
     class="col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3"
   >
-    <label :for="'room-setting-' + setting" class="mb-2">{{ label }}</label>
+    <div class="mb-2 flex flex-col justify-end">
+      <label :for="'room-setting-' + setting">{{ label }}</label>
+    </div>
     <div class="flex flex-col gap-2">
       <InputGroup v-if="model.room_type">
         <InputText
@@ -89,12 +91,10 @@
 import { ref } from "vue";
 import _ from "lodash";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
-import RoomSettingEnforcedIcon from "./RoomSettingEnforcedIcon.vue";
 import { resetSetting } from "../composables/useRoomHelpers.js";
 const model = defineModel({ type: Object });
 
-const emit = defineEmits(["roomTypeChanged"]);
-const props = defineProps({
+defineProps({
   setting: {
     type: String,
     required: true,
