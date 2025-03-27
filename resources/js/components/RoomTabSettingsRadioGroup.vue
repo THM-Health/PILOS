@@ -4,7 +4,7 @@
     :aria-labelledby="'room-setting-' + setting + '-label'"
     :data-test="'room-setting-' + setting"
     :class="
-      full_width
+      fullWidth
         ? 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
         : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
@@ -71,7 +71,7 @@ defineProps({
     type: String,
     required: true,
   },
-  full_width: {
+  fullWidth: {
     type: Boolean,
     required: false,
     default: false,

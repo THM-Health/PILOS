@@ -1,7 +1,11 @@
 <template>
   <div
     :data-test="'room-setting-' + setting"
-    class="col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3"
+    :class="
+      fullWidth
+        ? 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
+        : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
+    "
   >
     <div class="mb-2 flex flex-col justify-end">
       <label :for="'room-setting-' + setting">
@@ -78,6 +82,11 @@ const props = defineProps({
   setting: {
     type: String,
     required: true,
+  },
+  fullWidth: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
   placeholder: {
     type: String,
