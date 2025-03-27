@@ -404,15 +404,12 @@ return [
         'title' => 'Settings',
         'unsaved_changes' => 'Caution! Room settings have been changed but not yet saved.',
         'video_conference' => [
-            'allow_starting' => 'Start meeting',
-            'attendance' => 'Attendance',
             'everyone_can_start' => 'Everyone can start the meeting',
             'lobby' => [
                 'alert' => 'Default role is set to moderator: Waiting room is active only for guests and already existing members with participant role!',
                 'only_for_guests_enabled' => 'Enabled only for guests',
                 'title' => 'Waiting room',
             ],
-            'microphone' => 'Microphone',
             'mute_on_start' => 'Mute microphone on join',
             'title' => 'Video conference',
             'welcome_message' => 'Welcome message',
