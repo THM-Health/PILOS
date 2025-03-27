@@ -364,7 +364,6 @@ return [
             'access_code_enforced' => 'The room type enforces the existence of an access code',
             'access_code_prohibited' => 'The room type enforces the absence of an access code',
             'allow' => 'Allow',
-            'allow_everyone' => 'Allow everyone',
             'allow_guests' => 'Allow guests',
             'chars' => 'Characters: :chars',
             'delete_access_code' => 'Remove access code',
@@ -404,15 +403,12 @@ return [
         'title' => 'Settings',
         'unsaved_changes' => 'Caution! Room settings have been changed but not yet saved.',
         'video_conference' => [
-            'allow_starting' => 'Start meeting',
-            'attendance' => 'Attendance',
             'everyone_can_start' => 'Everyone can start the meeting',
             'lobby' => [
                 'alert' => 'Default role is set to moderator: Waiting room is active only for guests and already existing members with participant role!',
                 'only_for_guests_enabled' => 'Enabled only for guests',
                 'title' => 'Waiting room',
             ],
-            'microphone' => 'Microphone',
             'mute_on_start' => 'Mute microphone on join',
             'title' => 'Video conference',
             'welcome_message' => 'Welcome message',

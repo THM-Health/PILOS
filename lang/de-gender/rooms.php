@@ -361,7 +361,6 @@ return [
             'access_code_enforced' => 'Die Raumart erzwingt, dass ein Zugangscode existiert',
             'access_code_prohibited' => 'Die Raumart erzwingt, dass kein Zugangscode existiert',
             'allow' => 'Erlauben',
-            'allow_everyone' => 'Jedem erlauben',
             'allow_guests' => 'Gäste zulassen',
             'chars' => 'Zeichen: :chars',
             'delete_access_code' => 'Zugangscode entfernen',
@@ -400,15 +399,12 @@ return [
         ],
         'title' => 'Einstellungen',
         'video_conference' => [
-            'allow_starting' => 'Meeting starten',
-            'attendance' => 'Anwesenheit',
             'everyone_can_start' => 'Jeder darf das Meeting starten',
             'lobby' => [
                 'alert' => 'Standardrolle ist auf Moderator gesetzt: Warteraum ist nur für Gäste und bereits bestehende Mitglieder mit Teilnehmerrolle aktiv!',
                 'only_for_guests_enabled' => 'Aktiviert für Gäste',
                 'title' => 'Warteraum',
             ],
-            'microphone' => 'Mikrofon',
             'mute_on_start' => 'Mikrofon bei Beitritt stummschalten',
             'title' => 'Videokonferenz',
             'welcome_message' => 'Begrüßungsnachricht',
