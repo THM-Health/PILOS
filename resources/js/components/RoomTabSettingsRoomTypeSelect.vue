@@ -125,8 +125,9 @@ defineProps({
     required: true,
   },
   warningMessage: {
-    type: String,
+    type: [String, null],
     required: false,
+    default: null,
   },
 });
 

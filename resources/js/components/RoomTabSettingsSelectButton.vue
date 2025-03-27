@@ -77,7 +77,7 @@ defineProps({
     default: false,
   },
   options: {
-    type: Object,
+    type: Array,
     required: true,
   },
   label: {
@@ -85,12 +85,14 @@ defineProps({
     required: true,
   },
   warningMessage: {
-    type: String,
+    type: [String, null],
     required: false,
+    default: null,
   },
   hint: {
-    type: String,
+    type: [String, null],
     required: false,
+    default: null,
   },
 });
 </script>

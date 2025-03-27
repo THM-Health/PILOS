@@ -13,7 +13,6 @@
           v-model="model[setting]"
           :input-id="'room-setting-' + setting"
           :disabled="disabled || model.room_type[setting + '_enforced']"
-          :placeholder="placeholder"
           :invalid="invalid"
           class="shrink-0"
         />
@@ -60,17 +59,14 @@ defineProps({
     required: false,
     default: false,
   },
-  placeholder: {
-    type: String,
-    required: false,
-  },
   label: {
     type: String,
     required: true,
   },
   warningMessage: {
-    type: String,
+    type: [String, null],
     required: false,
+    default: null,
   },
 });
 </script>

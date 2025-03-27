@@ -89,16 +89,18 @@ const props = defineProps({
     default: false,
   },
   placeholder: {
-    type: String,
+    type: [String, null],
     required: false,
+    default: null,
   },
   label: {
     type: String,
     required: true,
   },
   warningMessage: {
-    type: String,
+    type: [String, null],
     required: false,
+    default: null,
   },
 });
 
