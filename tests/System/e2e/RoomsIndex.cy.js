@@ -137,9 +137,16 @@ describe("Room Index", function () {
     // Filter by room type
     cy.get('[data-test="room-type-dropdown"]').click();
     cy.get('[data-test="room-type-dropdown-items"]').within(() => {
-      cy.get(".p-select-option").eq(1).click();
+      cy.get(".p-select-option").eq(2).click();
     });
     cy.get('[data-test="room-card"]').should("have.length", 2);
+
+    // Clear room type filter
+    cy.get('[data-test="room-type-dropdown"]').click();
+    cy.get('[data-test="room-type-dropdown-items"]').within(() => {
+      cy.get(".p-select-option").eq(0).click();
+    });
+    cy.get('[data-test="room-card"]').should("have.length", 5);
   });
 
   it("click on room card to open room view", function () {
