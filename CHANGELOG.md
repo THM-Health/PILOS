@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump base PHP image to 8.4 ([#1937])
 - Hide locale select in main nav if only one locale is enabled ([#1920])
+- Improve accessibility for room type filter on the room overview page ([#1988])
+- Improve accessibility for room type replacement in the room type delete dialog ([#1988])
 
 ### Fixed
 
@@ -429,6 +431,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1937]: https://github.com/THM-Health/PILOS/pull/1937
 [#1940]: https://github.com/THM-Health/PILOS/pull/1940
 [#1960]: https://github.com/THM-Health/PILOS/pull/1960
+[#1988]: https://github.com/THM-Health/PILOS/pull/1988
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
