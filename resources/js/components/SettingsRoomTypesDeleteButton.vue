@@ -42,12 +42,12 @@
           :class="{
             'p-invalid': formErrors.fieldInvalid('replacement_room_type'),
           }"
-          :options="replacementRoomTypes"
-          :placeholder="$t('admin.room_types.delete.no_replacement')"
+          :options="replacementRoomTypeOptions"
+          option-group-label="index"
+          option-group-children="items"
           option-value="value"
           option-label="text"
           aria-describedby="replacement-help"
-          show-clear
           :pt="{
             listContainer: {
               'data-test': 'replacement-room-type-dropdown-items',
@@ -55,14 +55,17 @@
             option: {
               'data-test': 'replacement-room-type-dropdown-option',
             },
+            optionGroup: 'p-0',
           }"
         >
-          <template #clearicon="{ clearCallback }">
-            <i
-              class="fa-solid fa-times p-icon p-select-clear-icon"
-              role="button"
-              @click.stop="clearCallback"
-            />
+          <template #optiongroup="slotProps">
+            <Divider v-if="slotProps.option.index > 0" class="my-1" />
+            <div v-else />
+          </template>
+          <template #option="slotProps">
+            <span :class="{ italic: slotProps.option.value === 0 }">{{
+              slotProps.option.text
+            }}</span>
           </template>
         </Select>
         <Button
@@ -101,13 +104,15 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import env from "../env.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
+import { useI18n } from "vue-i18n";
 
 const formErrors = useFormErrors();
 const api = useApi();
+const { t } = useI18n();
 
 const props = defineProps({
   id: {
@@ -124,7 +129,7 @@ const emit = defineEmits(["deleted", "notFound"]);
 
 const modalVisible = ref(false);
 const isBusy = ref(false);
-const replacement = ref(null);
+const replacement = ref(0);
 const replacementRoomTypes = ref([]);
 const loadingRoomTypes = ref(false);
 const replacementRoomTypesLoadingError = ref(false);
@@ -135,7 +140,7 @@ const replacementRoomTypesLoadingError = ref(false);
  */
 function showModal() {
   formErrors.clear();
-  replacement.value = null;
+  replacement.value = 0;
   loadReplacementRoomTypes();
   modalVisible.value = true;
 }
@@ -177,7 +182,10 @@ function deleteRoomType() {
   api
     .call(`roomTypes/${props.id}`, {
       method: "delete",
-      data: { replacement_room_type: replacement.value },
+      data: {
+        replacement_room_type:
+          replacement.value === 0 ? null : replacement.value,
+      },
     })
     .then(() => {
       modalVisible.value = false;
@@ -202,4 +210,17 @@ function deleteRoomType() {
       isBusy.value = false;
     });
 }
+
+const replacementRoomTypeOptions = computed(() => {
+  return [
+    {
+      index: 0,
+      items: [{ text: t("admin.room_types.delete.no_replacement"), value: 0 }],
+    },
+    {
+      index: 1,
+      items: replacementRoomTypes.value,
+    },
+  ];
+});
 </script>
