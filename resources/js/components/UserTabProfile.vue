@@ -92,7 +92,7 @@
             <UserProfileImageSelector
               :image="model.image"
               :disabled="isBusy"
-              :view-only="viewOnly"
+              :view-only="viewOnly || model.external_image"
               :firstname="model.firstname"
               :lastname="model.lastname"
               :image-deleted="imageDeleted"
