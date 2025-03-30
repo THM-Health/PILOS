@@ -207,6 +207,15 @@ class UserController extends Controller
         if ($request->has('bbb_skip_check_audio')) {
             $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
         }
+        if ($request->has('consent_to_presence_recording')) {
+            $user->consent_to_presence_recording = $request->consent_to_presence_recording;
+        }
+        if ($request->has('consent_to_recording')) {
+            $user->consent_to_recording = $request->consent_to_recording;
+        }
+        if ($request->has('consent_to_recording_image')) {
+            $user->consent_to_recording_image = $request->consent_to_recording_image;
+        }
 
         $user->save();
 

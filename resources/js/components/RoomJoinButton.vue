@@ -80,7 +80,16 @@
           </div>
           <FormError
             :errors="formErrors.fieldError('consent_record_attendance')"
-          />
+            />
+            <div class="text-sm text-center mt-2">
+            <router-link
+              :to="{ name: 'profile' }"
+              class="text-primary hover:underline"
+            >
+              {{ $t("app.profile") }}
+            </router-link>
+            </div>
+
         </div>
 
         <div
@@ -117,6 +126,14 @@
             }}</label>
           </div>
           <FormError :errors="formErrors.fieldError('consent_record_video')" />
+          <div class="text-sm text-center mt-2">
+            <router-link
+              :to="{ name: 'profile' }"
+              class="text-primary hover:underline"
+            >
+              {{ $t("app.profile") }}
+            </router-link>
+            </div>
         </div>
       </div>
     </OverlayComponent>
@@ -193,16 +210,17 @@ const authStore = useAuthStore();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
-const recordAttendanceAgreement = ref(false);
+const recordAttendanceAgreement = ref(authStore.currentUser.consent_to_presence_recording);
 const showRunningMessage = ref(false);
-const recordAgreement = ref(false);
-const recordVideoAgreement = ref(false);
+const recordAgreement = ref(authStore.currentUser.consent_to_recording);
+const recordVideoAgreement = ref(authStore.currentUser.consent_to_recording_image);
 const name = ref(""); // Name of guest
 
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 const formErrors = useFormErrors();
+
 
 /**
  * Show the modal for joining / starting a room

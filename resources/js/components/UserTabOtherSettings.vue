@@ -24,6 +24,75 @@
             />
           </div>
         </div>
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="consent_to_presence_recording-field"
+        >
+          <label
+            for="consent_to_presence_recording"
+            class="col-span-12 mb-2 md:col-span-3 md:mb-0"
+            >{{ $t("admin.users.consent_to_presence_recording") }}</label
+          >
+          <div class="col-span-12 md:col-span-9">
+            <ToggleSwitch
+              v-model="model.consent_to_presence_recording"
+              input-id="consent_to_presence_recording"
+              required
+              :disabled="isBusy || viewOnly"
+              :invalid="formErrors.fieldInvalid('consent_to_presence_recording')"
+            />
+            <FormError
+              :errors="formErrors.fieldError('consent_to_presence_recording')"
+            />
+          </div>
+        </div>
+
+
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="consent_to_recording-field"
+        >
+          <label
+            for="consent_to_recording"
+            class="col-span-12 mb-2 md:col-span-3 md:mb-0"
+            >{{ $t("admin.users.consent_to_recording") }}</label
+          >
+          <div class="col-span-12 md:col-span-9">
+            <ToggleSwitch
+              v-model="model.consent_to_recording"
+              input-id="consent_to_recording"
+              required
+              :disabled="isBusy || viewOnly"
+              :invalid="formErrors.fieldInvalid('consent_to_recording')"
+            />
+            <FormError
+              :errors="formErrors.fieldError('consent_to_recording')"
+            />
+          </div>
+        </div>
+
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="consent-to-recording-image-field"
+        >
+          <label
+            for="consent_to_recording_image"
+            class="col-span-12 mb-2 md:col-span-3 md:mb-0"
+            >{{ $t("admin.users.consent_to_recording_image") }}</label
+          >
+          <div class="col-span-12 md:col-span-9">
+            <ToggleSwitch
+              v-model="model.consent_to_recording_image"
+              input-id="consent_to_recording_image"
+              required
+              :disabled="isBusy || viewOnly"
+              :invalid="formErrors.fieldInvalid('consent_to_recording_image')"
+            />
+            <FormError
+              :errors="formErrors.fieldError('consent_to_recording_image')"
+            />
+          </div>
+        </div>
 
         <div class="flex justify-end">
           <Button
@@ -98,6 +167,9 @@ function save(event) {
         _method: "PUT",
         updated_at: model.value.updated_at,
         bbb_skip_check_audio: model.value.bbb_skip_check_audio,
+        consent_to_presence_recording: model.value.consent_to_presence_recording,
+        consent_to_recording: model.value.consent_to_recording,
+        consent_to_recording_image: model.value.consent_to_recording_image,
       },
     })
     .then((response) => {

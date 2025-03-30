@@ -39,7 +39,11 @@ class User extends Authenticatable implements HasLocalePreference
      * @var array
      */
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'external_id', 'guid', 'domain', 'locale', 'bbb_skip_check_audio', 'authenticator',
+        'firstname', 'lastname', 'email', 'password', 'external_id', 'guid', 'domain', 'locale', 'bbb_skip_check_audio',
+        'consent_to_presence_recording',
+        'consent_to_recording', 
+        'consent_to_recording_image', 
+        'authenticator',
         'initial_password_set', 'timezone',
     ];
 
@@ -60,6 +64,9 @@ class User extends Authenticatable implements HasLocalePreference
     protected $casts = [
         'email_verified_at' => 'datetime',
         'bbb_skip_check_audio' => 'boolean',
+        'consent_to_presence_recording' => 'boolean',
+        'consent_to_recording' => 'boolean',
+        'consent_to_recording_image' => 'boolean',
         'initial_password_set' => 'boolean',
     ];
 
