@@ -82,7 +82,9 @@ class User extends JsonResource
                 return new RoleCollection($this->roles);
             }),
             'bbb_skip_check_audio' => $this->bbb_skip_check_audio,
-            'initial_password_set' => $this->initial_password_set,
+            'record_agreement' => $this->record_agreement,
+            'record_video_agreement' => $this->record_video_agreement,
+            'record_attendance_agreement' => $this->record_attendance_agreement,
             'timezone' => $this->timezone,
             'superuser' => $this->superuser,
         ];

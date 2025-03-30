@@ -20,6 +20,9 @@ class UserRequest extends FormRequest
         $rules = [
             'user_locale' => ['sometimes', 'required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
             'bbb_skip_check_audio' => ['sometimes', 'required', 'boolean'],
+            'record_agreement' => ['sometimes', 'required', 'boolean'],
+            'record_video_agreement' => ['sometimes', 'required', 'boolean'],
+            'record_attendance_agreement' => ['sometimes', 'required', 'boolean'],
             'timezone' => ['sometimes', 'required', 'string', Rule::in(timezone_identifiers_list())],
             'roles' => ['sometimes', 'required', 'array'],
             'roles.*' => ['sometimes', 'distinct', 'integer', 'exists:App\Models\Role,id', Rule::notIn($prohibitedRoles)],
