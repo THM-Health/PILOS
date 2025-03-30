@@ -210,10 +210,10 @@ const authStore = useAuthStore();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
-const recordAttendanceAgreement = ref(authStore.currentUser.consent_to_presence_recording);
+const recordAttendanceAgreement = ref(authStore.currentUser?.consent_to_presence_recording ?? false);
 const showRunningMessage = ref(false);
-const recordAgreement = ref(authStore.currentUser.consent_to_recording);
-const recordVideoAgreement = ref(authStore.currentUser.consent_to_recording_image);
+const recordAgreement = ref(authStore.currentUser?.consent_to_recording ?? false);
+const recordVideoAgreement = ref(authStore.currentUser?.consent_to_recording_image ?? false);
 const name = ref(""); // Name of guest
 
 const api = useApi();
