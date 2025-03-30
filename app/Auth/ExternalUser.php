@@ -5,6 +5,7 @@ namespace App\Auth;
 use App\Models\Role;
 use App\Models\User;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Storage;
 use Hash;
 use Log;
 use Str;
@@ -119,7 +120,14 @@ abstract class ExternalUser
         $eloquentUser->firstname = $this->getFirstAttributeValue('first_name');
         $eloquentUser->lastname = $this->getFirstAttributeValue('last_name');
         $eloquentUser->email = $this->getFirstAttributeValue('email');
-
+        $image = $this->getFirstAttributeValue('image');
+        if ($image) {
+            $filename = 'profile_images/' . $eloquentUser->external_id . '.jpg';
+            Storage::disk('public')->put($filename, $image);
+            $eloquentUser->image = $filename;
+            Log::info('Image found for user ({user}): {filename}.', ['user' => $eloquentUser->external_id, 'filename' => $filename]);
+        }
+        
         // Save/update user
         $eloquentUser->save();
 
