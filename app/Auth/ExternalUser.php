@@ -124,11 +124,11 @@ abstract class ExternalUser
         $eloquentUser->lastname = $this->getFirstAttributeValue('last_name');
         $eloquentUser->email = $this->getFirstAttributeValue('email');
 
-        // Sync profile image
-        $this->syncImage($eloquentUser);
-
         // Save/update user
         $eloquentUser->save();
+
+        // Sync profile image
+        $this->syncImage($eloquentUser);
 
         // Map roles
         $this->mapRoles($eloquentUser, $roles);
@@ -182,10 +182,11 @@ abstract class ExternalUser
                 // Update user with new image and hash of the image (before cropping)
                 $eloquentUser->image = $filename;
                 $eloquentUser->external_image_hash = $imageHash;
-                Log::info('Image updated for user ({user}): {filename}.', ['user' => $eloquentUser->external_id, 'filename' => $filename]);
+                $eloquentUser->save();
+                Log::info('Image updated for user ({user}): {filename}.', ['user' => $eloquentUser->getLogLabel(), 'filename' => $filename]);
             } catch (\Exception $e) {
                 Log::error('Failed to save image for user ({user}): {error}', [
-                    'user' => $eloquentUser->external_id,
+                    'user' => $eloquentUser->getLogLabel(),
                     'error' => $e->getMessage(),
                 ]);
             }
@@ -200,8 +201,9 @@ abstract class ExternalUser
                 }
                 $eloquentUser->image = null;
                 $eloquentUser->external_image_hash = null;
+                $eloquentUser->save();
 
-                Log::info('Image removed for user ({user}).', ['user' => $eloquentUser->external_id]);
+                Log::info('Image removed for user ({user}).', ['user' => $eloquentUser->getLogLabel()]);
             }
         }
     }
