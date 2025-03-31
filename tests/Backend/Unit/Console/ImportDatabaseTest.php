@@ -50,7 +50,7 @@ class ImportDatabaseTest extends TestCase
             ->assertExitCode(1);
 
         // Check if database is empty
-        $tables = Arr::pluck(Schema::getTables(), 'name');
+        $tables = Arr::pluck(Schema::getTables(schema: Schema::getCurrentSchemaName()), 'name');
         $this->assertCount(0, $tables);
 
         // Restore database
@@ -78,7 +78,7 @@ class ImportDatabaseTest extends TestCase
             ->assertExitCode(0);
 
         // Check if migration was successful
-        $tables = Arr::pluck(Schema::getTables(), 'name');
+        $tables = Arr::pluck(Schema::getTables(schema: Schema::getCurrentSchemaName()), 'name');
         $this->assertCount(1, $tables);
         $this->assertEquals('test', $tables[0]);
 
