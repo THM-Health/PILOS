@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Logo for dark mode in BBB ([#1399])
 - Livestreaming BigBlueButton meetings to an RTMP endpoint via the [BBB-Streaming-Server](https://github.com/THM-Health/BBB-Streaming-Server) ([#1697])
 - Persian/Farsi locale
+- Sync profile image from LDAP ([#1994], [#1997])
 
 ### Fixed
 
@@ -459,6 +460,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1940]: https://github.com/THM-Health/PILOS/pull/1940
 [#1960]: https://github.com/THM-Health/PILOS/pull/1960
 [#1988]: https://github.com/THM-Health/PILOS/pull/1988
+[#1994]: https://github.com/THM-Health/PILOS/issues/1994
+[#1997]: https://github.com/THM-Health/PILOS/pull/1997
 [#2015]: https://github.com/THM-Health/PILOS/pull/2015
 [#2033]: https://github.com/THM-Health/PILOS/pull/2033
 [#2053]: https://github.com/THM-Health/PILOS/pull/2053
