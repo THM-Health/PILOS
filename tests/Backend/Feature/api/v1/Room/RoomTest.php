@@ -2399,7 +2399,15 @@ class RoomTest extends TestCase
 
                 // Try starting the room without agreement, should fail
                 $this->actingAs($room->owner)
-                    ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]), [
+                        'consent_record' => false,
+                        'consent_record_video' => false,
+                    ])
+                    ->assertJsonValidationErrors(['consent_record']);
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]), [
+                        'consent_record_video' => false,
+                    ])
                     ->assertJsonValidationErrors(['consent_record']);
             } else {
                 // Try starting the room without agreement, should succeed
@@ -2422,10 +2430,11 @@ class RoomTest extends TestCase
      *
      * @return void
      */
-    public function test_start_option_streaming()
+    public function test_start_streaming()
     {
-        // Create new room
-        $room = Room::factory()->create();
+        // Create Fake BBB-Server
+        $server = Server::factory()->create();
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
 
         // List of test cases with enabled on room, roomType and global level
         // [room, roomType, global, expected_result]
@@ -2437,9 +2446,13 @@ class RoomTest extends TestCase
         ];
 
         foreach ($testCases as $case) {
-            // Configure streaming settings for room
+            // Create new room with streaming settings
+            $room = Room::factory()->create();
             $room->streaming->enabled = $case[0];
             $room->streaming->save();
+
+            // Attach server to pool of the room type
+            $room->roomType->serverPool->servers()->attach($server);
 
             // Configure streaming settings for room type
             $room->roomType->streamingSettings->enabled = $case[1];
@@ -2463,6 +2476,37 @@ class RoomTest extends TestCase
 
             // Test the expected result
             $this->assertEquals($case[3], $result->json('data.features.streaming'), $label);
+
+            // If streaming is enabled
+            if ($case[3]) {
+                // Try starting the room with agreement, should succeed
+                $bbbFaker->addCreateMeetingRequest();
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]), [
+                        'consent_streaming' => true,
+                    ])
+                    ->assertSuccessful();
+
+                // Try starting the room without agreement, should fail
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]), [
+                        'consent_streaming' => false,
+                    ])
+                    ->assertJsonValidationErrors(['consent_streaming']);
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+                    ->assertJsonValidationErrors(['consent_streaming']);
+            } else {
+                // Try starting the room without agreement, should succeed
+                $bbbFaker->addCreateMeetingRequest();
+                $this->actingAs($room->owner)
+                    ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+                    ->assertSuccessful();
+            }
+
+            // Check if the created meeting has the correct 'enabled_for_current_meeting' value
+            $room->refresh();
+            $this->assertEquals($case[3], $room->streaming->enabled_for_current_meeting, $label);
         }
     }
 
@@ -3443,9 +3487,9 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Tests if record parameter is validated based on the current running meeting
+     * Tests if record parameters are validated based on the current running meeting
      */
-    public function test_join_record_parameter()
+    public function test_join_record()
     {
         $server = Server::factory()->create();
 
@@ -3488,22 +3532,49 @@ class RoomTest extends TestCase
         // Start meeting with recording enabled
         $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
         $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
         $room->roomType->save();
         $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record' => true, 'consent_record_video' => false])
             ->assertSuccessful();
+
+        // Get result from the option request on the join endpoint
+        $result = $this->actingAs($room->owner)
+            ->optionsJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Check if recording is enabled
+        $this->assertEquals(true, $result->json('data.features.recording'));
 
         // Agree to record when meeting was started with record
         $bbbFaker->addRequest($meetingInfoRequest);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
-            ->assertSuccessful();
+        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record' => true, 'consent_record_video' => true]);
+        $result->assertSuccessful();
+
+        // Check if the join url contains the record video parameter
+        $joinUrl = $result->json('url');
+        $this->assertStringContainsString('userdata-bbb_record_video=true', $joinUrl);
+
+        // Agree to record when meeting was started with record, but without own video
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record' => true, 'consent_record_video' => false]);
+        $result->assertSuccessful();
+
+        // Check if the join url contains the record video parameter
+        $joinUrl = $result->json('url');
+        $this->assertStringContainsString('userdata-bbb_record_video=false', $joinUrl);
 
         // Don't agree when meeting was started with record
-        $bbbFaker->addRequest($meetingInfoRequest);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors(['consent_record']);
+
+        // Missing parameter when meeting was started with record
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertJsonValidationErrors(['consent_record', 'consent_record_video']);
+
+        // Check error on invalid record value
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record' => 'hello', 'consent_record_video' => 'hello'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['consent_record', 'consent_record_video']);
 
         // Change room setting to disable recording
         // should not have any effect on the current meeting
@@ -3512,27 +3583,29 @@ class RoomTest extends TestCase
 
         // Check if agreement is still required, as the meeting is still running with recording enabled
         $bbbFaker->addRequest($meetingInfoRequest);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors(['consent_record']);
 
         // Create new meeting with recording disabled
         $room = Room::factory()->create(['record' => false, 'expert_mode' => true]);
         $room->roomType->serverPool->servers()->attach($server);
-        $room->roomType->record_default = false;
-        $room->roomType->record_enforced = false;
-        $room->roomType->save();
         $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]))
             ->assertSuccessful();
 
         // Agree when meeting was started without record
         $bbbFaker->addRequest($meetingInfoRequest);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record' => true, 'consent_record_video' => false])
             ->assertSuccessful();
 
         // Don't agree when meeting was started without record
         $bbbFaker->addRequest($meetingInfoRequest);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record' => false, 'consent_record_video' => false])
+            ->assertSuccessful();
+
+        // Don't send parameter when meeting was started without record
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
             ->assertSuccessful();
 
         // Change room setting to enable recording
@@ -3542,24 +3615,14 @@ class RoomTest extends TestCase
 
         // Check if agreement is still not required, as the meeting is still running with recording disabled
         $bbbFaker->addRequest($meetingInfoRequest);
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
             ->assertSuccessful();
-
-        // Check error on invalid record value
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => 'hello', 'consent_record_video' => false])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['consent_record']);
-
-        // Check error on missing record value
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record_video' => false])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['consent_record']);
     }
 
     /**
-     * Tests if record video parameter is validated and passed to BBB in the join url on join
+     * Tests if record attendance parameter is validated based on the current running meeting
      */
-    public function test_join_record_video_parameter()
+    public function test_join_attendance_recording()
     {
         $server = Server::factory()->create();
 
@@ -3599,35 +3662,214 @@ class RoomTest extends TestCase
             return Http::response($xml);
         };
 
-        // Start meeting with recording enabled
-        $room = Room::factory()->create(['record' => true]);
+        // Start meeting with attendance recording enabled
+        $room = Room::factory()->create(['record_attendance' => true, 'expert_mode' => true]);
         $room->roomType->serverPool->servers()->attach($server);
+        $room->roomType->save();
         $bbbFaker->addCreateMeetingRequest();
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false])
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true])
             ->assertSuccessful();
 
-        // Agree to record own video
+        // Get result from the option request on the join endpoint
+        $result = $this->actingAs($room->owner)
+            ->optionsJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Check if attendance recording is enabled
+        $this->assertEquals(true, $result->json('data.features.attendance_recording'));
+
+        // Agree to attendance recording when meeting was started with attendance recording
         $bbbFaker->addRequest($meetingInfoRequest);
-        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => true]);
-        $result->assertSuccessful();
-        $joinUrl = $result->json('url');
-        $this->assertStringContainsString('userdata-bbb_record_video=true', $joinUrl);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true])
+            ->assertSuccessful();
 
-        // Don't record own video
+        // Don't agree when meeting was started with attendance recording
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false])
+            ->assertJsonValidationErrors(['consent_record_attendance']);
+
+        // Missing parameter when meeting was started with attendance recording
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertJsonValidationErrors(['consent_record_attendance']);
+
+        // Check error on invalid record value
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => 'hello'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['consent_record_attendance']);
+
+        // Change room setting to disable attendance recording
+        // should not have any effect on the current meeting
+        $room->record_attendance = false;
+        $room->save();
+
+        // Check if agreement is still required, as the meeting is still running with attendance recording enabled
         $bbbFaker->addRequest($meetingInfoRequest);
-        $result = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => true, 'consent_record_video' => false]);
-        $result->assertSuccessful();
-        $joinUrl = $result->json('url');
-        $this->assertStringContainsString('userdata-bbb_record_video=false', $joinUrl);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false])
+            ->assertJsonValidationErrors(['consent_record_attendance']);
 
-        // Check error on invalid record video value
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => 'hello'])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['consent_record_video']);
+        // Create new meeting with attendance recording disabled
+        $room = Room::factory()->create(['record_attendance' => false, 'expert_mode' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]))
+            ->assertSuccessful();
 
-        // Check error on missing record video value
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false])
+        // Agree when meeting was started without attendance recording
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true])
+            ->assertSuccessful();
+
+        // Don't agree when meeting was started without attendance recording
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false])
+            ->assertSuccessful();
+
+        // Don't send parameter when meeting was started without attendance recording
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Change room setting to enable attendance recording
+        // should not have any effect on the current meeting
+        $room->record_attendance = true;
+        $room->save();
+
+        // Check if agreement is still not required, as the meeting is still running with attendance recording disabled
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
+    }
+
+    /**
+     * Tests if streaming parameter is validated based on the current running meeting
+     */
+    public function test_join_streaming()
+    {
+        config(['streaming.enabled' => true]);
+
+        $server = Server::factory()->create();
+
+        // Create Fake BBB-Server
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Fake meeting info request to simulate running meeting
+        $meetingInfoRequest = function (Request $request) {
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        };
+
+        // Start meeting with streaming enabled
+        $room = Room::factory()->create();
+        $room->streaming->enabled = true;
+        $room->streaming->save();
+        $room->roomType->streamingSettings->enabled = true;
+        $room->roomType->streamingSettings->save();
+        $room->roomType->serverPool->servers()->attach($server);
+        $room->roomType->save();
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_streaming' => true])
+            ->assertSuccessful();
+
+        // Get result from the option request on the join endpoint
+        $result = $this->actingAs($room->owner)
+            ->optionsJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Check if streaming is enabled
+        $this->assertEquals(true, $result->json('data.features.streaming'));
+
+        // Agree to streaming when meeting was started with streaming
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_streaming' => true])
+            ->assertSuccessful();
+
+        // Don't agree when meeting was started with streaming
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_streaming' => false])
+            ->assertJsonValidationErrors(['consent_streaming']);
+
+        // Missing parameter when meeting was started with streaming
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertJsonValidationErrors(['consent_streaming']);
+
+        // Check error on invalid streaming value
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_streaming' => 'hello'])
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['consent_record_video']);
+            ->assertJsonValidationErrors(['consent_streaming']);
+
+        // Change all setting to disable streaming
+        // should not have any effect on the current meeting
+        $room->streaming->enabled = false;
+        $room->streaming->save();
+        $room->roomType->streamingSettings->enabled = true;
+        $room->roomType->streamingSettings->save();
+        config(['streaming.enabled' => false]);
+
+        // Check if agreement is still required, as the meeting is still running with streaming enabled
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_streaming' => false])
+            ->assertJsonValidationErrors(['consent_streaming']);
+
+        // Create new meeting with streaming disabled
+        config(['streaming.enabled' => true]);
+        $room = Room::factory()->create();
+        $room->streaming->enabled = false;
+        $room->streaming->save();
+        $room->roomType->streamingSettings->enabled = true;
+        $room->roomType->streamingSettings->save();
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Agree when meeting was started without streaming
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_streaming' => true])
+            ->assertSuccessful();
+
+        // Don't agree when meeting was started without streaming
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_streaming' => false])
+            ->assertSuccessful();
+
+        // Don't send parameter when meeting was started without streaming
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Change room setting to enable streaming
+        // should not have any effect on the current meeting
+        $room->streaming->enabled = false;
+        $room->streaming->save();
+
+        // Check if agreement is still not required, as the meeting is still running with streaming disabled
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
     }
 }

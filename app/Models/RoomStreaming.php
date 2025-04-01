@@ -24,6 +24,7 @@ class RoomStreaming extends Model
 
     protected $casts = [
         'enabled' => 'boolean',
+        'enabled_for_current_meeting' => 'boolean',
     ];
 
     protected $with = ['room'];
