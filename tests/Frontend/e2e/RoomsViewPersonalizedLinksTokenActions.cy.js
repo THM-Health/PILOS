@@ -740,9 +740,9 @@ describe("Rooms view personalized links token actions", function () {
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(0)
       .find('[data-test="room-personalized-links-copy-button"]')
-      .click();
+      .realClick();
 
-    // Close dialog with copy and close button
+    // Check clipboard content
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
