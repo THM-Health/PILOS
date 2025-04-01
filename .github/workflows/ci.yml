@@ -264,6 +264,7 @@ jobs:
       - name: Cypress run frontend tests
         uses: cypress-io/github-action@v6
         with:
+          browser: chrome
           wait-on: "http://localhost:9080" # Waits for above
           group: "Frontend tests"
           parallel: true
@@ -327,6 +328,7 @@ jobs:
       - name: Run cypress
         uses: cypress-io/github-action@v6
         with:
+          browser: chrome
           command-prefix: happo-e2e -- npx
           group: "Visual tests"
           record: true
@@ -387,6 +389,7 @@ jobs:
       - name: Cypress run system tests
         uses: cypress-io/github-action@v6
         with:
+          browser: chrome
           wait-on: "http://localhost:9080" # Waits for above
           group: "System tests"
           record: true
