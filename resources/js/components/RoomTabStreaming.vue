@@ -69,7 +69,10 @@
         >
       </div>
 
-      <div class="flex flex-row flex-wrap gap-2">
+      <div
+        class="flex flex-row flex-wrap gap-2"
+        v-if="userPermissions.can('manageSettings', props.room)"
+      >
         <ButtonGroup>
           <Button
             :label="$t('rooms.streaming.start')"
@@ -118,7 +121,7 @@
       </div>
     </div>
     <div class="flex gap-2 self-end sm:self-start">
-      <RoomTabStreamingConfigButton :room-id="props.room.id" />
+      <RoomTabStreamingConfigButton :room="props.room" />
       <Button
         severity="secondary"
         icon="fa-solid fa-sync"
@@ -136,6 +139,7 @@ import { useApi } from "../composables/useApi.js";
 import RoomTabStreamingConfigButton from "./RoomTabStreamingConfigButton.vue";
 import env from "../env.js";
 import { useSettingsStore } from "../stores/settings.js";
+import { useUserPermissions } from "../composables/useUserPermission.js";
 
 const streamingState = ref("stopped");
 const streamingEnabled = ref(false);
@@ -143,6 +147,7 @@ const fps = ref(0);
 
 const api = useApi();
 const settingsStore = useSettingsStore();
+const userPermissions = useUserPermissions();
 
 const emit = defineEmits(["settingsChanged"]);
 

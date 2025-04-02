@@ -14,9 +14,27 @@ class UpdateRoomStreamingSettings extends FormRequest
     public function rules()
     {
         return [
-            'streaming_enabled' => ['required', 'boolean'],
-            'streaming_url' => ['nullable', 'required_if_accepted:streaming_enabled', 'string', 'url:rtmp,rtmps', 'max:255'],
-            'streaming_pause_image' => ['nullable', 'image', 'max:5000', 'dimensions:width=1920,height=1080'], // 5 MB
+            'enabled' => ['required', 'boolean'],
+            'url' => ['nullable', 'required_if_accepted:enabled', 'string', 'url:rtmp,rtmps', 'max:255'],
+            'pause_image' => ['nullable', 'image', 'max:5000', 'dimensions:width=1920,height=1080'], // 5 MB
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'url' => __('validation.attributes.streaming_url'),
+            'pause_image' => __('validation.attributes.streaming_pause_image'),
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'pause_image.dimensions' => __('validation.custom.streaming_pause_image_file.dimensions'),
+            'url.url' => __('validation.custom.streaming_url.url'),
+            'url.required_if_accepted' => __('validation.custom.streaming_url.required_if_accepted'),
+
         ];
     }
 }

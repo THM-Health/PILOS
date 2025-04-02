@@ -29,6 +29,7 @@
           @click="showModal = false"
         />
         <Button
+          v-if="userPermissions.can('manageSettings', props.room)"
           :label="$t('app.save')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction || isLoading"
@@ -48,12 +49,12 @@
           </label>
           <ToggleSwitch
             v-model="streamingEnabled"
-            :disabled="disabled || isLoadingAction || isLoading"
-            :invalid="formErrors.fieldInvalid('streaming_enabled')"
+            :disabled="formDisabled"
+            :invalid="formErrors.fieldInvalid('enabled')"
             class="shrink-0"
             input-id="streaming-enabled"
           />
-          <FormError :errors="formErrors.fieldError('streaming_enabled')" />
+          <FormError :errors="formErrors.fieldError('enabled')" />
         </div>
 
         <!-- Streaming url -->
@@ -68,10 +69,10 @@
             id="streaming-url"
             v-model="streamingUrl"
             class="w-full"
-            :disabled="disabled || isLoadingAction || isLoading"
-            :invalid="formErrors.fieldInvalid('streaming_url')"
+            :disabled="formDisabled"
+            :invalid="formErrors.fieldInvalid('url')"
           />
-          <FormError :errors="formErrors.fieldError('streaming_url')" />
+          <FormError :errors="formErrors.fieldError('url')" />
         </div>
 
         <fieldset class="grid-rows grid gap-2">
@@ -120,7 +121,7 @@
               v-model:file-url="streamingPauseImageUrl"
               v-model:file="streamingPauseImageFile"
               v-model:file-deleted="streamingPauseImageDeleted"
-              :disabled="disabled || isLoadingAction || isLoading"
+              :disabled="formDisabled"
               :max-file-size="5000000"
               :hide-url="true"
               show-delete
@@ -128,8 +129,8 @@
               :preview-alt="$t('rooms.streaming.config.pause_image_alt')"
               :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
               input-id="pause-image"
-              :file-invalid="formErrors.fieldInvalid('streaming_pause_image')"
-              :file-error="formErrors.fieldError('streaming_pause_image')"
+              :file-invalid="formErrors.fieldInvalid('pause_image')"
+              :file-error="formErrors.fieldError('pause_image')"
             />
             <small>{{ $t("rooms.streaming.config.pause_image_format") }}</small>
           </div>
@@ -142,12 +143,13 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import env from "../env.js";
+import { useUserPermissions } from "../composables/useUserPermission.js";
 
 const props = defineProps({
-  roomId: {
-    type: String,
+  room: {
+    type: Object,
     required: true,
   },
   disabled: {
@@ -160,6 +162,7 @@ const emit = defineEmits(["saved"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const userPermissions = useUserPermissions();
 
 const showModal = ref(false);
 
@@ -196,7 +199,7 @@ function loadConfig() {
   formErrors.clear();
 
   api
-    .call(`rooms/${props.roomId}/streaming/config`)
+    .call(`rooms/${props.room.id}/streaming/config`)
     .then((response) => {
       // set data
       streamingEnabled.value = response.data.data.enabled;
@@ -223,20 +226,20 @@ function save() {
   formErrors.clear();
 
   const formData = new FormData();
-  formData.append("streaming_enabled", streamingEnabled.value ? "1" : "0");
+  formData.append("enabled", streamingEnabled.value ? "1" : "0");
 
-  if (streamingUrl.value) formData.append("streaming_url", streamingUrl.value);
+  if (streamingUrl.value) formData.append("url", streamingUrl.value);
 
   if (streamingPauseImageFile.value) {
-    formData.append("streaming_pause_image", streamingPauseImageFile.value);
+    formData.append("pause_image", streamingPauseImageFile.value);
   } else if (streamingPauseImageDeleted.value) {
-    formData.append("streaming_pause_image", "");
+    formData.append("pause_image", "");
   }
 
   formData.append("_method", "PUT");
 
   api
-    .call(`rooms/${props.roomId}/streaming/config`, {
+    .call(`rooms/${props.room.id}/streaming/config`, {
       method: "POST",
       data: formData,
     })
@@ -259,4 +262,15 @@ function save() {
       isLoadingAction.value = false;
     });
 }
+
+/**
+ * Input fields are disabled: due to limited permissions, loading of settings or errors
+ */
+const formDisabled = computed(() => {
+  return (
+    !userPermissions.can("manageSettings", props.room) ||
+    isLoading.value ||
+    isLoadingAction.value
+  );
+});
 </script>

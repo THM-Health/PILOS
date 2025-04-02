@@ -191,7 +191,8 @@ return [
             'dimensions' => 'The :attribute must have a resolution of 1920x1080 pixels.',
         ],
         'streaming_url' => [
-            'url' => 'The :attribute must be a URL.',
+            'url' => 'The :attribute must be a RTMP or RTMPS URL.',
+            'required_if_accepted' => 'The :attribute field is required when streaming is enabled.',
         ],
         'banner' => [
             'array' => 'The message banner settings are missing!',

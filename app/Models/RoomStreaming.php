@@ -18,6 +18,7 @@ class RoomStreaming extends Model
     protected $fillable = [
         'room_id',
         'enabled',
+        'enabled_for_current_meeting',
         'url',
         'pause_image',
     ];

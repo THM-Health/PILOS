@@ -105,10 +105,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
 
         // Streaming operations
-        Route::middleware('can:manageStreaming,room')->scopeBindings()->group(function () {
+        Route::middleware('can:viewStreaming,room')->scopeBindings()->group(function () {
             Route::get('rooms/{room}/streaming/config', [RoomStreamingController::class, 'getConfig'])->name('rooms.streaming.config.get');
-            Route::put('rooms/{room}/streaming/config', [RoomStreamingController::class, 'updateConfig'])->name('rooms.streaming.config.update');
             Route::get('rooms/{room}/streaming/status', [RoomStreamingController::class, 'status'])->name('rooms.streaming.status');
+        });
+
+        Route::middleware('can:manageStreaming,room')->scopeBindings()->group(function () {
+            Route::put('rooms/{room}/streaming/config', [RoomStreamingController::class, 'updateConfig'])->name('rooms.streaming.config.update');
             Route::post('rooms/{room}/streaming/start', [RoomStreamingController::class, 'start'])->name('rooms.streaming.start');
             Route::post('rooms/{room}/streaming/stop', [RoomStreamingController::class, 'stop'])->name('rooms.streaming.stop');
             Route::post('rooms/{room}/streaming/pause', [RoomStreamingController::class, 'pause'])->name('rooms.streaming.pause');

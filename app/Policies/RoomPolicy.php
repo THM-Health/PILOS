@@ -261,6 +261,11 @@ class RoomPolicy
         return false;
     }
 
+    public function viewStreaming(User $user, Room $room)
+    {
+        return $user->can('manageStreaming', $room) || $user->can('rooms.viewAll');
+    }
+
     public function manageStreaming(User $user, Room $room)
     {
         return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');

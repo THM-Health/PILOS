@@ -104,7 +104,7 @@ body {
         return $this->handleResponse($response);
     }
 
-    public function start($pauseImageUrl, $rtmpUrl)
+    public function start(string $rtmpUrl, ?string $pauseImageUrl)
     {
         // Fallback if no pause image is configured in room settings
         if ($pauseImageUrl === null) {

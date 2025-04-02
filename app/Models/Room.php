@@ -455,6 +455,11 @@ class Room extends Model
 
     public function streaming(): HasOne
     {
-        return $this->hasOne(RoomStreaming::class, 'room_id', 'id')->withDefault()->chaperone('room');
+        return $this->hasOne(RoomStreaming::class, 'room_id', 'id')->withDefault(
+            [
+                'enabled' => false,
+                'enabled_for_current_meeting' => false,
+            ]
+        )->chaperone('room');
     }
 }
