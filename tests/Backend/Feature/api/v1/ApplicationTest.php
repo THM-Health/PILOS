@@ -74,6 +74,7 @@ class ApplicationTest extends TestCase
         config(['app.version' => 'v1.0.0']);
         config(['app.whitelabel' => false]);
         config(['auth.local.enabled' => true]);
+        config(['app.hide_disabled_features' => true]);
         config(['ldap.enabled' => false]);
         config(['services.shibboleth.enabled' => false]);
         config(['recording.max_retention_period' => -1]);
@@ -83,6 +84,9 @@ class ApplicationTest extends TestCase
         config(['bigbluebutton.max_filesize' => 30]);
         config(['bigbluebutton.room_name_limit' => 50]);
         config(['bigbluebutton.welcome_message_limit' => 500]);
+        config(['streaming.enabled' => false]);
+        config(['streaming.refresh_interval' => 5]);
+        config(['streaming.show_fps' => true]);
 
         $this->getJson(route('api.v1.config'))
             ->assertJson([
@@ -97,6 +101,7 @@ class ApplicationTest extends TestCase
                         'legal_notice_url' => 'http://localhost',
                         'privacy_policy_url' => 'http://localhost',
                         'no_welcome_page' => false,
+                        'hide_disabled_features' => true,
                     ],
                     'theme' => [
                         'logo' => 'testlogo.svg',
@@ -131,6 +136,11 @@ class ApplicationTest extends TestCase
                         'recording_retention_period' => 30,
                         'recording_description_limit' => 255,
                     ],
+                    'streaming' => [
+                        'enabled' => false,
+                        'refresh_interval' => 5,
+                        'show_fps' => true,
+                    ],
                     'auth' => [
                         'local' => true,
                         'ldap' => false,
@@ -164,9 +174,13 @@ class ApplicationTest extends TestCase
 
         config(['app.version' => null]);
         config(['app.whitelabel' => true]);
+        config(['app.hide_disabled_features' => false]);
         config(['bigbluebutton.room_refresh_rate' => 5]);
         config(['auth.local.enabled' => false]);
         config(['ldap.enabled' => true]);
+        config(['streaming.enabled' => true]);
+        config(['streaming.refresh_interval' => 10]);
+        config(['streaming.show_fps' => false]);
 
         $this->getJson(route('api.v1.config'))
             ->assertJson([
@@ -181,6 +195,7 @@ class ApplicationTest extends TestCase
                         'legal_notice_url' => null,
                         'privacy_policy_url' => null,
                         'no_welcome_page' => true,
+                        'hide_disabled_features' => false,
                     ],
                     'theme' => [
                         'logo' => 'testlogo.svg',
@@ -203,6 +218,11 @@ class ApplicationTest extends TestCase
                         'meeting_usage_enabled' => false,
                         'meeting_usage_retention_period' => 90,
                         'attendance_retention_period' => 14,
+                    ],
+                    'streaming' => [
+                        'enabled' => true,
+                        'refresh_interval' => 10,
+                        'show_fps' => false,
                     ],
                     'auth' => [
                         'local' => false,

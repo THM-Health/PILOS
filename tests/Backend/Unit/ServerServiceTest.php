@@ -4,6 +4,7 @@ namespace Tests\Backend\Unit;
 
 use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
+use App\Events\RoomEnded;
 use App\Models\Meeting;
 use App\Models\Server;
 use App\Models\User;
@@ -11,6 +12,7 @@ use App\Services\ServerService;
 use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
@@ -447,6 +449,10 @@ class ServerServiceTest extends TestCase
 
     public function test_end_detached_meeting_on_online()
     {
+        Event::fake([
+            RoomEnded::class,
+        ]);
+
         config([
             'bigbluebutton.server_online_threshold' => 3,
             'bigbluebutton.server_offline_threshold' => 3,
@@ -483,10 +489,16 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(ServerHealth::OFFLINE, $server->health);
         $this->assertNotNull($meeting->detached);
         $this->assertNotNull($meeting->end);
+
+        // Check if meeting ended event is fired
+        Event::assertDispatched(RoomEnded::class);
     }
 
     public function test_panic_server()
     {
+        Event::fake([
+            RoomEnded::class,
+        ]);
 
         $server = Server::factory()->create();
 
@@ -515,6 +527,9 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
         $this->assertNotNull($meeting1->end);
         $this->assertNotNull($meeting2->end);
+
+        // Check if meeting ended event is fired
+        Event::assertDispatched(RoomEnded::class);
     }
 
     public function test_panic_server_with_failed_end_meeting()

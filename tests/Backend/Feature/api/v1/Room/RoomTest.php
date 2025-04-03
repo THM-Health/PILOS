@@ -7,6 +7,7 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Enums\ServerHealth;
+use App\Events\RoomEnded;
 use App\Http\Resources\RoomType as RoomTypeResource;
 use App\Models\Meeting;
 use App\Models\Permission;
@@ -27,6 +28,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
 
@@ -1526,6 +1528,10 @@ class RoomTest extends TestCase
      */
     public function test_end_meeting_callback()
     {
+        Event::fake([
+            RoomEnded::class,
+        ]);
+
         $room = Room::factory()->create();
         $server = Server::factory()->create();
 
@@ -1537,16 +1543,22 @@ class RoomTest extends TestCase
         self::assertNull($meeting->end);
 
         $url = (new MeetingService($meeting))->getCallbackUrl();
+
         // check with invalid salt
         $this->getJson($url.'test')
             ->assertUnauthorized();
 
+        // check with valid salt
         $this->getJson($url)
             ->assertSuccessful();
 
         // Check if timestamp was set
         $meeting->refresh();
         self::assertNotNull($meeting->end);
+
+        // Check if RoomEnded Event is called
+        Event::assertDispatched(RoomEnded::class);
+
         $end = $meeting->end;
 
         // Check if second call doesn't change timestamp
@@ -2449,6 +2461,10 @@ class RoomTest extends TestCase
             // Create new room with streaming settings
             $room = Room::factory()->create();
             $room->streaming->enabled = $case[0];
+
+            // Set older status and fps values (should be reset on start)
+            $room->streaming->status = 'running';
+            $room->streaming->fps = 30;
             $room->streaming->save();
 
             // Attach server to pool of the room type
@@ -2507,6 +2523,10 @@ class RoomTest extends TestCase
             // Check if the created meeting has the correct 'enabled_for_current_meeting' value
             $room->refresh();
             $this->assertEquals($case[3], $room->streaming->enabled_for_current_meeting, $label);
+
+            // Check if status and fps values are reset
+            $this->assertNull($room->streaming->status, $label);
+            $this->assertNull($room->streaming->fps, $label);
         }
     }
 

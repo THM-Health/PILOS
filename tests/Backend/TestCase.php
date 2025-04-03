@@ -7,6 +7,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\StreamingSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Contracts\Console\Kernel;
@@ -43,6 +44,8 @@ abstract class TestCase extends BaseTestCase
 
     public BigBlueButtonSettings $bigBlueButtonSettings;
 
+    public StreamingSettings $streamingSettings;
+
     protected function setUp(): void
     {
         if (! defined('LARAVEL_START')) {
@@ -65,6 +68,7 @@ abstract class TestCase extends BaseTestCase
         $this->userSettings = app(UserSettings::class);
         $this->recordingSettings = app(RecordingSettings::class);
         $this->bigBlueButtonSettings = app(BigBlueButtonSettings::class);
+        $this->streamingSettings = app(StreamingSettings::class);
     }
 
     protected function tearDown(): void

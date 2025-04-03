@@ -6,7 +6,6 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\User;
-use App\Settings\StreamingSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -108,9 +107,8 @@ class StreamingTest extends TestCase
             ]);
 
         // Adjust global settings and room type settings
-        $streamingSettings = app(StreamingSettings::class);
-        $streamingSettings->default_pause_image = 'https://example.com/system_pause_image.png';
-        $streamingSettings->save();
+        $this->streamingSettings->default_pause_image = 'https://example.com/system_pause_image.png';
+        $this->streamingSettings->save();
 
         $lecture = RoomType::where('name', 'Lecture')->first();
         $lecture->streamingSettings->enabled = true;
@@ -246,15 +244,14 @@ class StreamingTest extends TestCase
             ])
             ->assertSuccessful();
         $this->assertNotNull($result->json('data.default_pause_image'));
-        $streamingSettings = app(StreamingSettings::class);
-        $this->assertStringStartsWith(url('/storage/images/'), $streamingSettings->default_pause_image);
+        $this->assertStringStartsWith(url('/storage/images/'), $this->streamingSettings->default_pause_image);
 
         // Validate if the file is not deleted if request is empty
         $this->actingAs($this->user)
             ->putJson(route('api.v1.streaming.update'), [])
             ->assertSuccessful();
-        $streamingSettings->refresh();
-        $this->assertNotNull($streamingSettings->default_pause_image);
+        $this->streamingSettings->refresh();
+        $this->assertNotNull($this->streamingSettings->default_pause_image);
 
         // Validate if the file is deleted if default_pause_image is null
         $result = $this->actingAs($this->user)
@@ -263,8 +260,8 @@ class StreamingTest extends TestCase
             ])
             ->assertSuccessful();
         $this->assertNull($result->json('data.default_pause_image'));
-        $streamingSettings->refresh();
-        $this->assertNull($streamingSettings->default_pause_image);
+        $this->streamingSettings->refresh();
+        $this->assertNull($this->streamingSettings->default_pause_image);
 
         // Disable streaming globally, route should be disabled
         config(['streaming.enabled' => false]);

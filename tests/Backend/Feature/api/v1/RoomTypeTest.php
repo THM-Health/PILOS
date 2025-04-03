@@ -54,6 +54,10 @@ class RoomTypeTest extends TestCase
             'visibility_enforced' => true,
         ]);
 
+        // Set room type features
+        $roomType->streamingSettings->enabled = true;
+        $roomType->streamingSettings->save();
+
         $role1 = Role::factory()->create();
         $role2 = Role::factory()->create();
 
@@ -78,6 +82,11 @@ class RoomTypeTest extends TestCase
                     'name',
                     'id',
                     'model_name',
+                    'features' => [
+                        'streaming' => [
+                            'enabled',
+                        ],
+                    ],
                 ],
             ]])
             ->assertJsonCount(4, 'data');
@@ -92,6 +101,11 @@ class RoomTypeTest extends TestCase
                     'name',
                     'id',
                     'model_name',
+                    'features' => [
+                        'streaming' => [
+                            'enabled',
+                        ],
+                    ],
                 ],
             ]])
             ->assertJsonCount(4, 'data');
@@ -106,6 +120,11 @@ class RoomTypeTest extends TestCase
                     'name',
                     'id',
                     'model_name',
+                    'features' => [
+                        'streaming' => [
+                            'enabled',
+                        ],
+                    ],
                     'everyone_can_start_default',
                     'everyone_can_start_enforced',
                     'mute_on_start_default',
@@ -147,10 +166,28 @@ class RoomTypeTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(
-                ['id' => $roomType->id, 'name' => $roomType->name, 'color' => $roomType->color]
+                [
+                    'id' => $roomType->id,
+                    'name' => $roomType->name,
+                    'color' => $roomType->color,
+                    'features' => [
+                        'streaming' => [
+                            'enabled' => true,
+                        ],
+                    ],
+                ]
             )
             ->assertJsonFragment(
-                ['id' => $roomTypePublicEnforced->id, 'name' => $roomTypePublicEnforced->name, 'color' => $roomTypePublicEnforced->color]
+                [
+                    'id' => $roomTypePublicEnforced->id,
+                    'name' => $roomTypePublicEnforced->name,
+                    'color' => $roomTypePublicEnforced->color,
+                    'features' => [
+                        'streaming' => [
+                            'enabled' => false,
+                        ],
+                    ],
+                ]
             );
 
         // Test logged in users (with different filter)
@@ -197,6 +234,10 @@ class RoomTypeTest extends TestCase
     {
         $roomType = RoomType::factory()->create();
 
+        // Set features
+        $roomType->streamingSettings->enabled = true;
+        $roomType->streamingSettings->save();
+
         // Test guests
         $this->getJson(route('api.v1.roomTypes.show', ['roomType' => $roomType->id]))
             ->assertUnauthorized();
@@ -215,7 +256,16 @@ class RoomTypeTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.show', ['roomType' => $roomType->id]))
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['id' => $roomType->id, 'name' => $roomType->name, 'color' => $roomType->color]
+                [
+                    'id' => $roomType->id,
+                    'name' => $roomType->name,
+                    'color' => $roomType->color,
+                    'features' => [
+                        'streaming' => [
+                            'enabled' => true,
+                        ],
+                    ],
+                ]
             )
             ->assertJsonStructure(['data' => [
                 'description',
@@ -224,6 +274,11 @@ class RoomTypeTest extends TestCase
                 'id',
                 'server_pool',
                 'model_name',
+                'features' => [
+                    'streaming' => [
+                        'enabled',
+                    ],
+                ],
                 'restrict',
                 'roles',
                 'updated_at',
@@ -263,6 +318,14 @@ class RoomTypeTest extends TestCase
                 'has_access_code_enforced',
                 'create_parameters',
             ]]);
+
+        // Change room features
+        $roomType->streamingSettings->enabled = false;
+        $roomType->streamingSettings->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.show', ['roomType' => $roomType->id]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.features.streaming.enabled', false);
 
         // Test deleted
         $roomType->delete();
