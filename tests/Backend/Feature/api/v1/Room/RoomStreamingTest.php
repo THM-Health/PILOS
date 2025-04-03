@@ -17,8 +17,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Storage;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\Backend\TestCase;
 
 class RoomStreamingTest extends TestCase
@@ -325,7 +325,6 @@ class RoomStreamingTest extends TestCase
      */
     public function test_access_streaming_status()
     {
-
         // Testing guests
         $this->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
             ->assertUnauthorized();
@@ -375,33 +374,56 @@ class RoomStreamingTest extends TestCase
             ->assertSuccessful();
     }
 
-    /**
-     * Test streaming status
-     */
     public function test_streaming_status()
     {
         config([
-            'streaming.api' => 'https://streaming.example.com',
-            'streaming.auth.type' => 'basic',
-            'streaming.auth.basic.username' => 'user',
-            'streaming.auth.basic.password' => 'password',
             'streaming.refresh_interval' => 10,
         ]);
 
+        // Create new meeting
+        $meeting = new Meeting;
+        $meeting->room()->associate($this->room);
+        $meeting->start = now();
+        $meeting->server()->associate(Server::factory()->create(['base_url' => 'https://bbb.example.com/bigbluebutton/']));
+        $meeting->save();
+        $this->room->latestMeeting()->associate($meeting);
+        $this->room->save();
+
+        // Set streaming settings
+        $this->room->streaming->enabled_for_current_meeting = true;
+        $this->room->streaming->save();
+
+        // Mock the action calls to the streaming service
+        $streamingServiceMock = $this->mock(StreamingService::class);
+        $streamingServiceMock->shouldReceive('getStatus')->once()->andReturn(true);
+        $streamingServiceMock->shouldReceive('getStatus')->once()->andReturn(true);
+        $streamingServiceMock->shouldReceive('getStatus')->once()->andReturn(true);
+        $streamingServiceMock->shouldReceive('getStatus')->once()->andThrow(new HttpException(CustomStatusCodes::ROOM_NOT_RUNNING->value, __('app.errors.room_not_running')));
+
+        $factoryMock = $this->mock(StreamingServiceFactory::class);
+        $factoryMock->shouldReceive('make')
+            ->with(\Mockery::on(fn ($argument) => $meeting->is($argument)))
+            ->andReturn($streamingServiceMock);
+
+        $this->instance(
+            StreamingServiceFactory::class,
+            $factoryMock
+        );
+
+        // Get status with no data
         Cache::clear();
         $this->actingAs($this->room->owner)
             ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJson([
                 'data' => [
-                    'enabled_for_current_meeting' => false,
+                    'enabled_for_current_meeting' => true,
                     'status' => null,
                     'fps' => null,
                 ],
             ]);
 
-        // Update data in the database
-        $this->room->streaming->enabled_for_current_meeting = true;
+        // Simulate streaming service updated data
         $this->room->streaming->status = 'running';
         $this->room->streaming->fps = 30;
         $this->room->streaming->save();
@@ -419,56 +441,18 @@ class RoomStreamingTest extends TestCase
                 ],
             ]);
 
-        // Create new meeting
-        $meeting = new Meeting;
-        $meeting->room()->associate($this->room);
-        $meeting->start = now();
-        $meeting->server()->associate(Server::factory()->create(['base_url' => 'https://bbb.example.com/bigbluebutton/']));
-        $meeting->save();
-        $this->room->latestMeeting()->associate($meeting);
-        $this->room->save();
-
-        $streamingJobHash = hash('sha256', $meeting->id.'@bbb.example.com');
-
-        // Mock the streaming service
-        Http::preventStrayRequests();
-        Http::fake([
-            'streaming.example.com/'.$streamingJobHash => Http::sequence()
-                ->push([
-                    'id' => $streamingJobHash,
-                    'progress' => [
-                        'status' => 'paused',
-                        'fps' => 25,
-                        'bitrate' => 4500,
-                    ],
-                ])
-                ->push([
-                    'id' => $streamingJobHash,
-                    'progress' => [
-                        'status' => 'running',
-                        'fps' => 30,
-                        'bitrate' => 4500,
-                    ],
-                ])
-                ->push('Server error', 500)
-                ->push('Job not found', 404),
-        ]);
-
-        // Test is status and fps are correctly fetched
-        Cache::clear();
-        $this->actingAs($this->room->owner)
-            ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
-            ->assertSuccessful()
-            ->assertJsonPath('data.status', 'paused')
-            ->assertJsonPath('data.fps', 25);
-
         // Check if response is cached and not re-fetched
         $this->travel(5)->seconds();
         $this->actingAs($this->room->owner)
             ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonPath('data.status', 'paused')
-            ->assertJsonPath('data.fps', 25);
+            ->assertJsonPath('data.status', 'running')
+            ->assertJsonPath('data.fps', 30);
+
+        // Simulate streaming service updated data
+        $this->room->streaming->status = 'running';
+        $this->room->streaming->fps = 25;
+        $this->room->streaming->save();
 
         // Check if response is re-fetched after cache expiration
         $this->travel(6)->seconds();
@@ -476,7 +460,7 @@ class RoomStreamingTest extends TestCase
             ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonPath('data.status', 'running')
-            ->assertJsonPath('data.fps', 30);
+            ->assertJsonPath('data.fps', 25);
 
         // Test server responds with error, should respond with last known status
         Cache::clear();
@@ -484,20 +468,7 @@ class RoomStreamingTest extends TestCase
             ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
             ->assertStatus(200)
             ->assertJsonPath('data.status', 'running')
-            ->assertJsonPath('data.fps', 30);
-
-        // Test server responds with 404
-        Cache::clear();
-        $this->actingAs($this->room->owner)
-            ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
-            ->assertSuccessful()
-            ->assertJson([
-                'data' => [
-                    'enabled_for_current_meeting' => true,
-                    'status' => null,
-                    'fps' => null,
-                ],
-            ]);
+            ->assertJsonPath('data.fps', 25);
     }
 
     /**
