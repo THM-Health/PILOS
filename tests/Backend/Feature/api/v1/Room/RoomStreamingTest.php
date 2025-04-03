@@ -477,11 +477,9 @@ class RoomStreamingTest extends TestCase
     public function test_start_stream()
     {
         $this->room->streaming->enabled_for_current_meeting = true;
-        $this->room->streaming->url = 'rtmp://example.com/live/1234';
-        $this->room->streaming->pause_image = 'https://example.com/image.jpg';
         $this->room->streaming->save();
 
-        $this->test_streaming_action('start', ['rtmp://example.com/live/1234', 'https://example.com/image.jpg'], route('api.v1.rooms.streaming.start', ['room' => $this->room]));
+        $this->test_streaming_action('start', route('api.v1.rooms.streaming.start', ['room' => $this->room]));
 
         // Test if request is blocked if streaming is not enabled
         $this->room->streaming->enabled_for_current_meeting = false;
@@ -497,7 +495,7 @@ class RoomStreamingTest extends TestCase
      */
     public function test_pause_stream()
     {
-        $this->test_streaming_action('pause', [], route('api.v1.rooms.streaming.pause', ['room' => $this->room]));
+        $this->test_streaming_action('pause', route('api.v1.rooms.streaming.pause', ['room' => $this->room]));
     }
 
     /**
@@ -505,7 +503,7 @@ class RoomStreamingTest extends TestCase
      */
     public function test_resume_stream()
     {
-        $this->test_streaming_action('resume', [], route('api.v1.rooms.streaming.resume', ['room' => $this->room]));
+        $this->test_streaming_action('resume', route('api.v1.rooms.streaming.resume', ['room' => $this->room]));
     }
 
     /**
@@ -513,11 +511,11 @@ class RoomStreamingTest extends TestCase
      */
     public function test_stop_stream()
     {
-        $this->test_streaming_action('stop', [], route('api.v1.rooms.streaming.stop', ['room' => $this->room]));
+        $this->test_streaming_action('stop', route('api.v1.rooms.streaming.stop', ['room' => $this->room]));
     }
 
     /** Helper for the actions pause, resume and stop */
-    private function test_streaming_action(string $action, array $params, string $url): void
+    private function test_streaming_action(string $action, string $url): void
     {
         // Create new meeting
         $meeting = new Meeting;
@@ -530,8 +528,8 @@ class RoomStreamingTest extends TestCase
 
         // Mock the action calls to the streaming service
         $streamingServiceMock = $this->mock(StreamingService::class);
-        $streamingServiceMock->shouldReceive($action)->with(...$params)->once()->andReturn(false);
-        $streamingServiceMock->shouldReceive($action)->with(...$params)->andReturn(true);
+        $streamingServiceMock->shouldReceive($action)->once()->andReturn(false);
+        $streamingServiceMock->shouldReceive($action)->andReturn(true);
 
         $factoryMock = $this->mock(StreamingServiceFactory::class);
         $factoryMock->shouldReceive('make')

@@ -85,7 +85,7 @@ class RoomStreamingController extends Controller
 
         $streamingService = $this->getStreamingService($room);
 
-        if ($streamingService->start($streaming->url, $streaming->pause_image) === false) {
+        if ($streamingService->start() === false) {
             abort(500);
         }
         $room->streaming->refresh();

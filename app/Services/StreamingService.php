@@ -104,8 +104,10 @@ body {
         return $this->handleResponse($response);
     }
 
-    public function start(string $rtmpUrl, ?string $pauseImageUrl)
+    public function start()
     {
+        $pauseImageUrl = $this->meeting->room->streaming->pause_image;
+
         // Fallback if no pause image is configured in room settings
         if ($pauseImageUrl === null) {
 
@@ -122,7 +124,7 @@ body {
         $response = $this->getHttpClient()->post('', [
             'joinUrl' => $this->getJoinUrl(),
             'pauseImageUrl' => $pauseImageUrl,
-            'rtmpUrl' => $rtmpUrl,
+            'rtmpUrl' => $this->meeting->room->streaming->url,
         ]);
 
         return $this->handleResponse($response);
