@@ -112,6 +112,11 @@ return [
                 'update' => 'Edit settings',
                 'view_any' => 'Show all settings',
             ],
+            'streaming' => [
+                'title' => 'Streaming',
+                'update' => 'Edit streaming settings',
+                'view_any' => 'Show all streaming settings',
+            ],
             'system' => [
                 'monitor' => 'Monitoring',
                 'title' => 'System',
