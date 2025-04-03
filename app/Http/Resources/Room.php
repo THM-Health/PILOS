@@ -76,6 +76,10 @@ class Room extends JsonResource
     public function toArray($request)
     {
         $latestMeeting = $this->resource->latestMeeting;
+        // Set the room relation for the latest meeting, to prevent lookup in the  LastMeeting resource
+        if ($latestMeeting) {
+            $latestMeeting->setRelation('room', $this->resource);
+        }
 
         return [
             'id' => $this->id,
