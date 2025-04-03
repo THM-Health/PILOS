@@ -107,7 +107,9 @@
         severity="contrast"
         class="flex h-16 w-16 items-center justify-center rounded-full"
       >
-        <i class="fa-solid fa-ban text-4xl text-white"></i>
+        <i
+          class="fa-solid fa-ban text-4xl text-white dark:text-surface-950"
+        ></i>
       </Badge>
     </div>
 

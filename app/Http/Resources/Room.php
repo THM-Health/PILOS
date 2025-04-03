@@ -89,7 +89,7 @@ class Room extends JsonResource
                 'name' => $this->owner->fullname,
             ],
             'last_meeting' => new LastMeeting($latestMeeting),
-            'type' => new RoomType($this->roomType),
+            'type' => new RoomType($this->roomType)->withFeatures(),
             'model_name' => $this->model_name,
             'short_description' => $this->short_description,
             'is_favorite' => Auth::user() ? Auth::user()->roomFavorites->contains($this->id) : false,

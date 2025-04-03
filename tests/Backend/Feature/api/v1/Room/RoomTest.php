@@ -902,6 +902,11 @@ class RoomTest extends TestCase
                         'name' => $room->roomType->name,
                         'color' => $room->roomType->color,
                         'model_name' => 'RoomType',
+                        'features' => [
+                            'streaming' => [
+                                'enabled' => false,
+                            ],
+                        ],
                     ],
                     'model_name' => 'Room',
                     'short_description' => $room->short_description,
@@ -973,6 +978,13 @@ class RoomTest extends TestCase
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertJsonPath('data.last_meeting.detached', $meeting->detached->toJson());
+
+        // Test with enabled features
+        $room->roomType->streamingSettings->enabled = true;
+        $room->roomType->streamingSettings->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.type.features.streaming.enabled', true);
     }
 
     /**
@@ -2091,7 +2103,7 @@ class RoomTest extends TestCase
 
         // Check if correct setting values get returned
         $new_settings = $response->json('data');
-        $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
+        $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings()->withFeatures();
         $settings['allow_membership'] = false;
         $settings['everyone_can_start'] = false;
         $settings['lock_settings_disable_cam'] = true;

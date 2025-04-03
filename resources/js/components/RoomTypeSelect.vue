@@ -162,6 +162,7 @@ function reloadRoomTypes() {
     params: {
       filter: props.roomId ? "own" : props.roomId,
       with_room_settings: true,
+      with_features: true,
     },
   };
 

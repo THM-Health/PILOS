@@ -9,6 +9,8 @@ class RoomTypeResourceCollection extends ResourceCollection
 {
     private $withDefaultRoomSettings = false;
 
+    private $withFeatures = false;
+
     /**
      * Sets the flag to also load the default room settings
      *
@@ -17,6 +19,18 @@ class RoomTypeResourceCollection extends ResourceCollection
     public function withDefaultRoomSettings(): self
     {
         $this->withDefaultRoomSettings = true;
+
+        return $this;
+    }
+
+    /**
+     * Sets the flag to also load the features
+     *
+     * @return $this The room type resource collection instance
+     */
+    public function withFeatures(): self
+    {
+        $this->withFeatures = true;
 
         return $this;
     }
@@ -32,6 +46,10 @@ class RoomTypeResourceCollection extends ResourceCollection
                 $resource = new RoomType($roomType);
                 if ($this->withDefaultRoomSettings) {
                     $resource->withDefaultRoomSettings();
+                }
+
+                if ($this->withFeatures) {
+                    $resource->withFeatures();
                 }
 
                 return $resource;

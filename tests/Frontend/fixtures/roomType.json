@@ -5,6 +5,11 @@
     "description": "Room type description for room type Exam",
     "color": "#4a5c66",
     "model_name": "RoomType",
+    "features": {
+      "streaming": {
+        "enabled": false
+      }
+    },
     "server_pool": {
       "id": 1,
       "name": "Test",
