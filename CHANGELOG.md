@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow removing English from the list of enabled locales ([#1919], [#1920])
 - Action column in admin UI too small with only one action in some locales ([#2015])
 - Action column in admin UI is shown even if no action is available due to permissions ([#2015])
+- Action column in admin UI user list no always shown ([#2015])
 
 ## [v4.3.1] - 2025-02-17
 

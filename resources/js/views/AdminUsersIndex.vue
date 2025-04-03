@@ -291,10 +291,10 @@ const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
 const paginator = usePaginator();
 
-// first: view action, second: edit action (requires only view permission for current user), third: resend pw (required at least update), fourth: delete action
+// first: view action (always visible for own user), second: edit action (always visible for own user), third: resend pw (required at least update), fourth: delete action
 const actionColumn = useActionColumn([
-  { permissions: ["users.view"] },
-  { permissions: ["users.view"] },
+  { permissions: [] },
+  { permissions: [] },
   { permissions: ["users.update"] },
   { permissions: ["users.delete"] },
 ]);
