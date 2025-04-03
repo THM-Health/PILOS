@@ -14,10 +14,6 @@ class LastMeeting extends JsonResource
      */
     public function toArray($request)
     {
-        if (! $this) {
-            return null;
-        }
-
         return [
             'start' => $this->start,
             'end' => $this->end,
