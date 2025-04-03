@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Download files with special characters in the filename ([#1960])
 - Close join/start dialog before joining the BBB meeting ([#1940])
 - Allow removing English from the list of enabled locales ([#1919], [#1920])
+- Action column in admin UI too small with only one action in some locales ([#2015])
+- Action column in admin UI is shown even if no action is available due to permissions ([#2015])
 
 ## [v4.3.1] - 2025-02-17
 
@@ -432,6 +434,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1940]: https://github.com/THM-Health/PILOS/pull/1940
 [#1960]: https://github.com/THM-Health/PILOS/pull/1960
 [#1988]: https://github.com/THM-Health/PILOS/pull/1988
+[#2015]: https://github.com/THM-Health/PILOS/pull/2015
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
