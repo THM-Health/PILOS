@@ -9,7 +9,6 @@
     :current-page-report-template="paginator.getCurrentPageReportTemplate()"
     striped-rows
     row-hover
-    :loading="isBusy"
     :rows="settingsStore.getSetting('general.pagination_page_size')"
     :pt="{
       table: 'table-auto lg:table-fixed',

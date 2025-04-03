@@ -40,9 +40,7 @@
               <div class="mt-6 flex justify-end">
                 <Button
                   type="submit"
-                  :disabled="
-                    disabled || timezonesLoadingError || timezonesLoading
-                  "
+                  :disabled="disabled"
                   :loading="isBusy"
                   icon="fa-solid fa-save"
                   :label="$t('app.save')"

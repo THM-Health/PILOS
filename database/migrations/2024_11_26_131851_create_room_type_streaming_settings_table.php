@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('room_type_streaming_settings', function (Blueprint $table) {
             $table->bigInteger('room_type_id')->unsigned();
             $table->foreign('room_type_id')->references('id')->on('room_types')->onDelete('cascade');
+            $table->primary('room_type_id');
             $table->boolean('enabled')->default(true);
             $table->text('default_pause_image')->nullable();
             $table->timestamps();

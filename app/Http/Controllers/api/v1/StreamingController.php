@@ -23,7 +23,7 @@ class StreamingController extends Controller
             $path = $request->file('default_pause_image')->store('images', 'public');
             $url = Storage::url($path);
             $settings->default_pause_image = url($url);
-        } elseif ($request->has('default_pause_image') && trim($request->input('default_pause_image') == '')) {
+        } elseif ($request->has('default_pause_image') && $request->input('default_pause_image') == null) {
             // Note: Do not delete the file, so running livestreams depending on it are not affected
             $settings->default_pause_image = null;
         }

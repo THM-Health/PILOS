@@ -38,8 +38,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
         $this->app->register(TelescopeServiceProvider::class);
 
-        $this->app->singleton(StreamingServiceFactory::class, function () {
-            return StreamingServiceFactory::class;
-        });
+        $this->app->singleton(StreamingServiceFactory::class, StreamingServiceFactory::class);
     }
 }
