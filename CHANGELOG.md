@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Translation to locale selector ([#2079])
 - Transition and animation for dark mode toggle ([#2082])
 - Logo for dark mode in BBB ([#1399])
+- Livestreaming BigBlueButton meetings to an RTMP endpoint via the [BBB-Streaming-Server](https://github.com/THM-Health/BBB-Streaming-Server) ([#1697])
 
 ### Fixed
 
@@ -425,6 +426,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1677]: https://github.com/THM-Health/PILOS/issues/1677
 [#1678]: https://github.com/THM-Health/PILOS/pull/1678
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
+[#1697]: https://github.com/THM-Health/PILOS/pull/1697
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [#1711]: https://github.com/THM-Health/PILOS/issues/1711
