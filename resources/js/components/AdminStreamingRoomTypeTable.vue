@@ -96,10 +96,7 @@ import { useActionColumn } from "../composables/useActionColumn.js";
 import { usePaginator } from "../composables/usePaginator.js";
 import { useSettingsStore } from "../stores/settings";
 
-const actionColumn = useActionColumn([
-  { permissions: ["roomTypes.view"] },
-  { permissions: ["roomTypes.update"] },
-]);
+const actionColumn = useActionColumn([{ permissions: ["streaming.update"] }]);
 
 const paginator = usePaginator();
 const settingsStore = useSettingsStore();

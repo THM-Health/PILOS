@@ -125,5 +125,8 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::setIncludedPermissions('serverPools.update', ['serverPools.view', 'serverPools.viewAny', 'servers.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('serverPools.view', ['serverPools.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('serverPools.viewAny', ['admin.view']);
+
+        Permission::setIncludedPermissions('streaming.update', ['streaming.viewAny', 'admin.view']);
+        Permission::setIncludedPermissions('streaming.viewAny', ['admin.view']);
     }
 }

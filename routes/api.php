@@ -65,6 +65,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('streaming', [StreamingController::class, 'view'])->name('streaming.view')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.viewAny']);
         Route::put('streaming', [StreamingController::class, 'update'])->name('streaming.update')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.update']);
+
         Route::get('roomTypes/{roomType}/streaming', [RoomTypeStreamingController::class, 'view'])->name('roomTypes.streaming.view')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.viewAny']);
         Route::put('roomTypes/{roomType}/streaming', [RoomTypeStreamingController::class, 'update'])->name('roomTypes.streaming.update')->middleware(['enable_if_config:streaming.enabled', 'can:streaming.update']);
 

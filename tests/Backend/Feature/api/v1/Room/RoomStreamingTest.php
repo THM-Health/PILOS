@@ -247,14 +247,14 @@ class RoomStreamingTest extends TestCase
         $data['url'] = 'invalid-url';
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['url']);
 
         // Test missing URL
         unset($data['url']);
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['url']);
 
         // Test missing URL if streaming disabled
@@ -272,7 +272,7 @@ class RoomStreamingTest extends TestCase
         $data['url'] = 'https://example.com/live/1234';
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['url']);
 
         // Test valid image
@@ -294,21 +294,21 @@ class RoomStreamingTest extends TestCase
         $data['pause_image'] = $this->file_wrongmime;
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['pause_image']);
 
         // Test image with wrong dimensions
         $data['pause_image'] = $this->file_wrongdimensions;
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['pause_image']);
 
         // Test image too big
         $data['pause_image'] = $this->file_toobig;
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['pause_image']);
 
         // Test image removal
@@ -510,7 +510,7 @@ class RoomStreamingTest extends TestCase
         $this->room->streaming->pause_image = 'https://example.com/image.jpg';
         $this->room->streaming->save();
 
-        $this->testStreamingAction('start', ['rtmp://example.com/live/1234', 'https://example.com/image.jpg'], route('api.v1.rooms.streaming.start', ['room' => $this->room]));
+        $this->test_streaming_action('start', ['rtmp://example.com/live/1234', 'https://example.com/image.jpg'], route('api.v1.rooms.streaming.start', ['room' => $this->room]));
 
         // Test if request is blocked if streaming is not enabled
         $this->room->streaming->enabled_for_current_meeting = false;
@@ -526,7 +526,7 @@ class RoomStreamingTest extends TestCase
      */
     public function test_pause_stream()
     {
-        $this->testStreamingAction('pause', [], route('api.v1.rooms.streaming.pause', ['room' => $this->room]));
+        $this->test_streaming_action('pause', [], route('api.v1.rooms.streaming.pause', ['room' => $this->room]));
     }
 
     /**
@@ -534,7 +534,7 @@ class RoomStreamingTest extends TestCase
      */
     public function test_resume_stream()
     {
-        $this->testStreamingAction('resume', [], route('api.v1.rooms.streaming.resume', ['room' => $this->room]));
+        $this->test_streaming_action('resume', [], route('api.v1.rooms.streaming.resume', ['room' => $this->room]));
     }
 
     /**
@@ -542,7 +542,7 @@ class RoomStreamingTest extends TestCase
      */
     public function test_stop_stream()
     {
-        $this->testStreamingAction('stop', [], route('api.v1.rooms.streaming.stop', ['room' => $this->room]));
+        $this->test_streaming_action('stop', [], route('api.v1.rooms.streaming.stop', ['room' => $this->room]));
     }
 
     /** Helper for the actions pause, resume and stop */

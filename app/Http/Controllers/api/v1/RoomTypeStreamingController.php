@@ -26,6 +26,7 @@ class RoomTypeStreamingController extends Controller
             $url = Storage::url($path);
             $settings->default_pause_image = url($url);
         } elseif ($request->has('default_pause_image') && $request->input('default_pause_image') == null) {
+            // Note: Do not delete the file, so running livestreams depending on it are not affected
             $settings->default_pause_image = null;
         }
 

@@ -3819,7 +3819,7 @@ class RoomTest extends TestCase
 
         // Check error on invalid streaming value
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_streaming' => 'hello'])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['consent_streaming']);
 
         // Change all setting to disable streaming
