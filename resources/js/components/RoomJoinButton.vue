@@ -41,7 +41,7 @@
     <Message v-if="showRunningMessage" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-    <form @submit.prevent="getJoinUrl">
+    <form ref="joinForm" @submit.prevent="getJoinUrl">
       <OverlayComponent :show="isLoadingAction" :opacity="0">
         <div v-if="!isLoadingAction">
           <!-- Ask guests for their first and lastname -->
@@ -62,7 +62,7 @@
 
           <div
             v-if="features.attendance_recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
           >
             <span class="font-semibold">{{
               $t("rooms.recording_attendance_info")
@@ -72,6 +72,7 @@
                 v-model="recordAttendanceAgreement"
                 input-id="record-attendance-agreement"
                 binary
+                required
                 :invalid="formErrors.fieldInvalid('consent_record_attendance')"
               />
               <label for="record-attendance-agreement">{{
@@ -85,7 +86,7 @@
 
           <div
             v-if="features.recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
             <i>{{ $t("rooms.recording_hint") }}</i>
@@ -94,6 +95,7 @@
                 v-model="recordAgreement"
                 input-id="record-agreement"
                 binary
+                required
                 :class="{
                   'p-invalid': formErrors.fieldInvalid('consent_record'),
                 }"
@@ -123,7 +125,7 @@
 
           <div
             v-if="features.streaming"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
             <i>{{ $t("rooms.streaming_hint") }}</i>
@@ -132,6 +134,7 @@
                 v-model="streamingAgreement"
                 input-id="streaming-agreement"
                 binary
+                required
                 :invalid="formErrors.fieldInvalid('consent_streaming')"
               />
               <label for="streaming-agreement">{{
@@ -142,24 +145,25 @@
           </div>
         </div>
       </OverlayComponent>
+
+      <div class="flex justify-end gap-2">
+        <Button
+          :label="$t('app.cancel')"
+          data-test="dialog-cancel-button"
+          :disabled="isLoadingAction"
+          severity="secondary"
+          size="small"
+          @click="modalVisible = false"
+        />
+        <Button
+          :label="$t('app.continue')"
+          data-test="dialog-continue-button"
+          :disabled="isLoadingAction"
+          size="small"
+          type="submit"
+        />
+      </div>
     </form>
-    <template #footer>
-      <Button
-        :label="$t('app.cancel')"
-        data-test="dialog-cancel-button"
-        :disabled="isLoadingAction"
-        severity="secondary"
-        size="small"
-        @click="modalVisible = false"
-      />
-      <Button
-        :label="$t('app.continue')"
-        data-test="dialog-continue-button"
-        :disabled="isLoadingAction"
-        size="small"
-        @click="getJoinUrl"
-      />
-    </template>
   </Dialog>
 </template>
 <script setup>
@@ -256,13 +260,12 @@ function loadStartJoinRequirements() {
       })
       .then((response) => {
         features.value = response.data.data.features;
+        isLoadingAction.value = false;
         resolve();
       })
       .catch((error) => {
-        reject(error);
-      })
-      .finally(() => {
         isLoadingAction.value = false;
+        reject(error);
       });
   });
 }

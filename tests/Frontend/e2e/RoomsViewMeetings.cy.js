@@ -19,6 +19,19 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
+
     const joinRequest = interceptIndefinitely(
       "POST",
       "/api/v1/rooms/abc-def-123/join*",
@@ -52,6 +65,7 @@ describe("Rooms view meetings", function () {
     cy.get('[data-test="room-join-button"]')
       .should("be.disabled")
       .then(() => {
+        cy.wait("@preJoinRequest");
         joinRequest.sendResponse();
       });
 
@@ -62,6 +76,7 @@ describe("Rooms view meetings", function () {
         consent_record_attendance: false,
         consent_record: false,
         consent_record_video: false,
+        consent_streaming: false,
       });
     });
 
@@ -77,13 +92,25 @@ describe("Rooms view meetings", function () {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.record_attendance = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: true,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
 
     const joinRequest = interceptIndefinitely(
       "POST",
@@ -121,6 +148,7 @@ describe("Rooms view meetings", function () {
         cy.get('[data-test="dialog-continue-button"]')
           .should("be.disabled")
           .then(() => {
+            cy.wait("@preJoinRequest");
             joinRequest.sendResponse();
           });
       });
@@ -132,6 +160,7 @@ describe("Rooms view meetings", function () {
         consent_record_attendance: true,
         consent_record: false,
         consent_record_video: false,
+        consent_streaming: false,
       });
     });
 
@@ -147,13 +176,25 @@ describe("Rooms view meetings", function () {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: true,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
 
     const joinRequest = interceptIndefinitely(
       "POST",
@@ -194,6 +235,7 @@ describe("Rooms view meetings", function () {
         cy.get('[data-test="dialog-continue-button"]')
           .should("be.disabled")
           .then(() => {
+            cy.wait("@preJoinRequest");
             joinRequest.sendResponse();
           });
       });
@@ -205,6 +247,7 @@ describe("Rooms view meetings", function () {
         consent_record_attendance: false,
         consent_record: true,
         consent_record_video: true,
+        consent_streaming: false,
       });
     });
 
@@ -228,6 +271,19 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: true,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
+
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 200,
       body: {
@@ -249,6 +305,8 @@ describe("Rooms view meetings", function () {
         cy.get('[data-test="dialog-continue-button"]').click();
       });
 
+    cy.wait("@preJoinRequest");
+
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
@@ -256,6 +314,7 @@ describe("Rooms view meetings", function () {
         consent_record_attendance: false,
         consent_record: true,
         consent_record_video: false,
+        consent_streaming: false,
       });
     });
 
@@ -274,8 +333,6 @@ describe("Rooms view meetings", function () {
         end: null,
       };
       room.data.current_user = null;
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -283,11 +340,26 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: true,
+            attendance_recording: true,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
+
     cy.interceptRoomFilesRequest();
 
     cy.visit("/rooms/abc-def-123");
 
     cy.get('[data-test="room-join-button"]').click();
+
+    cy.wait("@preJoinRequest");
 
     // Test with valid name
     cy.get('[data-test="room-join-dialog"]')
@@ -316,6 +388,7 @@ describe("Rooms view meetings", function () {
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
+        consent_streaming: false,
       });
     });
 
@@ -334,14 +407,25 @@ describe("Rooms view meetings", function () {
         end: null,
       };
       room.data.current_user = null;
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: true,
+            attendance_recording: true,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
 
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 422,
@@ -361,6 +445,9 @@ describe("Rooms view meetings", function () {
 
     // Test with invalid name
     cy.get('[data-test="room-join-button"]').click();
+
+    cy.wait("@preJoinRequest");
+
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
@@ -378,6 +465,7 @@ describe("Rooms view meetings", function () {
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
+        consent_streaming: false,
       });
     });
 
@@ -426,14 +514,26 @@ describe("Rooms view meetings", function () {
         end: null,
       };
       room.data.authenticated = false;
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: true,
+            attendance_recording: true,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
+
     cy.interceptRoomFilesRequest();
 
     cy.visit("/rooms/abc-def-123");
@@ -448,8 +548,6 @@ describe("Rooms view meetings", function () {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -462,6 +560,8 @@ describe("Rooms view meetings", function () {
     cy.wait("@roomRequest");
 
     cy.get('[data-test="room-join-button"]').click();
+
+    cy.wait("@preJoinRequest");
 
     // Try to join the meeting
     cy.get('[data-test="room-join-dialog"]')
@@ -483,10 +583,12 @@ describe("Rooms view meetings", function () {
 
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
+        name: "",
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
+        consent_streaming: false,
       });
       // Check that header for access code is set
       expect(interception.request.headers["access-code"]).to.eq("123456789");
@@ -507,14 +609,25 @@ describe("Rooms view meetings", function () {
         end: null,
       };
       room.data.authenticated = false;
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
 
     cy.visit("/rooms/abc-def-123");
 
@@ -528,8 +641,6 @@ describe("Rooms view meetings", function () {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -557,8 +668,6 @@ describe("Rooms view meetings", function () {
         end: null,
       };
       room.data.authenticated = false;
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -568,7 +677,6 @@ describe("Rooms view meetings", function () {
 
     // Try to join meeting
     cy.get('[data-test="room-join-button"]').click();
-    cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
     cy.wait("@joinRequest").then((interception) => {
@@ -651,8 +759,6 @@ describe("Rooms view meetings", function () {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.record_attendance = true;
-      room.data.record = true;
       room.data.current_user = null;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
@@ -660,6 +766,19 @@ describe("Rooms view meetings", function () {
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: true,
+            attendance_recording: true,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
 
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 200,
@@ -677,6 +796,7 @@ describe("Rooms view meetings", function () {
 
     // Try to join meeting
     cy.get('[data-test="room-join-button"]').click();
+    cy.wait("@preJoinRequest");
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
@@ -693,6 +813,7 @@ describe("Rooms view meetings", function () {
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
+        consent_streaming: false,
       });
       // Check that header for token is set
       expect(interception.request.headers.token).to.eq(
@@ -720,6 +841,19 @@ describe("Rooms view meetings", function () {
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
 
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 401,
@@ -757,6 +891,19 @@ describe("Rooms view meetings", function () {
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
 
     // Test guests not allowed
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
@@ -821,8 +968,6 @@ describe("Rooms view meetings", function () {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.record_attendance = true;
-      room.data.record = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -842,6 +987,20 @@ describe("Rooms view meetings", function () {
 
         cy.get("#record-agreement").should("not.exist");
         cy.get("#record-video-agreement").should("not.exist");
+
+        cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+          statusCode: 200,
+          body: {
+            data: {
+              features: {
+                recording: true,
+                attendance_recording: true,
+                streaming: false,
+              },
+            },
+          },
+        }).as("preJoinRequest");
+
         cy.get('[data-test="dialog-continue-button"]')
           .should("be.disabled")
           .then(() => {
@@ -872,16 +1031,27 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 422,
       body: {
-        message:
-          "The consent record attendance must be accepted. (and 1 more error)",
+        message: "The consent record attendance must be accepted.",
         errors: {
           consent_record_attendance: [
             "The consent record attendance must be accepted.",
           ],
-          consent_record: ["The consent record must be accepted."],
         },
       },
     }).as("joinRequest");
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: true,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    });
 
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
     cy.get('[data-test="room-join-button"]').click();
@@ -894,6 +1064,29 @@ describe("Rooms view meetings", function () {
         );
         cy.contains("The consent record must be accepted.").should("not.exist");
 
+        // Check if checkboxes are required
+        cy.get("#record-agreement")
+          .should("not.be.checked")
+          .should("have.attr", "required", "required")
+          .click();
+        cy.get("#record-video-agreement").should("not.be.checked");
+
+        // Check attendance agreement is not shown
+        cy.get("#record-attendance-agreement").should("not.exist");
+
+        cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+          statusCode: 200,
+          body: {
+            data: {
+              features: {
+                recording: true,
+                attendance_recording: true,
+                streaming: false,
+              },
+            },
+          },
+        });
+
         // Try to join meeting
         cy.get('[data-test="dialog-continue-button"]').click();
 
@@ -904,9 +1097,12 @@ describe("Rooms view meetings", function () {
         cy.contains("The consent record attendance must be accepted.").should(
           "be.visible",
         );
-        cy.contains("The consent record must be accepted.").should(
-          "be.visible",
-        );
+
+        // Agree to consent record attendance
+        cy.get("#record-attendance-agreement")
+          .should("not.be.checked")
+          .should("have.attr", "required", "required")
+          .click();
       });
 
     // Test general errors
