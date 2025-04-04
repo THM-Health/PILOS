@@ -431,7 +431,7 @@ return [
             'enabled' => 'Enabled',
             'url' => 'RTMP(S) URL',
             'pause_image' => 'Pause image',
-            'pause_image_format' => 'Format: PNG, JPEG, GIF, SVG; Resolution: 1920x1080px',
+            'pause_image_format' => 'Format: PNG, JPEG, GIF, BMP; Resolution: 1920x1080px',
         ],
         'no_running_meeting' => 'No running meeting',
         'not_enabled_for_running_meeting' => 'Streaming is not enabled for the current meeting',

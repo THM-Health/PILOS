@@ -16,7 +16,7 @@ class UpdateRoomStreamingSettings extends FormRequest
         return [
             'enabled' => ['required', 'boolean'],
             'url' => ['nullable', 'required_if_accepted:enabled', 'string', 'url:rtmp,rtmps', 'max:255'],
-            'pause_image' => ['nullable', 'image', 'max:5000', 'dimensions:width=1920,height=1080'], // 5 MB
+            'pause_image' => ['nullable', 'image', 'mimes:jpg,bmp,png,gif', 'max:5000', 'dimensions:width=1920,height=1080'], // 5 MB
         ];
     }
 
