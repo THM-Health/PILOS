@@ -242,18 +242,17 @@ async function showModal() {
   formErrors.clear();
   modalVisible.value = true;
 
-  loadStartJoinRequirements().then(() => {
+  loadStartJoinRequirements(props.running ? "join" : "start").then(() => {
     if (autoJoin.value) {
       getJoinUrl();
     }
   });
 }
 
-function loadStartJoinRequirements() {
+function loadStartJoinRequirements(action = "join") {
   return new Promise((resolve, reject) => {
     isLoadingAction.value = true;
-    const url =
-      "rooms/" + props.roomId + "/" + (props.running ? "join" : "start");
+    const url = "rooms/" + props.roomId + "/" + action;
     api
       .call(url, {
         method: "options",
@@ -391,8 +390,7 @@ function getJoinUrl() {
         // Form validation error
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
-          loadStartJoinRequirements();
-          emit("changed");
+          loadStartJoinRequirements(props.running ? "join" : "start");
           return;
         }
 
@@ -408,6 +406,7 @@ function getJoinUrl() {
         if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
           emit("changed");
           showRunningMessage.value = true;
+          loadStartJoinRequirements("start");
           return;
         }
       }
