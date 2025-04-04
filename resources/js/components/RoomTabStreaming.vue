@@ -63,15 +63,15 @@
         />
 
         <Tag
-          severity="info"
           v-if="fps && settingsStore.getSetting('streaming.show_fps')"
+          severity="info"
           >{{ $t("rooms.streaming.fps", { fps }) }}</Tag
         >
       </div>
 
       <div
-        class="flex flex-row flex-wrap gap-2"
         v-if="userPermissions.can('manageSettings', props.room)"
+        class="flex flex-row flex-wrap gap-2"
       >
         <ButtonGroup>
           <Button
@@ -123,9 +123,9 @@
     <div class="flex gap-2 self-end sm:self-start">
       <RoomTabStreamingConfigButton :room="props.room" />
       <Button
+        v-tooltip="$t('app.reload')"
         severity="secondary"
         icon="fa-solid fa-sync"
-        v-tooltip="$t('app.reload')"
         :aria-label="$t('app.reload')"
         data-test="streaming-reload-button"
         @click="streamingCommand('status')"

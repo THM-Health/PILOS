@@ -38,7 +38,7 @@
     :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
-    <Message v-if="showRunningMessage" severity="warn">{{
+    <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
     <form ref="joinForm" @submit.prevent="getJoinUrl">

@@ -431,6 +431,7 @@ return [
             'enabled' => 'Enabled',
             'url' => 'RTMP(S) URL',
             'pause_image' => 'Pause image',
+            'pause_image_alt' => 'Pause image',
             'pause_image_format' => 'Format: PNG, JPEG, GIF, BMP; Resolution: 1920x1080px',
         ],
         'no_running_meeting' => 'No running meeting',

@@ -17,10 +17,10 @@
         </div>
 
         <!-- Features of the room type -->
-        <span class="font-bold" v-if="visibleFeaturesCount > 0">{{
+        <span v-if="visibleFeaturesCount > 0" class="font-bold">{{
           $t("rooms.room_types.features.title")
         }}</span>
-        <div class="flex flex-row gap-2" v-if="visibleFeaturesCount > 0">
+        <div v-if="visibleFeaturesCount > 0" class="flex flex-row gap-2">
           <RoomTypeFeatureField
             v-if="
               settingsStore.getSetting('streaming.enabled') ||

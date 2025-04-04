@@ -89,9 +89,6 @@
           @guests-not-allowed="$emit('guestsNotAllowed')"
           @settings-changed="$emit('settingsChanged')"
         />
-        <i v-if="tab.active && tab.disabled">
-          {{ $t("rooms.feature_disabled") }}
-        </i>
       </div>
     </template>
   </Card>
