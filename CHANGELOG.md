@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.4.0] - 2025-04-07
+
+### Changed
+
+- Bump base PHP image to 8.4 ([#1937])
+- Hide locale select in main nav if only one locale is enabled ([#1920])
+- Improve accessibility for room type filter on the room overview page ([#1988])
+- Improve accessibility for room type replacement in the room type delete dialog ([#1988])
+
+### Fixed
+
+- Logo url in emails for logos with absolute path ([#1900])
+- Logo height and width in emails ([#1900])
+- Download files with special characters in the filename ([#1960])
+- Close join/start dialog before joining the BBB meeting ([#1940])
+- Allow removing English from the list of enabled locales ([#1919], [#1920])
+- Action column in admin UI too small with only one action in some locales ([#2015])
+- Action column in admin UI is shown even if no action is available due to permissions ([#2015])
+- Action column in admin UI user list no always shown ([#2015])
+
 ## [v4.3.1] - 2025-02-17
 
 ### Fixed
@@ -410,7 +430,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1829]: https://github.com/THM-Health/PILOS/pull/1829
 [#1844]: https://github.com/THM-Health/PILOS/pull/1844
 [#1855]: https://github.com/THM-Health/PILOS/pull/1855
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
+[#1900]: https://github.com/THM-Health/PILOS/pull/1900
+[#1919]: https://github.com/THM-Health/PILOS/issues/1919
+[#1920]: https://github.com/THM-Health/PILOS/pull/1920
+[#1937]: https://github.com/THM-Health/PILOS/pull/1937
+[#1940]: https://github.com/THM-Health/PILOS/pull/1940
+[#1960]: https://github.com/THM-Health/PILOS/pull/1960
+[#1988]: https://github.com/THM-Health/PILOS/pull/1988
+[#2015]: https://github.com/THM-Health/PILOS/pull/2015
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.4.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -422,3 +450,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.2.0
 [v4.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.0
 [v4.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.1
+[v4.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.4.0

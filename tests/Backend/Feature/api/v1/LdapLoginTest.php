@@ -169,7 +169,7 @@ class LdapLoginTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response->assertStatus(422);
+        $response->assertUnprocessable();
         $this->assertGuest();
     }
 

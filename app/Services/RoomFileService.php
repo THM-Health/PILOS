@@ -62,7 +62,7 @@ class RoomFileService
         return response(null, 200)
             ->header('Content-Type', $fileMime)
             ->header('Content-Length', $fileSize)
-            ->header('Content-Disposition', 'inline; filename='.$fileName)
+            ->header('Content-Disposition', 'inline; filename="'.$fileName.'"')
             ->header('Content-Transfer-Encoding', 'binary')
             ->header('X-Accel-Redirect', $fileAlias);
     }

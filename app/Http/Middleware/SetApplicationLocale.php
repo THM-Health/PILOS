@@ -35,8 +35,9 @@ class SetApplicationLocale
             $locale = session()->get('locale');
         }
 
+        // If locale is not present in enabled locales, fallback to default locale
         if (! in_array($locale, array_keys(config('app.enabled_locales')))) {
-            $locale = config('app.fallback_locale');
+            $locale = config('app.locale');
         }
 
         app()->setLocale($locale);

@@ -143,9 +143,10 @@
                 :disabled="loadingRooms || roomTypesBusy || onlyShowFavorites"
                 :loading="roomTypesBusy"
                 :placeholder="$t('rooms.room_types.all')"
-                :options="roomTypes"
-                show-clear
+                :options="roomTypeFilterOptions"
                 option-label="name"
+                option-group-label="index"
+                option-group-children="items"
                 option-value="id"
                 :pt="{
                   listContainer: {
@@ -154,9 +155,20 @@
                   option: {
                     'data-test': 'room-type-dropdown-option',
                   },
+                  optionGroup: 'p-0',
                 }"
                 @change="loadRooms(1)"
-              />
+              >
+                <template #optiongroup="slotProps">
+                  <Divider v-if="slotProps.option.index > 0" class="my-1" />
+                  <div v-else />
+                </template>
+                <template #option="slotProps">
+                  <span :class="{ italic: slotProps.option.id === 0 }">{{
+                    slotProps.option.name
+                  }}</span>
+                </template>
+              </Select>
               <!-- reload the room types -->
               <Button
                 v-if="roomTypesLoadingError"
@@ -337,7 +349,7 @@ const roomFilter = ref(["own", "shared"]);
 const roomFilterAll = ref(false);
 
 const onlyShowFavorites = ref(false);
-const selectedRoomType = ref(null);
+const selectedRoomType = ref(0);
 const selectedSortingType = ref("last_started");
 const roomTypes = ref([]);
 const roomTypesBusy = ref(false);
@@ -474,7 +486,7 @@ function loadRooms(page = null) {
         filter_public: roomFilter.value.includes("public") ? 1 : 0,
         filter_all: roomFilterAll.value ? 1 : 0,
         only_favorites: onlyShowFavorites.value ? 1 : 0,
-        room_type: selectedRoomType.value,
+        room_type: selectedRoomType.value == 0 ? null : selectedRoomType.value,
         sort_by: selectedSortingType.value,
         search:
           rawSearchQuery.value.trim() !== ""
@@ -506,4 +518,17 @@ function loadRooms(page = null) {
       loadingRooms.value = false;
     });
 }
+
+const roomTypeFilterOptions = computed(() => {
+  return [
+    {
+      index: 0,
+      items: [{ name: t("rooms.room_types.all"), id: 0 }],
+    },
+    {
+      index: 1,
+      items: roomTypes.value,
+    },
+  ];
+});
 </script>

@@ -20,6 +20,12 @@ $localeWhitelist = $localesEnv !== null ? preg_split('/,/', $localesEnv) : null;
 // filter locales that are not whitelisted or have no name set in metadata
 $enabledLocales = LocaleService::getEnabledLocales($defaultLocales, $customLocales, $localeWhitelist);
 
+// Default locale
+$defaultLocale = env('DEFAULT_LOCALE', env('VITE_DEFAULT_LOCALE', 'en'));
+if (! in_array($defaultLocale, array_keys($enabledLocales))) {
+    $defaultLocale = array_key_first($enabledLocales);
+}
+
 // If version file exists, read version from it and provide it as the app version
 $versionFile = base_path('version');
 $appVersion = file_exists($versionFile) ? file_get_contents($versionFile) : null;
@@ -110,7 +116,7 @@ return [
     |
     */
 
-    'locale' => env('DEFAULT_LOCALE', env('VITE_DEFAULT_LOCALE', 'en')),
+    'locale' => $defaultLocale,
 
     /*
     |--------------------------------------------------------------------------

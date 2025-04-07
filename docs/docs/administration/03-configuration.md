@@ -112,7 +112,7 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 | Option            | Default Value | Description                                                                                                  |
 | ----------------- | ------------- | ------------------------------------------------------------------------------------------------------------ |
 | `ENABLED_LOCALES` |               | Comma-separated list of enabled locales.<br/>By default all all locales in the `lang` directory are enabled  |
-| `DEFAULT_LOCALE`  | `en`          | Default locale for the application.                                                                          |
+| `DEFAULT_LOCALE`  | `en`          | Default locale for the application; must be part of the `ENABLED_LOCALES`.                                   |
 | `WHITELABEL`      | `false`       | Do not show link to PILOS Github Project in the footer.<br/>Please keep it disabled to support this project. |
 
 ## Room and Meeting Configuration

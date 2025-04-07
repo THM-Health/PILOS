@@ -508,7 +508,7 @@ class SettingsTest extends TestCase
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors([
                 'general_name',
                 'general_pagination_page_size',
@@ -631,7 +631,7 @@ class SettingsTest extends TestCase
 
             'bbb_logo' => 'bbblogo.png',
         ])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors([
                 'general_pagination_page_size',
                 'general_toast_lifetime',
@@ -686,7 +686,7 @@ class SettingsTest extends TestCase
 
             'bbb_logo' => 'bbblogo.png',
         ])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors([
                 'general_pagination_page_size',
                 'general_toast_lifetime',
@@ -705,7 +705,7 @@ class SettingsTest extends TestCase
         $this->putJson(route('api.v1.settings.update'), [
             'recording_recording_retention_period' => -1,
         ])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors([
                 'recording_recording_retention_period',
             ]);
@@ -769,7 +769,7 @@ class SettingsTest extends TestCase
 
         // Invalid mime
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors([
                 'bbb_default_presentation',
             ]);
@@ -777,7 +777,7 @@ class SettingsTest extends TestCase
         // Too big file
         $payload['bbb_default_presentation'] = UploadedFile::fake()->create('favicon.ico', 6000, 'image/x-icon');
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors([
                 'bbb_default_presentation',
             ]);
@@ -785,7 +785,7 @@ class SettingsTest extends TestCase
         // Not a file
         $payload['bbb_default_presentation'] = 'Test';
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors([
                 'bbb_default_presentation',
             ]);

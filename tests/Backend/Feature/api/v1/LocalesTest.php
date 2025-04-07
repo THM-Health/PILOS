@@ -43,22 +43,25 @@ class LocalesTest extends TestCase
 
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
-            'app.fallback_locale' => 'ru',
             'app.locale' => 'en',
         ]);
     }
 
     /**
-     * Test that the fallback locale gets used if the client sends a not existing locale with Accept-Language-Header.
+     * Test that the default locale gets used if the client sends a not existing locale with Accept-Language-Header.
      *
      * @return void
      */
     public function test_not_existing_locale_in_accept_header()
     {
+        config([
+            'app.locale' => 'de',
+        ]);
+
         $response = $this->withHeaders([
             'Accept-Language' => 'foo',
         ])->get('/');
-        $response->assertSee('<html lang="ru">', false);
+        $response->assertSee('<html lang="de">', false);
     }
 
     /**
@@ -75,7 +78,7 @@ class LocalesTest extends TestCase
         $response = $this->actingAs($user)->withHeaders([
             'Accept-Language' => '',
         ])->get('/');
-        $response->assertSee('<html lang="ru">', false);
+        $response->assertSee('<html lang="en">', false);
 
         $user->update(['locale' => 'de']);
         $response = $this->actingAs($user)->get('/');
@@ -158,12 +161,12 @@ class LocalesTest extends TestCase
         $response = $this->withHeaders([
             'Accept-Language' => '',
         ])->get('/');
-        $response->assertSee('<html lang="ru">', false);
+        $response->assertSee('<html lang="en">', false);
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'us',
         ]);
-        $response->assertStatus(422);
+        $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['locale']);
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [

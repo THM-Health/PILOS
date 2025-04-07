@@ -364,7 +364,6 @@ return [
             'access_code_enforced' => 'Ce type de salle a verrouillé l\'existence d\'un code d\'accès',
             'access_code_prohibited' => 'Ce type de salle a verrouillé l\'absence de code d\'accès',
             'allow' => 'Autoriser',
-            'allow_everyone' => 'Autoriser tout le monde',
             'allow_guests' => 'Autoriser les invités',
             'chars' => 'Caractères: :chars',
             'delete_access_code' => 'Enlever le code d\'accès',
@@ -404,15 +403,12 @@ return [
         'title' => 'Paramètres',
         'unsaved_changes' => 'Attention! Les configurations de la salle ont été changées, mais pas encore enregistrées.',
         'video_conference' => [
-            'allow_starting' => 'Démarrer la salle',
-            'attendance' => 'Présence',
             'everyone_can_start' => 'Tout le monde peut démarrer la salle',
             'lobby' => [
                 'alert' => 'Le rôle par défaut défini est modérateur : La salle d\'attente est active uniquement pour les invités et aux membres déjà existants ayant le rôle de participant !',
                 'only_for_guests_enabled' => 'Activé pour les invités',
                 'title' => 'Salle d\'attente',
             ],
-            'microphone' => 'Microphone',
             'mute_on_start' => 'Désactiver le microphone en arrivant',
             'title' => 'Vidéo conférence',
             'welcome_message' => 'Message de bienvenue',

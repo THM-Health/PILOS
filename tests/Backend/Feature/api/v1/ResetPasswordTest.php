@@ -53,7 +53,7 @@ class ResetPasswordTest extends TestCase
         parse_str(parse_url($resetUrl, PHP_URL_QUERY), $query);
 
         $this->postJson(route('api.v1.password.reset'))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['token', 'email', 'password']);
 
         $this->postJson(route('api.v1.password.reset'), [
@@ -62,7 +62,7 @@ class ResetPasswordTest extends TestCase
             'password' => 'bar',
             'password_confirmation' => 'bar',
         ])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['email', 'password']);
 
         $this->postJson(route('api.v1.password.reset'), [
@@ -71,7 +71,7 @@ class ResetPasswordTest extends TestCase
             'password' => 'bar_T123',
             'password_confirmation' => 'bar_T123',
         ])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors('email');
 
         $this->postJson(route('api.v1.password.reset'), [
@@ -80,7 +80,7 @@ class ResetPasswordTest extends TestCase
             'password' => 'bar_T123',
             'password_confirmation' => 'bar_T123',
         ])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors('email');
 
         $this->postJson(route('api.v1.password.reset'), [
@@ -89,7 +89,7 @@ class ResetPasswordTest extends TestCase
             'password' => 'bar_T123',
             'password_confirmation' => 'bar_T123',
         ])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors('email');
 
         $this->postJson(route('api.v1.password.reset'), [

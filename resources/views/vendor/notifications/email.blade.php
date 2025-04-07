@@ -3,7 +3,7 @@
 {{-- Header --}}
 @slot('header')
 @component('mail::header', ['url' => config('app.url')])
-<img src="{{config('app.url')}}/{{ app(\App\Settings\ThemeSettings::class)->logo }}" class="logo" alt="Logo {{ app(\App\Settings\GeneralSettings::class)->name }}">
+<img src="{{ url(app(\App\Settings\ThemeSettings::class)->logo) }}" class="logo" alt="Logo {{ app(\App\Settings\GeneralSettings::class)->name }}">
 @endcomponent
 @endslot
 

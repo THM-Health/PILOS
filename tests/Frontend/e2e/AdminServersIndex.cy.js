@@ -102,7 +102,7 @@ describe("Admin servers index", function () {
     cy.contains("admin.servers.usage_info").should("be.visible");
 
     // Check that headers are displayed correctly
-    cy.get('[data-test="server-header-cell"]').should("have.length", 8);
+    cy.get('[data-test="server-header-cell"]').should("have.length", 7);
 
     cy.get('[data-test="server-header-cell"]')
       .eq(0)
@@ -132,17 +132,13 @@ describe("Admin servers index", function () {
       .eq(6)
       .should("have.text", "admin.servers.video_count");
 
-    cy.get('[data-test="server-header-cell"]')
-      .eq(7)
-      .should("have.text", "app.actions");
-
     // Check that servers are displayed correctly
     cy.get('[data-test="server-item"]').should("have.length", 4);
 
     cy.get('[data-test="server-item"]')
       .eq(0)
       .within(() => {
-        cy.get('[data-test="server-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="server-item-cell"]').should("have.length", 7);
 
         cy.get('[data-test="server-item-cell"]')
           .eq(0)
@@ -169,20 +165,12 @@ describe("Admin servers index", function () {
           .should("have.text", "10");
 
         cy.get('[data-test="server-item-cell"]').eq(6).should("have.text", "5");
-
-        cy.get('[data-test="server-item-cell"]')
-          .eq(7)
-          .within(() => {
-            cy.get('[data-test="servers-view-button"]').should("not.exist");
-            cy.get('[data-test="servers-edit-button"]').should("not.exist");
-            cy.get('[data-test="servers-delete-button"]').should("not.exist");
-          });
       });
 
     cy.get('[data-test="server-item"]')
       .eq(1)
       .within(() => {
-        cy.get('[data-test="server-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="server-item-cell"]').should("have.length", 7);
 
         cy.get('[data-test="server-item-cell"]')
           .eq(0)
@@ -211,20 +199,12 @@ describe("Admin servers index", function () {
           .should("have.text", "50");
 
         cy.get('[data-test="server-item-cell"]').eq(6).should("have.text", "5");
-
-        cy.get('[data-test="server-item-cell"]')
-          .eq(7)
-          .within(() => {
-            cy.get('[data-test="servers-view-button"]').should("not.exist");
-            cy.get('[data-test="servers-edit-button"]').should("not.exist");
-            cy.get('[data-test="servers-delete-button"]').should("not.exist");
-          });
       });
 
     cy.get('[data-test="server-item"]')
       .eq(2)
       .within(() => {
-        cy.get('[data-test="server-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="server-item-cell"]').should("have.length", 7);
 
         cy.get('[data-test="server-item-cell"]')
           .eq(0)
@@ -255,20 +235,12 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(6)
           .should("have.text", " --- ");
-
-        cy.get('[data-test="server-item-cell"]')
-          .eq(7)
-          .within(() => {
-            cy.get('[data-test="servers-view-button"]').should("not.exist");
-            cy.get('[data-test="servers-edit-button"]').should("not.exist");
-            cy.get('[data-test="servers-delete-button"]').should("not.exist");
-          });
       });
 
     cy.get('[data-test="server-item"]')
       .eq(3)
       .within(() => {
-        cy.get('[data-test="server-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="server-item-cell"]').should("have.length", 7);
 
         cy.get('[data-test="server-item-cell"]')
           .eq(0)
@@ -299,14 +271,6 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(6)
           .should("have.text", " --- ");
-
-        cy.get('[data-test="server-item-cell"]')
-          .eq(7)
-          .within(() => {
-            cy.get('[data-test="servers-view-button"]').should("not.exist");
-            cy.get('[data-test="servers-edit-button"]').should("not.exist");
-            cy.get('[data-test="servers-delete-button"]').should("not.exist");
-          });
       });
   });
 
@@ -749,6 +713,18 @@ describe("Admin servers index", function () {
   });
 
   it("sort servers", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "servers.viewAny",
+        "servers.view",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
     cy.visit("/admin/servers");
 
     cy.wait("@serversRequest").then((interception) => {

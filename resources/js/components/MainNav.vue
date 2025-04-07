@@ -280,20 +280,23 @@ const userMenuItems = computed(() => {
     command: () => toggleDark(),
   });
 
-  const localeItem = {
-    icon: "fa-solid fa-language text-xl",
-    label: t("app.change_locale"),
-    items: [],
-  };
+  // Only show the locale menu if more than one locale is enabled
+  if (locales.value.length > 1) {
+    const localeItem = {
+      icon: "fa-solid fa-language text-xl",
+      label: t("app.change_locale"),
+      items: [],
+    };
 
-  locales.value.forEach((locale) => {
-    localeItem.items.push({
-      label: locale.label,
-      command: () => changeLocale(locale.locale),
+    locales.value.forEach((locale) => {
+      localeItem.items.push({
+        label: locale.label,
+        command: () => changeLocale(locale.locale),
+      });
     });
-  });
 
-  items.push(localeItem);
+    items.push(localeItem);
+  }
 
   return items;
 });

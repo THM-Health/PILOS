@@ -12,10 +12,10 @@
         <LandingHeroCTA />
       </div>
       <div
-        class="mt-14 flex justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0"
+        class="mt-14 grid grid-cols-3 justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0 xl:grid-cols-[10rem_10rem_10rem] 2xl:grid-cols-[12rem_12rem_12rem]"
       >
         <div
-          class="ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-none xl:pt-80"
+          class="ml-auto flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:pt-64 xl:pt-80"
         >
           <div class="relative">
             <img
@@ -28,7 +28,7 @@
             />
           </div>
         </div>
-        <div class="mr-auto w-44 flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36">
+        <div class="mr-auto flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36">
           <div class="relative">
             <img
               src="/public/images/hero/hero2.jpg"
@@ -50,7 +50,7 @@
             />
           </div>
         </div>
-        <div class="w-44 flex-none space-y-8 pt-32 sm:pt-0">
+        <div class="flex-none space-y-8 pt-32 sm:pt-0">
           <div class="relative">
             <img
               src="/public/images/hero/hero4.jpg"

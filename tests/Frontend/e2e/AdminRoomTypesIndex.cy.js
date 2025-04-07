@@ -61,15 +61,11 @@ describe("Admin room types index", function () {
       .should("include.text", "admin.breakcrumbs.room_types.index");
 
     // Check that table headers are displayed correctly
-    cy.get('[data-test="room-type-header-cell"]').should("have.length", 2);
+    cy.get('[data-test="room-type-header-cell"]').should("have.length", 1);
 
     cy.get('[data-test="room-type-header-cell"]')
       .eq(0)
       .should("have.text", "app.model_name");
-
-    cy.get('[data-test="room-type-header-cell"]')
-      .eq(1)
-      .should("have.text", "app.actions");
 
     // Check that room types are displayed correctly
     cy.get('[data-test="room-type-item"]').should("have.length", 2);
@@ -80,15 +76,6 @@ describe("Admin room types index", function () {
         cy.get('[data-test="room-type-item-cell"]')
           .eq(0)
           .should("have.text", "Exam");
-        cy.get('[data-test="room-type-item-cell"]')
-          .eq(1)
-          .within(() => {
-            cy.get('[data-test="room-types-view-button"]').should("not.exist");
-            cy.get('[data-test="room-types-edit-button"]').should("not.exist");
-            cy.get('[data-test="room-types-delete-button"]').should(
-              "not.exist",
-            );
-          });
       });
 
     cy.get('[data-test="room-type-item"]')
@@ -97,15 +84,6 @@ describe("Admin room types index", function () {
         cy.get('[data-test="room-type-item-cell"]')
           .eq(0)
           .should("have.text", "Lecture");
-        cy.get('[data-test="room-type-item-cell"]')
-          .eq(1)
-          .within(() => {
-            cy.get('[data-test="room-types-view-button"]').should("not.exist");
-            cy.get('[data-test="room-types-edit-button"]').should("not.exist");
-            cy.get('[data-test="room-types-delete-button"]').should(
-              "not.exist",
-            );
-          });
       });
   });
 

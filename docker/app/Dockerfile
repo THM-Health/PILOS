@@ -1,11 +1,11 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 LABEL maintainer="Samuel Weirich"
 LABEL description="Development and production container for PILOS, compatible with laravel sail; heavily inspired by offical image"
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
-ARG PLAYBACK_PLAYER_VERSION=5.2.1
+ARG PLAYBACK_PLAYER_VERSION=5.3.1
 ARG VITE_COVERAGE="false"
 
 WORKDIR /var/www/html
@@ -89,6 +89,9 @@ COPY ./docker/app/ldap/ /etc/openldap
 
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
+
+# Add folder to git safe.directory
+RUN su-exec www-data git config --global --add safe.directory /var/www/html
 
 # Build frontend
 RUN if [ "$VITE_COVERAGE" != "true" ] ; then \

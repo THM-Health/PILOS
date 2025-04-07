@@ -40,7 +40,7 @@ class LoginTest extends TestCase
             'email' => $user->email,
             'password' => 'foo',
         ]);
-        $response->assertStatus(422);
+        $response->assertUnprocessable();
         $this->assertGuest();
     }
 

@@ -20,7 +20,6 @@ class CreateSuperuserTest extends TestCase
 
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
-            'app.fallback_locale' => 'ru',
             'app.locale' => 'en',
             'auth.local.enabled' => true,
         ]);

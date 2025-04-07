@@ -39,7 +39,7 @@ class EnsureModelNotStaleTest extends TestCase
         $role = Role::factory()->create();
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['updated_at' => 'test'])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors('updated_at');
     }
 

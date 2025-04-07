@@ -153,6 +153,12 @@ In this example we assume PILOS is installed in the `/srv/pilos` directory, adju
 command="/usr/bin/rrsync /srv/pilos/storage/recordings-spool/",restrict ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII87OBtxWJYWUc/Y13O2GYZ5c91uR8HesEirQ4SMrpsM bigbluebutton@bbb-server
 ```
 
+Next, you must set the permissions of the `authorized_keys` file so that it can only be read and written by the `pilos-spool` user.
+
+```bash
+chmod 600 ~/.ssh/authorized_keys
+```
+
 Lastly you need to make sure the `pilos-spool` user has the correct permissions to read and write the recordings-spool directory.
 
 ```bash

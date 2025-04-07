@@ -8,11 +8,11 @@ export function useActionColumn(actionConstraints = []) {
       if (actionConstraint.permissions) {
         if (!authStore.currentUser) return false;
 
-        actionConstraint.permissions.forEach((permission) => {
+        for (const permission of actionConstraint.permissions) {
           if (!authStore.currentUser.permissions.includes(permission)) {
             return false;
           }
-        });
+        }
       }
       return true;
     }).length;

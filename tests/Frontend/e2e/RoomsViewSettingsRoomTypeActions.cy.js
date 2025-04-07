@@ -16,7 +16,7 @@ describe("Rooms view settings", function () {
 
     cy.wait("@roomSettingsRequest");
 
-    cy.get("#room-type").should("have.value", "Meeting");
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
     cy.get('[data-test="room-unsaved-changes-message"]').should("not.exist");
     cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
     cy.get('[data-test="room-type-change-button"]').click();
@@ -169,54 +169,75 @@ describe("Rooms view settings", function () {
     // Check that settings did not change
     cy.get('[data-test="room-unsaved-changes-message"]').should("not.exist");
 
-    cy.get("#room-type").should("have.value", "Meeting");
-    cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("be.disabled").and("be.checked");
-    cy.get("#short-description").should("have.value", "Short description");
-    cy.get("#everyone-can-start")
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
+    cy.get("#room-setting-allow_guests")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-short_description").should(
+      "have.value",
+      "Short description",
+    );
+    cy.get("#room-setting-everyone_can_start")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#mute-on-start").should("be.disabled").and("be.checked");
+    cy.get("#room-setting-mute_on_start")
+      .should("be.disabled")
+      .and("be.checked");
 
-    cy.get("#lobby-disabled").should("be.disabled").and("not.be.checked");
-    cy.get("#lobby-enabled").should("be.disabled").and("not.be.checked");
-    cy.get("#lobby-only-for-guests").should("be.disabled").and("be.checked");
+    cy.get("#room-setting-lobby-0").should("be.disabled").and("not.be.checked");
+    cy.get("#room-setting-lobby-1").should("be.disabled").and("not.be.checked");
+    cy.get("#room-setting-lobby-2").should("be.disabled").and("be.checked");
 
-    cy.get("#welcome-message").should("have.value", "Welcome message");
-    cy.get("#record-attendance")
+    cy.get("#room-setting-welcome").should("have.value", "Welcome message");
+    cy.get("#room-setting-record_attendance")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#record").should("not.be.disabled").and("not.be.checked");
-    cy.get("#auto-start-recording")
+    cy.get("#room-setting-record")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#disable-cam").should("not.be.disabled").and("not.be.checked");
-    cy.get("#webcams-only-for-moderator")
+    cy.get("#room-setting-auto_start_recording")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_cam")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-webcams_only_for_moderator")
       .should("not.be.disabled")
       .and("be.checked");
-    cy.get("#disable-mic").should("be.disabled").and("not.be.checked");
-    cy.get("#disable-public-chat").should("not.be.disabled").and("be.checked");
-    cy.get("#disable-private-chat")
+    cy.get("#room-setting-lock_settings_disable_mic")
+      .should("be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_public_chat")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_private_chat")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#disable-note").should("be.disabled").and("be.checked");
-    cy.get("#hide-user-list").should("not.be.disabled").and("be.checked");
-    cy.get("#allow-membership").should("be.disabled").and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_note")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_hide_user_list")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-allow_membership")
+      .should("be.disabled")
+      .and("not.be.checked");
 
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "true")
       .and("not.be.disabled");
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "false")
       .and("not.be.disabled");
 
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "false")
       .and("not.be.disabled");
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "true")
       .and("not.be.disabled");
@@ -737,54 +758,81 @@ describe("Rooms view settings", function () {
       .should("be.visible")
       .and("have.text", "app.save");
 
-    cy.get("#room-type").should("have.value", "Exam");
-    cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("not.be.disabled").and("not.be.checked");
-    cy.get("#short-description").should("have.value", "Short description");
-    cy.get("#everyone-can-start").should("not.be.disabled").and("be.checked");
-    cy.get("#mute-on-start").should("not.be.disabled").and("not.be.checked");
+    cy.get("#room-setting-room_type").should("have.value", "Exam");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
+    cy.get("#room-setting-allow_guests")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-short_description").should(
+      "have.value",
+      "Short description",
+    );
+    cy.get("#room-setting-everyone_can_start")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-mute_on_start")
+      .should("not.be.disabled")
+      .and("not.be.checked");
 
-    cy.get('[data-test="lobby-setting"]').should(
+    cy.get('[data-test="room-setting-lobby"]').should(
       "include.text",
       "rooms.settings.video_conference.lobby.alert",
     );
-    cy.get("#lobby-disabled").should("not.be.disabled").and("not.be.checked");
-    cy.get("#lobby-enabled").should("not.be.disabled").and("be.checked");
-    cy.get("#lobby-only-for-guests")
+    cy.get("#room-setting-lobby-0")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lobby-1").should("not.be.disabled").and("be.checked");
+    cy.get("#room-setting-lobby-2")
       .should("not.be.disabled")
       .and("not.be.checked");
 
-    cy.get("#welcome-message").should("have.value", "Welcome message");
-    cy.get("#record-attendance").should("not.be.disabled").and("be.checked");
-    cy.get("#record").should("not.be.disabled").and("be.checked");
-    cy.get("#auto-start-recording").should("not.be.disabled").and("be.checked");
-    cy.get("#disable-cam").should("not.be.disabled").and("be.checked");
-    cy.get("#webcams-only-for-moderator")
+    cy.get("#room-setting-welcome").should("have.value", "Welcome message");
+    cy.get("#room-setting-record_attendance")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-record").should("not.be.disabled").and("be.checked");
+    cy.get("#room-setting-auto_start_recording")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_cam")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-webcams_only_for_moderator")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#disable-mic").should("not.be.disabled").and("be.checked");
-    cy.get("#disable-public-chat")
+    cy.get("#room-setting-lock_settings_disable_mic")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_public_chat")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#disable-private-chat").should("not.be.disabled").and("be.checked");
-    cy.get("#disable-note").should("not.be.disabled").and("not.be.checked");
-    cy.get("#hide-user-list").should("not.be.disabled").and("not.be.checked");
-    cy.get("#allow-membership").should("not.be.disabled").and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_private_chat")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_note")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lock_settings_hide_user_list")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-allow_membership")
+      .should("not.be.disabled")
+      .and("be.checked");
 
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "false")
       .and("not.be.disabled");
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "true")
       .and("not.be.disabled");
 
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "true")
       .and("not.be.disabled");
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "false")
       .and("not.be.disabled");
@@ -988,52 +1036,77 @@ describe("Rooms view settings", function () {
       .should("be.visible")
       .and("have.text", "app.save");
 
-    cy.get("#room-type").should("have.value", "Meeting");
-    cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("be.disabled").and("be.checked");
-    cy.get("#short-description").should("have.value", "Short description");
-    cy.get("#everyone-can-start").should("not.be.disabled").and("be.checked");
-    cy.get("#mute-on-start").should("be.disabled").and("be.checked");
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
+    cy.get("#room-setting-allow_guests")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-short_description").should(
+      "have.value",
+      "Short description",
+    );
+    cy.get("#room-setting-everyone_can_start")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-mute_on_start")
+      .should("be.disabled")
+      .and("be.checked");
 
-    cy.get('[data-test="lobby-setting"]').should(
+    cy.get('[data-test="room-setting-lobby"]').should(
       "not.include.text",
       "rooms.settings.video_conference.lobby.alert",
     );
-    cy.get("#lobby-disabled").should("be.disabled").and("not.be.checked");
-    cy.get("#lobby-enabled").should("be.disabled").and("not.be.checked");
-    cy.get("#lobby-only-for-guests").should("be.disabled").and("be.checked");
+    cy.get("#room-setting-lobby-0").should("be.disabled").and("not.be.checked");
+    cy.get("#room-setting-lobby-1").should("be.disabled").and("not.be.checked");
+    cy.get("#room-setting-lobby-2").should("be.disabled").and("be.checked");
 
-    cy.get("#welcome-message").should("have.value", "Welcome message");
-    cy.get("#record-attendance").should("not.be.disabled").and("be.checked");
-    cy.get("#record").should("not.be.disabled").and("be.checked");
-    cy.get("#auto-start-recording").should("not.be.disabled").and("be.checked");
-    cy.get("#disable-cam").should("not.be.disabled").and("be.checked");
-    cy.get("#webcams-only-for-moderator")
+    cy.get("#room-setting-welcome").should("have.value", "Welcome message");
+    cy.get("#room-setting-record_attendance")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-record").should("not.be.disabled").and("be.checked");
+    cy.get("#room-setting-auto_start_recording")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_cam")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-webcams_only_for_moderator")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#disable-mic").should("be.disabled").and("not.be.checked");
-    cy.get("#disable-public-chat")
+    cy.get("#room-setting-lock_settings_disable_mic")
+      .should("be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_public_chat")
       .should("not.be.disabled")
       .and("not.be.checked");
-    cy.get("#disable-private-chat").should("not.be.disabled").and("be.checked");
-    cy.get("#disable-note").should("be.disabled").and("be.checked");
-    cy.get("#hide-user-list").should("not.be.disabled").and("not.be.checked");
-    cy.get("#allow-membership").should("be.disabled").and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_private_chat")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_note")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_hide_user_list")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-allow_membership")
+      .should("be.disabled")
+      .and("not.be.checked");
 
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "false")
       .and("not.be.disabled");
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "true")
       .and("not.be.disabled");
 
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "true")
       .and("not.be.disabled");
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "false")
       .and("not.be.disabled");
@@ -1277,57 +1350,86 @@ describe("Rooms view settings", function () {
       .should("be.visible")
       .and("have.text", "app.save");
 
-    cy.get("#room-type").should("have.value", "Seminar");
-    cy.get("#access-code").should("have.value", "123456789");
-    cy.get('[data-test="access-code-setting"]')
+    cy.get("#room-setting-room_type").should("have.value", "Seminar");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
+    cy.get('[data-test="room-setting-access_code"]')
       .should("include.text", "rooms.settings.general.access_code_prohibited")
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]');
       });
-    cy.get("#allow-guests").should("be.disabled").and("not.be.checked");
-    cy.get("#short-description").should("have.value", "Short description");
-    cy.get("#everyone-can-start").should("be.disabled").and("be.checked");
-    cy.get("#mute-on-start").should("not.be.disabled").and("be.checked");
-
-    cy.get('[data-test="lobby-setting"]').should(
-      "not.include.text",
-      "rooms.settings.video_conference.lobby.alert",
+    cy.get("#room-setting-allow_guests")
+      .should("be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-short_description").should(
+      "have.value",
+      "Short description",
     );
-    cy.get("#lobby-disabled").should("not.be.disabled").and("not.be.checked");
-    cy.get("#lobby-enabled").should("not.be.disabled").and("not.be.checked");
-    cy.get("#lobby-only-for-guests")
+    cy.get("#room-setting-everyone_can_start")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-mute_on_start")
       .should("not.be.disabled")
       .and("be.checked");
 
-    cy.get("#welcome-message").should("have.value", "Welcome message");
-    cy.get("#record-attendance").should("be.disabled").and("be.checked");
-    cy.get("#record").should("be.disabled").and("be.checked");
-    cy.get("#auto-start-recording").should("be.disabled").and("be.checked");
-    cy.get("#disable-cam").should("be.disabled").and("be.checked");
-    cy.get("#webcams-only-for-moderator")
+    cy.get('[data-test="room-setting-lobby"]').should(
+      "not.include.text",
+      "rooms.settings.video_conference.lobby.alert",
+    );
+    cy.get("#room-setting-lobby-0")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lobby-1")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lobby-2").should("not.be.disabled").and("be.checked");
+
+    cy.get("#room-setting-welcome").should("have.value", "Welcome message");
+    cy.get("#room-setting-record_attendance")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-record").should("be.disabled").and("be.checked");
+    cy.get("#room-setting-auto_start_recording")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_cam")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-webcams_only_for_moderator")
       .should("be.disabled")
       .and("not.be.checked");
-    cy.get("#disable-mic").should("not.be.disabled").and("not.be.checked");
-    cy.get("#disable-public-chat").should("be.disabled").and("not.be.checked");
-    cy.get("#disable-private-chat").should("be.disabled").and("be.checked");
-    cy.get("#disable-note").should("not.be.disabled").and("be.checked");
-    cy.get("#hide-user-list").should("be.disabled").and("not.be.checked");
-    cy.get("#allow-membership").should("not.be.disabled").and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_mic")
+      .should("not.be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_public_chat")
+      .should("be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-lock_settings_disable_private_chat")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_disable_note")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-lock_settings_hide_user_list")
+      .should("be.disabled")
+      .and("not.be.checked");
+    cy.get("#room-setting-allow_membership")
+      .should("not.be.disabled")
+      .and("not.be.checked");
 
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "false")
       .and("be.disabled");
-    cy.get('[data-test="room-settings-default-role-button"]')
+    cy.get('[data-test="room-setting-default_role-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "true")
       .and("be.disabled");
 
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "true")
       .and("be.disabled");
-    cy.get('[data-test="room-settings-visibility-button"]')
+    cy.get('[data-test="room-setting-visibility-button"]')
       .eq(1)
       .should("have.attr", "aria-pressed", "false")
       .and("be.disabled");
@@ -1361,14 +1463,16 @@ describe("Rooms view settings", function () {
 
     cy.wait("@roomSettingsRequest");
 
-    cy.get("#room-type").should("have.value", "Meeting");
-    cy.get("#access-code").should("have.value", "123456789");
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
 
     // Change to another room type and reset default settings
     cy.get('[data-test="room-type-change-button"]').click();
     cy.get('[data-test="room-type-change-dialog"]').should("be.visible");
     cy.get('[data-test="room-type-select-option"]').eq(2).click();
-    cy.get("#allow-guests").should("be.disabled").and("be.checked");
+    cy.get("#room-setting-allow_guests")
+      .should("be.disabled")
+      .and("be.checked");
 
     cy.get('[data-test="dialog-save-button"]')
       .should("have.text", "app.save")
@@ -1688,11 +1792,16 @@ describe("Rooms view settings", function () {
       .should("not.exist");
 
     // Check that settings where changed
-    cy.get("#room-type").should("have.value", "Exam");
-    cy.get("#room-name").should("have.value", "Meeting One");
-    cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("not.be.disabled").and("be.checked");
-    cy.get("#short-description").should("have.value", "Short description");
+    cy.get("#room-setting-room_type").should("have.value", "Exam");
+    cy.get("#room-setting-name").should("have.value", "Meeting One");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
+    cy.get("#room-setting-allow_guests")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-short_description").should(
+      "have.value",
+      "Short description",
+    );
 
     // Check other settings hidden
     // Video conference settings
@@ -1878,11 +1987,16 @@ describe("Rooms view settings", function () {
       .should("not.exist");
 
     // Check that settings where changed
-    cy.get("#room-type").should("have.value", "Exam 2");
-    cy.get("#room-name").should("have.value", "Meeting One");
-    cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("not.be.disabled").and("be.checked");
-    cy.get("#short-description").should("have.value", "Short description");
+    cy.get("#room-setting-room_type").should("have.value", "Exam 2");
+    cy.get("#room-setting-name").should("have.value", "Meeting One");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
+    cy.get("#room-setting-allow_guests")
+      .should("not.be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-short_description").should(
+      "have.value",
+      "Short description",
+    );
 
     // Check other settings hidden
     // Video conference settings
@@ -1904,7 +2018,9 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-type-change-button"]').click();
     cy.get('[data-test="room-type-change-dialog"]').should("be.visible");
     cy.get('[data-test="room-type-select-option"]').eq(1).click();
-    cy.get("#allow-guests").should("not.be.disabled").and("be.checked");
+    cy.get("#room-setting-allow_guests")
+      .should("not.be.disabled")
+      .and("be.checked");
 
     cy.get('[data-test="dialog-save-button"]')
       .should("have.text", "app.save")
@@ -2068,11 +2184,16 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-unsaved-changes-message"]').should("not.exist");
 
     // Check that settings where changed
-    cy.get("#room-type").should("have.value", "Meeting");
-    cy.get("#room-name").should("have.value", "Meeting One");
-    cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("be.disabled").and("be.checked");
-    cy.get("#short-description").should("have.value", "Short description");
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get("#room-setting-name").should("have.value", "Meeting One");
+    cy.get("#room-setting-access_code").should("have.value", "123456789");
+    cy.get("#room-setting-allow_guests")
+      .should("be.disabled")
+      .and("be.checked");
+    cy.get("#room-setting-short_description").should(
+      "have.value",
+      "Short description",
+    );
 
     // Check other settings hidden
     // Video conference settings
@@ -2123,7 +2244,7 @@ describe("Rooms view settings", function () {
 
     cy.wait("@roomSettingsRequest");
 
-    cy.get("#room-type").should("have.value", "Meeting");
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
     cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
     cy.get('[data-test="room-type-change-button"]').click();
 

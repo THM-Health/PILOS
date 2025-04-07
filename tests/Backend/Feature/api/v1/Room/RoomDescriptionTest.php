@@ -280,7 +280,7 @@ class RoomDescriptionTest extends TestCase
 
         // Too long description
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => $this->faker->text(650001)])
-            ->assertStatus(422);
+            ->assertUnprocessable();
         $room->refresh();
         $this->assertNull($room->description);
     }
