@@ -21,19 +21,5 @@ class CSPPolicy implements Preset
             ->add(Directive::OBJECT, Keyword::NONE)
             ->add(Directive::STYLE, [Keyword::SELF, Keyword::UNSAFE_INLINE])
             ->addNonce(Directive::SCRIPT);
-
-        // Add Vite dev server to CSP in local environment if vite dev server is running
-        if (config('app.env') == 'local' && file_exists(public_path('hot'))) {
-            $viteURL = file_get_contents(public_path('hot'));
-            $viteURLParts = parse_url($viteURL);
-
-            $policy->add(Directive::BASE, $viteURL)
-                ->add(Directive::CONNECT, $viteURL)
-                ->add(Directive::CONNECT, 'wss://'.$viteURLParts['host'].':'.$viteURLParts['port'])
-                ->add(Directive::CONNECT, 'ws://'.$viteURLParts['host'].':'.$viteURLParts['port'])
-                ->add(Directive::DEFAULT, $viteURL)
-                ->add(Directive::MEDIA, $viteURL)
-                ->add(Directive::STYLE, $viteURL);
-        }
     }
 }
