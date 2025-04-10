@@ -4,18 +4,19 @@ namespace App\Console\Commands;
 
 use App\Notifications\TestEmail;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Notification;
 
 use function Laravel\Prompts\text;
 
-class TestEmailConfig extends Command
+class TestEmailConfig extends Command implements PromptsForMissingInput
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'mail:test';
+    protected $signature = 'mail:test {email}';
 
     /**
      * The console command description.
@@ -25,16 +26,25 @@ class TestEmailConfig extends Command
     protected $description = 'Send a test email to validate config';
 
     /**
+     * Prompt for missing input arguments using the returned questions.
+     *
+     * @return array<string, string>
+     */
+    protected function promptForMissingArgumentsUsing(): array
+    {
+        return [
+            'email' => fn () => text(label: 'Recipient email address', validate: ['email' => 'required|email']),
+        ];
+    }
+
+    /**
      * Execute the console command.
      */
     public function handle()
     {
-        // Ask for the email address to send the test email
-        $email = text(label: 'Recipient email address', validate: ['email' => 'required|email']);
-
         // Send the test email
         try {
-            Notification::route('mail', [$email])->notifyNow(new TestEmail);
+            Notification::route('mail', [$this->argument('email')])->notifyNow(new TestEmail);
 
             $this->info('Test email sent successfully');
 

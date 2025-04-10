@@ -127,6 +127,7 @@ Existing installations will keep their current values as they are stored in the 
 | `ROOM_AUTO_DELETE_DEADLINE_PERIOD`     | `14` (_14 days_)   | _14 days_        |                                                                                                                                                                         |
 | `CACHE_DRIVER`                         | `file`             | _REMOVED_        | Removed as setup with redis is new default and highly recommended                                                                                                       |
 | `QUEUE_CONNECTION`                     | `sync`             | _REMOVED_        | Removed as setup with redis is new default and highly recommended                                                                                                       |
+| `MAIL_ENCRYPTION`                      | `null`             | _REMOVED_        | Removed by the laravel framework; use `MAIL_SCHEME` instead (See [Configuration](./03-configuration.md#email-configuration))                                            |
 
 ## User Interface
 
