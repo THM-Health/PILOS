@@ -121,6 +121,7 @@ class StreamingServiceTest extends TestCase
                 ->push($createResponse)
                 ->push($createResponse)
                 ->push($createResponse)
+                ->push($createResponse)
                 ->push($createResponse),
         ]);
 
@@ -178,6 +179,24 @@ class StreamingServiceTest extends TestCase
         $request = Http::recorded()->pop()[0];
         // Validate pause image
         $this->assertNull($request->data()['pauseImageUrl']);
+
+        // Use custom css file and custom api join parameters
+        $streamingSettings->css_file = 'https://example.com/streaming.css';
+        $streamingSettings->join_parameters = "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_show_participants_on_login=false\nuserdata-bbb_show_public_chat_on_login=false";
+        $streamingSettings->save();
+
+        $this->streamingService->start();
+
+        // Validate request send to streaming service
+        $request = Http::recorded()->pop()[0];
+        // Validate join url
+        $joinUrl = $request->data()['joinUrl'];
+        $joinUrlParsed = parse_url($joinUrl);
+        parse_str($joinUrlParsed['query'], $joinUrlParams);
+        $this->assertEquals('https://example.com/streaming.css', $joinUrlParams['userdata-bbb_custom_style_url']);
+        $this->assertEquals('true', $joinUrlParams['userdata-bbb_hide_nav_bar']);
+        $this->assertEquals('false', $joinUrlParams['userdata-bbb_show_participants_on_login']);
+        $this->assertEquals('false', $joinUrlParams['userdata-bbb_show_public_chat_on_login']);
     }
 
     public function test_pause()

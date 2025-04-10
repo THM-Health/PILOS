@@ -53,6 +53,42 @@ STREAMING_AUTH_BASIC_PASSWORD="abc123"
 Once livestreaming is enabled in the .env file, additional settings can be configured in the admin UI:
 
 - **Default pause image**: Pause image, used if no pause image is set for the room type or room.
+- **CSS style file**: Custom CSS file to customize the BBB UI for streaming.
+
+    - **Example for BBB 2.7**
+
+        ```css
+        :root {
+            --color-background: #000;
+            --color-content-background: var(--color-background);
+            --loader-bg: var(--color-background);
+        }
+
+        #video-player div:nth-child(2) {
+            display: none;
+        }
+
+        .Toastify {
+            display: none;
+        }
+
+        aside[data-test="pollingContainer"] {
+            display: none;
+        }
+
+        body {
+            background-color: var(--color-background) !important;
+        }
+        ```
+
+- **Additional Join API parameters**: Custom join parameter to be used when joining the meeting as the livestream user.
+  Some API parameters are always set to ensure the livestreaming system is working as intended.
+    - **Example for BBB 2.7**
+        ```
+        userdata-bbb_hide_nav_bar=true
+        userdata-bbb_show_public_chat_on_login=false
+        userdata-bbb_show_participants_on_login=false
+        ```
 - **Settings per room type**:
     - **Enabled**: Enable or disable livestreaming for this room type. (default: disabled)
     - **Default image**: Pause image for this room type, used if no pause image is set for the room.

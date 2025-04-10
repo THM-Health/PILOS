@@ -200,7 +200,7 @@ class MeetingService
             if (count($parameterParts) !== 2) {
                 Log::warning('Custom create parameter {parameter} has no value', ['parameter' => $parameter]);
 
-                $errors[] = __('validation.custom_create_parameter_missing', ['parameter' => $parameter]);
+                $errors[] = __('validation.custom_parameter_missing', ['parameter' => $parameter]);
 
                 continue;
             }
@@ -227,7 +227,7 @@ class MeetingService
                     if (! preg_match('/^[0-9]+$/', $value)) {
                         Log::warning('Custom create parameter {parameter} value {value} is not an integer', ['value' => $value, 'parameter' => $parameter]);
 
-                        $errors[] = __('validation.custom_create_parameter_integer', ['parameter' => $parameter]);
+                        $errors[] = __('validation.custom_parameter_integer', ['parameter' => $parameter]);
 
                         continue;
                     }
@@ -241,7 +241,7 @@ class MeetingService
                     } else {
                         Log::warning('Custom create parameter {parameter} value {value} is not a boolean', ['value' => $value, 'parameter' => $parameter]);
 
-                        $errors[] = __('validation.custom_create_parameter_boolean', ['parameter' => $parameter]);
+                        $errors[] = __('validation.custom_parameter_boolean', ['parameter' => $parameter]);
 
                         continue;
                     }
@@ -262,7 +262,7 @@ class MeetingService
                 } catch (\ValueError $e) {
                     Log::warning('Custom create parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
 
-                    $errors[] = __('validation.custom_create_parameter_enum', ['parameter' => $parameter]);
+                    $errors[] = __('validation.custom_parameter_enum', ['parameter' => $parameter]);
 
                     continue;
                 }
@@ -278,7 +278,7 @@ class MeetingService
                         } catch (\ValueError $e) {
                             Log::warning('Custom create parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
 
-                            $errors[] = __('validation.custom_create_parameter_enum', ['parameter' => $parameter]);
+                            $errors[] = __('validation.custom_parameter_enum', ['parameter' => $parameter]);
 
                             continue;
                         }
@@ -294,12 +294,12 @@ class MeetingService
                 // Log a warning if a parameter cannot be found
                 Log::warning('Custom create parameter {parameter} can not be found', ['parameter' => $parameter]);
 
-                $errors[] = __('validation.custom_create_parameter_not_found', ['parameter' => $parameter]);
+                $errors[] = __('validation.custom_parameter_not_found', ['parameter' => $parameter]);
             } catch (\Throwable $e) {
                 // Log a warning if a parameter cannot be set due to an error or exception
                 Log::warning('Custom create parameter {parameter} can not be set', ['parameter' => $parameter, 'exception' => $e]);
 
-                $errors[] = __('validation.custom_create_parameter_invalid', ['parameter' => $parameter]);
+                $errors[] = __('validation.custom_parameter_invalid', ['parameter' => $parameter]);
             }
         }
 
@@ -310,6 +310,141 @@ class MeetingService
             Log::warning('Invalid create parameters', ['exception' => $e]);
 
             $errors[] = __('validation.custom_create_parameter_other_error');
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Set and validate custom parameters for joining a meeting.
+     *
+     * It reads the custom parameters and applies them to the join parameters.
+     * Custom parameters are defined in the format "key=value" and separated by newlines.
+     * If a key starts with "userdata-", it is added as userdata parameter.
+     * If a key corresponds to a property of the JoinMeetingParameters class, it is set by the corresponding setter method.
+     * If the property is an array, the value is exploded by comma before passing it to the setter method.
+     * If a key does not correspond to a userdata parameter or a property of the JoinMeetingParameters class, a warning is logged.
+     *
+     * @param  JoinMeetingParameters  $meetingParams  The join meeting parameters to which the custom parameters should be applied
+     * @param  string  $joinParameters  The custom parameters in the format "key=value" and separated by newlines
+     * @return array An array of error messages
+     */
+    public static function setCustomJoinMeetingParameters(JoinMeetingParameters $meetingParams, string $joinParameters): array
+    {
+        $errors = [];
+
+        // Load custom create parameters of room type
+        foreach (preg_split('/\n|\r\n?/', $joinParameters) as $joinParameter) {
+            $parameterParts = explode('=', $joinParameter, 2);
+            $parameter = $parameterParts[0];
+
+            // Skip empty lines
+            if (empty($parameter)) {
+                continue;
+            }
+
+            // Check for parameters with no value
+            if (count($parameterParts) !== 2) {
+                Log::warning('Custom join parameter {parameter} has no value', ['parameter' => $parameter]);
+
+                $errors[] = __('validation.custom_parameter_missing', ['parameter' => $parameter]);
+
+                continue;
+            }
+
+            $value = $parameterParts[1];
+
+            // Set userdata parameters
+            if (Str::startsWith($parameter, 'userdata-')) {
+                $meta = Str::after($parameter, 'userdata-');
+                $meetingParams->addUserData($meta, $value);
+
+                continue;
+            }
+
+            try {
+                $reflectionProperty = new ReflectionProperty(JoinMeetingParameters::class, $parameter);
+
+                // Get the type of the parameter to auto cast the value
+                $typeName = $reflectionProperty->getType()->getName();
+
+                // Integer
+                if ($typeName == 'int') {
+                    // check if string is an integer number using regex
+                    if (! preg_match('/^[0-9]+$/', $value)) {
+                        Log::warning('Custom join parameter {parameter} value {value} is not an integer', ['value' => $value, 'parameter' => $parameter]);
+
+                        $errors[] = __('validation.custom_parameter_integer', ['parameter' => $parameter]);
+
+                        continue;
+                    }
+                    $value = (int) $value;
+                }
+
+                // Boolean
+                if ($typeName == 'bool') {
+                    if ($value == 'true' || $value == 'false') {
+                        $value = $value == 'true';
+                    } else {
+                        Log::warning('Custom join parameter {parameter} value {value} is not a boolean', ['value' => $value, 'parameter' => $parameter]);
+
+                        $errors[] = __('validation.custom_parameter_boolean', ['parameter' => $parameter]);
+
+                        continue;
+                    }
+                }
+
+                // Arrays; currently no used by BBB for join parameters
+                // Keep this, in case it is needed in the future
+                /*
+                if ($typeName == 'array') {
+                    $value = explode(',', $value);
+                }
+                */
+
+                // Custom types (e.g. enums)
+                if (class_exists($typeName)) {
+                    $reflectionClass = new \ReflectionClass($typeName);
+
+                    // Enum
+                    if ($reflectionClass->isEnum()) {
+                        try {
+                            $value = $typeName::from($value);
+                        } catch (\ValueError $e) {
+                            Log::warning('Custom join parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
+
+                            $errors[] = __('validation.custom_parameter_enum', ['parameter' => $parameter]);
+
+                            continue;
+                        }
+                    }
+                }
+
+                // Get the setter method for the parameter
+                $setParamMethod = 'set'.ucfirst($parameter);
+
+                // Set the parameter
+                $meetingParams->$setParamMethod($value);
+            } catch (\ReflectionException $e) {
+                // Log a warning if a parameter cannot be found
+                Log::warning('Custom join parameter {parameter} can not be found', ['parameter' => $parameter]);
+
+                $errors[] = __('validation.custom_parameter_not_found', ['parameter' => $parameter]);
+            } catch (\Throwable $e) {
+                // Log a warning if a parameter cannot be set due to an error or exception
+                Log::warning('Custom join parameter {parameter} can not be set', ['parameter' => $parameter, 'exception' => $e]);
+
+                $errors[] = __('validation.custom_parameter_invalid', ['parameter' => $parameter]);
+            }
+        }
+
+        // Try to create the query string to check for error that are not caught in the previous steps
+        try {
+            $meetingParams->getHTTPQuery();
+        } catch (\Throwable $e) {
+            Log::warning('Invalid join parameters', ['exception' => $e]);
+
+            $errors[] = __('validation.custom_join_parameter_other_error');
         }
 
         return $errors;

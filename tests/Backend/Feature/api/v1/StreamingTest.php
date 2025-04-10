@@ -108,6 +108,8 @@ class StreamingTest extends TestCase
 
         // Adjust global settings and room type settings
         $this->streamingSettings->default_pause_image = 'https://example.com/system_pause_image.png';
+        $this->streamingSettings->css_file = 'https://example.com/streaming.css';
+        $this->streamingSettings->join_parameters = "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_show_participants_on_login=false\nuserdata-bbb_show_public_chat_on_login=false";
         $this->streamingSettings->save();
 
         $lecture = RoomType::where('name', 'Lecture')->first();
@@ -136,6 +138,8 @@ class StreamingTest extends TestCase
             ->assertJson([
                 'data' => [
                     'default_pause_image' => 'https://example.com/system_pause_image.png',
+                    'css_file' => 'https://example.com/streaming.css',
+                    'join_parameters' => "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_show_participants_on_login=false\nuserdata-bbb_show_public_chat_on_login=false",
                     'room_types' => [
                         [
                             'id' => 1,
@@ -187,6 +191,8 @@ class StreamingTest extends TestCase
     {
         $data = [
             'default_pause_image' => null,
+            'css_file' => null,
+            'join_parameters' => null,
         ];
 
         // Test as guest
@@ -262,6 +268,61 @@ class StreamingTest extends TestCase
         $this->assertNull($result->json('data.default_pause_image'));
         $this->streamingSettings->refresh();
         $this->assertNull($this->streamingSettings->default_pause_image);
+
+        // Upload css file
+        $data['css_file'] = UploadedFile::fake()->create('streaming.css', 100, 'text/css');
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertSuccessful();
+        $this->streamingSettings->refresh();
+        $this->assertEquals('http://localhost/storage/styles/streaming.css', $this->streamingSettings->css_file);
+
+        // Upload css file with wrong mime type
+        $data['css_file'] = UploadedFile::fake()->create('streaming.txt', 100, 'text/plain');
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['css_file']);
+
+        // Upload css file with too big size
+        $data['css_file'] = UploadedFile::fake()->create('streaming.css', 5001, 'text/css');
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['css_file']);
+
+        // Validate if the css file is not deleted if request is empty
+        unset($data['css_file']);
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertSuccessful();
+        $this->streamingSettings->refresh();
+        $this->assertNotNull($this->streamingSettings->css_file);
+
+        // Validate if the css file is deleted if css_file is null
+        $data['css_file'] = null;
+        $result = $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertSuccessful();
+        $this->assertNull($result->json('data.css_file'));
+        $this->streamingSettings->refresh();
+        $this->assertNull($this->streamingSettings->css_file);
+
+        // Add valid join parameters
+        $data['join_parameters'] = "enforceLayout=PRESENTATION_FOCUS\nuserdata-bbb_hide_nav_bar=true\nuserdata-bbb_show_participants_on_login=false\nuserdata-bbb_show_public_chat_on_login=false";
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertSuccessful();
+        $this->streamingSettings->refresh();
+        $this->assertEquals("enforceLayout=PRESENTATION_FOCUS\nuserdata-bbb_hide_nav_bar=true\nuserdata-bbb_show_participants_on_login=false\nuserdata-bbb_show_public_chat_on_login=false", $this->streamingSettings->join_parameters);
+
+        // Add invalid join parameters
+        $data['join_parameters'] = "meta_foo=baa\nrecord=invalid\nmaxParticipants=10.5\nenforceLayout=invalid";
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['join_parameters'])
+            ->dump();
 
         // Disable streaming globally, route should be disabled
         config(['streaming.enabled' => false]);

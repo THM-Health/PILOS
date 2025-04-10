@@ -422,6 +422,10 @@ return [
         ],
         'enabled' => 'Enabled',
         'default_pause_image' => 'Default pause image',
+        'css_file' => 'CSS style file',
+        'css_file_description' => 'CSS file to customize the BBB UI for streaming',
+        'join_parameters' => 'Additional Join API parameters',
+        'join_parameters_description' => 'Specify as attribute-value pair (one per line, without spaces), e.g. userdata-bbb_show_public_chat_on_login=false',
         'room_types' => [
             'title' => 'Room type specific settings',
             'edit' => 'Edit streaming settings for :name',

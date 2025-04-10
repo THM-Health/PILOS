@@ -31,6 +31,8 @@ class StreamingSettings extends JsonResource
 
         return [
             'default_pause_image' => $settings->default_pause_image,
+            'css_file' => $settings->css_file,
+            'join_parameters' => $settings->join_parameters,
             'room_types' => $roomTypes,
         ];
     }

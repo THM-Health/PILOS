@@ -28,6 +28,21 @@ class StreamingController extends Controller
             $settings->default_pause_image = null;
         }
 
+        // Custom css_file for streaming
+        if ($request->has('css_file')) {
+            if (! empty($request->file('css_file'))) {
+                $path = $request->file('css_file')->storeAs('styles', 'streaming.css', 'public');
+                $url = Storage::url($path);
+                $settings->css_file = url($url);
+            } else {
+                Storage::disk('public')->delete('styles/streaming.css');
+                $settings->css_file = null;
+            }
+        }
+
+        // Join parameters
+        $settings->join_parameters = $request->join_parameters;
+
         $settings->save();
 
         return new StreamingSettings;

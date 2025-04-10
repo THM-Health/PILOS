@@ -9,8 +9,11 @@
 
       <div class="flex flex-col gap-6">
         <AdminPanel :title="$t('admin.streaming.general.title')">
-          <form @submit.prevent="updateSettings">
-            <fieldset class="grid grid-cols-12 gap-4">
+          <form class="flex flex-col gap-6" @submit.prevent="updateSettings">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="default-pause-image-field"
+            >
               <legend
                 id="default-pause-image-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -26,7 +29,7 @@
                   :readonly="viewOnly"
                   :max-file-size="5000000"
                   show-delete
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif']"
                   :file-invalid="formErrors.fieldInvalid('default_pause_image')"
                   :file-error="formErrors.fieldError('default_pause_image')"
                 />
@@ -35,6 +38,60 @@
                 }}</small>
               </div>
             </fieldset>
+            <fieldset class="grid grid-cols-12 gap-4" data-test="style-field">
+              <legend
+                id="bbb-style-label"
+                class="col-span-12 md:col-span-4 md:mb-0"
+              >
+                {{ $t("admin.streaming.css_file") }}
+              </legend>
+              <div class="col-span-12 md:col-span-8">
+                <SettingsFileSelector
+                  v-model:file-url="settings.css_file"
+                  v-model:file="cssFile"
+                  v-model:file-deleted="cssFileDeleted"
+                  :disabled="disabled"
+                  :readonly="viewOnly"
+                  :max-file-size="500000"
+                  show-delete
+                  :allowed-extensions="['css']"
+                  :file-invalid="formErrors.fieldInvalid('css_file')"
+                  :file-error="formErrors.fieldError('css_file')"
+                />
+                <small>{{ $t("admin.streaming.css_file_description") }}</small>
+              </div>
+            </fieldset>
+
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="join-parameters-field"
+            >
+              <label
+                for="join-parameters"
+                class="col-span-12 items-start md:col-span-4 md:mb-0"
+                >{{ $t("admin.streaming.join_parameters") }}</label
+              >
+              <div class="col-span-12 md:col-span-8">
+                <Textarea
+                  id="join-parameters"
+                  v-model="settings.join_parameters"
+                  class="w-full"
+                  auto-resize
+                  :invalid="formErrors.fieldInvalid('join_parameters')"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                  aria-describedby="join-parameters-help"
+                  :placeholder="
+                    viewOnly
+                      ? ''
+                      : 'userdata-bbb_show_public_chat_on_login=false\nuserdata-bbb_show_participants_on_login=false'
+                  "
+                />
+                <p id="join-parameters-help">
+                  {{ $t("admin.streaming.join_parameters_description") }}
+                </p>
+                <FormError :errors="formErrors.fieldError('join_parameters')" />
+              </div>
+            </div>
 
             <div v-if="!viewOnly">
               <div class="mt-6 flex justify-end">
@@ -72,6 +129,8 @@ import AdminPanel from "../components/AdminPanel.vue";
 
 const defaultPauseImage = ref(null);
 const defaultPauseImageDeleted = ref(false);
+const cssFile = ref(null);
+const cssFileDeleted = ref(false);
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const settings = ref({});
@@ -128,7 +187,13 @@ function updateSettings() {
     formData.append("default_pause_image", "");
   }
 
-  const exclude = ["default_pause_image"];
+  if (cssFile.value !== null) {
+    formData.append("css_file", cssFile.value);
+  } else if (cssFileDeleted.value) {
+    formData.append("css_file", "");
+  }
+
+  const exclude = ["default_pause_image", "css_file"];
   Object.keys(settings.value).forEach((key) => {
     if (exclude.includes(key)) {
       return;
@@ -159,6 +224,9 @@ function updateSettings() {
     .then((response) => {
       defaultPauseImage.value = null;
       defaultPauseImageDeleted.value = false;
+
+      cssFile.value = null;
+      cssFileDeleted.value = false;
 
       // update form input
       settings.value = response.data.data;

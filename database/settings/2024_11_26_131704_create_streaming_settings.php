@@ -7,5 +7,7 @@ return new class extends SettingsMigration
     public function up(): void
     {
         $this->migrator->add('streaming.default_pause_image');
+        $this->migrator->add('streaming.css_file');
+        $this->migrator->add('streaming.join_parameters');
     }
 };

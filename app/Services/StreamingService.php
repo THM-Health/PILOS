@@ -18,40 +18,31 @@ class StreamingService
 
     public function getJoinUrl(): string
     {
+        $settings = app(\App\Settings\StreamingSettings::class);
+
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, 'Livestream', Role::MODERATOR);
+
+        // Apply custom join parameters
+        if ($settings->join_parameters != null) {
+
+            $result = MeetingService::setCustomJoinMeetingParameters($joinMeetingParams, $settings->join_parameters);
+
+            // If setting custom parameters failed, we have to recreate the parameter object to reset it
+            if (count($result) > 0) {
+                $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, 'Livestream', Role::MODERATOR);
+            }
+        }
+
+        // Set some parameters, that should always be set and never be overridden
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setUserID('b-streaming');
-
-        $joinMeetingParams->addUserData('bbb_hide_nav_bar', 'true');
+        $joinMeetingParams->setExcludeFromDashboard(true);
         $joinMeetingParams->addUserData('bbb_hide_actions_bar', 'true');
-        $joinMeetingParams->addUserData('bbb_show_public_chat_on_login', 'false');
-        $joinMeetingParams->addUserData('bbb_show_participants_on_login', 'false');
         $joinMeetingParams->addUserData('bbb_ask_for_feedback_on_logout', 'true');
 
-        $style =
-            ':root {
-    --color-background: #000;
-    --color-content-background: var(--color-background);
-    --loader-bg: var(--color-background);
-}
-
-#video-player div:nth-child(2) {
-    display: none;
-}
-
-.Toastify {
-    display: none;
-}
-
-aside[data-test="pollingContainer"] {
-    display: none;
-}
-
-body {
-    background-color: var(--color-background) !important;
-}';
-
-        $joinMeetingParams->addUserData('bbb_custom_style', $style);
+        if ($settings->css_file != null) {
+            $joinMeetingParams->addUserData('bbb_custom_style_url', $settings->css_file);
+        }
         $joinMeetingParams->setAvatarURL(url('/images/livestream_avatar.png'));
 
         return $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
