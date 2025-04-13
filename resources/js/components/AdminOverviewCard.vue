@@ -23,6 +23,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  dataTest: {
+    type: String,
+    required: true,
+  },
 });
 
 const isHovered = ref(false);
@@ -68,7 +72,7 @@ const cardClass = computed(() => {
 </script>
 
 <template>
-  <router-link :to="disabled ? '' : props.to">
+  <router-link :to="disabled ? '' : props.to" :data-test="dataTest">
     <Card
       v-element-hover="onHover"
       :pt="{
@@ -87,7 +91,7 @@ const cardClass = computed(() => {
       <template #footer>
         <div
           v-if="isHovered && disabled"
-          class="absolute inset-0 flex items-center justify-center bg-surface-50 p-7 rounded-border"
+          class="absolute inset-0 flex items-center justify-center p-7 bg-emphasis rounded-border"
         >
           <div>
             <div class="text-xl font-medium">

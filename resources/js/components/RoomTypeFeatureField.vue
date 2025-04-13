@@ -12,6 +12,10 @@ defineProps({
     type: String,
     required: true,
   },
+  dataTest: {
+    type: String,
+    required: true,
+  },
 });
 </script>
 
@@ -25,7 +29,7 @@ defineProps({
     class="h-8 w-8 rounded-full"
     rounded
     :severity="enabled ? 'success' : 'secondary'"
-    data-test="room-type-setting-enabled-icon"
+    :data-test="dataTest"
   >
     <span :class="icon" />
   </Tag>

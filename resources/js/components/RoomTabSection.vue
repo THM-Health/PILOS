@@ -23,6 +23,7 @@
               :icon="tab.icon"
               :aria-label="tab.label"
               role="tab"
+              :data-feature-disabled="!!tab.featureDisabled"
               :aria-selected="tab.active"
               :aria-controls="'panel-' + tab.key"
               :tabindex="tab.active ? 0 : -1"
@@ -95,6 +96,7 @@
   <Dialog
     v-model:visible="disabledFeatureModalVisible"
     modal
+    data-test="room-feature-disabled-dialog"
     :show-header="false"
     :draggable="false"
     :style="{ width: '25rem' }"
@@ -123,6 +125,7 @@
           :label="$t('app.close')"
           severity="secondary"
           icon="fa-solid fa-times"
+          data-test="dialog-close-button"
           @click="disabledFeatureModalVisible = false"
         />
       </div>

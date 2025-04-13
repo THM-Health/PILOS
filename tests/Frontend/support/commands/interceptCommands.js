@@ -228,6 +228,18 @@ Cypress.Commands.add("interceptAdminServerPoolsIndexRequests", () => {
 });
 
 /**
+ * Intercept all requests that are needed when visiting the admin streaming index page
+ * @memberof cy
+ * @method interceptAdminStreamingIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminStreamingIndexRequests", () => {
+  cy.intercept("GET", "api/v1/streaming*", {
+    fixture: "streaming.json",
+  }).as("streamingRequest");
+});
+
+/**
  * Intercept all requests that are needed when visiting the admin server pools view page
  * @memberof cy
  * @method interceptAdminServerPoolsViewRequests

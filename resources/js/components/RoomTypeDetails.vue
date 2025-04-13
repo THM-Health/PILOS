@@ -17,19 +17,25 @@
         </div>
 
         <!-- Features of the room type -->
-        <span v-if="visibleFeaturesCount > 0" class="font-bold">{{
-          $t("rooms.room_types.features.title")
-        }}</span>
-        <div v-if="visibleFeaturesCount > 0" class="flex flex-row gap-2">
-          <RoomTypeFeatureField
-            v-if="
-              settingsStore.getSetting('streaming.enabled') ||
-              !settingsStore.getSetting('general.hide_disabled_features')
-            "
-            icon="fas fa-broadcast-tower"
-            :enabled="roomType.features.streaming.enabled"
-            :label="$t('rooms.room_types.features.streaming')"
-          />
+        <div v-if="visibleFeaturesCount > 0" data-test="room-type-features">
+          <span class="font-bold">{{
+            $t("rooms.room_types.features.title")
+          }}</span>
+          <div class="flex flex-row gap-2">
+            <RoomTypeFeatureField
+              v-if="
+                settingsStore.getSetting('streaming.enabled') ||
+                !settingsStore.getSetting('general.hide_disabled_features')
+              "
+              icon="fas fa-broadcast-tower"
+              :enabled="
+                roomType.features.streaming.enabled &&
+                settingsStore.getSetting('streaming.enabled')
+              "
+              :label="$t('rooms.room_types.features.streaming')"
+              data-test="room-type-feature-streaming"
+            />
+          </div>
         </div>
 
         <!-- Information about the default and enforced room settings for the room type -->

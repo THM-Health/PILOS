@@ -1,0 +1,21 @@
+:root {
+    --color-background: #000;
+    --color-content-background: var(--color-background);
+    --loader-bg: var(--color-background);
+}
+
+#video-player div:nth-child(2) {
+    display: none;
+}
+
+.Toastify {
+    display: none;
+}
+
+aside[data-test="pollingContainer"] {
+    display: none;
+}
+
+body {
+    background-color: var(--color-background) !important;
+}

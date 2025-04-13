@@ -25,6 +25,7 @@
 
         <Button
           v-if="image"
+          :disabled="disabled"
           severity="danger"
           class="flex-shrink-0"
           :label="$t('app.cancel')"
@@ -45,6 +46,7 @@
         />
         <Button
           v-if="imageDeleted"
+          :disabled="disabled"
           severity="secondary"
           :label="$t('app.undo_delete')"
           icon="fa-solid fa-undo"

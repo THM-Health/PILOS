@@ -356,6 +356,260 @@ describe("Rooms index create new room", function () {
     cy.url().should("include", "/rooms/abc-def-123");
   });
 
+  it("create new room with features enabled", function () {
+    // Enable streaming
+    cy.fixture("config.json").then((config) => {
+      config.data.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Intercept room view requests (needed for redirect after room creation)
+    cy.interceptRoomViewRequests();
+
+    cy.intercept("POST", "api/v1/rooms", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "abc-def-123",
+          owner: {
+            id: 1,
+            name: "John Doe",
+          },
+          type: {
+            id: 2,
+            name: "Meeting",
+            color: "#4a5c66",
+          },
+        },
+      },
+    }).as("createRoomRequest");
+
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    // Check that room create modal is hidden
+    cy.get('[data-test="room-create-dialog"]').should("not.exist");
+    // Check that room limit tag does not exist
+    cy.contains("rooms.room_limit").should("not.exist");
+
+    cy.fixture("roomTypesWithSettings.json").then((config) => {
+      config.data[0].features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Open room create modal
+    cy.get('[data-test="room-create-button"]')
+      .should("have.text", "rooms.create.title")
+      .click();
+
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that room type details does not exist (no room type selected)
+        cy.get('[data-test="room-type-details"]').should("not.exist");
+
+        // Select a room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-success",
+            );
+          });
+
+        // Select other room type
+        cy.get('[data-test="room-type-select-option"]').eq(1).click();
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-secondary",
+            );
+          });
+      });
+  });
+
+  it("create new room with features disabled", function () {
+    // Disable streaming
+    cy.fixture("config.json").then((config) => {
+      config.data.streaming.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Intercept room view requests (needed for redirect after room creation)
+    cy.interceptRoomViewRequests();
+
+    cy.intercept("POST", "api/v1/rooms", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "abc-def-123",
+          owner: {
+            id: 1,
+            name: "John Doe",
+          },
+          type: {
+            id: 2,
+            name: "Meeting",
+            color: "#4a5c66",
+          },
+        },
+      },
+    }).as("createRoomRequest");
+
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    // Check that room create modal is hidden
+    cy.get('[data-test="room-create-dialog"]').should("not.exist");
+    // Check that room limit tag does not exist
+    cy.contains("rooms.room_limit").should("not.exist");
+
+    cy.fixture("roomTypesWithSettings.json").then((config) => {
+      config.data[0].features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Open room create modal
+    cy.get('[data-test="room-create-button"]')
+      .should("have.text", "rooms.create.title")
+      .click();
+
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Select a room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is hidden
+            cy.get('[data-test="room-type-features"]').should("not.exist");
+          });
+      });
+  });
+
+  it("create new room with features disabled and show disabled features", function () {
+    // Disable streaming, show disabled features
+    cy.fixture("config.json").then((config) => {
+      config.data.general.hide_disabled_features = false;
+      config.data.streaming.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Intercept room view requests (needed for redirect after room creation)
+    cy.interceptRoomViewRequests();
+
+    cy.intercept("POST", "api/v1/rooms", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "abc-def-123",
+          owner: {
+            id: 1,
+            name: "John Doe",
+          },
+          type: {
+            id: 2,
+            name: "Meeting",
+            color: "#4a5c66",
+          },
+        },
+      },
+    }).as("createRoomRequest");
+
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    // Check that room create modal is hidden
+    cy.get('[data-test="room-create-dialog"]').should("not.exist");
+    // Check that room limit tag does not exist
+    cy.contains("rooms.room_limit").should("not.exist");
+
+    cy.fixture("roomTypesWithSettings.json").then((config) => {
+      config.data[0].features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Open room create modal
+    cy.get('[data-test="room-create-button"]')
+      .should("have.text", "rooms.create.title")
+      .click();
+
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that room type details does not exist (no room type selected)
+        cy.get('[data-test="room-type-details"]').should("not.exist");
+
+        // Select a room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-secondary",
+            );
+          });
+      });
+  });
+
   it("create new room errors", function () {
     // Create new room without room type
     cy.intercept("POST", "api/v1/rooms", {

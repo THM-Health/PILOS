@@ -67,6 +67,7 @@ return [
             'error_code' => 'Error code: :statusCode',
             'message' => ':message',
         ],
+        'streaming_error' => 'Error connecting to the streaming server. Please try again later.',
         'too_large' => 'The transmitted data was too large!',
         'too_many_requests' => 'Too many requests. Please try again later.',
         'unauthenticated' => 'You must be authenticated to execute the request!',

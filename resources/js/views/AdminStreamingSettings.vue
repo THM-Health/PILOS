@@ -38,9 +38,12 @@
                 }}</small>
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4" data-test="style-field">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="css-file-field"
+            >
               <legend
-                id="bbb-style-label"
+                id="css-file-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
               >
                 {{ $t("admin.streaming.css_file") }}
@@ -96,6 +99,7 @@
             <div v-if="!viewOnly">
               <div class="mt-6 flex justify-end">
                 <Button
+                  data-test="save-button"
                   type="submit"
                   :disabled="disabled"
                   :loading="isBusy"

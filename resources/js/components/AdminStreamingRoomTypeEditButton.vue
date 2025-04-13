@@ -183,7 +183,7 @@ function save() {
       <form v-if="settings != null" class="flex flex-col gap-4">
         <div
           class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
-          data-test="streaming-enabled-setting"
+          data-test="streaming-enabled-field"
         >
           <label for="streaming-enabled" class="flex items-center">
             {{ $t("admin.streaming.enabled") }}
@@ -198,7 +198,10 @@ function save() {
           <FormError :errors="formErrors.fieldError('enabled')" />
         </div>
 
-        <fieldset class="grid-rows grid gap-2">
+        <fieldset
+          class="grid-rows grid gap-2"
+          data-test="streaming-default-pause-image-field"
+        >
           <legend
             id="pause-image-label"
             class="col-span-12 md:col-span-4 md:mb-0"

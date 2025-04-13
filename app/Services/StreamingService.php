@@ -90,7 +90,12 @@ class StreamingService
 
     public function getStatus()
     {
-        $response = $this->getHttpClient()->get($this->getJobId());
+        try {
+            $response = $this->getHttpClient()->get($this->getJobId());
+        }
+        catch (\Exception $exception) {
+            return false;
+        }
 
         return $this->handleResponse($response);
     }
@@ -112,32 +117,52 @@ class StreamingService
             }
         }
 
-        $response = $this->getHttpClient()->post('', [
-            'joinUrl' => $this->getJoinUrl(),
-            'pauseImageUrl' => $pauseImageUrl,
-            'rtmpUrl' => $this->meeting->room->streaming->url,
-        ]);
+        try{
+            $response = $this->getHttpClient()->post('', [
+                'joinUrl' => $this->getJoinUrl(),
+                'pauseImageUrl' => $pauseImageUrl,
+                'rtmpUrl' => $this->meeting->room->streaming->url,
+            ]);
+        }
+        catch (\Exception $exception) {
+            return false;
+        }
 
         return $this->handleResponse($response);
     }
 
     public function stop()
     {
-        $response = $this->getHttpClient()->post($this->getJobId().'/stop');
+        try{
+            $response = $this->getHttpClient()->post($this->getJobId().'/stop');
+        }
+        catch (\Exception $exception) {
+            return false;
+        }
 
         return $this->handleResponse($response);
     }
 
     public function resume()
     {
-        $response = $this->getHttpClient()->post($this->getJobId().'/resume');
+        try {
+            $response = $this->getHttpClient()->post($this->getJobId() . '/resume');
+        }
+        catch (\Exception $exception) {
+            return false;
+        }
 
         return $this->handleResponse($response);
     }
 
     public function pause()
     {
-        $response = $this->getHttpClient()->post($this->getJobId().'/pause');
+        try {
+            $response = $this->getHttpClient()->post($this->getJobId() . '/pause');
+        }
+        catch (\Exception $exception) {
+            return false;
+        }
 
         return $this->handleResponse($response);
     }

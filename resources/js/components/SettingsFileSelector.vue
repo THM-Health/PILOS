@@ -15,6 +15,7 @@
 
         <Button
           v-if="file"
+          :disabled="disabled"
           severity="danger"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
@@ -33,6 +34,7 @@
         />
         <Button
           v-if="fileDeleted"
+          :disabled="disabled"
           severity="secondary"
           icon="fa-solid fa-undo"
           :label="$t('app.undo_delete')"
@@ -42,7 +44,8 @@
 
         <Button
           v-if="fileUrl && !file && !fileDeleted && showView"
-          as="a"
+          :as="disabled ? 'button' : 'a'"
+          :disabled="disabled"
           severity="secondary"
           :href="fileUrl"
           target="_blank"

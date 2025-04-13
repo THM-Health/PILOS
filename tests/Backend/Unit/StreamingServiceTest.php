@@ -62,24 +62,30 @@ class StreamingServiceTest extends TestCase
                     ],
                 ])
                 ->push('Server error', 500)
-                ->push('Job not found', 404),
+                ->push('Job not found', 404)
+                ->pushFailedConnection(),
         ]);
 
         // Test status and fps are correctly fetched
-        $this->streamingService->getStatus();
+        $this->assertTrue($this->streamingService->getStatus());
         $this->room->streaming->refresh();
         $this->assertEquals('paused', $this->room->streaming->status);
         $this->assertEquals(25, $this->room->streaming->fps);
 
         // Test server error, should not change status
-        $this->streamingService->getStatus();
+        $this->assertFalse($this->streamingService->getStatus());
         $this->room->streaming->refresh();
+        $this->assertEquals('paused', $this->room->streaming->status);
+        $this->assertEquals(25, $this->room->streaming->fps);
 
         // Test streaming job not found
-        $this->streamingService->getStatus();
+        $this->assertTrue($this->streamingService->getStatus());
         $this->room->streaming->refresh();
         $this->assertNull($this->room->streaming->status);
         $this->assertNull($this->room->streaming->fps);
+
+        // Failed connection
+        $this->assertFalse($this->streamingService->getStatus());
     }
 
     public function test_start()
@@ -122,11 +128,12 @@ class StreamingServiceTest extends TestCase
                 ->push($createResponse)
                 ->push($createResponse)
                 ->push($createResponse)
-                ->push($createResponse),
+                ->pushFailedConnection()
         ]);
 
+
         // Test is status and fps are correctly fetched
-        $this->streamingService->start();
+        $this->assertTrue($this->streamingService->start());
         $this->room->streaming->refresh();
         $this->assertEquals('queued', $this->room->streaming->status);
         $this->assertNull($this->room->streaming->fps);
@@ -153,7 +160,7 @@ class StreamingServiceTest extends TestCase
         // Start streaming without pause image, fallback to room type default image
         $this->room->streaming->pause_image = null;
         $this->room->streaming->save();
-        $this->streamingService->start();
+        $this->assertTrue($this->streamingService->start());
 
         // Validate request send to streaming service
         $request = Http::recorded()->pop()[0];
@@ -163,7 +170,7 @@ class StreamingServiceTest extends TestCase
         // Start streaming without pause image and no pause image in room type, fallback to system default image
         $this->room->roomType->streamingSettings->default_pause_image = null;
         $this->room->roomType->streamingSettings->save();
-        $this->streamingService->start();
+        $this->assertTrue($this->streamingService->start());
 
         // Validate request send to streaming service
         $request = Http::recorded()->pop()[0];
@@ -173,7 +180,7 @@ class StreamingServiceTest extends TestCase
         // Test without any pause image
         $streamingSettings->default_pause_image = null;
         $streamingSettings->save();
-        $this->streamingService->start();
+        $this->assertTrue($this->streamingService->start());
 
         // Validate request send to streaming service
         $request = Http::recorded()->pop()[0];
@@ -185,7 +192,7 @@ class StreamingServiceTest extends TestCase
         $streamingSettings->join_parameters = "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_show_participants_on_login=false\nuserdata-bbb_show_public_chat_on_login=false";
         $streamingSettings->save();
 
-        $this->streamingService->start();
+        $this->assertTrue($this->streamingService->start());
 
         // Validate request send to streaming service
         $request = Http::recorded()->pop()[0];
@@ -197,6 +204,9 @@ class StreamingServiceTest extends TestCase
         $this->assertEquals('true', $joinUrlParams['userdata-bbb_hide_nav_bar']);
         $this->assertEquals('false', $joinUrlParams['userdata-bbb_show_participants_on_login']);
         $this->assertEquals('false', $joinUrlParams['userdata-bbb_show_public_chat_on_login']);
+
+        // Failed connection
+        $this->assertFalse($this->streamingService->start());
     }
 
     public function test_pause()
@@ -231,32 +241,36 @@ class StreamingServiceTest extends TestCase
                     ],
                 ], 400)
                 ->push('Server error', 500)
-                ->push('Job not found', 404),
+                ->push('Job not found', 404)
+                ->pushFailedConnection(),
         ]);
 
         // Test status and fps are correctly fetched
-        $this->streamingService->pause();
+        $this->assertTrue($this->streamingService->pause());
         $this->room->streaming->refresh();
         $this->assertEquals('pausing', $this->room->streaming->status);
         $this->assertEquals(25, $this->room->streaming->fps);
 
         // Test action is not allowed, should update status to new status
-        $this->streamingService->pause();
+        $this->assertTrue($this->streamingService->pause());
         $this->room->streaming->refresh();
         $this->assertEquals('paused', $this->room->streaming->status);
         $this->assertEquals(30, $this->room->streaming->fps);
 
         // Test server error, should not change status
-        $this->streamingService->pause();
+        $this->assertFalse($this->streamingService->pause());
         $this->room->streaming->refresh();
         $this->assertEquals('paused', $this->room->streaming->status);
         $this->assertEquals(30, $this->room->streaming->fps);
 
         // Test streaming job not found
-        $this->streamingService->pause();
+        $this->assertTrue($this->streamingService->pause());
         $this->room->streaming->refresh();
         $this->assertNull($this->room->streaming->status);
         $this->assertNull($this->room->streaming->fps);
+
+        // Failed connection
+        $this->assertFalse($this->streamingService->pause());
     }
 
     public function test_resume()
@@ -291,32 +305,36 @@ class StreamingServiceTest extends TestCase
                     ],
                 ], 400)
                 ->push('Server error', 500)
-                ->push('Job not found', 404),
+                ->push('Job not found', 404)
+                ->pushFailedConnection(),
         ]);
 
         // Test status and fps are correctly fetched
-        $this->streamingService->resume();
+        $this->assertTrue($this->streamingService->resume());
         $this->room->streaming->refresh();
         $this->assertEquals('resuming', $this->room->streaming->status);
         $this->assertEquals(25, $this->room->streaming->fps);
 
         // Test action is not allowed, should update status to new status
-        $this->streamingService->resume();
+        $this->assertTrue($this->streamingService->resume());
         $this->room->streaming->refresh();
         $this->assertEquals('running', $this->room->streaming->status);
         $this->assertEquals(30, $this->room->streaming->fps);
 
         // Test server error, should not change status
-        $this->streamingService->resume();
+        $this->assertFalse($this->streamingService->resume());
         $this->room->streaming->refresh();
         $this->assertEquals('running', $this->room->streaming->status);
         $this->assertEquals(30, $this->room->streaming->fps);
 
         // Test streaming job not found
-        $this->streamingService->resume();
+        $this->assertTrue($this->streamingService->resume());
         $this->room->streaming->refresh();
         $this->assertNull($this->room->streaming->status);
         $this->assertNull($this->room->streaming->fps);
+
+        // Failed connection
+        $this->assertFalse($this->streamingService->resume());
     }
 
     public function test_stop()
@@ -351,31 +369,35 @@ class StreamingServiceTest extends TestCase
                     ],
                 ], 400)
                 ->push('Server error', 500)
-                ->push('Job not found', 404),
+                ->push('Job not found', 404)
+                ->pushFailedConnection(),
         ]);
 
         // Test status and fps are correctly fetched
-        $this->streamingService->stop();
+        $this->assertTrue($this->streamingService->stop());
         $this->room->streaming->refresh();
         $this->assertEquals('stopping', $this->room->streaming->status);
         $this->assertEquals(25, $this->room->streaming->fps);
 
         // Test action is not allowed, should update status to new status
-        $this->streamingService->stop();
+        $this->assertTrue($this->streamingService->stop());
         $this->room->streaming->refresh();
         $this->assertEquals('stopped', $this->room->streaming->status);
         $this->assertEquals(0, $this->room->streaming->fps);
 
         // Test server error, should not change status
-        $this->streamingService->stop();
+        $this->assertFalse($this->streamingService->stop());
         $this->room->streaming->refresh();
         $this->assertEquals('stopped', $this->room->streaming->status);
         $this->assertEquals(0, $this->room->streaming->fps);
 
         // Test streaming job not found
-        $this->streamingService->stop();
+        $this->assertTrue($this->streamingService->stop());
         $this->room->streaming->refresh();
         $this->assertNull($this->room->streaming->status);
         $this->assertNull($this->room->streaming->fps);
+
+        // Failed connection
+        $this->assertFalse($this->streamingService->stop());
     }
 }

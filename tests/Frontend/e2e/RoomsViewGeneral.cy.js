@@ -764,6 +764,151 @@ describe("Room View general", function () {
     cy.get("#invitationCode").should("have.value", "508-307-005");
   });
 
+  it("room view streaming enabled", function () {
+    // Enable streaming
+    cy.fixture("config.json").then((config) => {
+      config.data.general.hide_disabled_features = true;
+      config.data.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["rooms.viewAll"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.type.features.streaming.enabled = true;
+      room.data.allow_membership = true;
+      room.data.current_user.permissions = ["rooms.viewAll"];
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.title().should("eq", "Meeting One - PILOS Test");
+
+    // Check that tabs are shown correctly
+    cy.get("#tab-streaming")
+      .should("be.visible")
+      .should("have.attr", "data-feature-disabled", "false");
+  });
+
+  it("room view streaming disabled", function () {
+    // Enable streaming
+    cy.fixture("config.json").then((config) => {
+      config.data.general.hide_disabled_features = true;
+      config.data.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["rooms.viewAll"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.type.features.streaming.enabled = false;
+      room.data.allow_membership = true;
+      room.data.current_user.permissions = ["rooms.viewAll"];
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.title().should("eq", "Meeting One - PILOS Test");
+
+    // Check that tabs are shown correctly
+    cy.get("#tab-streaming").should("not.exist");
+
+    // Show disabled features
+    cy.fixture("config.json").then((config) => {
+      config.data.general.hide_disabled_features = false;
+      config.data.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    cy.reload();
+
+    // Check that tabs are shown correctly
+    cy.get("#tab-streaming")
+      .should("exist")
+      .should("have.attr", "data-feature-disabled", "true");
+
+    cy.get('[data-test="room-feature-disabled-dialog"]').should("not.exist");
+
+    cy.get("#tab-streaming").click();
+
+    cy.get('[data-test="room-feature-disabled-dialog"]')
+      .should("be.visible")
+      .and(
+        "include.text",
+        'rooms.feature_disabled_roomtype_{"name":"rooms.streaming.title"}',
+      );
+    cy.get('[data-test="dialog-close-button"]').click();
+
+    // Disable system wide
+    cy.fixture("config.json").then((config) => {
+      config.data.general.hide_disabled_features = false;
+      config.data.streaming.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    cy.reload();
+    // Check that tabs are shown correctly
+    cy.get("#tab-streaming")
+      .should("exist")
+      .should("have.attr", "data-feature-disabled", "true");
+
+    cy.get('[data-test="room-feature-disabled-dialog"]').should("not.exist");
+
+    cy.get("#tab-streaming").click();
+
+    cy.get('[data-test="room-feature-disabled-dialog"]')
+      .should("be.visible")
+      .and(
+        "include.text",
+        'rooms.feature_disabled_system_{"name":"rooms.streaming.title"}',
+      );
+    cy.get('[data-test="dialog-close-button"]').click();
+  });
+
   it("membership button", function () {
     cy.fixture("room.json").then((room) => {
       room.data.owner = {

@@ -406,7 +406,7 @@ function getJoinUrl() {
         if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
           emit("changed");
           showRunningMessage.value = true;
-          loadStartJoinRequirements("start");
+          loadStartJoinRequirements("join");
           return;
         }
       }

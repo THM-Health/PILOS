@@ -205,9 +205,10 @@ async function streamingCommand(command) {
       streamingEnabled.value = response.data.data.enabled_for_current_meeting;
     })
     .catch((error) => {
-      console.log(error.response.status);
       if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
         emit("settingsChanged");
+      } else {
+        api.error(error);
       }
     })
     .finally(() => {

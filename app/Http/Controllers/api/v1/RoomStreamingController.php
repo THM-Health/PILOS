@@ -86,7 +86,7 @@ class RoomStreamingController extends Controller
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->start() === false) {
-            abort(500);
+            abort(500, __('app.flash.streaming_error'));
         }
         $room->streaming->refresh();
 
@@ -98,7 +98,7 @@ class RoomStreamingController extends Controller
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->stop() === false) {
-            abort(500);
+            abort(500, __('app.flash.streaming_error'));
         }
         $room->streaming->refresh();
 
@@ -110,7 +110,7 @@ class RoomStreamingController extends Controller
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->pause() === false) {
-            abort(500);
+            abort(500, __('app.flash.streaming_error'));
         }
         $room->streaming->refresh();
 
@@ -122,7 +122,7 @@ class RoomStreamingController extends Controller
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->resume() === false) {
-            abort(500);
+            abort(500, __('app.flash.streaming_error'));
         }
         $room->streaming->refresh();
 
