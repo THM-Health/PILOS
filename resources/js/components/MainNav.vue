@@ -113,14 +113,15 @@
           >
             <i v-if="item.icon" :class="item.icon" />
             <UserAvatar
-              v-if="item.userAvatar"
+              v-if="item?.type === 'userAvatar'"
               data-test="user-avatar"
               :firstname="authStore.currentUser.firstname"
               :lastname="authStore.currentUser.lastname"
               :image="authStore.currentUser.image"
               class="bg-secondary"
             />
-            <span v-if="!item.userAvatar && !item.icon">{{ item.label }}</span>
+            <MainNavDarkModeToggle v-if="item?.type === 'darkMode'" />
+            <span v-if="!item?.type && !item.icon">{{ item.label }}</span>
             <i
               v-if="hasSubmenu"
               :class="[
@@ -242,7 +243,7 @@ const userMenuItems = computed(() => {
   if (authStore.isAuthenticated) {
     items.push({
       class: "user-avatar",
-      userAvatar: true,
+      type: "userAvatar",
       label:
         authStore.currentUser.firstname + " " + authStore.currentUser.lastname,
       items: [
@@ -273,11 +274,11 @@ const userMenuItems = computed(() => {
   }
 
   items.push({
-    icon: "fa-solid text-xl " + (isDark.value ? " fa-moon" : " fa-sun"),
+    type: "darkMode",
     label: isDark.value
       ? t("app.dark_mode_disable")
       : t("app.dark_mode_enable"),
-    command: () => toggleDark(),
+    command: () => changeDarkMode(),
   });
 
   // Only show the locale menu if more than one locale is enabled
@@ -332,6 +333,16 @@ async function logout() {
   await router.push({ name: "logout" });
 
   loadingStore.setLoadingFinished();
+}
+
+function changeDarkMode() {
+  if (!document.startViewTransition) {
+    toggleDark();
+
+    return;
+  }
+
+  document.startViewTransition(toggleDark);
 }
 
 const locales = computed(() => {
