@@ -92,8 +92,7 @@ class StreamingService
     {
         try {
             $response = $this->getHttpClient()->get($this->getJobId());
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return false;
         }
 
@@ -117,14 +116,13 @@ class StreamingService
             }
         }
 
-        try{
+        try {
             $response = $this->getHttpClient()->post('', [
                 'joinUrl' => $this->getJoinUrl(),
                 'pauseImageUrl' => $pauseImageUrl,
                 'rtmpUrl' => $this->meeting->room->streaming->url,
             ]);
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return false;
         }
 
@@ -133,10 +131,9 @@ class StreamingService
 
     public function stop()
     {
-        try{
+        try {
             $response = $this->getHttpClient()->post($this->getJobId().'/stop');
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return false;
         }
 
@@ -146,9 +143,8 @@ class StreamingService
     public function resume()
     {
         try {
-            $response = $this->getHttpClient()->post($this->getJobId() . '/resume');
-        }
-        catch (\Exception $exception) {
+            $response = $this->getHttpClient()->post($this->getJobId().'/resume');
+        } catch (\Exception $exception) {
             return false;
         }
 
@@ -158,9 +154,8 @@ class StreamingService
     public function pause()
     {
         try {
-            $response = $this->getHttpClient()->post($this->getJobId() . '/pause');
-        }
-        catch (\Exception $exception) {
+            $response = $this->getHttpClient()->post($this->getJobId().'/pause');
+        } catch (\Exception $exception) {
             return false;
         }
 

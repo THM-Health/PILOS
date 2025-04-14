@@ -128,9 +128,8 @@ class StreamingServiceTest extends TestCase
                 ->push($createResponse)
                 ->push($createResponse)
                 ->push($createResponse)
-                ->pushFailedConnection()
+                ->pushFailedConnection(),
         ]);
-
 
         // Test is status and fps are correctly fetched
         $this->assertTrue($this->streamingService->start());
