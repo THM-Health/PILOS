@@ -196,38 +196,35 @@ jobs:
           name: pilos-image
           path: /tmp/pilos-image.tar
 
+  generate-frontend-matrix:
+    name: Generate Frontend Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+      record: ${{ steps.generate-matrix.outputs.record }}
+    steps:
+      - name: Generate matrix
+        id: generate-matrix
+        run: |
+          if [ ${{ (github.actor == 'dependabot[bot]' || github.event_name == 'push') && runner.debug != '1' }} = true ]; then
+              record=false
+              matrix='{ "containers": [1] }'
+          else
+              record=true
+              matrix='{ "containers": [1,2,3,4,5] }'
+          fi
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "record=$record" >> "$GITHUB_OUTPUT"
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
-    needs: docker-build
+    needs:
+      - docker-build
+      - generate-frontend-matrix
     strategy:
       # don't fail the entire matrix on failure
       fail-fast: false
-      matrix:
-        # run copies of the current job in parallel
-        containers:
-          [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-          ]
+      matrix: ${{ fromJson(needs.generate-frontend-matrix.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -266,8 +263,8 @@ jobs:
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: "Frontend tests"
-          parallel: true
-          record: true
+          parallel: ${{ needs.generate-frontend-matrix.outputs.record }}
+          record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ github.event_name }}
         env:
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
@@ -292,7 +289,9 @@ jobs:
   visual-tests:
     name: Visual Tests
     runs-on: ubuntu-latest
-    needs: docker-build
+    needs:
+      - docker-build
+      - generate-frontend-matrix
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -329,7 +328,7 @@ jobs:
         with:
           command-prefix: happo-e2e -- npx
           group: "Visual tests"
-          record: true
+          record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ github.event_name }}
           project: ./tests/Visual
         env:
@@ -347,7 +346,9 @@ jobs:
   system-tests:
     name: System Tests
     runs-on: ubuntu-latest
-    needs: docker-build
+    needs:
+      - docker-build
+      - generate-frontend-matrix
     if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
 
     steps:
@@ -389,7 +390,7 @@ jobs:
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: "System tests"
-          record: true
+          record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ github.event_name }}
           project: ./tests/System
         env:
