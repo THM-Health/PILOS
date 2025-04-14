@@ -10,8 +10,8 @@
     "prettier:fix": "prettier . --write",
     "docs:install": "cd docs && npm install",
     "docs:dev": "cd docs && npm run start -- --host 0.0.0.0",
-    "cypress:open": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress open --browser chrome",
-    "cypress:run": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress run --browser chrome",
+    "cypress:open": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress open",
+    "cypress:run": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress run",
     "create-coverage-report": "nyc report --reporter html -t coverage",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions"
@@ -23,7 +23,6 @@
     "@eslint/json": "^0.11.0",
     "@intlify/eslint-plugin-vue-i18n": "^4.0.1",
     "cypress": "^14.3.0",
-    "cypress-real-events": "^1.14.0",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-cypress": "^4.2.0",

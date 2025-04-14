@@ -261,14 +261,9 @@ jobs:
 
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
-      - name: Install chrome for testing
-        run: |
-          npx @puppeteer/browsers install chrome@stable --path /opt
-          sudo find /opt/chrome/ -type f -name "chrome" -exec ln -s {} /usr/local/bin/chrome ';'
       - name: Cypress run frontend tests
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome-for-testing
           wait-on: "http://localhost:9080" # Waits for above
           group: "Frontend tests"
           parallel: true
@@ -328,14 +323,10 @@ jobs:
 
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
-      - name: Install chrome for testing
-        run: |
-          npx @puppeteer/browsers install chrome@stable --path /opt
-          sudo find /opt/chrome/ -type f -name "chrome" -exec ln -s {} /usr/local/bin/chrome ';'
+
       - name: Run cypress
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome-for-testing
           command-prefix: happo-e2e -- npx
           group: "Visual tests"
           record: true
@@ -392,14 +383,10 @@ jobs:
 
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
-      - name: Install chrome for testing
-        run: |
-          npx @puppeteer/browsers install chrome@stable --path /opt
-          sudo find /opt/chrome/ -type f -name "chrome" -exec ln -s {} /usr/local/bin/chrome ';'
+
       - name: Cypress run system tests
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome-for-testing
           wait-on: "http://localhost:9080" # Waits for above
           group: "System tests"
           record: true

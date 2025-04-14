@@ -20,7 +20,6 @@ import "./commands/adminRoomTypesCommands.js";
 import "./commands/adminSettingsCommands.js";
 import "./commands/adminRolesCommands.js";
 import "@cypress/code-coverage/support";
-import "cypress-real-events";
 
 Cypress.on("uncaught:exception", (err) => {
   // Check if error should be ignored

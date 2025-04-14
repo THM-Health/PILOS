@@ -457,7 +457,7 @@ describe("Room View general", function () {
     );
     cy.get("#invitationCode").should("have.value", "508-307-005");
 
-    cy.get('[data-test="room-copy-invitation-button"]').realClick();
+    cy.get('[data-test="room-copy-invitation-button"]').click();
 
     cy.checkToastMessage("rooms.invitation.copied");
 

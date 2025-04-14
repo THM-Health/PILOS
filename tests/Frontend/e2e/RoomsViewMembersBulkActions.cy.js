@@ -1085,7 +1085,14 @@ describe("Rooms view members bulk actions", function () {
             "have.text",
             "rooms.members.modals.bulk_import.copy_and_close",
           )
-          .realClick();
+          .click();
+
+        // Check clipboard
+        cy.window().then((win) => {
+          win.navigator.clipboard.readText().then((text) => {
+            expect(text).to.eq("notanemail\ninvalidemail@domain.tld");
+          });
+        });
       });
 
     cy.get('[data-test="room-members-bulk-import-dialog"]').should("not.exist");
@@ -1093,13 +1100,6 @@ describe("Rooms view members bulk actions", function () {
     cy.checkToastMessage(
       "rooms.members.modals.bulk_import.copied_invalid_users",
     );
-
-    // Check clipboard
-    cy.window().then((win) => {
-      win.navigator.clipboard.readText().then((text) => {
-        expect(text).to.eq("notanemail\ninvalidemail@domain.tld");
-      });
-    });
 
     // Check that members are shown correctly
     cy.get('[data-test="room-member-item"]').should("have.length", 4);
