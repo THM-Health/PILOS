@@ -50,7 +50,10 @@ class StreamingService
 
     public function getHttpClient()
     {
-        $client = Http::baseUrl(config('streaming.api'));
+        $client = Http::timeout(config('streaming.server_timeout'))
+            ->connectTimeout(config('streaming.server_connect_timeout'))
+            ->baseUrl(config('streaming.api'));
+
         if (config('streaming.auth.type') === 'basic') {
             $client->withBasicAuth(config('streaming.auth.basic.username'), config('streaming.auth.basic.password'));
         }

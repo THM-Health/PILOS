@@ -121,12 +121,14 @@ While the meeting is running, livestream controls are available in the live stre
 
 ## Configuration Options
 
-| Option                          | Default Value | Description                                          |
-| ------------------------------- | ------------- | ---------------------------------------------------- |
-| `STREAMING_ENABLED`             | `false`       | Enable livestreaming                                 |
-| `STREAMING_API`                 | `null`        | URL of the BBB-Streaming-Server                      |
-| `STREAMING_AUTH_TYPE`           | `null`        | Authentication method (`null`: none, `basic`: Basic) |
-| `STREAMING_AUTH_BASIC_USERNAME` | `null`        | Username for basic authentication                    |
-| `STREAMING_AUTH_BASIC_PASSWORD` | `null`        | Password for basic authentication                    |
-| `STREAMING_REFRESH_INTERVAL`    | `10`          | UI refresh interval (seconds) for status and FPS     |
-| `STREAMING_SHOW_FPS`            | `false`       | Display FPS counter in the UI                        |
+| Option                             | Default Value | Description                                                                                            |
+| ---------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------ |
+| `STREAMING_ENABLED`                | `false`       | Enable livestreaming                                                                                   |
+| `STREAMING_API`                    | `null`        | URL of the BBB-Streaming-Server                                                                        |
+| `STREAMING_AUTH_TYPE`              | `null`        | Authentication method (`null`: none, `basic`: Basic)                                                   |
+| `STREAMING_AUTH_BASIC_USERNAME`    | `null`        | Username for basic authentication                                                                      |
+| `STREAMING_AUTH_BASIC_PASSWORD`    | `null`        | Password for basic authentication                                                                      |
+| `STREAMING_REFRESH_INTERVAL`       | `10`          | UI refresh interval (seconds) for status and FPS                                                       |
+| `STREAMING_SHOW_FPS`               | `false`       | Display FPS counter in the UI                                                                          |
+| `STREAMING_SERVER_CONNECT_TIMEOUT` | `20`          | Maximum time to wait to establish a connection to the BBB-Streaming-Server                             |
+| `STREAMING_SERVER_TIMEOUT`         | `10`          | Maximum time to wait for a response of BBB-Streaming-Server, once the connection has been established. |

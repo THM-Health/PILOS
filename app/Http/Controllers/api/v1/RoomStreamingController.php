@@ -48,17 +48,19 @@ class RoomStreamingController extends Controller
 
     public function status(Room $room)
     {
-        $cacheKey = 'streaming-status-'.$room->id;
-        if (! Cache::has($cacheKey)) {
-            Cache::add($cacheKey, true, config('streaming.refresh_interval'));
+        $cacheKey = 'streaming-status-cache-'.$room->id;
+
+        Cache::flexible($cacheKey, [floor(config('streaming.refresh_interval') / 2), config('streaming.refresh_interval')], function () use ($room) {
             try {
                 $streamingService = $this->getStreamingService($room);
                 $streamingService->getStatus();
                 $room->streaming->refresh();
+
+                return true;
             } catch (HttpException $exception) {
                 // Meeting not running, ignore in status call
             }
-        }
+        });
 
         return new RoomStreaming($room->streaming);
     }
