@@ -187,7 +187,7 @@ class MeetingService
         $errors = [];
 
         // Load custom create parameters of room type
-        foreach (explode("\n", $createParameters) as $createParameter) {
+        foreach (preg_split('/\n|\r\n?/', $createParameters) as $createParameter) {
             $parameterParts = explode('=', $createParameter, 2);
             $parameter = $parameterParts[0];
 
