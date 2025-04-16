@@ -2297,7 +2297,7 @@ class RoomTest extends TestCase
 
             // Get result from the option request on the start endpoint
             $result = $this->actingAs($room->owner)
-                ->optionsJson(route('api.v1.rooms.start', ['room' => $room]))
+                ->optionsJson(route('api.v1.rooms.start-requirements', ['room' => $room]))
                 ->assertSuccessful();
 
             // Create label for the test case
@@ -2395,7 +2395,7 @@ class RoomTest extends TestCase
 
             // Get result from the option request on the start endpoint
             $result = $this->actingAs($room->owner)
-                ->optionsJson(route('api.v1.rooms.start', ['room' => $room]))
+                ->optionsJson(route('api.v1.rooms.start-requirements', ['room' => $room]))
                 ->assertSuccessful();
 
             // Create label for the test case
@@ -2491,7 +2491,7 @@ class RoomTest extends TestCase
 
             // Test the API response
             $result = $this->actingAs($room->owner)
-                ->optionsJson(route('api.v1.rooms.start', ['room' => $room]))
+                ->optionsJson(route('api.v1.rooms.start-requirements', ['room' => $room]))
                 ->assertSuccessful();
 
             // Create label for the test case
@@ -3571,7 +3571,7 @@ class RoomTest extends TestCase
 
         // Get result from the option request on the join endpoint
         $result = $this->actingAs($room->owner)
-            ->optionsJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->optionsJson(route('api.v1.rooms.join-requirements', ['room' => $room]))
             ->assertSuccessful();
 
         // Check if recording is enabled
@@ -3704,7 +3704,7 @@ class RoomTest extends TestCase
 
         // Get result from the option request on the join endpoint
         $result = $this->actingAs($room->owner)
-            ->optionsJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->optionsJson(route('api.v1.rooms.join-requirements', ['room' => $room]))
             ->assertSuccessful();
 
         // Check if attendance recording is enabled
@@ -3830,7 +3830,7 @@ class RoomTest extends TestCase
 
         // Get result from the option request on the join endpoint
         $result = $this->actingAs($room->owner)
-            ->optionsJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->optionsJson(route('api.v1.rooms.join-requirements', ['room' => $room]))
             ->assertSuccessful();
 
         // Check if streaming is enabled

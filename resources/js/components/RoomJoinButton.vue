@@ -30,7 +30,7 @@
     v-model:visible="modalVisible"
     data-test="room-join-dialog"
     modal
-    :header="running ? $t('rooms.join_room') : $t('rooms.start_room')"
+    :header="action === 'join' ? $t('rooms.join_room') : $t('rooms.start_room')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -42,7 +42,14 @@
       $t("app.errors.room_already_running")
     }}</Message>
     <form ref="joinForm" @submit.prevent="getJoinUrl">
-      <OverlayComponent :show="isLoadingAction" :opacity="0">
+      <OverlayComponent :show="isLoadingAction || loadingError" :opacity="0">
+        <template #overlay>
+          <LoadingRetryButton
+            :error="loadingError"
+            @reload="loadStartJoinRequirements()"
+          />
+        </template>
+
         <div v-if="!isLoadingAction">
           <!-- Ask guests for their first and lastname -->
           <div
@@ -158,7 +165,7 @@
         <Button
           :label="$t('app.continue')"
           data-test="dialog-continue-button"
-          :disabled="isLoadingAction"
+          :disabled="isLoadingAction || loadingError"
           size="small"
           type="submit"
         />
@@ -213,12 +220,14 @@ const authStore = useAuthStore();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
+const loadingError = ref(false);
 const recordAttendanceAgreement = ref(false);
 const showRunningMessage = ref(false);
 const recordAgreement = ref(false);
 const recordVideoAgreement = ref(false);
 const streamingAgreement = ref(false);
 const name = ref(""); // Name of guest
+const action = ref("join");
 
 const api = useApi();
 const toast = useToast();
@@ -238,33 +247,57 @@ const features = ref({});
  */
 async function showModal() {
   showRunningMessage.value = false;
-
+  action.value = props.running ? "join" : "start";
   formErrors.clear();
   modalVisible.value = true;
 
-  loadStartJoinRequirements(props.running ? "join" : "start").then(() => {
+  loadStartJoinRequirements().then(() => {
     if (autoJoin.value) {
       getJoinUrl();
     }
   });
 }
 
-function loadStartJoinRequirements(action = "join") {
+function loadStartJoinRequirements() {
   return new Promise((resolve, reject) => {
     isLoadingAction.value = true;
-    const url = "rooms/" + props.roomId + "/" + action;
+    loadingError.value = false;
+
+    // Build url, add accessCode and token if needed
+    const url = "rooms/" + props.roomId + "/" + action.value;
+    const config = {
+      method: "options",
+    };
+
+    if (props.token) {
+      config.headers = { Token: props.token };
+    } else if (props.accessCode != null) {
+      config.headers = { "Access-Code": props.accessCode };
+    }
+
     api
-      .call(url, {
-        method: "options",
-      })
+      .call(url, config)
       .then((response) => {
         features.value = response.data.data.features;
         isLoadingAction.value = false;
+
         resolve();
       })
       .catch((error) => {
         isLoadingAction.value = false;
         reject(error);
+
+        if (error.response) {
+          // Handle general errors, if error was handled
+          // return to prevent further processing
+          if (handleError(error)) {
+            return;
+          }
+        }
+
+        // Other errors
+        loadingError.value = true;
+        api.error(error);
       });
   });
 }
@@ -320,8 +353,7 @@ function getJoinUrl() {
     config.headers = { "Access-Code": props.accessCode };
   }
 
-  const url =
-    "rooms/" + props.roomId + "/" + (props.running ? "join" : "start");
+  const url = "rooms/" + props.roomId + "/" + action.value;
 
   // Join meeting request
   api
@@ -338,59 +370,16 @@ function getJoinUrl() {
       isLoadingAction.value = false;
 
       if (error.response) {
-        // Access code invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
-        ) {
-          emit("invalidCode");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Access code is required
-        if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
-        ) {
-          emit("invalidCode");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Room token is invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
-        ) {
-          emit("invalidToken");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Forbidden, guests not allowed
-        if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "guests_not_allowed"
-        ) {
-          emit("guestsNotAllowed");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Forbidden, use can't start the room
-        if (error.response.status === env.HTTP_FORBIDDEN) {
-          // Show error message
-          toast.error(t("rooms.flash.start_forbidden"));
-          EventBus.emit(EVENT_FORBIDDEN);
-          modalVisible.value = false;
+        // Handle general errors, if error was handled
+        // return to prevent further processing
+        if (handleError(error)) {
           return;
         }
 
         // Form validation error
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
-          loadStartJoinRequirements(props.running ? "join" : "start");
+          loadStartJoinRequirements();
           return;
         }
 
@@ -406,12 +395,71 @@ function getJoinUrl() {
         if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
           emit("changed");
           showRunningMessage.value = true;
-          loadStartJoinRequirements("join");
+          action.value = "join";
+          loadStartJoinRequirements();
           return;
         }
       }
 
       api.error(error);
     });
+}
+
+/**
+ * General error handler for room join/start
+ * @param error
+ * @return {boolean} true if error was handled, false otherwise
+ */
+function handleError(error) {
+  // Access code invalid
+  if (
+    error.response.status === env.HTTP_UNAUTHORIZED &&
+    error.response.data.message === "invalid_code"
+  ) {
+    emit("invalidCode");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Access code is required
+  if (
+    error.response.status === env.HTTP_FORBIDDEN &&
+    error.response.data.message === "require_code"
+  ) {
+    emit("invalidCode");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Room token is invalid
+  if (
+    error.response.status === env.HTTP_UNAUTHORIZED &&
+    error.response.data.message === "invalid_token"
+  ) {
+    emit("invalidToken");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Forbidden, guests not allowed
+  if (
+    error.response.status === env.HTTP_FORBIDDEN &&
+    error.response.data.message === "guests_not_allowed"
+  ) {
+    emit("guestsNotAllowed");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Forbidden, use can't start the room
+  if (error.response.status === env.HTTP_FORBIDDEN) {
+    // Show error message
+    toast.error(t("rooms.flash.start_forbidden"));
+    EventBus.emit(EVENT_FORBIDDEN);
+    modalVisible.value = false;
+    return true;
+  }
+
+  return false;
 }
 </script>

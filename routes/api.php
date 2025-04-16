@@ -166,8 +166,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
 
     Route::middleware('room.authenticate')->scopeBindings()->group(function () {
-        Route::options('rooms/{room}/start', [RoomController::class, 'getStartRequirements'])->name('rooms.join-requirements');
-        Route::options('rooms/{room}/join', [RoomController::class, 'getJoinRequirements'])->name('rooms.start-requirements');
+        Route::options('rooms/{room}/start', [RoomController::class, 'getStartRequirements'])->name('rooms.start-requirements')->middleware('can:start,room');
+        Route::options('rooms/{room}/join', [RoomController::class, 'getJoinRequirements'])->name('rooms.join-requirements');
 
         Route::post('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
         Route::post('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');

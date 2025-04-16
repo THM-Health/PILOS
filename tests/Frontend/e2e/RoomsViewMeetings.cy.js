@@ -645,7 +645,10 @@ describe("Rooms view meetings", function () {
 
     cy.get('[data-test="room-join-button"]').click();
 
-    cy.wait("@preJoinRequest");
+    cy.wait("@preJoinRequest").then((interception) => {
+      // Check that header for access code is set
+      expect(interception.request.headers["access-code"]).to.eq("123456789");
+    });
 
     // Try to join the meeting
     cy.get('[data-test="room-join-dialog"]')
@@ -880,7 +883,13 @@ describe("Rooms view meetings", function () {
 
     // Try to join meeting
     cy.get('[data-test="room-join-button"]').click();
-    cy.wait("@preJoinRequest");
+    cy.wait("@preJoinRequest").then((interception) => {
+      // Check that header for token is set
+      expect(interception.request.headers.token).to.eq(
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+    });
+
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
