@@ -22,7 +22,7 @@ folderName="$temporaryDirectory/bbb-playback-$tag"
 wget -O "$downloadFileName" "$downloadBase"
 
 echo "Extracting..."
-unzip "$downloadFileName" -d "$temporaryDirectory" -q
+unzip -q -d "$temporaryDirectory" "$downloadFileName"
 
 if [ $? -eq 0 ]; then
     echo "Extraction complete"
