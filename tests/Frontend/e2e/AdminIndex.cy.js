@@ -345,7 +345,7 @@ describe("Admin index", function () {
       .and("include.text", "app.server_pools")
       .and("include.text", "admin.server_pools.tile_description");
 
-    cy.interceptAdminStreamingIndexRequests();
+    cy.interceptAdminServerPoolsIndexRequests();
 
     cy.get('[data-test="admin-server-pools-link"]').click();
 
