@@ -125,7 +125,7 @@ While the meeting is running, livestream controls are available in the live stre
 | ---------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------ |
 | `STREAMING_ENABLED`                | `false`       | Enable livestreaming                                                                                   |
 | `STREAMING_API`                    | `null`        | URL of the BBB-Streaming-Server                                                                        |
-| `STREAMING_AUTH_TYPE`              | `none`        | Authentication method (`none`: No authentication, `basic`: Basic authentication)                                                   |
+| `STREAMING_AUTH_TYPE`              | `none`        | Authentication method (`none`: No authentication, `basic`: Basic authentication)                       |
 | `STREAMING_AUTH_BASIC_USERNAME`    | `null`        | Username for basic authentication                                                                      |
 | `STREAMING_AUTH_BASIC_PASSWORD`    | `null`        | Password for basic authentication                                                                      |
 | `STREAMING_REFRESH_INTERVAL`       | `10`          | UI refresh interval (seconds) for status and FPS                                                       |

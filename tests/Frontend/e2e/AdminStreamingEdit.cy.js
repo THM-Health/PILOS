@@ -157,6 +157,59 @@ describe("Admin settings with edit permission", function () {
         .and("include.text", "app.view")
         .and("have.attr", "href", "https://example.com/streaming.css");
     });
+
+    // Delete pause image and CSS file
+    cy.get('[data-test="default-pause-image-field"]').within(() => {
+      cy.get('[data-test="settings-file-delete-button"]').click();
+    });
+    cy.get('[data-test="css-file-field"]').within(() => {
+      cy.get('[data-test="settings-file-delete-button"]').click();
+    });
+
+    // Save changes
+    cy.fixture("streaming.json").then((settings) => {
+      settings.data.default_pause_image = null;
+      settings.data.css_file = null;
+      settings.data.join_parameters =
+        "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
+
+      cy.intercept("POST", "api/v1/streaming", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveStreamingRequest");
+
+      cy.get('[data-test="save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveStreamingRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      const uploadedPauseImage = formData.get("default_pause_image");
+      expect(uploadedPauseImage).to.eql("");
+
+      const uploadedCSSFile = formData.get("css_file");
+      expect(uploadedCSSFile).to.eql("");
+    });
+
+    // Check input fields are empty
+    cy.get('[data-test="default-pause-image-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.streaming.default_pause_image")
+      .within(() => {
+        cy.checkSettingsFileSelector("", "pause.jpg", true);
+      });
+
+    cy.get('[data-test="css-file-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.streaming.css_file")
+      .within(() => {
+        cy.checkSettingsFileSelector("", "streaming.css", true);
+      });
   });
 
   it("edit settings error", function () {

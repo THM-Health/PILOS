@@ -197,23 +197,7 @@ function updateSettings() {
     formData.append("css_file", "");
   }
 
-  const exclude = ["default_pause_image", "css_file"];
-  Object.keys(settings.value).forEach((key) => {
-    if (exclude.includes(key)) {
-      return;
-    }
-    let val = settings.value[key];
-
-    // Since the FormData always strings boolean and empty values must be
-    // changed so that they can be handled correctly by the backend.
-    if (typeof val === "boolean") {
-      val = val ? 1 : 0;
-    } else if (val == null) {
-      val = "";
-    }
-
-    formData.append(key, val);
-  });
+  formData.append("join_parameters", settings.value.join_parameters);
 
   formData.append("_method", "PUT");
 
