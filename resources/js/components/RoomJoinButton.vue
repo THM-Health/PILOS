@@ -46,11 +46,11 @@
         <template #overlay>
           <LoadingRetryButton
             :error="loadingError"
-            @reload="loadStartJoinRequirements()"
+            @reload="loadStartJoinRequirements"
           />
         </template>
 
-        <div v-if="!isLoadingAction">
+        <div v-if="!isLoadingAction && !loadingError">
           <!-- Ask guests for their first and lastname -->
           <div
             v-if="!authStore.isAuthenticated && !token"
@@ -251,15 +251,15 @@ async function showModal() {
   formErrors.clear();
   modalVisible.value = true;
 
-  loadStartJoinRequirements().then(() => {
-    if (autoJoin.value) {
+  loadStartJoinRequirements().then((success) => {
+    if (success && autoJoin.value) {
       getJoinUrl();
     }
   });
 }
 
 function loadStartJoinRequirements() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     isLoadingAction.value = true;
     loadingError.value = false;
 
@@ -281,11 +281,11 @@ function loadStartJoinRequirements() {
         features.value = response.data.data.features;
         isLoadingAction.value = false;
 
-        resolve();
+        resolve(true);
       })
       .catch((error) => {
         isLoadingAction.value = false;
-        reject(error);
+        resolve(false);
 
         if (error.response) {
           // Handle general errors, if error was handled
