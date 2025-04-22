@@ -1,6 +1,6 @@
 <template>
   <transition-group
-    name="flip"
+    :name="transitionName"
     tag="div"
     class="inline"
     @after-leave="onExitComplete"
@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from "vue";
+import { ref, onMounted, watchEffect, watch, nextTick } from "vue";
 
 const props = defineProps({
   words: {
@@ -41,6 +41,7 @@ const props = defineProps({
 
 const currentWord = ref(props.words[0]);
 const isAnimating = ref(false);
+const transitionName = ref("flip");
 
 const startAnimation = () => {
   const word =
@@ -62,6 +63,16 @@ onMounted(() => {
     }
   });
 });
+
+watch(
+  () => props.words,
+  async () => {
+    transitionName.value = "none";
+    currentWord.value = props.words[0];
+    await nextTick();
+    transitionName.value = "flip";
+  },
+);
 </script>
 
 <style scoped>
