@@ -32,6 +32,7 @@
             "hour12": false
         }
       },
-    "name": "فارسی"
+    "name": "فارسی",
 
+    "rtl": true
 }
