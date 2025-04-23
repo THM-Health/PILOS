@@ -169,7 +169,7 @@ const api = useApi();
 const localeStore = useLocaleStore();
 const router = useRouter();
 const route = useRoute();
-const { t } = useI18n();
+const { t, te } = useI18n();
 const toast = useToast();
 
 const isDark = useDark();
@@ -341,8 +341,15 @@ const locales = computed(() => {
   }
 
   return Object.entries(locales).map(([locale, label]) => {
+    let localeLabel = label;
+    const localeTranslationKey = "app.locales." + locale;
+    if (localeStore.currentLocale !== locale && te(localeTranslationKey)) {
+      const translatedLabel = t(localeTranslationKey);
+      localeLabel = localeLabel + " (" + translatedLabel + ")";
+    }
+
     return {
-      label,
+      label: localeLabel,
       locale,
     };
   });
