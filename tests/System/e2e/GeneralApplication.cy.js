@@ -16,13 +16,13 @@ describe("General", function () {
         cy.get("[data-test=submenu-action]").should("have.length", 3);
         cy.get("[data-test=submenu-action]")
           .eq(0)
-          .should("have.text", "Deutsch");
+          .should("have.text", "Deutsch (German)");
         cy.get("[data-test=submenu-action]")
           .eq(1)
           .should("have.text", "English");
         cy.get("[data-test=submenu-action]")
           .eq(2)
-          .should("have.text", "Français");
+          .should("have.text", "Français (French)");
       });
   });
 
@@ -39,7 +39,7 @@ describe("General", function () {
       .within(() => {
         cy.get("[data-test=submenu-action]")
           .eq(0)
-          .should("have.text", "Deutsch")
+          .should("have.text", "Deutsch (German)")
           .click();
       });
 
