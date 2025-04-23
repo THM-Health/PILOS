@@ -336,12 +336,16 @@ async function logout() {
 }
 
 function changeDarkMode() {
+  // Check if the browser supports view transitions
+  // If it doesn't, just toggle the dark mode
   if (!document.startViewTransition) {
     toggleDark();
 
     return;
   }
 
+  // Wrap the dark mode toggle in a view transition
+  // this will add a smooth transition
   document.startViewTransition(toggleDark);
 }
 
