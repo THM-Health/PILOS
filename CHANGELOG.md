@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable `MAIL_SCHEME` to set a specific mail protocol `smtp` or `smtps` ([#2033])
 - Right-to-left (RTL) locale support ([#2065])
 - Translation to locale selector ([#2079])
+- Transition and animation for dark mode toggle ([#2082])
 
 ### Fixed
 
@@ -458,6 +459,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2053]: https://github.com/THM-Health/PILOS/pull/2053
 [#2065]: https://github.com/THM-Health/PILOS/pull/2065
 [#2079]: https://github.com/THM-Health/PILOS/pull/2079
+[#2082]: https://github.com/THM-Health/PILOS/pull/2082
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.4.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
