@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Right-to-left (RTL) locale support ([#2065])
 - Translation to locale selector ([#2079])
 - Transition and animation for dark mode toggle ([#2082])
+- Logo for dark mode in BBB ([#1399])
 
 ### Fixed
 
@@ -382,6 +383,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1399]: https://github.com/THM-Health/PILOS/pull/1399
 [#1420]: https://github.com/THM-Health/PILOS/issues/1420
 [#1435]: https://github.com/THM-Health/PILOS/issues/1435
 [#1440]: https://github.com/THM-Health/PILOS/pull/1440
