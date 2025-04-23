@@ -23,14 +23,14 @@ describe("User Profile", function () {
     cy.visit("/rooms");
 
     // Open profile
-    cy.get('[data-test="user-avatar"]').click();
+    cy.get('[data-test="navbar-user"]').click();
     cy.get('[data-test="submenu"]')
       .eq(0)
       .within(() => {
-        cy.get('[data-test="submenu-action"]')
-          .eq(0)
-          .should("have.text", "app.profile")
-          .click();
+        cy.get('[data-test="navbar-user-profile"]')
+          .should("exist")
+          .should("have.text", "app.profile");
+        cy.get('[data-test="navbar-user-profile"]').click();
       });
 
     cy.url().should("include", "/profile");

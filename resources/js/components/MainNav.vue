@@ -116,7 +116,6 @@
             <i v-if="item.icon" :class="item.icon" />
             <UserAvatar
               v-if="item?.type === 'userAvatar'"
-              data-test="user-avatar"
               :firstname="authStore.currentUser.firstname"
               :lastname="authStore.currentUser.lastname"
               :image="authStore.currentUser.image"

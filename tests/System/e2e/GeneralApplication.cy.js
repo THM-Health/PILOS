@@ -9,19 +9,22 @@ describe("General", function () {
     cy.visit("/rooms");
 
     // Open menu to check if the correct locales are shown
-    cy.get(".fa-solid.fa-language").click();
+    cy.get('[data-test="navbar-locale"]').click();
     cy.get("[data-test=submenu]")
       .eq(1)
       .within(() => {
-        cy.get("[data-test=submenu-action]").should("have.length", 3);
-        cy.get("[data-test=submenu-action]")
-          .eq(0)
+        cy.get("li").should("have.length", 3);
+
+        cy.get('[data-test="navbar-locale-de"]')
+          .should("exist")
           .should("have.text", "Deutsch (German)");
-        cy.get("[data-test=submenu-action]")
-          .eq(1)
+
+        cy.get('[data-test="navbar-locale-en"]')
+          .should("exist")
           .should("have.text", "English");
-        cy.get("[data-test=submenu-action]")
-          .eq(2)
+
+        cy.get('[data-test="navbar-locale-fr"]')
+          .should("exist")
           .should("have.text", "Français (French)");
       });
   });
@@ -32,15 +35,16 @@ describe("General", function () {
     cy.visit("/rooms");
 
     // Open menu and click on a different locale than the current one
-    cy.get(".fa-solid.fa-language").click();
+    cy.get('[data-test="navbar-locale"]').click();
     cy.get("[data-test=submenu]")
       .eq(1)
       .should("be.visible")
       .within(() => {
-        cy.get("[data-test=submenu-action]")
-          .eq(0)
-          .should("have.text", "Deutsch (German)")
-          .click();
+        cy.get('[data-test="navbar-locale-de"]')
+          .should("exist")
+          .should("have.text", "Deutsch (German)");
+
+        cy.get('[data-test="navbar-locale-de"]').click();
       });
 
     cy.contains("Räume").should("be.visible");
