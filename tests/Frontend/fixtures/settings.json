@@ -38,6 +38,7 @@
     "recording_attendance_retention_period": -1,
     "recording_recording_retention_period": -1,
     "bbb_logo": "/images/logo.svg",
+    "bbb_logo_dark": "/images/logo-dark.svg",
     "bbb_style": null,
     "bbb_default_presentation": null
   },

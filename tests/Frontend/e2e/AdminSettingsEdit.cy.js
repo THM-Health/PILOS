@@ -2183,6 +2183,17 @@ describe("Admin settings with edit permission", function () {
         cy.checkSettingsImageSelector("/images/logo.svg", "logo.svg", true);
       });
 
+    cy.get('[data-test="bbb-logo-dark-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.logo_dark.title")
+      .within(() => {
+        cy.checkSettingsImageSelector(
+          "/images/logo-dark.svg",
+          "logo-dark.svg",
+          true,
+        );
+      });
+
     cy.get('[data-test="bbb-style-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.bbb.style.title")
@@ -2200,6 +2211,7 @@ describe("Admin settings with edit permission", function () {
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = "/images/logo.svg";
+      settings.data.bbb_logo_dark = "/images/logo-dark.svg";
       settings.data.bbb_style = "/files/bbb_style.css";
       settings.data.bbb_default_presentation = "/files/testFile.txt";
 
@@ -2244,6 +2256,18 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("bbb_logo")).to.equal(null);
 
+      const uploadedBBBLogoDark = formData.get("bbb_logo_dark_file");
+      expect(uploadedBBBLogoDark.name).to.eql("logo-dark.svg");
+      expect(uploadedBBBLogoDark.type).to.eql("image/svg+xml");
+      cy.fixture("files/logo-dark.svg", "base64").then((content) => {
+        uploadedBBBLogoDark.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(content).to.eql(base64);
+        });
+      });
+
+      expect(formData.get("bbb_logo_dark")).to.equal(null);
+
       const uploadedBBBStyle = formData.get("bbb_style");
       expect(uploadedBBBStyle.name).to.eql("bbb_style.css");
       expect(uploadedBBBStyle.type).to.eql("text/css");
@@ -2278,6 +2302,15 @@ describe("Admin settings with edit permission", function () {
       cy.get('[data-test="settings-image-url-input"]').should(
         "have.value",
         "/images/logo.svg",
+      );
+
+      cy.get('[data-test="settings-image-delete-button"]').should("be.visible");
+    });
+
+    cy.get('[data-test="bbb-logo-dark-field"]').within(() => {
+      cy.get('[data-test="settings-image-url-input"]').should(
+        "have.value",
+        "/images/logo-dark.svg",
       );
 
       cy.get('[data-test="settings-image-delete-button"]').should("be.visible");
@@ -2326,6 +2359,27 @@ describe("Admin settings with edit permission", function () {
       cy.get('[data-test="settings-image-url-input"]').should(
         "have.value",
         "/images/logo.svg",
+      );
+
+      cy.get('[data-test="settings-image-delete-button"]')
+        .should("be.visible")
+        .click();
+    });
+
+    cy.get('[data-test="bbb-logo-dark-field"]').within(() => {
+      cy.get('[data-test="settings-image-delete-button"]').click();
+
+      cy.get('[data-test="settings-image-url-input"]').should("not.exist");
+      cy.get('[data-test="file-input-button"]').should("not.exist");
+      cy.get('[data-test="settings-image-delete-button"]').should("not.exist");
+      cy.get('[data-test="settings-image-undo-delete-button"]')
+        .should("be.visible")
+        .and("have.text", "app.undo_delete")
+        .click();
+
+      cy.get('[data-test="settings-image-url-input"]').should(
+        "have.value",
+        "/images/logo-dark.svg",
       );
 
       cy.get('[data-test="settings-image-delete-button"]')
@@ -2388,6 +2442,7 @@ describe("Admin settings with edit permission", function () {
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = null;
+      settings.data.bbb_logo_dark = null;
       settings.data.bbb_style = null;
       settings.data.bbb_default_presentation = null;
 
@@ -2409,12 +2464,24 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("bbb_logo_file")).to.eql(null);
       expect(formData.get("bbb_logo")).to.eql("");
+      expect(formData.get("bbb_logo_dark")).to.eql("");
       expect(formData.get("bbb_style")).to.eql("");
       expect(formData.get("bbb_default_presentation")).to.be.eql("");
     });
 
     // Check that settings are shown correctly
     cy.get('[data-test="bbb-logo-field"]').within(() => {
+      cy.get('[data-test="settings-image-url-input"]')
+        .should("be.visible")
+        .and("have.value", "");
+      cy.get('[data-test="file-input-button"]').should("be.visible");
+      cy.get('[data-test="settings-image-delete-button"]').should("not.exist");
+      cy.get('[data-test="settings-image-undo-delete-button"]').should(
+        "not.exist",
+      );
+    });
+
+    cy.get('[data-test="bbb-logo-dark-field"]').within(() => {
       cy.get('[data-test="settings-image-url-input"]')
         .should("be.visible")
         .and("have.value", "");
@@ -2446,6 +2513,7 @@ describe("Admin settings with edit permission", function () {
     // Save settings again
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = null;
+      settings.data.bbb_logo_dark = null;
       settings.data.bbb_style = null;
       settings.data.bbb_default_presentation = null;
 
@@ -2467,6 +2535,8 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("bbb_logo_file")).to.eql(null);
       expect(formData.get("bbb_logo")).to.eql(null);
+      expect(formData.get("bbb_logo_dark_file")).to.eql(null);
+      expect(formData.get("bbb_logo_dark")).to.eql(null);
       expect(formData.get("bbb_style")).to.eql(null);
       expect(formData.get("bbb_default_presentation")).to.be.eql(null);
     });
@@ -2564,8 +2634,10 @@ describe("Admin settings with edit permission", function () {
           recording_recording_retention_period: [
             "The selected recording recording retention period is invalid.",
           ],
-          bbb_logo: ["The bbb logo field is required."],
-          bbb_logo_file: ["The bbb logo file field is required."],
+          bbb_logo: ["The logo field is required."],
+          bbb_logo_file: ["The logo file field is required."],
+          bbb_logo_dark: ["The dark version logo field is required."],
+          bbb_logo_dark_file: ["The dark version logo file field is required."],
           bbb_style: ["The bbb style field is required."],
           bbb_default_presentation: [
             "The bbb default presentation field is required.",
@@ -2730,8 +2802,11 @@ describe("Admin settings with edit permission", function () {
     );
 
     cy.get('[data-test="bbb-logo-field"]')
-      .should("include.text", "The bbb logo field is required.")
-      .and("include.text", "The bbb logo file field is required.");
+      .should("include.text", "The logo field is required.")
+      .and("include.text", "The logo file field is required.");
+    cy.get('[data-test="bbb-logo-dark-field"]')
+      .should("include.text", "The dark version logo field is required.")
+      .and("include.text", "The dark version logo file field is required.");
     cy.get('[data-test="bbb-style-field"]').should(
       "include.text",
       "The bbb style field is required.",
@@ -2914,6 +2989,9 @@ describe("Admin settings with edit permission", function () {
     );
 
     cy.get('[data-test="bbb-logo-field"]')
+      .should("not.include.text", "The bbb logo field is required.")
+      .and("not.include.text", "The bbb logo file field is required.");
+    cy.get('[data-test="bbb-logo-dark-field"]')
       .should("not.include.text", "The bbb logo field is required.")
       .and("not.include.text", "The bbb logo file field is required.");
     cy.get('[data-test="bbb-style-field"]').should(

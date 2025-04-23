@@ -35,6 +35,8 @@ return [
         'base_url' => 'API endpoint',
         'bbb_default_presentation' => 'Default presentation',
         'bbb_logo' => 'Logo',
+        'bbb_logo_dark' => 'Dark version logo',
+        'bbb_logo_dark_file' => 'Dark version logo file',
         'bbb_logo_file' => 'Logo file',
         'bbb_skip_check_audio' => 'Disable echo audio test',
         'bbb_style' => 'CSS style file',

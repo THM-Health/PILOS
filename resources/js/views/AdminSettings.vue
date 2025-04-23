@@ -1302,7 +1302,7 @@
             </fieldset>
             <fieldset
               class="grid grid-cols-12 gap-4"
-              data-test="bbb-style-field"
+              data-test="bbb-logo-dark-field"
             >
               <legend
                 id="bbb-logo-dark-label"
@@ -1323,7 +1323,7 @@
                   show-delete
                   :preview-alt="$t('admin.settings.bbb.logo.alt')"
                   :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
-                  input-id="bbb-logo"
+                  input-id="bbb-logo-dark"
                   :url-invalid="formErrors.fieldInvalid('bbb_logo_dark')"
                   :file-invalid="formErrors.fieldInvalid('bbb_logo_dark_file')"
                   :url-error="formErrors.fieldError('bbb_logo_dark')"
@@ -1331,7 +1331,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4">
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="bbb-style-field"
+            >
               <legend
                 id="bbb-style-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
