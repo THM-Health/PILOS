@@ -231,4 +231,26 @@ describe("General", function () {
 
     cy.get(".fa-solid.fa-circle-question").should("not.exist");
   });
+
+  it("toggle dark mode", function () {
+    cy.visit("/");
+
+    // Check if light mode is enabled by default
+    cy.get("html").should("not.have.class", "dark");
+    cy.get(".fa-solid.fa-sun").should("be.visible");
+
+    // Toggle dark mode
+    cy.get(".fa-solid.fa-sun").click();
+
+    // Check if dark mode is enabled
+    cy.get("html").should("have.class", "dark");
+    cy.get(".fa-solid.fa-moon").should("be.visible");
+
+    // Toggle dark mode again
+    cy.get(".fa-solid.fa-moon").click();
+
+    // Check if light mode is enabled again
+    cy.get("html").should("not.have.class", "dark");
+    cy.get(".fa-solid.fa-sun").should("be.visible");
+  });
 });
