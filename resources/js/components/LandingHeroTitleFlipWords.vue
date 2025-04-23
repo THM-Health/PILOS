@@ -1,23 +1,16 @@
 <template>
   <transition-group
+    tag="span"
     :name="transitionName"
-    tag="div"
-    class="inline"
     @after-leave="onExitComplete"
   >
-    <div
+    <span
       v-if="currentWord"
       :key="currentWord"
-      class="relative z-10 inline-block text-left text-primary"
+      class="relative inline text-primary"
     >
-      <span
-        v-for="(letter, index) in currentWord.split('')"
-        :key="currentWord + index"
-        class="inline-block"
-      >
-        {{ letter }}
-      </span>
-    </div>
+      {{ currentWord }}
+    </span>
   </transition-group>
 </template>
 
