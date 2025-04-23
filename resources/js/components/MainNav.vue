@@ -19,6 +19,7 @@
             v-if="settingsStore.getSetting('theme.logo')"
             :to="{ name: 'home' }"
             class="mr-12"
+            data-test="navbar-home"
           >
             <img
               style="height: 2rem"
@@ -42,6 +43,7 @@
               :href="href"
               v-bind="props.action"
               class="flex items-center"
+              :data-test="item.dataTest"
               @click="navigate"
             >
               <span>{{ item.label }}</span>
@@ -53,6 +55,7 @@
             :target="item.target"
             v-bind="props.action"
             class="flex items-center"
+            :data-test="item.dataTest"
           >
             <span>{{ item.label }}</span>
             <i
@@ -83,9 +86,6 @@
             class: 'right-0',
             'data-test': 'submenu',
           },
-          itemLink: {
-            'data-test': 'submenu-action',
-          },
         }"
       >
         <template #item="{ item, props, hasSubmenu, root }">
@@ -99,6 +99,7 @@
               :href="href"
               v-bind="props.action"
               class="flex items-center"
+              :data-test="item.dataTest"
               @click="navigate"
             >
               <span v-if="!item.icon">{{ item.label }}</span>
@@ -110,6 +111,7 @@
             :target="item.target"
             v-bind="props.action"
             class="flex items-center"
+            :data-test="item.dataTest"
           >
             <i v-if="item.icon" :class="item.icon" />
             <UserAvatar
@@ -183,12 +185,14 @@ const mainMenuItems = computed(() => {
     items.push({
       label: t("app.rooms"),
       route: { name: "rooms.index" },
+      dataTest: "navbar-rooms",
     });
 
     if (userPermissions.can("viewAny", "MeetingPolicy")) {
       items.push({
         label: t("meetings.currently_running"),
         route: { name: "meetings.index" },
+        dataTest: "navbar-meetings",
       });
     }
 
@@ -196,22 +200,26 @@ const mainMenuItems = computed(() => {
       items.push({
         label: t("admin.title"),
         route: { name: "admin" },
+        dataTest: "navbar-admin",
       });
     }
 
     if (userPermissions.can("monitor", "SystemPolicy")) {
       const menuItem = {
         label: t("system.monitor.title"),
+        dataTest: "navbar-monitor",
         items: [
           {
             label: t("system.monitor.pulse"),
             url: "/pulse",
             target: "_blank",
+            dataTest: "navbar-monitor-pulse",
           },
           {
             label: t("system.monitor.horizon"),
             url: "/horizon",
             target: "_blank",
+            dataTest: "navbar-monitor-horizon",
           },
         ],
       };
@@ -221,6 +229,7 @@ const mainMenuItems = computed(() => {
           label: t("system.monitor.telescope"),
           url: "/telescope",
           target: "_blank",
+          dataTest: "navbar-monitor-telescope",
         });
       }
 
@@ -244,16 +253,19 @@ const userMenuItems = computed(() => {
     items.push({
       class: "user-avatar",
       type: "userAvatar",
+      dataTest: "navbar-user",
       label:
         authStore.currentUser.firstname + " " + authStore.currentUser.lastname,
       items: [
         {
           label: t("app.profile"),
           route: { name: "profile" },
+          dataTest: "navbar-user-profile",
         },
         {
           label: t("auth.logout"),
           command: logout,
+          dataTest: "navbar-user-logout",
         },
       ],
     });
@@ -261,6 +273,7 @@ const userMenuItems = computed(() => {
     items.push({
       label: t("auth.login"),
       route: loginRoute,
+      dataTest: "navbar-login",
     });
   }
 
@@ -269,12 +282,14 @@ const userMenuItems = computed(() => {
       icon: "fa-solid fa-circle-question text-xl",
       label: t("app.help"),
       target: "_blank",
+      dataTest: "navbar-help",
       url: settingsStore.getSetting("general.help_url"),
     });
   }
 
   items.push({
     type: "darkMode",
+    dataTest: "navbar-dark-mode",
     label: isDark.value
       ? t("app.dark_mode_disable")
       : t("app.dark_mode_enable"),
@@ -286,12 +301,14 @@ const userMenuItems = computed(() => {
     const localeItem = {
       icon: "fa-solid fa-language text-xl",
       label: t("app.change_locale"),
+      dataTest: "navbar-locale",
       items: [],
     };
 
     locales.value.forEach((locale) => {
       localeItem.items.push({
         label: locale.label,
+        dataTest: "navbar-locale-" + locale.locale,
         command: () => changeLocale(locale.locale),
       });
     });

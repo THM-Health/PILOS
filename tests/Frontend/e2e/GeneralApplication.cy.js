@@ -10,19 +10,22 @@ describe("General", function () {
     cy.visit("/rooms");
 
     // Open menu to check if the correct locales are shown
-    cy.get(".fa-solid.fa-language").click();
+    cy.get('[data-test="navbar-locale"]').click();
     cy.get('[data-test="submenu"]')
       .eq(1)
       .within(() => {
-        cy.get('[data-test="submenu-action"]').should("have.length", 3);
-        cy.get('[data-test="submenu-action"]')
-          .eq(0)
+        cy.get("li").should("have.length", 3);
+
+        cy.get('[data-test="navbar-locale-de"]')
+          .should("exist")
           .should("have.text", "Deutsch");
-        cy.get('[data-test="submenu-action"]')
-          .eq(1)
+
+        cy.get('[data-test="navbar-locale-en"]')
+          .should("exist")
           .should("have.text", "English");
-        cy.get('[data-test="submenu-action"]')
-          .eq(2)
+
+        cy.get('[data-test="navbar-locale-fr"]')
+          .should("exist")
           .should("have.text", "Français");
       });
   });
@@ -35,7 +38,7 @@ describe("General", function () {
     cy.visit("/rooms");
 
     // Check locale select is not shown
-    cy.get(".fa-solid.fa-language").should("not.exist");
+    cy.get('[data-test="navbar-locale"]').should("not.exist");
   });
 
   it("changing selected locale", function () {
@@ -59,13 +62,13 @@ describe("General", function () {
 
     cy.get('[data-test="overlay"]').should("not.exist");
     // Open menu and click on a different locale than the current one
-    cy.get(".fa-solid.fa-language").click();
+    cy.get('[data-test="navbar-locale"]').click();
     cy.get('[data-test="submenu"]')
       .eq(1)
       .should("be.visible")
       .within(() => {
-        cy.get('[data-test="submenu-action"]')
-          .eq(0)
+        cy.get('[data-test="navbar-locale-de"]')
+          .should("exist")
           .should("have.text", "Deutsch")
           .click();
       });
@@ -101,12 +104,12 @@ describe("General", function () {
     cy.visit("/rooms");
 
     // Open menu and click on a different locale than the current one
-    cy.get(".fa-solid.fa-language").click();
+    cy.get('[data-test="navbar-locale"]').click();
     cy.get('[data-test="submenu"]')
       .eq(1)
       .within(() => {
-        cy.get('[data-test="submenu-action"]')
-          .eq(0)
+        cy.get('[data-test="navbar-locale-de"]')
+          .should("exist")
           .should("have.text", "Deutsch")
           .click();
       });
@@ -130,12 +133,12 @@ describe("General", function () {
     cy.intercept("GET", "/api/v1/locale/de", cy.spy().as("deRequestSpy"));
 
     // Open menu and click on a different locale than the current one
-    cy.get(".fa-solid.fa-language").click();
+    cy.get('[data-test="navbar-locale"]').click();
     cy.get('[data-test="submenu"]')
       .eq(1)
       .within(() => {
-        cy.get('[data-test="submenu-action"]')
-          .eq(0)
+        cy.get('[data-test="navbar-locale-de"]')
+          .should("exist")
           .should("have.text", "Deutsch")
           .click();
       });
@@ -206,14 +209,13 @@ describe("General", function () {
     });
     cy.visit("/");
 
-    cy.get(".fa-solid.fa-circle-question")
+    cy.get('[data-test="navbar-help"]')
       .should("be.visible")
-      .parent()
       .should("have.attr", "href", "https://example.org/?foo=a&bar=b")
       .and("have.attr", "target", "_blank")
       .invoke("removeAttr", "target");
 
-    cy.get(".fa-solid.fa-circle-question").click();
+    cy.get('[data-test="navbar-help"]').click();
 
     // Check that redirect worked
     cy.origin("https://example.org", () => {
@@ -229,7 +231,7 @@ describe("General", function () {
     });
     cy.visit("/");
 
-    cy.get(".fa-solid.fa-circle-question").should("not.exist");
+    cy.get('[data-test="navbar-help"]').should("not.exist");
   });
 
   it("toggle dark mode", function () {
@@ -237,20 +239,26 @@ describe("General", function () {
 
     // Check if light mode is enabled by default
     cy.get("html").should("not.have.class", "dark");
-    cy.get(".fa-solid.fa-sun").should("be.visible");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("i")
+      .should("have.class", "fa-sun");
 
     // Toggle dark mode
-    cy.get(".fa-solid.fa-sun").click();
+    cy.get('[data-test="navbar-dark-mode"]').click();
 
     // Check if dark mode is enabled
     cy.get("html").should("have.class", "dark");
-    cy.get(".fa-solid.fa-moon").should("be.visible");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("i")
+      .should("have.class", "fa-moon");
 
     // Toggle dark mode again
-    cy.get(".fa-solid.fa-moon").click();
+    cy.get('[data-test="navbar-dark-mode"]').click();
 
     // Check if light mode is enabled again
     cy.get("html").should("not.have.class", "dark");
-    cy.get(".fa-solid.fa-sun").should("be.visible");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("i")
+      .should("have.class", "fa-sun");
   });
 });
