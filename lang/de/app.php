@@ -84,6 +84,12 @@ return [
         'blank' => 'In einem neuen Tab öffnen',
         'self' => 'Im aktuellen Tab öffnen',
     ],
+    'locales' => [
+        'de' => 'Deutsch',
+        'en' => 'Englisch',
+        'fa' => 'Persisch',
+        'fr' => 'Französisch',
+    ],
     'model' => [
         'roles' => 'Rollen',
         'room_types' => 'Raumarten',
