@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable `MAIL_VERIFY_PEER` to disable TLS Peer Verification for SMTP(S) ([#2033])
 - Environment variable `MAIL_SCHEME` to set a specific mail protocol `smtp` or `smtps` ([#2033])
 
+### Fixed
+
+- Running BBB playback player build script in BusyBox ([#2053])
+
 ### Removed
 
 - Environment variable `MAIL_ENCRYPTION`, use `MAIL_SCHEME` instead ([#2033])
@@ -449,6 +453,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1988]: https://github.com/THM-Health/PILOS/pull/1988
 [#2015]: https://github.com/THM-Health/PILOS/pull/2015
 [#2033]: https://github.com/THM-Health/PILOS/pull/2033
+[#2053]: https://github.com/THM-Health/PILOS/pull/2053
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.4.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
