@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable `MAIL_AUTO_TLS` to disable automatic TLS for SMTP servers with STARTTLS support ([#2033])
 - Environment variable `MAIL_VERIFY_PEER` to disable TLS Peer Verification for SMTP(S) ([#2033])
 - Environment variable `MAIL_SCHEME` to set a specific mail protocol `smtp` or `smtps` ([#2033])
+- Right-to-left (RTL) locale support ([#2065])
 
 ### Removed
 
@@ -449,6 +450,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1988]: https://github.com/THM-Health/PILOS/pull/1988
 [#2015]: https://github.com/THM-Health/PILOS/pull/2015
 [#2033]: https://github.com/THM-Health/PILOS/pull/2033
+[#2065]: https://github.com/THM-Health/PILOS/pull/2065
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.4.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
