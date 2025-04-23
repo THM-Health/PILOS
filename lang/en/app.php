@@ -87,8 +87,8 @@ return [
     'locales' => [
         'de' => 'German',
         'en' => 'English',
-        'fr' => 'French',
         'fa' => 'Persian',
+        'fr' => 'French',
     ],
     'model' => [
         'roles' => 'role',
