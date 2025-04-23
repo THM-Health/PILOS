@@ -35,6 +35,8 @@ return [
         'base_url' => 'URL de l\'API',
         'bbb_default_presentation' => 'Présentation par défaut',
         'bbb_logo' => 'Logo',
+        'bbb_logo_dark' => 'Logo du mode sombre',
+        'bbb_logo_dark_file' => 'Fichier logo en mode sombre',
         'bbb_logo_file' => 'Fichier logo',
         'bbb_skip_check_audio' => 'Désactiver le test audio d\'écho',
         'bbb_style' => 'Fichier de styles CSS',

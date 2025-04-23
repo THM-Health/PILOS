@@ -35,6 +35,8 @@ return [
         'base_url' => 'نقطه پایان API',
         'bbb_default_presentation' => 'ارائه پیش‌فرض',
         'bbb_logo' => 'لوگو',
+        'bbb_logo_dark' => 'لوگوی نسخه تاریک',
+        'bbb_logo_dark_file' => 'فایل لوگوی نسخه تاریک',
         'bbb_logo_file' => 'فایل لوگو',
         'bbb_skip_check_audio' => 'غیرفعال کردن تست اکوی صدا',
         'bbb_style' => 'فایل سبک CSS',

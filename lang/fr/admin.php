@@ -155,7 +155,7 @@ return [
         'delete' => [
             'confirm' => 'Voulez-vous vraiment supprimer le type de salle :name?',
             'item' => 'Supprimer le type de salle :id',
-            'no_replacement' => '-- Aucun remplacement --',
+            'no_replacement' => 'Aucun remplacement',
             'replacement' => 'Type de salle en remplacement',
             'replacement_info' => 'Si des salles sont associées à ce type de salle, vous devez sélectionner un type de salle en remplacement.',
             'title' => 'Supprimer ce type de salle ?',

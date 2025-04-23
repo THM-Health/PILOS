@@ -35,6 +35,8 @@ return [
         'base_url' => 'API Endpunkt',
         'bbb_default_presentation' => 'Standard Präsentation',
         'bbb_logo' => 'Logo',
+        'bbb_logo_dark' => 'Dunkle Version des Logos',
+        'bbb_logo_dark_file' => 'Logodatei der dunklen Version',
         'bbb_logo_file' => 'Logodatei',
         'bbb_skip_check_audio' => 'Echo-Test deaktivieren',
         'bbb_style' => 'CSS Style Datei',

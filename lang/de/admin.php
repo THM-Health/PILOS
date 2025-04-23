@@ -155,7 +155,7 @@ return [
         'delete' => [
             'confirm' => 'Wollen Sie die Raumart :name wirklich löschen?',
             'item' => 'Raumart :id löschen',
-            'no_replacement' => '-- Kein Ersatz --',
+            'no_replacement' => 'Kein Ersatz',
             'replacement' => 'Ersatzraumart',
             'replacement_info' => 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.',
             'title' => 'Raumart löschen?',
