@@ -161,7 +161,7 @@ describe("Rooms view streaming", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.hide_disabled_features = true;
       config.data.streaming.enabled = true;
-      config.data.streaming.show_fps = true;
+      config.data.streaming.show_fps = false;
 
       cy.intercept("GET", "api/v1/config", {
         statusCode: 200,
@@ -174,7 +174,7 @@ describe("Rooms view streaming", function () {
     cy.get("#tab-streaming").click();
 
     // Check if fps counter is not shown
-    cy.get('[data-test="streaming-fps-counter"]').should("exist");
+    cy.get('[data-test="streaming-fps-counter"]').should("not.exist");
   });
 
   it("start, pause, resume and stop streaming", function () {
