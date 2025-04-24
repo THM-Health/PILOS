@@ -234,6 +234,32 @@ describe("Rooms view streaming", function () {
       body: {
         data: {
           enabled_for_current_meeting: true,
+          status: "starting",
+          fps: null,
+        },
+      },
+    }).as("roomStreamingStatus");
+    cy.get('[data-test="streaming-reload-button"]').click();
+    cy.wait("@roomStreamingStatus");
+
+    // Check if status is starting
+    cy.get('[data-test="streaming-status"]').should(
+      "contain",
+      "rooms.streaming.starting",
+    );
+
+    // Check button status
+    cy.get('[data-test="streaming-start-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-stop-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-pause-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-resume-button"]').should("be.disabled");
+
+    // Reload status
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+      statusCode: 200,
+      body: {
+        data: {
+          enabled_for_current_meeting: true,
           status: "running",
           fps: 30,
         },
@@ -438,6 +464,7 @@ describe("Rooms view streaming", function () {
   });
 
   it("auto reloading", function () {
+    cy.clock();
     cy.fixture("room.json").then((room) => {
       room.data.type.features.streaming.enabled = true;
       room.data.last_meeting = {
@@ -463,7 +490,7 @@ describe("Rooms view streaming", function () {
       cy.fixture("config.json").then((config) => {
         config.data.general.hide_disabled_features = true;
         config.data.streaming.enabled = true;
-        config.data.streaming.refresh_interval = 5;
+        config.data.streaming.refresh_interval = 30;
 
         cy.intercept("GET", "api/v1/config", {
           statusCode: 200,
@@ -491,13 +518,156 @@ describe("Rooms view streaming", function () {
           body: data,
         }).as("roomStreamingStatus");
       });
-      cy.wait("@roomStreamingStatus", {
-        requestTimeout: 6000,
-      });
+      cy.tick(30000);
+      cy.wait("@roomStreamingStatus");
       cy.get('[data-test="streaming-status"]').should(
         "contain",
         "rooms.streaming.running",
       );
     });
+  });
+
+  it("error handling", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.type.features.streaming.enabled = true;
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    // Check buttons
+    cy.get('[data-test="streaming-start-button"]').should("not.be.disabled");
+    cy.get('[data-test="streaming-stop-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-pause-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-resume-button"]').should("be.disabled");
+
+    // General error on reload
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+      statusCode: 500,
+      body: {
+        message: "Internal Server Error",
+      },
+    }).as("roomStreamingStatus");
+    cy.get('[data-test="streaming-reload-button"]').click();
+    cy.wait("@roomStreamingStatus");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Internal Server Error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // General error on start streaming
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/start", {
+      statusCode: 500,
+      body: {
+        message: "Internal Server Error",
+      },
+    }).as("startStreaming");
+    cy.get('[data-test="streaming-start-button"]').click();
+    cy.wait("@startStreaming");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Internal Server Error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Error streaming not enabled for current meeting
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/start", {
+      statusCode: 412,
+      body: {
+        message: "Streaming is not enabled for the current meeting.",
+      },
+    }).as("startStreaming");
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+      statusCode: 200,
+      body: {
+        data: {
+          enabled_for_current_meeting: false,
+          status: null,
+          fps: null,
+        },
+      },
+    }).as("roomStreamingStatus");
+    cy.get('[data-test="streaming-start-button"]').click();
+    cy.wait("@startStreaming");
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Streaming is not enabled for the current meeting."}',
+      'app.flash.server_error.error_code_{"statusCode":412}',
+    ]);
+    // Check settings are reloaded
+    cy.wait("@roomStreamingStatus");
+
+    // Check buttons and status
+    cy.get('[data-test="streaming-start-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-stop-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-pause-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-resume-button"]').should("be.disabled");
+
+    cy.get('[data-test="streaming-status"]').should(
+      "contain",
+      "rooms.streaming.not_enabled_for_running_meeting",
+    );
+
+    // Reload
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+      statusCode: 200,
+      body: {
+        data: {
+          enabled_for_current_meeting: true,
+          status: null,
+          fps: null,
+        },
+      },
+    }).as("roomStreamingStatus");
+    cy.get('[data-test="streaming-reload-button"]').click();
+    cy.wait("@roomStreamingStatus");
+
+    // Error meeting not running
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/start", {
+      statusCode: 460,
+      body: {
+        message: "The meeting is not running.",
+      },
+    }).as("startStreaming");
+    cy.fixture("room.json").then((room) => {
+      room.data.type.features.streaming.enabled = true;
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T08:20:00.000000Z",
+      };
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.get('[data-test="streaming-start-button"]').click();
+    cy.wait("@startStreaming");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"The meeting is not running."}',
+      'app.flash.server_error.error_code_{"statusCode":460}',
+    ]);
+
+    // Check room is reloaded
+    cy.wait("@roomRequest");
+
+    // Check buttons and status
+    cy.get('[data-test="streaming-start-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-stop-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-pause-button"]').should("be.disabled");
+    cy.get('[data-test="streaming-resume-button"]').should("be.disabled");
+
+    cy.get('[data-test="streaming-status"]').should(
+      "contain",
+      "rooms.streaming.no_running_meeting",
+    );
   });
 });

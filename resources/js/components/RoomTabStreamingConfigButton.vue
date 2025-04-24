@@ -5,6 +5,7 @@
     icon="fa-solid fa-cog"
     severity="contrast"
     :label="$t('rooms.streaming.config.button')"
+    data-test="streaming-config-button"
     @click="showConfigModal"
   />
 
@@ -12,6 +13,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
+    data-test="room-streaming-config-dialog"
     :header="$t('rooms.streaming.config.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
@@ -24,12 +26,14 @@
       <div class="flex justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
+          data-test="dialog-cancel-button"
           severity="secondary"
           :disabled="isLoadingAction"
           @click="showModal = false"
         />
         <Button
           v-if="userPermissions.can('manageSettings', props.room)"
+          data-test="dialog-save-button"
           :label="$t('app.save')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction || isLoading"
@@ -75,7 +79,10 @@
           <FormError :errors="formErrors.fieldError('url')" />
         </div>
 
-        <fieldset class="grid-rows grid gap-2">
+        <fieldset
+          class="grid-rows grid gap-2"
+          data-test="streaming-pause-image-field"
+        >
           <legend
             id="pause-image-label"
             class="col-span-12 md:col-span-4 md:mb-0"
@@ -89,6 +96,7 @@
                   :alt="$t('rooms.streaming.config.pause_image')"
                   :src="streamingPauseImageUrl"
                   class="border rounded-border"
+                  data-test="streaming-pause-image-preview"
                 />
               </div>
               <div v-else-if="roomTypeDefaultPauseImageUrl" class="relative">
@@ -96,6 +104,7 @@
                   :alt="$t('rooms.streaming.config.pause_image')"
                   :src="roomTypeDefaultPauseImageUrl"
                   class="border rounded-border"
+                  data-test="streaming-pause-image-room-type-preview"
                 />
                 <Tag
                   severity="info"
@@ -108,6 +117,7 @@
                   :alt="$t('rooms.streaming.config.pause_image')"
                   :src="systemDefaultPauseImageUrl"
                   class="border rounded-border"
+                  data-test="streaming-pause-image-system-preview"
                 />
                 <Tag
                   severity="info"
@@ -227,8 +237,7 @@ function save() {
 
   const formData = new FormData();
   formData.append("enabled", streamingEnabled.value ? "1" : "0");
-
-  if (streamingUrl.value) formData.append("url", streamingUrl.value);
+  formData.append("url", streamingUrl.value);
 
   if (streamingPauseImageFile.value) {
     formData.append("pause_image", streamingPauseImageFile.value);
