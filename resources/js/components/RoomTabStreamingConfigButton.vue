@@ -42,7 +42,12 @@
       </div>
     </template>
 
-    <OverlayComponent :show="isLoading">
+    <OverlayComponent :show="isLoading || modelLoadingError" :no-center="true">
+      <template #overlay>
+        <div class="mt-6 flex justify-center">
+          <LoadingRetryButton :error="modelLoadingError" @click="loadConfig" />
+        </div>
+      </template>
       <form class="flex flex-col gap-4" @submit.prevent="save">
         <div
           class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
@@ -187,6 +192,7 @@ const systemDefaultPauseImageUrl = ref("");
 
 const isLoadingAction = ref(false);
 const isLoading = ref(false);
+const modelLoadingError = ref(false);
 
 /**
  * show modal
@@ -205,6 +211,7 @@ function showConfigModal() {
 }
 
 function loadConfig() {
+  modelLoadingError.value = false;
   isLoading.value = true;
   formErrors.clear();
 
@@ -222,6 +229,7 @@ function loadConfig() {
     })
     .catch((error) => {
       api.error(error, { noRedirectOnUnauthenticated: true });
+      modelLoadingError.value = true;
     })
     .finally(() => {
       isLoading.value = false;
@@ -279,7 +287,8 @@ const formDisabled = computed(() => {
   return (
     !userPermissions.can("manageSettings", props.room) ||
     isLoading.value ||
-    isLoadingAction.value
+    isLoadingAction.value ||
+    modelLoadingError.value
   );
 });
 </script>
