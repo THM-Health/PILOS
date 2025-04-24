@@ -463,6 +463,126 @@ describe("Rooms view streaming", function () {
     );
   });
 
+  it("load settings with different permissions", function () {
+    // Check as co-owner
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.is_member = true;
+      room.data.is_co_owner = true;
+
+      room.data.type.features.streaming.enabled = true;
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.fixture("roomStreamingStatus.json").then((data) => {
+      data.data.enabled_for_current_meeting = true;
+      data.data.status = "running";
+      data.data.fps = 30;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+        statusCode: 200,
+        body: data,
+      }).as("roomStreamingStatus");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    // Check button and status are shown
+    cy.get('[data-test="streaming-start-button"]').should("exist");
+    cy.get('[data-test="streaming-stop-button"]').should("exist");
+    cy.get('[data-test="streaming-pause-button"]').should("exist");
+    cy.get('[data-test="streaming-resume-button"]').should("exist");
+    cy.get('[data-test="streaming-status"]').should(
+      "contain",
+      "rooms.streaming.running",
+    );
+
+    // Check with rooms.viewAll permission
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["rooms.viewAll"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = ["rooms.viewAll"];
+
+      room.data.type.features.streaming.enabled = true;
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    // Check buttons are missing, but status is shown
+    cy.get('[data-test="streaming-start-button"]').should("not.exist");
+    cy.get('[data-test="streaming-stop-button"]').should("not.exist");
+    cy.get('[data-test="streaming-pause-button"]').should("not.exist");
+    cy.get('[data-test="streaming-resume-button"]').should("not.exist");
+    cy.get('[data-test="streaming-status"]').should(
+      "contain",
+      "rooms.streaming.running",
+    );
+
+    // Check with rooms.manage permission
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "rooms.create",
+        "rooms.viewAll",
+        "rooms.manage",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = [
+        "rooms.create",
+        "rooms.viewAll",
+        "rooms.manage",
+      ];
+
+      room.data.type.features.streaming.enabled = true;
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    // Check buttons and status are shown
+    cy.get('[data-test="streaming-start-button"]').should("exist");
+    cy.get('[data-test="streaming-stop-button"]').should("exist");
+    cy.get('[data-test="streaming-pause-button"]').should("exist");
+    cy.get('[data-test="streaming-resume-button"]').should("exist");
+    cy.get('[data-test="streaming-status"]').should(
+      "contain",
+      "rooms.streaming.running",
+    );
+  });
+
   it("auto reloading", function () {
     cy.clock();
     cy.fixture("room.json").then((room) => {

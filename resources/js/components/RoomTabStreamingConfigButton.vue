@@ -46,7 +46,7 @@
       <form class="flex flex-col gap-4" @submit.prevent="save">
         <div
           class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
-          data-test="streaming-enabled-setting"
+          data-test="streaming-enabled-field"
         >
           <label for="streaming-enabled" class="flex items-center">
             {{ $t("rooms.streaming.config.enabled") }}
@@ -64,7 +64,7 @@
         <!-- Streaming url -->
         <div
           class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
-          data-test="streaming-url"
+          data-test="streaming-url-field"
         >
           <label for="streaming-url" class="mb-2">{{
             $t("rooms.streaming.config.url")

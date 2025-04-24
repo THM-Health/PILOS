@@ -435,4 +435,248 @@ describe("Rooms view streaming config actions", function () {
     // Check dialog closed
     cy.get('[data-test="room-streaming-config-dialog"]').should("not.exist");
   });
+
+  it("edit settings errors", function () {
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    cy.get('[data-test="streaming-config-button"]').should("be.visible");
+    cy.get('[data-test="streaming-config-button"]').click();
+
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Enable streaming
+        cy.get("#streaming-enabled").should("not.be.checked").check();
+
+        // Enter streaming URL
+        cy.get("#streaming-url")
+          .should("have.value", "")
+          .type("http://streaming.example.com/stream/bbb");
+
+        // Upload pause image
+        cy.get('[data-test="streaming-pause-image-field"]')
+          .should("be.visible")
+          .within(() => {
+            cy.checkSettingsFileSelector("", "pause.jpg", true);
+          });
+
+        cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/config", {
+          statusCode: 422,
+          body: {
+            message:
+              "The RTMP(S) URL must be a RTMP or RTMPS URL. (and 2 more errors)",
+            errors: {
+              url: ["The RTMP(S) URL must be a RTMP or RTMPS URL."],
+              pause_image: [
+                "The Pause image must not be greater than 5000 kilobytes.",
+                "The Pause image must have a resolution of 1920x1080 pixels.",
+              ],
+            },
+          },
+        }).as("saveConfigRequest");
+
+        cy.get('[data-test="dialog-save-button"]')
+          .should("include.text", "app.save")
+          .click();
+      });
+
+    // Check dialog not closed
+    cy.wait("@saveConfigRequest");
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="streaming-url-field"]').should(
+          "include.text",
+          "The RTMP(S) URL must be a RTMP or RTMPS URL.",
+        );
+
+        cy.get('[data-test="streaming-pause-image-field"]')
+          .should(
+            "include.text",
+            "The Pause image must not be greater than 5000 kilobytes.",
+          )
+          .should(
+            "include.text",
+            "The Pause image must have a resolution of 1920x1080 pixels.",
+          );
+      });
+
+    // Save again, general error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/config", {
+      statusCode: 500,
+      body: {
+        message: "Internal server error",
+      },
+    }).as("saveConfigRequest");
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="dialog-save-button"]')
+          .should("include.text", "app.save")
+          .click();
+      });
+
+    cy.wait("@saveConfigRequest");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Internal server error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check dialog not closed
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that error messages are removed
+        cy.get('[data-test="streaming-url-field"]').should(
+          "not.include.text",
+          "The RTMP(S) URL must be a RTMP or RTMPS URL.",
+        );
+        cy.get('[data-test="streaming-pause-image-field"]').should(
+          "not.include.text",
+          "The Pause image must not be greater than 5000 kilobytes.",
+        );
+
+        // Close dialog
+        cy.get('[data-test="dialog-cancel-button"]').click();
+      });
+  });
+
+  it("view/edit settings with different permissions", function () {
+    // Check as co-owner
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.is_member = true;
+      room.data.is_co_owner = true;
+
+      room.data.type.features.streaming.enabled = true;
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    cy.get('[data-test="streaming-config-button"]').should("be.visible");
+    cy.get('[data-test="streaming-config-button"]').click();
+
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check input fields are enabled
+        cy.get("#streaming-enabled").should("not.be.disabled");
+        cy.get("#streaming-url").should("not.be.disabled");
+        cy.get('[data-test="streaming-pause-image-field"]').within(() => {
+          cy.get('[data-test="file-input-input"]').should("not.be.disabled");
+        });
+
+        // Check save buttons exists
+        cy.get('[data-test="dialog-save-button"]').should("exist");
+
+        // Close dialog
+        cy.get('[data-test="dialog-cancel-button"]').click();
+      });
+
+    // Check with rooms.viewAll permission
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["rooms.viewAll"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = ["rooms.viewAll"];
+
+      room.data.type.features.streaming.enabled = true;
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    cy.get('[data-test="streaming-config-button"]').should("be.visible");
+    cy.get('[data-test="streaming-config-button"]').click();
+
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check input fields are disabled
+        cy.get("#streaming-enabled").should("be.disabled");
+        cy.get("#streaming-url").should("be.disabled");
+        cy.get('[data-test="streaming-pause-image-field"]').within(() => {
+          cy.get('[data-test="file-input-input"]').should("be.disabled");
+        });
+
+        // Check save buttons is missing
+        cy.get('[data-test="dialog-save-button"]').should("not.exist");
+
+        // Close dialog
+        cy.get('[data-test="dialog-cancel-button"]').click();
+      });
+
+    // Check with rooms.manage permission
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "rooms.create",
+        "rooms.viewAll",
+        "rooms.manage",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = [
+        "rooms.create",
+        "rooms.viewAll",
+        "rooms.manage",
+      ];
+
+      room.data.type.features.streaming.enabled = true;
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    cy.get('[data-test="streaming-config-button"]').should("be.visible");
+    cy.get('[data-test="streaming-config-button"]').click();
+
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check input fields are enabled
+        cy.get("#streaming-enabled").should("not.be.disabled");
+        cy.get("#streaming-url").should("not.be.disabled");
+        cy.get('[data-test="streaming-pause-image-field"]').within(() => {
+          cy.get('[data-test="file-input-input"]').should("not.be.disabled");
+        });
+
+        // Check save buttons exists
+        cy.get('[data-test="dialog-save-button"]').should("exist");
+
+        // Close dialog
+        cy.get('[data-test="dialog-cancel-button"]').click();
+      });
+  });
 });
