@@ -25,7 +25,7 @@
     },
     "streaming": {
       "enabled": false,
-      "refresh_interval": 10,
+      "refresh_interval": 60,
       "show_fps": false
     },
     "bbb": {

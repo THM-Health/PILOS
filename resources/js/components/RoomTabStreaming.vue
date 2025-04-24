@@ -5,65 +5,15 @@
     <div class="flex flex-col items-start gap-2">
       <div class="flex flex-row gap-2">
         <Tag
-          v-if="!running"
-          severity="info"
-          :value="$t('rooms.streaming.no_running_meeting')"
-        />
-        <Tag
-          v-else-if="!streamingEnabled"
-          severity="warn"
-          :value="$t('rooms.streaming.not_enabled_for_running_meeting')"
-        />
-        <Tag
-          v-else-if="streamingState === 'queued'"
-          severity="info"
-          :value="$t('rooms.streaming.queued')"
-        />
-        <Tag
-          v-else-if="streamingState === 'starting'"
-          severity="success"
-          :value="$t('rooms.streaming.starting')"
-        />
-        <Tag
-          v-else-if="streamingState === 'running'"
-          severity="success"
-          :value="$t('rooms.streaming.running')"
-        />
-
-        <Tag
-          v-else-if="streamingState === 'pausing'"
-          severity="warning"
-          :value="$t('rooms.streaming.pausing')"
-        />
-        <Tag
-          v-else-if="streamingState === 'paused'"
-          severity="warning"
-          :value="$t('rooms.streaming.paused')"
-        />
-
-        <Tag
-          v-else-if="streamingState === 'resuming'"
-          severity="success"
-          :value="$t('rooms.streaming.resuming')"
-        />
-        <Tag
-          v-else-if="streamingState === 'stopping'"
-          severity="info"
-          :value="$t('rooms.streaming.stopping')"
-        />
-        <Tag
-          v-else-if="streamingState === 'stopped'"
-          severity="info"
-          :value="$t('rooms.streaming.stopped')"
-        />
-        <Tag
-          v-else-if="streamingState === 'failed'"
-          severity="danger"
-          :value="$t('rooms.streaming.failed')"
+          v-if="streamingStatus != null"
+          data-test="streaming-status"
+          :severity="streamingStatus.severity"
+          :value="streamingStatus.label"
         />
 
         <Tag
           v-if="fps && settingsStore.getSetting('streaming.show_fps')"
+          data-test="streaming-fps-counter"
           severity="info"
           >{{ $t("rooms.streaming.fps", { fps }) }}</Tag
         >
@@ -82,10 +32,12 @@
                 (streamingState === null ||
                   streamingState === 'stopped' ||
                   streamingState === 'failed') &&
-                running
+                running &&
+                streamingEnabled
               )
             "
             severity="success"
+            data-test="streaming-start-button"
             @click="streamingCommand('start')"
           />
           <Button
@@ -96,9 +48,11 @@
               streamingState === 'starting' ||
               streamingState === 'stopping' ||
               streamingState === 'stopped' ||
+              streamingState === 'failed' ||
               !running
             "
             severity="danger"
+            data-test="streaming-stop-button"
             @click="streamingCommand('stop')"
           />
         </ButtonGroup>
@@ -108,6 +62,7 @@
             icon="fa-solid fa-pause"
             :disabled="streamingState !== 'running' || !running"
             severity="warn"
+            data-test="streaming-pause-button"
             @click="streamingCommand('pause')"
           />
           <Button
@@ -115,6 +70,7 @@
             icon="fa-solid fa-play"
             :disabled="streamingState !== 'paused' || !running"
             severity="success"
+            data-test="streaming-resume-button"
             @click="streamingCommand('resume')"
           />
         </ButtonGroup>
@@ -140,6 +96,7 @@ import RoomTabStreamingConfigButton from "./RoomTabStreamingConfigButton.vue";
 import env from "../env.js";
 import { useSettingsStore } from "../stores/settings.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useI18n } from "vue-i18n";
 
 const streamingState = ref("stopped");
 const streamingEnabled = ref(false);
@@ -148,6 +105,7 @@ const fps = ref(0);
 const api = useApi();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
+const { t } = useI18n();
 
 const emit = defineEmits(["settingsChanged"]);
 
@@ -205,11 +163,14 @@ async function streamingCommand(command) {
       streamingEnabled.value = response.data.data.enabled_for_current_meeting;
     })
     .catch((error) => {
+      if (error.response.status === env.HTTP_PRECONDITION_FAILED) {
+        emit("settingsChanged");
+        streamingCommand("status");
+      }
       if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
         emit("settingsChanged");
-      } else {
-        api.error(error);
       }
+      api.error(error);
     })
     .finally(() => {
       autoReload();
@@ -241,5 +202,71 @@ onUnmounted(() => {
 
 watch(running, () => {
   streamingCommand("status");
+});
+
+const streamingStatus = computed(() => {
+  if (!running.value) {
+    return {
+      severity: "info",
+      label: t("rooms.streaming.no_running_meeting"),
+    };
+  }
+
+  if (!streamingEnabled.value) {
+    return {
+      severity: "warn",
+      label: t("rooms.streaming.not_enabled_for_running_meeting"),
+    };
+  }
+
+  switch (streamingState.value) {
+    case "queued":
+      return {
+        severity: "info",
+        label: t("rooms.streaming.queued"),
+      };
+    case "starting":
+      return {
+        severity: "success",
+        label: t("rooms.streaming.starting"),
+      };
+    case "running":
+      return {
+        severity: "success",
+        label: t("rooms.streaming.running"),
+      };
+    case "pausing":
+      return {
+        severity: "warning",
+        label: t("rooms.streaming.pausing"),
+      };
+    case "paused":
+      return {
+        severity: "warning",
+        label: t("rooms.streaming.paused"),
+      };
+    case "resuming":
+      return {
+        severity: "success",
+        label: t("rooms.streaming.resuming"),
+      };
+    case "stopping":
+      return {
+        severity: "info",
+        label: t("rooms.streaming.stopping"),
+      };
+    case "stopped":
+      return {
+        severity: "info",
+        label: t("rooms.streaming.stopped"),
+      };
+    case "failed":
+      return {
+        severity: "danger",
+        label: t("rooms.streaming.failed"),
+      };
+    default:
+      return null;
+  }
 });
 </script>

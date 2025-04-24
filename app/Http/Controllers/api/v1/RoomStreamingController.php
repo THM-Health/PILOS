@@ -69,7 +69,7 @@ class RoomStreamingController extends Controller
     {
         $meeting = $room->latestMeeting;
         if (! $meeting || $meeting->end != null || $meeting->detached != null) {
-            abort(CustomStatusCodes::ROOM_NOT_RUNNING->value, __('app.errors.room_not_running'));
+            abort(CustomStatusCodes::ROOM_NOT_RUNNING->value, __('app.errors.streaming_meeting_not_running'));
         }
 
         return app(StreamingServiceFactory::class)::make($meeting);
@@ -81,14 +81,13 @@ class RoomStreamingController extends Controller
 
         // Check if streaming is enabled for the current meeting
         if (! $streaming->enabled_for_current_meeting) {
-            // TODO: Return a proper error code and message
-            abort(412);
+            abort(412, __('app.errors.streaming_not_enabled_for_current_meeting_error'));
         }
 
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->start() === false) {
-            abort(500, __('app.flash.streaming_error'));
+            abort(500, __('app.errors.streaming_error'));
         }
         $room->streaming->refresh();
 
@@ -100,7 +99,7 @@ class RoomStreamingController extends Controller
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->stop() === false) {
-            abort(500, __('app.flash.streaming_error'));
+            abort(500, __('app.errors.streaming_error'));
         }
         $room->streaming->refresh();
 
@@ -112,7 +111,7 @@ class RoomStreamingController extends Controller
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->pause() === false) {
-            abort(500, __('app.flash.streaming_error'));
+            abort(500, __('app.errors.streaming_error'));
         }
         $room->streaming->refresh();
 
@@ -124,7 +123,7 @@ class RoomStreamingController extends Controller
         $streamingService = $this->getStreamingService($room);
 
         if ($streamingService->resume() === false) {
-            abort(500, __('app.flash.streaming_error'));
+            abort(500, __('app.errors.streaming_error'));
         }
         $room->streaming->refresh();
 
