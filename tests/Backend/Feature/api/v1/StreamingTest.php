@@ -250,6 +250,7 @@ class StreamingTest extends TestCase
             ])
             ->assertSuccessful();
         $this->assertNotNull($result->json('data.default_pause_image'));
+        $this->streamingSettings->refresh();
         $this->assertStringStartsWith(url('/storage/images/'), $this->streamingSettings->default_pause_image);
 
         // Validate if the file is not deleted if request is empty
@@ -321,8 +322,7 @@ class StreamingTest extends TestCase
         $this->actingAs($this->user)
             ->putJson(route('api.v1.streaming.update'), $data)
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['join_parameters'])
-            ->dump();
+            ->assertJsonValidationErrors(['join_parameters']);
 
         // Disable streaming globally, route should be disabled
         config(['streaming.enabled' => false]);

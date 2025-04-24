@@ -1,6 +1,6 @@
 ---
 title: Streaming
-description: Guide to setting up live streaming with PILOS
+description: Guide to setting up livestreaming with PILOS
 ---
 
 ## Introduction
@@ -96,13 +96,13 @@ Once livestreaming is enabled in the .env file, additional settings can be confi
 ### 2. Configure streaming for a room
 
 A livestreaming button will appear in the room features toolbar.
-Clicking it opens the live streaming tab, where you can configure streaming settings for the room.
+Clicking it opens the livestreaming tab, where you can configure streaming settings for the room.
 
 If the room type does not have streaming enabled, the button will be disabled, and clicking it will display a message stating that streaming is not enabled for this room type.
 
-Inside the live streaming tab, you can configure the stream using the 'Configure streaming' button, which opens a modal with the following options:
+Inside the livestreaming tab, you can configure the stream using the 'Configure streaming' button, which opens a modal with the following options:
 
-- **Enabled**: Enable or disable live streaming for new meetings created in this room.
+- **Enabled**: Enable or disable livestreaming for new meetings created in this room.
 - **RTMP(S) URL**: The RTMP(S) URL where the stream will be sent. To stream to YouTube, use the Stream URL from YouTube Studio and append the stream key. Example: rtmp://a.rtmp.youtube.com/live2/ab01-cd23-ef45-gh67-ij89.
 - **Pause Image**: Custom pause image for this room. If none is set, the system will use the room type's default or the global pause image.
 
@@ -113,7 +113,7 @@ Before joining, all users must acknowledge that the meeting may be streamed.
 
 ### 4. Controlling livestream
 
-While the meeting is running, livestream controls are available in the live streaming tab:
+While the meeting is running, livestream controls are available in the livestreaming tab:
 
 - **Start**: Begins the livestream. The stream enters a "Queued" state and starts within a few seconds when picked up by the BBB-Streaming-Server.
 - **Pause/Resume**: Pause the stream at any time. When paused, the pause image is displayed, and audio is muted.
