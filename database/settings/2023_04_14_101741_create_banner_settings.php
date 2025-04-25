@@ -17,4 +17,18 @@ return new class extends SettingsMigration
         $this->migrator->add('banner.link_text');
         $this->migrator->add('banner.link_target', \App\Enums\LinkTarget::BLANK);
     }
+
+    public function down(): void
+    {
+        $this->migrator->delete('banner.enabled');
+        $this->migrator->delete('banner.message');
+        $this->migrator->delete('banner.link');
+        $this->migrator->delete('banner.icon');
+        $this->migrator->delete('banner.color');
+        $this->migrator->delete('banner.background');
+        $this->migrator->delete('banner.title');
+        $this->migrator->delete('banner.link_style');
+        $this->migrator->delete('banner.link_text');
+        $this->migrator->delete('banner.link_target');
+    }
 };

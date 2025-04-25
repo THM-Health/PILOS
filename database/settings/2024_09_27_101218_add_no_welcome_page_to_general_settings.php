@@ -8,4 +8,9 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('general.no_welcome_page', false);
     }
+
+    public function down(): void
+    {
+        $this->migrator->delete('general.no_welcome_page');
+    }
 };

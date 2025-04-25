@@ -13,4 +13,13 @@ return new class extends SettingsMigration
         $this->migrator->add('room.auto_delete_never_used_period', TimePeriod::UNLIMITED);
         $this->migrator->add('room.auto_delete_deadline_period', TimePeriod::TWO_WEEKS);
     }
+
+    public function down(): void
+    {
+        $this->migrator->delete('room.limit');
+        $this->migrator->delete('room.token_expiration');
+        $this->migrator->delete('room.auto_delete_inactive_period');
+        $this->migrator->delete('room.auto_delete_never_used_period');
+        $this->migrator->delete('room.auto_delete_deadline_period');
+    }
 };

@@ -8,4 +8,9 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('bbb.logo_dark');
     }
+
+    public function down(): void
+    {
+        $this->migrator->delete('bbb.logo_dark');
+    }
 };
