@@ -234,7 +234,7 @@ Cypress.Commands.add("interceptAdminServerPoolsIndexRequests", () => {
  * @returns void
  */
 Cypress.Commands.add("interceptAdminStreamingIndexRequests", () => {
-  cy.intercept("GET", "api/v1/streaming*", {
+  cy.intercept("GET", "api/v1/streaming", {
     fixture: "streaming.json",
   }).as("streamingRequest");
 });

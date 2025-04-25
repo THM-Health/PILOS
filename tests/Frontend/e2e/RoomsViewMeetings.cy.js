@@ -1321,12 +1321,9 @@ describe("Rooms view meetings", function () {
   });
 
   it("start meeting with attendance logging", function () {
-    cy.fixture("room.json").then((room) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
 
     const joinRequest = interceptIndefinitely(
       "POST",
@@ -1399,12 +1396,9 @@ describe("Rooms view meetings", function () {
   });
 
   it("start meeting with streaming", function () {
-    cy.fixture("room.json").then((room) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
 
     const joinRequest = interceptIndefinitely(
       "POST",
@@ -1477,12 +1471,9 @@ describe("Rooms view meetings", function () {
   });
 
   it("start meeting with recording", function () {
-    cy.fixture("room.json").then((room) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
 
     const joinRequest = interceptIndefinitely(
       "POST",
@@ -1558,12 +1549,9 @@ describe("Rooms view meetings", function () {
   });
 
   it("start meeting with recording without video", function () {
-    cy.fixture("room.json").then((room) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
 
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
       statusCode: 200,
@@ -2200,12 +2188,9 @@ describe("Rooms view meetings", function () {
       "startRequest",
     );
 
-    cy.fixture("room.json").then((room) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
 
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
     cy.get('[data-test="room-start-button"]').click();
@@ -2407,12 +2392,9 @@ describe("Rooms view meetings", function () {
     cy.contains("rooms.not_running").should("be.visible");
 
     // Reload room with permission to start room
-    cy.fixture("room.json").then((room) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
 
     cy.get('[data-test="reload-room-button"]').click();
 

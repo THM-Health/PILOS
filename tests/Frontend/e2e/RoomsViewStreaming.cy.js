@@ -18,12 +18,9 @@ describe("Rooms view streaming", function () {
       }).as("roomRequest");
     });
 
-    cy.fixture("roomStreamingStatus.json").then((data) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
-        statusCode: 200,
-        body: data,
-      }).as("roomStreamingStatus");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+      fixture: "roomStreamingStatus.json",
+    }).as("roomStreamingStatus");
   });
 
   it("no running meeting, room was never started", function () {

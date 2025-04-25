@@ -212,7 +212,7 @@ describe("Admin settings with edit permission", function () {
       });
   });
 
-  it("edit settings error", function () {
+  it("edit settings saving error", function () {
     cy.visit("/admin/streaming_settings");
 
     cy.wait("@streamingRequest");
@@ -317,6 +317,67 @@ describe("Admin settings with edit permission", function () {
         "not.include.text",
         "The userdata-bbb_hide_notifications parameter is missing a value.",
       );
+  });
+
+  it("edit settings loading error", function () {
+    cy.intercept("GET", "api/v1/streaming", {
+      statusCode: 500,
+      body: {
+        message: "Internal server error",
+      },
+    }).as("streamingRequest");
+
+    cy.visit("/admin/streaming_settings");
+
+    cy.wait("@streamingRequest");
+
+    // Check overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check all input fields are disabled
+    cy.get('[data-test="default-pause-image-field"]').within(() => {
+      cy.get('[data-test="file-input-input"]').should("be.disabled");
+    });
+    cy.get('[data-test="css-file-field"]').within(() => {
+      cy.get('[data-test="file-input-input"]').should("be.disabled");
+    });
+    cy.get('[data-test="join-parameters-field"]').within(() => {
+      cy.get("#join-parameters").should("be.disabled");
+    });
+
+    // Check save button is disabled
+    cy.get('[data-test="save-button"]').should("be.disabled");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Internal server error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Valid response
+    cy.intercept("GET", "api/v1/streaming", {
+      fixture: "streaming.json",
+    }).as("roomStreamingConfig");
+
+    // Try again
+    cy.get('[data-test="loading-retry-button"]').click();
+
+    // Check overlay is gone
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check all input fields are enabled
+    cy.get('[data-test="default-pause-image-field"]').within(() => {
+      cy.get('[data-test="file-input-input"]').should("not.be.disabled");
+    });
+    cy.get('[data-test="css-file-field"]').within(() => {
+      cy.get('[data-test="file-input-input"]').should("not.be.disabled");
+    });
+    cy.get('[data-test="join-parameters-field"]').within(() => {
+      cy.get("#join-parameters").should("not.be.disabled");
+    });
+
+    // Check save button is enabled
+    cy.get('[data-test="save-button"]').should("not.be.disabled");
   });
 
   it("check settings with update permission", function () {
@@ -577,12 +638,9 @@ describe("Admin settings with edit permission", function () {
   it("edit room type settings", function () {
     cy.visit("/admin/streaming_settings");
 
-    cy.fixture("roomTypeStreamingSettings.json").then((settings) => {
-      cy.intercept("GET", "api/v1/roomTypes/3/streaming", {
-        statusCode: 200,
-        body: settings,
-      }).as("roomTypeStreamingSettingsRequest");
-    });
+    cy.intercept("GET", "api/v1/roomTypes/3/streaming", {
+      fixture: "roomTypeStreamingSettings.json",
+    }).as("roomTypeStreamingSettingsRequest");
 
     cy.wait("@streamingRequest");
 
@@ -827,15 +885,12 @@ describe("Admin settings with edit permission", function () {
       });
   });
 
-  it("edit room type settings error", function () {
+  it("edit room type settings saving error", function () {
     cy.visit("/admin/streaming_settings");
 
-    cy.fixture("roomTypeStreamingSettings.json").then((settings) => {
-      cy.intercept("GET", "api/v1/roomTypes/3/streaming", {
-        statusCode: 200,
-        body: settings,
-      }).as("roomTypeStreamingSettingsRequest");
-    });
+    cy.intercept("GET", "api/v1/roomTypes/3/streaming", {
+      fixture: "roomTypeStreamingSettings.json",
+    }).as("roomTypeStreamingSettingsRequest");
 
     cy.wait("@streamingRequest");
 
@@ -914,5 +969,73 @@ describe("Admin settings with edit permission", function () {
       "not.include.text",
       "The Default pause image must have a resolution of 1920x1080 pixels.",
     );
+  });
+
+  it("edit room type settings loading error", function () {
+    cy.visit("/admin/streaming_settings");
+
+    // Server error
+    cy.intercept("GET", "api/v1/roomTypes/3/streaming", {
+      statusCode: 500,
+      body: {
+        message: "Internal server error",
+      },
+    }).as("roomTypeStreamingSettingsRequest");
+
+    cy.wait("@streamingRequest");
+
+    cy.get('[data-test="room-type-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-type-item-cell"]')
+          .eq(3)
+          .find("button")
+          .click();
+
+        cy.wait("@roomTypeStreamingSettingsRequest");
+      });
+
+    cy.get('[data-test="streaming-room-type-settings-edit-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check all input fields are not shown
+        cy.get('[data-test="streaming-enabled-field"]').should("not.exist");
+        cy.get('[data-test="streaming-default-pause-image-field"]').should(
+          "not.exist",
+        );
+
+        // Check save button is disabled
+        cy.get('[data-test="dialog-save-button"]').should("be.disabled");
+      });
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Internal server error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Valid response
+    cy.intercept("GET", "api/v1/roomTypes/3/streaming", {
+      fixture: "roomTypeStreamingSettings.json",
+    }).as("roomTypeStreamingSettingsRequest");
+
+    cy.get('[data-test="streaming-room-type-settings-edit-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Try again
+        cy.get('[data-test="loading-retry-button"]').click();
+
+        // Check overlay is gone
+        cy.get('[data-test="overlay"]').should("not.exist");
+
+        // Check all input fields are shown
+        cy.get('[data-test="streaming-enabled-field"]').should("exist");
+        cy.get('[data-test="streaming-default-pause-image-field"]').should(
+          "exist",
+        );
+
+        // Check save button is enabled
+        cy.get('[data-test="dialog-save-button"]').should("not.be.disabled");
+      });
   });
 });

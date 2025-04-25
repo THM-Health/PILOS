@@ -1,125 +1,3 @@
-<script setup>
-import { ref } from "vue";
-import { useApi } from "../composables/useApi.js";
-import { useFormErrors } from "../composables/useFormErrors.js";
-import env from "../env.js";
-
-const emit = defineEmits(["edited", "gone"]);
-
-const api = useApi();
-const formErrors = useFormErrors();
-
-const modalVisible = ref(false);
-const isLoadingAction = ref(false);
-const loadingError = ref(false);
-
-const defaultPauseImage = ref(null);
-const defaultPauseImageDeleted = ref(false);
-
-const props = defineProps({
-  roomType: {
-    type: Object,
-    required: true,
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-const settings = ref(null);
-
-function showModal() {
-  formErrors.clear();
-  loadingError.value = false;
-  settings.value = null;
-  loadSettings();
-  modalVisible.value = true;
-}
-
-function loadSettings() {
-  isLoadingAction.value = true;
-  api
-    .call("roomTypes/" + props.roomType.id + "/streaming")
-    .then((response) => {
-      settings.value = response.data.data;
-    })
-    .catch((error) => {
-      loadingError.value = true;
-      api.error(error);
-    })
-    .finally(() => {
-      isLoadingAction.value = false;
-    });
-}
-
-function save() {
-  isLoadingAction.value = true;
-  formErrors.clear();
-
-  // Build form data
-  const formData = new FormData();
-
-  if (defaultPauseImage.value !== null) {
-    formData.append("default_pause_image", defaultPauseImage.value);
-  } else if (defaultPauseImageDeleted.value) {
-    formData.append("default_pause_image", "");
-  }
-
-  const exclude = ["default_pause_image"];
-  Object.keys(settings.value).forEach((key) => {
-    if (exclude.includes(key)) {
-      return;
-    }
-    let val = settings.value[key];
-
-    // Since the FormData always strings boolean and empty values must be
-    // changed so that they can be handled correctly by the backend.
-    if (typeof val === "boolean") {
-      val = val ? 1 : 0;
-    } else if (val == null) {
-      val = "";
-    }
-
-    formData.append(key, val);
-  });
-
-  formData.append("_method", "PUT");
-
-  api
-    .call("roomTypes/" + props.roomType.id + "/streaming", {
-      method: "post",
-      data: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    .then((response) => {
-      defaultPauseImage.value = null;
-      defaultPauseImageDeleted.value = false;
-
-      // update form input
-      settings.value = response.data.data;
-
-      emit("edited");
-      modalVisible.value = false;
-    })
-    .catch((error) => {
-      if (
-        error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
-      ) {
-        formErrors.set(error.response.data.errors);
-      } else {
-        api.error(error);
-      }
-    })
-    .finally(() => {
-      isLoadingAction.value = false;
-    });
-}
-</script>
-
 <template>
   <!-- button -->
   <Button
@@ -161,10 +39,9 @@ function save() {
           @click="modalVisible = false"
         />
         <Button
-          v-if="settings != null"
           :label="$t('app.save')"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction"
+          :disabled="isLoadingAction || loadingError"
           data-test="dialog-save-button"
           @click="save"
         />
@@ -232,5 +109,109 @@ function save() {
     </OverlayComponent>
   </Dialog>
 </template>
+<script setup>
+import { ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import env from "../env.js";
 
-<style scoped></style>
+const emit = defineEmits(["edited", "gone"]);
+
+const api = useApi();
+const formErrors = useFormErrors();
+
+const modalVisible = ref(false);
+const isLoadingAction = ref(false);
+const loadingError = ref(false);
+
+const defaultPauseImage = ref(null);
+const defaultPauseImageDeleted = ref(false);
+
+const props = defineProps({
+  roomType: {
+    type: Object,
+    required: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const settings = ref(null);
+
+function showModal() {
+  formErrors.clear();
+  loadingError.value = false;
+  settings.value = null;
+  loadSettings();
+  modalVisible.value = true;
+}
+
+function loadSettings() {
+  isLoadingAction.value = true;
+  loadingError.value = false;
+  api
+    .call("roomTypes/" + props.roomType.id + "/streaming")
+    .then((response) => {
+      settings.value = response.data.data;
+    })
+    .catch((error) => {
+      loadingError.value = true;
+      api.error(error);
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
+}
+
+function save() {
+  isLoadingAction.value = true;
+  formErrors.clear();
+
+  // Build form data
+  const formData = new FormData();
+
+  if (defaultPauseImage.value !== null) {
+    formData.append("default_pause_image", defaultPauseImage.value);
+  } else if (defaultPauseImageDeleted.value) {
+    formData.append("default_pause_image", "");
+  }
+
+  formData.append("enabled", settings.value.enabled ? "1" : "0");
+
+  formData.append("_method", "PUT");
+
+  api
+    .call("roomTypes/" + props.roomType.id + "/streaming", {
+      method: "post",
+      data: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then((response) => {
+      defaultPauseImage.value = null;
+      defaultPauseImageDeleted.value = false;
+
+      // update form input
+      settings.value = response.data.data;
+
+      emit("edited");
+      modalVisible.value = false;
+    })
+    .catch((error) => {
+      if (
+        error.response &&
+        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+      } else {
+        api.error(error);
+      }
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
+}
+</script>

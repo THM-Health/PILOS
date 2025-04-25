@@ -36,7 +36,7 @@
           data-test="dialog-save-button"
           :label="$t('app.save')"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction || isLoading"
+          :disabled="isLoadingAction || isLoading || modelLoadingError"
           @click="save"
         />
       </div>
@@ -228,7 +228,7 @@ function loadConfig() {
         response.data.data.system_default_pause_image;
     })
     .catch((error) => {
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error);
       modelLoadingError.value = true;
     })
     .finally(() => {
@@ -272,7 +272,7 @@ function save() {
       ) {
         formErrors.set(error.response.data.errors);
       } else {
-        api.error(error, { noRedirectOnUnauthenticated: true });
+        api.error(error);
       }
     })
     .finally(() => {

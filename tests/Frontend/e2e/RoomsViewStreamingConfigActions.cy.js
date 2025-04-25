@@ -22,19 +22,13 @@ describe("Rooms view streaming config actions", function () {
       }).as("roomRequest");
     });
 
-    cy.fixture("roomStreamingStatus.json").then((data) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
-        statusCode: 200,
-        body: data,
-      }).as("roomStreamingStatus");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+      fixture: "roomStreamingStatus.json",
+    }).as("roomStreamingStatus");
 
-    cy.fixture("roomStreamingConfig.json").then((data) => {
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/config", {
-        statusCode: 200,
-        body: data,
-      }).as("roomStreamingConfig");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/config", {
+      fixture: "roomStreamingConfig.json",
+    }).as("roomStreamingConfig");
   });
 
   it("load and show settings", function () {
@@ -220,6 +214,71 @@ describe("Rooms view streaming config actions", function () {
       });
   });
 
+  it("load with error", function () {
+    cy.visit("/rooms/abc-def-123");
+    cy.get("#tab-streaming").click();
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/config", {
+      statusCode: 500,
+      body: {
+        message: "Internal server error",
+      },
+    }).as("roomStreamingConfig");
+
+    cy.get('[data-test="streaming-config-button"]').should("be.visible");
+    cy.get('[data-test="streaming-config-button"]').click();
+
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check input fields are disabled
+        cy.get("#streaming-enabled").should("be.disabled");
+        cy.get("#streaming-url").should("be.disabled");
+        cy.get('[data-test="streaming-pause-image-field"]').within(() => {
+          cy.get('[data-test="file-input-input"]').should("be.disabled");
+        });
+
+        // Check save buttons is disabled
+        cy.get('[data-test="dialog-save-button"]').should("be.disabled");
+
+        // Check overlay is shown
+        cy.get('[data-test="overlay"]').should("is.visible");
+      });
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Internal server error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Valid response
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/config", {
+      fixture: "roomStreamingConfig.json",
+    }).as("roomStreamingConfig");
+
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Try again
+        cy.get('[data-test="loading-retry-button"]').click();
+
+        // Check all input fields are enabled
+        cy.get("#streaming-enabled").should("not.be.disabled");
+        cy.get("#streaming-url").should("not.be.disabled");
+        cy.get('[data-test="streaming-pause-image-field"]').within(() => {
+          cy.get('[data-test="file-input-input"]').should("not.be.disabled");
+        });
+        // Check save buttons is enabled
+        cy.get('[data-test="dialog-save-button"]').should("not.be.disabled");
+
+        // Check overlay is hidden
+        cy.get('[data-test="overlay"]').should("not.exist");
+
+        // Close dialog
+        cy.get('[data-test="dialog-cancel-button"]').click();
+      });
+  });
+
   it("edit settings", function () {
     cy.visit("/rooms/abc-def-123");
     cy.get("#tab-streaming").click();
@@ -323,16 +382,13 @@ describe("Rooms view streaming config actions", function () {
     cy.get('[data-test="room-streaming-config-dialog"]')
       .should("be.visible")
       .within(() => {
-        cy.fixture("roomStreamingConfig.json").then((settings) => {
-          cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/config", {
-            statusCode: 200,
-            body: settings,
-          }).as("saveConfigRequest");
+        cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/config", {
+          fixture: "roomStreamingConfig.json",
+        }).as("saveConfigRequest");
 
-          cy.get('[data-test="dialog-save-button"]')
-            .should("include.text", "app.save")
-            .click();
-        });
+        cy.get('[data-test="dialog-save-button"]')
+          .should("include.text", "app.save")
+          .click();
 
         cy.wait("@saveConfigRequest").then((interception) => {
           const formData = parseFormData(
