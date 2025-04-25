@@ -4,9 +4,9 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateRoomStreamingSettings;
+use App\Http\Requests\UpdateRoomStreamingConfig;
 use App\Http\Resources\RoomStreaming;
-use App\Http\Resources\RoomStreamingSettings;
+use App\Http\Resources\RoomStreamingConfig;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Services\StreamingServiceFactory;
@@ -20,10 +20,10 @@ class RoomStreamingController extends Controller
      */
     public function getConfig(Room $room)
     {
-        return new RoomStreamingSettings($room->streaming);
+        return new RoomStreamingConfig($room->streaming);
     }
 
-    public function updateConfig(Room $room, UpdateRoomStreamingSettings $request)
+    public function updateConfig(Room $room, UpdateRoomStreamingConfig $request)
     {
         $streaming = $room->streaming;
 
@@ -42,7 +42,7 @@ class RoomStreamingController extends Controller
 
         $streaming->save();
 
-        return new RoomStreamingSettings($streaming);
+        return new RoomStreamingConfig($streaming);
     }
 
     public function status(Room $room)
