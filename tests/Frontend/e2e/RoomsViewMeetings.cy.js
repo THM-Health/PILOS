@@ -1254,6 +1254,124 @@ describe("Rooms view meetings", function () {
     );
   });
 
+  it("join meeting load requirements errors", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    // Test guests not allowed
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 403,
+      body: {
+        message: "guests_not_allowed",
+      },
+    }).as("preJoinRequest");
+
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-join-button"]').click();
+
+    cy.wait("@preJoinRequest");
+
+    // Check if error message is shown
+    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
+
+    // Reload room
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+
+    // Test general errors
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("preJoinRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-join-button"]').click();
+    cy.wait("@preJoinRequest");
+
+    // Check that room join dialog stays open
+    cy.get('[data-test="room-join-dialog"]').should("be.visible");
+
+    // Check if error message is shown and close it
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Test invalid_code
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 401,
+      body: {
+        message: "invalid_code",
+      },
+    }).as("preJoinRequest");
+
+    // Try again
+    cy.get('[data-test="loading-retry-button"]').click();
+
+    // Check error message
+    cy.checkToastMessage("rooms.flash.access_code_invalid");
+
+    // Check dialog is closed
+    cy.get('[data-test="room-join-dialog"]').should("not.exist");
+
+    // Reload
+    cy.visit("/rooms/abc-def-123");
+
+    // Test require_code
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 403,
+      body: {
+        message: "require_code",
+      },
+    }).as("preJoinRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-join-button"]').click();
+    cy.wait("@preJoinRequest");
+
+    // Check if error message is shown
+    cy.checkToastMessage("rooms.flash.access_code_invalid");
+
+    // Check dialog is closed
+    cy.get('[data-test="room-join-dialog"]').should("not.exist");
+
+    // Reload
+    cy.visit("/rooms/abc-def-123");
+
+    // Test invalid_token
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 401,
+      body: {
+        message: "invalid_token",
+      },
+    }).as("preJoinRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-join-button"]').click();
+    cy.wait("@preJoinRequest");
+
+    // Check if error message is shown
+    cy.checkToastMessage("rooms.flash.token_invalid");
+
+    // Check dialog is closed
+    cy.get('[data-test="room-join-dialog"]').should("not.exist");
+  });
+
   it("start meeting", function () {
     const startRequest = interceptIndefinitely(
       "POST",
@@ -2467,5 +2585,144 @@ describe("Rooms view meetings", function () {
     cy.origin("https://example.org", () => {
       cy.url().should("eq", "https://example.org/?foo=a&bar=b");
     });
+  });
+
+  it("start meeting load requirements errors", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T08:18:20.000000Z",
+      };
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    // Test guests not allowed
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 403,
+      body: {
+        message: "guests_not_allowed",
+      },
+    }).as("preStartRequest");
+
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+
+    // Try to start meeting
+    cy.get('[data-test="room-start-button"]').click();
+
+    cy.wait("@preStartRequest");
+
+    // Check if error message is shown
+    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
+
+    // Reload room
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+
+    // Test general errors
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("preStartRequest");
+
+    // Try to start meeting
+    cy.get('[data-test="room-start-button"]').click();
+    cy.wait("@preStartRequest");
+
+    // Check that room join dialog stays open
+    cy.get('[data-test="room-join-dialog"]').should("be.visible");
+
+    // Check if error message is shown and close it
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Test invalid_code
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 401,
+      body: {
+        message: "invalid_code",
+      },
+    }).as("preStartRequest");
+
+    // Try again
+    cy.get('[data-test="loading-retry-button"]').click();
+
+    // Check error message
+    cy.checkToastMessage("rooms.flash.access_code_invalid");
+
+    // Check dialog is closed
+    cy.get('[data-test="room-start-dialog"]').should("not.exist");
+
+    // Reload
+    cy.visit("/rooms/abc-def-123");
+
+    // Test require_code
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 403,
+      body: {
+        message: "require_code",
+      },
+    }).as("preStartRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-start-button"]').click();
+    cy.wait("@preStartRequest");
+
+    // Check if error message is shown
+    cy.checkToastMessage("rooms.flash.access_code_invalid");
+
+    // Check dialog is closed
+    cy.get('[data-test="room-join-dialog"]').should("not.exist");
+
+    // Reload
+    cy.visit("/rooms/abc-def-123");
+
+    // Test invalid_token
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 401,
+      body: {
+        message: "invalid_token",
+      },
+    }).as("preStartRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-start-button"]').click();
+    cy.wait("@preStartRequest");
+
+    // Check if error message is shown
+    cy.checkToastMessage("rooms.flash.token_invalid");
+
+    // Check dialog is closed
+    cy.get('[data-test="room-join-dialog"]').should("not.exist");
+
+    // Reload
+    cy.visit("/rooms/abc-def-123");
+
+    // Test missing permissions
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 403,
+      body: {
+        message: "This action is unauthorized.",
+      },
+    }).as("preStartRequest");
+
+    // Try to start meeting
+    cy.get('[data-test="room-start-button"]').click();
+    cy.wait("@preStartRequest");
+
+    // Check if error message is shown
+    cy.checkToastMessage("rooms.flash.start_forbidden");
+
+    // Check dialog is closed
+    cy.get('[data-test="room-join-dialog"]').should("not.exist");
   });
 });

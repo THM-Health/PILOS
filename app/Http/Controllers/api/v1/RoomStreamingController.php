@@ -12,7 +12,6 @@ use App\Models\Room;
 use App\Services\StreamingServiceFactory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class RoomStreamingController extends Controller
 {
@@ -50,17 +49,21 @@ class RoomStreamingController extends Controller
     {
         $cacheKey = 'streaming-status-cache-'.$room->id;
 
-        Cache::flexible($cacheKey, [floor(config('streaming.refresh_interval') / 2), config('streaming.refresh_interval')], function () use ($room) {
-            try {
+        try {
+            Cache::flexible($cacheKey, [floor(config('streaming.refresh_interval') / 2), config('streaming.refresh_interval')], function () use ($room) {
                 $streamingService = $this->getStreamingService($room);
-                $streamingService->getStatus();
-                $room->streaming->refresh();
+                $success = $streamingService->getStatus();
 
-                return true;
-            } catch (HttpException $exception) {
-                // Meeting not running, ignore in status call
-            }
-        });
+                if ($success) {
+                    $room->streaming->refresh();
+
+                    return true;
+                }
+                throw new \Exception('Error connecting to streaming service');
+            });
+        } catch (\Exception $exception) {
+            // Ignore all exceptions (meeting not running, and streaming service connection error) in the status call
+        }
 
         return new RoomStreaming($room->streaming);
     }
