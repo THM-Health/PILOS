@@ -140,11 +140,11 @@ describe("Rooms index create new room", function () {
             cy.checkDefaultRoomSettingField("allow_guests", true, true, false);
 
             // Check that other settings exist and are shown correctly
-            cy.contains("rooms.settings.video_conference.title");
+            cy.contains("rooms.settings.meeting.title");
 
             cy.get('[data-test="room-type-everyone_can_start-setting"]').should(
               "include.text",
-              "rooms.settings.video_conference.everyone_can_start",
+              "rooms.settings.meeting.everyone_can_start",
             );
             cy.checkDefaultRoomSettingField(
               "everyone_can_start",
@@ -155,17 +155,17 @@ describe("Rooms index create new room", function () {
 
             cy.get('[data-test="room-type-mute_on_start-setting"]').should(
               "include.text",
-              "rooms.settings.video_conference.mute_on_start",
+              "rooms.settings.meeting.mute_on_start",
             );
             cy.checkDefaultRoomSettingField("mute_on_start", true, true, false);
 
             cy.get('[data-test="room-type-lobby-setting"]').should(
               "include.text",
-              "rooms.settings.video_conference.lobby.title",
+              "rooms.settings.meeting.lobby.title",
             );
             cy.checkDefaultRoomSettingField(
               "lobby",
-              "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+              "rooms.settings.meeting.lobby.only_for_guests_enabled",
               true,
               true,
             );
@@ -185,7 +185,7 @@ describe("Rooms index create new room", function () {
 
             cy.get('[data-test="room-type-record-setting"]').should(
               "include.text",
-              "rooms.settings.recordings.record_video_conference",
+              "rooms.settings.recordings.record_meeting",
             );
             cy.checkDefaultRoomSettingField("record", false, false, false);
 

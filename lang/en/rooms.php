@@ -14,8 +14,8 @@ return [
         'title' => 'Change room type',
     ],
     'connection_error' => [
-        'detached' => 'Connection to ongoing video conference lost, recovery failed.',
-        'reconnecting' => 'Connection to ongoing video conference lost, trying to reconnect.',
+        'detached' => 'Connection to ongoing meeting lost, recovery failed.',
+        'reconnecting' => 'Connection to ongoing meeting lost, trying to reconnect.',
     ],
     'create' => [
         'ok' => 'Create',
@@ -111,7 +111,7 @@ return [
         'filter' => [
             'all' => 'All files',
             'downloadable' => 'Downloadable files',
-            'use_in_meeting' => 'Files available in video conference',
+            'use_in_meeting' => 'Files available in meeting',
         ],
         'formats' => 'Allowed file formats: :formats',
         'nodata' => 'No files available',
@@ -130,7 +130,7 @@ return [
         'upload' => 'Upload files',
         'uploaded' => 'File \':name\' uploaded',
         'use_in_next_meeting' => 'Use in the next meeting',
-        'use_in_next_meeting_disabled' => 'Not available in video conference',
+        'use_in_next_meeting_disabled' => 'Not available in meeting',
         'view' => 'View file',
     ],
     'first_and_lastname' => 'First- und last name',
@@ -395,7 +395,7 @@ return [
         'recordings' => [
             'auto_start_recording' => 'Automatic recording start',
             'record_attendance' => 'Log attendance of participants',
-            'record_video_conference' => 'Record video conference',
+            'record_meeting' => 'Record meeting',
             'title' => 'Recordings',
         ],
         'restrictions' => [
@@ -405,12 +405,12 @@ return [
             'lock_settings_disable_private_chat' => 'Disable private chat',
             'lock_settings_disable_public_chat' => 'Disable public chat',
             'lock_settings_hide_user_list' => 'Hide list of participants',
-            'title' => 'Restrict participant rights in video conferences',
+            'title' => 'Restrict participant rights in meeting',
             'webcams_only_for_moderator' => 'Only moderators can see the webcam',
         ],
         'title' => 'Settings',
         'unsaved_changes' => 'Caution! Room settings have been changed but not yet saved.',
-        'video_conference' => [
+        'meeting' => [
             'everyone_can_start' => 'Everyone can start the meeting',
             'lobby' => [
                 'alert' => 'Default role is set to moderator: Waiting room is active only for guests and already existing members with participant role!',
@@ -418,7 +418,7 @@ return [
                 'title' => 'Waiting room',
             ],
             'mute_on_start' => 'Mute microphone on join',
-            'title' => 'Video conference',
+            'title' => 'Meeting',
             'welcome_message' => 'Welcome message',
         ],
     ],

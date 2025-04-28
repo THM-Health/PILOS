@@ -79,7 +79,7 @@ describe("Rooms view settings room type actions", function () {
             cy.checkDefaultRoomSettingField("mute_on_start", true, true, false);
             cy.checkDefaultRoomSettingField(
               "lobby",
-              "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+              "rooms.settings.meeting.lobby.only_for_guests_enabled",
               true,
               true,
             );
@@ -363,11 +363,11 @@ describe("Rooms view settings room type actions", function () {
         );
 
         // Check that other settings exist and are shown correctly
-        cy.contains("rooms.settings.video_conference.title");
+        cy.contains("rooms.settings.meeting.title");
 
         cy.get('[data-test="room-type-everyone_can_start-comparison"]').should(
           "include.text",
-          "rooms.settings.video_conference.everyone_can_start",
+          "rooms.settings.meeting.everyone_can_start",
         );
         cy.checkCompareRoomSettingField(
           "everyone_can_start",
@@ -380,7 +380,7 @@ describe("Rooms view settings room type actions", function () {
 
         cy.get('[data-test="room-type-mute_on_start-comparison"]').should(
           "include.text",
-          "rooms.settings.video_conference.mute_on_start",
+          "rooms.settings.meeting.mute_on_start",
         );
         cy.checkCompareRoomSettingField(
           "mute_on_start",
@@ -393,13 +393,13 @@ describe("Rooms view settings room type actions", function () {
 
         cy.get('[data-test="room-type-lobby-comparison"]').should(
           "include.text",
-          "rooms.settings.video_conference.lobby.title",
+          "rooms.settings.meeting.lobby.title",
         );
         cy.checkCompareRoomSettingField(
           "lobby",
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           true,
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           false,
           true,
         );
@@ -421,7 +421,7 @@ describe("Rooms view settings room type actions", function () {
 
         cy.get('[data-test="room-type-record-comparison"]').should(
           "include.text",
-          "rooms.settings.recordings.record_video_conference",
+          "rooms.settings.recordings.record_meeting",
         );
         cy.checkCompareRoomSettingField(
           "record",
@@ -635,7 +635,7 @@ describe("Rooms view settings room type actions", function () {
         );
         cy.checkCompareRoomSettingField(
           "lobby",
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           true,
           "app.enabled",
           false,
@@ -776,7 +776,7 @@ describe("Rooms view settings room type actions", function () {
 
     cy.get('[data-test="room-setting-lobby"]').should(
       "include.text",
-      "rooms.settings.video_conference.lobby.alert",
+      "rooms.settings.meeting.lobby.alert",
     );
     cy.get("#room-setting-lobby-0")
       .should("not.be.disabled")
@@ -915,7 +915,7 @@ describe("Rooms view settings room type actions", function () {
           "lobby",
           "app.enabled",
           false,
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           true,
           true,
         );
@@ -1054,7 +1054,7 @@ describe("Rooms view settings room type actions", function () {
 
     cy.get('[data-test="room-setting-lobby"]').should(
       "not.include.text",
-      "rooms.settings.video_conference.lobby.alert",
+      "rooms.settings.meeting.lobby.alert",
     );
     cy.get("#room-setting-lobby-0").should("be.disabled").and("not.be.checked");
     cy.get("#room-setting-lobby-1").should("be.disabled").and("not.be.checked");
@@ -1227,9 +1227,9 @@ describe("Rooms view settings room type actions", function () {
         );
         cy.checkCompareRoomSettingField(
           "lobby",
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           true,
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           false,
           true,
         );
@@ -1373,7 +1373,7 @@ describe("Rooms view settings room type actions", function () {
 
     cy.get('[data-test="room-setting-lobby"]').should(
       "not.include.text",
-      "rooms.settings.video_conference.lobby.alert",
+      "rooms.settings.meeting.lobby.alert",
     );
     cy.get("#room-setting-lobby-0")
       .should("not.be.disabled")
@@ -1788,7 +1788,7 @@ describe("Rooms view settings room type actions", function () {
         );
         cy.checkCompareRoomSettingField(
           "lobby",
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           true,
           "app.enabled",
           false,
@@ -1937,7 +1937,7 @@ describe("Rooms view settings room type actions", function () {
         );
         cy.checkCompareRoomSettingField(
           "lobby",
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           true,
           "app.enabled",
           false,
@@ -2075,8 +2075,8 @@ describe("Rooms view settings room type actions", function () {
     );
 
     // Check other settings hidden
-    // Video conference settings
-    cy.contains("rooms.settings.video_conference.title").should("not.exist");
+    // Meeting settings
+    cy.contains("rooms.settings.meeting.title").should("not.exist");
 
     // Recording settings
     cy.contains("rooms.settings.recordings.title").should("not.exist");
@@ -2270,8 +2270,8 @@ describe("Rooms view settings room type actions", function () {
     );
 
     // Check other settings hidden
-    // Video conference settings
-    cy.contains("rooms.settings.video_conference.title").should("not.exist");
+    // Meeting settings
+    cy.contains("rooms.settings.meeting.title").should("not.exist");
 
     // Recording settings
     cy.contains("rooms.settings.recordings.title").should("not.exist");
@@ -2338,7 +2338,7 @@ describe("Rooms view settings room type actions", function () {
           "lobby",
           "app.enabled",
           false,
-          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          "rooms.settings.meeting.lobby.only_for_guests_enabled",
           true,
           true,
         );
@@ -2467,8 +2467,8 @@ describe("Rooms view settings room type actions", function () {
     );
 
     // Check other settings hidden
-    // Video conference settings
-    cy.contains("rooms.settings.video_conference.title").should("not.exist");
+    // Meeting settings
+    cy.contains("rooms.settings.meeting.title").should("not.exist");
 
     // Recording settings
     cy.contains("rooms.settings.recordings.title").should("not.exist");

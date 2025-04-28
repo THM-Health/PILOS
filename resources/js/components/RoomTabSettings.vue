@@ -196,29 +196,27 @@ const form = computed(() => {
       ],
     },
     {
-      title: t("rooms.settings.video_conference.title"),
+      title: t("rooms.settings.meeting.title"),
       items: [
         {
           setting: "everyone_can_start",
-          label: t("rooms.settings.video_conference.everyone_can_start"),
+          label: t("rooms.settings.meeting.everyone_can_start"),
           component: RoomTabSettingsToggleSwitch,
         },
         {
           setting: "mute_on_start",
-          label: t("rooms.settings.video_conference.mute_on_start"),
+          label: t("rooms.settings.meeting.mute_on_start"),
           component: RoomTabSettingsToggleSwitch,
         },
         {
           setting: "lobby",
-          label: t("rooms.settings.video_conference.lobby.title"),
+          label: t("rooms.settings.meeting.lobby.title"),
           options: [
             { value: 0, label: t("app.disabled") },
             { value: 1, label: t("app.enabled") },
             {
               value: 2,
-              label: t(
-                "rooms.settings.video_conference.lobby.only_for_guests_enabled",
-              ),
+              label: t("rooms.settings.meeting.lobby.only_for_guests_enabled"),
             },
           ],
           component: RoomTabSettingsRadioGroup,
@@ -226,7 +224,7 @@ const form = computed(() => {
         },
         {
           setting: "welcome",
-          label: t("rooms.settings.video_conference.welcome_message"),
+          label: t("rooms.settings.meeting.welcome_message"),
           component: RoomTabSettingsTextArea,
           placeholder: t("rooms.settings.none_placeholder"),
           fullWidth: true,
@@ -245,7 +243,7 @@ const form = computed(() => {
         },
         {
           setting: "record",
-          label: t("rooms.settings.recordings.record_video_conference"),
+          label: t("rooms.settings.recordings.record_meeting"),
           component: RoomTabSettingsToggleSwitch,
         },
         {
@@ -481,7 +479,7 @@ const disabled = computed(() => {
  */
 const lobbyAlert = computed(() => {
   if (settings.value.default_role === 2 && settings.value.lobby === 1)
-    return t("rooms.settings.video_conference.lobby.alert");
+    return t("rooms.settings.meeting.lobby.alert");
   return null;
 });
 

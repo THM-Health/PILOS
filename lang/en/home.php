@@ -12,13 +12,13 @@ return [
             'description' => 'High quality video and audio to foster a more personal and engaging experience.',
             'title' => 'Video and Audio',
         ],
-        'description' => 'Explore what makes PILOS the perfect solution for you next video conference and how it can help you reach your audience in an engaging and interactive way.',
+        'description' => 'Explore what makes PILOS the perfect solution for you next meeting and how it can help you reach your audience in an engaging and interactive way.',
         'engagement' => [
             'description' => 'Engage your audience with interactive tools like chat, emojis, surveys and much more.',
             'title' => 'Engagement',
         ],
         'recording' => [
-            'description' => 'Record your videoconferences and make them available using fine grained permission control.',
+            'description' => 'Record your meetings and make them available using fine grained permission control.',
             'title' => 'Recording',
         ],
         'security' => [
@@ -26,10 +26,10 @@ return [
             'title' => 'Security',
         ],
         'statistics' => [
-            'description' => 'Get detailed reports on the attendance and usage of your videoconferences.',
+            'description' => 'Get detailed reports on the attendance and usage of your meetings.',
             'title' => 'Statistics',
         ],
-        'title' => 'All you need for a great video conference experience',
+        'title' => 'All you need for a great meeting experience',
         'vision' => 'Connecting People',
     ],
     'title' => [
