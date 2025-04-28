@@ -1,5 +1,5 @@
 import vueI18n from "@intlify/eslint-plugin-vue-i18n";
-import pluginMocha from "eslint-plugin-mocha";
+import mochaPlugin from "eslint-plugin-mocha";
 import pluginCypress from "eslint-plugin-cypress/flat";
 import pluginVue from "eslint-plugin-vue";
 import js from "@eslint/js";
@@ -9,7 +9,7 @@ import vueParser from "vue-eslint-parser";
 import eslintConfigPrettier from "eslint-config-prettier";
 
 export default [
-  pluginMocha.configs.flat.recommended,
+  mochaPlugin.configs.recommended,
   pluginCypress.configs.recommended,
   ...vueI18n.configs["flat/recommended"],
   js.configs.recommended,
@@ -94,7 +94,7 @@ export default [
       "vue/custom-event-name-casing": ["error"],
 
       "mocha/no-exclusive-tests": "error",
-      "mocha/no-skipped-tests": "error",
+      "mocha/no-pending-tests": "error",
     },
   },
   {
