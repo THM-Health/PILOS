@@ -32,7 +32,7 @@ td.action-column > div {
     .lg\:table-fixed {
         @for $i from 2 through 6 {
             th.action-column-1 {
-                width: 5rem;
+                width: 8rem;
             }
 
             th.action-column-#{$i} {

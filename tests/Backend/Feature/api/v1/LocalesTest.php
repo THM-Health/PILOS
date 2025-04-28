@@ -166,7 +166,7 @@ class LocalesTest extends TestCase
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'us',
         ]);
-        $response->assertStatus(422);
+        $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['locale']);
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [

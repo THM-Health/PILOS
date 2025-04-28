@@ -1,28 +1,21 @@
 <template>
   <transition-group
-    name="flip"
-    tag="div"
-    class="inline"
+    tag="span"
+    :name="transitionName"
     @after-leave="onExitComplete"
   >
-    <div
+    <span
       v-if="currentWord"
       :key="currentWord"
-      class="relative z-10 inline-block text-left text-primary"
+      class="relative inline text-primary"
     >
-      <span
-        v-for="(letter, index) in currentWord.split('')"
-        :key="currentWord + index"
-        class="inline-block"
-      >
-        {{ letter }}
-      </span>
-    </div>
+      {{ currentWord }}
+    </span>
   </transition-group>
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from "vue";
+import { ref, onMounted, watchEffect, watch, nextTick } from "vue";
 
 const props = defineProps({
   words: {
@@ -41,6 +34,7 @@ const props = defineProps({
 
 const currentWord = ref(props.words[0]);
 const isAnimating = ref(false);
+const transitionName = ref("flip");
 
 const startAnimation = () => {
   const word =
@@ -62,6 +56,16 @@ onMounted(() => {
     }
   });
 });
+
+watch(
+  () => props.words,
+  async () => {
+    transitionName.value = "none";
+    currentWord.value = props.words[0];
+    await nextTick();
+    transitionName.value = "flip";
+  },
+);
 </script>
 
 <style scoped>

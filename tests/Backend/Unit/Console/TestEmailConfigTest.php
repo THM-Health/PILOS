@@ -38,6 +38,34 @@ class TestEmailConfigTest extends TestCase
     }
 
     /**
+     * Test the command sends an email successfully if the email is passed as an argument.
+     *
+     * @return void
+     */
+    public function test_passing_email()
+    {
+        Notification::fake();
+
+        $this->artisan('mail:test test@example.com')
+            ->expectsOutput('Test email sent successfully')
+            ->assertSuccessful();
+
+        Notification::assertSentOnDemand(
+            TestEmail::class,
+            function (TestEmail $notification, array $channels, object $notifiable) {
+                // Check the email content
+                $mail = $notification->toMail($notifiable)->toArray();
+                $this->assertEquals('This is a test email to check the email configuration.', $mail['introLines'][0]);
+
+                // Check the email recipient
+                $this->assertEquals(['test@example.com'], $notifiable->routes['mail']);
+
+                return true;
+            }
+        );
+    }
+
+    /**
      * Test the command validates the email address.
      */
     public function test_handle_validation()

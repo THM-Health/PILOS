@@ -64,11 +64,11 @@ class ForgotPasswordTest extends TestCase
 
         Auth::logout();
         $this->postJson(route('api.v1.password.email'))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors('email');
 
         $this->postJson(route('api.v1.password.email'), ['email' => 'foo'])
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors('email');
 
         Notification::fake();

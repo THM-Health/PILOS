@@ -7,10 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Environment variable `MAIL_AUTO_TLS` to disable automatic TLS for SMTP servers with STARTTLS support ([#2033])
+- Environment variable `MAIL_VERIFY_PEER` to disable TLS Peer Verification for SMTP(S) ([#2033])
+- Environment variable `MAIL_SCHEME` to set a specific mail protocol `smtp` or `smtps` ([#2033])
+- Right-to-left (RTL) locale support ([#2065])
+- Translation to locale selector ([#2079])
+- Transition and animation for dark mode toggle ([#2082])
+- Logo for dark mode in BBB ([#1399])
+
+### Fixed
+
+- Running BBB playback player build script in BusyBox ([#2053])
+
+### Removed
+
+- Environment variable `MAIL_ENCRYPTION`, use `MAIL_SCHEME` instead ([#2033])
+
+## [v4.4.0] - 2025-04-07
+
 ### Changed
 
 - Bump base PHP image to 8.4 ([#1937])
 - Hide locale select in main nav if only one locale is enabled ([#1920])
+- Improve accessibility for room type filter on the room overview page ([#1988])
+- Improve accessibility for room type replacement in the room type delete dialog ([#1988])
 
 ### Fixed
 
@@ -19,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Download files with special characters in the filename ([#1960])
 - Close join/start dialog before joining the BBB meeting ([#1940])
 - Allow removing English from the list of enabled locales ([#1919], [#1920])
+- Action column in admin UI too small with only one action in some locales ([#2015])
+- Action column in admin UI is shown even if no action is available due to permissions ([#2015])
+- Action column in admin UI user list no always shown ([#2015])
 
 ## [v4.3.1] - 2025-02-17
 
@@ -358,6 +383,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1399]: https://github.com/THM-Health/PILOS/pull/1399
 [#1420]: https://github.com/THM-Health/PILOS/issues/1420
 [#1435]: https://github.com/THM-Health/PILOS/issues/1435
 [#1440]: https://github.com/THM-Health/PILOS/pull/1440
@@ -429,7 +455,14 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1937]: https://github.com/THM-Health/PILOS/pull/1937
 [#1940]: https://github.com/THM-Health/PILOS/pull/1940
 [#1960]: https://github.com/THM-Health/PILOS/pull/1960
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.3.1...develop
+[#1988]: https://github.com/THM-Health/PILOS/pull/1988
+[#2015]: https://github.com/THM-Health/PILOS/pull/2015
+[#2033]: https://github.com/THM-Health/PILOS/pull/2033
+[#2053]: https://github.com/THM-Health/PILOS/pull/2053
+[#2065]: https://github.com/THM-Health/PILOS/pull/2065
+[#2079]: https://github.com/THM-Health/PILOS/pull/2079
+[#2082]: https://github.com/THM-Health/PILOS/pull/2082
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.4.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -441,3 +474,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.2.0
 [v4.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.0
 [v4.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.1
+[v4.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.4.0

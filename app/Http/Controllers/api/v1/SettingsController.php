@@ -114,6 +114,17 @@ class SettingsController extends Controller
             $bigBlueButtonSettings->logo = null;
         }
 
+        // Dark version Logo for BBB
+        if ($request->has('bbb_logo_dark_file')) {
+            $path = $request->file('bbb_logo_dark_file')->store('images', 'public');
+            $url = Storage::url($path);
+            $bigBlueButtonSettings->logo_dark = url($url);
+        } elseif ($request->has('bbb_logo_dark') && trim($request->input('bbb_logo_dark') != '')) {
+            $bigBlueButtonSettings->logo_dark = $request->input('bbb_logo_dark');
+        } else {
+            $bigBlueButtonSettings->logo_dark = null;
+        }
+
         // Custom style file for BBB
         if ($request->has('bbb_style')) {
             if (! empty($request->file('bbb_style'))) {

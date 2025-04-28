@@ -81,7 +81,7 @@ describe("Admin server pools index", function () {
       .should("include.text", "admin.breakcrumbs.server_pools.index");
 
     // Check that table headers are displayed correctly
-    cy.get('[data-test="server-pool-header-cell"]').should("have.length", 3);
+    cy.get('[data-test="server-pool-header-cell"]').should("have.length", 2);
 
     cy.get('[data-test="server-pool-header-cell"]')
       .eq(0)
@@ -90,10 +90,6 @@ describe("Admin server pools index", function () {
     cy.get('[data-test="server-pool-header-cell"]')
       .eq(1)
       .should("have.text", "admin.server_pools.server_count");
-
-    cy.get('[data-test="server-pool-header-cell"]')
-      .eq(2)
-      .should("have.text", "app.actions");
 
     // Check that server pools are displayed correctly
     cy.get('[data-test="server-pool-item"]').should("have.length", 2);
@@ -107,19 +103,6 @@ describe("Admin server pools index", function () {
         cy.get('[data-test="server-pool-item-cell"]')
           .eq(1)
           .should("have.text", "2");
-        cy.get('[data-test="server-pool-item-cell"]')
-          .eq(2)
-          .within(() => {
-            cy.get('[data-test="server-pools-view-button"]').should(
-              "not.exist",
-            );
-            cy.get('[data-test="server-pools-edit-button"]').should(
-              "not.exist",
-            );
-            cy.get('[data-test="server-pools-delete-button"]').should(
-              "not.exist",
-            );
-          });
       });
 
     cy.get('[data-test="server-pool-item"]')
@@ -131,19 +114,6 @@ describe("Admin server pools index", function () {
         cy.get('[data-test="server-pool-item-cell"]')
           .eq(1)
           .should("have.text", "1");
-        cy.get('[data-test="server-pool-item-cell"]')
-          .eq(2)
-          .within(() => {
-            cy.get('[data-test="server-pools-view-button"]').should(
-              "not.exist",
-            );
-            cy.get('[data-test="server-pools-edit-button"]').should(
-              "not.exist",
-            );
-            cy.get('[data-test="server-pools-delete-button"]').should(
-              "not.exist",
-            );
-          });
       });
   });
 
@@ -539,6 +509,18 @@ describe("Admin server pools index", function () {
   });
 
   it("sort server pools", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "serverPools.viewAny",
+        "serverPools.view",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
     cy.visit("admin/server_pools");
 
     cy.wait("@serverPoolsRequest").then((interception) => {

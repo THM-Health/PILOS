@@ -82,14 +82,11 @@ describe("Admin roles index", function () {
       .should("include.text", "admin.breakcrumbs.roles.index");
 
     // Check that table headers are shown correctly
-    cy.get('[data-test="role-header-cell"]').should("have.length", 2);
+    cy.get('[data-test="role-header-cell"]').should("have.length", 1);
 
     cy.get('[data-test="role-header-cell"]')
       .eq(0)
       .should("have.text", "app.model_name");
-    cy.get('[data-test="role-header-cell"]')
-      .eq(1)
-      .should("have.text", "app.actions");
 
     // Check that roles are displayed correctly
     cy.get('[data-test="role-item"]').should("have.length", 3);
@@ -101,13 +98,6 @@ describe("Admin roles index", function () {
           .eq(0)
           .should("include.text", "Superuser")
           .and("include.text", "admin.roles.superuser");
-        cy.get('[data-test="role-item-cell"]')
-          .eq(1)
-          .within(() => {
-            cy.get('[data-test="roles-view-button"]').should("not.exist");
-            cy.get('[data-test="roles-edit-button"]').should("not.exist");
-            cy.get('[data-test="roles-delete-button"]').should("not.exist");
-          });
       });
 
     cy.get('[data-test="role-item"]')
@@ -117,13 +107,6 @@ describe("Admin roles index", function () {
           .eq(0)
           .should("include.text", "Staff")
           .and("not.include.text", "admin.roles.superuser");
-        cy.get('[data-test="role-item-cell"]')
-          .eq(1)
-          .within(() => {
-            cy.get('[data-test="roles-view-button"]').should("not.exist");
-            cy.get('[data-test="roles-edit-button"]').should("not.exist");
-            cy.get('[data-test="roles-delete-button"]').should("not.exist");
-          });
       });
 
     cy.get('[data-test="role-item"]')
@@ -133,13 +116,6 @@ describe("Admin roles index", function () {
           .eq(0)
           .should("include.text", "Students")
           .and("not.include.text", "admin.roles.superuser");
-        cy.get('[data-test="role-item-cell"]')
-          .eq(1)
-          .within(() => {
-            cy.get('[data-test="roles-view-button"]').should("not.exist");
-            cy.get('[data-test="roles-edit-button"]').should("not.exist");
-            cy.get('[data-test="roles-delete-button"]').should("not.exist");
-          });
       });
   });
 
@@ -552,6 +528,19 @@ describe("Admin roles index", function () {
   });
 
   it("sort roles", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "roles.viewAny",
+        "roles.view",
+      ];
+
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
     cy.visit("/admin/roles");
 
     cy.wait("@rolesRequest").then((interception) => {

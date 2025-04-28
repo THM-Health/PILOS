@@ -2,7 +2,7 @@ import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js
 
 describe("Forgot password", function () {
   beforeEach(function () {
-    cy.intercept("GET", "api/v1/locale/en", {});
+    cy.intercept("GET", "api/v1/locale/en", { fixture: "en.json" });
 
     cy.fixture("config.json").then((config) => {
       config.data.auth.local = true;

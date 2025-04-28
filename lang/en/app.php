@@ -84,6 +84,12 @@ return [
         'blank' => 'Open in a new tab',
         'self' => 'Open in current tab',
     ],
+    'locales' => [
+        'de' => 'German',
+        'en' => 'English',
+        'fa' => 'Persian',
+        'fr' => 'French',
+    ],
     'model' => [
         'roles' => 'role',
         'room_types' => 'room type',

@@ -270,7 +270,7 @@ class UserTest extends TestCase
 
         // Empty request
         $this->actingAs($user)->postJson(route('api.v1.users.store', $request))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['firstname', 'generate_password', 'email', 'lastname', 'user_locale', 'roles']);
 
         $request = [
@@ -285,7 +285,7 @@ class UserTest extends TestCase
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['firstname', 'new_password', 'email', 'lastname', 'user_locale', 'roles.0']);
 
         config([
@@ -306,7 +306,7 @@ class UserTest extends TestCase
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['email', 'user_locale']);
 
         $request['email'] = $externalUser->email;
@@ -361,7 +361,7 @@ class UserTest extends TestCase
 
         // Check if superusers cannot be created by admins that are not part of the superuser role
         $this->actingAs($admin)->postJson(route('api.v1.users.store', $request))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['roles.0']);
 
         // Check if superusers can be created by superusers
@@ -405,7 +405,7 @@ class UserTest extends TestCase
         $changes['updated_at'] = Carbon::now();
         $changes['bbb_skip_check_audio'] = 'test';
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['bbb_skip_check_audio', 'timezone']);
 
         // Check with valid data
@@ -577,7 +577,7 @@ class UserTest extends TestCase
 
         // Check if superuser role can be cannot be assigned by admins that are not part of the superuser role
         $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['roles.0']);
     }
 
@@ -783,7 +783,7 @@ class UserTest extends TestCase
 
         // Try to verify email as other authenticated user
         $this->actingAs($otherUser)->postJson(route('api.v1.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
-            ->assertStatus(422);
+            ->assertUnprocessable();
 
         // Try to verify email as correct user with invalid email
         $this->actingAs($user)->postJson(route('api.v1.email.verify'), ['token' => $query['token'], 'email' => 'test@domain.tld'])
@@ -1257,19 +1257,19 @@ class UserTest extends TestCase
 
         // Try with invalid type, string not image
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
 
         // Try with wrong dimensions
         $changes['image'] = UploadedFile::fake()->image('avatar.jpg', 200, 200);
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
 
         // Try with wrong file type, only jpeg is allowed
         $changes['image'] = UploadedFile::fake()->image('avatar.png', 100, 100);
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
 
         // Create fake storage disk

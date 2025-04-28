@@ -649,20 +649,24 @@ describe("Room Index", function () {
         // Check that room types are shown correctly
         cy.get('[data-test="room-type-dropdown-option"]').should(
           "have.length",
-          4,
+          5,
         );
 
         cy.get('[data-test="room-type-dropdown-option"]')
           .eq(0)
-          .should("have.text", "Lecture");
+          .should("have.text", "rooms.room_types.all")
+          .should("have.attr", "aria-selected", "true");
         cy.get('[data-test="room-type-dropdown-option"]')
           .eq(1)
-          .should("have.text", "Meeting");
+          .should("have.text", "Lecture");
         cy.get('[data-test="room-type-dropdown-option"]')
           .eq(2)
-          .should("have.text", "Exam");
+          .should("have.text", "Meeting");
         cy.get('[data-test="room-type-dropdown-option"]')
           .eq(3)
+          .should("have.text", "Exam");
+        cy.get('[data-test="room-type-dropdown-option"]')
+          .eq(4)
           .should("have.text", "Seminar");
       });
 
@@ -680,7 +684,7 @@ describe("Room Index", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-type-dropdown-option"]').eq(1).click();
+    cy.get('[data-test="room-type-dropdown-option"]').eq(2).click();
 
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
@@ -711,7 +715,7 @@ describe("Room Index", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-type-dropdown-option"]').eq(2).click();
+    cy.get('[data-test="room-type-dropdown-option"]').eq(3).click();
 
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
@@ -740,7 +744,7 @@ describe("Room Index", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-type-dropdown-option"]').eq(3).click();
+    cy.get('[data-test="room-type-dropdown-option"]').eq(4).click();
 
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
@@ -818,7 +822,7 @@ describe("Room Index", function () {
     });
 
     cy.get('[data-test="room-type-dropdown"]').click();
-    cy.get('[data-test="room-type-dropdown-option"]').eq(0).click();
+    cy.get('[data-test="room-type-dropdown-option"]').eq(1).click();
 
     // Check that rooms are loaded with the page reset to the first page
     cy.wait("@roomRequest").then((interception) => {
@@ -832,6 +836,27 @@ describe("Room Index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+
+    // Check resetting to all room types
+    cy.get('[data-test="room-type-dropdown"]').click();
+
+    cy.fixture("rooms.json").then((rooms) => {
+      cy.intercept("GET", "api/v1/rooms?*", {
+        statusCode: 200,
+        body: rooms,
+      }).as("roomRequest");
+    });
+
+    // Select filter option "All room types"
+    cy.get('[data-test="room-type-dropdown-option"]').eq(0).click();
+
+    // Check if room type parameter is removed from the request
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query.room_type).to.be.undefined;
+    });
+
+    // Check all rooms are shown
+    cy.get('[data-test="room-card"]').should("have.length", 3);
   });
 
   it("filter without viewAll permission", function () {

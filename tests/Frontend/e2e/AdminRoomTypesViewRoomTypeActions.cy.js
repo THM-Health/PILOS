@@ -54,18 +54,18 @@ describe("Admin room types view room type actions", function () {
               "have.text",
               "admin.room_types.delete.no_replacement",
             );
-
-            cy.get('[data-test="replacement-room-type-dropdown"]').within(
-              () => {
-                cy.get(".p-select-label").should(
-                  "not.have.attr",
-                  "aria-disabled",
-                  "true",
-                );
-              },
-            );
           });
       });
+
+    cy.get('[data-test="replacement-room-type-dropdown"]').click();
+    cy.get('[data-test="replacement-room-type-dropdown-items"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="replacement-room-type-dropdown-option"]')
+      .eq(0)
+      .should("have.text", "admin.room_types.delete.no_replacement")
+      .and("have.attr", "aria-selected", "true")
+      .click();
 
     // Confirm delete of room type
     const deleteRoomTypeRequest = interceptIndefinitely(
@@ -156,23 +156,23 @@ describe("Admin room types view room type actions", function () {
       .within(() => {
         cy.get('[data-test = "replacement-room-type-dropdown-option"]').should(
           "have.length",
-          3,
+          4,
         );
 
         cy.get('[data-test="replacement-room-type-dropdown-option"]')
-          .eq(0)
+          .eq(1)
           .should("have.text", "Lecture");
 
         cy.get('[data-test="replacement-room-type-dropdown-option"]')
-          .eq(1)
+          .eq(2)
           .should("have.text", "Meeting");
 
         cy.get('[data-test="replacement-room-type-dropdown-option"]')
-          .eq(2)
+          .eq(3)
           .should("have.text", "Seminar");
 
         cy.get('[data-test="replacement-room-type-dropdown-option"]')
-          .eq(1)
+          .eq(2)
           .click();
       });
 
@@ -260,7 +260,7 @@ describe("Admin room types view room type actions", function () {
 
     // Select replacement room type
     cy.get('[data-test="replacement-room-type-dropdown"]').click();
-    cy.get('[data-test="replacement-room-type-dropdown-option"]').eq(1).click();
+    cy.get('[data-test="replacement-room-type-dropdown-option"]').eq(2).click();
 
     // Check with 500 error
     cy.intercept("DELETE", "api/v1/roomTypes/3", {

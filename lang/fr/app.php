@@ -84,6 +84,12 @@ return [
         'blank' => 'Ouvrir dans un nouvel onglet',
         'self' => 'Ouvrir dans l\'onglet actuel',
     ],
+    'locales' => [
+        'de' => 'Allemand',
+        'en' => 'Anglais',
+        'fa' => 'Persan',
+        'fr' => 'Français',
+    ],
     'model' => [
         'roles' => 'rôle',
         'room_types' => 'type de salle',

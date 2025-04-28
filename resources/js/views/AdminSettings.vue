@@ -1302,6 +1302,37 @@
             </fieldset>
             <fieldset
               class="grid grid-cols-12 gap-4"
+              data-test="bbb-logo-dark-field"
+            >
+              <legend
+                id="bbb-logo-dark-label"
+                class="col-span-12 md:col-span-4 md:mb-0"
+              >
+                {{ $t("admin.settings.logo_dark.title") }}
+              </legend>
+              <div class="col-span-12 md:col-span-8">
+                <SettingsImageSelector
+                  v-model:image-url="settings.bbb_logo_dark"
+                  v-model:image="uploadBBBLogoDarkFile"
+                  v-model:image-deleted="bbbLogoDarkDeleted"
+                  :disabled="disabled"
+                  :readonly="viewOnly"
+                  :max-file-size="500000"
+                  preview-width="150"
+                  preview-bg-class="bg-surface-900"
+                  show-delete
+                  :preview-alt="$t('admin.settings.bbb.logo.alt')"
+                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  input-id="bbb-logo-dark"
+                  :url-invalid="formErrors.fieldInvalid('bbb_logo_dark')"
+                  :file-invalid="formErrors.fieldInvalid('bbb_logo_dark_file')"
+                  :url-error="formErrors.fieldError('bbb_logo_dark')"
+                  :file-error="formErrors.fieldError('bbb_logo_dark_file')"
+                />
+              </div>
+            </fieldset>
+            <fieldset
+              class="grid grid-cols-12 gap-4"
               data-test="bbb-style-field"
             >
               <legend
@@ -1400,6 +1431,8 @@ const uploadFaviconDarkFile = ref(null);
 const uploadLogoDarkFile = ref(null);
 const uploadBBBLogoFile = ref(null);
 const bbbLogoDeleted = ref(false);
+const uploadBBBLogoDarkFile = ref(null);
+const bbbLogoDarkDeleted = ref(false);
 const defaultPresentation = ref(null);
 const defaultPresentationDeleted = ref(false);
 const bbbStyle = ref(null);
@@ -1500,6 +1533,14 @@ function updateSettings() {
     formData.append("bbb_logo", settings.value.bbb_logo);
   }
 
+  if (uploadBBBLogoDarkFile.value) {
+    formData.append("bbb_logo_dark_file", uploadBBBLogoDarkFile.value);
+  } else if (bbbLogoDarkDeleted.value) {
+    formData.append("bbb_logo_dark", "");
+  } else if (settings.value.bbb_logo_dark !== null) {
+    formData.append("bbb_logo_dark", settings.value.bbb_logo_dark);
+  }
+
   if (bbbStyle.value !== null) {
     formData.append("bbb_style", bbbStyle.value);
   } else if (bbbStyleDeleted.value) {
@@ -1518,6 +1559,7 @@ function updateSettings() {
     "theme_favicon",
     "theme_favicon_dark",
     "bbb_logo",
+    "bbb_logo_dark",
     "bbb_style",
     "bbb_default_presentation",
   ];
@@ -1557,9 +1599,11 @@ function updateSettings() {
       defaultPresentation.value = null;
       defaultPresentationDeleted.value = false;
       uploadBBBLogoFile.value = null;
+      uploadBBBLogoDarkFile.value = null;
       bbbStyle.value = null;
       bbbStyleDeleted.value = false;
       bbbLogoDeleted.value = false;
+      bbbLogoDarkDeleted.value = false;
 
       // update form input
       settings.value = response.data.data;

@@ -1,0 +1,178 @@
+# This repository adheres to the publiccode.yml standard by including this
+# metadata file that makes public software easily discoverable.
+# More info at https://github.com/italia/publiccode.yml
+
+publiccodeYmlVersion: "0.2"
+name: PILOS
+url: "https://github.com/THM-Health/PILOS"
+softwareVersion: 4.4.0
+logo: logo.svg
+platforms:
+  - web
+categories:
+  - video-conferencing
+usedBy:
+  - Technische Hochschule Mittelhessen
+  - Goethe-Universität Frankfurt am Main
+  - Universität Innsbruck
+  - Universität Osnabrück
+  - Kompetenzzentrum für Telemedizin und E-Health Hessen (KTE Hessen)
+developmentStatus: stable
+softwareType: standalone/web
+maintenance:
+  type: internal
+  contacts:
+    - name: Samuel Weirich
+legal:
+  license: LGPL-2.1-only
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - en
+    - de
+    - fr
+description:
+  en:
+    localisedName: PILOS
+    shortDescription: >-
+      PILOS is an easy-to-use open source front-end for
+      BigBlueButton servers with a built-in load balancer.
+    longDescription: >-
+      All in one video conferencing platform powered by BigBlueButton™.
+
+      Designed with education at its core, PILOS offers a seamless, interactive,
+      and secure solution for online learning, teaching, and all kinds of
+      virtual meetings. Adaptable to your needs, PILOS delivers high-quality
+      video, robust collaboration tools, and an intuitive user experience.
+
+
+      **All you need for a great video conference experience:**
+
+      - **Video and Audio**
+        High quality video and audio to foster a more personal and engaging experience.
+      - **Collaboration**
+        Share your screen, use the interactive multi-user whiteboard, and work together in breakout rooms.
+      - **Engagement**
+        Engage your audience with interactive tools like chat, emojis, surveys and much more.
+      - **Recording**
+        Record your videoconferences and make them available using fine grained permission control.
+      - **Security**
+        All communication data is securely encrypted during transmission using the WebRTC protocol.
+      - **Statistics**
+        Get detailed reports on the attendance and usage of your videoconferences.
+    features:
+      - Create video conference rooms
+      - Share files for  video conferences
+      - Manage BigBlueButton Server and Server Pools
+      - Manage users and roles
+      - Manage room types (room setting presets)
+      - Record video conferences
+    genericName: Videoconferencing
+    screenshots:
+      - .opencode/screenshots/en/home.jpg
+      - .opencode/screenshots/en/dashboard.jpg
+      - .opencode/screenshots/en/login.jpg
+      - .opencode/screenshots/en/running_meetings.jpg
+      - .opencode/screenshots/en/room_description.jpg
+      - .opencode/screenshots/en/room_members.jpg
+      - .opencode/screenshots/en/room_files.jpg
+      - .opencode/screenshots/en/room_history.jpg
+      - .opencode/screenshots/en/room_stats.jpg
+      - .opencode/screenshots/en/room_attendance.jpg
+      - .opencode/screenshots/en/room_personalized_room_links.jpg
+      - .opencode/screenshots/en/room_settings.jpg
+      - .opencode/screenshots/en/profile_base.jpg
+      - .opencode/screenshots/en/profile_security.jpg
+      - .opencode/screenshots/en/settings.jpg
+      - .opencode/screenshots/en/app_settings.jpg
+      - .opencode/screenshots/en/users.jpg
+      - .opencode/screenshots/en/roles.jpg
+      - .opencode/screenshots/en/roles_detail.jpg
+      - .opencode/screenshots/en/room_types.jpg
+      - .opencode/screenshots/en/room_types_edit.jpg
+      - .opencode/screenshots/en/room_types_edit_settings.jpg
+      - .opencode/screenshots/en/servers.jpg
+      - .opencode/screenshots/en/servers_edit.jpg
+      - .opencode/screenshots/en/server_pools.jpg
+  de:
+    localisedName: PILOS
+    shortDescription: >-
+      PILOS ist ein einfach zu bedienendes Open-Source-Frontend für
+      BigBlueButton-Server mit einem integrierten Load Balancer.
+    longDescription: >-
+      Die universelle Plattform für Videokonferenzen, basierend auf
+      BigBlueButton™.
+
+      PILOS wurde speziell für den Bildungsbereich entwickelt und bietet eine
+      unkomplizierte, interaktive und sichere Lösung für das Online-Lernen, den
+      Unterricht und alle Arten von virtuellen Meetings. PILOS lässt sich an die
+      jeweiligen Bedürfnisse anpassen und bietet hochwertige Videoübertragung,
+      robuste Tools für die Zusammenarbeit und eine intuitive
+      Benutzeroberfläche.
+
+
+      **Alles, was Sie für eine großartige Videokonferenz benötigen:**
+
+      - **Video und Audio**
+
+      Hochwertige Video- und Audioqualität, um ein persönliches und
+      ansprechendes Erlebnis zu schaffen.
+
+      - **Zusammenarbeit**
+
+      Teilen Sie Ihren Bildschirm, nutzen Sie das interaktive
+      Multi-User-Whiteboard und arbeiten Sie zusammen in Breakout-Räumen.
+
+      - **Interaktion**
+
+      Binden Sie Ihr Publikum mit interaktiven Tools wie Chat, Emojis, Umfragen
+      und vielem mehr ein.
+
+      - **Aufnahme**
+
+      Zeichnen Sie Ihre Videokonferenzen auf und stellen Sie Aufzeichnugen mit
+      einer fein abgestuften Berechtigungen zur Verfügung.
+
+      - **Sicherheit**
+
+      Alle Kommunikationsdaten werden während der Übertragung mit dem
+      WebRTC-Protokoll sicher verschlüsselt.
+
+      - **Statistik**
+
+      Erhalten Sie detaillierte Berichte über die Anwesenheit und Nutzung Ihrer
+      Videokonferenzen.
+    features:
+      - Videokonferenzen erstellen
+      - Dateien für Videokonferenzen freigeben
+      - Verwalten von BigBlueButton Server und Serverpools
+      - Verwalten von Benutzern und Rollen
+      - Verwalten von Raumtypen (Raumeinstellungsvoreinstellungen)
+      - Videokonferenzen aufzeichnen
+    genericName: Videokonferenz
+    screenshots:
+      - .opencode/screenshots/de/home.jpg
+      - .opencode/screenshots/de/dashboard.jpg
+      - .opencode/screenshots/de/login.jpg
+      - .opencode/screenshots/de/running_meetings.jpg
+      - .opencode/screenshots/de/room_description.jpg
+      - .opencode/screenshots/de/room_members.jpg
+      - .opencode/screenshots/de/room_files.jpg
+      - .opencode/screenshots/de/room_history.jpg
+      - .opencode/screenshots/de/room_stats.jpg
+      - .opencode/screenshots/de/room_attendance.jpg
+      - .opencode/screenshots/de/room_personalized_room_links.jpg
+      - .opencode/screenshots/de/room_settings.jpg
+      - .opencode/screenshots/de/profile_base.jpg
+      - .opencode/screenshots/de/profile_security.jpg
+      - .opencode/screenshots/de/settings.jpg
+      - .opencode/screenshots/de/app_settings.jpg
+      - .opencode/screenshots/de/users.jpg
+      - .opencode/screenshots/de/roles.jpg
+      - .opencode/screenshots/de/roles_detail.jpg
+      - .opencode/screenshots/de/room_types.jpg
+      - .opencode/screenshots/de/room_types_edit.jpg
+      - .opencode/screenshots/de/room_types_edit_settings.jpg
+      - .opencode/screenshots/de/servers.jpg
+      - .opencode/screenshots/de/servers_edit.jpg
+      - .opencode/screenshots/de/server_pools.jpg

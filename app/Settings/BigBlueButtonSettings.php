@@ -8,6 +8,8 @@ class BigBlueButtonSettings extends Settings
 {
     public ?string $logo;
 
+    public ?string $logo_dark;
+
     public ?string $style;
 
     public ?string $default_presentation;

@@ -1087,7 +1087,7 @@ describe("Rooms view members bulk actions", function () {
           )
           .click();
 
-        // Close dialog with copy and close button
+        // Check clipboard
         cy.window().then((win) => {
           win.navigator.clipboard.readText().then((text) => {
             expect(text).to.eq("notanemail\ninvalidemail@domain.tld");

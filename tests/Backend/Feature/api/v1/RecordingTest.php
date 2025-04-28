@@ -736,7 +736,7 @@ class RecordingTest extends TestCase
 
         $this->actingAs($room->owner)
             ->putJson(route('api.v1.rooms.recordings.update', ['room' => $room->id, 'recording' => $recording->id]), $payload)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['description', 'access', 'formats.0.disabled', 'formats.1.disabled', 'formats.2.id', 'formats.3.id']);
 
         // Check updating recording with wrong room in url

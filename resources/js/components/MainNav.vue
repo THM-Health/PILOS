@@ -19,6 +19,7 @@
             v-if="settingsStore.getSetting('theme.logo')"
             :to="{ name: 'home' }"
             class="mr-12"
+            data-test="navbar-home"
           >
             <img
               style="height: 2rem"
@@ -42,6 +43,7 @@
               :href="href"
               v-bind="props.action"
               class="flex items-center"
+              :data-test="item.dataTest"
               @click="navigate"
             >
               <span>{{ item.label }}</span>
@@ -53,6 +55,7 @@
             :target="item.target"
             v-bind="props.action"
             class="flex items-center"
+            :data-test="item.dataTest"
           >
             <span>{{ item.label }}</span>
             <i
@@ -83,9 +86,6 @@
             class: 'right-0',
             'data-test': 'submenu',
           },
-          itemLink: {
-            'data-test': 'submenu-action',
-          },
         }"
       >
         <template #item="{ item, props, hasSubmenu, root }">
@@ -99,6 +99,7 @@
               :href="href"
               v-bind="props.action"
               class="flex items-center"
+              :data-test="item.dataTest"
               @click="navigate"
             >
               <span v-if="!item.icon">{{ item.label }}</span>
@@ -110,17 +111,18 @@
             :target="item.target"
             v-bind="props.action"
             class="flex items-center"
+            :data-test="item.dataTest"
           >
             <i v-if="item.icon" :class="item.icon" />
             <UserAvatar
-              v-if="item.userAvatar"
-              data-test="user-avatar"
+              v-if="item?.type === 'userAvatar'"
               :firstname="authStore.currentUser.firstname"
               :lastname="authStore.currentUser.lastname"
               :image="authStore.currentUser.image"
               class="bg-secondary"
             />
-            <span v-if="!item.userAvatar && !item.icon">{{ item.label }}</span>
+            <MainNavDarkModeToggle v-if="item?.type === 'darkMode'" />
+            <span v-if="!item?.type && !item.icon">{{ item.label }}</span>
             <i
               v-if="hasSubmenu"
               :class="[
@@ -169,7 +171,7 @@ const api = useApi();
 const localeStore = useLocaleStore();
 const router = useRouter();
 const route = useRoute();
-const { t } = useI18n();
+const { t, te } = useI18n();
 const toast = useToast();
 
 const isDark = useDark();
@@ -182,12 +184,14 @@ const mainMenuItems = computed(() => {
     items.push({
       label: t("app.rooms"),
       route: { name: "rooms.index" },
+      dataTest: "navbar-rooms",
     });
 
     if (userPermissions.can("viewAny", "MeetingPolicy")) {
       items.push({
         label: t("meetings.currently_running"),
         route: { name: "meetings.index" },
+        dataTest: "navbar-meetings",
       });
     }
 
@@ -195,22 +199,26 @@ const mainMenuItems = computed(() => {
       items.push({
         label: t("admin.title"),
         route: { name: "admin" },
+        dataTest: "navbar-admin",
       });
     }
 
     if (userPermissions.can("monitor", "SystemPolicy")) {
       const menuItem = {
         label: t("system.monitor.title"),
+        dataTest: "navbar-monitor",
         items: [
           {
             label: t("system.monitor.pulse"),
             url: "/pulse",
             target: "_blank",
+            dataTest: "navbar-monitor-pulse",
           },
           {
             label: t("system.monitor.horizon"),
             url: "/horizon",
             target: "_blank",
+            dataTest: "navbar-monitor-horizon",
           },
         ],
       };
@@ -220,6 +228,7 @@ const mainMenuItems = computed(() => {
           label: t("system.monitor.telescope"),
           url: "/telescope",
           target: "_blank",
+          dataTest: "navbar-monitor-telescope",
         });
       }
 
@@ -242,17 +251,20 @@ const userMenuItems = computed(() => {
   if (authStore.isAuthenticated) {
     items.push({
       class: "user-avatar",
-      userAvatar: true,
+      type: "userAvatar",
+      dataTest: "navbar-user",
       label:
         authStore.currentUser.firstname + " " + authStore.currentUser.lastname,
       items: [
         {
           label: t("app.profile"),
           route: { name: "profile" },
+          dataTest: "navbar-user-profile",
         },
         {
           label: t("auth.logout"),
           command: logout,
+          dataTest: "navbar-user-logout",
         },
       ],
     });
@@ -260,6 +272,7 @@ const userMenuItems = computed(() => {
     items.push({
       label: t("auth.login"),
       route: loginRoute,
+      dataTest: "navbar-login",
     });
   }
 
@@ -268,16 +281,18 @@ const userMenuItems = computed(() => {
       icon: "fa-solid fa-circle-question text-xl",
       label: t("app.help"),
       target: "_blank",
+      dataTest: "navbar-help",
       url: settingsStore.getSetting("general.help_url"),
     });
   }
 
   items.push({
-    icon: "fa-solid text-xl " + (isDark.value ? " fa-moon" : " fa-sun"),
+    type: "darkMode",
+    dataTest: "navbar-dark-mode",
     label: isDark.value
       ? t("app.dark_mode_disable")
       : t("app.dark_mode_enable"),
-    command: () => toggleDark(),
+    command: () => changeDarkMode(),
   });
 
   // Only show the locale menu if more than one locale is enabled
@@ -285,12 +300,14 @@ const userMenuItems = computed(() => {
     const localeItem = {
       icon: "fa-solid fa-language text-xl",
       label: t("app.change_locale"),
+      dataTest: "navbar-locale",
       items: [],
     };
 
     locales.value.forEach((locale) => {
       localeItem.items.push({
         label: locale.label,
+        dataTest: "navbar-locale-" + locale.locale,
         command: () => changeLocale(locale.locale),
       });
     });
@@ -334,6 +351,20 @@ async function logout() {
   loadingStore.setLoadingFinished();
 }
 
+function changeDarkMode() {
+  // Check if the browser supports view transitions
+  // If it doesn't, just toggle the dark mode
+  if (!document.startViewTransition) {
+    toggleDark();
+
+    return;
+  }
+
+  // Wrap the dark mode toggle in a view transition
+  // this will add a smooth transition
+  document.startViewTransition(toggleDark);
+}
+
 const locales = computed(() => {
   const locales = settingsStore.getSetting("general.enabled_locales");
   if (!locales) {
@@ -341,8 +372,15 @@ const locales = computed(() => {
   }
 
   return Object.entries(locales).map(([locale, label]) => {
+    let localeLabel = label;
+    const localeTranslationKey = "app.locales." + locale;
+    if (localeStore.currentLocale !== locale && te(localeTranslationKey)) {
+      const translatedLabel = t(localeTranslationKey);
+      localeLabel = localeLabel + " (" + translatedLabel + ")";
+    }
+
     return {
-      label,
+      label: localeLabel,
       locale,
     };
   });

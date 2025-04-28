@@ -88,20 +88,20 @@ class RoleTest extends TestCase
         $permission_id = Permission::firstOrCreate(['name' => 'roles.create'])->id;
         $roleA->permissions()->attach([$permission_id]);
         $this->postJson(route('api.v1.roles.store', $role))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['name', 'permissions', 'room_limit']);
 
         $role['name'] = str_repeat('a', 256);
         $role['permissions'] = ['test'];
         $role['room_limit'] = 10;
         $this->postJson(route('api.v1.roles.store', $role))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['name', 'permissions.0']);
 
         $role['name'] = 'Test';
         $role['permissions'] = [self::INVALID_ID];
         $this->postJson(route('api.v1.roles.store', $role))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['permissions.0']);
 
         $role['name'] = 'Test';
@@ -237,7 +237,7 @@ class RoleTest extends TestCase
             'updated_at' => $role->updated_at,
         ];
         $this->putJson(route('api.v1.roles.update', ['role' => $role]), $changes)
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertJsonValidationErrors(['permissions', 'name', 'room_limit']);
     }
 

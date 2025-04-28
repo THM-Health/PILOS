@@ -4,6 +4,7 @@ node_modules
 vendor
 .env
 .github
+.opencode
 *.md
 _ide_helper.php
 tests

@@ -71,6 +71,7 @@ class Settings extends JsonResource
             'recording_attendance_retention_period' => $recordingSettings->attendance_retention_period,
             'recording_recording_retention_period' => $recordingSettings->recording_retention_period,
             'bbb_logo' => $bigBlueButtonSettings->logo,
+            'bbb_logo_dark' => $bigBlueButtonSettings->logo_dark,
             'bbb_style' => $bigBlueButtonSettings->style,
             'bbb_default_presentation' => $bigBlueButtonSettings->default_presentation,
         ];

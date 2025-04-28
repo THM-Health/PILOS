@@ -130,6 +130,11 @@ class MeetingService
             $meetingParams->setLogo(app(BigBlueButtonSettings::class)->logo);
         }
 
+        // if a dark logo is defined, set dark logo
+        if (app(BigBlueButtonSettings::class)->logo_dark) {
+            $meetingParams->setDarklogo(app(BigBlueButtonSettings::class)->logo_dark);
+        }
+
         // Try to start meeting
         try {
             $result = $this->serverService->getBigBlueButton()->createMeeting($meetingParams);

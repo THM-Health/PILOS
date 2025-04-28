@@ -155,7 +155,7 @@ return [
         'delete' => [
             'confirm' => 'Do you really want to delete the room type :name?',
             'item' => 'Delete room type :id',
-            'no_replacement' => '-- No replacement --',
+            'no_replacement' => 'No replacement',
             'replacement' => 'Room type replacement',
             'replacement_info' => 'If there are rooms associated with this room type, you need to select a replacement room type.',
             'title' => 'Delete room type?',

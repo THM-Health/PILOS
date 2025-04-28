@@ -3,7 +3,6 @@ import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js
 describe("Verify email", function () {
   beforeEach(function () {
     cy.init();
-    cy.intercept("GET", "api/v1/locale/en", {});
 
     cy.fixture("config.json").then((config) => {
       config.data.auth.local = true;
