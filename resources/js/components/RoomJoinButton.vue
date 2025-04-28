@@ -81,6 +81,14 @@
           <FormError
             :errors="formErrors.fieldError('consent_record_attendance')"
           />
+          <div class="text-sm text-center mt-2">
+            <router-link
+              :to="{ name: 'profile' }"
+              class="text-primary hover:underline"
+            >
+              {{ $t("app.profile") }}
+            </router-link>
+            </div>
         </div>
 
         <div
@@ -117,6 +125,14 @@
             }}</label>
           </div>
           <FormError :errors="formErrors.fieldError('consent_record_video')" />
+          <div class="text-sm text-center mt-2">
+            <router-link
+              :to="{ name: 'profile' }"
+              class="text-primary hover:underline"
+            >
+              {{ $t("app.profile") }}
+            </router-link>
+            </div>
         </div>
       </div>
     </OverlayComponent>
@@ -190,13 +206,13 @@ const emit = defineEmits([
 ]);
 
 const authStore = useAuthStore();
-
+console.log("authStore", authStore.currentUser);
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
-const recordAttendanceAgreement = ref(false);
+const recordAttendanceAgreement = ref(authStore.currentUser?.record_attendance_agreement ?? false);
 const showRunningMessage = ref(false);
-const recordAgreement = ref(false);
-const recordVideoAgreement = ref(false);
+const recordAgreement = ref(authStore.currentUser?.record_agreement ?? false);
+const recordVideoAgreement = ref(authStore.currentUser?.record_video_agreement ?? false);
 const name = ref(""); // Name of guest
 
 const api = useApi();
