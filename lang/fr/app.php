@@ -54,6 +54,9 @@ return [
         'server_pool_delete_failed' => 'Le groupe de serveurs n\'a pas pu être supprimé. Pour supprimer ce groupe, il ne doit être assigné à aucun type de salle.',
         'stale_error' => 'Conflits de modifications',
         'stale_model' => 'L\'entité :model a été mise à jour entre-temps !',
+        'streaming_error' => 'Erreur de connection au serveur de streaming. Merci de retenter plus tard.',
+        'streaming_meeting_not_running' => 'La conférence n\'est pas démarrée.',
+        'streaming_not_enabled_for_current_meeting_error' => 'Le streaming n\'est pas activité pour cette conférence.',
         'token_not_found' => 'Le lien de la salle personnalisée est introuvable.',
     ],
     'filter_no_results' => 'Aucun résultat trouvé',
@@ -119,6 +122,7 @@ return [
     'server_pool' => 'Groupe de serveurs',
     'server_pools' => 'Groupes de serveurs',
     'servers' => 'Serveurs',
+    'streaming' => 'Streaming',
     'time_formats' => [
         'day' => 'Jour',
         'days' => 'Jours',

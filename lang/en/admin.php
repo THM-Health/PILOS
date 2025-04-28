@@ -416,23 +416,23 @@ return [
         'user_settings' => 'User settings',
     ],
     'streaming' => [
-        'tile_description' => 'Global and room type specific settings for streaming.',
+        'css_file' => 'CSS style file',
+        'css_file_description' => 'CSS file to customize the BBB UI for streaming',
+        'default_pause_image' => 'Default pause image',
+        'enabled' => 'Enabled',
         'general' => [
             'title' => 'General settings',
         ],
-        'enabled' => 'Enabled',
-        'default_pause_image' => 'Default pause image',
-        'css_file' => 'CSS style file',
-        'css_file_description' => 'CSS file to customize the BBB UI for streaming',
         'join_parameters' => 'Additional Join API parameters',
         'join_parameters_description' => 'Specify as attribute-value pair (one per line, without spaces), e.g. userdata-bbb_show_public_chat_on_login=false',
         'room_types' => [
-            'title' => 'Room type specific settings',
             'edit' => 'Edit streaming settings for :name',
             'edit_dialog' => [
                 'title' => 'Edit streaming settings for :name',
             ],
+            'title' => 'Room type specific settings',
         ],
+        'tile_description' => 'Global and room type specific settings for streaming.',
     ],
     'title' => 'Administration',
     'users' => [

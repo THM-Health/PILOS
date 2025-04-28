@@ -27,12 +27,17 @@ return [
             'view' => ':name',
         ],
         'settings' => 'Einstellungen',
+        'streaming_settings' => 'Streaming',
         'users' => [
             'edit' => ':firstname :lastname bearbeiten',
             'index' => 'Benutzer',
             'new' => 'Neu',
             'view' => ':firstname :lastname',
         ],
+    ],
+    'feature_disabled' => [
+        'description' => ':name ist für dieses System nicht aktiviert.',
+        'title' => 'Deaktiviert',
     ],
     'home_button' => 'Zurück zur Übersicht',
     'overview' => 'Übersicht',
@@ -106,6 +111,11 @@ return [
                 'title' => 'Anwendung',
                 'update' => 'Einstellungen bearbeiten',
                 'view_any' => 'Alle Einstellungen anzeigen',
+            ],
+            'streaming' => [
+                'title' => 'Streaming',
+                'update' => 'Streaming-Einstellungen bearbeiten',
+                'view_any' => 'Alle Streaming-Einstellungen anzeigen',
             ],
             'system' => [
                 'monitor' => 'Überwachung',
@@ -404,6 +414,25 @@ return [
         'two_weeks' => '2 Wochen (14 Tage)',
         'two_years' => '2 Jahre (730 Tage)',
         'user_settings' => 'Benutzereinstellungen',
+    ],
+    'streaming' => [
+        'css_file' => 'CSS Style Datei',
+        'css_file_description' => 'CSS Datei zur Anpassung der BBB-Benutzeroberfläche für das Streaming',
+        'default_pause_image' => 'Standardbild für Streaming-Pause',
+        'enabled' => 'Aktiviert',
+        'general' => [
+            'title' => 'Globale Einstellungen',
+        ],
+        'join_parameters' => 'Zusätzliche Join-API-Parameter',
+        'join_parameters_description' => 'Angabe als Attribut-Wert-Paar (eins pro Zeile, ohne Leerzeichen), z.B. userdata-bbb_show_public_chat_on_login=false',
+        'room_types' => [
+            'edit' => 'Streaming-Einstellungen für :name bearbeiten',
+            'edit_dialog' => [
+                'title' => 'Streaming-Einstellungen für :name bearbeiten',
+            ],
+            'title' => 'Raumartspezifische Einstellungen',
+        ],
+        'tile_description' => 'Globale und raumartspezifische Einstellungen für das Streaming.',
     ],
     'title' => 'Administration',
     'users' => [

@@ -54,6 +54,9 @@ return [
         'server_pool_delete_failed' => 'Der Serverpool konnte nicht gelöscht werden. Um den Serverpool zu löschen, darf dieser von keiner Raumart verwendet werden.',
         'stale_error' => 'Änderungskonflikt',
         'stale_model' => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
+        'streaming_error' => 'Fehler beim Verbinden mit dem Streaming-Server. Bitte versuchen Sie es später noch einmal.',
+        'streaming_meeting_not_running' => 'Das Meeting läuft gerade nicht.',
+        'streaming_not_enabled_for_current_meeting_error' => 'Streaming ist für das aktuelle Meeting nicht aktiviert.',
         'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
     'filter_no_results' => 'Keine Ergebnisse gefunden',
@@ -119,6 +122,7 @@ return [
     'server_pool' => 'Serverpool',
     'server_pools' => 'Serverpools',
     'servers' => 'Server',
+    'streaming' => 'Streaming',
     'time_formats' => [
         'day' => 'Tag',
         'days' => 'Tage',

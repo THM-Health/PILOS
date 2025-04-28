@@ -27,12 +27,17 @@ return [
             'view' => ':name',
         ],
         'settings' => 'تنظیمات',
+        'streaming_settings' => 'پخش زنده',
         'users' => [
             'edit' => 'ویرایش :firstname :lastname',
             'index' => 'کاربران',
             'new' => 'جدید',
             'view' => ':firstname :lastname',
         ],
+    ],
+    'feature_disabled' => [
+        'description' => ':name برای این سیستم فعال نیست.',
+        'title' => 'غیرفعال شده',
     ],
     'home_button' => 'بازگشت به نمای کلی',
     'overview' => 'نمای کلی',
@@ -106,6 +111,11 @@ return [
                 'title' => 'تنظیمات',
                 'update' => 'ویرایش تنظیمات',
                 'view_any' => 'نمایش تمام تنظیمات',
+            ],
+            'streaming' => [
+                'title' => 'پخش زنده',
+                'update' => 'ویرایش تنطیمات پخش زنده',
+                'view_any' => 'نمایش تمام تنظیمات پخش زنده',
             ],
             'system' => [
                 'monitor' => 'مانیتورینگ',
@@ -404,6 +414,26 @@ return [
         'two_weeks' => '2 هفته (14 روز)',
         'two_years' => '2 سال (730 روز)',
         'user_settings' => 'تنظیمات کاربر',
+    ],
+    'streaming' => [
+        'css_file' => 'فایل استایل سی اس اس',
+        'css_file_description' => 'فایل css برای تغییر رابط کاربری بیگ بلو باتن در پخش زنده',
+        'default_pause_image' => 'تصویر پیشفرض حالت مکث',
+        'enabled' => 'فعال شده',
+        'general' => [
+            'title' => 'تنظیمات عمومی',
+        ],
+        'join_parameters' => 'پارامتر های اضافه api برای join',
+        'join_parameters_description' => 'به صورت جفت مقدار-ویژگی مشخص کنید (هر خط یک مورد، بدون فاصله)، مثلاً:  '."\n"
+            .'`userdata-bbb_show_public_chat_on_login=false`',
+        'room_types' => [
+            'edit' => 'ویرایش تنظیمات پخش زنده برای :name',
+            'edit_dialog' => [
+                'title' => 'ویرایش تنظیمات پخش زنده برای :name',
+            ],
+            'title' => 'تنظیمات اختصاصی نوع اتاق',
+        ],
+        'tile_description' => 'تنظیمات عمومی و نوع اتاق برای پخش زنده',
     ],
     'title' => 'مدیریت',
     'users' => [

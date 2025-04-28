@@ -27,12 +27,17 @@ return [
             'view' => ':name',
         ],
         'settings' => 'Paramètres',
+        'streaming_settings' => 'Streaming',
         'users' => [
             'edit' => 'Modifier :firstname :lastname',
             'index' => 'Utilisateurs',
             'new' => 'Nouveau',
             'view' => ':firstname :lastname',
         ],
+    ],
+    'feature_disabled' => [
+        'description' => ':name est désactivé pour ce système.',
+        'title' => 'Désactivé',
     ],
     'home_button' => 'Retour à l\'aperçu',
     'overview' => 'Aperçu',
@@ -106,6 +111,11 @@ return [
                 'title' => 'Paramètres',
                 'update' => 'Modifier les paramètres',
                 'view_any' => 'Voir tous les paramètres',
+            ],
+            'streaming' => [
+                'title' => 'Streaming',
+                'update' => 'Éditer les préférences du streaming',
+                'view_any' => 'Voir toutes les préférences du streaming',
             ],
             'system' => [
                 'monitor' => 'Surveillance',
@@ -404,6 +414,25 @@ return [
         'two_weeks' => '2 semaines (14 jours)',
         'two_years' => '2 ans (730 jours)',
         'user_settings' => 'Paramètres utilisateur',
+    ],
+    'streaming' => [
+        'css_file' => 'Fichier de styles CSS',
+        'css_file_description' => 'Fichier CSS pour personnaliser l\'interface BBB du streaming',
+        'default_pause_image' => 'Image de pause par défaut',
+        'enabled' => 'Activé',
+        'general' => [
+            'title' => 'Préférences générales',
+        ],
+        'join_parameters' => 'Paramètres additionnels pour l\'API Join',
+        'join_parameters_description' => 'Spécifier les paires d\'attribut-valeur (une par ligne, sans espace), ex: userdata-bbb_show_public_chat_on_login=false',
+        'room_types' => [
+            'edit' => 'Éditer les préférences de streaming pour :name',
+            'edit_dialog' => [
+                'title' => 'Éditer les préférences de streaming pour :name',
+            ],
+            'title' => 'Préférence spécifique au type de salle',
+        ],
+        'tile_description' => 'Préférences du streaming par type de salle ou global.',
     ],
     'title' => 'Administration',
     'users' => [

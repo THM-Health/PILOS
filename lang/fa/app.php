@@ -54,6 +54,9 @@ return [
         'server_pool_delete_failed' => 'مخزن سرور قابل حذف نبود. برای حذف مخزن سرور، نباید توسط هیچ نوع اتاقی استفاده شود.',
         'stale_error' => 'تغییرات متضاد',
         'stale_model' => 'موجودیت :model در این میان به‌روزرسانی شده است!',
+        'streaming_error' => 'خطا در برقراری ارتباط با سرور استریم.لطفا بعدا مجدد تلاش کنید.',
+        'streaming_meeting_not_running' => 'جلسه در حال برگزاری نیست.',
+        'streaming_not_enabled_for_current_meeting_error' => 'پخش زنده برای جلسه جاری فعال نیست.',
         'token_not_found' => 'لینک شخصی‌سازی‌شده اتاق یافت نشد.',
     ],
     'filter_no_results' => 'نتیجه‌ای یافت نشد',
@@ -119,6 +122,7 @@ return [
     'server_pool' => 'مخزن سرور',
     'server_pools' => 'مخازن سرور',
     'servers' => 'سرورها',
+    'streaming' => 'پخش زنده',
     'time_formats' => [
         'day' => 'روز',
         'days' => 'روز',
