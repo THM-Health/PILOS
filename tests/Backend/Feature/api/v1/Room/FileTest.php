@@ -37,6 +37,7 @@ class FileTest extends TestCase
 
     protected $file_toobig;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -463,7 +464,7 @@ class FileTest extends TestCase
 
         \Auth::logout();
 
-        $this->get((new RoomFileService($room_file))->url())
+        $this->get(new RoomFileService($room_file)->url())
             ->assertSuccessful();
     }
 
@@ -799,7 +800,7 @@ class FileTest extends TestCase
         $request = $bbbfaker->getRequest(0);
 
         // Get xml from request (presentation data)
-        $xml = simplexml_load_string($request->body());
+        $xml = simplexml_load_string((string) $request->body());
 
         $downloadUrl = (string) $xml->module->document->attributes()->url;
         $fileName = (string) $xml->module->document->attributes()->filename;

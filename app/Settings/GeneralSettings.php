@@ -8,11 +8,11 @@ class GeneralSettings extends Settings
 {
     public string $name;
 
-    public ?string $help_url;
+    public ?string $help_url = null;
 
-    public ?string $legal_notice_url;
+    public ?string $legal_notice_url = null;
 
-    public ?string $privacy_policy_url;
+    public ?string $privacy_policy_url = null;
 
     public int $pagination_page_size;
 

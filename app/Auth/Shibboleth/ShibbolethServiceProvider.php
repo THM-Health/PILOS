@@ -10,10 +10,9 @@ class ShibbolethServiceProvider extends ServiceProvider
     /**
      * Register the Shibboleth provider.
      */
+    #[\Override]
     public function register(): void
     {
-        $this->app->singleton(ShibbolethProvider::class, function (Application $app) {
-            return new ShibbolethProvider;
-        });
+        $this->app->singleton(fn (Application $app): \App\Auth\Shibboleth\ShibbolethProvider => new ShibbolethProvider);
     }
 }

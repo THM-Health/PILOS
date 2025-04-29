@@ -27,6 +27,6 @@ class ApplicationController extends Controller
      */
     public function currentUser()
     {
-        return (new UserResource(Auth::user()))->withPermissions()->withoutRoles();
+        return new UserResource(Auth::user())->withPermissions()->withoutRoles();
     }
 }

@@ -14,7 +14,7 @@ class BulkImportRequest extends FormRequest
         return [
             'role' => ['required', Rule::in([RoomUserRole::USER, RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER])],
             'user_emails' => ['required', 'array',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail): void {
                     $max = 1000;
                     if (count($value) > $max) {
                         $this->getValidatorInstance()->stopOnFirstFailure();
@@ -22,7 +22,7 @@ class BulkImportRequest extends FormRequest
                     }
                 }, ],
             'user_emails.*' => ['bail', 'required', 'email', 'distinct:ignore_case',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail): void {
                     $users = User::whereLike('email', $value);
                     if ($users->count() == 0) {
                         $fail(__('validation.custom.room.user_not_found_email'));

@@ -11,9 +11,10 @@ class TrustHosts extends Middleware
      *
      * @return array<int, string|null>
      */
+    #[\Override]
     public function hosts(): array
     {
-        $url = parse_url(config('app.url'), PHP_URL_HOST);
+        $url = parse_url((string) config('app.url'), PHP_URL_HOST);
 
         return [$url];
     }

@@ -27,6 +27,7 @@ class SettingsTest extends TestCase
     /**
      * Setup resources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -110,9 +111,7 @@ class SettingsTest extends TestCase
         $role->permissions()->attach(Permission::where('name', 'settings.viewAny')->first());
         $this->user->roles()->attach($role);
 
-        $linkStyles = array_filter(LinkButtonStyle::cases(), function ($style) {
-            return ! in_array($style, LinkButtonStyle::getDeprecated());
-        });
+        $linkStyles = array_filter(LinkButtonStyle::cases(), fn ($style) => ! in_array($style, LinkButtonStyle::getDeprecated()));
 
         $this->getJson(route('api.v1.settings.view'))
             ->assertJson([

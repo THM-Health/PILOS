@@ -14,15 +14,7 @@ class EmailChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private string $email;
-
-    private string $fullname;
-
-    public function __construct(string $email, string $fullname)
-    {
-        $this->email = $email;
-        $this->fullname = $fullname;
-    }
+    public function __construct(private string $email, private string $fullname) {}
 
     /**
      * Get the notification's delivery channels.

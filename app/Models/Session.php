@@ -12,10 +12,6 @@ class Session extends Model
 
     public $timestamps = false;
 
-    protected $casts = [
-        'last_activity' => 'datetime',
-    ];
-
     protected $dateFormat = 'U';
 
     /**
@@ -31,5 +27,12 @@ class Session extends Model
     public function sessionData()
     {
         return $this->hasMany(SessionData::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'last_activity' => 'datetime',
+        ];
     }
 }

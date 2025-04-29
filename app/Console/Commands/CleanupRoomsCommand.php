@@ -35,13 +35,13 @@ class CleanupRoomsCommand extends Command
                 ->join('users', 'rooms.user_id', '=', 'users.id')
                 ->select('rooms.id')
                 ->whereNull('delete_inactive')
-                ->where(function ($query) use ($neverUsedPeriod, $inactivePeriod, $createdDate, $lastStartDate) {
-                    $query->where(function ($query) use ($inactivePeriod, $lastStartDate) {
+                ->where(function ($query) use ($neverUsedPeriod, $inactivePeriod, $createdDate, $lastStartDate): void {
+                    $query->where(function ($query) use ($inactivePeriod, $lastStartDate): void {
                         if ($inactivePeriod != TimePeriod::UNLIMITED) {
                             $query->where('meetings.start', '<', $lastStartDate);
                         }
                     })
-                        ->orWhere(function ($query) use ($neverUsedPeriod, $createdDate) {
+                        ->orWhere(function ($query) use ($neverUsedPeriod, $createdDate): void {
                             if ($neverUsedPeriod != TimePeriod::UNLIMITED) {
                                 $query->where('rooms.created_at', '<', $createdDate)
                                     ->whereNull('meetings.start');

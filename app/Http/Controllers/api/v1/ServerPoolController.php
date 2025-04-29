@@ -68,7 +68,7 @@ class ServerPoolController extends Controller
      */
     public function show(ServerPool $serverPool)
     {
-        return (new ServerPoolResource($serverPool))->withServers();
+        return new ServerPoolResource($serverPool)->withServers();
     }
 
     /**
@@ -84,7 +84,7 @@ class ServerPoolController extends Controller
         $serverPool->save();
         $serverPool->servers()->sync($request->servers);
 
-        return (new ServerPoolResource($serverPool))->withServers();
+        return new ServerPoolResource($serverPool)->withServers();
     }
 
     /**
@@ -100,7 +100,7 @@ class ServerPoolController extends Controller
         $serverPool->save();
         $serverPool->servers()->sync($request->servers);
 
-        return (new ServerPoolResource($serverPool))->withServers();
+        return new ServerPoolResource($serverPool)->withServers();
     }
 
     /**

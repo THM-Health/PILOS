@@ -13,12 +13,7 @@ use Illuminate\Support\Str;
 
 class EmailVerificationService
 {
-    private User $user;
-
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
+    public function __construct(private readonly User $user) {}
 
     /**
      * Send the email verification notification.
@@ -33,7 +28,7 @@ class EmailVerificationService
 
         Notification::route('mail', [
             $newEmail => $this->user->fullname,
-        ])->notifyNow((new VerifyEmailNotification($token, $this->user->timezone))->locale($this->user->locale));
+        ])->notifyNow(new VerifyEmailNotification($token, $this->user->timezone)->locale($this->user->locale));
 
         return true;
     }
@@ -82,7 +77,7 @@ class EmailVerificationService
 
         Notification::route('mail', [
             $oldEmail => $this->user->fullname,
-        ])->notify((new EmailChanged($this->user->email, $this->user->fullname))->locale($this->user->locale));
+        ])->notify(new EmailChanged($this->user->email, $this->user->fullname)->locale($this->user->locale));
     }
 
     /**

@@ -13,21 +13,16 @@ class RoomExpires extends Notification implements ShouldQueue
     use Queueable;
 
     /**
-     * The room.
-     *
-     * @var Room
-     */
-    private $room;
-
-    /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(Room $room)
-    {
-        $this->room = $room;
-    }
+    public function __construct(
+        /**
+         * The room.
+         */
+        private Room $room
+    ) {}
 
     /**
      * Get the notification's delivery channels.

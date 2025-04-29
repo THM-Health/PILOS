@@ -6,13 +6,13 @@ use Spatie\LaravelSettings\Settings;
 
 class BigBlueButtonSettings extends Settings
 {
-    public ?string $logo;
+    public ?string $logo = null;
 
-    public ?string $logo_dark;
+    public ?string $logo_dark = null;
 
-    public ?string $style;
+    public ?string $style = null;
 
-    public ?string $default_presentation;
+    public ?string $default_presentation = null;
 
     public static function group(): string
     {

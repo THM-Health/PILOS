@@ -22,6 +22,7 @@ class SessionTest extends TestCase
 
     protected $otherUserSession;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

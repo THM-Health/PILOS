@@ -16,6 +16,7 @@ class DeleteUnverifiedNewUsersTest extends TestCase
     /**
      * @see TestCase::setUp()
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

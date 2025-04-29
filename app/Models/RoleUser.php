@@ -6,16 +6,20 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class RoleUser extends Pivot
 {
-    protected $casts = ['automatic' => 'boolean'];
-
+    #[\Override]
     protected static function booted(): void
     {
-        static::created(function () {
+        static::created(function (): void {
             User::$clearPermissionCache = true;
         });
 
-        static::deleted(function () {
+        static::deleted(function (): void {
             User::$clearPermissionCache = true;
         });
+    }
+
+    protected function casts(): array
+    {
+        return ['automatic' => 'boolean'];
     }
 }

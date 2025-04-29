@@ -15,11 +15,12 @@ class LoggedInUser extends Middleware
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
+    #[\Override]
     protected function authenticate($request, array $guards)
     {
         try {
             parent::authenticate($request, $guards);
-        } catch (AuthenticationException $exception) {
+        } catch (AuthenticationException) {
         }
     }
 }

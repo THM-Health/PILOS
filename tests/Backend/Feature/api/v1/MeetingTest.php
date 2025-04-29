@@ -25,6 +25,7 @@ class MeetingTest extends TestCase
     /**
      * Setup ressources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

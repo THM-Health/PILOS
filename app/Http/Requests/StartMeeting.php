@@ -8,12 +8,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StartMeeting extends FormRequest
 {
-    protected RoomAuthService $roomAuthService;
-
-    public function __construct(RoomAuthService $roomAuthService)
+    public function __construct(protected RoomAuthService $roomAuthService)
     {
         parent::__construct();
-        $this->roomAuthService = $roomAuthService;
     }
 
     public function rules(): array

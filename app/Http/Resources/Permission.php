@@ -29,14 +29,13 @@ class Permission extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'included_permissions' => $this->when($this->withIncludedPermissions, function () {
-                return $this->includedPermissions->pluck('id');
-            }),
+            'included_permissions' => $this->when($this->withIncludedPermissions, fn () => $this->includedPermissions->pluck('id')),
         ];
     }
 }

@@ -40,6 +40,7 @@ class LDAPProvider extends EloquentUserProvider
      * @param  mixed  $identifier
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
+    #[\Override]
     public function retrieveById($identifier)
     {
         return $this->eloquent->retrieveById($identifier);
@@ -52,6 +53,7 @@ class LDAPProvider extends EloquentUserProvider
      * @param  string  $token
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
+    #[\Override]
     public function retrieveByToken($identifier, $token)
     {
         return $this->eloquent->retrieveByToken($identifier, $token);
@@ -63,11 +65,13 @@ class LDAPProvider extends EloquentUserProvider
      * @param  string  $token
      * @return void
      */
+    #[\Override]
     public function updateRememberToken(Authenticatable $user, $token)
     {
         $this->eloquent->updateRememberToken($user, $token);
     }
 
+    #[\Override]
     public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): void
     {
         $this->eloquent->rehashPasswordIfRequired($user, $credentials, $force);
@@ -78,6 +82,7 @@ class LDAPProvider extends EloquentUserProvider
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
+    #[\Override]
     public function retrieveByCredentials(array $credentials)
     {
         // Find ldap user by username
@@ -102,6 +107,7 @@ class LDAPProvider extends EloquentUserProvider
      *
      * @return bool
      */
+    #[\Override]
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
         // Bind to LDAP with user credentials

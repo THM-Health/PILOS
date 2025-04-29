@@ -16,6 +16,7 @@ class StreamingSettings extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         $settings = app(\App\Settings\StreamingSettings::class);

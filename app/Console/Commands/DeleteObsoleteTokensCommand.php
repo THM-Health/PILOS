@@ -36,11 +36,11 @@ class DeleteObsoleteTokensCommand extends Command
 
         if ($expireDuration != TimePeriod::UNLIMITED) {
             $expiredTokens = RoomToken::query()
-                ->where(function ($query) use ($expireDuration) {
+                ->where(function ($query) use ($expireDuration): void {
                     $query->whereNull('last_usage')
                         ->where('created_at', '<', Carbon::now()->subDays($expireDuration->value));
                 })
-                ->orWhere(function ($query) use ($expireDuration) {
+                ->orWhere(function ($query) use ($expireDuration): void {
                     $query->whereNotNull('last_usage')
                         ->where('last_usage', '<', Carbon::now()->subDays($expireDuration->value));
                 })

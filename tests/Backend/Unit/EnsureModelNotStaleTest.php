@@ -13,6 +13,7 @@ class EnsureModelNotStaleTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[\Override]
     protected function setUp(): void
     {
         putenv('DISABLE_CATCHALL_ROUTES=true');
@@ -22,12 +23,11 @@ class EnsureModelNotStaleTest extends TestCase
         \Route::post('api/test/{role}', [
             'middleware' => ['api', 'check.stale:role,\App\Http\Resources\Role,withPermissions'],
             'as' => 'test.stale.check',
-            function (Role $role) {
-                return 'OK';
-            },
+            fn (Role $role) => 'OK',
         ]);
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         putenv('DISABLE_CATCHALL_ROUTES');
@@ -49,11 +49,11 @@ class EnsureModelNotStaleTest extends TestCase
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $role->updated_at->sub(new DateInterval('P1D'))])
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value)
-            ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->withPermissions()->toJson(), true)]);
+            ->assertJsonFragment(['new_model' => json_decode(new \App\HTTP\Resources\Role(Role::find($role->id))->withPermissions()->toJson(), true)]);
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => null])
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value)
-            ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->withPermissions()->toJson(), true)]);
+            ->assertJsonFragment(['new_model' => json_decode(new \App\HTTP\Resources\Role(Role::find($role->id))->withPermissions()->toJson(), true)]);
     }
 
     public function test_actual_model()

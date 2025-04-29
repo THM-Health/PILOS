@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 class StreamingService
 {
-    private ServerService $serverService;
+    private readonly ServerService $serverService;
 
     public function __construct(public Meeting $meeting)
     {
@@ -63,7 +63,7 @@ class StreamingService
 
     public function getJobId(): string
     {
-        $host = parse_url($this->meeting->server->base_url)['host'];
+        $host = parse_url((string) $this->meeting->server->base_url)['host'];
 
         return hash('sha256', $this->meeting->id.'@'.$host);
     }
@@ -95,7 +95,7 @@ class StreamingService
     {
         try {
             $response = $this->getHttpClient()->get($this->getJobId());
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -125,7 +125,7 @@ class StreamingService
                 'pauseImageUrl' => $pauseImageUrl,
                 'rtmpUrl' => $this->meeting->room->streaming->url,
             ]);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -136,7 +136,7 @@ class StreamingService
     {
         try {
             $response = $this->getHttpClient()->post($this->getJobId().'/stop');
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -147,7 +147,7 @@ class StreamingService
     {
         try {
             $response = $this->getHttpClient()->post($this->getJobId().'/resume');
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -158,7 +158,7 @@ class StreamingService
     {
         try {
             $response = $this->getHttpClient()->post($this->getJobId().'/pause');
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
 

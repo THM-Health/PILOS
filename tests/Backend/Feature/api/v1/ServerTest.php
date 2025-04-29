@@ -29,6 +29,7 @@ class ServerTest extends TestCase
     /**
      * Setup resources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

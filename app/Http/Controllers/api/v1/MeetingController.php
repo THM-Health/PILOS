@@ -50,15 +50,15 @@ class MeetingController extends Controller
         if ($request->has('search') && trim($request->search) != '') {
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
-                $resource = $resource->where(function ($query) use ($searchQuery) {
-                    $query->whereHas('room', function ($subQuery) use ($searchQuery) {
+                $resource = $resource->where(function ($query) use ($searchQuery): void {
+                    $query->whereHas('room', function ($subQuery) use ($searchQuery): void {
                         $subQuery->whereLike('name', '%'.$searchQuery.'%');
                     })
-                        ->orWhereHas('room.owner', function ($subQuery) use ($searchQuery) {
+                        ->orWhereHas('room.owner', function ($subQuery) use ($searchQuery): void {
                             $subQuery->whereLike('firstname', '%'.$searchQuery.'%')
                                 ->orWhereLike('lastname', '%'.$searchQuery.'%');
                         })
-                        ->orWhereHas('server', function ($subQuery) use ($searchQuery) {
+                        ->orWhereHas('server', function ($subQuery) use ($searchQuery): void {
                             $subQuery->whereLike('name', '%'.$searchQuery.'%');
                         });
                 });

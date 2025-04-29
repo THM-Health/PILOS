@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -23,11 +24,6 @@ class RoomStreaming extends Model
         'pause_image',
     ];
 
-    protected $casts = [
-        'enabled' => 'boolean',
-        'enabled_for_current_meeting' => 'boolean',
-    ];
-
     protected $with = ['room'];
 
     public function room(): BelongsTo
@@ -35,9 +31,16 @@ class RoomStreaming extends Model
         return $this->belongsTo(Room::class, 'room_id', 'id');
     }
 
-    // Override enabled attribute value to respect global streaming setting
-    public function getEnabledAttribute($value): bool
+    protected function enabled(): Attribute
     {
-        return config('streaming.enabled') && $this->room->roomType->streamingSettings->enabled && $value;
+        return Attribute::make(get: fn ($value) => config('streaming.enabled') && $this->room->roomType->streamingSettings->enabled && $value);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'enabled' => 'boolean',
+            'enabled_for_current_meeting' => 'boolean',
+        ];
     }
 }

@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'restrictions' => explode(',', env('PERMISSION_RESTRICTIONS', '')),
+    'restrictions' => explode(',', (string) env('PERMISSION_RESTRICTIONS', '')),
 ];

@@ -27,11 +27,11 @@ use function Laravel\Prompts\info;
 
 abstract class AbstractProvisioner
 {
-    private string $modelName;
+    private readonly string $modelName;
 
-    public function __construct(private string $model, private array $expectedProperties)
+    public function __construct(private readonly string $model, private readonly array $expectedProperties)
     {
-        $name = (new ReflectionClass($model))->getShortname();
+        $name = new ReflectionClass($model)->getShortname();
         $this->modelName = Str::of($name)->snake()->replace('_', ' ')->value();
     }
 
@@ -64,7 +64,7 @@ abstract class AbstractProvisioner
         foreach ($match as $key => $value) {
             $query = $query->where($key, $value);
         }
-        $query->get()->each(function (object $item) use ($callback) {
+        $query->get()->each(function (object $item) use ($callback): void {
             if ($callback) {
                 $callback($item);
             }
@@ -100,7 +100,7 @@ class ServerProvisioner extends AbstractProvisioner
 
     public function create(object $properties)
     {
-        $this->createWrapper($properties, function ($srv) use ($properties) {
+        $this->createWrapper($properties, function ($srv) use ($properties): void {
             $status = ServerStatus::{strtoupper($properties->status)};
             $srv->name = $properties->name;
             $srv->description = $properties->description;
@@ -132,7 +132,7 @@ class ServerPoolProvisioner extends AbstractProvisioner
 
     public function create(object $properties)
     {
-        $this->createWrapper($properties, function ($pool) use ($properties) {
+        $this->createWrapper($properties, function ($pool) use ($properties): void {
             $servers = Server::whereIn('name', $properties->servers)->get();
             $pool->name = $properties->name;
             $pool->description = $properties->description;
@@ -162,7 +162,7 @@ class RoomTypeProvisioner extends AbstractProvisioner
 
     public function create(object $properties)
     {
-        $this->createWrapper($properties, function ($type) use ($properties) {
+        $this->createWrapper($properties, function ($type) use ($properties): void {
             $type->name = $properties->name;
             $type->description = $properties->description;
             $type->color = $properties->color;
@@ -206,7 +206,7 @@ class RoleProvisioner extends AbstractProvisioner
 
     public function create(object $properties)
     {
-        $this->createWrapper($properties, function ($role) use ($properties) {
+        $this->createWrapper($properties, function ($role) use ($properties): void {
             foreach ($properties->permissions as $group => $perms) {
                 foreach ($perms as $item) {
                     $permName = "$group.$item";
@@ -247,6 +247,7 @@ class UserProvisioner extends AbstractProvisioner
         parent::__construct(User::class, $expectedProperties);
     }
 
+    #[\Override]
     protected function instanceName(object $properties)
     {
         return "$properties->firstname $properties->lastname";
@@ -254,7 +255,7 @@ class UserProvisioner extends AbstractProvisioner
 
     public function create(object $properties)
     {
-        $this->createWrapper($properties, function ($user) use ($properties) {
+        $this->createWrapper($properties, function ($user) use ($properties): void {
             $roles = Role::whereIn('name', $properties->roles)->get();
             $user->firstname = $properties->firstname;
             $user->lastname = $properties->lastname;

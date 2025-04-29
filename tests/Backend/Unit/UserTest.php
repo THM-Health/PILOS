@@ -14,6 +14,7 @@ class UserTest extends TestCase
 
     private $users = [];
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

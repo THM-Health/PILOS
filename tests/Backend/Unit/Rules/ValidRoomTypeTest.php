@@ -43,6 +43,6 @@ class ValidRoomTypeTest extends TestCase
     public function test_message()
     {
         $user = User::factory()->create();
-        $this->assertEquals(__('validation.custom.invalid_room_type'), (new ValidRoomType($user))->message());
+        $this->assertEquals(__('validation.custom.invalid_room_type'), new ValidRoomType($user)->message());
     }
 }

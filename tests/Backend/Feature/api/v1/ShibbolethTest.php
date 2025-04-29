@@ -81,11 +81,12 @@ class ShibbolethTest extends TestCase
     /**
      * Setup resources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         Config::set('services.shibboleth.enabled', true);
-        Config::set('services.shibboleth.mapping', json_decode($this->mapping));
+        Config::set('services.shibboleth.mapping', json_decode((string) $this->mapping));
         Config::set('app.enabled_locales', ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]]);
 
         Role::factory()->create(['name' => 'admin']);

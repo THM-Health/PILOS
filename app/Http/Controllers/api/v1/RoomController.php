@@ -54,7 +54,7 @@ class RoomController extends Controller
             if ($request->filter_all && Auth::user()->can('viewAll', Room::class)) {
                 $collection = Room::query();
             } else {
-                $collection = Room::where(function (Builder $query) use ($request) {
+                $collection = Room::where(function (Builder $query) use ($request): void {
                     // own rooms
                     if ($request->filter_own) {
                         $query->orWhere('user_id', '=', Auth::user()->id);
@@ -69,7 +69,7 @@ class RoomController extends Controller
 
                     // all rooms that are public
                     if ($request->filter_public) {
-                        $query->orWhere(function (Builder $subQuery) {
+                        $query->orWhere(function (Builder $subQuery): void {
                             $roomTypesWithListingEnforced = RoomType::where('visibility_enforced', true)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
                             $roomTypesWithNoListingEnforced = RoomType::where('visibility_enforced', true)->where('visibility_default', RoomVisibility::PRIVATE)->get('id');
                             $roomTypesWithListingDefault = RoomType::where('visibility_enforced', false)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
@@ -77,13 +77,13 @@ class RoomController extends Controller
                                 // Room has a room type where the visibility public is enforced
                                 ->whereIn('room_type_id', $roomTypesWithListingEnforced)
                                 // Room where expert mode is deactivated where the visibility public is the default value
-                                ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithListingDefault) {
+                                ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithListingDefault): void {
                                     $subSubQuery
                                         ->where('expert_mode', false)
                                         ->whereIn('room_type_id', $roomTypesWithListingDefault);
                                 })
                                 // Room where expert mode is activated and visibility is set to public
-                                ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithNoListingEnforced) {
+                                ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithNoListingEnforced): void {
                                     $subSubQuery
                                         ->where('expert_mode', true)
                                         ->where('visibility', RoomVisibility::PUBLIC)
@@ -123,9 +123,9 @@ class RoomController extends Controller
         if ($request->has('search') && trim($request->search) != '') {
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
-                $collection = $collection->where(function ($query) use ($searchQuery) {
+                $collection = $collection->where(function ($query) use ($searchQuery): void {
                     $query->whereLike('rooms.name', '%'.$searchQuery.'%')
-                        ->orWhereHas('owner', function ($query2) use ($searchQuery) {
+                        ->orWhereHas('owner', function ($query2) use ($searchQuery): void {
                             $query2->whereLike('users.firstname', '%'.$searchQuery.'%')
                                 ->orWhereLike('users.lastname', '%'.$searchQuery.'%');
                         });
@@ -195,7 +195,7 @@ class RoomController extends Controller
      */
     public function show(Room $room, RoomAuthService $roomAuthService)
     {
-        return (new \App\Http\Resources\Room($room))->withDetails();
+        return new \App\Http\Resources\Room($room)->withDetails();
     }
 
     /**
@@ -416,7 +416,7 @@ class RoomController extends Controller
             }
 
             return response()->noContent();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             DB::rollBack();
             Log::error('Failed to transfer ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
 

@@ -6,15 +6,7 @@ use App\Models\VerifyEmail;
 
 class NewVerifyEmailToken
 {
-    private VerifyEmail $verifyEmail;
-
-    private string $plainTextToken;
-
-    public function __construct(VerifyEmail $verifyEmail, string $plainTextToken)
-    {
-        $this->verifyEmail = $verifyEmail;
-        $this->plainTextToken = $plainTextToken;
-    }
+    public function __construct(private readonly VerifyEmail $verifyEmail, private readonly string $plainTextToken) {}
 
     public function getVerifyEmail(): VerifyEmail
     {

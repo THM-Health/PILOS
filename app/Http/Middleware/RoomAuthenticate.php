@@ -12,12 +12,7 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class RoomAuthenticate
 {
-    protected RoomAuthService $roomAuthService;
-
-    public function __construct(RoomAuthService $roomAuthService)
-    {
-        $this->roomAuthService = $roomAuthService;
-    }
+    public function __construct(protected RoomAuthService $roomAuthService) {}
 
     /**
      * Handle requests to room routes and determine room unauthenticated status

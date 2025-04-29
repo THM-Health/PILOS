@@ -39,12 +39,12 @@ class ProcessRecordingTest extends TestCase
 
         copy(base_path('tests/Backend/Fixtures/Recordings/invalid-recording.tar'), Storage::disk('recordings-spool')->path('invalid-recording.tar'));
 
-        $job = (new ProcessRecording('invalid-recording.tar'))->withFakeQueueInteractions();
+        $job = new ProcessRecording('invalid-recording.tar')->withFakeQueueInteractions();
 
         $failed = false;
         try {
             $job->handle();
-        } catch (RecordingExtractionFailed $e) {
+        } catch (RecordingExtractionFailed) {
             $failed = true;
         }
 
@@ -68,7 +68,7 @@ class ProcessRecordingTest extends TestCase
         $this->assertCount(1, Storage::disk('recordings-spool')->files(''));
         $this->assertCount(0, Storage::disk('recordings-spool')->files('failed'));
 
-        $job = (new ProcessRecording('notes.tar'))->withFakeQueueInteractions();
+        $job = new ProcessRecording('notes.tar')->withFakeQueueInteractions();
 
         $job->handle();
 
@@ -93,7 +93,7 @@ class ProcessRecordingTest extends TestCase
         Log::swap(new LogFake);
         Queue::fake();
 
-        $job = (new ProcessRecording('notes.tar'))->withFakeQueueInteractions();
+        $job = new ProcessRecording('notes.tar')->withFakeQueueInteractions();
 
         $job->handle();
 
@@ -122,7 +122,7 @@ class ProcessRecordingTest extends TestCase
         $this->assertCount(1, Storage::disk('recordings-spool')->files('failed'));
         $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
 
-        $job = (new ProcessRecording('notes.tar'))->withFakeQueueInteractions();
+        $job = new ProcessRecording('notes.tar')->withFakeQueueInteractions();
 
         $job->handle();
 
@@ -149,7 +149,7 @@ class ProcessRecordingTest extends TestCase
 
         $this->assertCount(1, Storage::disk('recordings-spool')->files(''));
 
-        $job = (new ProcessRecording('notes.tar'))->withFakeQueueInteractions();
+        $job = new ProcessRecording('notes.tar')->withFakeQueueInteractions();
 
         $job->handle();
 
@@ -194,7 +194,7 @@ class ProcessRecordingTest extends TestCase
 
         $this->assertCount(1, Storage::disk('recordings-spool')->files(''));
 
-        $job = (new ProcessRecording('multiple.tar'))->withFakeQueueInteractions();
+        $job = new ProcessRecording('multiple.tar')->withFakeQueueInteractions();
 
         $job->handle();
 

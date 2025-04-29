@@ -12,6 +12,7 @@ class LocalProvider extends EloquentUserProvider implements UserProvider
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
+    #[\Override]
     public function retrieveByCredentials(array $credentials)
     {
         $email = $credentials['email'] ?? null;

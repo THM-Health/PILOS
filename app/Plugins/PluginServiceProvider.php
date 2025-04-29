@@ -11,13 +11,14 @@ class PluginServiceProvider extends ServiceProvider
     /**
      * Register services.
      */
+    #[\Override]
     public function register(): void
     {
         $contracts = config('plugins.contracts');
 
         foreach ($contracts as $contract) {
 
-            $this->app->bind($contract, function (Application $app) use ($contract) {
+            $this->app->bind($contract, function (Application $app) use ($contract): object {
                 $reflect = new ReflectionClass($contract);
                 $contractName = $reflect->getShortName();
 

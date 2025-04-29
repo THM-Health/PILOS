@@ -20,6 +20,7 @@ class UpdateRoomStreamingConfig extends FormRequest
         ];
     }
 
+    #[\Override]
     public function attributes()
     {
         return [
@@ -28,6 +29,7 @@ class UpdateRoomStreamingConfig extends FormRequest
         ];
     }
 
+    #[\Override]
     public function messages()
     {
         return [

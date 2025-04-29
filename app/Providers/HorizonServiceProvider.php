@@ -11,6 +11,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     /**
      * Bootstrap any application services.
      */
+    #[\Override]
     public function boot(): void
     {
         parent::boot();
@@ -21,10 +22,9 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      *
      * This gate determines who can access Horizon in non-local environments.
      */
+    #[\Override]
     protected function gate(): void
     {
-        Gate::define('viewHorizon', function ($user) {
-            return $user->can('system.monitor');
-        });
+        Gate::define('viewHorizon', fn ($user) => $user->can('system.monitor'));
     }
 }

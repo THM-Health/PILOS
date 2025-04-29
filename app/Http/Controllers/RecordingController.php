@@ -51,14 +51,10 @@ class RecordingController extends Controller
 
         // Get all files in the recording directory, remove the root folder and filter the files by the whitelist
         $files = Collection::make(Storage::disk('recordings')->allFiles($recording->id))
-            ->map(function (string $filename) use ($recording) {
-                return explode($recording->id.'/', $filename, 2)[1];
-            })
-            ->filter(function (string $filename) {
-                return preg_match('/'.config('recording.download_allowlist').'/', $filename);
-            });
+            ->map(fn (string $filename) => explode($recording->id.'/', $filename, 2)[1])
+            ->filter(fn (string $filename) => preg_match('/'.config('recording.download_allowlist').'/', $filename));
 
-        $response = new StreamedResponse(function () use ($recording, $files) {
+        $response = new StreamedResponse(function () use ($recording, $files): void {
             // create a new zip stream
             $zip = new ZipStream(
                 outputName: __('rooms.recordings.filename').'_'.$recording->start->format('Y-m-d').'.zip',

@@ -12,10 +12,9 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
      *
      * @return void
      */
+    #[\Override]
     protected function registerLoader()
     {
-        $this->app->singleton('translation.loader', function ($app) {
-            return new FileLoader($app['files'], [config('app.default_locale_dir'), config('app.custom_locale_dir')]);
-        });
+        $this->app->singleton('translation.loader', fn ($app) => new FileLoader($app['files'], [config('app.default_locale_dir'), config('app.custom_locale_dir')]));
     }
 }

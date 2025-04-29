@@ -14,7 +14,7 @@ class TransferOwnershipRequest extends FormRequest
     {
         return [
             'user' => ['bail', 'required', 'integer', 'exists:App\Models\User,id',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail): void {
                     $user = User::find($value);
                     // make sure that the given user is not the current owner of the room
                     if ($this->room->owner->is($user)) {

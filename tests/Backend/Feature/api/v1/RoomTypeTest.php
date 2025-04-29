@@ -29,6 +29,7 @@ class RoomTypeTest extends TestCase
     /**
      * Setup ressources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -171,16 +172,6 @@ class RoomTypeTest extends TestCase
                     'features' => [
                         'streaming' => [
                             'enabled' => true,
-                        ],
-                    ],
-                ],
-                [
-                    'id' => $roomTypePublicEnforced->id,
-                    'name' => $roomTypePublicEnforced->name,
-                    'color' => $roomTypePublicEnforced->color,
-                    'features' => [
-                        'streaming' => [
-                            'enabled' => false,
                         ],
                     ],
                 ]

@@ -10,12 +10,6 @@ class RoomFile extends Model
 {
     use HasFactory;
 
-    protected $casts = [
-        'default' => 'boolean',
-        'download' => 'boolean',
-        'use_in_meeting' => 'boolean',
-    ];
-
     /**
      * Room file belongs to
      *
@@ -38,6 +32,7 @@ class RoomFile extends Model
      *
      * @throws \Exception
      */
+    #[\Override]
     public function delete()
     {
         $response = parent::delete();
@@ -47,5 +42,14 @@ class RoomFile extends Model
         }
 
         return $response;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'default' => 'boolean',
+            'download' => 'boolean',
+            'use_in_meeting' => 'boolean',
+        ];
     }
 }

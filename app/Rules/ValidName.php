@@ -24,11 +24,11 @@ class ValidName implements Rule
      */
     public function passes($attribute, $value)
     {
-        if (preg_match('/^['.config('bigbluebutton.allowed_name_characters').']+$/u', $value)) {
+        if (preg_match('/^['.config('bigbluebutton.allowed_name_characters').']+$/u', (string) $value)) {
             return true;
         }
         $this->attribute = $attribute;
-        $this->failedChars = array_unique(str_split(preg_replace('/['.config('bigbluebutton.allowed_name_characters').']+/u', '', $value)));
+        $this->failedChars = array_unique(str_split((string) preg_replace('/['.config('bigbluebutton.allowed_name_characters').']+/u', '', (string) $value)));
 
         return false;
     }

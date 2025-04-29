@@ -214,7 +214,7 @@ abstract class ExternalUser
 
         // Loop through all values and try to match the regex and save the result
         foreach ($values as $value) {
-            $matches[] = preg_match($rule->regex, $value);
+            $matches[] = preg_match($rule->regex, (string) $value);
         }
 
         // Check if regex has to (not) match with all array entries

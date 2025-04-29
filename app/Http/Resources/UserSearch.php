@@ -23,6 +23,7 @@ class UserSearch extends JsonResource
      * @param  Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         return [

@@ -19,7 +19,7 @@ class LocaleServiceTest extends TestCase
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
 
-        $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
+        $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock): void {
             $mock->shouldReceive('buildJsonLocale')
                 ->once()
                 ->with('de')
@@ -58,7 +58,7 @@ class LocaleServiceTest extends TestCase
         ]);
 
         // Mock the result of building the locale for the german locale
-        $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
+        $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock): void {
             $mock->shouldReceive('buildJsonLocale')
                 ->once()
                 ->with('de')

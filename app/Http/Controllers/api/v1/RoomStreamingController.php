@@ -61,7 +61,7 @@ class RoomStreamingController extends Controller
                 }
                 throw new \Exception('Error connecting to streaming service');
             });
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // Ignore all exceptions (meeting not running, and streaming service connection error) in the status call
         }
 

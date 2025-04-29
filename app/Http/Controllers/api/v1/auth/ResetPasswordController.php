@@ -43,7 +43,7 @@ class ResetPasswordController extends Controller
         $response = $this->broker($initial_password_set ? 'new_users' : 'users')
             ->reset(
                 array_merge(['authenticator' => 'local'], $this->credentials($request)),
-                function ($user, $password) use ($initial_password_set) {
+                function ($user, $password) use ($initial_password_set): void {
                     $authService = new AuthenticationService($user);
                     $authService->changePassword($password);
                     $this->guard()->login($user);
@@ -66,7 +66,7 @@ class ResetPasswordController extends Controller
      *
      * @param  string  $name
      */
-    public function broker($name): PasswordBroker
+    public function broker($name = null): PasswordBroker
     {
         return PasswordBrokerFacade::broker($name);
     }

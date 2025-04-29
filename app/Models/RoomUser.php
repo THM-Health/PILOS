@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class RoomUser extends Pivot
 {
-    protected $casts = [
-        'role' => RoomUserRole::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'role' => RoomUserRole::class,
+        ];
+    }
 }

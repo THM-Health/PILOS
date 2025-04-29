@@ -21,6 +21,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return \Illuminate\Foundation\Application
      */
+    #[\Override]
     public function createApplication()
     {
         $app = require __DIR__.'/../../bootstrap/app.php';
@@ -46,6 +47,7 @@ abstract class TestCase extends BaseTestCase
 
     public StreamingSettings $streamingSettings;
 
+    #[\Override]
     protected function setUp(): void
     {
         if (! defined('LARAVEL_START')) {
@@ -71,6 +73,7 @@ abstract class TestCase extends BaseTestCase
         $this->streamingSettings = app(StreamingSettings::class);
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         DirectoryEmulator::teardown();

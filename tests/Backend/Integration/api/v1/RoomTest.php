@@ -31,6 +31,7 @@ class RoomTest extends TestCase
     /**
      * Setup ressources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -127,9 +128,9 @@ class RoomTest extends TestCase
         $room1->refresh();
         $room2->refresh();
         $room3->refresh();
-        (new MeetingService($room1->latestMeeting))->end();
-        (new MeetingService($room2->latestMeeting))->end();
-        (new MeetingService($room3->latestMeeting))->end();
+        new MeetingService($room1->latestMeeting)->end();
+        new MeetingService($room2->latestMeeting)->end();
+        new MeetingService($room3->latestMeeting)->end();
     }
 
     /**
@@ -202,8 +203,8 @@ class RoomTest extends TestCase
         // Clear
         $room1->refresh();
         $room2->refresh();
-        (new MeetingService($room1->latestMeeting))->end();
-        (new MeetingService($room2->latestMeeting))->end();
+        new MeetingService($room1->latestMeeting)->end();
+        new MeetingService($room2->latestMeeting)->end();
     }
 
     /**
@@ -254,7 +255,7 @@ class RoomTest extends TestCase
 
         // Clear
         $room->refresh();
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
     }
 
     /**
@@ -340,9 +341,9 @@ class RoomTest extends TestCase
         $room1->refresh();
         $room2->refresh();
         $room3->refresh();
-        (new MeetingService($room1->latestMeeting))->end();
-        (new MeetingService($room2->latestMeeting))->end();
-        (new MeetingService($room3->latestMeeting))->end();
+        new MeetingService($room1->latestMeeting)->end();
+        new MeetingService($room2->latestMeeting)->end();
+        new MeetingService($room3->latestMeeting)->end();
     }
 
     /**
@@ -415,8 +416,8 @@ class RoomTest extends TestCase
         // Clear
         $room1->refresh();
         $room2->refresh();
-        (new MeetingService($room1->latestMeeting))->end();
-        (new MeetingService($room2->latestMeeting))->end();
+        new MeetingService($room1->latestMeeting)->end();
+        new MeetingService($room2->latestMeeting)->end();
     }
 
     /**
@@ -467,7 +468,7 @@ class RoomTest extends TestCase
 
         // Clear
         $room->refresh();
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
     }
 
     /**

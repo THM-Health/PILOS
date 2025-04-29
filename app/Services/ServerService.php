@@ -23,14 +23,11 @@ class ServerService
         return $this->bbb;
     }
 
-    protected Server $server;
-
     protected ServerLoadCalculationPluginContract $loadCalculationPlugin;
 
-    public function __construct(Server $server)
+    public function __construct(protected Server $server)
     {
-        $this->server = $server;
-        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient);
+        $this->bbb = new BigBlueButton($this->server->base_url, $this->server->secret, new LaravelHTTPClient);
         $this->loadCalculationPlugin = app(ServerLoadCalculationPluginContract::class);
     }
 
@@ -53,7 +50,7 @@ class ServerService
             }
 
             return $response->getMeetings();
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // TODO add better error handling when provided by api
             return null;
         }
@@ -73,7 +70,7 @@ class ServerService
             $version = $response->getBbbVersion();
 
             return $version != '' ? $version : null;
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return null;
         }
     }
@@ -147,7 +144,7 @@ class ServerService
             try {
                 $meetingService->end();
                 Log::notice('Ended detached meeting {meeting} for room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 Log::error('Failed to end detached meeting {meeting} for room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
             }
         }
@@ -166,9 +163,9 @@ class ServerService
         $success = 0;
         foreach ($query->get() as $meeting) {
             try {
-                (new MeetingService($meeting))->end();
+                new MeetingService($meeting)->end();
                 $success++;
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 // Connection error, but try to continue
                 // as the server should be marked as offline
             }
@@ -273,7 +270,7 @@ class ServerService
 
             // Update meeting attendance if enabled for this running meeting
             if ($meeting->record_attendance && $updateAttendance) {
-                (new MeetingService($meeting))->updateAttendance($bbbMeeting);
+                new MeetingService($meeting)->updateAttendance($bbbMeeting);
             }
 
             // Save meeting statistics if enabled
@@ -310,7 +307,7 @@ class ServerService
             if ($meeting != null && $meeting->end == null) {
                 Log::warning('Meeting {meeting} for room {room} is not running on the BBB server', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
 
-                (new MeetingService($meeting))->setEnd();
+                new MeetingService($meeting)->setEnd();
             }
         }
 

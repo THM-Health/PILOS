@@ -774,7 +774,7 @@ class UserTest extends TestCase
             }
         );
         $query = [];
-        parse_str(parse_url($verificationUrl, PHP_URL_QUERY), $query);
+        parse_str(parse_url((string) $verificationUrl, PHP_URL_QUERY), $query);
 
         // Try to verify email as unauthenticated user
         Auth::logout();
@@ -822,9 +822,7 @@ class UserTest extends TestCase
         // Check if notification is sent to old email
         Notification::assertSentOnDemand(
             EmailChanged::class,
-            function ($notification, $channels, $notifiable) use ($user, $email) {
-                return $notifiable->routes['mail'] === [$email => $user->fullname];
-            }
+            fn ($notification, $channels, $notifiable) => $notifiable->routes['mail'] === [$email => $user->fullname]
         );
 
         // Try to change email with same email
@@ -888,9 +886,7 @@ class UserTest extends TestCase
         // Check if notification is sent to old email
         Notification::assertSentOnDemand(
             EmailChanged::class,
-            function ($notification, $channels, $notifiable) use ($user, $email) {
-                return $notifiable->routes['mail'] === [$email => $user->fullname];
-            }
+            fn ($notification, $channels, $notifiable) => $notifiable->routes['mail'] === [$email => $user->fullname]
         );
 
         // Check rate limiter does not affect admin

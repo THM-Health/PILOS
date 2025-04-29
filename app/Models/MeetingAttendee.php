@@ -13,11 +13,6 @@ class MeetingAttendee extends Model
      */
     protected $guarded = [];
 
-    protected $casts = [
-        'join' => 'datetime',
-        'leave' => 'datetime',
-    ];
-
     public $timestamps = false;
 
     /**
@@ -38,5 +33,13 @@ class MeetingAttendee extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'join' => 'datetime',
+            'leave' => 'datetime',
+        ];
     }
 }

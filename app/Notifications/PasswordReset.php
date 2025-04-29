@@ -16,27 +16,18 @@ class PasswordReset extends Notification implements ShouldQueue
     use Queueable;
 
     /**
-     * The password reset token.
-     *
-     * @var string
-     */
-    private $token;
-
-    /**
-     * The date when the password will expire.
-     *
-     * @var Carbon
-     */
-    private $expireDate;
-
-    /**
      * Create a new notification instance.
      */
-    public function __construct(string $token, Carbon $expireDate)
-    {
-        $this->token = $token;
-        $this->expireDate = $expireDate;
-    }
+    public function __construct(
+        /**
+         * The password reset token.
+         */
+        private string $token,
+        /**
+         * The date when the password will expire.
+         */
+        private Carbon $expireDate
+    ) {}
 
     /**
      * Get the notification's delivery channels.

@@ -37,7 +37,7 @@ class CleanupRecordingsCommand extends Command
         if ($retentionPeriod != TimePeriod::UNLIMITED) {
             $day = now()->subDays($retentionPeriod->value)->toDateString();
             Log::info('Removing recordings data older than '.$day);
-            Recording::where('start', '<', $day)->get()->each(function ($recording) {
+            Recording::where('start', '<', $day)->get()->each(function ($recording): void {
                 $recording->delete();
             });
         }

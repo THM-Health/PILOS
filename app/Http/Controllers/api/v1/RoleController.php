@@ -82,7 +82,7 @@ class RoleController extends Controller
 
         $role->permissions()->sync($new_permissions);
 
-        return (new RoleResource($role))->withPermissions();
+        return new RoleResource($role)->withPermissions();
     }
 
     /**
@@ -92,7 +92,7 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
-        return (new RoleResource($role))->withPermissions();
+        return new RoleResource($role)->withPermissions();
     }
 
     /**
@@ -133,7 +133,7 @@ class RoleController extends Controller
         $role->name = $request->name;
         $role->save();
 
-        return (new RoleResource($role))->withPermissions();
+        return new RoleResource($role)->withPermissions();
     }
 
     /**

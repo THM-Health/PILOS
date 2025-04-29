@@ -20,6 +20,7 @@ class ProvisioningServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -449,7 +450,7 @@ class ProvisioningServiceTest extends TestCase
         $this->svc->user->create($this->testUser);
         $user = User::where('firstname', $this->testUser->firstname)->where('lastname', $this->testUser->lastname)->first();
         $this->assertEquals($this->testUser->email, $user->email);
-        $this->assertTrue(str_starts_with($user->password, '$2y$04$'));
+        $this->assertTrue(str_starts_with((string) $user->password, '$2y$04$'));
         $this->assertEquals($this->testUser->authenticator, $user->authenticator);
         $this->assertEquals($this->testUser->locale, $user->locale);
         $this->assertEquals($this->testUser->timezone, $user->timezone);

@@ -10,6 +10,7 @@ class LDAPUserObject extends Model
     /**
      * The "booting" method of the model.
      */
+    #[\Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -27,6 +28,7 @@ class LDAPUserObject extends Model
     /**
      * Get a new query for builder filtered by the current models object classes.
      */
+    #[\Override]
     public function newQuery(): Builder
     {
         $query = $this->registerModelScopes(

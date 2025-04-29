@@ -21,7 +21,7 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return (new Response('Guests only.'))->setStatusCode(420, 'Guests only');
+                return new Response('Guests only.')->setStatusCode(420, 'Guests only');
             }
         }
 

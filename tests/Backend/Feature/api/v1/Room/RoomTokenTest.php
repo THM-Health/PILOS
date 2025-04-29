@@ -24,6 +24,7 @@ class RoomTokenTest extends TestCase
     /**
      * Setup resources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -116,12 +117,12 @@ class RoomTokenTest extends TestCase
         // Check expire date
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
         $token = RoomToken::find($results[0]['token']);
-        self::assertEquals($token->created_at->addDays(90)->toISOString(), $results[0]['expires']);
+        $this->assertEquals($token->created_at->addDays(90)->toISOString(), $results[0]['expires']);
 
         $this->roomSettings->token_expiration = TimePeriod::UNLIMITED;
         $this->roomSettings->save();
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
-        self::assertNull($results[0]['expires']);
+        $this->assertNull($results[0]['expires']);
 
         // Check default sorting / fallback (firstname asc)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))

@@ -27,9 +27,7 @@ class LoadBalancingService
             ->where('recover_count', '>=', config('bigbluebutton.server_online_threshold'))
             ->where('error_count', '=', 0)
             ->whereNotNull('load')
-            ->sortBy(function (Server $server) {
-                return $server->load / $server->strength;
-            })
+            ->sortBy(fn (Server $server) => $server->load / $server->strength)
             ->first();
     }
 }

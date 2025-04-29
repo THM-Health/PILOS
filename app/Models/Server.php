@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,27 +17,15 @@ class Server extends Model
 {
     use AddsModelNameTrait, HasFactory;
 
-    protected $casts = [
-        'strength' => 'integer',
-        'status' => ServerStatus::class,
-        'participant_count' => 'integer',
-        'listener_count' => 'integer',
-        'voice_participant_count' => 'integer',
-        'video_count' => 'integer',
-        'meeting_count' => 'integer',
-        'error_count' => 'integer',
-        'recover_count' => 'integer',
-        'load' => 'integer',
-    ];
-
     /**
      * The "booted" method of the model.
      *
      * @return void
      */
+    #[\Override]
     protected static function booted()
     {
-        static::updating(function (self $model) {
+        static::updating(function (self $model): void {
 
             /**
              * If status is changed and new status is disabled, reset live usage data
@@ -51,7 +41,7 @@ class Server extends Model
                 }
             }
         });
-        static::updated(function (self $model) {
+        static::updated(function (self $model): void {
             // Check if server is failing (error count increased or recover count decreased)
             if ($model->error_count > $model->getOriginal('error_count') || $model->recover_count < $model->getOriginal('recover_count')) {
                 \Log::error('Server {server} failing', [
@@ -137,11 +127,11 @@ class Server extends Model
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $name  Name to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    #[Scope]
+    protected function withName(Builder $query, $name)
     {
-        return $query->whereLike('name', '%'.$name.'%');
+        $query->whereLike('name', '%'.$name.'%');
     }
 
     public function getLogLabel()
@@ -149,13 +139,15 @@ class Server extends Model
         return $this->name.' ('.$this->id.')';
     }
 
-    public function getHealthAttribute(): ?ServerHealth
+    protected function health(): Attribute
     {
-        if ($this->status == ServerStatus::DISABLED) {
-            return null;
-        }
+        return Attribute::make(get: function () {
+            if ($this->status == ServerStatus::DISABLED) {
+                return null;
+            }
 
-        return self::calcHealth($this->recover_count, $this->error_count);
+            return self::calcHealth($this->recover_count, $this->error_count);
+        })->withoutObjectCaching();
     }
 
     private static function calcHealth(int $recover_count, int $error_count): ServerHealth
@@ -168,5 +160,21 @@ class Server extends Model
         }
 
         return ServerHealth::UNHEALTHY;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'strength' => 'integer',
+            'status' => ServerStatus::class,
+            'participant_count' => 'integer',
+            'listener_count' => 'integer',
+            'voice_participant_count' => 'integer',
+            'video_count' => 'integer',
+            'meeting_count' => 'integer',
+            'error_count' => 'integer',
+            'recover_count' => 'integer',
+            'load' => 'integer',
+        ];
     }
 }

@@ -18,26 +18,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class AttendanceExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
 {
     /**
-     * @var Meeting Meeting the attendance should be exported for
-     */
-    private $meeting;
-
-    /**
-     * @var string Timezone the datetimes should be shown in
-     */
-    private $timezone;
-
-    /**
      * AttendanceExport constructor.
      *
      * @param  Meeting  $meeting  Meeting the attendance should be exported for
      * @param  string  $timezone  Timezone the datetimes should be shown in
      */
-    public function __construct(Meeting $meeting, string $timezone)
-    {
-        $this->meeting = $meeting;
-        $this->timezone = $timezone;
-    }
+    public function __construct(private readonly Meeting $meeting, private readonly string $timezone) {}
 
     /**
      * Collection of the data to export into the excel file
@@ -46,7 +32,7 @@ class AttendanceExport implements FromCollection, ShouldAutoSize, WithHeadings, 
      */
     public function collection()
     {
-        return (new MeetingService($this->meeting))->attendance();
+        return new MeetingService($this->meeting)->attendance();
     }
 
     /**

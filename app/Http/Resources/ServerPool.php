@@ -29,6 +29,7 @@ class ServerPool extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         return [
@@ -36,9 +37,7 @@ class ServerPool extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'servers_count' => $this->servers()->count(),
-            'servers' => $this->when($this->withServers, function () {
-                return Server::collection($this->servers);
-            }),
+            'servers' => $this->when($this->withServers, fn () => Server::collection($this->servers)),
             'model_name' => $this->model_name,
             'updated_at' => $this->updated_at,
         ];

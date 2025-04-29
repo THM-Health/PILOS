@@ -17,6 +17,7 @@ class StreamingServiceTest extends TestCase
     /**
      * Setup resources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -147,7 +148,7 @@ class StreamingServiceTest extends TestCase
         $this->assertEquals('rtmp://example.com/live/1234', $request->data()['rtmpUrl']);
         // Validate join url
         $joinUrl = $request->data()['joinUrl'];
-        $joinUrlParsed = parse_url($joinUrl);
+        $joinUrlParsed = parse_url((string) $joinUrl);
         parse_str($joinUrlParsed['query'], $joinUrlParams);
         $this->assertEquals('bbb.example.com', $joinUrlParsed['host']);
         $this->assertEquals('/bigbluebutton/api/join', $joinUrlParsed['path']);
@@ -197,7 +198,7 @@ class StreamingServiceTest extends TestCase
         $request = Http::recorded()->pop()[0];
         // Validate join url
         $joinUrl = $request->data()['joinUrl'];
-        $joinUrlParsed = parse_url($joinUrl);
+        $joinUrlParsed = parse_url((string) $joinUrl);
         parse_str($joinUrlParsed['query'], $joinUrlParams);
         $this->assertEquals('https://example.com/streaming.css', $joinUrlParams['userdata-bbb_custom_style_url']);
         $this->assertEquals('true', $joinUrlParams['userdata-bbb_hide_nav_bar']);
