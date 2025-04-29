@@ -8,7 +8,6 @@ use App\Models\SessionData;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Jumbojett\OpenIDConnectClientException;
 
 class OIDCController extends Controller
 {
@@ -37,18 +36,40 @@ class OIDCController extends Controller
     {
         try {
             $this->oidc->authenticate();
-        } catch (OpenIDConnectClientException $e) {
+
+            $claims = $this->oidc->getVerifiedClaims();
+
+            // Check iat exists, is not an int and is not in the future
+            // @todo: Remove when https://github.com/jumbojett/OpenID-Connect-PHP/pull/476 is merged
+            if (! isset($claims->iat) || ! is_int($claims->iat) || ($claims->iat >= time() + $this->oidc->getLeeway())) {
+                // Invalid Issued At
+                throw new \Exception('Invalid Issued At');
+            }
+
+        } catch (\Exception $e) {
             Log::error($e);
 
-            return redirect('/external_login');
+            return redirect('/external_login?error=openid_connect_exception');
         }
 
         // Create new open-id connect user
         try {
             $user_info = get_object_vars($this->oidc->requestUserInfo());
             $oidc_user = new OIDCUser($user_info);
+
+            // Check subject
+            // @todo: Remove when https://github.com/jumbojett/OpenID-Connect-PHP/pull/478 is merged
+            if (! isset($user_info['sub']) || $user_info['sub'] !== $this->oidc->getIdTokenPayload()->sub) {
+                // Invalid subject in user info response
+                throw new \Exception('Invalid Subject in user info response');
+            }
+
         } catch (MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
+        } catch (\Exception $e) {
+            Log::error($e);
+
+            return redirect('/external_login?error=openid_connect_exception');
         }
 
         // Get eloquent user (existing or new)

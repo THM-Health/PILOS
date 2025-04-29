@@ -21,6 +21,12 @@
                 $t("auth.error.shibboleth_session_duplicate_exception")
               }}</Message
             >
+            <Message
+              v-if="props.error === 'openid_connect_exception'"
+              severity="error"
+              :closable="false"
+              >{{ $t("auth.error.openid_connect_exception") }}</Message
+            >
           </template>
           <template #footer>
             <Button
