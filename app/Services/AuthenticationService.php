@@ -11,12 +11,7 @@ use Illuminate\Support\Str;
 
 class AuthenticationService
 {
-    private User $user;
-
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
+    public function __construct(private readonly User $user) {}
 
     public function sendResetLink(): string
     {

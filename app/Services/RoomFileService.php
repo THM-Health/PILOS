@@ -9,8 +9,6 @@ use Log;
 
 class RoomFileService
 {
-    private RoomFile $file;
-
     private ?int $timeLimit = null;
 
     public function getTimeLimit(): int
@@ -25,10 +23,7 @@ class RoomFileService
         return $this;
     }
 
-    public function __construct(RoomFile $file)
-    {
-        $this->file = $file;
-    }
+    public function __construct(private readonly RoomFile $file) {}
 
     protected function checkFileExists(): bool
     {
@@ -37,7 +32,7 @@ class RoomFileService
             try {
                 Log::error('Room file {file} not found', ['file' => $this->file->getLogLabel()]);
                 $this->file->delete();
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
             }
 
             return false;

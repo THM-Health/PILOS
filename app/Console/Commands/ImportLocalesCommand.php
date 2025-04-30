@@ -88,7 +88,7 @@ class ImportLocalesCommand extends Command
             // Delete all old php locales files
             $localeFiles = $disk->files($lang['code']);
             foreach ($localeFiles as $localeFile) {
-                $path_parts = pathinfo($localeFile);
+                $path_parts = pathinfo((string) $localeFile);
 
                 if ($path_parts['extension'] == 'php') {
                     $disk->delete($localeFile);

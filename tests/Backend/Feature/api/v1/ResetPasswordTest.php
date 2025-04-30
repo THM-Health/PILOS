@@ -16,6 +16,7 @@ class ResetPasswordTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -50,7 +51,7 @@ class ResetPasswordTest extends TestCase
             return true;
         });
         $query = [];
-        parse_str(parse_url($resetUrl, PHP_URL_QUERY), $query);
+        parse_str(parse_url((string) $resetUrl, PHP_URL_QUERY), $query);
 
         $this->postJson(route('api.v1.password.reset'))
             ->assertUnprocessable()

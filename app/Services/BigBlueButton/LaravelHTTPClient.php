@@ -15,7 +15,7 @@ use Log;
 /**
  * Allows to send requests to the BBB server with a Laravel HTTP Client contract implementation.
  */
-final class LaravelHTTPClient implements TransportInterface
+final readonly class LaravelHTTPClient implements TransportInterface
 {
     private PendingRequest $httpClient;
 

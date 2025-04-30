@@ -57,7 +57,7 @@ class LDAPController extends Controller
         try {
             // Run login method from AuthenticatesUsers trait
             return $this->ldapLogin($request);
-        } catch (MissingAttributeException $e) {
+        } catch (MissingAttributeException) {
             // If an attribute is missing during the login process, return error
             return abort(500, __('auth.error.missing_attributes'));
         }

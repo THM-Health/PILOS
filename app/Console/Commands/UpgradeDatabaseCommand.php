@@ -99,9 +99,7 @@ class UpgradeDatabaseCommand extends Command
 
         $this->info('Migrating old application settings');
         $this->info('Overview of old settings:');
-        $this->table(['Key', 'Value'], collect($oldSettings)->map(function ($value, $key) {
-            return [$key, $value];
-        }));
+        $this->table(['Key', 'Value'], collect($oldSettings)->map(fn ($value, $key) => [$key, $value]));
 
         // Apply old settings to new settings
         $generalSettings = app(GeneralSettings::class);

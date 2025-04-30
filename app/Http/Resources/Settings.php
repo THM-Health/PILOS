@@ -22,6 +22,7 @@ class Settings extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         $generalSettings = app(GeneralSettings::class);

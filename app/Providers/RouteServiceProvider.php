@@ -23,11 +23,12 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      */
+    #[\Override]
     public function boot(): void
     {
         $this->configureRateLimiting();
 
-        $this->routes(function () {
+        $this->routes(function (): void {
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
@@ -42,22 +43,14 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting(): void
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(200)->by($request->user()?->id ?: $request->ip());
-        });
+        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(200)->by($request->user()?->id ?: $request->ip()));
 
-        RateLimiter::for('password_reset', function (Request $request) {
-            return Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip());
-        });
+        RateLimiter::for('password_reset', fn (Request $request) => Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip()));
 
-        RateLimiter::for('password_email', function (Request $request) {
-            return Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip());
-        });
+        RateLimiter::for('password_email', fn (Request $request) => Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip()));
 
         // Rate limit verify email requests
-        RateLimiter::for('verify_email', function (Request $request) {
-            return Limit::perMinutes(30, 5)->by($request->user()->id);
-        });
+        RateLimiter::for('verify_email', fn (Request $request) => Limit::perMinutes(30, 5)->by($request->user()->id));
 
         // Rate limit for changes to the current user profile, requiring to current password of the user if the user is editing himself
         // Prevent brute force attacks on the password

@@ -52,6 +52,7 @@ class RoomTest extends TestCase
     /**
      * Setup resources for all tests
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -1303,9 +1304,9 @@ class RoomTest extends TestCase
 
         foreach ($results->json('data') as $room) {
             if ($room['id'] == $roomPrivateExpert1->id) {
-                self::assertNull($room['last_meeting']['end']);
+                $this->assertNull($room['last_meeting']['end']);
             } else {
-                self::assertNull($room['last_meeting']);
+                $this->assertNull($room['last_meeting']);
             }
         }
 
@@ -1552,9 +1553,9 @@ class RoomTest extends TestCase
         $meeting->start = date('Y-m-d H:i:s');
         $meeting->save();
 
-        self::assertNull($meeting->end);
+        $this->assertNull($meeting->end);
 
-        $url = (new MeetingService($meeting))->getCallbackUrl();
+        $url = new MeetingService($meeting)->getCallbackUrl();
 
         // check with invalid salt
         $this->getJson($url.'test')
@@ -1566,7 +1567,7 @@ class RoomTest extends TestCase
 
         // Check if timestamp was set
         $meeting->refresh();
-        self::assertNotNull($meeting->end);
+        $this->assertNotNull($meeting->end);
 
         // Check if RoomEnded Event is called
         Event::assertDispatched(RoomEnded::class);
@@ -1578,7 +1579,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
 
         $meeting->refresh();
-        self::assertEquals($meeting->end, $end);
+        $this->assertEquals($meeting->end, $end);
     }
 
     public function test_settings_access()
@@ -2103,7 +2104,7 @@ class RoomTest extends TestCase
 
         // Check if correct setting values get returned
         $new_settings = $response->json('data');
-        $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings()->withFeatures();
+        $settings['room_type'] = new RoomTypeResource($roomType)->withDefaultRoomSettings()->withFeatures();
         $settings['allow_membership'] = false;
         $settings['everyone_can_start'] = false;
         $settings['lock_settings_disable_cam'] = true;
@@ -2738,7 +2739,7 @@ class RoomTest extends TestCase
         $this->assertNull($room->delete_inactive);
 
         // Clear
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
 
         // Create meeting without agreement to record attendance
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
@@ -2758,7 +2759,7 @@ class RoomTest extends TestCase
 
         // Clear
         $room->refresh();
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
 
         // Room token moderator
         Auth::logout();
@@ -2772,13 +2773,13 @@ class RoomTest extends TestCase
 
         $response = $this->withHeaders(['Token' => $moderatorToken->token])
             ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
-        $url_components = parse_url($response['url']);
+        $url_components = parse_url((string) $response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
 
         // Clear
         $room->refresh();
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
 
         $this->flushHeaders();
 
@@ -2811,13 +2812,13 @@ class RoomTest extends TestCase
 
         $response = $this->withHeaders(['Token' => $userToken->token])
             ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
-        $url_components = parse_url($response['url']);
+        $url_components = parse_url((string) $response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
 
         // Clear
         $room->refresh();
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
 
         $this->flushHeaders();
 
@@ -2825,13 +2826,13 @@ class RoomTest extends TestCase
         $response = $this->withHeaders(['Token' => $userToken->token])
             ->actingAs($this->user)
             ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
-        $url_components = parse_url($response['url']);
+        $url_components = parse_url((string) $response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
 
         // Clear
         $room->refresh();
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
 
         $this->flushHeaders();
 
@@ -3060,7 +3061,7 @@ class RoomTest extends TestCase
                 ->assertStatus(462);
 
             $lock->release();
-        } catch (LockTimeoutException $e) {
+        } catch (LockTimeoutException) {
             $this->fail('lock did not work');
         }
     }
@@ -3241,7 +3242,7 @@ class RoomTest extends TestCase
         $response = $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['name' => $this->faker->name, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('false', $queryParams['userdata-bbb_skip_check_audio']);
 
         $this->flushHeaders();
@@ -3259,7 +3260,7 @@ class RoomTest extends TestCase
         $response = $this->withHeaders(['Token' => $moderatorToken->token])
             ->postJson(route('api.v1.rooms.join', ['room' => $room]), ['name' => 'Max Mustermann', 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
-        $url_components = parse_url($response['url']);
+        $url_components = parse_url((string) $response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
         $this->flushHeaders();
@@ -3275,7 +3276,7 @@ class RoomTest extends TestCase
         $response = $this->withHeaders(['Token' => $userToken->token])
             ->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
-        $url_components = parse_url($response['url']);
+        $url_components = parse_url((string) $response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
         $this->flushHeaders();
@@ -3284,7 +3285,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($this->user)->withHeaders(['Access-Code' => $room->access_code, 'Token' => $userToken->token])
             ->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
-        $url_components = parse_url($response['url']);
+        $url_components = parse_url((string) $response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
         $this->flushHeaders();
@@ -3438,7 +3439,7 @@ class RoomTest extends TestCase
         $response = $this->postJson(route('api.v1.rooms.join', ['room' => $room]), ['name' => $guestName, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('VIEWER', $queryParams['role']);
         $this->assertEquals('true', $queryParams['guest']);
         $this->assertEquals($guestName, $queryParams['fullName']);
@@ -3453,7 +3454,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('VIEWER', $queryParams['role']);
         $this->assertEquals($this->user->fullname, $queryParams['fullName']);
         // Check if avatarURL is set, if profile image exists
@@ -3465,7 +3466,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('MODERATOR', $queryParams['role']);
         // Check if avatarURL empty, if no profile image is set
         $this->assertFalse(isset($queryParams['avatarURL']));
@@ -3475,7 +3476,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('VIEWER', $queryParams['role']);
 
         // Testing member moderator
@@ -3483,7 +3484,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('MODERATOR', $queryParams['role']);
 
         // Testing member co-owner
@@ -3491,7 +3492,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('MODERATOR', $queryParams['role']);
 
         // Reset room membership
@@ -3503,7 +3504,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('VIEWER', $queryParams['role']);
         $this->role->permissions()->detach($this->viewAllPermission);
 
@@ -3513,7 +3514,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
-        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        parse_str(parse_url((string) $response->json('url'))['query'], $queryParams);
         $this->assertEquals('MODERATOR', $queryParams['role']);
         $this->role->permissions()->detach($this->managePermission);
     }

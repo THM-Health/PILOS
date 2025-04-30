@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ class ServerPool extends Model
      *
      * @return void
      */
+    #[\Override]
     protected static function booted()
     {
         static::deleting(function (self $model) {
@@ -53,11 +55,11 @@ class ServerPool extends Model
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $name  Name to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    #[Scope]
+    protected function withName(Builder $query, $name)
     {
-        return $query->whereLike('name', '%'.$name.'%');
+        $query->whereLike('name', '%'.$name.'%');
     }
 
     public function getLogLabel()

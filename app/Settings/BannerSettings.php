@@ -10,21 +10,21 @@ class BannerSettings extends Settings
 {
     public bool $enabled;
 
-    public ?string $message;
+    public ?string $message = null;
 
-    public ?string $link;
+    public ?string $link = null;
 
-    public ?string $icon;
+    public ?string $icon = null;
 
-    public ?string $color;
+    public ?string $color = null;
 
-    public ?string $background;
+    public ?string $background = null;
 
-    public ?string $title;
+    public ?string $title = null;
 
     public LinkButtonStyle $link_style;
 
-    public ?string $link_text;
+    public ?string $link_text = null;
 
     public LinkTarget $link_target;
 

@@ -7,7 +7,9 @@ use App\Settings\RoomSettings;
 use App\Traits\AddsModelNameTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -26,9 +28,10 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return void
      */
+    #[\Override]
     protected static function booted()
     {
-        static::deleting(function ($model) {
+        static::deleting(function ($model): void {
             $model->myRooms->each->delete();
         });
     }
@@ -52,17 +55,6 @@ class User extends Authenticatable implements HasLocalePreference
         'password', 'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'bbb_skip_check_audio' => 'boolean',
-        'initial_password_set' => 'boolean',
-    ];
-
     protected $appends = ['fullname'];
 
     // Cached list of all permissions of the user
@@ -72,9 +64,9 @@ class User extends Authenticatable implements HasLocalePreference
     // Is set to true on any change by the pivot models that control the permissions of the user (RoleUser, PermissionRole, IncludedPermissionPermission)
     public static $clearPermissionCache = false;
 
-    public function getFullnameAttribute()
+    protected function fullname(): Attribute
     {
-        return $this->firstname.' '.$this->lastname;
+        return Attribute::make(get: fn () => $this->firstname.' '.$this->lastname);
     }
 
     public function getLogLabel()
@@ -87,9 +79,9 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return string|null
      */
-    public function getImageUrlAttribute()
+    protected function imageUrl(): Attribute
     {
-        return $this->image != null ? Storage::disk('public')->url($this->image) : null;
+        return Attribute::make(get: fn () => $this->image != null ? Storage::disk('public')->url($this->image) : null);
     }
 
     /**
@@ -128,22 +120,20 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return int limit of rooms of this user: -1: unlimited, 0: zero rooms, 1: one room, 2: two rooms ...
      */
-    public function getRoomLimitAttribute()
+    protected function roomLimit(): Attribute
     {
-        $globalRoomLimit = app(RoomSettings::class)->limit;
+        return Attribute::make(get: function () {
+            $globalRoomLimit = app(RoomSettings::class)->limit;
+            $role_limits = $this->roles()->pluck('room_limit');
+            $role_limits->transform(fn ($item, $key) => $item ?? $globalRoomLimit);
+            // check if any role has unlimited rooms, if yes set to unlimited
+            if ($role_limits->contains(-1)) {
+                return -1;
+            }
 
-        $role_limits = $this->roles()->pluck('room_limit');
-        $role_limits->transform(function ($item, $key) use ($globalRoomLimit) {
-            return $item !== null ? $item : $globalRoomLimit;
+            // return highest room limit
+            return (int) $role_limits->max();
         });
-
-        // check if any role has unlimited rooms, if yes set to unlimited
-        if ($role_limits->contains(-1)) {
-            return -1;
-        }
-
-        // return highest room limit
-        return (int) $role_limits->max();
     }
 
     /**
@@ -173,11 +163,11 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $firstname  Firstname to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithFirstName(Builder $query, $firstname)
+    #[Scope]
+    protected function withFirstName(Builder $query, $firstname)
     {
-        return $query->whereLike('firstname', '%'.$firstname.'%');
+        $query->whereLike('firstname', '%'.$firstname.'%');
     }
 
     /**
@@ -185,11 +175,11 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  int  $role  Role the user has
-     * @return Builder The scoped query
      */
-    public function scopeWithRole(Builder $query, $role)
+    #[Scope]
+    protected function withRole(Builder $query, $role)
     {
-        return $query->join('role_user', 'role_user.user_id', '=', 'users.id')->where('role_user.role_id', $role);
+        $query->join('role_user', 'role_user.user_id', '=', 'users.id')->where('role_user.role_id', $role);
     }
 
     /**
@@ -197,11 +187,11 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $lastname  Lastname to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithLastName(Builder $query, $lastname)
+    #[Scope]
+    protected function withLastName(Builder $query, $lastname)
     {
-        return $query->whereLike('lastname', '%'.$lastname.'%');
+        $query->whereLike('lastname', '%'.$lastname.'%');
     }
 
     /**
@@ -209,11 +199,11 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $email  Email to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithEmail(Builder $query, $email)
+    #[Scope]
+    protected function withEmail(Builder $query, $email)
     {
-        return $query->whereLike('email', '%'.$email.'%');
+        $query->whereLike('email', '%'.$email.'%');
     }
 
     /**
@@ -224,16 +214,16 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $name  Name to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    #[Scope]
+    protected function withName(Builder $query, $name)
     {
-        $name = preg_replace('/\s\s+/', ' ', $name);
-        $splittedName = explode(' ', $name);
+        $name = preg_replace('/\s\s+/', ' ', (string) $name);
+        $splittedName = explode(' ', (string) $name);
 
-        return $query->where(function (Builder $query) use ($splittedName) {
+        $query->where(function (Builder $query) use ($splittedName): void {
             foreach ($splittedName as $name) {
-                $query->where(function (Builder $query) use ($name) {
+                $query->where(function (Builder $query) use ($name): void {
                     $query->withFirstName($name)->orWhere->withLastName($name)->orWhere->withEmail($name);
                 });
             }
@@ -255,27 +245,28 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return string[]
      */
-    public function getPermissionsAttribute()
+    protected function permissions(): Attribute
     {
-        $permissions = [];
+        return Attribute::make(get: function () {
+            $permissions = [];
+            DB::table('permissions')
+                ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
+                ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
+                ->leftJoin('included_permissions', 'permissions.id', '=', 'included_permissions.permission_id')
+                ->leftJoin('permissions as permissions2', 'permissions2.id', '=', 'included_permissions.included_permission_id')
+                ->where('role_user.user_id', '=', $this->id)
+                ->get(['permissions.name', 'permissions2.name as included_permission_name'])
+                ->each(function ($item) use (&$permissions): void {
+                    if ($item->included_permission_name != null) {
+                        array_push($permissions, $item->included_permission_name);
+                    }
 
-        DB::table('permissions')
-            ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
-            ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
-            ->leftJoin('included_permissions', 'permissions.id', '=', 'included_permissions.permission_id')
-            ->leftJoin('permissions as permissions2', 'permissions2.id', '=', 'included_permissions.included_permission_id')
-            ->where('role_user.user_id', '=', $this->id)
-            ->get(['permissions.name', 'permissions2.name as included_permission_name'])
-            ->each(function ($item) use (&$permissions) {
-                if ($item->included_permission_name != null) {
-                    array_push($permissions, $item->included_permission_name);
-                }
+                    array_push($permissions, $item->name);
+                });
 
-                array_push($permissions, $item->name);
-            });
-
-        // remove duplicates; array_keys(array_flip( is much faster than array_unique (see https://dev.to/devmount/4-php-tricks-to-boost-script-performance-ol1)
-        return array_keys(array_flip($permissions));
+            // remove duplicates; array_keys(array_flip( is much faster than array_unique (see https://dev.to/devmount/4-php-tricks-to-boost-script-performance-ol1)
+            return array_keys(array_flip($permissions));
+        });
     }
 
     /**
@@ -289,7 +280,7 @@ class User extends Authenticatable implements HasLocalePreference
         // Check if the permission cache is not set or if it should be cleared
         if ($this->permissionsCache == null || self::$clearPermissionCache) {
             // Build permission cache
-            $this->permissionsCache = $this->getPermissionsAttribute();
+            $this->permissionsCache = $this->permissions;
 
             self::$clearPermissionCache = false;
         }
@@ -331,8 +322,20 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * @return bool
      */
-    public function getSuperuserAttribute()
+    protected function superuser(): Attribute
     {
-        return $this->roles->where('superuser', true)->isNotEmpty();
+        return Attribute::make(get: fn () => $this->roles->where('superuser', true)->isNotEmpty());
+    }
+
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'bbb_skip_check_audio' => 'boolean',
+            'initial_password_set' => 'boolean',
+        ];
     }
 }

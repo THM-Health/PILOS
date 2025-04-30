@@ -13,6 +13,7 @@ class RolesAndPermissionsSeederTest extends TestCase
 {
     use RefreshDatabase,WithFaker;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

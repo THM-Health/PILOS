@@ -88,11 +88,12 @@ class LdapLoginTest extends TestCase
     /**
      * @see TestCase::setUp()
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         Config::set('ldap.enabled', true);
-        Config::set('ldap.mapping', json_decode($this->ldapMapping));
+        Config::set('ldap.mapping', json_decode((string) $this->ldapMapping));
 
         Container::getConnection('default')->getConfiguration()->set('use_tls', false);
         Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
@@ -246,7 +247,7 @@ class LdapLoginTest extends TestCase
      */
     public function test_incomplete_attribute_mapping()
     {
-        $newAttributeConf = json_decode($this->ldapMapping);
+        $newAttributeConf = json_decode((string) $this->ldapMapping);
         unset($newAttributeConf->attributes->first_name);
         Config::set('ldap.mapping', $newAttributeConf);
 
@@ -263,7 +264,7 @@ class LdapLoginTest extends TestCase
      */
     public function test_non_existing_ldap_attribute_mapping()
     {
-        $newAttributeConf = json_decode($this->ldapMapping);
+        $newAttributeConf = json_decode((string) $this->ldapMapping);
         $newAttributeConf->attributes->first_name = 'wrongAttribute';
         Config::set('ldap.mapping', $newAttributeConf);
 
@@ -280,7 +281,7 @@ class LdapLoginTest extends TestCase
      */
     public function test_non_existing_model_attribute_mapping()
     {
-        $newAttributeConf = json_decode($this->ldapMapping);
+        $newAttributeConf = json_decode((string) $this->ldapMapping);
         $newAttributeConf->attributes->new_attribute = 'givenName';
         Config::set('ldap.mapping', $newAttributeConf);
 
@@ -321,7 +322,7 @@ class LdapLoginTest extends TestCase
      */
     public function test_role_mapping_invalid_ldap_attribute()
     {
-        $newAttributeConf = json_decode($this->ldapMapping);
+        $newAttributeConf = json_decode((string) $this->ldapMapping);
         $newAttributeConf->roles[0]->rules[0]->attribute = 'notExistingAttribute';
         Config::set('ldap.mapping', $newAttributeConf);
 
@@ -346,7 +347,7 @@ class LdapLoginTest extends TestCase
      */
     public function test_role_mapping_invalid_roles()
     {
-        $newAttributeConf = json_decode($this->ldapMapping);
+        $newAttributeConf = json_decode((string) $this->ldapMapping);
         $newAttributeConf->roles[0]->name = 'notExistingRole';
         Config::set('ldap.mapping', $newAttributeConf);
 
@@ -371,7 +372,7 @@ class LdapLoginTest extends TestCase
      */
     public function test_empty_role_map()
     {
-        $newAttributeConf = json_decode($this->ldapMapping);
+        $newAttributeConf = json_decode((string) $this->ldapMapping);
         $newAttributeConf->roles = [];
         Config::set('ldap.mapping', $newAttributeConf);
 
@@ -403,9 +404,7 @@ class LdapLoginTest extends TestCase
         $this->assertAuthenticated($this->guard);
         $user = $this->getAuthenticatedUser();
         $user->load('roles');
-        $roleNames = array_map(function ($role) {
-            return $role->name;
-        }, $user->roles->all());
+        $roleNames = array_map(fn ($role) => $role->name, $user->roles->all());
 
         $this->assertCount(2, $roleNames);
         $this->assertContains('admin', $roleNames);
@@ -425,9 +424,7 @@ class LdapLoginTest extends TestCase
         $this->assertAuthenticated($this->guard);
         $this->assertDatabaseCount('role_user', 3);
         $user->load('roles');
-        $roleNames = array_map(function ($role) {
-            return $role->name;
-        }, $user->roles->all());
+        $roleNames = array_map(fn ($role) => $role->name, $user->roles->all());
 
         $this->assertCount(3, $roleNames);
         $this->assertContains('admin', $roleNames);
@@ -448,9 +445,7 @@ class LdapLoginTest extends TestCase
         $this->assertAuthenticated($this->guard);
         $this->assertDatabaseCount('role_user', 2);
         $user->load('roles');
-        $roleNames = array_map(function ($role) {
-            return $role->name;
-        }, $user->roles->all());
+        $roleNames = array_map(fn ($role) => $role->name, $user->roles->all());
 
         $this->assertCount(2, $roleNames);
         $this->assertContains('user', $roleNames);

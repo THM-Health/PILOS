@@ -64,9 +64,9 @@ class ServerServiceTest extends TestCase
         $server->status = 1;
 
         $meetings = $serverService->getMeetings();
-        self::assertCount(2, $meetings);
-        self::assertEquals('409e94ee-e317-4040-8cb2-8000a289b49d', $meetings[0]->getMeetingId());
-        self::assertEquals('216b94ffe-a225-3041-ac62-5000a289b49d', $meetings[1]->getMeetingId());
+        $this->assertCount(2, $meetings);
+        $this->assertEquals('409e94ee-e317-4040-8cb2-8000a289b49d', $meetings[0]->getMeetingId());
+        $this->assertEquals('216b94ffe-a225-3041-ac62-5000a289b49d', $meetings[1]->getMeetingId());
     }
 
     /**
@@ -83,7 +83,7 @@ class ServerServiceTest extends TestCase
 
         $server->status = ServerStatus::ENABLED;
 
-        self::assertNull($serverService->getMeetings());
+        $this->assertNull($serverService->getMeetings());
     }
 
     /**

@@ -25,12 +25,6 @@ class Recording extends Model
      */
     public $incrementing = false;
 
-    protected $casts = [
-        'start' => 'datetime',
-        'end' => 'datetime',
-        'access' => RecordingAccess::class,
-    ];
-
     public function getLogLabel()
     {
         return $this->description.' ['.$this->start->format('Y-m-d H:i').' - '.$this->end->format('Y-m-d H:i').'] ('.$this->id.')';
@@ -73,6 +67,7 @@ class Recording extends Model
      *
      * @throws \Exception
      */
+    #[\Override]
     public function delete()
     {
         $response = parent::delete();
@@ -82,5 +77,14 @@ class Recording extends Model
         }
 
         return $response;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'start' => 'datetime',
+            'end' => 'datetime',
+            'access' => RecordingAccess::class,
+        ];
     }
 }

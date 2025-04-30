@@ -6,11 +6,11 @@ use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
 
 class ServerLoadCalculationPlugin implements ServerLoadCalculationPluginContract
 {
-    private const PARTICIPANT_WEIGHT = 1;
+    private const int PARTICIPANT_WEIGHT = 1;
 
-    private const AUDIO_WEIGHT = 2;
+    private const int AUDIO_WEIGHT = 2;
 
-    private const VIDEO_WEIGHT = 3;
+    private const int VIDEO_WEIGHT = 3;
 
     public function getLoad(array $meetings): int
     {

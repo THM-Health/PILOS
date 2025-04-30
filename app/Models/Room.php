@@ -9,6 +9,7 @@ use App\Exceptions\RoomIdGenerationFailed;
 use App\Services\RoomAuthService;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -29,9 +30,10 @@ class Room extends Model
      *
      * @return void
      */
+    #[\Override]
     protected static function booted()
     {
-        static::creating(function ($model) {
+        static::creating(function ($model): void {
             // if the meeting has no ID yet, create a unique id
             // 36^9 possible room ids ≈ 10^14
 
@@ -53,7 +55,7 @@ class Room extends Model
             }
         });
 
-        static::deleting(function ($model) {
+        static::deleting(function ($model): void {
             $model->files->each->delete();
             $model->recordings->each->delete();
             \Storage::deleteDirectory($model->id);
@@ -394,9 +396,9 @@ class Room extends Model
      * Indicates whether the type of the room is restricted for
      * specific roles and the room owner doesn't has this role.
      */
-    public function getRoomTypeInvalidAttribute(): bool
+    protected function roomTypeInvalid(): Attribute
     {
-        return ! self::roomTypePermitted($this->owner, $this->roomType);
+        return Attribute::make(get: fn () => ! self::roomTypePermitted($this->owner, $this->roomType));
     }
 
     /**

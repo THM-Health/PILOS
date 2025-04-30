@@ -86,7 +86,7 @@ class ServerController extends Controller
      */
     public function show(Server $server)
     {
-        return (new ServerResource($server))->withApi();
+        return new ServerResource($server)->withApi();
     }
 
     /**
@@ -112,7 +112,7 @@ class ServerController extends Controller
 
         $server->save();
 
-        return (new ServerResource($server))->withApi();
+        return new ServerResource($server)->withApi();
     }
 
     /**
@@ -139,7 +139,7 @@ class ServerController extends Controller
 
         $server->save();
 
-        return (new ServerResource($server))->withApi();
+        return new ServerResource($server)->withApi();
     }
 
     /**
@@ -197,7 +197,7 @@ class ServerController extends Controller
                 $connectionOk = true;
                 $secretOk = false;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         return \response()->json(['connection_ok' => $connectionOk, 'secret_ok' => $secretOk]);

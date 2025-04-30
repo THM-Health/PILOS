@@ -32,14 +32,6 @@ class Meeting extends Model
      */
     protected $guarded = [];
 
-    protected $casts = [
-        'start' => 'datetime',
-        'end' => 'datetime',
-        'record_attendance' => 'boolean',
-        'record' => 'boolean',
-        'detached' => 'datetime',
-    ];
-
     /**
      * Generate a new UUID for the model.
      */
@@ -91,5 +83,16 @@ class Meeting extends Model
     public function getLogLabel()
     {
         return $this->id;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'start' => 'datetime',
+            'end' => 'datetime',
+            'record_attendance' => 'boolean',
+            'record' => 'boolean',
+            'detached' => 'datetime',
+        ];
     }
 }

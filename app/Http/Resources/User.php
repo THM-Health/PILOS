@@ -57,6 +57,7 @@ class User extends JsonResource
      * @param  Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         if (is_null($this->resource)) {
@@ -72,15 +73,11 @@ class User extends JsonResource
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
             'user_locale' => $this->locale,
-            'permissions' => $this->when($this->withPermissions, function () {
-                return $this->permissions;
-            }),
+            'permissions' => $this->when($this->withPermissions, fn () => $this->permissions),
             'model_name' => $this->model_name,
             'room_limit' => $this->room_limit,
             'updated_at' => $this->updated_at,
-            'roles' => $this->when(! $this->withoutRoles, function () {
-                return new RoleCollection($this->roles);
-            }),
+            'roles' => $this->when(! $this->withoutRoles, fn () => new RoleCollection($this->roles)),
             'bbb_skip_check_audio' => $this->bbb_skip_check_audio,
             'initial_password_set' => $this->initial_password_set,
             'timezone' => $this->timezone,

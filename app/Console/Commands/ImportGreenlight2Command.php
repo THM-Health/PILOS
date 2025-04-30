@@ -260,7 +260,7 @@ class ImportGreenlight2Command extends Command
         // walk through all found greenlight rooms
         foreach ($rooms as $room) {
             // convert room settings from json string to object
-            $room->room_settings = json_decode($room->room_settings);
+            $room->room_settings = json_decode((string) $room->room_settings);
 
             // check if a room with the same id exists
             $dbRoom = Room::find($room->uid);

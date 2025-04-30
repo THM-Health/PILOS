@@ -12,7 +12,7 @@ class BulkDestroyRequest extends FormRequest
         return [
             'users' => ['required', 'array'],
             'users.*' => ['bail', 'required', 'integer', 'distinct', 'exists:App\Models\User,id',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail): void {
                     $user = User::find($value);
                     if (! $this->room->members()->find($value) or $this->room->owner->is($user)) {
                         $fail(__('validation.custom.room.not_member', ['firstname' => $user->firstname, 'lastname' => $user->lastname]));

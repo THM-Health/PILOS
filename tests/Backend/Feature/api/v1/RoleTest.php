@@ -17,6 +17,7 @@ class RoleTest extends TestCase
 
     public const INVALID_ID = 999999999;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

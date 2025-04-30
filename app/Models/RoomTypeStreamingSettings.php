@@ -19,14 +19,17 @@ class RoomTypeStreamingSettings extends Model
         'default_pause_image',
     ];
 
-    protected $casts = [
-        'enabled' => 'boolean',
-    ];
-
     protected $with = ['roomType'];
 
     public function roomType(): BelongsTo
     {
         return $this->belongsTo(RoomType::class, 'room_type_id', 'id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'enabled' => 'boolean',
+        ];
     }
 }

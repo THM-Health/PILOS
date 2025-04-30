@@ -45,16 +45,10 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
-        $this->app->auth->provider('ldap', function ($app, array $config) {
-            return new LDAPProvider($app['hash'], $config['model']);
-        });
+        $this->app->auth->provider('ldap', fn ($app, array $config) => new LDAPProvider($app['hash'], $config['model']));
 
-        $this->app->auth->provider('local', function ($app, array $config) {
-            return new LocalProvider($app['hash'], $config['model']);
-        });
+        $this->app->auth->provider('local', fn ($app, array $config) => new LocalProvider($app['hash'], $config['model']));
 
-        Gate::define('viewPulse', function (User $user) {
-            return $user->can('system.monitor');
-        });
+        Gate::define('viewPulse', fn (User $user) => $user->can('system.monitor'));
     }
 }

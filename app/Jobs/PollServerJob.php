@@ -15,15 +15,10 @@ class PollServerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected Server $server;
-
     /**
      * Create a new job instance.
      */
-    public function __construct(Server $server)
-    {
-        $this->server = $server;
-    }
+    public function __construct(protected Server $server) {}
 
     /**
      * Execute the job.

@@ -96,9 +96,7 @@ class BigBlueButtonServerFaker
      */
     public function addCreateMeetingRequest()
     {
-        $response = function (Request $request) {
-            return BigBlueButtonServerFaker::createCreateMeetingResponse($request);
-        };
+        $response = (fn (Request $request) => BigBlueButtonServerFaker::createCreateMeetingResponse($request));
 
         $this->requests[] = ['request' => null, 'response' => $response];
     }

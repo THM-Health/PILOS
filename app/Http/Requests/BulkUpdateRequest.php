@@ -15,7 +15,7 @@ class BulkUpdateRequest extends FormRequest
             'role' => ['required', Rule::in([RoomUserRole::USER, RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER])],
             'users' => ['required', 'array'],
             'users.*' => ['required', 'integer', 'distinct', 'exists:App\Models\User,id',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail): void {
                     $user = User::find($value);
                     if (! $this->room->members()->find($value) or $this->room->owner->is($user)) {
                         $fail(__('validation.custom.room.not_member', ['firstname' => $user->firstname, 'lastname' => $user->lastname]));

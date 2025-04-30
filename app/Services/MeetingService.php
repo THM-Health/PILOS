@@ -27,8 +27,6 @@ use ReflectionProperty;
 
 class MeetingService
 {
-    private Meeting $meeting;
-
     private ServerService $serverService;
 
     public function setServerService(ServerService $serverService): self
@@ -38,10 +36,9 @@ class MeetingService
         return $this;
     }
 
-    public function __construct(Meeting $meeting)
+    public function __construct(private readonly Meeting $meeting)
     {
-        $this->meeting = $meeting;
-        $this->serverService = new ServerService($meeting->server);
+        $this->serverService = new ServerService($this->meeting->server);
     }
 
     /**
@@ -106,7 +103,7 @@ class MeetingService
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
-            $meetingParams->addPresentation((new RoomFileService($file))->url(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
+            $meetingParams->addPresentation(new RoomFileService($file)->url(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', (string) $file->filename));
         }
 
         if (empty($meetingParams->getPresentations()) && app(BigBlueButtonSettings::class)->default_presentation) {
@@ -140,7 +137,7 @@ class MeetingService
         try {
             $result = $this->serverService->getBigBlueButton()->createMeeting($meetingParams);
         } // Catch exceptions, e.g. network connection issues
-        catch (\Exception $exception) {
+        catch (\Exception) {
             // Handle failed api call
             $this->serverService->handleApiCallFailed();
 
@@ -255,9 +252,7 @@ class MeetingService
                 // Special handling for disabledFeatures and disabledFeaturesExclude
                 try {
                     if ($parameter == 'disabledFeatures' || $parameter == 'disabledFeaturesExclude') {
-                        $value = array_map(function ($value) {
-                            return Feature::from($value);
-                        }, $value);
+                        $value = array_map(fn ($value) => Feature::from($value), $value);
                     }
                 } catch (\ValueError $e) {
                     Log::warning('Custom create parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
@@ -275,7 +270,7 @@ class MeetingService
                     if ($reflectionClass->isEnum()) {
                         try {
                             $value = $typeName::from($value);
-                        } catch (\ValueError $e) {
+                        } catch (\ValueError) {
                             Log::warning('Custom create parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
 
                             $errors[] = __('validation.custom_parameter_enum', ['parameter' => $parameter]);
@@ -290,7 +285,7 @@ class MeetingService
 
                 // Set the parameter
                 $meetingParams->$setParamMethod($value);
-            } catch (\ReflectionException $e) {
+            } catch (\ReflectionException) {
                 // Log a warning if a parameter cannot be found
                 Log::warning('Custom create parameter {parameter} can not be found', ['parameter' => $parameter]);
 
@@ -410,7 +405,7 @@ class MeetingService
                     if ($reflectionClass->isEnum()) {
                         try {
                             $value = $typeName::from($value);
-                        } catch (\ValueError $e) {
+                        } catch (\ValueError) {
                             Log::warning('Custom join parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
 
                             $errors[] = __('validation.custom_parameter_enum', ['parameter' => $parameter]);
@@ -425,7 +420,7 @@ class MeetingService
 
                 // Set the parameter
                 $meetingParams->$setParamMethod($value);
-            } catch (\ReflectionException $e) {
+            } catch (\ReflectionException) {
                 // Log a warning if a parameter cannot be found
                 Log::warning('Custom join parameter {parameter} can not be found', ['parameter' => $parameter]);
 
@@ -505,9 +500,7 @@ class MeetingService
     {
         // Get collection of all attendees, remove duplicated (user joins twice)
         $collection = collect($bbbMeeting->getAttendees());
-        $uniqueAttendees = $collection->unique(function ($attendee) {
-            return $attendee->getUserId();
-        });
+        $uniqueAttendees = $collection->unique(fn ($attendee) => $attendee->getUserId());
 
         // List of all created and found attendees
         $newAndExistingAttendees = [];
@@ -567,9 +560,7 @@ class MeetingService
         // get all active attendees from database
         $allAttendees = MeetingAttendee::where('meeting_id', $this->meeting->id)->whereNull('leave')->get();
         // remove added or found attendees, to only have attendees left that are no longer active
-        $leftAttendees = $allAttendees->filter(function ($attendee, $key) use ($newAndExistingAttendees) {
-            return ! in_array($attendee->id, $newAndExistingAttendees);
-        });
+        $leftAttendees = $allAttendees->filter(fn ($attendee, $key) => ! in_array($attendee->id, $newAndExistingAttendees));
         // set end time of left attendees to current datetime
         foreach ($leftAttendees as $leftAttendee) {
             $leftAttendee->leave = now();
@@ -615,9 +606,7 @@ class MeetingService
      */
     private function mapAttendanceSessions($sessions): mixed
     {
-        return $sessions->map(function ($session) {
-            return ['id' => $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => (int) $session->join->diffInMinutes($session->leave)];
-        });
+        return $sessions->map(fn ($session) => ['id' => $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => (int) $session->join->diffInMinutes($session->leave)]);
     }
 
     /**

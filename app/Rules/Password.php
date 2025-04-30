@@ -16,7 +16,7 @@ class Password implements Rule
     public function passes($attribute, $value)
     {
         // Password should contain at least 1 uppercase letter, 1 lowercase letter, 1 symbol, 1 number
-        return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $value) !== 0;
+        return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', (string) $value) !== 0;
     }
 
     /**

@@ -34,11 +34,12 @@ class LocalesTest extends TestCase
     /**
      * @see TestCase::setUp()
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         Config::set('ldap.enabled', true);
-        Config::set('ldap.mapping', json_decode($this->ldapMapping));
+        Config::set('ldap.mapping', json_decode((string) $this->ldapMapping));
         $this->withoutMix();
 
         config([
@@ -61,7 +62,7 @@ class LocalesTest extends TestCase
         $response = $this->withHeaders([
             'Accept-Language' => 'foo',
         ])->get('/');
-        $response->assertSee('<html lang="de">', false);
+        $response->assertSeeHtml('<html lang="de">');
     }
 
     /**
@@ -78,11 +79,11 @@ class LocalesTest extends TestCase
         $response = $this->actingAs($user)->withHeaders([
             'Accept-Language' => '',
         ])->get('/');
-        $response->assertSee('<html lang="en">', false);
+        $response->assertSeeHtml('<html lang="en">');
 
         $user->update(['locale' => 'de']);
         $response = $this->actingAs($user)->get('/');
-        $response->assertSee('<html lang="de">', false);
+        $response->assertSeeHtml('<html lang="de">');
     }
 
     /**
@@ -95,7 +96,7 @@ class LocalesTest extends TestCase
         $response = $this->session([
             'locale' => 'de',
         ])->get('/');
-        $response->assertSee('<html lang="de">', false);
+        $response->assertSeeHtml('<html lang="de">');
     }
 
     /**
@@ -111,7 +112,7 @@ class LocalesTest extends TestCase
         ])->withHeaders([
             'Accept-Language' => 'fr',
         ])->get('/');
-        $response->assertSee('<html lang="de">', false);
+        $response->assertSeeHtml('<html lang="de">');
     }
 
     /**
@@ -126,7 +127,7 @@ class LocalesTest extends TestCase
         $response = $this->withHeaders([
             'Accept-Language' => 'de',
         ])->get('/');
-        $response->assertSee('<html lang="de">', false);
+        $response->assertSeeHtml('<html lang="de">');
     }
 
     /**
@@ -146,7 +147,7 @@ class LocalesTest extends TestCase
         ])->withHeaders([
             'Accept-Language' => 'be',
         ])->get('/');
-        $response->assertSee('<html lang="fr">', false);
+        $response->assertSeeHtml('<html lang="fr">');
     }
 
     /**
@@ -161,7 +162,7 @@ class LocalesTest extends TestCase
         $response = $this->withHeaders([
             'Accept-Language' => '',
         ])->get('/');
-        $response->assertSee('<html lang="en">', false);
+        $response->assertSeeHtml('<html lang="en">');
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'us',
@@ -175,7 +176,7 @@ class LocalesTest extends TestCase
         $response->assertOk();
 
         $response = $this->get('/');
-        $response->assertSee('<html lang="fr">', false);
+        $response->assertSeeHtml('<html lang="fr">');
     }
 
     /**
@@ -195,7 +196,7 @@ class LocalesTest extends TestCase
         ])->withHeaders([
             'Accept-Language' => 'be',
         ])->from(config('app.url'))->get('/');
-        $response->assertSee('<html lang="fr">', false);
+        $response->assertSeeHtml('<html lang="fr">');
 
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'de',
@@ -203,7 +204,7 @@ class LocalesTest extends TestCase
         $response->assertOk();
 
         $response = $this->actingAs($user)->from(config('app.url'))->get('/');
-        $response->assertSee('<html lang="de">', false);
+        $response->assertSeeHtml('<html lang="de">');
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'locale' => 'de',

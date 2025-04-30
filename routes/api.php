@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('v1')->name('api.v1.')->group(function () {
+Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::get('locale/{locale}', [LocaleController::class, 'show'])->name('locale.get');
     Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
 
@@ -56,7 +56,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
     Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if_config:auth.local.enabled', 'guest', 'throttle:password_email']);
 
-    Route::middleware('auth:users,ldap')->group(function () {
+    Route::middleware('auth:users,ldap')->group(function (): void {
         Route::get('settings', [SettingsController::class, 'view'])->name('settings.view')->middleware('can:settings.viewAny');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('can:settings.update');
 
@@ -100,18 +100,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class, 'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
 
         // Recording operations
-        Route::middleware('can:manageRecordings,room')->scopeBindings()->group(function () {
+        Route::middleware('can:manageRecordings,room')->scopeBindings()->group(function (): void {
             Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class, 'update'])->name('rooms.recordings.update');
             Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class, 'destroy'])->name('rooms.recordings.destroy');
         });
 
         // Streaming operations
-        Route::middleware('can:viewStreaming,room')->scopeBindings()->group(function () {
+        Route::middleware('can:viewStreaming,room')->scopeBindings()->group(function (): void {
             Route::get('rooms/{room}/streaming/config', [RoomStreamingController::class, 'getConfig'])->name('rooms.streaming.config.get');
             Route::get('rooms/{room}/streaming/status', [RoomStreamingController::class, 'status'])->name('rooms.streaming.status');
         });
 
-        Route::middleware('can:manageStreaming,room')->scopeBindings()->group(function () {
+        Route::middleware('can:manageStreaming,room')->scopeBindings()->group(function (): void {
             Route::put('rooms/{room}/streaming/config', [RoomStreamingController::class, 'updateConfig'])->name('rooms.streaming.config.update');
             Route::post('rooms/{room}/streaming/start', [RoomStreamingController::class, 'start'])->name('rooms.streaming.start');
             Route::post('rooms/{room}/streaming/stop', [RoomStreamingController::class, 'stop'])->name('rooms.streaming.stop');
@@ -126,7 +126,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.destroy')->middleware('can:manageTokens,room');
 
         // File operations
-        Route::middleware('can:manageFiles,room')->scopeBindings()->group(function () {
+        Route::middleware('can:manageFiles,room')->scopeBindings()->group(function (): void {
             Route::post('rooms/{room}/files', [RoomFileController::class, 'store'])->name('rooms.files.add');
             Route::put('rooms/{room}/files/{file}', [RoomFileController::class, 'update'])->name('rooms.files.update');
             Route::delete('rooms/{room}/files/{file}', [RoomFileController::class, 'destroy'])->name('rooms.files.destroy');
@@ -137,7 +137,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         // User profile changes
         // If editing own profile current password is required, this middleware should prevent brute forcing of the current password
-        Route::middleware('throttle:current_password')->group(function () {
+        Route::middleware('throttle:current_password')->group(function (): void {
             Route::put('users/{user}/email', [UserController::class, 'changeEmail'])->name('users.email.change')->middleware('can:updateAttributes,user');
             Route::put('users/{user}/password', [UserController::class, 'changePassword'])->name('users.password.change')->middleware('can:changePassword,user');
         });
@@ -158,14 +158,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
         Route::get('rooms/{room}/meetings', [RoomController::class, 'meetings'])->name('rooms.meetings');
 
-        Route::get('getTimezones', function () {
-            return response()->json(['data' => timezone_identifiers_list()]);
-        });
+        Route::get('getTimezones', fn () => response()->json(['data' => timezone_identifiers_list()]));
     });
 
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
 
-    Route::middleware('room.authenticate')->scopeBindings()->group(function () {
+    Route::middleware('room.authenticate')->scopeBindings()->group(function (): void {
         Route::options('rooms/{room}/start', [RoomController::class, 'getStartRequirements'])->name('rooms.start-requirements')->middleware('can:start,room');
         Route::options('rooms/{room}/join', [RoomController::class, 'getJoinRequirements'])->name('rooms.join-requirements');
 
@@ -182,7 +180,5 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 });
 
 if (! env('DISABLE_CATCHALL_ROUTES')) {
-    Route::any('/{any}', function () {
-        return response()->json(['message' => 'Not found!'], 404);
-    })->where('any', '.*');
+    Route::any('/{any}', fn () => response()->json(['message' => 'Not found!'], 404))->where('any', '.*');
 }

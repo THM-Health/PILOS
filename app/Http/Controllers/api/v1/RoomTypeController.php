@@ -37,7 +37,7 @@ class RoomTypeController extends Controller
             if ($filter === 'own') {
                 // Get list of the room type the current user has access to (Used when creating a new room)
                 $roomTypes = $roomTypes->where('restrict', '=', false)
-                    ->orWhereIn('id', function ($query) {
+                    ->orWhereIn('id', function ($query): void {
                         $query->select('role_room_type.room_type_id')
                             ->from('role_room_type as role_room_type')
                             ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
@@ -51,7 +51,7 @@ class RoomTypeController extends Controller
                 }
 
                 $roomTypes = $roomTypes->where('restrict', '=', false)
-                    ->orWhereIn('id', function ($query) use ($room) {
+                    ->orWhereIn('id', function ($query) use ($room): void {
                         $query->select('role_room_type.room_type_id')
                             ->from('role_room_type as role_room_type')
                             ->whereIn('role_room_type.role_id', $room->owner->roles->pluck('id')->all());
@@ -81,7 +81,7 @@ class RoomTypeController extends Controller
     public function show(RoomType $roomType)
     {
 
-        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
+        return new RoomTypeResource($roomType)->withDetails()->withDefaultRoomSettings();
     }
 
     /**
@@ -115,7 +115,7 @@ class RoomTypeController extends Controller
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
+        return new RoomTypeResource($roomType)->withDetails()->withDefaultRoomSettings();
     }
 
     /**
@@ -150,7 +150,7 @@ class RoomTypeController extends Controller
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
+        return new RoomTypeResource($roomType)->withDetails()->withDefaultRoomSettings();
     }
 
     /**

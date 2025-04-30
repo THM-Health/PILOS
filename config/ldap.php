@@ -52,7 +52,7 @@ return [
 
     'filter' => env('LDAP_FILTER', ''),
 
-    'object_classes' => explode(',', env('LDAP_OBJECT_CLASSES', 'top,person,organizationalperson,inetorgperson')),
+    'object_classes' => explode(',', (string) env('LDAP_OBJECT_CLASSES', 'top,person,organizationalperson,inetorgperson')),
 
     'login_attribute' => env('LDAP_LOGIN_ATTRIBUTE', 'uid'),
 

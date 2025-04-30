@@ -134,6 +134,6 @@ class ShibbolethProvider
 
     public function hashShibbolethSessionId($shibbolethSessionId)
     {
-        return hash('sha256', $shibbolethSessionId);
+        return hash('sha256', (string) $shibbolethSessionId);
     }
 }

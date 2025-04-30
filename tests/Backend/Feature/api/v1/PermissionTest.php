@@ -20,9 +20,7 @@ class PermissionTest extends TestCase
         $this->getJson(route('api.v1.roles.index'))->assertStatus(401);
         $this->actingAs($user)->getJson(route('api.v1.permissions.index'))
             ->assertSuccessful()
-            ->assertJsonFragment(['data' => array_map(function ($permission) {
-                return ['id' => $permission['id'], 'name' => $permission['name'], 'included_permissions' => []];
-            }, $permissions)]);
+            ->assertJsonFragment(['data' => array_map(fn ($permission) => ['id' => $permission['id'], 'name' => $permission['name'], 'included_permissions' => []], $permissions)]);
     }
 
     public function test_included_permissions_index()

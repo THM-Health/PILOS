@@ -13,17 +13,14 @@ class RoleCollection extends ResourceCollection
      * @param  Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
-        return $this->collection->map(function (Role $role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'automatic' => $role->whenPivotLoaded('role_user', function () use ($role) {
-                    return $role->pivot->automatic;
-                }),
-                'superuser' => $role->superuser,
-            ];
-        })->toArray();
+        return $this->collection->map(fn (Role $role) => [
+            'id' => $role->id,
+            'name' => $role->name,
+            'automatic' => $role->whenPivotLoaded('role_user', fn () => $role->pivot->automatic),
+            'superuser' => $role->superuser,
+        ])->toArray();
     }
 }

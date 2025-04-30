@@ -12,15 +12,7 @@ class VerifyEmail extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private NewVerifyEmailToken $token;
-
-    private string $timezone;
-
-    public function __construct(NewVerifyEmailToken $token, string $timezone)
-    {
-        $this->token = $token;
-        $this->timezone = $timezone;
-    }
+    public function __construct(private NewVerifyEmailToken $token, private string $timezone) {}
 
     /**
      * Get the notification's delivery channels.

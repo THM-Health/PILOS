@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,10 +23,6 @@ class Role extends Model
      * @var string[]
      */
     protected $fillable = ['name'];
-
-    protected $casts = [
-        'superuser' => 'boolean',
-    ];
 
     /**
      * Users that have the role.
@@ -75,7 +72,7 @@ class Role extends Model
                 // Split the restriction and permission names into groups and permissions
                 $restrictionGroup = explode('.', $restriction, 2)[0];
                 $restrictionPermission = explode('.', $restriction, 2)[1] ?? null;
-                $permissionGroup = explode('.', $permission->name, 2)[0];
+                $permissionGroup = explode('.', (string) $permission->name, 2)[0];
 
                 // If the restriction applies to all permissions in the group, it is restricted
                 return $restrictionPermission === '*' && $restrictionGroup === $permissionGroup;
@@ -98,15 +95,22 @@ class Role extends Model
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $name  Name to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    #[Scope]
+    protected function withName(Builder $query, $name)
     {
-        return $query->whereLike('name', '%'.$name.'%');
+        $query->whereLike('name', '%'.$name.'%');
     }
 
     public function getLogLabel()
     {
         return $this->name.' ('.$this->id.')';
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'superuser' => 'boolean',
+        ];
     }
 }

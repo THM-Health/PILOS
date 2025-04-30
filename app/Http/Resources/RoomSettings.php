@@ -23,6 +23,7 @@ class RoomSettings extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         return [
@@ -31,7 +32,7 @@ class RoomSettings extends JsonResource
             'welcome' => $this->expert_mode ? $this->welcome : '',
             'short_description' => $this->short_description,
             'access_code' => $this->access_code,
-            'room_type' => (new RoomType($this->roomType))->withDefaultRoomSettings()->withFeatures(),
+            'room_type' => new RoomType($this->roomType)->withDefaultRoomSettings()->withFeatures(),
             $this->merge($this->getRoomSettings()),
         ];
     }

@@ -29,6 +29,7 @@ class Role extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         return [
@@ -36,14 +37,10 @@ class Role extends JsonResource
             'name' => $this->name,
             'superuser' => $this->superuser,
             'updated_at' => $this->updated_at,
-            'permissions' => $this->when($this->withPermissions, function () {
-                return Permission::collection($this->permissions);
-            }),
+            'permissions' => $this->when($this->withPermissions, fn () => Permission::collection($this->permissions)),
             'model_name' => $this->model_name,
             'room_limit' => $this->room_limit,
-            'automatic' => $this->whenPivotLoaded('role_user', function () {
-                return $this->pivot->automatic;
-            }),
+            'automatic' => $this->whenPivotLoaded('role_user', fn () => $this->pivot->automatic),
         ];
     }
 }

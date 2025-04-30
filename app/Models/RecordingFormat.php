@@ -14,10 +14,6 @@ class RecordingFormat extends Model
         'url', 'format',
     ];
 
-    protected $casts = [
-        'disabled' => 'boolean',
-    ];
-
     /**
      * Create a recording format and recording (if it doesn't exist yet) in the database from the metadata of a recording format provided by BigBlueButton.
      *
@@ -95,5 +91,12 @@ class RecordingFormat extends Model
     public function recording()
     {
         return $this->belongsTo(Recording::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'disabled' => 'boolean',
+        ];
     }
 }

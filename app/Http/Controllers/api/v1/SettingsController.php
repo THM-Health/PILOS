@@ -25,9 +25,7 @@ class SettingsController extends Controller
      */
     public function view()
     {
-        $linkStyles = array_filter(LinkButtonStyle::cases(), function ($style) {
-            return ! in_array($style, LinkButtonStyle::getDeprecated());
-        });
+        $linkStyles = array_filter(LinkButtonStyle::cases(), fn ($style) => ! in_array($style, LinkButtonStyle::getDeprecated()));
 
         return (new Settings)->additional([
             'meta' => [

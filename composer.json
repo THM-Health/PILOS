@@ -35,11 +35,13 @@
   "require-dev": {
     "barryvdh/laravel-ide-helper": "^3.0",
     "brianium/paratest": "^7.9",
+    "driftingly/rector-laravel": "^2.0",
     "fakerphp/faker": "^1.9.1",
     "laravel/pint": "^1.14",
     "mockery/mockery": "^1.4.2",
     "php-coveralls/php-coveralls": "^2.3.0",
     "phpunit/phpunit": "^12.1",
+    "rector/rector": "^2.0",
     "timacdonald/log-fake": "^2.0.1"
   },
   "config": {
@@ -92,6 +94,7 @@
     "test": "php artisan test --parallel",
     "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
     "test-integration": "php artisan test --parallel --testsuite=Integration",
-    "fix-cs": "pint"
+    "fix-cs": "pint",
+    "rector": "rector"
   }
 }

@@ -27,17 +27,14 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
      */
     public $timeout = 120;
 
-    protected string $file;
-
     protected string $tempPath;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(string $file)
+    public function __construct(protected string $file)
     {
         $this->onQueue('recordings');
-        $this->file = $file;
         $filename = pathinfo($this->file, PATHINFO_FILENAME);
         $this->tempPath = 'temp/'.$filename;
     }
@@ -122,9 +119,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
 
             // Find metadata.xml files
-            $metadataFiles = array_filter(Storage::disk('recordings')->allFiles($this->tempPath), function ($file) {
-                return str_ends_with($file, 'metadata.xml');
-            });
+            $metadataFiles = array_filter(Storage::disk('recordings')->allFiles($this->tempPath), fn ($file) => str_ends_with((string) $file, 'metadata.xml'));
 
             foreach ($metadataFiles as $metadataFile) {
                 // Each directory with a metadata file inside is a recording format
@@ -132,12 +127,12 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
                 // and other files are the actual recording in the recording format
 
                 $xmlContent = Storage::disk('recordings')->get($metadataFile);
-                $xml = simplexml_load_string($xmlContent);
+                $xml = simplexml_load_string((string) $xmlContent);
 
                 // Create or update the recording format in the database
                 $recordingFormat = RecordingFormat::createFromRecordingXML($xml);
 
-                $formatDirectory = dirname($metadataFile);
+                $formatDirectory = dirname((string) $metadataFile);
 
                 // Recording format was created or updated (found the corresponding room)
                 if ($recordingFormat != null) {

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Gate;
 class Room extends JsonResource
 {
     // Is user authenticated (has valid access code, member or owner)
-    private bool $authenticated;
+    private readonly bool $authenticated;
 
     // Show details of the room (otherwise only basic information for listing is shown)
     private bool $withDetails = false;
@@ -30,7 +30,7 @@ class Room extends JsonResource
     }
 
     // The token used to authenticate the user
-    private ?RoomToken $token;
+    private readonly ?RoomToken $token;
 
     /**
      * Create a new resource instance.
@@ -63,7 +63,7 @@ class Room extends JsonResource
             'can_start' => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
             'access_code' => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
-            'current_user' => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles(),
+            'current_user' => new UserResource(\Illuminate\Support\Facades\Auth::user())->withPermissions()->withoutRoles(),
         ];
     }
 
@@ -73,6 +73,7 @@ class Room extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         $latestMeeting = $this->resource->latestMeeting;

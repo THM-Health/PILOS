@@ -21,6 +21,7 @@ class Config extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    #[\Override]
     public function toArray($request)
     {
         $generalSettings = app(GeneralSettings::class);
@@ -41,9 +42,7 @@ class Config extends JsonResource
                 'privacy_policy_url' => $generalSettings->privacy_policy_url,
                 'no_welcome_page' => $generalSettings->no_welcome_page,
                 'default_locale' => config('app.locale'),
-                'enabled_locales' => array_map(function ($locale) {
-                    return $locale['name'];
-                }, config('app.enabled_locales')),
+                'enabled_locales' => array_map(fn ($locale) => $locale['name'], config('app.enabled_locales')),
                 'version' => config('app.version'),
                 'whitelabel' => config('app.whitelabel'),
                 'base_url' => config('app.url'),

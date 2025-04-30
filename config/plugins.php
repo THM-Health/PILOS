@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'enabled' => explode(',', env('PLUGINS', '')),
+    'enabled' => explode(',', (string) env('PLUGINS', '')),
     'contracts' => [
         \App\Plugins\Contracts\ServerLoadCalculationPluginContract::class,
     ],

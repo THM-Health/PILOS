@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\RoomUserRole;
 use App\Enums\TimePeriod;
 use App\Settings\RoomSettings;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,11 +15,6 @@ use Illuminate\Support\Str;
 class RoomToken extends Model
 {
     use HasFactory;
-
-    protected $casts = [
-        'last_usage' => 'datetime',
-        'role' => RoomUserRole::class,
-    ];
 
     /**
      * @var string Override primary key with correct value.
@@ -40,9 +36,10 @@ class RoomToken extends Model
      *
      * @return void
      */
+    #[\Override]
     protected static function booted()
     {
-        static::creating(function ($model) {
+        static::creating(function ($model): void {
             while (true) {
                 $token = Str::random(100);
                 if (DB::table('room_tokens')->where('token', '=', $token)->doesntExist()) {
@@ -67,6 +64,7 @@ class RoomToken extends Model
     /**
      * @return string Name of the key to search for route binding.
      */
+    #[\Override]
     public function getRouteKeyName()
     {
         return 'token';
@@ -77,9 +75,9 @@ class RoomToken extends Model
      *
      * @return string
      */
-    public function getFullnameAttribute()
+    protected function fullname(): Attribute
     {
-        return $this->firstname.' '.$this->lastname;
+        return Attribute::make(get: fn () => $this->firstname.' '.$this->lastname);
     }
 
     /**
@@ -87,10 +85,20 @@ class RoomToken extends Model
      *
      * @return null
      */
-    public function getExpiresAttribute()
+    protected function expires(): Attribute
     {
-        $tokenExpiration = app(RoomSettings::class)->token_expiration;
+        return Attribute::make(get: function () {
+            $tokenExpiration = app(RoomSettings::class)->token_expiration;
 
-        return $tokenExpiration != TimePeriod::UNLIMITED ? ($this->last_usage != null ? $this->last_usage->addDays($tokenExpiration->value) : $this->created_at->addDays($tokenExpiration->value)) : null;
+            return $tokenExpiration != TimePeriod::UNLIMITED ? ($this->last_usage != null ? $this->last_usage->addDays($tokenExpiration->value) : $this->created_at->addDays($tokenExpiration->value)) : null;
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'last_usage' => 'datetime',
+            'role' => RoomUserRole::class,
+        ];
     }
 }

@@ -13,13 +13,6 @@ class MeetingStat extends Model
      */
     protected $guarded = [];
 
-    protected $casts = [
-        'participant_count' => 'integer',
-        'listener_count' => 'integer',
-        'voice_participant_count' => 'integer',
-        'video_count' => 'integer',
-    ];
-
     /**
      * Meeting the statistical data belongs to
      *
@@ -28,5 +21,15 @@ class MeetingStat extends Model
     public function meeting()
     {
         return $this->belongsTo(Meeting::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'participant_count' => 'integer',
+            'listener_count' => 'integer',
+            'voice_participant_count' => 'integer',
+            'video_count' => 'integer',
+        ];
     }
 }

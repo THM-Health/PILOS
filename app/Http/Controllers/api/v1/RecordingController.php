@@ -54,7 +54,7 @@ class RecordingController extends Controller
                 $allowedAccess[] = RecordingAccess::PARTICIPANT;
             }
 
-            $resource = $resource->whereIn('access', $allowedAccess)->whereHas('formats', function (Builder $query) {
+            $resource = $resource->whereIn('access', $allowedAccess)->whereHas('formats', function (Builder $query): void {
                 $query->where('disabled', false);
             });
         }

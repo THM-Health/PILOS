@@ -24,18 +24,16 @@ Route::get('download/recording/{recording}', [RecordingController::class, 'downl
 // Do not change this url format! Needs to be in this format in order to be compatible with the BBB recording player
 Route::get('recording/{formatName}/{recording}/{resource?}', [RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
 
-Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
+Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function (): void {
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');
     Route::get('auth/shibboleth/callback', [ShibbolethController::class, 'callback'])->name('auth.shibboleth.callback');
     Route::match(['get', 'post'], 'auth/shibboleth/logout', [ShibbolethController::class, 'logout'])->name('auth.shibboleth.logout');
 });
 
 if (config('greenlight.compatibility')) {
-    Route::prefix(config('greenlight.base'))->group(function () {
+    Route::prefix(config('greenlight.base'))->group(function (): void {
         // room urls
-        Route::get('/{id}', function ($id) {
-            return redirect('/rooms/'.$id);
-        })->where('id', '([A-Za-z0-9-]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(-[A-Za-z0-9]{3})?)');
+        Route::get('/{id}', fn ($id) => redirect('/rooms/'.$id))->where('id', '([A-Za-z0-9-]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(-[A-Za-z0-9]{3})?)');
         // login
         Route::redirect('/ldap_signin', '/login');
         Route::redirect('/signin', '/login');

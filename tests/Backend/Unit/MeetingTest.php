@@ -24,6 +24,7 @@ class MeetingTest extends TestCase
 
     private $meeting;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -65,8 +66,8 @@ class MeetingTest extends TestCase
         $this->assertStringContainsString('http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
         $this->assertStringContainsString('123-456-789', $data['moderatorOnlyMessage']);
 
-        $salt = urldecode(explode('?salt=', $data['meta_endCallbackUrl'])[1]);
-        $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
+        $salt = urldecode(explode('?salt=', (string) $data['meta_endCallbackUrl'])[1]);
+        $this->assertTrue(new MeetingService($meeting)->validateCallbackSalt($salt));
         $this->assertArrayNotHasKey('logo', $data);
     }
 
@@ -265,7 +266,7 @@ class MeetingTest extends TestCase
 
         $request = Http::recorded()[0][0];
         $body = $request->body();
-        $xml = simplexml_load_string($body);
+        $xml = simplexml_load_string((string) $body);
         $docs = $xml->module->document;
 
         $this->assertCount(3, $docs);
@@ -303,7 +304,7 @@ class MeetingTest extends TestCase
 
         $request = Http::recorded()[0][0];
         $body = $request->body();
-        $xml = simplexml_load_string($body);
+        $xml = simplexml_load_string((string) $body);
         $docs = $xml->module->document;
 
         $this->assertCount(1, $docs);

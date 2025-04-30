@@ -48,6 +48,6 @@ class RoomFileTest extends TestCase
 
         // Clear
         $room->refresh();
-        (new MeetingService($room->latestMeeting))->end();
+        new MeetingService($room->latestMeeting)->end();
     }
 }

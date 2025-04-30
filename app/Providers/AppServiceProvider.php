@@ -23,17 +23,14 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
     }
 
+    #[\Override]
     public function register(): void
     {
-        $this->app->singleton(LocaleService::class, function () {
-            return new LocaleService(new Filesystem);
-        });
+        $this->app->singleton(fn (): \App\Services\LocaleService => new LocaleService(new Filesystem));
 
         $this->app->singleton(ResolvesUsers::class, Users::class);
 
-        $this->app->singleton(RoomAuthService::class, function () {
-            return new RoomAuthService;
-        });
+        $this->app->singleton(fn (): \App\Services\RoomAuthService => new RoomAuthService);
 
         $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
         $this->app->register(TelescopeServiceProvider::class);

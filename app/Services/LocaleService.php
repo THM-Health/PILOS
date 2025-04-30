@@ -8,12 +8,7 @@ use Storage;
 
 class LocaleService
 {
-    protected Filesystem $filesystem;
-
-    public function __construct(Filesystem $filesystem)
-    {
-        $this->filesystem = $filesystem;
-    }
+    public function __construct(protected Filesystem $filesystem) {}
 
     /**
      * Get locale data as JSON
@@ -81,7 +76,7 @@ class LocaleService
             $localeFiles = $disk->files($locale);
             // Go through all locale files
             foreach ($localeFiles as $localeFile) {
-                $path_parts = pathinfo($localeFile);
+                $path_parts = pathinfo((string) $localeFile);
 
                 // Skip non-PHP files
                 if ($path_parts['extension'] != 'php') {

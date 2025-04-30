@@ -59,7 +59,7 @@ class ImportDatabaseCommand extends Command
         $this->bar = $this->output->createProgressBar(100);
 
         // Run command and show output in realtime
-        $process = Process::forever()->start($command, function (string $type, string $output) {
+        $process = Process::forever()->start($command, function (string $type, string $output): void {
             if (Str::contains($output, 'ERROR')) {
                 $this->bar->clear();
                 $this->error($output);

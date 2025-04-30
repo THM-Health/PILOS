@@ -12,12 +12,7 @@ use Log;
 
 class RoomService
 {
-    protected Room $room;
-
-    public function __construct(Room $room)
-    {
-        $this->room = $room;
-    }
+    public function __construct(protected Room $room) {}
 
     /**
      * Start a new meeting
@@ -111,7 +106,7 @@ class RoomService
             RoomStarted::dispatch($this->room);
 
             $lock->release();
-        } catch (LockTimeoutException $e) {
+        } catch (LockTimeoutException) {
             abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
         }
 
@@ -144,7 +139,7 @@ class RoomService
         try {
             // Check if meeting is running
             $meetingRunning = $meetingService->isRunning();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             Log::warning('Error checking if room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
             abort(CustomStatusCodes::JOIN_FAILED->value, __('app.errors.join_failed'));
         }

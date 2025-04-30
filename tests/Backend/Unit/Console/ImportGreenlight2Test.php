@@ -27,6 +27,7 @@ class ImportGreenlight2Test extends TestCase
     /**
      * @see TestCase::setUp()
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,14 +61,14 @@ class ImportGreenlight2Test extends TestCase
         // mock connection to greenlight postgres database and queries
         DB::shouldReceive('connection')
             ->with('greenlight')
-            ->andReturn(Mockery::mock('Illuminate\Database\Connection', function ($mock) use ($sharedAccesses, $rooms, $users, $roomAuth) {
+            ->andReturn(Mockery::mock(\Illuminate\Database\Connection::class, function ($mock) use ($sharedAccesses, $rooms, $users, $roomAuth): void {
                 $mock->shouldReceive('table')
                     ->with('features')
                     ->once()
-                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($roomAuth) {
+                    ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($roomAuth): void {
                         $mock->shouldReceive('where')
                             ->with('name', 'Room Authentication')
-                            ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($roomAuth) {
+                            ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($roomAuth): void {
                                 $mock->shouldReceive('first')
                                     ->with('value')
                                     ->andReturn((object) ['value' => $roomAuth]);
@@ -77,10 +78,10 @@ class ImportGreenlight2Test extends TestCase
                 $mock->shouldReceive('table')
                     ->with('users')
                     ->once()
-                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
+                    ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($users): void {
                         $mock->shouldReceive('where')
                             ->with('deleted', false)
-                            ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
+                            ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($users): void {
                                 $mock->shouldReceive('get')
                                     ->with(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest'])
                                     ->andReturn($users);
@@ -90,10 +91,10 @@ class ImportGreenlight2Test extends TestCase
                 $mock->shouldReceive('table')
                     ->with('rooms')
                     ->once()
-                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($rooms) {
+                    ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($rooms): void {
                         $mock->shouldReceive('where')
                             ->with('deleted', false)
-                            ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($rooms) {
+                            ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($rooms): void {
                                 $mock->shouldReceive('get')
                                     ->with(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code'])
                                     ->andReturn($rooms);
@@ -103,7 +104,7 @@ class ImportGreenlight2Test extends TestCase
                 $mock->shouldReceive('table')
                     ->with('shared_accesses')
                     ->once()
-                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($sharedAccesses) {
+                    ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($sharedAccesses): void {
                         $mock->shouldReceive('get')
                             ->with(['room_id', 'user_id'])
                             ->andReturn($sharedAccesses);
@@ -112,19 +113,17 @@ class ImportGreenlight2Test extends TestCase
                 $mock->shouldReceive('table')
                     ->with('users')
                     ->once()
-                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
+                    ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($users): void {
                         $mock->shouldReceive('select')
                             ->with('provider')
-                            ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
+                            ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($users): void {
                                 $mock->shouldReceive('whereNotIn')
                                     ->with('provider', ['greenlight', 'ldap'])
-                                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
+                                    ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($users): void {
                                         $mock->shouldReceive('distinct')
-                                            ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
+                                            ->andReturn(Mockery::mock(\Illuminate\Database\Query\Builder::class, function ($mock) use ($users): void {
                                                 $mock->shouldReceive('get')
-                                                    ->andReturn($users->unique('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->map(function ($user) {
-                                                        return (object) ['provider' => $user->provider];
-                                                    }));
+                                                    ->andReturn($users->unique('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->map(fn ($user) => (object) ['provider' => $user->provider]));
                                             }));
                                     }));
                             }));

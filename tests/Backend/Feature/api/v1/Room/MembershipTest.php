@@ -24,6 +24,7 @@ class MembershipTest extends TestCase
 
     protected $viewAllPermission;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
