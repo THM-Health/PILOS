@@ -107,4 +107,18 @@ describe("User Profile", function () {
 
     cy.checkToastMessage("app.flash.unauthenticated");
   });
+
+  it("should hide edit controls when external_image is true", function () {
+    cy.fixture("userDataCurrentUser.json").then((userData) => {
+      userData.data.external_image = true;
+      cy.intercept("GET", "api/v1/users/1", userData).as("userRequest");
+    });
+
+    cy.visit("/profile");
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="profile-image-field"]').should("be.visible");
+    cy.get('[data-test="upload-file-button"]').should("not.exist");
+    cy.get('[data-test="delete-image-button"]').should("not.exist");
+  });
 });
