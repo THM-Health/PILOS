@@ -541,6 +541,7 @@ class LdapLoginTest extends TestCase
             'password' => 'secret',
         ]);
         $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
 
         $user = User::where('external_id', $this->ldapUser->uid[0])->first();
 
@@ -559,7 +560,6 @@ class LdapLoginTest extends TestCase
         $profileImage = file_get_contents($pathProfileImage2);
         $this->ldapUser->replaceAttribute('jpegphoto', $profileImage);
 
-        $this->postJson(route('api.v1.logout'));
         $this->assertFalse($this->isAuthenticated($this->guard));
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
@@ -567,6 +567,7 @@ class LdapLoginTest extends TestCase
             'password' => 'secret',
         ]);
         $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
 
         $user->refresh();
 
@@ -591,6 +592,7 @@ class LdapLoginTest extends TestCase
             'password' => 'secret',
         ]);
         $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
 
         $user->refresh();
 
@@ -610,6 +612,7 @@ class LdapLoginTest extends TestCase
             'password' => 'secret',
         ]);
         $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
 
         // Check image removed from storage
         $this->assertFalse(\Storage::disk('public')->exists($user->image));
