@@ -1,0 +1,9 @@
+{
+  "data": {
+    "enabled": false,
+    "url": null,
+    "pause_image": null,
+    "room_type_default_pause_image": null,
+    "system_default_pause_image": null
+  }
+}

@@ -11,6 +11,7 @@ use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -450,5 +451,15 @@ class Room extends Model
         }
 
         return count(array_intersect($roomType->roles->pluck('id')->all(), $owner->roles->pluck('id')->all())) > 0;
+    }
+
+    public function streaming(): HasOne
+    {
+        return $this->hasOne(RoomStreaming::class, 'room_id', 'id')->withDefault(
+            [
+                'enabled' => false,
+                'enabled_for_current_meeting' => false,
+            ]
+        )->chaperone('room');
     }
 }

@@ -6,44 +6,7 @@
  */
 Cypress.Commands.add("init", () => {
   cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
-  cy.intercept("GET", "api/v1/locale/en", {
-    data: {},
-    meta: {
-      dateTimeFormat: {
-        dateShort: {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        },
-        dateLong: {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-        },
-        time: {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        },
-        datetimeShort: {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        },
-        datetimeLong: {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        },
-      },
-    },
-  });
+  cy.intercept("GET", "api/v1/locale/en", { fixture: "en.json" });
 
   cy.fixture("config.json").then((config) => {
     config.data.general.base_url = Cypress.config("baseUrl");
@@ -262,6 +225,18 @@ Cypress.Commands.add("interceptAdminServerPoolsIndexRequests", () => {
   cy.intercept("GET", "api/v1/serverPools*", {
     fixture: "serverPools.json",
   }).as("serverPoolsRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin streaming index page
+ * @memberof cy
+ * @method interceptAdminStreamingIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminStreamingIndexRequests", () => {
+  cy.intercept("GET", "api/v1/streaming", {
+    fixture: "streaming.json",
+  }).as("streamingRequest");
 });
 
 /**

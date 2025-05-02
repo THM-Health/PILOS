@@ -5,7 +5,12 @@
       "name": "Lecture",
       "description": null,
       "color": "#80BA27",
-      "model_name": "RoomType"
+      "model_name": "RoomType",
+      "features": {
+        "streaming": {
+          "enabled": false
+        }
+      }
     },
     {
       "id": 2,

@@ -11,7 +11,8 @@
       },
       "default_locale": "en",
       "default_timezone": "UTC",
-      "pagination_page_size": 2
+      "pagination_page_size": 2,
+      "hide_disabled_features": true
     },
     "theme": {
       "primary_color": "#14b8a6",
@@ -21,6 +22,11 @@
       "limit": -1,
       "refresh_rate": 5000,
       "file_terms_of_use": null
+    },
+    "streaming": {
+      "enabled": false,
+      "refresh_interval": 60,
+      "show_fps": false
     },
     "bbb": {
       "file_mimes": "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png",

@@ -817,6 +817,13 @@ describe("Admin settings with edit permission", function () {
         cy.checkSettingsImageSelectorOnlyView("/images/logo.svg");
       });
 
+    cy.get('[data-test="bbb-logo-dark-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.logo_dark.title")
+      .within(() => {
+        cy.checkSettingsImageSelectorOnlyView("/images/logo-dark.svg");
+      });
+
     cy.get('[data-test="bbb-style-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.bbb.style.title")
@@ -834,6 +841,7 @@ describe("Admin settings with edit permission", function () {
     // Reload with different settings
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = null;
+      settings.data.bbb_logo_dark = null;
       settings.data.bbb_style = "/files/bbb_style.css";
       settings.data.bbb_default_presentation = "/files/testFile.txt";
 
@@ -850,6 +858,13 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="bbb-logo-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.logo.title")
+      .within(() => {
+        cy.checkSettingsImageSelectorOnlyView("");
+      });
+
+    cy.get('[data-test="bbb-logo-dark-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.logo_dark.title")
       .within(() => {
         cy.checkSettingsImageSelectorOnlyView("");
       });

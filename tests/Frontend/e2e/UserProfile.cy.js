@@ -23,14 +23,14 @@ describe("User Profile", function () {
     cy.visit("/rooms");
 
     // Open profile
-    cy.get('[data-test="user-avatar"]').click();
+    cy.get('[data-test="navbar-user"]').click();
     cy.get('[data-test="submenu"]')
       .eq(0)
       .within(() => {
-        cy.get('[data-test="submenu-action"]')
-          .eq(0)
-          .should("have.text", "app.profile")
-          .click();
+        cy.get('[data-test="navbar-user-profile"]')
+          .should("exist")
+          .should("have.text", "app.profile");
+        cy.get('[data-test="navbar-user-profile"]').click();
       });
 
     cy.url().should("include", "/profile");
@@ -106,5 +106,19 @@ describe("User Profile", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("should hide edit controls when external_image is true", function () {
+    cy.fixture("userDataCurrentUser.json").then((userData) => {
+      userData.data.external_image = true;
+      cy.intercept("GET", "api/v1/users/1", userData).as("userRequest");
+    });
+
+    cy.visit("/profile");
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="profile-image-field"]').should("be.visible");
+    cy.get('[data-test="upload-file-button"]').should("not.exist");
+    cy.get('[data-test="delete-image-button"]').should("not.exist");
   });
 });

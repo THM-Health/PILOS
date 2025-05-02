@@ -7,174 +7,94 @@
         v-if="userPermissions.can('viewAny', 'SettingsPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link
+        <admin-overview-card
           :to="{ name: 'admin.settings' }"
+          icon="fa-cogs"
+          :title="$t('admin.settings.title')"
+          :description="$t('admin.settings.tile_description')"
           data-test="admin-settings-link"
-        >
-          <Card
-            :pt="{
-              title: { class: 'text-center text-primary' },
-              content: { class: 'p-0' },
-            }"
-            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
-          >
-            <template #title>
-              <h2 class="m-0">
-                <i class="fa-solid fa-cogs" />
-              </h2>
-              <span>
-                {{ $t("admin.settings.title") }}
-              </span>
-            </template>
-            <template #content>
-              {{ $t("admin.settings.tile_description") }}
-            </template>
-          </Card>
-        </router-link>
+        />
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'UserPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.users' }" data-test="admin-users-link">
-          <Card
-            :pt="{
-              title: { class: 'text-center text-primary' },
-              content: { class: 'p-0' },
-            }"
-            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
-          >
-            <template #title>
-              <h2 class="m-0">
-                <i class="fa-solid fa-users" />
-              </h2>
-              <span>
-                {{ $t("app.users") }}
-              </span>
-            </template>
-            <template #content>
-              {{ $t("admin.users.tile_description") }}
-            </template>
-          </Card>
-        </router-link>
+        <admin-overview-card
+          :to="{ name: 'admin.users' }"
+          icon="fa-users"
+          :title="$t('app.users')"
+          :description="$t('admin.users.tile_description')"
+          data-test="admin-users-link"
+        />
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RolePolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link :to="{ name: 'admin.roles' }" data-test="admin-roles-link">
-          <Card
-            :pt="{
-              title: { class: 'text-center text-primary' },
-              content: { class: 'p-0' },
-            }"
-            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
-          >
-            <template #title>
-              <h2 class="m-0">
-                <i class="fa-solid fa-user-tag" />
-              </h2>
-              <span>
-                {{ $t("app.roles") }}
-              </span>
-            </template>
-            <template #content>
-              {{ $t("admin.roles.tile_description") }}
-            </template>
-          </Card>
-        </router-link>
+        <admin-overview-card
+          :to="{ name: 'admin.roles' }"
+          icon="fa-user-tag"
+          :title="$t('app.roles')"
+          :description="$t('admin.roles.tile_description')"
+          data-test="admin-roles-link"
+        />
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RoomTypePolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link
+        <admin-overview-card
           :to="{ name: 'admin.room_types' }"
+          icon="fa-tags"
+          :title="$t('app.room_types')"
+          :description="$t('admin.room_types.tile_description')"
           data-test="admin-room-types-link"
-        >
-          <Card
-            :pt="{
-              title: { class: 'text-center text-primary' },
-              content: { class: 'p-0' },
-            }"
-            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
-          >
-            <template #title>
-              <h2 class="m-0">
-                <i class="fa-solid fa-tags" />
-              </h2>
-              <span>
-                {{ $t("app.room_types") }}
-              </span>
-            </template>
-            <template #content>
-              {{ $t("admin.room_types.tile_description") }}
-            </template>
-          </Card>
-        </router-link>
+        />
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link
+        <admin-overview-card
           :to="{ name: 'admin.servers' }"
+          icon="fa-server"
+          :title="$t('app.servers')"
+          :description="$t('admin.servers.tile_description')"
           data-test="admin-servers-link"
-        >
-          <Card
-            :pt="{
-              title: { class: 'text-center text-primary' },
-              content: { class: 'p-0' },
-            }"
-            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
-          >
-            <template #title>
-              <h2 class="m-0">
-                <i class="fa-solid fa-server" />
-              </h2>
-              <span>
-                {{ $t("app.servers") }}
-              </span>
-            </template>
-            <template #content>
-              {{ $t("admin.servers.tile_description") }}
-            </template>
-          </Card>
-        </router-link>
+        />
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPoolPolicy')"
         class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
-        <router-link
+        <admin-overview-card
           :to="{ name: 'admin.server_pools' }"
+          icon="fa-th-large"
+          :title="$t('app.server_pools')"
+          :description="$t('admin.server_pools.tile_description')"
           data-test="admin-server-pools-link"
-        >
-          <Card
-            :pt="{
-              title: { class: 'text-center text-primary' },
-              content: { class: 'p-0' },
-            }"
-            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
-          >
-            <template #title>
-              <h2 class="m-0">
-                <i class="fa-solid fa-th-large" />
-              </h2>
-              <span>
-                {{ $t("app.server_pools") }}
-              </span>
-            </template>
-            <template #content>
-              {{ $t("admin.server_pools.tile_description") }}
-            </template>
-          </Card>
-        </router-link>
+        />
+      </div>
+      <div
+        v-if="userPermissions.can('viewAny', 'StreamingPolicy')"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
+      >
+        <admin-overview-card
+          :to="{ name: 'admin.streaming_settings' }"
+          icon="fa-broadcast-tower"
+          :title="$t('app.streaming')"
+          :description="$t('admin.streaming.tile_description')"
+          :disabled="!settingsStore.getSetting('streaming.enabled')"
+          data-test="admin-streaming-link"
+        />
       </div>
     </div>
   </div>
 </template>
 <script setup>
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useSettingsStore } from "../stores/settings";
+import AdminOverviewCard from "../components/AdminOverviewCard.vue";
 const userPermissions = useUserPermissions();
+const settingsStore = useSettingsStore();
 </script>

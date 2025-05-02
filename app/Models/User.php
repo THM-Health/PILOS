@@ -335,4 +335,14 @@ class User extends Authenticatable implements HasLocalePreference
     {
         return $this->roles->where('superuser', true)->isNotEmpty();
     }
+
+    /**
+     * Is the user image set by an external authenticator
+     *
+     * @return bool
+     */
+    public function getHasExternalImageAttribute()
+    {
+        return $this->external_image_hash !== null;
+    }
 }

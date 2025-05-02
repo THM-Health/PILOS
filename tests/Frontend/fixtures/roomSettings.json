@@ -11,6 +11,11 @@
       "description": null,
       "color": "#4a5c66",
       "model_name": "RoomType",
+      "features": {
+        "streaming": {
+          "enabled": false
+        }
+      },
       "mute_on_start_default": true,
       "mute_on_start_enforced": true,
       "lock_settings_disable_cam_default": false,

@@ -3,6 +3,7 @@
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\Role;
+use App\Models\User;
 use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
+use Spatie\Image\Image;
+use Storage;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -517,5 +520,106 @@ class LdapLoginTest extends TestCase
                 && $log->context['current-user'] == 'guest'
                 && $log->context['type'] == 'ldap'
         );
+    }
+
+    public function test_profile_image()
+    {
+        Storage::fake('public');
+
+        $newAttributeConf = json_decode($this->ldapMapping);
+        $newAttributeConf->attributes->image = 'jpegphoto';
+        Config::set('ldap.mapping', $newAttributeConf);
+
+        $pathProfileImage1 = __DIR__.'/../../../Fixtures/profileImage-1.jpg';
+        $profileImage = file_get_contents($pathProfileImage1);
+
+        // 1. Test new user with profile image, check if image is set
+        $this->ldapUser->addAttribute('jpegphoto', $profileImage);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret',
+        ]);
+        $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
+
+        $user = User::where('external_id', $this->ldapUser->uid[0])->first();
+
+        // Check external image hash and image are set
+        $this->assertEquals('346f8f4d7df6d16aac328afb8d2714189c1c70ceaba165dfde005b56846382e9', $user->external_image_hash);
+
+        // Check image is cropped
+        $cropped = Image::load(\Storage::disk('public')->path($user->image));
+        $croppedContent = \Storage::disk('public')->get($user->image);
+        $this->assertEquals(100, $cropped->getWidth());
+        $this->assertEquals(100, $cropped->getHeight());
+        $croppedHash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+
+        // 2. Test login again, with new image, check if it is updated as the image has changed
+        $pathProfileImage2 = __DIR__.'/../../../Fixtures/profileImage-2.jpg';
+        $profileImage = file_get_contents($pathProfileImage2);
+        $this->ldapUser->replaceAttribute('jpegphoto', $profileImage);
+
+        $this->assertFalse($this->isAuthenticated($this->guard));
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret',
+        ]);
+        $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
+
+        $user->refresh();
+
+        // Check external image hash and image have changed
+        $this->assertEquals('7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f', $user->external_image_hash);
+        // Check image is cropped
+        $cropped2 = Image::load(\Storage::disk('public')->path($user->image));
+        $this->assertEquals(100, $cropped2->getWidth());
+        $this->assertEquals(100, $cropped2->getHeight());
+        $cropped2Hash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $this->assertNotEquals($croppedHash, $cropped2Hash);
+
+        // 3. Test image is not updated if image hash is the same
+        // To tests this, we manually replace the stored image to see if it is not overwritten
+        \Storage::disk('public')->put($user->image, $croppedContent);
+
+        $this->postJson(route('api.v1.logout'));
+        $this->assertFalse($this->isAuthenticated($this->guard));
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret',
+        ]);
+        $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
+
+        $user->refresh();
+
+        // Check external image hash and image are not updated
+        $this->assertEquals('7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f', $user->external_image_hash);
+        $cropped3Hash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $this->assertEquals($croppedHash, $cropped3Hash);
+
+        // 4. Test image removed if no image is stored in ldap
+        $this->ldapUser->replaceAttribute('jpegphoto', []);
+
+        $this->postJson(route('api.v1.logout'));
+        $this->assertFalse($this->isAuthenticated($this->guard));
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret',
+        ]);
+        $this->assertAuthenticated($this->guard);
+        $this->postJson(route('api.v1.logout'));
+
+        // Check image removed from storage
+        $this->assertFalse(\Storage::disk('public')->exists($user->image));
+
+        // Check if fields are set to null in the database
+        $user->refresh();
+        $this->assertNull($user->external_image_hash);
+        $this->assertNull($user->image);
     }
 }

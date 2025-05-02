@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view settings", function () {
+describe("Rooms view settings room type actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
@@ -1433,6 +1433,277 @@ describe("Rooms view settings", function () {
       .eq(1)
       .should("have.attr", "aria-pressed", "false")
       .and("be.disabled");
+  });
+
+  it("change room type with features enabled", function () {
+    // Enable streaming
+    cy.fixture("config.json").then((config) => {
+      config.data.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.fixture("roomTypesWithSettings.json").then((config) => {
+      config.data[0].features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get('[data-test="room-type-change-button"]').click();
+    cy.get('[data-test="room-type-change-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-secondary",
+            );
+          });
+
+        // Select other room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-success",
+            );
+          });
+      });
+
+    // Reload with current room type features enabled
+    cy.fixture("roomTypesWithSettings.json").then((config) => {
+      config.data[1].features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    cy.fixture("roomSettings.json").then((settings) => {
+      settings.data.room_type.features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("roomSettingsRequest");
+    });
+    cy.reload();
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
+    cy.get('[data-test="room-type-change-button"]').click();
+    cy.get('[data-test="room-type-change-dialog"]')
+      .should("be.visible")
+      .and("include.text", "rooms.change_type.title")
+      .within(() => {
+        // Check that the room types are shown correctly
+        cy.get('[data-test="room-type-select-option"]').should(
+          "have.length",
+          4,
+        );
+
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(0)
+          .should("have.text", "Lecture");
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(1)
+          .should("have.text", "Meeting");
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(2)
+          .should("have.text", "Exam");
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(3)
+          .should("have.text", "Seminar");
+
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-success",
+            );
+          });
+
+        // Select other room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-secondary",
+            );
+          });
+      });
+  });
+
+  it("change room type with features disabled", function () {
+    // Disable streaming
+    cy.fixture("config.json").then((config) => {
+      config.data.streaming.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.fixture("roomTypesWithSettings.json").then((config) => {
+      config.data[0].features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get('[data-test="room-type-change-button"]').click();
+    cy.get('[data-test="room-type-change-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is hidden
+            cy.get('[data-test="room-type-features"]').should("not.exist");
+          });
+
+        // Select other room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is hidden
+            cy.get('[data-test="room-type-features"]').should("not.exist");
+          });
+      });
+  });
+
+  it("change room type with features disabled and show disabled features", function () {
+    // Disable streaming, show disabled features
+    cy.fixture("config.json").then((config) => {
+      config.data.general.hide_disabled_features = false;
+      config.data.streaming.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.fixture("roomSettings.json").then((settings) => {
+      settings.data.room_type.features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("roomSettingsRequest");
+    });
+
+    cy.fixture("roomTypesWithSettings.json").then((config) => {
+      config.data[0].features.streaming.enabled = true;
+      config.data[1].features.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("#room-setting-room_type").should("have.value", "Meeting");
+    cy.get('[data-test="room-type-change-button"]').click();
+    cy.get('[data-test="room-type-change-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-secondary",
+            );
+          });
+
+        // Select other room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+        // Check that room type details are shown correctly
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            // Check features section is shown
+            cy.get('[data-test="room-type-features"]')
+              .should("be.visible")
+              .should("contain.text", "rooms.room_types.features.title");
+
+            // Check that the streaming state of the room type is shown correctly
+            cy.get('[data-test="room-type-feature-streaming"]').should(
+              "have.class",
+              "p-tag-secondary",
+            );
+          });
+      });
   });
 
   it("change room type no expert", function () {

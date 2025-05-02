@@ -23,9 +23,11 @@
               :icon="tab.icon"
               :aria-label="tab.label"
               role="tab"
+              :data-feature-disabled="!!tab.featureDisabled"
               :aria-selected="tab.active"
               :aria-controls="'panel-' + tab.key"
               :tabindex="tab.active ? 0 : -1"
+              :class="tab.class"
               @click="tab.command"
             />
           </div>
@@ -46,7 +48,19 @@
               :model="availableTabs"
               :popup="true"
               role="tablist"
-            />
+            >
+              <template #item="slotProps">
+                <a class="flex items-center" v-bind="slotProps.props.action">
+                  <span :class="slotProps.item.icon" />
+                  <span>{{ slotProps.item.label }}</span>
+
+                  <i
+                    v-if="slotProps.item.featureDisabled"
+                    class="fa-solid fa-ban ml-auto"
+                  ></i>
+                </a>
+              </template>
+            </Menu>
           </div>
         </div>
       </div>
@@ -67,7 +81,7 @@
         <!-- Each tab can use this kind of api, with are the props and events defined here -->
         <component
           :is="tab.component"
-          v-if="tab.active"
+          v-if="tab.active && !tab.disabled"
           :room="props.room"
           :access-code="props.accessCode"
           :token="props.token"
@@ -79,6 +93,44 @@
       </div>
     </template>
   </Card>
+  <Dialog
+    v-model:visible="disabledFeatureModalVisible"
+    modal
+    data-test="room-feature-disabled-dialog"
+    :show-header="false"
+    :draggable="false"
+    :style="{ width: '25rem' }"
+  >
+    <div class="mb-5 mt-4 flex justify-center">
+      <Badge
+        severity="contrast"
+        class="flex h-16 w-16 items-center justify-center rounded-full"
+      >
+        <i
+          class="fa-solid fa-ban text-4xl text-white dark:text-surface-950"
+        ></i>
+      </Badge>
+    </div>
+
+    <span v-if="disabledFeatureReason === 'system'">
+      {{ $t("rooms.feature_disabled_system", { name: disabledFeatureName }) }}
+    </span>
+    <span v-else-if="disabledFeatureReason === 'roomtype'">
+      {{ $t("rooms.feature_disabled_roomtype", { name: disabledFeatureName }) }}
+    </span>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          :label="$t('app.close')"
+          severity="secondary"
+          icon="fa-solid fa-times"
+          data-test="dialog-close-button"
+          @click="disabledFeatureModalVisible = false"
+        />
+      </div>
+    </template>
+  </Dialog>
 </template>
 <script setup>
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -93,6 +145,8 @@ import RoomTabSettings from "./RoomTabSettings.vue";
 import RoomTabRecordings from "./RoomTabRecordings.vue";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 import { useUrlSearchParams } from "@vueuse/core";
+import { useSettingsStore } from "../stores/settings.js";
+import RoomTabStreaming from "./RoomTabStreaming.vue";
 
 defineEmits([
   "invalidCode",
@@ -117,12 +171,24 @@ const props = defineProps({
 });
 
 const userPermissions = useUserPermissions();
+const settingsStore = useSettingsStore();
 const { t } = useI18n();
 
 // Dropdown menu for mobile layout
 const menu = ref();
+
+const disabledFeatureModalVisible = ref(false);
+const disabledFeatureReason = ref("");
+const disabledFeatureName = ref("");
+
 const toggle = (event) => {
   menu.value.toggle(event);
+};
+
+const showDisabledFeatureModal = (name, reason) => {
+  disabledFeatureName.value = name;
+  disabledFeatureReason.value = reason;
+  disabledFeatureModalVisible.value = true;
 };
 
 // Current active tab
@@ -201,6 +267,20 @@ const availableTabs = computed(() => {
 
   if (userPermissions.can("viewSettings", props.room)) {
     tabs.push({
+      key: "streaming",
+      label: t("rooms.streaming.title"),
+      icon: "fa-solid fa-broadcast-tower",
+      component: RoomTabStreaming,
+      disabled: !settingsStore.getSetting("streaming.enabled")
+        ? "system"
+        : !props.room.type.features.streaming.enabled
+          ? "roomtype"
+          : false,
+    });
+  }
+
+  if (userPermissions.can("viewSettings", props.room)) {
+    tabs.push({
       key: "history",
       label: t("rooms.meeting_history.title"),
       icon: "fa-solid fa-history",
@@ -214,21 +294,44 @@ const availableTabs = computed(() => {
     });
   }
 
-  return tabs.map((tab) => {
-    return {
-      key: tab.key,
-      active: tab.key === activeTabKey.value,
-      class: tab.key === activeTabKey.value ? "active-menu-item" : "",
-      label: tab.label,
-      icon: tab.icon,
-      component: tab.component,
-      command: () => {
-        activeTabKey.value = tab.key;
-        // Save tab selection in URL hash
-        hashParams.tab = tab.key;
-      },
-    };
-  });
+  return tabs
+    .filter((tab) => {
+      if (
+        tab.disabled &&
+        settingsStore.getSetting("general.hide_disabled_features")
+      )
+        return false;
+
+      return true;
+    })
+    .map((tab) => {
+      const classes = [];
+      if (tab.disabled) {
+        classes.push("opacity-60");
+        classes.push("cursor-not-allowed");
+      }
+
+      return {
+        key: tab.key,
+        active: tab.key === activeTabKey.value,
+        class: classes.join(" "),
+        label: tab.label,
+        icon: tab.icon,
+        component: tab.component,
+        featureDisabled: tab.disabled,
+        //disabled: tab.disabled,
+        command: () => {
+          if (tab.disabled) {
+            showDisabledFeatureModal(tab.label, tab.disabled);
+            return;
+          }
+
+          activeTabKey.value = tab.key;
+          // Save tab selection in URL hash
+          hashParams.tab = tab.key;
+        },
+      };
+    });
 });
 
 // Array of all tabs available to the user

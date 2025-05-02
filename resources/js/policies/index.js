@@ -8,6 +8,7 @@ import ServerPolicy from "./ServerPolicy";
 import ServerPoolPolicy from "./ServerPoolPolicy";
 import SystemPolicy from "./SystemPolicy";
 import MeetingPolicy from "./MeetingPolicy";
+import StreamingPolicy from "./StreamingPolicy";
 
 export default {
   AdminPolicy,
@@ -20,4 +21,5 @@ export default {
   ServerPoolPolicy,
   SystemPolicy,
   MeetingPolicy,
+  StreamingPolicy,
 };

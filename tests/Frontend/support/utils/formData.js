@@ -68,9 +68,19 @@ export function parseFormData(data, headers) {
       formData.append(name, file, filename);
     } else {
       lines.shift();
-      const value = new TextDecoder("utf-8")
-        .decode(new Uint8Array(lines.shift().split(";")))
-        .slice(0, -1);
+      lines.pop();
+
+      const values = [];
+
+      while (lines.length > 0) {
+        values.push(
+          new TextDecoder("utf-8")
+            .decode(new Uint8Array(lines.shift().split(";")))
+            .slice(0, -1),
+        );
+      }
+
+      const value = values.join("\r\n");
 
       formData.append(name, value);
     }

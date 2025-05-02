@@ -195,6 +195,23 @@ class MeetingTest extends TestCase
         $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
 
         $this->assertEquals(url('logo.png'), $data['logo']);
+
+        // Check dark logo missing
+        $this->assertArrayNotHasKey('darklogo', $data);
+
+        // Add dark logo
+        $this->bigBlueButtonSettings->logo_dark = url('logo_dark.png');
+        $this->bigBlueButtonSettings->save();
+
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[1][0];
+        $data = $request->data();
+
+        // Check logo and dark logo
+        $this->assertEquals(url('logo.png'), $data['logo']);
+        $this->assertEquals(url('logo_dark.png'), $data['darklogo']);
+
     }
 
     /**

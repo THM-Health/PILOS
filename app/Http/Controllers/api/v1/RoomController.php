@@ -220,9 +220,33 @@ class RoomController extends Controller
     public function start(Room $room, StartMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url = $roomService->start($request->consent_record_attendance, $request->consent_record)->getJoinUrl($request);
+        $url = $roomService->start()->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
+    }
+
+    public function getStartRequirements(Room $room)
+    {
+        $features = [
+            'recording' => $room->getRoomSetting('record'),
+            'attendance_recording' => $room->getRoomSetting('record_attendance'),
+            'streaming' => $room->streaming->enabled,
+        ];
+
+        return response()->json(['data' => ['features' => $features]]);
+    }
+
+    public function getJoinRequirements(Room $room)
+    {
+        $meeting = $room->latestMeeting;
+
+        $features = [
+            'recording' => $meeting?->record ?? false,
+            'attendance_recording' => $meeting?->record_attendance ?? false,
+            'streaming' => $meeting ? $room->streaming->enabled_for_current_meeting : false,
+        ];
+
+        return response()->json(['data' => ['features' => $features]]);
     }
 
     /**
@@ -233,7 +257,7 @@ class RoomController extends Controller
     public function join(Room $room, JoinMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url = $roomService->join($request->consent_record_attendance, $request->consent_record)->getJoinUrl($request);
+        $url = $roomService->join()->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }

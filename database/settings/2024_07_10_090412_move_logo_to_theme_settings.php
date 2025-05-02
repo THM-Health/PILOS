@@ -11,6 +11,14 @@ return new class extends SettingsMigration
 
         $this->migrator->add('theme.favicon_dark', config('settings.defaults.theme.favicon_dark'));
         $this->migrator->add('theme.logo_dark', config('settings.defaults.theme.logo_dark'));
+    }
 
+    public function down(): void
+    {
+        $this->migrator->rename('theme.favicon', 'general.favicon');
+        $this->migrator->rename('theme.logo', 'general.logo');
+
+        $this->migrator->delete('theme.favicon_dark');
+        $this->migrator->delete('theme.logo_dark');
     }
 };

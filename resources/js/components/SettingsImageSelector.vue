@@ -3,7 +3,7 @@
     <div class="col-span-12 flex flex-col gap-2 lg:col-span-9">
       <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
         <InputText
-          v-if="!image && !imageDeleted && !readonly"
+          v-if="!image && !imageDeleted && !readonly && !hideUrl"
           v-model="imageUrl"
           :disabled="disabled"
           type="text"
@@ -25,7 +25,9 @@
 
         <Button
           v-if="image"
+          :disabled="disabled"
           severity="danger"
+          class="flex-shrink-0"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
           data-test="settings-image-cancel-button"
@@ -35,6 +37,7 @@
         <Button
           v-if="showDelete && !image && imageUrl && !imageDeleted && !readonly"
           :disabled="disabled"
+          class="flex-shrink-0"
           severity="danger"
           :label="$t('app.delete')"
           icon="fa-solid fa-trash"
@@ -43,6 +46,7 @@
         />
         <Button
           v-if="imageDeleted"
+          :disabled="disabled"
           severity="secondary"
           :label="$t('app.undo_delete')"
           icon="fa-solid fa-undo"
@@ -134,6 +138,10 @@ defineProps({
     default: false,
   },
   readonly: {
+    type: Boolean,
+    default: false,
+  },
+  hideUrl: {
     type: Boolean,
     default: false,
   },

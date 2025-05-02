@@ -61,11 +61,15 @@ class RoomTypeController extends Controller
 
         $roomTypes = $roomTypes->orderByRaw('LOWER(name)')->orderBy('room_types.id');
 
+        $resource = new RoomTypeResourceCollection($roomTypes->get());
         if ($request->boolean('with_room_settings')) {
-            return (new RoomTypeResourceCollection($roomTypes->get()))->withDefaultRoomSettings();
-        } else {
-            return new RoomTypeResourceCollection($roomTypes->get());
+            $resource->withDefaultRoomSettings();
         }
+        if ($request->boolean('with_features')) {
+            $resource->withFeatures();
+        }
+
+        return $resource;
 
     }
 

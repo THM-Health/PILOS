@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.5.0] - 2025-05-02
+
+### Added
+
+- Environment variable `MAIL_AUTO_TLS` to disable automatic TLS for SMTP servers with STARTTLS support ([#2033])
+- Environment variable `MAIL_VERIFY_PEER` to disable TLS Peer Verification for SMTP(S) ([#2033])
+- Environment variable `MAIL_SCHEME` to set a specific mail protocol `smtp` or `smtps` ([#2033])
+- Right-to-left (RTL) locale support ([#2065])
+- Translation to locale selector ([#2079])
+- Transition and animation for dark mode toggle ([#2082])
+- Logo for dark mode in BBB ([#1399])
+- Livestreaming BigBlueButton meetings to an RTMP endpoint via the [BBB-Streaming-Server](https://github.com/THM-Health/BBB-Streaming-Server) ([#1697])
+- Persian/Farsi locale
+- Sync profile image from LDAP ([#1994], [#1997])
+
+### Fixed
+
+- Running BBB playback player build script in BusyBox ([#2053])
+
+### Removed
+
+- Environment variable `MAIL_ENCRYPTION`, use `MAIL_SCHEME` instead ([#2033])
+
 ## [v4.4.0] - 2025-04-07
 
 ### Changed
@@ -365,6 +388,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1399]: https://github.com/THM-Health/PILOS/pull/1399
 [#1420]: https://github.com/THM-Health/PILOS/issues/1420
 [#1435]: https://github.com/THM-Health/PILOS/issues/1435
 [#1440]: https://github.com/THM-Health/PILOS/pull/1440
@@ -406,6 +430,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1677]: https://github.com/THM-Health/PILOS/issues/1677
 [#1678]: https://github.com/THM-Health/PILOS/pull/1678
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
+[#1697]: https://github.com/THM-Health/PILOS/pull/1697
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
 [#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [#1711]: https://github.com/THM-Health/PILOS/issues/1711
@@ -437,8 +462,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1940]: https://github.com/THM-Health/PILOS/pull/1940
 [#1960]: https://github.com/THM-Health/PILOS/pull/1960
 [#1988]: https://github.com/THM-Health/PILOS/pull/1988
+[#1994]: https://github.com/THM-Health/PILOS/issues/1994
+[#1997]: https://github.com/THM-Health/PILOS/pull/1997
 [#2015]: https://github.com/THM-Health/PILOS/pull/2015
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.4.0...develop
+[#2033]: https://github.com/THM-Health/PILOS/pull/2033
+[#2053]: https://github.com/THM-Health/PILOS/pull/2053
+[#2065]: https://github.com/THM-Health/PILOS/pull/2065
+[#2079]: https://github.com/THM-Health/PILOS/pull/2079
+[#2082]: https://github.com/THM-Health/PILOS/pull/2082
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.5.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -451,3 +483,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.0
 [v4.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.3.1
 [v4.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.4.0
+[v4.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.5.0

@@ -93,6 +93,7 @@ class SettingsTest extends TestCase
 
         $this->bigBlueButtonSettings->style = url('style.css');
         $this->bigBlueButtonSettings->logo = url('logo.png');
+        $this->bigBlueButtonSettings->logo_dark = url('logo_dark.png');
         $this->bigBlueButtonSettings->default_presentation = url('presentation.pdf');
         $this->bigBlueButtonSettings->save();
 
@@ -161,6 +162,7 @@ class SettingsTest extends TestCase
 
                     'bbb_style' => url('style.css'),
                     'bbb_logo' => url('logo.png'),
+                    'bbb_logo_dark' => url('logo_dark.png'),
                     'bbb_default_presentation' => url('presentation.pdf'),
                 ],
                 'meta' => [
@@ -220,6 +222,7 @@ class SettingsTest extends TestCase
             'recording_recording_retention_period' => 7,
 
             'bbb_logo' => 'bbblogo.png',
+            'bbb_logo_dark' => 'bbblogo_dark.png',
         ];
 
         // Unauthorized Test
@@ -280,6 +283,7 @@ class SettingsTest extends TestCase
                     'recording_recording_retention_period' => 7,
 
                     'bbb_logo' => 'bbblogo.png',
+                    'bbb_logo_dark' => 'bbblogo_dark.png',
                 ],
             ]);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->help_url);
@@ -352,6 +356,7 @@ class SettingsTest extends TestCase
             'recording_recording_retention_period' => 7,
 
             'bbb_logo_file' => UploadedFile::fake()->image('bbblogo.png'),
+            'bbb_logo_dark_file' => UploadedFile::fake()->image('bbblogo_dark.png'),
         ];
 
         // Add necessary role and permission to user to update application settings
@@ -368,6 +373,7 @@ class SettingsTest extends TestCase
         $this->assertStringStartsWith('/storage/images/', $response->json('data.theme_favicon'));
         $this->assertStringStartsWith('/storage/images/', $response->json('data.theme_favicon_dark'));
         $this->assertStringStartsWith('http://localhost/storage/images/', $response->json('data.bbb_logo'));
+        $this->assertStringStartsWith('http://localhost/storage/images/', $response->json('data.bbb_logo_dark'));
     }
 
     /**
@@ -428,6 +434,8 @@ class SettingsTest extends TestCase
 
             'bbb_logo' => '/storage/image/bbbtestlogo.png',
             'bbb_logo_file' => UploadedFile::fake()->image('bbblogo.png'),
+            'bbb_logo_dark' => '/storage/image/bbbtestlogo_dark.png',
+            'bbb_logo_dark_file' => UploadedFile::fake()->image('bbblogo_dark.png'),
         ];
 
         // Add necessary role and permission to user to update application settings
@@ -443,6 +451,7 @@ class SettingsTest extends TestCase
         $this->assertNotEquals('/storage/image/logo_dark.svg', $response->json('data.logo'));
         $this->assertNotEquals('/storage/image/favicon_dark.ico', $response->json('data.favicon'));
         $this->assertNotEquals('/storage/image/bbbtestlogo.png', $response->json('data.bbb.logo'));
+        $this->assertNotEquals('/storage/image/bbbtestlogo_dark.png', $response->json('data.bbb.logo_dark'));
     }
 
     /**
@@ -505,6 +514,7 @@ class SettingsTest extends TestCase
             'recording_recording_retention_period' => 'notnumber',
 
             'bbb_logo_file' => 'notimagefile',
+            'bbb_logo_dark_file' => 'notimagefile',
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
@@ -556,6 +566,7 @@ class SettingsTest extends TestCase
                 'recording_recording_retention_period',
 
                 'bbb_logo_file',
+                'bbb_logo_dark_file',
             ]);
 
         // Test that not all banner fields are required when banner is disabled
@@ -628,8 +639,6 @@ class SettingsTest extends TestCase
             'recording_meeting_usage_retention_period' => 1,
             'recording_attendance_retention_period' => 1,
             'recording_recording_retention_period' => 1,
-
-            'bbb_logo' => 'bbblogo.png',
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -683,8 +692,6 @@ class SettingsTest extends TestCase
             'recording_meeting_usage_retention_period' => 366,
             'recording_attendance_retention_period' => 366,
             'recording_recording_retention_period' => 90,
-
-            'bbb_logo' => 'bbblogo.png',
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -991,5 +998,87 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
         $this->assertNull(app(BigBlueButtonSettings::class)->logo);
+    }
+
+    /**
+     * Test to update the bbb dark logo
+     *
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function test_update_bbb_dark_logo()
+    {
+        $role = Role::factory()->create();
+        $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
+        $this->user->roles()->attach($role);
+
+        $logo = UploadedFile::fake()->create('logo.png');
+
+        config(['recording.max_retention_period' => -1]);
+
+        $payload = [
+            'general_name' => 'test',
+            'general_pagination_page_size' => 10,
+            'general_toast_lifetime' => 10,
+            'general_default_timezone' => 'Europe/Berlin',
+            'general_help_url' => 'http://localhost',
+            'general_legal_notice_url' => 'http://localhost',
+            'general_privacy_policy_url' => 'http://localhost',
+            'general_no_welcome_page' => false,
+
+            'theme_logo' => 'testlogo.svg',
+            'theme_logo_dark' => 'testlogo-dark.svg',
+            'theme_favicon' => 'favicon.ico',
+            'theme_favicon_dark' => 'favicon_dark.ico',
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
+
+            'banner_enabled' => 0,
+            'banner_message' => 'Welcome to Test!',
+            'banner_title' => 'Welcome',
+            'banner_color' => '#fff',
+            'banner_background' => '#4a5c66',
+            'banner_link' => 'http://localhost',
+            'banner_link_target' => 'self',
+            'banner_link_style' => 'primary',
+            'banner_icon' => 'fas fa-door-open',
+
+            'room_limit' => -1,
+            'room_token_expiration' => -1,
+            'room_auto_delete_inactive_period' => 14,
+            'room_auto_delete_never_used_period' => 30,
+            'room_auto_delete_deadline_period' => 7,
+
+            'user_password_change_allowed' => 1,
+
+            'recording_server_usage_enabled' => 0,
+            'recording_server_usage_retention_period' => 7,
+            'recording_meeting_usage_enabled' => 1,
+            'recording_meeting_usage_retention_period' => 90,
+            'recording_attendance_retention_period' => 14,
+            'recording_recording_retention_period' => 7,
+
+            'bbb_logo_dark_file' => $logo,
+        ];
+
+        $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
+            ->assertStatus(200)
+            ->assertJsonPath('data.bbb_logo_dark', app(BigBlueButtonSettings::class)->logo_dark);
+
+        $path = app(BigBlueButtonSettings::class)->logo_dark;
+
+        // Update logo
+        $logo2 = UploadedFile::fake()->create('logo.png');
+        $payload['bbb_logo_dark_file'] = $logo2;
+        $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
+            ->assertStatus(200)
+            ->assertJsonPath('data.bbb_logo_dark', app(BigBlueButtonSettings::class)->logo_dark);
+        $this->assertNotEquals($path, app(BigBlueButtonSettings::class)->logo_dark);
+
+        // Clear logo
+        unset($payload['bbb_logo_dark_file']);
+        $payload['bbb_logo_dark'] = '';
+        $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
+            ->assertSuccessful();
+        $this->assertNull(app(BigBlueButtonSettings::class)->logo_dark);
     }
 }

@@ -22,14 +22,15 @@ folderName="$temporaryDirectory/bbb-playback-$tag"
 wget -O "$downloadFileName" "$downloadBase"
 
 echo "Extracting..."
-unzip "$downloadFileName" -d "$temporaryDirectory" -q
-
-if [ $? -eq 0 ]; then
+if unzip -q -d "$temporaryDirectory" "$downloadFileName"; then
     echo "Extraction complete"
 
     # run install script
     echo "Building new player..."
-    cd "$folderName"
+    if ! cd "$folderName"; then
+        echo "Entering directory $folderName failed"
+        exit 2
+    fi
     npm install
     REACT_APP_MEDIA_ROOT_URL=/recording/presentation npm run build
 

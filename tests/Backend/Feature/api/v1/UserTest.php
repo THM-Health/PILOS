@@ -627,6 +627,21 @@ class UserTest extends TestCase
         $this->assertEquals($user->roles->pluck('id')->toArray(), [$roleA->id, $roleB->id]);
     }
 
+    public function test_update_external_profile_image()
+    {
+        $user = User::factory()->create([
+            'external_image_hash' => '7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f',
+        ]);
+
+        $file = UploadedFile::fake()->image('avatar.jpg', 100, 100);
+        $changes['image'] = $file;
+        $changes['updated_at'] = $user->updated_at;
+
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['image']);
+    }
+
     /**
      * Test if user attributes can be updated separately
      */
@@ -1385,7 +1400,23 @@ class UserTest extends TestCase
                 'lastname' => $user->lastname,
                 'authenticator' => 'local',
                 'image' => $user->imageUrl,
+                'external_image' => false,
             ]);
+
+        // Check with external image
+        $user->external_image_hash = '7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f';
+        $user->save();
+
+        $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $user]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'authenticator' => 'local',
+                'image' => $user->imageUrl,
+                'external_image' => true,
+            ]);
+
     }
 
     public function test_delete()

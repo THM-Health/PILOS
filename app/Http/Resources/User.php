@@ -67,6 +67,7 @@ class User extends JsonResource
             'id' => $this->id,
             'authenticator' => $this->authenticator,
             'image' => $this->imageUrl,
+            'external_image' => $this->hasExternalImage,
             'email' => $this->email,
             'external_id' => $this->external_id,
             'firstname' => $this->firstname,

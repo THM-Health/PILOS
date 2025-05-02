@@ -269,4 +269,15 @@ class UserTest extends TestCase
         $user->refresh();
         $this->assertTrue($user->superuser);
     }
+
+    public function test_has_external_image_attribute()
+    {
+        $user = User::factory()->create();
+        $user->external_image_hash = 'somehashvalue';
+        $this->assertTrue($user->has_external_image);
+
+        $user = User::factory()->create();
+        $this->assertFalse($user->has_external_image);
+
+    }
 }

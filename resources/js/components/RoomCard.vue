@@ -5,10 +5,17 @@
       tabindex="0"
       data-test="room-card"
       class="relative h-full border shadow-none border-surface rounded-border hover:bg-emphasis"
-      :class="{ '!border-green-500': running }"
       @click="open"
       @keyup.enter="open"
     >
+      <span v-if="running" class="absolute -right-1.5 -top-1.5 flex h-3 w-3">
+        <span
+          class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"
+        ></span>
+        <span
+          class="relative inline-flex h-3 w-3 rounded-full bg-green-500"
+        ></span>
+      </span>
       <div class="h-100 p-4">
         <div class="h-100 flex flex-col">
           <div class="grow">

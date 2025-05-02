@@ -34,7 +34,6 @@
           id="replacement-room-type"
           v-model.number="replacement"
           data-test="replacement-room-type-dropdown"
-          autofocus
           :disabled="
             isBusy || loadingRoomTypes || replacementRoomTypesLoadingError
           "
@@ -56,6 +55,9 @@
               'data-test': 'replacement-room-type-dropdown-option',
             },
             optionGroup: 'p-0',
+            label: {
+              autofocus: true,
+            },
           }"
         >
           <template #optiongroup="slotProps">

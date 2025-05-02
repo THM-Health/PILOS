@@ -1,0 +1,41 @@
+{
+  "data": {
+    "css_file": null,
+    "default_pause_image": null,
+    "join_parameters": null,
+    "room_types": [
+      {
+        "id": 1,
+        "name": "Lecture",
+        "streaming_settings": {
+          "enabled": true,
+          "default_pause_image": null
+        }
+      },
+      {
+        "id": 2,
+        "name": "Meeting",
+        "streaming_settings": {
+          "enabled": false,
+          "default_pause_image": null
+        }
+      },
+      {
+        "id": 3,
+        "name": "Exam",
+        "streaming_settings": {
+          "enabled": false,
+          "default_pause_image": null
+        }
+      },
+      {
+        "id": 4,
+        "name": "Seminar",
+        "streaming_settings": {
+          "enabled": true,
+          "default_pause_image": null
+        }
+      }
+    ]
+  }
+}

@@ -14,14 +14,14 @@ describe("Logout", function () {
     cy.visit("/rooms");
 
     // Click on logout
-    cy.get('[data-test="user-avatar"]').click();
+    cy.get('[data-test="navbar-user"]').click();
     cy.get('[data-test="submenu"]')
       .eq(0)
       .within(() => {
-        cy.get('[data-test="submenu-action"]')
-          .eq(1)
-          .should("have.text", "auth.logout")
-          .click();
+        cy.get('[data-test="navbar-user-logout"]')
+          .should("exist")
+          .should("have.text", "auth.logout");
+        cy.get('[data-test="navbar-user-logout"]').click();
       });
 
     cy.wait("@logoutRequest");
@@ -44,14 +44,14 @@ describe("Logout", function () {
     }).as("logoutRequest");
     cy.visit("/rooms");
     // Click on logout
-    cy.get("[data-test=user-avatar]").click();
+    cy.get("[data-test=navbar-user]").click();
     cy.get("[data-test=submenu]")
       .eq(0)
       .within(() => {
-        cy.get("[data-test=submenu-action]")
-          .eq(1)
-          .should("contain", "auth.logout")
-          .click();
+        cy.get('[data-test="navbar-user-logout"]')
+          .should("exist")
+          .should("have.text", "auth.logout");
+        cy.get('[data-test="navbar-user-logout"]').click();
       });
     cy.wait("@logoutRequest");
     // Check if redirect worked
@@ -71,14 +71,12 @@ describe("Logout", function () {
     cy.visit("/rooms");
 
     // Click on logout
-    cy.get('[data-test="user-avatar"]').click();
+    cy.get('[data-test="navbar-user"]').click();
     cy.get('[data-test="submenu"]')
       .eq(0)
       .within(() => {
-        cy.get('[data-test="submenu-action"]')
-          .eq(1)
-          .should("have.text", "auth.logout")
-          .click();
+        cy.get('[data-test="navbar-user-logout"]').should("exist");
+        cy.get('[data-test="navbar-user-logout"]').click();
       });
 
     cy.wait("@logoutRequest");

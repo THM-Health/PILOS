@@ -156,6 +156,24 @@ User accounts are not shared between authenicators.
 
 If the value of one of the **required** attributes is an array, the first array entry is used.
 
+#### Profile image
+
+An LDAP server can store a profile image in the `jpegPhoto` attribute as per [RFC 2798](https://www.rfc-editor.org/rfc/rfc2798.html#section-2.6).
+To sync the profile image, map `jpegPhoto` to `image` in the mapping file.
+While the profile image is stored in the LDAP server, it cannot be changed by the user in PILOS UI and is synced on every login.
+
+```json
+{
+    "attributes": {
+        "external_id": "cn",
+        "first_name": "givenname",
+        "last_name": "sn",
+        "email": "mail",
+        "image": "jpegPhoto"
+    }
+}
+```
+
 #### Additional attributes
 
 You can define additional attributes.

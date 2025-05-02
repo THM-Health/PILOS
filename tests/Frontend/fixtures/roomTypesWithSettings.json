@@ -6,6 +6,11 @@
       "color": "#80BA27",
       "description": null,
       "model_name": "RoomType",
+      "features": {
+        "streaming": {
+          "enabled": false
+        }
+      },
       "mute_on_start_default": true,
       "mute_on_start_enforced": false,
       "lock_settings_disable_cam_default": false,
@@ -49,6 +54,11 @@
       "description": null,
       "color": "#4a5c66",
       "model_name": "RoomType",
+      "features": {
+        "streaming": {
+          "enabled": false
+        }
+      },
       "mute_on_start_default": true,
       "mute_on_start_enforced": true,
       "lock_settings_disable_cam_default": false,
@@ -92,6 +102,11 @@
       "color": "#9C132E",
       "description": "Room type description for room type Exam",
       "model_name": "RoomType",
+      "features": {
+        "streaming": {
+          "enabled": false
+        }
+      },
       "mute_on_start_default": false,
       "mute_on_start_enforced": false,
       "lock_settings_disable_cam_default": true,
@@ -135,6 +150,11 @@
       "color": "#00B8E4",
       "description": null,
       "model_name": "RoomType",
+      "features": {
+        "streaming": {
+          "enabled": false
+        }
+      },
       "mute_on_start_default": false,
       "mute_on_start_enforced": false,
       "lock_settings_disable_cam_default": true,

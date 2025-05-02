@@ -12,6 +12,11 @@ class RoomType extends JsonResource
     private $withDetails = false;
 
     /**
+     * @var bool Indicates whether the features should be included or not.
+     */
+    private $withFeatures = false;
+
+    /**
      * @var bool Indicates whether the default room settings should be included or not.
      */
     private $withDefaultRoomSettings = false;
@@ -24,6 +29,18 @@ class RoomType extends JsonResource
     public function withDetails(): self
     {
         $this->withDetails = true;
+
+        return $this;
+    }
+
+    /**
+     * Sets the flag to also load the features
+     *
+     * @return $this The room type resource instance.
+     */
+    public function withFeatures(): self
+    {
+        $this->withFeatures = true;
 
         return $this;
     }
@@ -82,6 +99,14 @@ class RoomType extends JsonResource
                 'max_duration' => $this->max_duration,
                 'create_parameters' => $this->create_parameters,
                 'roles' => new RoleCollection($this->roles),
+            ]),
+
+            $this->mergeWhen($this->withFeatures, [
+                'features' => [
+                    'streaming' => [
+                        'enabled' => $this->streamingSettings->enabled,
+                    ],
+                ],
             ]),
 
             $this->mergeWhen($this->withDefaultRoomSettings, $this->getDefaultRoomSettings()),

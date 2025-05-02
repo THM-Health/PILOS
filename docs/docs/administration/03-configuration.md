@@ -73,16 +73,18 @@ If you use an external Redis server, you may need to configure additional option
 
 ## Email Configuration
 
-| Option              | Default Value      | Description                                                                               |
-| ------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
-| `MAIL_MAILER`       | `smtp`             | Mail driver (`smtp`).                                                                     |
-| `MAIL_HOST`         | `mailpit`          | Mail server hostname<br/>Default is local dev. mail server (only available in dev. setup) |
-| `MAIL_PORT`         | `1025`             | Mail server smtp port.                                                                    |
-| `MAIL_USERNAME`     | `null`             | Mail username (if required).                                                              |
-| `MAIL_PASSWORD`     | `null`             | Mail password (if required).                                                              |
-| `MAIL_ENCRYPTION`   | `null`             | Mail encryption method (`ssl`, `tls`, `null`).                                            |
-| `MAIL_FROM_ADDRESS` | `admin@domain.tld` | Sender email address.                                                                     |
-| `MAIL_FROM_NAME`    | `${APP_NAME}`      | Sender name (uses `APP_NAME`).                                                            |
+| Option              | Default Value      | Description                                                                                                                                                       |
+| ------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MAIL_MAILER`       | `smtp`             | Mail driver (`smtp`).                                                                                                                                             |
+| `MAIL_HOST`         | `mailpit`          | Mail server hostname<br/>Default is local dev. mail server (only available in dev. setup)                                                                         |
+| `MAIL_PORT`         | `1025`             | Mail server smtp port.                                                                                                                                            |
+| `MAIL_USERNAME`     | `null`             | Mail username (if required).                                                                                                                                      |
+| `MAIL_PASSWORD`     | `null`             | Mail password (if required).                                                                                                                                      |
+| `MAIL_SCHEME`       | `null`             | Enforce a specify mail protocol (`smtp`, `smtps`, `null` )<br/> `null` = auto, use smtp by default, use `smtps` if port is set to `465`                           |
+| `MAIL_AUTO_TLS`     | `true`             | If the server supports `STARTTLS`, it will use TLS for encryption. This only works with scheme `smtp`.                                                            |
+| `MAIL_VERIFY_PEER`  | `true`             | TLS peer verification<br/>Although it's not recommended to disable this verification for security reasons, it can be useful when using a self-signed certificate. |
+| `MAIL_FROM_ADDRESS` | `admin@domain.tld` | Sender email address.                                                                                                                                             |
+| `MAIL_FROM_NAME`    | `${APP_NAME}`      | Sender name (uses `APP_NAME`).                                                                                                                                    |
 
 This default configuration uses the Mailpit mail server of the docker compose development setup.
 It is a mail testing tool that captures emails sent by the application.
@@ -117,12 +119,13 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 
 ## Room and Meeting Configuration
 
-| Option                  | Default Value | Description                                             |
-| ----------------------- | ------------- | ------------------------------------------------------- |
-| `WELCOME_MESSAGE_LIMIT` | `500`         | Maximum length of room welcome message. (max. 5000)     |
-| `ROOM_NAME_LIMIT`       | `50`          | Maximum length of room name.                            |
-| `ROOM_REFRESH_RATE`     | `5`           | Base time in seconds to automatically reload room page. |
-| `USER_SEARCH_LIMIT`     | `10`          | Maximum amount of users to be shown in user search      |
+| Option                   | Default Value | Description                                                   |
+| ------------------------ | ------------- | ------------------------------------------------------------- |
+| `WELCOME_MESSAGE_LIMIT`  | `500`         | Maximum length of room welcome message. (max. 5000)           |
+| `ROOM_NAME_LIMIT`        | `50`          | Maximum length of room name.                                  |
+| `ROOM_REFRESH_RATE`      | `5`           | Base time in seconds to automatically reload room page.       |
+| `USER_SEARCH_LIMIT`      | `10`          | Maximum amount of users to be shown in user search            |
+| `HIDE_DISABLED_FEATURES` | `true`        | Hide all disabled features from the UI (currently: streaming) |
 
 ## BigBlueButton Configuration
 
@@ -143,6 +146,6 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 
 - [External Authentication](./08-advanced/01-external-authentication.md)
 - [Recording](./08-advanced/03-recording.md)
-- [Scaling](./08-advanced/04-scaling.md)
-- [Greenlight Configuration](./08-advanced/05-migrate-greenlight.md)
+- [Scaling](./08-advanced/05-scaling.md)
+- [Greenlight Configuration](./08-advanced/06-migrate-greenlight.md)
 - [Development](../development/03-configuration.md)

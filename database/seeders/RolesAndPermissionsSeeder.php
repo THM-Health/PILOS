@@ -64,6 +64,9 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => 'serverPools.delete'])->id,
 
             Permission::firstOrCreate(['name' => 'system.monitor'])->id,
+
+            Permission::firstOrCreate(['name' => 'streaming.viewAny'])->id,
+            Permission::firstOrCreate(['name' => 'streaming.update'])->id,
         ];
 
         // Setup superuser role and give all permissions
@@ -122,5 +125,8 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::setIncludedPermissions('serverPools.update', ['serverPools.view', 'serverPools.viewAny', 'servers.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('serverPools.view', ['serverPools.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('serverPools.viewAny', ['admin.view']);
+
+        Permission::setIncludedPermissions('streaming.update', ['streaming.viewAny', 'admin.view']);
+        Permission::setIncludedPermissions('streaming.viewAny', ['admin.view']);
     }
 }

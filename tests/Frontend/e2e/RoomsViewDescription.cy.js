@@ -3,6 +3,7 @@ import {
   clearTiptapContent,
   selectTiptapContent,
 } from "../support/utils/tiptapHelper.js";
+
 describe("Rooms view description", function () {
   beforeEach(function () {
     cy.init();

@@ -37,6 +37,7 @@ describe("Admin index", function () {
         "users.viewAny",
         "serverPools.viewAny",
         "servers.viewAny",
+        "streaming.viewAny",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -85,6 +86,13 @@ describe("Admin index", function () {
       .and("have.attr", "href", "/admin/server_pools")
       .and("include.text", "app.server_pools")
       .and("include.text", "admin.server_pools.tile_description");
+
+    // Check streaming card is visible, but the link is disabled
+    cy.get('[data-test="admin-streaming-link"]')
+      .should("be.visible")
+      .and("have.attr", "href", "/admin")
+      .and("include.text", "app.streaming")
+      .and("include.text", "admin.streaming.tile_description");
   });
 
   it("open admin settings", function () {
@@ -121,6 +129,8 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-servers-link"]').should("not.exist");
 
     cy.get('[data-test="admin-server-pools-link"]').should("not.exist");
+
+    cy.get('[data-test="admin-streaming-link"]').should("not.exist");
 
     cy.interceptAdminSettingsRequest();
     cy.get('[data-test="admin-settings-link"]').click();
@@ -340,5 +350,58 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-server-pools-link"]').click();
 
     cy.url().should("include", "/admin/server_pools");
+  });
+
+  it("open admin streaming", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.streaming.enabled = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["admin.view", "streaming.viewAny"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin");
+
+    cy.contains("admin.title").should("be.visible");
+    cy.contains("admin.overview").should("be.visible");
+    cy.contains("admin.overview_description").should("be.visible");
+
+    cy.get('[data-test="admin-settings-link"]').should("not.exist");
+
+    cy.get('[data-test="admin-users-link"]').should("not.exist");
+
+    cy.get('[data-test="admin-roles-link"]').should("not.exist");
+
+    cy.get('[data-test="admin-room-types-link"]')
+      .should("be.visible")
+      .and("have.attr", "href", "/admin/room_types")
+      .and("include.text", "app.room_types")
+      .and("include.text", "admin.room_types.tile_description");
+
+    cy.get('[data-test="admin-servers-link"]').should("not.exist");
+
+    cy.get('[data-test="admin-server-pools-link"]').should("not.exist");
+
+    cy.get('[data-test="admin-streaming-link"]')
+      .should("be.visible")
+      .and("have.attr", "href", "/admin/streaming_settings")
+      .and("include.text", "app.streaming")
+      .and("include.text", "admin.streaming.tile_description");
+
+    cy.interceptAdminStreamingIndexRequests();
+
+    cy.get('[data-test="admin-streaming-link"]').click();
+
+    cy.url().should("include", "/admin/streaming_settings");
   });
 });

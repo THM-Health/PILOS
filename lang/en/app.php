@@ -54,6 +54,9 @@ return [
         'server_pool_delete_failed' => 'The server pool could not be deleted. To delete the server pool, it must not be used by any room type.',
         'stale_error' => 'Conflicting changes',
         'stale_model' => 'The :model entity was updated in the meanwhile!',
+        'streaming_error' => 'Error connecting to the streaming server. Please try again later.',
+        'streaming_meeting_not_running' => 'The meeting is not running.',
+        'streaming_not_enabled_for_current_meeting_error' => 'Streaming is not enabled for the current meeting.',
         'token_not_found' => 'The personalized room link could not be found.',
     ],
     'filter_no_results' => 'No results found',
@@ -84,6 +87,12 @@ return [
         'blank' => 'Open in a new tab',
         'self' => 'Open in current tab',
     ],
+    'locales' => [
+        'de' => 'German',
+        'en' => 'English',
+        'fa' => 'Persian',
+        'fr' => 'French',
+    ],
     'model' => [
         'roles' => 'role',
         'room_types' => 'room type',
@@ -113,6 +122,7 @@ return [
     'server_pool' => 'Server pool',
     'server_pools' => 'Server pools',
     'servers' => 'Server',
+    'streaming' => 'Streaming',
     'time_formats' => [
         'day' => 'Day',
         'days' => 'Days',

@@ -27,8 +27,12 @@
 <script setup>
 import { useSettingsStore } from "../stores/settings";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useLocaleStore } from "../stores/locale.js";
 
 const settingsStore = useSettingsStore();
+const localeStore = useLocaleStore();
+const { t, te } = useI18n();
 
 const model = defineModel({ type: String });
 
@@ -59,9 +63,16 @@ const locales = computed(() => {
   for (const [locale, label] of Object.entries(
     settingsStore.getSetting("general.enabled_locales"),
   )) {
+    let localeLabel = label;
+    const localeTranslationKey = "app.locales." + locale;
+    if (localeStore.currentLocale !== locale && te(localeTranslationKey)) {
+      const translatedLabel = t(localeTranslationKey);
+      localeLabel = localeLabel + " (" + translatedLabel + ")";
+    }
+
     availableLocales.push({
       value: locale,
-      text: label,
+      text: localeLabel,
     });
   }
   return availableLocales;

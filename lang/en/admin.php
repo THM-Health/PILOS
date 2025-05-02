@@ -27,12 +27,17 @@ return [
             'view' => ':name',
         ],
         'settings' => 'Settings',
+        'streaming_settings' => 'Streaming',
         'users' => [
             'edit' => 'Edit :firstname :lastname',
             'index' => 'Users',
             'new' => 'New',
             'view' => ':firstname :lastname',
         ],
+    ],
+    'feature_disabled' => [
+        'description' => ':name is not enabled for this system.',
+        'title' => 'Disabled',
     ],
     'home_button' => 'Back to the overview',
     'overview' => 'Overview',
@@ -106,6 +111,11 @@ return [
                 'title' => 'Settings',
                 'update' => 'Edit settings',
                 'view_any' => 'Show all settings',
+            ],
+            'streaming' => [
+                'title' => 'Streaming',
+                'update' => 'Edit streaming settings',
+                'view_any' => 'Show all streaming settings',
             ],
             'system' => [
                 'monitor' => 'Monitoring',
@@ -404,6 +414,25 @@ return [
         'two_weeks' => '2 Weeks (14 Days)',
         'two_years' => '2 Year (730 Days)',
         'user_settings' => 'User settings',
+    ],
+    'streaming' => [
+        'css_file' => 'CSS style file',
+        'css_file_description' => 'CSS file to customize the BBB UI for streaming',
+        'default_pause_image' => 'Default pause image',
+        'enabled' => 'Enabled',
+        'general' => [
+            'title' => 'General settings',
+        ],
+        'join_parameters' => 'Additional Join API parameters',
+        'join_parameters_description' => 'Specify as attribute-value pair (one per line, without spaces), e.g. userdata-bbb_show_public_chat_on_login=false',
+        'room_types' => [
+            'edit' => 'Edit streaming settings for :name',
+            'edit_dialog' => [
+                'title' => 'Edit streaming settings for :name',
+            ],
+            'title' => 'Room type specific settings',
+        ],
+        'tile_description' => 'Global and room type specific settings for streaming.',
     ],
     'title' => 'Administration',
     'users' => [

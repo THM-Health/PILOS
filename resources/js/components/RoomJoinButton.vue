@@ -30,7 +30,7 @@
     v-model:visible="modalVisible"
     data-test="room-join-dialog"
     modal
-    :header="running ? $t('rooms.join_room') : $t('rooms.start_room')"
+    :header="action === 'join' ? $t('rooms.join_room') : $t('rooms.start_room')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -38,106 +38,139 @@
     :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
-    <Message v-if="showRunningMessage" severity="warn">{{
+    <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-
-    <OverlayComponent :show="isLoadingAction" :opacity="0">
-      <div v-if="!isLoadingAction">
-        <!-- Ask guests for their first and lastname -->
-        <div
-          v-if="!authStore.isAuthenticated && !token"
-          class="mb-4 flex flex-col gap-2"
-        >
-          <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
-          <InputText
-            id="guest-name"
-            v-model="name"
-            autofocus
-            :placeholder="$t('rooms.placeholder_name')"
-            :invalid="formErrors.fieldInvalid('name')"
+    <form ref="joinForm" @submit.prevent="getJoinUrl">
+      <OverlayComponent :show="isLoadingAction || loadingError" :opacity="0">
+        <template #overlay>
+          <LoadingRetryButton
+            :error="loadingError"
+            @reload="loadStartJoinRequirements"
           />
-          <FormError :errors="formErrors.fieldError('name')" />
-        </div>
+        </template>
 
-        <div
-          v-if="recordAttendance"
-          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
-        >
-          <span class="font-semibold">{{
-            $t("rooms.recording_attendance_info")
-          }}</span>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="recordAttendanceAgreement"
-              input-id="record-attendance-agreement"
-              binary
-              :invalid="formErrors.fieldInvalid('consent_record_attendance')"
+        <div v-if="!isLoadingAction && !loadingError">
+          <!-- Ask guests for their first and lastname -->
+          <div
+            v-if="!authStore.isAuthenticated && !token"
+            class="mb-4 flex flex-col gap-2"
+          >
+            <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
+            <InputText
+              id="guest-name"
+              v-model="name"
+              autofocus
+              :placeholder="$t('rooms.placeholder_name')"
+              :invalid="formErrors.fieldInvalid('name')"
             />
-            <label for="record-attendance-agreement">{{
-              $t("rooms.recording_attendance_accept")
-            }}</label>
+            <FormError :errors="formErrors.fieldError('name')" />
           </div>
-          <FormError
-            :errors="formErrors.fieldError('consent_record_attendance')"
-          />
-        </div>
 
-        <div
-          v-if="record"
-          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
-        >
-          <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
-          <i>{{ $t("rooms.recording_hint") }}</i>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="recordAgreement"
-              input-id="record-agreement"
-              binary
-              :class="{
-                'p-invalid': formErrors.fieldInvalid('consent_record'),
-              }"
+          <div
+            v-if="features.attendance_recording"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+          >
+            <span class="font-semibold">{{
+              $t("rooms.recording_attendance_info")
+            }}</span>
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="recordAttendanceAgreement"
+                input-id="record-attendance-agreement"
+                binary
+                required
+                :invalid="formErrors.fieldInvalid('consent_record_attendance')"
+              />
+              <label for="record-attendance-agreement">{{
+                $t("rooms.recording_attendance_accept")
+              }}</label>
+            </div>
+            <FormError
+              :errors="formErrors.fieldError('consent_record_attendance')"
             />
-            <label for="record-agreement" class="required">{{
-              $t("rooms.recording_accept")
-            }}</label>
           </div>
-          <FormError :errors="formErrors.fieldError('consent_record')" />
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="recordVideoAgreement"
-              input-id="record-video-agreement"
-              binary
-              :class="{
-                'p-invalid': formErrors.fieldInvalid('consent_record_video'),
-              }"
+
+          <div
+            v-if="features.recording"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+          >
+            <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
+            <i>{{ $t("rooms.recording_hint") }}</i>
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="recordAgreement"
+                input-id="record-agreement"
+                binary
+                required
+                :class="{
+                  'p-invalid': formErrors.fieldInvalid('consent_record'),
+                }"
+              />
+              <label for="record-agreement" class="required">{{
+                $t("rooms.recording_accept")
+              }}</label>
+            </div>
+            <FormError :errors="formErrors.fieldError('consent_record')" />
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="recordVideoAgreement"
+                input-id="record-video-agreement"
+                binary
+                :class="{
+                  'p-invalid': formErrors.fieldInvalid('consent_record_video'),
+                }"
+              />
+              <label for="record-video-agreement">{{
+                $t("rooms.recording_video_accept")
+              }}</label>
+            </div>
+            <FormError
+              :errors="formErrors.fieldError('consent_record_video')"
             />
-            <label for="record-video-agreement">{{
-              $t("rooms.recording_video_accept")
-            }}</label>
           </div>
-          <FormError :errors="formErrors.fieldError('consent_record_video')" />
+
+          <div
+            v-if="features.streaming"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+          >
+            <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
+            <i>{{ $t("rooms.streaming_hint") }}</i>
+            <div class="flex items-center gap-2">
+              <Checkbox
+                v-model="streamingAgreement"
+                input-id="streaming-agreement"
+                binary
+                required
+                :invalid="formErrors.fieldInvalid('consent_streaming')"
+              />
+              <label for="streaming-agreement">{{
+                $t("rooms.streaming_accept")
+              }}</label>
+            </div>
+            <FormError :errors="formErrors.fieldError('consent_streaming')" />
+          </div>
         </div>
+      </OverlayComponent>
+
+      <div class="flex justify-end gap-2">
+        <Button
+          :label="$t('app.cancel')"
+          data-test="dialog-cancel-button"
+          :disabled="isLoadingAction"
+          severity="secondary"
+          size="small"
+          @click="modalVisible = false"
+        />
+        <Button
+          :label="$t('app.continue')"
+          data-test="dialog-continue-button"
+          :disabled="isLoadingAction || loadingError"
+          size="small"
+          type="submit"
+        />
       </div>
-    </OverlayComponent>
-
-    <div class="mt-6 flex items-center justify-end gap-2">
-      <Button
-        :label="$t('app.cancel')"
-        data-test="dialog-cancel-button"
-        :disabled="isLoadingAction"
-        severity="secondary"
-        size="small"
-        @click="modalVisible = false"
-      />
-      <Button
-        :label="$t('app.continue')"
-        data-test="dialog-continue-button"
-        :disabled="isLoadingAction"
-        size="small"
-        @click="getJoinUrl"
-      />
-    </div>
+    </form>
   </Dialog>
 </template>
 <script setup>
@@ -174,12 +207,6 @@ const props = defineProps({
     type: Number,
     default: null,
   },
-  recordAttendance: {
-    type: Boolean,
-  },
-  record: {
-    type: Boolean,
-  },
 });
 
 const emit = defineEmits([
@@ -193,16 +220,21 @@ const authStore = useAuthStore();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
+const loadingError = ref(false);
 const recordAttendanceAgreement = ref(false);
 const showRunningMessage = ref(false);
 const recordAgreement = ref(false);
 const recordVideoAgreement = ref(false);
+const streamingAgreement = ref(false);
 const name = ref(""); // Name of guest
+const action = ref("join");
 
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 const formErrors = useFormErrors();
+
+const features = ref({});
 
 /**
  * Show the modal for joining / starting a room
@@ -215,13 +247,59 @@ const formErrors = useFormErrors();
  */
 async function showModal() {
   showRunningMessage.value = false;
-
+  action.value = props.running ? "join" : "start";
   formErrors.clear();
   modalVisible.value = true;
 
-  if (autoJoin.value) {
-    getJoinUrl();
-  }
+  loadStartJoinRequirements().then((success) => {
+    if (success && autoJoin.value) {
+      getJoinUrl();
+    }
+  });
+}
+
+function loadStartJoinRequirements() {
+  return new Promise((resolve) => {
+    isLoadingAction.value = true;
+    loadingError.value = false;
+
+    // Build url, add accessCode and token if needed
+    const url = "rooms/" + props.roomId + "/" + action.value;
+    const config = {
+      method: "options",
+    };
+
+    if (props.token) {
+      config.headers = { Token: props.token };
+    } else if (props.accessCode != null) {
+      config.headers = { "Access-Code": props.accessCode };
+    }
+
+    api
+      .call(url, config)
+      .then((response) => {
+        features.value = response.data.data.features;
+        isLoadingAction.value = false;
+
+        resolve(true);
+      })
+      .catch((error) => {
+        isLoadingAction.value = false;
+        resolve(false);
+
+        if (error.response) {
+          // Handle general errors, if error was handled
+          // return to prevent further processing
+          if (handleError(error)) {
+            return;
+          }
+        }
+
+        // Other errors
+        loadingError.value = true;
+        api.error(error);
+      });
+  });
 }
 
 const autoJoin = computed(() => {
@@ -229,11 +307,15 @@ const autoJoin = computed(() => {
     return false;
   }
 
-  if (props.recordAttendance) {
+  if (features.value.attendance_recording) {
     return false;
   }
 
-  if (props.record) {
+  if (features.value.recording) {
+    return false;
+  }
+
+  if (features.value.streaming) {
     return false;
   }
 
@@ -261,6 +343,7 @@ function getJoinUrl() {
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
+      consent_streaming: streamingAgreement.value,
     },
   };
 
@@ -270,8 +353,7 @@ function getJoinUrl() {
     config.headers = { "Access-Code": props.accessCode };
   }
 
-  const url =
-    "rooms/" + props.roomId + "/" + (props.running ? "join" : "start");
+  const url = "rooms/" + props.roomId + "/" + action.value;
 
   // Join meeting request
   api
@@ -288,59 +370,16 @@ function getJoinUrl() {
       isLoadingAction.value = false;
 
       if (error.response) {
-        // Access code invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
-        ) {
-          emit("invalidCode");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Access code is required
-        if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
-        ) {
-          emit("invalidCode");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Room token is invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
-        ) {
-          emit("invalidToken");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Forbidden, guests not allowed
-        if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "guests_not_allowed"
-        ) {
-          emit("guestsNotAllowed");
-          modalVisible.value = false;
-          return;
-        }
-
-        // Forbidden, use can't start the room
-        if (error.response.status === env.HTTP_FORBIDDEN) {
-          // Show error message
-          toast.error(t("rooms.flash.start_forbidden"));
-          EventBus.emit(EVENT_FORBIDDEN);
-          modalVisible.value = false;
+        // Handle general errors, if error was handled
+        // return to prevent further processing
+        if (handleError(error)) {
           return;
         }
 
         // Form validation error
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
-          emit("changed");
+          loadStartJoinRequirements();
           return;
         }
 
@@ -356,11 +395,71 @@ function getJoinUrl() {
         if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
           emit("changed");
           showRunningMessage.value = true;
+          action.value = "join";
+          loadStartJoinRequirements();
           return;
         }
       }
 
       api.error(error);
     });
+}
+
+/**
+ * General error handler for room join/start
+ * @param error
+ * @return {boolean} true if error was handled, false otherwise
+ */
+function handleError(error) {
+  // Access code invalid
+  if (
+    error.response.status === env.HTTP_UNAUTHORIZED &&
+    error.response.data.message === "invalid_code"
+  ) {
+    emit("invalidCode");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Access code is required
+  if (
+    error.response.status === env.HTTP_FORBIDDEN &&
+    error.response.data.message === "require_code"
+  ) {
+    emit("invalidCode");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Room token is invalid
+  if (
+    error.response.status === env.HTTP_UNAUTHORIZED &&
+    error.response.data.message === "invalid_token"
+  ) {
+    emit("invalidToken");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Forbidden, guests not allowed
+  if (
+    error.response.status === env.HTTP_FORBIDDEN &&
+    error.response.data.message === "guests_not_allowed"
+  ) {
+    emit("guestsNotAllowed");
+    modalVisible.value = false;
+    return true;
+  }
+
+  // Forbidden, use can't start the room
+  if (error.response.status === env.HTTP_FORBIDDEN) {
+    // Show error message
+    toast.error(t("rooms.flash.start_forbidden"));
+    EventBus.emit(EVENT_FORBIDDEN);
+    modalVisible.value = false;
+    return true;
+  }
+
+  return false;
 }
 </script>

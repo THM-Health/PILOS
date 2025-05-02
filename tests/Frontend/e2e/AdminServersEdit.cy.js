@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+
 describe("Admin servers edit", function () {
   beforeEach(function () {
     cy.init();

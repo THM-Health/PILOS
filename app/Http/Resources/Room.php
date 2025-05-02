@@ -63,26 +63,7 @@ class Room extends JsonResource
             'can_start' => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
             'access_code' => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
-            'record_attendance' => ($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record_attendance : ($this->getRoomSetting('record_attendance')),
-            'record' => ($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record : ($this->getRoomSetting('record')),
             'current_user' => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles(),
-        ];
-    }
-
-    public function getLastMeeting($latestMeeting)
-    {
-        if (! $latestMeeting) {
-            return null;
-        }
-
-        return [
-            'start' => $latestMeeting->start,
-            'end' => $latestMeeting->end,
-            'detached' => $latestMeeting->detached,
-            'usage' => $this->when($latestMeeting->end == null, [
-                'participant_count' => $this->participant_count,
-            ]),
-            'server_connection_issues' => $latestMeeting->end == null && $latestMeeting->server->error_count > 0,
         ];
     }
 
@@ -95,6 +76,10 @@ class Room extends JsonResource
     public function toArray($request)
     {
         $latestMeeting = $this->resource->latestMeeting;
+        // Set the room relation for the latest meeting, to prevent lookup in the  LastMeeting resource
+        if ($latestMeeting) {
+            $latestMeeting->setRelation('room', $this->resource);
+        }
 
         return [
             'id' => $this->id,
@@ -103,8 +88,8 @@ class Room extends JsonResource
                 'id' => $this->owner->id,
                 'name' => $this->owner->fullname,
             ],
-            'last_meeting' => $this->getLastMeeting($latestMeeting),
-            'type' => new RoomType($this->roomType),
+            'last_meeting' => new LastMeeting($latestMeeting),
+            'type' => new RoomType($this->roomType)->withFeatures(),
             'model_name' => $this->model_name,
             'short_description' => $this->short_description,
             'is_favorite' => Auth::user() ? Auth::user()->roomFavorites->contains($this->id) : false,

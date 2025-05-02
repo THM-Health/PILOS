@@ -16,6 +16,28 @@
           }}
         </div>
 
+        <!-- Features of the room type -->
+        <div v-if="visibleFeaturesCount > 0" data-test="room-type-features">
+          <span class="font-bold">{{
+            $t("rooms.room_types.features.title")
+          }}</span>
+          <div class="flex flex-row gap-2">
+            <RoomTypeFeatureField
+              v-if="
+                settingsStore.getSetting('streaming.enabled') ||
+                !settingsStore.getSetting('general.hide_disabled_features')
+              "
+              icon="fas fa-broadcast-tower"
+              :enabled="
+                roomType.features.streaming.enabled &&
+                settingsStore.getSetting('streaming.enabled')
+              "
+              :label="$t('rooms.room_types.features.streaming')"
+              data-test="room-type-feature-streaming"
+            />
+          </div>
+        </div>
+
         <!-- Information about the default and enforced room settings for the room type -->
         <Accordion
           class="mt-4"
@@ -60,13 +82,30 @@
 
 <script setup>
 import { useRoomTypeSettings } from "../composables/useRoomTypeSettings.js";
+import RoomTypeFeatureField from "./RoomTypeFeatureField.vue";
+import { useSettingsStore } from "../stores/settings.js";
+import { computed } from "vue";
 
 const roomTypeSettings = useRoomTypeSettings();
+const settingsStore = useSettingsStore();
 
 defineProps({
   roomType: {
     type: Object,
     required: true,
   },
+});
+
+const visibleFeaturesCount = computed(() => {
+  let count = 0;
+
+  // Check if streaming is enabled and not hidden
+  if (
+    settingsStore.getSetting("streaming.enabled") ||
+    !settingsStore.getSetting("general.hide_disabled_features")
+  )
+    count++;
+
+  return count;
 });
 </script>

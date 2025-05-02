@@ -8,4 +8,9 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('general.toast_lifetime', 5);
     }
+
+    public function down(): void
+    {
+        $this->migrator->delete('general.toast_lifetime');
+    }
 };

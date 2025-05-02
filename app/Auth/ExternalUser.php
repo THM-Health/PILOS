@@ -6,7 +6,11 @@ use App\Models\Role;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use Hash;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Log;
+use Spatie\Image\Enums\Fit;
+use Spatie\Image\Image;
 use Str;
 
 /**
@@ -123,10 +127,85 @@ abstract class ExternalUser
         // Save/update user
         $eloquentUser->save();
 
+        // Sync profile image
+        $this->syncImage($eloquentUser);
+
         // Map roles
         $this->mapRoles($eloquentUser, $roles);
 
         return $eloquentUser;
+    }
+
+    /**
+     * Import profile image
+     */
+    public function syncImage($eloquentUser): void
+    {
+        $image = $this->getFirstAttributeValue('image');
+        if ($image) {
+            // External authenticator provided an image
+
+            try {
+                // Get hash of image
+                $imageHash = hash('sha256', $image);
+
+                // Check if profile image is already set to the same file
+                if ($eloquentUser->external_image_hash == $imageHash) {
+                    return;
+                }
+
+                // Write image to temporary location
+                $tempFile = tempnam(sys_get_temp_dir(), 'profile_image');
+                file_put_contents($tempFile, $image);
+
+                $uploadedImage = new UploadedFile($tempFile, 'profile_image.jpg');
+
+                // Validate image
+                if ($uploadedImage->getMimeType() != 'image/jpeg') {
+                    throw new \Exception('Invalid image type: '.$uploadedImage->getMimeType());
+                }
+
+                // Save new image and crop it to 100x100
+                $filename = $uploadedImage->storePublicly('profile_images', 'public');
+                Image::load(Storage::disk('public')->path($filename))
+                    ->fit(fit: Fit::Crop, desiredWidth: 100, desiredHeight: 100)
+                    ->save();
+
+                // Remove temporary file
+                unlink($tempFile);
+
+                // Clean up old image if exists
+                if ($eloquentUser->image) {
+                    Storage::disk('public')->delete($eloquentUser->image);
+                }
+
+                // Update user with new image and hash of the image (before cropping)
+                $eloquentUser->image = $filename;
+                $eloquentUser->external_image_hash = $imageHash;
+                $eloquentUser->save();
+                Log::info('Image updated for user ({user}): {filename}.', ['user' => $eloquentUser->getLogLabel(), 'filename' => $filename]);
+            } catch (\Exception $e) {
+                Log::error('Failed to save image for user ({user}): {error}', [
+                    'user' => $eloquentUser->getLogLabel(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        } else {
+            // No image provided by external authenticator
+
+            // Check if image was previously set by external authenticator
+            if ($eloquentUser->hasExternalImage) {
+                // Clean up old image if exists
+                if ($eloquentUser->image) {
+                    Storage::disk('public')->delete($eloquentUser->image);
+                }
+                $eloquentUser->image = null;
+                $eloquentUser->external_image_hash = null;
+                $eloquentUser->save();
+
+                Log::info('Image removed for user ({user}).', ['user' => $eloquentUser->getLogLabel()]);
+            }
+        }
     }
 
     /**

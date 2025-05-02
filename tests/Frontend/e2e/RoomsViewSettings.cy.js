@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+
 describe("Rooms view settings", function () {
   beforeEach(function () {
     cy.init();

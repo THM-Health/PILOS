@@ -17,4 +17,17 @@ return new class extends SettingsMigration
 
         $this->migrator->add('recording.recording_retention_period', TimePeriod::ONE_YEAR);
     }
+
+    public function down(): void
+    {
+        $this->migrator->delete('recording.server_usage_enabled');
+        $this->migrator->delete('recording.server_usage_retention_period');
+
+        $this->migrator->delete('recording.meeting_usage_enabled');
+        $this->migrator->delete('recording.meeting_usage_retention_period');
+
+        $this->migrator->delete('recording.attendance_retention_period');
+
+        $this->migrator->delete('recording.recording_retention_period');
+    }
 };

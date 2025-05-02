@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\RoomEnded;
+use App\Events\RoomStarted;
+use App\Listeners\ConfigureStreamingOnRoomStart;
 use App\Listeners\FailedLoginAttempt;
+use App\Listeners\ResetStreamingOnRoomStop;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -21,6 +25,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         Failed::class => [
             FailedLoginAttempt::class,
+        ],
+        RoomStarted::class => [
+            ConfigureStreamingOnRoomStart::class,
+        ],
+        RoomEnded::class => [
+            ResetStreamingOnRoomStop::class,
         ],
     ];
 

@@ -10,7 +10,12 @@
     "type": {
       "id": 2,
       "name": "Meeting",
-      "color": "#4a5c66"
+      "color": "#4a5c66",
+      "features": {
+        "streaming": {
+          "enabled": false
+        }
+      }
     },
     "model_name": "Room",
     "short_description": null,

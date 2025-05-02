@@ -6,6 +6,7 @@ use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RoomType extends Model
 {
@@ -56,5 +57,12 @@ class RoomType extends Model
     public function getLogLabel()
     {
         return $this->name.' ('.$this->id.')';
+    }
+
+    public function streamingSettings(): HasOne
+    {
+        return $this->hasOne(RoomTypeStreamingSettings::class, 'room_type_id', 'id')->withDefault([
+            'enabled' => false,
+        ])->chaperone('roomType');
     }
 }
