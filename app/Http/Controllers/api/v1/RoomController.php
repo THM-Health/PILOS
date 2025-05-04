@@ -174,6 +174,11 @@ class RoomController extends Controller
             $room->access_code = random_int(111111111, 999999999);
         }
 
+        // Create dialin pin if activated for this room type
+        if ($room->roomType->dialin_pin_default) {
+            $room->dialin_pin = random_int(11111, 99999);
+        }
+
         // Apply non-expert settings of the room type
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             if (! $config['expert']) {

@@ -153,6 +153,10 @@ class Room extends Model
             'cast' => 'boolean',
             'expert' => true,
         ],
+        'dialin_pin' => [
+            'cast' => 'integer',
+            'expert' => true,
+        ],
     ];
 
     /**
@@ -188,6 +192,10 @@ class Room extends Model
                 $enumValidation = $enumValidation->only(self::ROOM_SETTINGS_DEFINITION[$settingName]['only']);
             }
             array_push($rules, $enumValidation);
+        }
+        // Custom validation for dialin_pin
+        elseif ($settingName === 'dialin_pin') {
+            array_push($rules, 'integer', 'digits:5', 'min:10000', 'max:99999');
         }
         // Room setting validation with invalid cast
         else {

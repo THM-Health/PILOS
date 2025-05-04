@@ -129,6 +129,7 @@ import RoomTabSettingsRadioGroup from "./RoomTabSettingsRadioGroup.vue";
 import RoomTabSettingsSelectButton from "./RoomTabSettingsSelectButton.vue";
 import RoomTabSettingsRoomTypeSelect from "./RoomTabSettingsRoomTypeSelect.vue";
 import RoomTabSettingsAccessCodeInput from "./RoomTabSettingsAccessCodeInput.vue";
+import RoomTabSettingsDialinPinInput from "./RoomTabSettingsDialinPinInput.vue";
 
 const props = defineProps({
   room: {
@@ -334,6 +335,11 @@ const form = computed(() => {
             { value: 1, label: t("rooms.settings.advanced.visibility.public") },
           ],
         },
+        {
+          setting: "dialin_pin",
+          label: t("rooms.dialin_pin"),
+          component: RoomTabSettingsDialinPinInput,
+        }
       ],
     },
   ];

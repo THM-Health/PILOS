@@ -145,6 +145,12 @@ export function useRoomTypeSettings() {
               1: t("rooms.settings.advanced.visibility.public"),
             },
           },
+          {
+            key: "dialin_pin",
+            current_value_key: "dialin_pin",
+            label: t("rooms.settings.general.dialin_pin"),
+            type: "switch",
+          },
         ],
       },
     ];

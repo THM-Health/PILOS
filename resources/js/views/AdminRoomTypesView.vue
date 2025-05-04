@@ -1403,6 +1403,52 @@
               </div>
             </div>
           </div>
+
+          <!-- Has dialin pin setting -->
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="has-dialin-pin-field"
+          >
+            <label
+              for="has-dialin-pin-default"
+              class="col-span-12 items-center md:col-span-4 md:m-0"
+            >
+              {{ $t("rooms.settings.general.dialin_pin_code") }}</label
+            >
+            <div class="col-span-12 md:col-span-8">
+              <div class="flex items-center justify-between">
+                <ToggleSwitch
+                  v-model="model.dialin_pin_default"
+                  input-id="has-dialin-pin-default"
+                  :invalid="formErrors.fieldInvalid('dialin_pin_default')"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                />
+                <ToggleButton
+                  v-model="model.dialin_pin_enforced"
+                  :invalid="formErrors.fieldInvalid('dialin_pin_enforced')"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                  :on-label="
+                    $t('admin.room_types.default_room_settings.enforced')
+                  "
+                  :off-label="
+                    $t('admin.room_types.default_room_settings.default')
+                  "
+                  on-icon="fa-solid fa-lock"
+                  off-icon="fa-solid fa-lock-open"
+                  data-test="has-dialin-pin-enforced"
+                  :aria-label="$t('rooms.settings.general.enforced_setting')"
+                />
+              </div>
+              <div class="flex justify-between gap-6">
+                <FormError
+                  :errors="formErrors.fieldError('dialin_pin_default')"
+                />
+                <FormError
+                  :errors="formErrors.fieldError('dialin_pin_enforced')"
+                />
+              </div>
+            </div>
+          </div>
         </AdminPanel>
 
         <!-- BBB api settings -->
@@ -1561,6 +1607,8 @@ const model = ref({
   visibility_enforced: false,
   has_access_code_default: true,
   has_access_code_enforced: false,
+  dialin_pin_default: false,
+  dialin_pin_enforced: false,
 });
 
 const name = ref("");
