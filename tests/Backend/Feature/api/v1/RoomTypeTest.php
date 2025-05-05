@@ -1,6 +1,6 @@
 <?php
 
-namespace Backend\Feature\api\v1;
+namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;

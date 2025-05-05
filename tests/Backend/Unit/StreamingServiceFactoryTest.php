@@ -1,6 +1,6 @@
 <?php
 
-namespace Backend\Unit;
+namespace Tests\Backend\Unit;
 
 use App\Models\Meeting;
 use App\Services\StreamingService;
