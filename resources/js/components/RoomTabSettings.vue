@@ -337,7 +337,8 @@ const form = computed(() => {
         },
         {
           setting: "dialin_pin",
-          label: t("rooms.dialin_pin"),
+          label: t("rooms.settings.advanced.has_dialin_pin"),
+          placeholder: t("rooms.settings.advanced.dialin_pin_none_placeholder"),
           component: RoomTabSettingsDialinPinInput,
         }
       ],

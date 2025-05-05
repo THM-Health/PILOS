@@ -31,6 +31,7 @@ class RoomSettings extends JsonResource
             'welcome' => $this->expert_mode ? $this->welcome : '',
             'short_description' => $this->short_description,
             'access_code' => $this->access_code,
+            'dialin_pin' => $this->dialin_pin,
             'room_type' => (new RoomType($this->roomType))->withDefaultRoomSettings()->withFeatures(),
             $this->merge($this->getRoomSettings()),
         ];

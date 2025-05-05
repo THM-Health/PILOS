@@ -14,8 +14,8 @@ return new class extends Migration
     {
 
         Schema::table('room_types', function (Blueprint $table) {
-            $table->boolean('dialin_pin_enforced')->after('has_access_code_default')->default(false);
-            $table->boolean('dialin_pin_default')->after('dialin_pin_enforced')->default(false);
+            $table->boolean('has_dialin_pin_enforced')->after('has_access_code_default')->default(false);
+            $table->boolean('has_dialin_pin_default')->after('has_dialin_pin_enforced')->default(false);
         });
         Schema::table('rooms', function (Blueprint $table) {
             $table->integer('dialin_pin')->nullable()->unique()->after('meeting_id');
@@ -28,8 +28,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('room_types', function (Blueprint $table) {
-            $table->dropColumn('dialin_pin_enforced');
-            $table->dropColumn('dialin_pin_default');
+            $table->dropColumn('has_dialin_pin_enforced');
+            $table->dropColumn('has_dialin_pin_default');
         });
         Schema::table('rooms', function (Blueprint $table) {
             $table->dropColumn('dialin_pin');

@@ -2,6 +2,7 @@
 
 return [
     'access_code' => 'Zugangscode',
+    'dialin_pin' => 'Einwahl-PIN',
     'auth_throttled' => 'Zu viele Versuche. Bitte versuchen Sie es in :try_again Sekunden erneut.',
     'become_member' => 'Mitglied werden',
     'change_type' => [
@@ -358,6 +359,12 @@ return [
                 'public' => 'Öffentlich',
                 'title' => 'Sichtbarkeit',
             ],
+            'has_dialin_pin' => 'Einwahl PIN',
+            'dialin_pin_none_placeholder' => '-- Zufällig --',
+            'dialin_pin_enforced' => 'Die Raumart erzwingt, dass ein Einwahl Pin existiert',
+            'dialin_pin_prohibited' => 'Die Raumart erzwingt, dass kein Einwahl Pin existiert',
+            'generate_dialin_pin' => 'Neuen Einwahl Pin erstellen',
+            'delete_dialin_pin' => 'Einwahl Pin entfernen',
         ],
         'expert_mode' => [
             'activate' => 'Expertenmodus aktivieren',

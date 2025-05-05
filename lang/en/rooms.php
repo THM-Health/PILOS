@@ -2,6 +2,7 @@
 
 return [
     'access_code' => 'Access code',
+    'dialin_pin' => 'Dialin PIN',
     'auth_throttled' => 'Too many attempts. Please try again in :try_again seconds.',
     'become_member' => 'Become member',
     'change_type' => [
@@ -358,6 +359,12 @@ return [
                 'public' => 'Public',
                 'title' => 'Visibility',
             ],
+            'has_dialin_pin' => 'Dialin PIN',
+            'dialin_pin_none_placeholder' => '-- Random --',
+            'dialin_pin_enforced' => 'The room type enforces the existence of an dialin pin',
+            'dialin_pin_prohibited' => 'The room type enforces the absence of an dialin pin',
+            'generate_dialin_pin' => 'Generate new dialin pin',
+            'delete_dialin_pin' => 'Delete dialin pin',
         ],
         'expert_mode' => [
             'activate' => 'Activate expert mode',

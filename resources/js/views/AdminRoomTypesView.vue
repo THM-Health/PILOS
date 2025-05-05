@@ -1413,19 +1413,19 @@
               for="has-dialin-pin-default"
               class="col-span-12 items-center md:col-span-4 md:m-0"
             >
-              {{ $t("rooms.settings.general.dialin_pin_code") }}</label
+              {{ $t("rooms.settings.advanced.has_dialin_pin") }}</label
             >
             <div class="col-span-12 md:col-span-8">
               <div class="flex items-center justify-between">
                 <ToggleSwitch
-                  v-model="model.dialin_pin_default"
+                  v-model="model.has_dialin_pin_default"
                   input-id="has-dialin-pin-default"
-                  :invalid="formErrors.fieldInvalid('dialin_pin_default')"
+                  :invalid="formErrors.fieldInvalid('has_dialin_pin_default')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                 />
                 <ToggleButton
-                  v-model="model.dialin_pin_enforced"
-                  :invalid="formErrors.fieldInvalid('dialin_pin_enforced')"
+                  v-model="model.has_dialin_pin_enforced"
+                  :invalid="formErrors.fieldInvalid('has_dialin_pin_enforced')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   :on-label="
                     $t('admin.room_types.default_room_settings.enforced')
@@ -1441,10 +1441,10 @@
               </div>
               <div class="flex justify-between gap-6">
                 <FormError
-                  :errors="formErrors.fieldError('dialin_pin_default')"
+                  :errors="formErrors.fieldError('has_dialin_pin_default')"
                 />
                 <FormError
-                  :errors="formErrors.fieldError('dialin_pin_enforced')"
+                  :errors="formErrors.fieldError('has_dialin_pin_enforced')"
                 />
               </div>
             </div>
@@ -1607,8 +1607,8 @@ const model = ref({
   visibility_enforced: false,
   has_access_code_default: true,
   has_access_code_enforced: false,
-  dialin_pin_default: false,
-  dialin_pin_enforced: false,
+  has_dialin_pin_default: false,
+  has_dialin_pin_enforced: false,
 });
 
 const name = ref("");

@@ -17,6 +17,7 @@ class UpdateRoomSettings extends FormRequest
             'name' => ['required', 'string', 'min:2', 'max:'.config('bigbluebutton.room_name_limit')],
             'short_description' => ['nullable', 'string', 'max:300'],
             'expert_mode' => ['required', 'boolean'],
+            'dialin_pin' => $this->getDialinPinValidationRule(),
         ];
 
         // Generate validation rules for all visible room settings
@@ -58,6 +59,38 @@ class UpdateRoomSettings extends FormRequest
                     array_unshift($rules, 'prohibited', 'nullable');
                 }
                 // Set access code to nullable (room can have an access code but access code is not enforced)
+                else {
+                    array_unshift($rules, 'nullable');
+                }
+            }
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Set dialin_pin validation rule based on the settings in the room type
+     *
+     * @return string[] dialin_pin validation rules
+     */
+    private function getDialinPinValidationRule(): array
+    {
+        $rules = ['integer', 'digits:5', 'bail', 'min:10000', 'max:99999', 'unique:rooms,dialin_pin,' . $this->room->id];
+
+        // Make sure that the given room type id is a number
+        if (is_numeric($this->input('room_type'))) {
+            // Check if a room type exists with the given number
+            $newRoomType = RoomType::find($this->input('room_type'));
+            if ($newRoomType) {
+                // Set dialin_pin to required if enforced in room type
+                if ($newRoomType->has_dialin_pin_enforced && $newRoomType->has_dialin_pin_default) {
+                    array_unshift($rules, 'required');
+                }
+                // Set dialin_pin to prohibited if enforced in room type
+                elseif ($newRoomType->has_adialin_pin_enforced && ! $newRoomType->has_dialin_pin_default) {
+                    array_unshift($rules, 'prohibited', 'nullable');
+                }
+                // Set dialin_pin to nullable (room can have an dialin_pin but dialin_pin is not enforced)
                 else {
                     array_unshift($rules, 'nullable');
                 }

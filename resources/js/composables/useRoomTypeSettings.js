@@ -148,7 +148,7 @@ export function useRoomTypeSettings() {
           {
             key: "dialin_pin",
             current_value_key: "dialin_pin",
-            label: t("rooms.settings.general.dialin_pin"),
+            label: t("rooms.settings.advanced.dialin_pin"),
             type: "switch",
           },
         ],

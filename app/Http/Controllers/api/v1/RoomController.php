@@ -278,6 +278,7 @@ class RoomController extends Controller
         $room->expert_mode = $request->expert_mode;
         $room->short_description = $request->short_description;
         $room->access_code = $request->access_code;
+        $room->dialin_pin = $request->dialin_pin;
 
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             // Expert mode for room is deactivated and setting is an expert setting: do not update setting

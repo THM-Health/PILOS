@@ -73,6 +73,9 @@ class RoomType extends JsonResource
         $settings['has_access_code_default'] = $this->has_access_code_default;
         $settings['has_access_code_enforced'] = $this->has_access_code_enforced;
 
+        $settings['has_dialin_pin_default'] = $this->has_dialin_pin_default;
+        $settings['has_dialin_pin_enforced'] = $this->has_dialin_pin_enforced;
+        
         return $settings;
     }
 

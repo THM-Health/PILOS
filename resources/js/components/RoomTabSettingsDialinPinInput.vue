@@ -20,16 +20,16 @@
         <!-- Generate random dialin pin -->
         <Button
           v-if="!disabled"
-          v-tooltip="$t('rooms.settings.general.generate_dialin_pin')"
+          v-tooltip="$t('rooms.settings.advanced.generate_dialin_pin')"
           data-test="generate-dialin-pin-button"
-          :aria-label="$t('rooms.settings.general.generate_dialin_pin')"
+          :aria-label="$t('rooms.settings.advanced.generate_dialin_pin')"
           icon="fa-solid fa-dice"
           @click="createDialinPin"
         />
         <!-- Dialin PIN -->
         <InputText
           :id="'room-setting-' + setting"
-          v-model.number="model[setting]"
+          v-model="model[setting]"
           :disabled="disabled"
           :invalid="invalid"
           :placeholder="placeholder"
@@ -37,8 +37,8 @@
         <!-- Clear dialin pin -->
         <Button
           v-if="model[setting] && !disabled"
-          v-tooltip="$t('rooms.settings.general.delete_dialin_pin')"
-          :aria-label="$t('rooms.settings.general.delete_dialin_pin')"
+          v-tooltip="$t('rooms.settings.advanced.delete_dialin_pin')"
+          :aria-label="$t('rooms.settings.advanced.delete_dialin_pin')"
           icon="fa-solid fa-trash"
           data-test="clear-dialin-pin-button"
           @click="model[setting] = null"
@@ -47,8 +47,8 @@
       <small v-if="model.room_type.dialin_pin_enforced">
         {{
           model.room_type.dialin_pin_default
-            ? $t("rooms.settings.general.dialin_pin_enforced")
-            : $t("rooms.settings.general.dialin_pin_prohibited")
+            ? $t("rooms.settings.advanced.dialin_pin_enforced")
+            : $t("rooms.settings.advanced.dialin_pin_prohibited")
         }}
       </small>
       <FormError :errors="errors" />
