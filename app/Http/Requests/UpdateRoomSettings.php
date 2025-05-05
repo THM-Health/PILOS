@@ -87,7 +87,7 @@ class UpdateRoomSettings extends FormRequest
                     array_unshift($rules, 'required');
                 }
                 // Set dialin_pin to prohibited if enforced in room type
-                elseif ($newRoomType->has_adialin_pin_enforced && ! $newRoomType->has_dialin_pin_default) {
+                elseif ($newRoomType->has_dialin_pin_enforced && ! $newRoomType->has_dialin_pin_default) {
                     array_unshift($rules, 'prohibited', 'nullable');
                 }
                 // Set dialin_pin to nullable (room can have an dialin_pin but dialin_pin is not enforced)
