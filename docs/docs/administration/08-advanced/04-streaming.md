@@ -55,7 +55,7 @@ Once livestreaming is enabled in the .env file, additional settings can be confi
 - **Default pause image**: Pause image, used if no pause image is set for the room type or room.
 - **CSS style file**: Custom CSS file to customize the BBB UI for streaming.
 
-    - **Example for BBB 2.7**
+    - **Example for BBB 2.7 and BBB 3.0**
 
         ```css
         :root {
@@ -64,7 +64,7 @@ Once livestreaming is enabled in the .env file, additional settings can be confi
             --loader-bg: var(--color-background);
         }
 
-        #video-player div:nth-child(2) {
+        div[data-test="videoPlayer"] div:nth-child(2) {
             display: none;
         }
 
@@ -86,6 +86,14 @@ Once livestreaming is enabled in the .env file, additional settings can be confi
     - **Example for BBB 2.7**
         ```
         userdata-bbb_hide_nav_bar=true
+        userdata-bbb_show_public_chat_on_login=false
+        userdata-bbb_show_participants_on_login=false
+        ```
+    - **Example for BBB 3.0**
+        ```
+        userdata-bbb_hide_nav_bar=true
+        userdata-bbb_hide_controls=true
+        userdata-bbb_hide_notifications=true
         userdata-bbb_show_public_chat_on_login=false
         userdata-bbb_show_participants_on_login=false
         ```
