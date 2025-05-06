@@ -1,6 +1,6 @@
 <?php
 
-namespace Backend\Unit\Rules;
+namespace Tests\Backend\Unit\Rules;
 
 use App\Rules\CustomCreateMeetingParameters;
 use Illuminate\Foundation\Testing\RefreshDatabase;
