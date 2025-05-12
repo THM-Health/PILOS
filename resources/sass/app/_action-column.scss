@@ -22,6 +22,10 @@ td.action-column > div {
             width: 1px;
         }
 
+        th.picture-column {
+            width: 1px;
+        }
+
         th.action-column {
             width: 1px;
         }
@@ -47,6 +51,10 @@ td.action-column > div {
         }
 
         th.id-column {
+            width: 5rem;
+        }
+
+        th.picture-column {
             width: 5rem;
         }
     }
