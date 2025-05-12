@@ -55,7 +55,7 @@
     "@tiptap/extension-underline": "^2.11.9",
     "@tiptap/starter-kit": "^2.11.9",
     "@tiptap/vue-3": "^2.11.9",
-    "@vitejs/plugin-vue": "^5.2.3",
+    "@vitejs/plugin-vue": "^5.2.4",
     "@vueuse/components": "^13.1.0",
     "@vueuse/core": "^13.1.0",
     "autoprefixer": "^10.4.21",
