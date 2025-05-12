@@ -6,11 +6,13 @@ use App\Auth\MissingAttributeException;
 use App\Http\Controllers\Controller;
 use App\Models\SessionData;
 use Auth;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class OIDCController extends Controller
 {
+
     public function __construct()
     {
         $this->middleware('guest');
@@ -34,7 +36,7 @@ class OIDCController extends Controller
 
     public function callback(Request $request)
     {
-        try {
+        //try {
             $this->oidc->authenticate();
 
             $claims = $this->oidc->getVerifiedClaims();
@@ -46,11 +48,11 @@ class OIDCController extends Controller
                 throw new \Exception('Invalid Issued At');
             }
 
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             Log::error($e);
 
             return redirect('/external_login?error=openid_connect_exception');
-        }
+        }*/
 
         // Create new open-id connect user
         try {
@@ -104,17 +106,31 @@ class OIDCController extends Controller
     {
         Log::debug('OIDC backchannel logout handler called');
 
-        if (! $this->oidc->verifyLogoutToken()) {
-            Log::warning('Logout token verification failed');
+        try{
+            if (! $this->oidc->verifyLogoutToken()) {
+                Log::warning('Logout token verification failed');
 
-            return;
+                throw new \Exception('Failed to verify backchannel logout token');
+            }
+
+            $sub = $this->oidc->getSubjectFromBackChannel();
+            if (! isset($sub)) {
+                throw new \Exception('Subject missing in backchannel logout request');
+            }
+
+        }
+        catch (\Exception $e) {
+            Log::error($e);
+
+            return response('', 400)
+                ->header('Cache-Control', 'no-store');
         }
 
-        $sub = $this->oidc->getSubjectFromBackChannel();
-        if (! isset($sub)) {
-            Log::warning('Getting subject from backchannel failed');
-
-            return;
+        // Delete all sessions of the user
+        $user = Auth::user();
+        if ($user) {
+            $user->sessions()->delete();
+            Log::info('Deleting session of user {user}', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
         }
 
         $lookupSessions = SessionData::where('key', 'oidc_sub')->where('value', $sub)->get();
@@ -123,6 +139,9 @@ class OIDCController extends Controller
             Log::info('Deleting session of user {user}', ['user' => $user, 'type' => 'oidc']);
             $lookupSession->session()->delete();
         }
+
+        return response('', 200)
+            ->header('Cache-Control', 'no-store');
     }
 
     /**
@@ -130,7 +149,7 @@ class OIDCController extends Controller
      */
     public function signout(Request $request)
     {
-        $this->oidc->signOut($request['id_token'], $request['logout_url']);
+        $this->oidc->signOut($request->query('id_token'), $request->query('logout_url'));
     }
 
     public function signoutRedirectURL(string $logout_url)

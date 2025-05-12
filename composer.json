@@ -15,7 +15,7 @@
     "ext-zip": "*",
     "directorytree/ldaprecord-laravel": "^3.0",
     "guzzlehttp/guzzle": "^7.0.1",
-    "jumbojett/openid-connect-php": "^1.0",
+    "jumbojett/openid-connect-php": "dev-refactor-jwt",
     "laravel/framework": "^12.3",
     "laravel/horizon": "^5.21",
     "laravel/prompts": "^0.3.2",
@@ -44,6 +44,12 @@
     "phpunit/phpunit": "^12.1",
     "timacdonald/log-fake": "^2.0.1"
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../OpenID-Connect-PHP"
+    }
+  ],
   "config": {
     "optimize-autoloader": true,
     "preferred-install": "dist",
@@ -75,7 +81,7 @@
       "Tests\\": "tests/"
     }
   },
-  "minimum-stability": "beta",
+  "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
     "post-autoload-dump": [
