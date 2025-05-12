@@ -24,7 +24,7 @@
     "@intlify/eslint-plugin-vue-i18n": "^4.0.1",
     "cypress": "^14.3.2",
     "eslint": "^9.26.0",
-    "eslint-config-prettier": "^10.1.2",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-cypress": "^4.3.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsonc": "^2.20.0",
