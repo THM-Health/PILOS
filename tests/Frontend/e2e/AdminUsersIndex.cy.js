@@ -122,7 +122,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-header-cell"]')
       .eq(1)
       .should("have.text", "admin.users.image.title");
-     cy.get('[data-test="user-header-cell"]')
+    cy.get('[data-test="user-header-cell"]')
       .eq(2)
       .should("have.text", "app.firstname");
     cy.get('[data-test="user-header-cell"]')
@@ -150,7 +150,9 @@ describe("Admin users index", function () {
         cy.get('[data-test="user-item-cell"]').should("have.length", 8);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "1");
-        cy.get('[data-test="user-item-cell"]').eq(1).should("include.text", "JD");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(1)
+          .should("include.text", "JD");
         cy.get('[data-test="user-item-cell"]')
           .eq(2)
           .should("have.text", "John");
@@ -183,7 +185,9 @@ describe("Admin users index", function () {
         cy.get('[data-test="user-item-cell"]').should("have.length", 8);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "2");
-        cy.get('[data-test="user-item-cell"]').eq(1).should("include.text", "LR");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(1)
+          .should("include.text", "LR");
         cy.get('[data-test="user-item-cell"]')
           .eq(2)
           .should("have.text", "Laura");
@@ -218,7 +222,9 @@ describe("Admin users index", function () {
         cy.get('[data-test="user-item-cell"]').should("have.length", 8);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "3");
-        cy.get('[data-test="user-item-cell"]').eq(1).should("include.text", "JW");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(1)
+          .should("include.text", "JW");
         cy.get('[data-test="user-item-cell"]')
           .eq(2)
           .should("have.text", "Juan");
@@ -253,7 +259,9 @@ describe("Admin users index", function () {
         cy.get('[data-test="user-item-cell"]').should("have.length", 8);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "100");
-        cy.get('[data-test="user-item-cell"]').eq(1).should("include.text", "MD");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(1)
+          .should("include.text", "MD");
         cy.get('[data-test="user-item-cell"]').eq(2).should("have.text", "Max");
         cy.get('[data-test="user-item-cell"]').eq(3).should("have.text", "Doe");
         cy.get('[data-test="user-item-cell"]')
