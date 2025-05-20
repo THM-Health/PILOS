@@ -39,15 +39,6 @@ class OIDCController extends Controller
         //try {
             $this->oidc->authenticate();
 
-            $claims = $this->oidc->getVerifiedClaims();
-
-            // Check iat exists, is not an int and is not in the future
-            // @todo: Remove when https://github.com/jumbojett/OpenID-Connect-PHP/pull/476 is merged
-            if (! isset($claims->iat) || ! is_int($claims->iat) || ($claims->iat >= time() + $this->oidc->getLeeway())) {
-                // Invalid Issued At
-                throw new \Exception('Invalid Issued At');
-            }
-
         /*} catch (\Exception $e) {
             Log::error($e);
 
