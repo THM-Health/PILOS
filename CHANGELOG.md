@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Display user pictures in the admin user list ([#2131])
+
 ### Fixed
 
 - Container restart ([#2134])
@@ -474,6 +478,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2065]: https://github.com/THM-Health/PILOS/pull/2065
 [#2079]: https://github.com/THM-Health/PILOS/pull/2079
 [#2082]: https://github.com/THM-Health/PILOS/pull/2082
+[#2131]: https://github.com/THM-Health/PILOS/pull/2131
 [#2134]: https://github.com/THM-Health/PILOS/pull/2134
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.5.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

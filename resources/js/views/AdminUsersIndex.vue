@@ -168,6 +168,20 @@
       </template>
 
       <Column field="id" :header="$t('app.id')" sortable class="id-column" />
+      <Column
+        field="image"
+        :header="$t('admin.users.image.title_short')"
+        class="picture-column"
+      >
+        <template #body="slotProps">
+          <UserAvatar
+            :firstname="slotProps.data.firstname"
+            :lastname="slotProps.data.lastname"
+            :image="slotProps.data.image"
+            size="large"
+          />
+        </template>
+      </Column>
       <Column field="firstname" :header="$t('app.firstname')" sortable>
         <template #body="slotProps">
           <TextTruncate>{{ slotProps.data.firstname }}</TextTruncate>
