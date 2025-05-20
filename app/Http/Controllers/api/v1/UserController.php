@@ -98,8 +98,8 @@ class UserController extends Controller
             $resource = $resource->withRole($request->query('role'));
         }
 
-        if ($request->has('name')) {
-            $resource = $resource->withName($request->query('name'));
+        if ($request->has('search')) {
+            $resource = $resource->withNameOrEmail($request->query('search'));
         }
 
         $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
