@@ -121,7 +121,7 @@ describe("Admin users index", function () {
       .should("have.text", "app.id");
     cy.get('[data-test="user-header-cell"]')
       .eq(1)
-      .should("have.text", "admin.users.image.title");
+      .should("have.text", "admin.users.image.title_short");
     cy.get('[data-test="user-header-cell"]')
       .eq(2)
       .should("have.text", "app.firstname");
@@ -1235,7 +1235,7 @@ describe("Admin users index", function () {
       .and("have.attr", "data-p-sorted", "true");
     cy.get('[data-test="user-header-cell"]')
       .eq(1)
-      .should("have.text", "admin.users.image.title")
+      .should("have.text", "admin.users.image.title_short")
       .and("not.have.attr", "data-p-sortable-column", "true");
     cy.get('[data-test="user-header-cell"]')
       .eq(2)

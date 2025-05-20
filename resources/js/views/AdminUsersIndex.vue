@@ -170,7 +170,7 @@
       <Column field="id" :header="$t('app.id')" sortable class="id-column" />
       <Column
         field="image"
-        :header="$t('admin.users.image.title')"
+        :header="$t('admin.users.image.title_short')"
         class="picture-column"
       >
         <template #body="slotProps">

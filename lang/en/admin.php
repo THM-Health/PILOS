@@ -460,6 +460,7 @@ return [
             'invalid_mime' => 'The file format is not supported. Please select a jpg or png file.',
             'save' => 'Confirm',
             'title' => 'Profile picture',
+            'title_short' => 'Picture',
             'upload' => 'Upload new picture',
         ],
         'new' => 'Create new user',
