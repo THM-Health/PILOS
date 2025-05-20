@@ -152,7 +152,8 @@ describe("Admin users index", function () {
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "1");
         cy.get('[data-test="user-item-cell"]')
           .eq(1)
-          .should("include.text", "JD");
+          .find("img")
+          .should("have.attr", "src", "test.jpg");
         cy.get('[data-test="user-item-cell"]')
           .eq(2)
           .should("have.text", "John");
