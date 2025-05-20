@@ -10,7 +10,10 @@ use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
+use TiMacDonald\Log\LogEntry;
+use TiMacDonald\Log\LogFake;
 
 class ShibbolethTest extends TestCase
 {
@@ -187,6 +190,66 @@ class ShibbolethTest extends TestCase
         $this->assertEquals('Europe/Paris', $user->timezone);
 
         $this->assertEquals($user->roles()->pluck('name')->toArray(), ['user']);
+    }
+
+    public function test_set_last_login()
+    {
+        $this->generalSettings->default_timezone = 'Europe/Paris';
+        $this->generalSettings->save();
+
+        $header = [
+            'Accept-Language' => 'fr',
+            'shib-session-id' => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname' => 'johnd@university.org',
+            'givenname' => 'John',
+            'surname' => 'Doe',
+            'mail' => 'john.doe@domain.tld',
+            'scoped-affiliation' => 'student@university.org;staff@university.org',
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response->assertRedirect('/external_login');
+        $this->assertAuthenticated();
+
+        // check login timestamp was correctly set to login time
+        $this->travel(5)->days();
+        $user = Auth::user();
+        $this->assertEquals(-5, (int) now()->diffInDays($user->last_login));
+    }
+
+    public function test_logging()
+    {
+        Log::swap(new LogFake);
+
+        $this->generalSettings->default_timezone = 'Europe/Paris';
+        $this->generalSettings->save();
+
+        $header = [
+            'Accept-Language' => 'fr',
+            'shib-session-id' => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname' => 'johnd@university.org',
+            'givenname' => 'John',
+            'surname' => 'Doe',
+            'mail' => 'john.doe@domain.tld',
+            'scoped-affiliation' => 'student@university.org;staff@university.org',
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response->assertRedirect('/external_login');
+        $this->assertAuthenticated();
+
+        $user = Auth::user();
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'info'
+                && $log->message == 'External user {user} has been successfully authenticated.'
+                && $log->context['user'] == $user->getLogLabel()
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['current-user'] == 'guest'
+                && $log->context['type'] == 'shibboleth'
+        );
     }
 
     /**

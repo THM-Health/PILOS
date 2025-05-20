@@ -61,6 +61,7 @@ class User extends Authenticatable implements HasLocalePreference
         'email_verified_at' => 'datetime',
         'bbb_skip_check_audio' => 'boolean',
         'initial_password_set' => 'boolean',
+        'last_login' => 'datetime',
     ];
 
     protected $appends = ['fullname'];

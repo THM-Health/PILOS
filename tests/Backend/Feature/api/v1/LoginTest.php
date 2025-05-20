@@ -187,6 +187,10 @@ class LoginTest extends TestCase
                 && $log->context['current-user'] == 'guest'
         );
 
+        // check login timestamp was not set
+        $user->refresh();
+        $this->assertNull($user->last_login);
+
         // test successful login
         Log::swap(new LogFake);
         $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
@@ -195,10 +199,16 @@ class LoginTest extends TestCase
         ]);
         Log::assertLogged(
             fn (LogEntry $log) => $log->level === 'info'
-                && $log->message == 'Local user '.$user->email.' has been successfully authenticated.'
+                && $log->message == 'Local user {user} has been successfully authenticated.'
+                && $log->context['user'] == $user->getLogLabel()
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['current-user'] == 'guest'
         );
+
+        // check login timestamp was correctly set to login time
+        $this->travel(5)->days();
+        $user->refresh();
+        $this->assertEquals(-5, (int) now()->diffInDays($user->last_login));
     }
 
     /**

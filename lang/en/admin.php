@@ -463,6 +463,10 @@ return [
             'title_short' => 'Picture',
             'upload' => 'Upload new picture',
         ],
+        'last_login' => [
+            'title' => 'Last login',
+            'unknown' => 'Unknown',
+        ],
         'new' => 'Create new user',
         'no_data' => 'No users found!',
         'no_data_filtered' => 'For the filter query no users were found!',

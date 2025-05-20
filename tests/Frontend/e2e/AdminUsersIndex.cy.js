@@ -114,7 +114,7 @@ describe("Admin users index", function () {
       .should("include.text", "admin.breakcrumbs.users.index");
 
     // Check that headers are displayed correctly
-    cy.get('[data-test="user-header-cell"]').should("have.length", 8);
+    cy.get('[data-test="user-header-cell"]').should("have.length", 9);
 
     cy.get('[data-test="user-header-cell"]')
       .eq(0)
@@ -136,9 +136,12 @@ describe("Admin users index", function () {
       .should("have.text", "admin.users.authenticator.title");
     cy.get('[data-test="user-header-cell"]')
       .eq(6)
-      .should("have.text", "app.roles");
+      .should("have.text", "admin.users.last_login.title");
     cy.get('[data-test="user-header-cell"]')
       .eq(7)
+      .should("have.text", "app.roles");
+    cy.get('[data-test="user-header-cell"]')
+      .eq(8)
       .should("have.text", "app.actions");
 
     // Check that users are displayed correctly
@@ -147,7 +150,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-item"]')
       .eq(0)
       .within(() => {
-        cy.get('[data-test="user-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="user-item-cell"]').should("have.length", 9);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "1");
         cy.get('[data-test="user-item-cell"]')
@@ -166,10 +169,12 @@ describe("Admin users index", function () {
           .should("have.text", "admin.users.authenticator.local");
         cy.get('[data-test="user-item-cell"]')
           .eq(6)
-          .should("have.text", "Superuser");
-
+          .should("have.text", "01/01/2020, 02:00");
         cy.get('[data-test="user-item-cell"]')
           .eq(7)
+          .should("have.text", "Superuser");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(8)
           .within(() => {
             cy.get('[data-test="users-view-button"]').should("be.visible");
             cy.get('[data-test="users-edit-button"]').should("be.visible");
@@ -183,7 +188,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-item"]')
       .eq(1)
       .within(() => {
-        cy.get('[data-test="user-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="user-item-cell"]').should("have.length", 9);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "2");
         cy.get('[data-test="user-item-cell"]')
@@ -203,10 +208,12 @@ describe("Admin users index", function () {
           .should("have.text", "admin.users.authenticator.local");
         cy.get('[data-test="user-item-cell"]')
           .eq(6)
-          .should("have.text", "StudentsStaff");
-
+          .should("have.text", "admin.users.last_login.unknown");
         cy.get('[data-test="user-item-cell"]')
           .eq(7)
+          .should("have.text", "StudentsStaff");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(8)
           .within(() => {
             cy.get('[data-test="users-view-button"]').should("not.exist");
             cy.get('[data-test="users-edit-button"]').should("not.exist");
@@ -220,7 +227,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-item"]')
       .eq(2)
       .within(() => {
-        cy.get('[data-test="user-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="user-item-cell"]').should("have.length", 9);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "3");
         cy.get('[data-test="user-item-cell"]')
@@ -240,10 +247,13 @@ describe("Admin users index", function () {
           .should("have.text", "admin.users.authenticator.ldap");
         cy.get('[data-test="user-item-cell"]')
           .eq(6)
+          .should("have.text", "admin.users.last_login.unknown");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(7)
           .should("have.text", "Students");
 
         cy.get('[data-test="user-item-cell"]')
-          .eq(7)
+          .eq(8)
           .within(() => {
             cy.get('[data-test="users-view-button"]').should("not.exist");
             cy.get('[data-test="users-edit-button"]').should("not.exist");
@@ -257,7 +267,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-item"]')
       .eq(3)
       .within(() => {
-        cy.get('[data-test="user-item-cell"]').should("have.length", 8);
+        cy.get('[data-test="user-item-cell"]').should("have.length", 9);
 
         cy.get('[data-test="user-item-cell"]').eq(0).should("have.text", "100");
         cy.get('[data-test="user-item-cell"]')
@@ -273,10 +283,13 @@ describe("Admin users index", function () {
           .should("have.text", "admin.users.authenticator.local");
         cy.get('[data-test="user-item-cell"]')
           .eq(6)
+          .should("have.text", "admin.users.last_login.unknown");
+        cy.get('[data-test="user-item-cell"]')
+          .eq(7)
           .should("have.text", "Superuser");
 
         cy.get('[data-test="user-item-cell"]')
-          .eq(7)
+          .eq(8)
           .within(() => {
             cy.get('[data-test="users-view-button"]').should("not.exist");
             cy.get('[data-test="users-edit-button"]').should("not.exist");
@@ -1228,7 +1241,7 @@ describe("Admin users index", function () {
     });
 
     // Check that correct columns are sortable and correct sorting type is shown
-    cy.get('[data-test="user-header-cell"]').should("have.length", 8);
+    cy.get('[data-test="user-header-cell"]').should("have.length", 9);
     cy.get('[data-test="user-header-cell"]')
       .eq(0)
       .should("have.text", "app.id")
@@ -1260,10 +1273,15 @@ describe("Admin users index", function () {
       .and("have.attr", "data-p-sorted", "false");
     cy.get('[data-test="user-header-cell"]')
       .eq(6)
+      .should("have.text", "admin.users.last_login.title")
+      .and("have.attr", "data-p-sortable-column", "true")
+      .and("have.attr", "data-p-sorted", "false");
+    cy.get('[data-test="user-header-cell"]')
+      .eq(7)
       .should("have.text", "app.roles")
       .and("not.have.attr", "data-p-sortable-column", "true");
     cy.get('[data-test="user-header-cell"]')
-      .eq(7)
+      .eq(8)
       .should("have.text", "app.actions")
       .and("not.have.attr", "data-p-sortable-column", "true");
 

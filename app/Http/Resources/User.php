@@ -72,6 +72,7 @@ class User extends JsonResource
             'external_id' => $this->external_id,
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
+            'last_login' => $this->last_login,
             'user_locale' => $this->locale,
             'permissions' => $this->when($this->withPermissions, function () {
                 return $this->permissions;

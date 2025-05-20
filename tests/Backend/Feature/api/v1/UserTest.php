@@ -50,12 +50,14 @@ class UserTest extends TestCase
             'firstname' => 'John',
             'lastname' => 'Doe',
             'email' => 'john.doe@example.org',
+            'last_login' => now(),
         ]);
 
         $externalUser = User::factory()->create([
             'external_id' => $this->faker->unique()->userName,
             'authenticator' => 'ldap',
             'email' => 'jane.doe@example.org',
+            'last_login' => now()->subDay(),
             'firstname' => 'Jane',
             'lastname' => 'Doe',
         ]);
@@ -105,6 +107,7 @@ class UserTest extends TestCase
                         'roles',
                         'firstname',
                         'lastname',
+                        'last_login',
                         'user_locale',
                         'updated_at',
                         'room_limit',
@@ -126,6 +129,19 @@ class UserTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
+
+        // Sort by last login
+        $this->getJson(route('api.v1.users.index').'?sort_by=last_login&sort_direction=desc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonPath('data.0.id', $user->id)
+            ->assertJsonPath('data.1.id', $externalUser->id)
+            ->assertJsonPath('data.0.last_login', $user->last_login->toJSON())
+            ->assertJsonPath('data.1.last_login', $externalUser->last_login->toJSON());
+        $this->getJson(route('api.v1.users.index').'?sort_by=last_login&sort_direction=asc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonPath('data.0.last_login', null);
 
         // Sorting wrong direction and field
         $this->getJson(route('api.v1.users.index').'?sort_by=external_id&sort_direction=desc')
