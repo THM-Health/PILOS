@@ -71,6 +71,7 @@ class UserController extends Controller
             'email' => 'LOWER(email)',
             'lastname' => 'LOWER(lastname)',
             'firstname' => 'LOWER(firstname)',
+            'last_login' => "COALESCE(last_login, '1970-01-01 00:00:00')",
             default => 'id',
         };
 

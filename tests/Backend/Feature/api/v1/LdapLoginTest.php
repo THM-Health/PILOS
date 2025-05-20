@@ -513,9 +513,11 @@ class LdapLoginTest extends TestCase
             'password' => 'bar',
         ]);
 
+        $user = Auth::guard('ldap')->user();
         Log::assertLogged(
             fn (LogEntry $log) => $log->level == 'info'
-                && $log->message == 'External user '.$this->ldapUser->uid[0].' has been successfully authenticated.'
+                && $log->message == 'External user {user} has been successfully authenticated.'
+                && $log->context['user'] == $user->getLogLabel()
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['current-user'] == 'guest'
                 && $log->context['type'] == 'ldap'
@@ -621,5 +623,19 @@ class LdapLoginTest extends TestCase
         $user->refresh();
         $this->assertNull($user->external_image_hash);
         $this->assertNull($user->image);
+    }
+
+    public function test_set_last_login()
+    {
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'bar',
+        ]);
+
+        // check login timestamp was correctly set to login time
+        $this->travel(5)->days();
+        $user = Auth::guard('ldap')->user();
+        $this->assertEquals(-5, (int) now()->diffInDays($user->last_login));
+
     }
 }

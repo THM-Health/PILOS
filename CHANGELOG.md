@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - User pictures to the admin user list ([#2131])
+- Last login datetime to the database ([#2150])
+- Last login datetime to the admin user list ([#2132], [#2150])
 
 ### Fixed
 
@@ -479,7 +481,9 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2079]: https://github.com/THM-Health/PILOS/pull/2079
 [#2082]: https://github.com/THM-Health/PILOS/pull/2082
 [#2131]: https://github.com/THM-Health/PILOS/pull/2131
+[#2132]: https://github.com/THM-Health/PILOS/issues/2132
 [#2134]: https://github.com/THM-Health/PILOS/pull/2134
+[#2150]: https://github.com/THM-Health/PILOS/pull/2150
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.5.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

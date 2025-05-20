@@ -57,7 +57,11 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        Log::info('Local user '.$user->email.' has been successfully authenticated.');
+        Log::info('Local user {user} has been successfully authenticated.', ['user' => $user->getLogLabel()]);
+
+        // Update the last login timestamp
+        $user->last_login = now();
+        $user->save();
     }
 
     public function logout(Request $request)
