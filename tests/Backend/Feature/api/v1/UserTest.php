@@ -186,14 +186,14 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors(['role']);
 
         // Filtering by name / email
-        $this->getJson(route('api.v1.users.index').'?search=J%20Doe')
+        $this->getJson(route('api.v1.users.index').'?query=J%20Doe')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         // Filtering by role and name
-        $this->getJson(route('api.v1.users.index').'?search=John&role='.$role2->id)
+        $this->getJson(route('api.v1.users.index').'?query=John&role='.$role2->id)
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $user->id]);
@@ -220,11 +220,11 @@ class UserTest extends TestCase
             ->assertNoContent();
 
         // Test with query and order, too many results
-        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?search=a')
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=a')
             ->assertNoContent();
 
         // Check with lastname query
-        $result = $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?search=Braun')
+        $result = $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[4]->firstname)
             ->assertJsonPath('data.1.firstname', $users[5]->firstname)
@@ -236,13 +236,13 @@ class UserTest extends TestCase
         }
 
         // check with multiple words
-        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?search=Braun+Connie')
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun+Connie')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[4]->firstname)
             ->assertJsonCount(1, 'data');
 
         // check with fragment
-        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?search=Ma')
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Ma')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[0]->firstname)
             ->assertJsonPath('data.1.firstname', $users[1]->firstname)
@@ -250,7 +250,7 @@ class UserTest extends TestCase
             ->assertJsonCount(3, 'data');
 
         // check with email fragment
-        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?search=deborah.brown')
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=deborah.brown')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[5]->firstname)
             ->assertJsonCount(1, 'data');

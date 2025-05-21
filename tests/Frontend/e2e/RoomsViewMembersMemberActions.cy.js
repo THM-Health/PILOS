@@ -28,7 +28,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-members-add-single-dialog"]').should("be.visible");
 
     // Start typing and respond with too many results
-    cy.intercept("GET", "/api/v1/users/search?search=*", {
+    cy.intercept("GET", "/api/v1/users/search?query=*", {
       statusCode: 204,
     }).as("userSearchRequest");
 
@@ -70,7 +70,7 @@ describe("Rooms view members member actions", function () {
       .and("not.be.visible");
 
     // Continue typing and respond with results
-    cy.intercept("GET", "/api/v1/users/search?search=*", {
+    cy.intercept("GET", "/api/v1/users/search?query=*", {
       statusCode: 200,
       body: {
         data: [
@@ -256,7 +256,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-members-add-single-dialog"]').should("be.visible");
 
     // Test 500 error on user search
-    cy.intercept("GET", "/api/v1/users/search?search=*", {
+    cy.intercept("GET", "/api/v1/users/search?query=*", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -292,7 +292,7 @@ describe("Rooms view members member actions", function () {
         cy.get('[data-test="select-user-dropdown"]').find("input").type("a");
       },
       "GET",
-      "/api/v1/users/search?search=*",
+      "/api/v1/users/search?query=*",
       "members",
     );
 
@@ -314,7 +314,7 @@ describe("Rooms view members member actions", function () {
 
     cy.get('[data-test="room-members-add-single-dialog"]').should("be.visible");
 
-    cy.intercept("GET", "/api/v1/users/search?search=*", {
+    cy.intercept("GET", "/api/v1/users/search?query=*", {
       statusCode: 200,
       body: {
         data: [

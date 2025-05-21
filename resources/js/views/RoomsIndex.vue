@@ -488,7 +488,7 @@ function loadRooms(page = null) {
         only_favorites: onlyShowFavorites.value ? 1 : 0,
         room_type: selectedRoomType.value == 0 ? null : selectedRoomType.value,
         sort_by: selectedSortingType.value,
-        search:
+        query:
           rawSearchQuery.value.trim() !== ""
             ? rawSearchQuery.value.trim()
             : null,

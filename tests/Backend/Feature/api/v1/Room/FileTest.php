@@ -240,7 +240,7 @@ class FileTest extends TestCase
 
         // Test search
         $this->actingAs($this->room->owner)
-            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'search' => '.pdf']))
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'query' => '.pdf']))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.filename', 'document.pdf')
@@ -264,7 +264,7 @@ class FileTest extends TestCase
 
         // Test filter and search
         $this->actingAs($this->room->owner)
-            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'filter' => 'use_in_meeting', 'search' => '.pdf']))
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'filter' => 'use_in_meeting', 'query' => '.pdf']))
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.filename', 'document.pdf')
@@ -272,7 +272,7 @@ class FileTest extends TestCase
 
         // Test search with no results
         $this->actingAs($this->room->owner)
-            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'search' => 'test']))
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'query' => 'test']))
             ->assertSuccessful()
             ->assertJsonCount(0, 'data')
             ->assertJsonPath('meta.total', 0)

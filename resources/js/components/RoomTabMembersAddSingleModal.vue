@@ -168,14 +168,14 @@ defineExpose({
 
 /**
  * Search for users in database
- * @param search
+ * @param query
  */
-function asyncFind(search) {
+function asyncFind(query) {
   isLoadingSearch.value = true;
 
   const config = {
     params: {
-      search,
+      query,
     },
   };
 

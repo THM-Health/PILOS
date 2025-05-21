@@ -1241,7 +1241,7 @@ describe("Rooms view recordings", function () {
     cy.visit("/rooms/abc-def-123#tab=recordings");
 
     cy.wait("@roomRecordingsRequest").then((interception) => {
-      expect(interception.request.query.search).to.be.undefined;
+      expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -1265,7 +1265,7 @@ describe("Rooms view recordings", function () {
 
     cy.wait("@roomRecordingsRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Test",
+        query: "Test",
         page: "1",
       });
     });
@@ -1294,7 +1294,7 @@ describe("Rooms view recordings", function () {
 
     cy.wait("@roomRecordingsRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Test2",
+        query: "Test2",
         page: "1",
       });
     });
@@ -1323,7 +1323,7 @@ describe("Rooms view recordings", function () {
 
     cy.wait("@roomRecordingsRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Recording",
+        query: "Recording",
         page: "1",
       });
     });
@@ -1365,7 +1365,7 @@ describe("Rooms view recordings", function () {
     // Check if search query stays the same after changing the page
     cy.wait("@roomRecordingsRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Recording",
+        query: "Recording",
         page: "2",
       });
     });
@@ -1406,7 +1406,7 @@ describe("Rooms view recordings", function () {
 
     cy.wait("@roomRecordingsRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Record",
+        query: "Record",
         page: "1",
       });
     });
