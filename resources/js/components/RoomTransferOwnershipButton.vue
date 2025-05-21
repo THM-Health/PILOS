@@ -256,14 +256,14 @@ function showModal() {
 
 /**
  * Search for users in database
- * @param query
+ * @param search
  */
-function asyncFind(query) {
+function asyncFind(search) {
   isLoadingSearch.value = true;
 
   const config = {
     params: {
-      query,
+      search,
     },
   };
 

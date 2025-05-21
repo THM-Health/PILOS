@@ -1732,7 +1732,7 @@ describe("Rooms view settings", function () {
         cy.get(".multiselect__content").should("be.visible");
 
         // Start typing and respond with too many results
-        cy.intercept("GET", "/api/v1/users/search?query=*", {
+        cy.intercept("GET", "/api/v1/users/search?search=*", {
           statusCode: 204,
         }).as("userSearchRequest");
 
@@ -1768,7 +1768,7 @@ describe("Rooms view settings", function () {
           .should("include.text", "rooms.members.modals.add.no_options")
           .and("not.be.visible");
 
-        cy.intercept("GET", "/api/v1/users/search?query=*", {
+        cy.intercept("GET", "/api/v1/users/search?search=*", {
           statusCode: 200,
           body: {
             data: [
@@ -2028,7 +2028,7 @@ describe("Rooms view settings", function () {
     cy.get("[data-test=room-transfer-ownership-dialog]").should("be.visible");
 
     // Test 500 error on user search
-    cy.intercept("GET", "/api/v1/users/search?query=*", {
+    cy.intercept("GET", "/api/v1/users/search?search=*", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -2061,7 +2061,7 @@ describe("Rooms view settings", function () {
         cy.get('[data-test="new-owner-dropdown"]').find("input").type("L");
       },
       "GET",
-      "/api/v1/users/search?query=*",
+      "/api/v1/users/search?search=*",
       "settings",
     );
 
@@ -2078,7 +2078,7 @@ describe("Rooms view settings", function () {
 
     cy.get("[data-test=room-transfer-ownership-dialog]").should("be.visible");
 
-    cy.intercept("GET", "/api/v1/users/search?query=*", {
+    cy.intercept("GET", "/api/v1/users/search?search=*", {
       statusCode: 200,
       body: {
         data: [
