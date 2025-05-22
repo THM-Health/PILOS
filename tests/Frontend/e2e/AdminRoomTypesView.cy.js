@@ -520,6 +520,22 @@ describe("Admin room types view", function () {
           )
           .and("be.disabled");
       });
+
+    cy.get('[data-test="join-parameters-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.room_types.bbb_api.join_parameters")
+      .and(
+        "include.text",
+        "admin.room_types.bbb_api.join_parameters_description",
+      )
+      .within(() => {
+        cy.get("#join-parameters")
+          .should(
+            "have.value",
+            "enforceLayout=PRESENTATION_ONLY\nwebcamBackgroundURL=https://example.com/background.png\nexcludeFromDashboard=true\nuserdata-bbb_hide_presentation_on_join=true",
+          )
+          .and("be.disabled");
+      });
   });
 
   it("check restrictions shown correctly", function () {
