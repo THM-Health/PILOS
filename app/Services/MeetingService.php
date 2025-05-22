@@ -73,10 +73,10 @@ class MeetingService
         // Apply custom create parameters of the room type
         if ($this->meeting->room->roomType->create_parameters != null) {
 
-            $result = self::setCustomCreateMeetingParameters($meetingParams, $this->meeting->room->roomType->create_parameters);
+            $errors = self::setCustomCreateMeetingParameters($meetingParams, $this->meeting->room->roomType->create_parameters);
 
             // If setting custom parameters failed, we have to recreate the parameter object to reset it
-            if (count($result) > 0) {
+            if (count($errors) > 0) {
                 $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
             }
         }
@@ -651,10 +651,10 @@ class MeetingService
         // Apply custom create parameters of the room type
         if ($this->meeting->room->roomType->join_parameters != null) {
 
-            $result = self::setCustomJoinMeetingParameters($joinMeetingParams, $this->meeting->room->roomType->join_parameters);
+            $errors = self::setCustomJoinMeetingParameters($joinMeetingParams, $this->meeting->room->roomType->join_parameters);
 
             // If setting custom parameters failed, we have to recreate the parameter object to reset it
-            if (count($result) > 0) {
+            if (count($errors) > 0) {
                 $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
             }
         }
