@@ -319,6 +319,7 @@ class RoomTypeTest extends TestCase
                 'has_access_code_default',
                 'has_access_code_enforced',
                 'create_parameters',
+                'join_parameters',
             ]]);
 
         // Test deleted
@@ -381,6 +382,7 @@ class RoomTypeTest extends TestCase
             'has_access_code_default' => true,
             'has_access_code_enforced' => false,
             'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
+            'join_parameters' => 'excludeFromDashboard=true',
         ];
 
         // Test guests
@@ -445,6 +447,7 @@ class RoomTypeTest extends TestCase
                 'has_access_code_default' => true,
                 'has_access_code_enforced' => false,
                 'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
+                'join_parameters' => 'excludeFromDashboard=true',
             ]);
 
         // Test with invalid data
@@ -493,6 +496,7 @@ class RoomTypeTest extends TestCase
             'has_access_code_default' => 'yes',
             'has_access_code_enforced' => 'no',
             'create_parameters' => $this->faker->textWithLength(65001),
+            'join_parameters' => $this->faker->textWithLength(65001),
         ];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
             ->assertJsonValidationErrors([
@@ -540,6 +544,7 @@ class RoomTypeTest extends TestCase
                 'has_access_code_default',
                 'has_access_code_enforced',
                 'create_parameters',
+                'join_parameters',
             ]);
 
         $data['roles'] = [1337];
@@ -652,6 +657,7 @@ class RoomTypeTest extends TestCase
             'has_access_code_default' => true,
             'has_access_code_enforced' => false,
             'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
+            'join_parameters' => 'excludeFromDashboard=true',
         ];
 
         // Test guests
@@ -722,6 +728,7 @@ class RoomTypeTest extends TestCase
                 'has_access_code_default' => true,
                 'has_access_code_enforced' => false,
                 'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
+                'join_parameters' => 'excludeFromDashboard=true',
             ]);
 
         $roomType->refresh();
@@ -783,6 +790,7 @@ class RoomTypeTest extends TestCase
             'has_access_code_default' => 'yes',
             'has_access_code_enforced' => 'no',
             'create_parameters' => "meta_foo=baa\nrecord=invalid\nmaxParticipants=10.5\nmeetingLayout=invalid\ndisabledFeatures=learningDashboard,invalid",
+            'join_parameters' => "userdata-bbb_hide_presentation_on_join=baa\nexcludeFromDashboard=invalid\nenforceLayout=invalid",
             'updated_at' => $roomType->updated_at,
         ];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType' => $roomType->id]), $data)
@@ -831,6 +839,7 @@ class RoomTypeTest extends TestCase
                 'has_access_code_default',
                 'has_access_code_enforced',
                 'create_parameters',
+                'join_parameters',
             ]);
 
         // Test with missing parameters

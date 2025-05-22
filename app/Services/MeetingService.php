@@ -666,6 +666,7 @@ class MeetingService
         if ($roomUserRole == RoomUserRole::GUEST) {
             $joinMeetingParams->setGuest(true);
         }
+
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
 
         // If meeting has recording enabled, add parameter to allow recording of own video

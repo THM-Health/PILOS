@@ -2,11 +2,14 @@
 
 namespace Tests\Backend\Unit;
 
+use App\Http\Requests\JoinMeeting;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Models\Server;
+use App\Models\User;
 use App\Services\MeetingService;
+use App\Services\RoomAuthService;
 use App\Services\ServerService;
 use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -310,5 +313,29 @@ class MeetingTest extends TestCase
 
         // check order based on default and missing file 4 because use_in_meeting disabled
         $this->assertEquals(url('default.pdf'), $docs[0]->attributes()->url);
+    }
+
+    public function test_join_parameters_authenticated_user()
+    {
+        $meeting = $this->meeting;
+        $user = User::factory()->create();
+        $user->refresh();
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+        $meetingService = new MeetingService($meeting);
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $roomAuthService->setAuthenticated($meeting->room, true);
+        \Auth::login($user);
+
+        $request = new JoinMeeting($roomAuthService);
+        $meetingService->setServerService($serverService)->getJoinUrl($request);
+
     }
 }
