@@ -1461,7 +1461,7 @@
                 :placeholder="
                   viewOnly
                     ? ''
-                    : 'userdata-bbb_show_session_details_on_join flag=false'
+                    : 'userdata-bbb_show_session_details_on_join=false'
                 "
               />
               <p id="join-parameters-help">
