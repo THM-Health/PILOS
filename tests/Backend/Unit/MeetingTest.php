@@ -2,11 +2,16 @@
 
 namespace Tests\Backend\Unit;
 
+use App\Enums\RoomUserRole;
+use App\Http\Requests\JoinMeeting;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomFile;
+use App\Models\RoomToken;
 use App\Models\Server;
+use App\Models\User;
 use App\Services\MeetingService;
+use App\Services\RoomAuthService;
 use App\Services\ServerService;
 use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,6 +19,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Str;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -310,5 +316,244 @@ class MeetingTest extends TestCase
 
         // check order based on default and missing file 4 because use_in_meeting disabled
         $this->assertEquals(url('default.pdf'), $docs[0]->attributes()->url);
+    }
+
+    public function test_join_parameters_authenticated_user()
+    {
+        $meeting = $this->meeting;
+        $user = User::factory()->create();
+        $user->refresh();
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+        $meetingService = new MeetingService($meeting);
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $roomAuthService->setAuthenticated($meeting->room, true);
+        \Auth::login($user);
+
+        $request = new JoinMeeting($roomAuthService);
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+
+        $this->assertEquals('u'.$user->id, $parameters['userID']);
+        $this->assertEquals($user->fullname, $parameters['fullName']);
+        $this->assertEquals($meeting->id, $parameters['meetingID']);
+        $this->assertEquals('VIEWER', $parameters['role']);
+        $this->assertEquals('true', $parameters['redirect']);
+        $this->assertEquals(url('rooms/'.$this->meeting->room->id), $parameters['errorRedirectUrl']);
+        $this->assertEquals('false', $parameters['userdata-bbb_skip_check_audio']);
+
+        // Change skip check audio
+        $user->bbb_skip_check_audio = true;
+        $user->save();
+
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+
+        $this->assertEquals('true', $parameters['userdata-bbb_skip_check_audio']);
+
+        // Change default role of the room, user should be moderator
+        $room = $this->meeting->room;
+        $room->expert_mode = true;
+        $room->default_role = RoomUserRole::MODERATOR;
+        $room->save();
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('MODERATOR', $parameters['role']);
+
+        // Change default role of the room back to user
+        $room->default_role = RoomUserRole::USER;
+        $room->save();
+
+        // Change role of the user to moderator
+        $meeting->room->members()->sync([$user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('MODERATOR', $parameters['role']);
+
+        // Change role of the user to viewer
+        $meeting->room->members()->sync([$user->id => ['role' => RoomUserRole::USER]]);
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('VIEWER', $parameters['role']);
+
+        // Change role of the user to Co-Owner
+        $meeting->room->members()->sync([$user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('MODERATOR', $parameters['role']);
+
+        // Test owner
+        \Auth::login($meeting->room->owner);
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('MODERATOR', $parameters['role']);
+    }
+
+    public function test_join_parameters_guest()
+    {
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+        $meetingService = new MeetingService($meeting);
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $roomAuthService->setAuthenticated($meeting->room, false);
+
+        $request = new JoinMeeting($roomAuthService);
+        $request->replace([
+            'name' => 'John Doe',
+        ]);
+
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+
+        $this->assertEquals('s'.session()->getId(), $parameters['userID']);
+        $this->assertEquals('John Doe', $parameters['fullName']);
+        $this->assertEquals(true, $parameters['guest']);
+        $this->assertEquals('VIEWER', $parameters['role']);
+
+        // Change default role of the room, moderator role should not be set for guest users
+        $room = $this->meeting->room;
+        $room->expert_mode = true;
+        $room->default_role = RoomUserRole::MODERATOR;
+        $room->save();
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('VIEWER', $parameters['role']);
+    }
+
+    public function test_join_parameters_guest_with_token()
+    {
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $token = new RoomToken;
+        $token->room()->associate($meeting->room);
+        $token->firstname = 'John';
+        $token->lastname = 'Doe';
+        $token->role = RoomUserRole::USER;
+        $token->token = Str::random(10);
+        $token->save();
+
+        $serverService = new ServerService($server);
+        $meetingService = new MeetingService($meeting);
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $roomAuthService->setAuthenticated($meeting->room, false);
+        $roomAuthService->setRoomToken($meeting->room, $token);
+
+        $request = new JoinMeeting($roomAuthService);
+
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+
+        $this->assertEquals('s'.session()->getId(), $parameters['userID']);
+        $this->assertEquals('John Doe', $parameters['fullName']);
+        $this->assertArrayNotHasKey('guest', $parameters);
+        $this->assertEquals('VIEWER', $parameters['role']);
+
+        // Change default role of the room, moderator role should not be set as the role of the token has priority
+        $room = $this->meeting->room;
+        $room->expert_mode = true;
+        $room->default_role = RoomUserRole::MODERATOR;
+        $room->save();
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('VIEWER', $parameters['role']);
+
+        // Change role of the token to moderator
+        $token->role = RoomUserRole::MODERATOR;
+        $token->save();
+
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+        $this->assertEquals('MODERATOR', $parameters['role']);
+    }
+
+    public function test_join_parameters_with_custom_join_parameters()
+    {
+        LogFake::bind();
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+        $meetingService = new MeetingService($meeting);
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $roomAuthService->setAuthenticated($meeting->room, false);
+
+        \Auth::login($meeting->room->owner);
+
+        // Check with valid join parameters
+        $roomType = $this->meeting->room->roomType;
+        $roomType->join_parameters = "enforceLayout=PRESENTATION_ONLY\nwebcamBackgroundURL=https://example.com/background.png\nexcludeFromDashboard=true\nredirect=false\nuserdata-bbb_hide_presentation_on_join=true";
+        $roomType->save();
+        $request = new JoinMeeting($roomAuthService);
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+
+        // Check if custom parameters are set
+        $this->assertEquals('PRESENTATION_ONLY', $parameters['enforceLayout']);
+        $this->assertEquals('https://example.com/background.png', $parameters['webcamBackgroundURL']);
+        $this->assertEquals('true', $parameters['excludeFromDashboard']);
+        $this->assertEquals('true', $parameters['userdata-bbb_hide_presentation_on_join']);
+
+        // Check if parameters of the room and room type are not overwritten
+        $this->assertEquals('true', $parameters['redirect']);
+
+        // Check if nothing was logged
+        Log::assertNothingLogged();
+
+        // Check with invalid create parameters
+        $roomType->join_parameters = "enforceLayout=INVALID_LAYOUT\nexcludeFromDashboard=invalid\nuserdata-bbb_hide_presentation_on_join=true";
+        $roomType->save();
+
+        $request = new JoinMeeting($roomAuthService);
+        $parameters = [];
+        parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
+
+        // Check if invalid parameters are not set
+        $this->assertArrayNotHasKey('excludeFromDashboard', $parameters);
+        $this->assertArrayNotHasKey('enforceLayout', $parameters);
+
+        // Check if valid parameters are also not set, as all create parameters are discarded if one is invalid
+        $this->assertArrayNotHasKey('userdata-bbb_hide_presentation_on_join', $parameters);
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Custom join parameter {parameter} value {value} is not a boolean'
+                && $log->context['parameter'] == 'excludeFromDashboard'
+                && $log->context['value'] == 'invalid'
+        );
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Custom join parameter {parameter} value {value} is not an enum value'
+                && $log->context['parameter'] == 'enforceLayout'
+                && $log->context['value'] == 'INVALID_LAYOUT'
+        );
     }
 }

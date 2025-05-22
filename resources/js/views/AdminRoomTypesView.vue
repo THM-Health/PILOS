@@ -1440,6 +1440,36 @@
               <FormError :errors="formErrors.fieldError('create_parameters')" />
             </div>
           </div>
+          <div
+            class="field grid grid-cols-12 gap-4"
+            data-test="join-parameters-field"
+          >
+            <label
+              for="join-parameters"
+              class="col-span-12 items-start md:col-span-4 md:mb-0"
+              >{{ $t("admin.room_types.bbb_api.join_parameters") }}</label
+            >
+            <div class="col-span-12 md:col-span-8">
+              <Textarea
+                id="join-parameters"
+                v-model="model.join_parameters"
+                class="w-full"
+                auto-resize
+                :invalid="formErrors.fieldInvalid('join_parameters')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                aria-describedby="join-parameters-help"
+                :placeholder="
+                  viewOnly
+                    ? ''
+                    : 'userdata-bbb_show_session_details_on_join=false'
+                "
+              />
+              <p id="join-parameters-help">
+                {{ $t("admin.room_types.bbb_api.join_parameters_description") }}
+              </p>
+              <FormError :errors="formErrors.fieldError('join_parameters')" />
+            </div>
+          </div>
         </AdminPanel>
 
         <div v-if="!viewOnly">
@@ -1523,6 +1553,7 @@ const model = ref({
   max_duration: null,
   max_participants: null,
   create_parameters: null,
+  join_parameters: null,
   restrict: false,
   roles: [],
   webcams_only_for_moderator_default: false,

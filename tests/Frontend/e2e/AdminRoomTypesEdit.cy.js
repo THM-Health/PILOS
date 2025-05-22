@@ -643,6 +643,24 @@ describe("Admin room types edit", function () {
         cy.get("#create-parameters").type("meetingLayout=PRESENTATION_FOCUS");
       });
 
+    cy.get('[data-test="join-parameters-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.room_types.bbb_api.join_parameters")
+      .and(
+        "include.text",
+        "admin.room_types.bbb_api.join_parameters_description",
+      )
+      .within(() => {
+        cy.get("#join-parameters")
+          .should(
+            "have.value",
+            "enforceLayout=PRESENTATION_ONLY\nwebcamBackgroundURL=https://example.com/background.png\nexcludeFromDashboard=true\nuserdata-bbb_hide_presentation_on_join=true",
+          )
+          .clear();
+
+        cy.get("#join-parameters").type("enforceLayout=PRESENTATION_ONLY");
+      });
+
     cy.fixture("roomType.json").then((roomType) => {
       roomType.data.name = "Exam 01";
       roomType.data.description =
@@ -659,6 +677,7 @@ describe("Admin room types edit", function () {
       roomType.data.max_participants = 50;
       roomType.data.max_duration = 60;
       roomType.data.create_parameters = "meetingLayout=PRESENTATION_FOCUS";
+      roomType.data.join_parameters = "enforceLayout=PRESENTATION_ONLY";
       roomType.data.restrict = false;
       roomType.data.roles = [];
       roomType.data.mute_on_start_default = false;
@@ -1204,6 +1223,7 @@ describe("Admin room types edit", function () {
           max_participants: ["The max participants field is required."],
           max_duration: ["The max duration field is required."],
           create_parameters: ["The create parameters field is required."],
+          join_parameters: ["The join parameters field is required."],
           roles: ["The roles field is required."],
           has_access_code_default: [
             "The has access code default field is required.",
@@ -1333,6 +1353,10 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="create-parameters-field"]').should(
       "include.text",
       "The create parameters field is required.",
+    );
+    cy.get('[data-test="join-parameters-field"]').should(
+      "include.text",
+      "The join parameters field is required.",
     );
     cy.get('[data-test="role-field"]').should(
       "include.text",
@@ -1497,6 +1521,10 @@ describe("Admin room types edit", function () {
       "not.include.text",
       "The create parameters field is required.",
     );
+    cy.get('[data-test="join-parameters-field"]').should(
+      "not.include.text",
+      "The join parameters field is required.",
+    );
     cy.get('[data-test="role-field"]').should(
       "not.include.text",
       "The roles field is required.",
@@ -1648,6 +1676,7 @@ describe("Admin room types edit", function () {
       roomType.data.max_participants = 50;
       roomType.data.max_duration = 60;
       roomType.data.create_parameters = "meetingLayout=PRESENTATION_FOCUS";
+      roomType.data.join_parameters = "enforceLayout=PRESENTATION_ONLY";
       roomType.data.restrict = true;
       roomType.data.roles = [
         {
@@ -1887,6 +1916,10 @@ describe("Admin room types edit", function () {
       "have.value",
       "meetingLayout=PRESENTATION_FOCUS",
     );
+    cy.get("#join-parameters").should(
+      "have.value",
+      "enforceLayout=PRESENTATION_ONLY",
+    );
 
     // Trigger 428 error (stale error) again
     cy.fixture("roomType.json").then((roomType) => {
@@ -1948,6 +1981,7 @@ describe("Admin room types edit", function () {
       roomType.data.max_participants = 50;
       roomType.data.max_duration = 60;
       roomType.data.create_parameters = "meetingLayout=PRESENTATION_FOCUS";
+      roomType.data.join_parameters = "enforceLayout=PRESENTATION_ONLY";
       roomType.data.restrict = true;
       roomType.data.roles = [
         {
