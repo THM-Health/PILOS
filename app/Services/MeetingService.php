@@ -668,6 +668,7 @@ class MeetingService
         }
 
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
+        $joinMeetingParams->addUserData('bbb_prefer_dark_theme', $request->boolean('dark_mode'));
 
         // If meeting has recording enabled, add parameter to allow recording of own video
         if ($this->meeting->record) {
