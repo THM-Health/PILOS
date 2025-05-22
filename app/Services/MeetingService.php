@@ -648,7 +648,7 @@ class MeetingService
 
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
 
-        // Apply custom create parameters of the room type
+        // Apply custom join parameters of the room type
         if ($this->meeting->room->roomType->join_parameters != null) {
 
             $errors = self::setCustomJoinMeetingParameters($joinMeetingParams, $this->meeting->room->roomType->join_parameters);
