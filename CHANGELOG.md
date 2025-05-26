@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show BBB join errors ([#2223])
 - Pass color-scheme preference to BigBlueButton ([#2153], [#2154])
 - Metrics endpoint (`/metrics`) ([#2165])
+- Virus Scanning using ClamAV for all file uploads ([#77], [#1133])
 
 ### Fixed
 
@@ -368,6 +369,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
+[#77]: https://github.com/THM-Health/PILOS/issues/77
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
@@ -415,6 +417,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1102]: https://github.com/THM-Health/PILOS/pull/1102
 [#1120]: https://github.com/THM-Health/PILOS/pull/1120
 [#1126]: https://github.com/THM-Health/PILOS/pull/1126
+[#1133]: https://github.com/THM-Health/PILOS/pull/1133
 [#1150]: https://github.com/THM-Health/PILOS/issues/1150
 [#1159]: https://github.com/THM-Health/PILOS/pull/1159
 [#1166]: https://github.com/THM-Health/PILOS/pull/1166
