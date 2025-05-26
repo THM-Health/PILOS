@@ -83,7 +83,7 @@ class AntivirusTest extends TestCase
         $failCalled = false;
         $rule->validate('file', $file, function ($message) use (&$failCalled) {
             $failCalled = true;
-            $this->assertEquals(__('validation.antivirus.virus', ['attribute' => 'file']), $message);
+            $this->assertEquals(__('validation.antivirus.virus', ['file' => 'virus.txt']), $message);
         });
 
         $this->assertTrue($failCalled);
@@ -102,7 +102,7 @@ class AntivirusTest extends TestCase
     {
         Config::set('antivirus.enabled', true);
         Config::set('antivirus.clamav.url', 'http://clamav');
-        $file = UploadedFile::fake()->create('error.txt');
+        $file = UploadedFile::fake()->create('virus.txt');
         Http::fake([
             'http://clamav' => Http::response([], 500),
         ]);
@@ -111,7 +111,7 @@ class AntivirusTest extends TestCase
         $failCalled = false;
         $rule->validate('file', $file, function ($message) use (&$failCalled) {
             $failCalled = true;
-            $this->assertEquals(__('validation.antivirus.error', ['attribute' => 'file']), $message);
+            $this->assertEquals(__('validation.antivirus.error', ['file' => 'virus.txt']), $message);
         });
 
         $this->assertTrue($failCalled);
@@ -127,7 +127,7 @@ class AntivirusTest extends TestCase
     {
         Config::set('antivirus.enabled', true);
         Config::set('antivirus.clamav.url', 'http://clamav');
-        $file = UploadedFile::fake()->create('exception.txt');
+        $file = UploadedFile::fake()->create('virus.txt');
         Http::fake([
             'http://clamav' => Http::failedConnection('timeout'),
         ]);
@@ -136,7 +136,7 @@ class AntivirusTest extends TestCase
         $failCalled = false;
         $rule->validate('file', $file, function ($message) use (&$failCalled) {
             $failCalled = true;
-            $this->assertEquals(__('validation.antivirus.error', ['attribute' => 'file']), $message);
+            $this->assertEquals(__('validation.antivirus.error', ['file' => 'virus.txt']), $message);
         });
 
         $this->assertTrue($failCalled);

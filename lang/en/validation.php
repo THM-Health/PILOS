@@ -10,8 +10,8 @@ return [
     'alpha_dash' => 'The :attribute must only contain letters, numbers, dashes and underscores.',
     'alpha_num' => 'The :attribute must only contain letters and numbers.',
     'antivirus' => [
-        'error' => 'The virus scan for :attribute has failed.',
-        'virus' => ':attribute contains a virus.',
+        'error' => 'The virus scan for :file has failed.',
+        'virus' => ':file contains a virus.',
     ],
     'array' => 'The :attribute must be an array.',
     'ascii' => 'The :attribute field must only contain single-byte alphanumeric characters and symbols.',

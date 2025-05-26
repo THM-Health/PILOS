@@ -29,11 +29,12 @@ class Antivirus implements ValidationRule
 
         // Open the file
         $file = fopen($value->path(), 'r');
+        $fileName = $value->getClientOriginalName();
 
         try {
             // Send the file to the ClamAV server
             $response = Http::attach(
-                'file', $file, $value->getClientOriginalName()
+                'file', $file, $fileName
             )->post(config('antivirus.clamav.url'));
 
             // File is clean
@@ -47,13 +48,13 @@ class Antivirus implements ValidationRule
                 $description = $response->json('0.Description');
 
                 Log::warning('Virus {virus_description} detected', [
-                    'file_name' => $value->getClientOriginalName(),
+                    'file_name' => $fileName,
                     'file_path' => $value->path(),
                     'virus_description' => $description,
                     'request_url' => url()->current(),
                 ]);
 
-                $fail(__('validation.antivirus.virus', ['attribute' => $attribute]));
+                $fail(__('validation.antivirus.virus', ['file' => $fileName]));
 
                 return;
             }
@@ -67,6 +68,6 @@ class Antivirus implements ValidationRule
             fclose($file);
         }
 
-        $fail(__('validation.antivirus.error', ['attribute' => $attribute]));
+        $fail(__('validation.antivirus.error', ['file' => $fileName]));
     }
 }
