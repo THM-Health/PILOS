@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last login datetime to the admin user list ([#2132], [#2150])
 - Custom join parameters in room type settings ([#2099], [#2151])
 
+### Changed
+
+- Bumped BBB Recording Player to 5.3.3 ([#2169])
+
 ### Fixed
 
 - Container restart ([#2134])
@@ -487,6 +491,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2134]: https://github.com/THM-Health/PILOS/pull/2134
 [#2150]: https://github.com/THM-Health/PILOS/pull/2150
 [#2151]: https://github.com/THM-Health/PILOS/pull/2151
+[#2169]: https://github.com/THM-Health/PILOS/pull/2169
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.5.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
