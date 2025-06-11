@@ -38,6 +38,8 @@
           </Badge>
         </template>
         <template #content>
+          <RoomBBBMessage />
+
           <span class="font-bold">
             {{ $t("rooms.only_used_by_authenticated_users") }}
           </span>

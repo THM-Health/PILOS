@@ -1,5 +1,7 @@
 <template>
   <div class="flex flex-col gap-6">
+    <RoomBBBMessage />
+
     <div class="flex flex-col-reverse gap-2 md:flex-row">
       <div class="grow">
         <!-- Display room type, name and owner  -->
