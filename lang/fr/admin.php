@@ -153,6 +153,8 @@ return [
         'bbb_api' => [
             'create_parameters' => 'Paramètres supplémentaires pour l\'API de création',
             'create_parameters_description' => 'Saisir des paires de clefs-valeurs (une par line, sans espace), ex: webcamsOnlyForModerator=true',
+            'join_parameters' => 'Paramètres additionnels pour l\'API Join',
+            'join_parameters_description' => 'Spécifier les paires d\'attribut-valeur (une par ligne, sans espace), ex: userdata-bbb_show_public_chat_on_login=false',
             'title' => 'API BigBlueButton',
         ],
         'color' => 'Couleur',
@@ -460,7 +462,12 @@ return [
             'invalid_mime' => 'Ce format de fichier n\'est pas pris en charge. Veuillez sélectionner un fichier jpg ou png.',
             'save' => 'Confirmer',
             'title' => 'Photo de profil',
+            'title_short' => 'Photo',
             'upload' => 'Télécharger une nouvelle photo',
+        ],
+        'last_login' => [
+            'title' => 'Dernier login',
+            'unknown' => 'Inconnu',
         ],
         'new' => 'Créer un nouvel utilisateur',
         'no_data' => 'Aucun utilisateur trouvé !',
