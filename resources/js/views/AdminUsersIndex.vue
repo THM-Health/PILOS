@@ -168,6 +168,20 @@
       </template>
 
       <Column field="id" :header="$t('app.id')" sortable class="id-column" />
+      <Column
+        field="image"
+        :header="$t('admin.users.image.title_short')"
+        class="picture-column"
+      >
+        <template #body="slotProps">
+          <UserAvatar
+            :firstname="slotProps.data.firstname"
+            :lastname="slotProps.data.lastname"
+            :image="slotProps.data.image"
+            size="large"
+          />
+        </template>
+      </Column>
       <Column field="firstname" :header="$t('app.firstname')" sortable>
         <template #body="slotProps">
           <TextTruncate>{{ slotProps.data.firstname }}</TextTruncate>
@@ -189,14 +203,38 @@
         sortable
       >
         <template #body="slotProps">
-          {{ $t(`admin.users.authenticator.${slotProps.data.authenticator}`) }}
+          <Badge
+            severity="secondary"
+            :value="
+              $t(`admin.users.authenticator.${slotProps.data.authenticator}`)
+            "
+          />
+        </template>
+      </Column>
+      <Column
+        field="last_login"
+        :header="$t('admin.users.last_login.title')"
+        sortable
+      >
+        <template #body="slotProps">
+          <Badge v-if="slotProps.data.last_login" severity="secondary">
+            {{ $d(new Date(slotProps.data.last_login), "datetimeShort") }}
+          </Badge>
+          <Badge v-else severity="secondary">
+            {{ $t("admin.users.last_login.unknown") }}
+          </Badge>
         </template>
       </Column>
       <Column field="roles" :header="$t('app.roles')">
         <template #body="slotProps">
-          <TextTruncate v-for="role in slotProps.data.roles" :key="role.id">
-            {{ role.name }}
-          </TextTruncate>
+          <div class="flex flex-wrap gap-2">
+            <Badge
+              v-for="role in slotProps.data.roles"
+              :key="role.id"
+              severity="secondary"
+              ><TextTruncate>{{ role.name }}</TextTruncate>
+            </Badge>
+          </div>
         </template>
       </Column>
       <Column

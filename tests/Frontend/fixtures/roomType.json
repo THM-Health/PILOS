@@ -16,6 +16,7 @@
     "max_participants": 100,
     "max_duration": 120,
     "create_parameters": "meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds",
+    "join_parameters": "enforceLayout=PRESENTATION_ONLY\nwebcamBackgroundURL=https://example.com/background.png\nexcludeFromDashboard=true\nuserdata-bbb_hide_presentation_on_join=true",
     "restrict": false,
     "roles": [],
     "mute_on_start_default": true,

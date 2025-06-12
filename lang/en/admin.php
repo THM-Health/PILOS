@@ -153,6 +153,8 @@ return [
         'bbb_api' => [
             'create_parameters' => 'Additional Create API parameters',
             'create_parameters_description' => 'Specify as attribute-value pair (one per line, without spaces), e.g. webcamsOnlyForModerator=true',
+            'join_parameters' => 'Additional Join API parameters',
+            'join_parameters_description' => 'Specify as attribute-value pair (one per line, without spaces), e.g. userdata-bbb_show_session_details_on_join=false',
             'title' => 'BigBlueButton API',
         ],
         'color' => 'Color',
@@ -460,7 +462,12 @@ return [
             'invalid_mime' => 'The file format is not supported. Please select a jpg or png file.',
             'save' => 'Confirm',
             'title' => 'Profile picture',
+            'title_short' => 'Picture',
             'upload' => 'Upload new picture',
+        ],
+        'last_login' => [
+            'title' => 'Last login',
+            'unknown' => 'Unknown',
         ],
         'new' => 'Create new user',
         'no_data' => 'No users found!',

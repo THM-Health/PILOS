@@ -72,6 +72,10 @@ class LDAPController extends Controller
     protected function authenticated(Request $request, $user)
     {
         // Log successful authentication
-        Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['type' => 'ldap']);
+        Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'ldap']);
+
+        // Update the last login timestamp
+        $user->last_login = now();
+        $user->save();
     }
 }

@@ -73,10 +73,10 @@ class MeetingService
         // Apply custom create parameters of the room type
         if ($this->meeting->room->roomType->create_parameters != null) {
 
-            $result = self::setCustomCreateMeetingParameters($meetingParams, $this->meeting->room->roomType->create_parameters);
+            $errors = self::setCustomCreateMeetingParameters($meetingParams, $this->meeting->room->roomType->create_parameters);
 
             // If setting custom parameters failed, we have to recreate the parameter object to reset it
-            if (count($result) > 0) {
+            if (count($errors) > 0) {
                 $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
             }
         }
@@ -647,6 +647,18 @@ class MeetingService
         };
 
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
+
+        // Apply custom join parameters of the room type
+        if ($this->meeting->room->roomType->join_parameters != null) {
+
+            $errors = self::setCustomJoinMeetingParameters($joinMeetingParams, $this->meeting->room->roomType->join_parameters);
+
+            // If setting custom parameters failed, we have to recreate the parameter object to reset it
+            if (count($errors) > 0) {
+                $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
+            }
+        }
+
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setErrorRedirectUrl(url('rooms/'.$this->meeting->room->id));
         $joinMeetingParams->setUserID($userId);
@@ -654,6 +666,7 @@ class MeetingService
         if ($roomUserRole == RoomUserRole::GUEST) {
             $joinMeetingParams->setGuest(true);
         }
+
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
 
         // If meeting has recording enabled, add parameter to allow recording of own video

@@ -54,6 +54,10 @@ class ShibbolethController extends Controller
 
         Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'shibboleth']);
 
+        // Update the last login timestamp
+        $user->last_login = now();
+        $user->save();
+
         // Redirect to the external login page in the frontend, optionally with a redirect back to a specific URL
         $url = '/external_login';
         $redirectUrl = $request->query('redirect');
