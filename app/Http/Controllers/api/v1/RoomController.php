@@ -120,8 +120,8 @@ class RoomController extends Controller
         }
 
         // rooms that can be found with the search
-        if ($request->has('search') && trim($request->search) != '') {
-            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+        if ($request->has('query')) {
+            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
                 $collection = $collection->where(function ($query) use ($searchQuery) {
                     $query->whereLike('rooms.name', '%'.$searchQuery.'%')

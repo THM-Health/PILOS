@@ -527,7 +527,7 @@ describe("Admin servers index", function () {
   it("server search", function () {
     cy.visit("/admin/servers");
     cy.wait("@serversRequest").then((interception) => {
-      expect(interception.request.query.name).to.be.undefined;
+      expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
         update_usage: "false",
@@ -553,7 +553,7 @@ describe("Admin servers index", function () {
     cy.get('[data-test="server-search"] > button').click();
 
     cy.wait("@serversRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Test");
+      expect(interception.request.query.query).to.eql("Test");
       expect(interception.request.query).to.contain({
         page: "1",
         update_usage: "false",
@@ -584,7 +584,7 @@ describe("Admin servers index", function () {
     cy.get('[data-test="server-search"] > input').type("{enter}");
 
     cy.wait("@serversRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Test2");
+      expect(interception.request.query.query).to.eql("Test2");
       expect(interception.request.query).to.contain({
         page: "1",
         update_usage: "false",
@@ -614,7 +614,7 @@ describe("Admin servers index", function () {
     cy.get('[data-test="server-search"] > button').click();
 
     cy.wait("@serversRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Server");
+      expect(interception.request.query.query).to.eql("Server");
       expect(interception.request.query).to.contain({
         page: "1",
         update_usage: "false",
@@ -656,7 +656,7 @@ describe("Admin servers index", function () {
 
     // Check if the search query stays the same after changing the page
     cy.wait("@serversRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Server");
+      expect(interception.request.query.query).to.eql("Server");
       expect(interception.request.query).to.contain({
         page: "2",
         update_usage: "false",
@@ -699,7 +699,7 @@ describe("Admin servers index", function () {
 
     // Check that servers are loaded with the page reset to the first page
     cy.wait("@serversRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Se");
+      expect(interception.request.query.query).to.eql("Se");
       expect(interception.request.query).to.contain({
         page: "1",
         update_usage: "false",

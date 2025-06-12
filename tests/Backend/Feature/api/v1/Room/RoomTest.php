@@ -1490,47 +1490,47 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_no_filter', 2);
 
         // Testing with empty query
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=')
-            ->assertJsonValidationErrors('search');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=')
+            ->assertJsonValidationErrors('query');
 
         // Find by room name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=Test')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=Test')
             ->assertOk()
             ->assertJsonFragment(['id' => $room1->id])
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('meta.total_no_filter', 2);
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=Test+a')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=Test+a')
             ->assertOk()
             ->assertJsonFragment(['id' => $room1->id])
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('meta.total_no_filter', 2);
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=Test+a+xyz')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=Test+a+xyz')
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
         // Find by owner name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=john')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=john')
             ->assertOk()
             ->assertJsonCount(2, 'data');
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=john+d')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=john+d')
             ->assertOk()
             ->assertJsonCount(2, 'data');
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=john+d+xyz')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=john+d+xyz')
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
         // Find by owner name and room name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=test+john')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=test+john')
             ->assertOk()
             ->assertJsonFragment(['id' => $room1->id])
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('meta.total_no_filter', 2);
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&search=test+john+xyz')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&per_page=12&query=test+john+xyz')
             ->assertOk()
             ->assertJsonCount(0, 'data');
     }

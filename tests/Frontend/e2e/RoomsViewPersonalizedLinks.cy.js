@@ -800,7 +800,7 @@ describe("Rooms view personalized links", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomTokensRequest").then((interception) => {
-      expect(interception.request.query.search).to.be.undefined;
+      expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -824,7 +824,7 @@ describe("Rooms view personalized links", function () {
 
     cy.wait("@roomTokensRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Test",
+        query: "Test",
         page: "1",
       });
     });
@@ -858,7 +858,7 @@ describe("Rooms view personalized links", function () {
 
     cy.wait("@roomTokensRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Test2",
+        query: "Test2",
         page: "1",
       });
     });
@@ -890,7 +890,7 @@ describe("Rooms view personalized links", function () {
 
     cy.wait("@roomTokensRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Doe",
+        query: "Doe",
         page: "1",
       });
     });
@@ -935,7 +935,7 @@ describe("Rooms view personalized links", function () {
     // Check if the search query stays the same after changing the page
     cy.wait("@roomTokensRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Doe",
+        query: "Doe",
         page: "2",
       });
     });
@@ -980,7 +980,7 @@ describe("Rooms view personalized links", function () {
     // Check that personalized-links are loaded with the page reset to the first page
     cy.wait("@roomTokensRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Do",
+        query: "Do",
         page: "1",
       });
     });

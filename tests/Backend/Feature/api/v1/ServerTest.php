@@ -116,13 +116,13 @@ class ServerTest extends TestCase
             ->assertJsonFragment(['id' => $servers[5]->id]);
 
         // Filtering by name
-        $this->getJson(route('api.v1.servers.index').'?name=serverDisabled')
+        $this->getJson(route('api.v1.servers.index').'?query=serverDisabled')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $serverDisabled->id]);
 
         // Filtering by name
-        $this->getJson(route('api.v1.servers.index').'?name=server')
+        $this->getJson(route('api.v1.servers.index').'?query=server')
             ->assertSuccessful()
             ->assertJsonCount(5, 'data')
             ->assertJsonFragment(['id' => $serverOnline->id])
@@ -160,7 +160,7 @@ class ServerTest extends TestCase
             ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
 
         // Check server health
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&name=server')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server')
             ->assertSuccessful()
             ->assertJsonCount(5, 'data');
 
@@ -176,7 +176,7 @@ class ServerTest extends TestCase
         $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.4.health'));
 
         // Request with forced usage update, should see that the online servers are now unhealthy (because it's fake data)
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&name=server&update_usage=true')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server&update_usage=true')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
 

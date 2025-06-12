@@ -63,8 +63,8 @@ class RecordingController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search filter
-        if ($request->has('search')) {
-            $resource = $resource->whereLike('description', '%'.$request->query('search').'%');
+        if ($request->has('query')) {
+            $resource = $resource->whereLike('description', '%'.$request->query('query').'%');
         }
 
         // Apply filter if set, first element is the column, second the value to query

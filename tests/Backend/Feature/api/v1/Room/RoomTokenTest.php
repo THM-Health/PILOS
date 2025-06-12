@@ -155,7 +155,7 @@ class RoomTokenTest extends TestCase
             ->assertJsonPath('data.3.firstname', 'John');
 
         // Check search
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'search' => 'Jo']))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'query' => 'Jo']))
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.firstname', 'Angela')
             ->assertJsonPath('data.1.firstname', 'John')
@@ -163,7 +163,7 @@ class RoomTokenTest extends TestCase
             ->assertJsonPath('meta.total_no_filter', 6);
 
         // Check search with whitespaces (all should match in first or last name)
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'search' => 'John Doe']))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'query' => 'John Doe']))
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.firstname', 'John')
             ->assertJsonPath('meta.total', 1)

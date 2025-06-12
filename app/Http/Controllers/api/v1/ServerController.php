@@ -70,8 +70,8 @@ class ServerController extends Controller
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
-        if ($request->has('name')) {
-            $resource = $resource->withName($request->query('name'));
+        if ($request->has('query')) {
+            $resource = $resource->withName($request->query('query'));
         }
 
         $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);

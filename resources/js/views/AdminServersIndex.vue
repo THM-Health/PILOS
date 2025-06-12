@@ -326,7 +326,7 @@ function loadData(page = null, updateUsage = false) {
       update_usage: updateUsage,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? "asc" : "desc",
-      name: filter.value,
+      query: filter.value,
     },
   };
 

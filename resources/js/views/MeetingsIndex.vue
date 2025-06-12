@@ -289,7 +289,7 @@ function loadData(page = null) {
   };
 
   if (search.value) {
-    config.params.search = search.value;
+    config.params.query = search.value;
   }
 
   api

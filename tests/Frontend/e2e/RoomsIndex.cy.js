@@ -453,7 +453,7 @@ describe("Room Index", function () {
     cy.visit("/rooms");
 
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query.search).to.be.undefined;
+      expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -478,7 +478,7 @@ describe("Room Index", function () {
 
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Test",
+        query: "Test",
         page: "1",
       });
     });
@@ -508,7 +508,7 @@ describe("Room Index", function () {
 
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Test2",
+        query: "Test2",
         page: "1",
       });
     });
@@ -537,7 +537,7 @@ describe("Room Index", function () {
 
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Meeting",
+        query: "Meeting",
         page: "1",
       });
     });
@@ -577,7 +577,7 @@ describe("Room Index", function () {
     // Check if the search query stays the same after changing the page
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Meeting",
+        query: "Meeting",
         page: "2",
       });
     });
@@ -615,7 +615,7 @@ describe("Room Index", function () {
     // Check that rooms are loaded with the page reset to the first page
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        search: "Meet",
+        query: "Meet",
         page: "1",
       });
     });

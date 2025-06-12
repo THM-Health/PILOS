@@ -193,7 +193,7 @@ function loadData(page = null) {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? "asc" : "desc",
-      name: filter.value,
+      query: filter.value,
     },
   };
 

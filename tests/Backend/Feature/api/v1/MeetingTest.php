@@ -112,7 +112,7 @@ class MeetingTest extends TestCase
         Meeting::destroy($runningMeetings->pluck('id'));
 
         // Filtering by room name
-        $this->getJson(route('api.v1.meetings.index').'?search=Test+room')
+        $this->getJson(route('api.v1.meetings.index').'?query=Test+room')
             ->assertSuccessful()
             ->assertJsonCount(3, 'data')
             ->assertJsonFragment(['id' => $meeting1->id])
@@ -120,14 +120,14 @@ class MeetingTest extends TestCase
             ->assertJsonFragment(['id' => $meeting3->id]);
 
         // Filtering by owner
-        $this->getJson(route('api.v1.meetings.index').'?search=John+Doe')
+        $this->getJson(route('api.v1.meetings.index').'?query=John+Doe')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['id' => $meeting1->id])
             ->assertJsonFragment(['id' => $meeting2->id]);
 
         // Filtering by server
-        $this->getJson(route('api.v1.meetings.index').'?search=Testserver')
+        $this->getJson(route('api.v1.meetings.index').'?query=Testserver')
             ->assertSuccessful()
             ->assertJsonCount(3, 'data')
             ->assertJsonFragment(['id' => $meeting1->id])
@@ -135,7 +135,7 @@ class MeetingTest extends TestCase
             ->assertJsonFragment(['id' => $meeting3->id]);
 
         // Filtering by combination
-        $this->getJson(route('api.v1.meetings.index').'?search=Testserver+Doe+room+2')
+        $this->getJson(route('api.v1.meetings.index').'?query=Testserver+Doe+room+2')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $meeting2->id]);

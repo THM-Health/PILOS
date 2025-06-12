@@ -18,7 +18,7 @@ class ShowRoomsRequest extends FormRequest
             'only_favorites' => ['required', 'boolean'],
             'room_type' => ['nullable', 'integer', 'exists:App\Models\RoomType,id'],
             'sort_by' => ['required', Rule::enum(RoomSortingType::class)],
-            'search' => ['string'],
+            'query' => ['string'],
             'page' => ['required', 'integer'],
             'per_page' => ['required', 'integer', 'max:20'],
         ];

@@ -64,26 +64,26 @@ class UserTest extends TestCase
 
     public function test_returns_user_with_given_name_part()
     {
-        $result = User::withName('ust ax')->get();
+        $result = User::withNameOrEmail('ust ax')->get();
         $this->assertCount(1, $result);
         $this->assertEquals($this->users[0]->firstname, $result[0]->firstname);
         $this->assertEquals($this->users[0]->lastname, $result[0]->lastname);
 
-        $result = User::withName('ax    ust')->get();
+        $result = User::withNameOrEmail('ax    ust')->get();
         $this->assertCount(1, $result);
         $this->assertEquals($this->users[0]->firstname, $result[0]->firstname);
         $this->assertEquals($this->users[0]->lastname, $result[0]->lastname);
 
-        $result = User::withName('ax    ust')->where('id', $this->users[1]->id)->get();
+        $result = User::withNameOrEmail('ax    ust')->where('id', $this->users[1]->id)->get();
         $this->assertCount(0, $result);
 
-        $result = User::withName('Max Doe')->where('id', $this->users[1]->id)->get();
+        $result = User::withNameOrEmail('Max Doe')->where('id', $this->users[1]->id)->get();
         $this->assertCount(0, $result);
     }
 
     public function test_returns_empty_array_for_not_existing_name()
     {
-        $result = User::withName('Darth Vader')->get();
+        $result = User::withNameOrEmail('Darth Vader')->get();
         $this->assertCount(0, $result);
     }
 

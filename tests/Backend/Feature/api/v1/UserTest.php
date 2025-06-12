@@ -186,14 +186,14 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors(['role']);
 
         // Filtering by name / email
-        $this->getJson(route('api.v1.users.index').'?name=J%20Doe')
+        $this->getJson(route('api.v1.users.index').'?query=J%20Doe')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         // Filtering by role and name
-        $this->getJson(route('api.v1.users.index').'?name=John&role='.$role2->id)
+        $this->getJson(route('api.v1.users.index').'?query=John&role='.$role2->id)
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $user->id]);

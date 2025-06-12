@@ -731,7 +731,7 @@ describe("Admin users index", function () {
     cy.visit("/admin/users");
 
     cy.wait("@usersRequest").then((interception) => {
-      expect(interception.request.query.name).to.be.undefined;
+      expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -756,7 +756,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-search"] > button').click();
 
     cy.wait("@usersRequest").then((interception) => {
-      expect(interception.request.query.name).to.equal("Test");
+      expect(interception.request.query.query).to.equal("Test");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -786,7 +786,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-search"] > input').type("{enter}");
 
     cy.wait("@usersRequest").then((interception) => {
-      expect(interception.request.query.name).to.equal("Test2");
+      expect(interception.request.query.query).to.equal("Test2");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -815,7 +815,7 @@ describe("Admin users index", function () {
     cy.get('[data-test="user-search"] > button').click();
 
     cy.wait("@usersRequest").then((interception) => {
-      expect(interception.request.query.name).to.equal("e");
+      expect(interception.request.query.query).to.equal("e");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -855,7 +855,7 @@ describe("Admin users index", function () {
     // Check if the search query stays the same after changing the page
     cy.wait("@usersRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        name: "e",
+        query: "e",
         page: "2",
       });
     });
@@ -892,7 +892,7 @@ describe("Admin users index", function () {
     // Check that users are loaded with the page reset to the first page
     cy.wait("@usersRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        name: "o",
+        query: "o",
         page: "1",
       });
     });

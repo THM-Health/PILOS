@@ -500,7 +500,7 @@ describe("Meetings index", function () {
   it("meeting search", function () {
     cy.visit("/meetings");
     cy.wait("@meetingsRequest").then((interception) => {
-      expect(interception.request.query.search).to.be.undefined;
+      expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -525,7 +525,7 @@ describe("Meetings index", function () {
     cy.get('[data-test="meeting-search"] > button').click();
 
     cy.wait("@meetingsRequest").then((interception) => {
-      expect(interception.request.query.search).to.eql("Test");
+      expect(interception.request.query.query).to.eql("Test");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -555,7 +555,7 @@ describe("Meetings index", function () {
     cy.get('[data-test="meeting-search"] > input').type("{enter}");
 
     cy.wait("@meetingsRequest").then((interception) => {
-      expect(interception.request.query.search).to.eql("Test2");
+      expect(interception.request.query.query).to.eql("Test2");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -584,7 +584,7 @@ describe("Meetings index", function () {
     cy.get('[data-test="meeting-search"] > button').click();
 
     cy.wait("@meetingsRequest").then((interception) => {
-      expect(interception.request.query.search).to.eql("Meeting");
+      expect(interception.request.query.query).to.eql("Meeting");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -626,7 +626,7 @@ describe("Meetings index", function () {
 
     // Check if search query stays the same after changing the page
     cy.wait("@meetingsRequest").then((interception) => {
-      expect(interception.request.query.search).to.eql("Meeting");
+      expect(interception.request.query.query).to.eql("Meeting");
       expect(interception.request.query).to.contain({
         page: "2",
       });
@@ -669,7 +669,7 @@ describe("Meetings index", function () {
 
     // Check that meetings are loaded with the page reset to the first page
     cy.wait("@meetingsRequest").then((interception) => {
-      expect(interception.request.query.search).to.eql("Meet");
+      expect(interception.request.query.query).to.eql("Meet");
       expect(interception.request.query).to.contain({
         page: "1",
       });
