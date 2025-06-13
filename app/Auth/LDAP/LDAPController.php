@@ -4,6 +4,7 @@ namespace App\Auth\LDAP;
 
 use App\Auth\MissingAttributeException;
 use App\Http\Controllers\Controller;
+use App\Prometheus\Counter;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,6 +60,8 @@ class LDAPController extends Controller
             return $this->ldapLogin($request);
         } catch (MissingAttributeException $e) {
             // If an attribute is missing during the login process, return error
+            Counter::get('login_failed_total')->inc('ldap');
+
             return abort(500, __('auth.error.missing_attributes'));
         }
     }
@@ -72,6 +75,7 @@ class LDAPController extends Controller
     protected function authenticated(Request $request, $user)
     {
         // Log successful authentication
+        Counter::get('login_total')->inc('ldap');
         Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'ldap']);
 
         // Update the last login timestamp

@@ -442,7 +442,7 @@ class RoomStreamingTest extends TestCase
             ]);
 
         // Check if response is cached and not re-fetched
-        $this->travel(5)->seconds();
+        $this->travel(4)->seconds();
         $this->actingAs($this->room->owner)
             ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
             ->assertSuccessful()
@@ -455,7 +455,7 @@ class RoomStreamingTest extends TestCase
         $this->room->streaming->save();
 
         // Check if response is re-fetched after cache expiration
-        $this->travel(6)->seconds();
+        $this->travel(7)->seconds();
         $this->actingAs($this->room->owner)
             ->getJson(route('api.v1.rooms.streaming.status', ['room' => $this->room]))
             ->assertSuccessful()

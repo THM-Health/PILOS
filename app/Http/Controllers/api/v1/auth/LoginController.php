@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api\v1\auth;
 
 use App\Auth\Shibboleth\ShibbolethProvider;
 use App\Http\Controllers\Controller;
+use App\Prometheus\Counter;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -57,6 +58,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        Counter::get('login_total')->inc('local');
         Log::info('Local user {user} has been successfully authenticated.', ['user' => $user->getLogLabel()]);
 
         // Update the last login timestamp
