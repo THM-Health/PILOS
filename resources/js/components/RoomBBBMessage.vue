@@ -14,10 +14,15 @@ const closeReasonMessage = () => {
 // Parse the errors from the URL query parameter
 const errorMessages = ref(null);
 try {
-  // Remove all errors that are unknown to the localization system
-  errorMessages.value = JSON.parse(urlSearchParams.errors).filter((error) => {
-    return te("rooms.bbb_error_message." + error.key);
-  });
+  if (urlSearchParams.errors) {
+    const parsed = JSON.parse(urlSearchParams.errors);
+    if (Array.isArray(parsed)) {
+      // Remove all errors that are unknown to the localization system
+      errorMessages.value = parsed
+        .filter((e) => typeof e === "object" && e && "key" in e)
+        .filter((e) => te("rooms.bbb_error_message." + e.key));
+    }
+  }
 } catch (e) {
   console.error(e);
 }
@@ -45,6 +50,7 @@ watch(errorMessages, (errors) => {
   <!-- Show reason meeting was ended -->
   <Message
     v-if="urlSearchParams.reason"
+    data-test="room-meeting-ended-reason"
     class="mb-3"
     closable
     @close="closeReasonMessage"
@@ -56,6 +62,7 @@ watch(errorMessages, (errors) => {
     <Message
       v-for="error in errorMessages"
       :key="error.key"
+      data-test="room-meeting-bbb-error"
       closable
       severity="error"
       @close="() => closeErrorMessage(error)"

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Show meeting ended reason ([#2223])
+- Show BBB join errors ([#2223])
+
 ## [v4.6.1] - 2025-06-16
 
 ### Fixed
@@ -496,6 +501,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2150]: https://github.com/THM-Health/PILOS/pull/2150
 [#2151]: https://github.com/THM-Health/PILOS/pull/2151
 [#2222]: https://github.com/THM-Health/PILOS/pull/2222
+[#2223]: https://github.com/THM-Health/PILOS/pull/2223
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
