@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.6.1] - 2025-06-16
+
+### Fixed
+
+- Allow global streaming join parameters to be empty ([#2222])
+
 ## [v4.6.0] - 2025-06-12
 
 ### Added
@@ -489,7 +495,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2134]: https://github.com/THM-Health/PILOS/pull/2134
 [#2150]: https://github.com/THM-Health/PILOS/pull/2150
 [#2151]: https://github.com/THM-Health/PILOS/pull/2151
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.0...develop
+[#2222]: https://github.com/THM-Health/PILOS/pull/2222
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -504,3 +511,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.4.0
 [v4.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.5.0
 [v4.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.6.0
+[v4.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.6.1

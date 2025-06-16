@@ -336,7 +336,7 @@ describe("Admin server pools index", function () {
   it("server pools search", function () {
     cy.visit("/admin/server_pools");
     cy.wait("@serverPoolsRequest").then((interception) => {
-      expect(interception.request.query.name).to.be.undefined;
+      expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -361,7 +361,7 @@ describe("Admin server pools index", function () {
     cy.get('[data-test="server-pool-search"] > button').click();
 
     cy.wait("@serverPoolsRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Test");
+      expect(interception.request.query.query).to.eql("Test");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -391,7 +391,7 @@ describe("Admin server pools index", function () {
     cy.get('[data-test="server-pool-search"] > input').type("{enter}");
 
     cy.wait("@serverPoolsRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Test2");
+      expect(interception.request.query.query).to.eql("Test2");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -419,7 +419,7 @@ describe("Admin server pools index", function () {
     cy.get('[data-test="server-pool-search"] > button').click();
 
     cy.wait("@serverPoolsRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("T");
+      expect(interception.request.query.query).to.eql("T");
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -459,7 +459,7 @@ describe("Admin server pools index", function () {
 
     // Check if search query stays the same after changing the page
     cy.wait("@serverPoolsRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("T");
+      expect(interception.request.query.query).to.eql("T");
       expect(interception.request.query).to.contain({
         page: "2",
       });
@@ -496,7 +496,7 @@ describe("Admin server pools index", function () {
 
     // Check that server pools are loaded with the page reset to the first page
     cy.wait("@serverPoolsRequest").then((interception) => {
-      expect(interception.request.query.name).to.eql("Te");
+      expect(interception.request.query.query).to.eql("Te");
       expect(interception.request.query).to.contain({
         page: "1",
       });

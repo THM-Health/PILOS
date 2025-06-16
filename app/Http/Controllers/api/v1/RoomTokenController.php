@@ -59,9 +59,9 @@ class RoomTokenController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search query if set
-        if ($request->has('search')) {
+        if ($request->has('query')) {
             // Split search query into single words and search for them in firstname and lastname
-            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {
                     $query->whereLike('firstname', '%'.$searchQuery.'%')

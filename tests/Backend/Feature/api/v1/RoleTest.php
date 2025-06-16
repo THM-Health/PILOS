@@ -66,7 +66,7 @@ class RoleTest extends TestCase
         // Test search
         $this->generalSettings->pagination_page_size = 10;
         $this->generalSettings->save();
-        $this->getJson(route('api.v1.roles.index').'?name=Admin')
+        $this->getJson(route('api.v1.roles.index').'?query=Admin')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['name' => $roleA->name])

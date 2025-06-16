@@ -89,7 +89,7 @@ class ServerPoolTest extends TestCase
             ->assertJsonFragment(['id' => $serverPools[5]->id]);
 
         // Filtering by name
-        $this->getJson(route('api.v1.serverPools.index').'?name=testPool')
+        $this->getJson(route('api.v1.serverPools.index').'?query=testPool')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $serverPool1->id]);

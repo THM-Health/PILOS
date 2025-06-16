@@ -46,7 +46,7 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        $query = User::withName($request->query('query'));
+        $query = User::withNameOrEmail($request->query('query'));
 
         if ($query->count() > config('bigbluebutton.user_search_limit')) {
             abort(204, 'Too many results');
@@ -98,8 +98,8 @@ class UserController extends Controller
             $resource = $resource->withRole($request->query('role'));
         }
 
-        if ($request->has('name')) {
-            $resource = $resource->withName($request->query('name'));
+        if ($request->has('query')) {
+            $resource = $resource->withNameOrEmail($request->query('query'));
         }
 
         $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);

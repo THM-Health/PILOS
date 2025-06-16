@@ -380,7 +380,7 @@ class MembershipTest extends TestCase
             ->assertJsonPath('data.4.lastname', 'Osorio');
 
         // Check search
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'search' => 'Jo']))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => 'Jo']))
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.firstname', 'Angela')
             ->assertJsonPath('data.1.firstname', 'John')
@@ -388,7 +388,7 @@ class MembershipTest extends TestCase
             ->assertJsonPath('meta.total_no_filter', 6);
 
         // Check search with whitespaces (all should match in first or last name)
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'search' => 'John Doe']))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => 'John Doe']))
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.firstname', 'John')
             ->assertJsonPath('meta.total', 1)

@@ -4,7 +4,7 @@
       <div>
         <InputGroup data-test="user-search">
           <InputText
-            v-model="filter.name"
+            v-model="filter.search"
             :disabled="isBusy"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1)"
@@ -344,7 +344,7 @@ const sortField = ref("id");
 const sortOrder = ref(1);
 
 const filter = ref({
-  name: undefined,
+  search: undefined,
   role: undefined,
 });
 
@@ -410,7 +410,7 @@ function loadData(page = null) {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? "asc" : "desc",
-      name: filter.value.name,
+      query: filter.value.search,
       role: filter.value.role?.id,
     },
   };
