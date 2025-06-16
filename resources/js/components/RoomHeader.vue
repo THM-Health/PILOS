@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-6">
-    <RoomBBBMessage />
+    <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
     <div class="flex flex-col-reverse gap-2 md:flex-row">
       <div class="grow">
@@ -100,6 +100,14 @@ const props = defineProps({
   disableReload: {
     type: Boolean,
     default: false,
+  },
+  bbbReason: {
+    type: String,
+    default: null,
+  },
+  bbbErrors: {
+    type: String,
+    default: null,
   },
 });
 

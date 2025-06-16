@@ -1932,10 +1932,7 @@ describe("Room View general", function () {
       .should("contain.text", "Maximum participants reached");
 
     // Check url is updated (closed and invalid error removed)
-    errors = encodeURIComponent(
-      JSON.stringify([{ key: "maxParticipantsReached" }]),
-    );
-    cy.url().should("include", `errors=${errors}`);
+    cy.url().should("include", "[{%22key%22:%22maxParticipantsReached%22}]");
 
     // Close last error message
     cy.get('[data-test="room-meeting-bbb-error"]').eq(0).find("button").click();
