@@ -197,7 +197,7 @@ function updateSettings() {
     formData.append("css_file", "");
   }
 
-  formData.append("join_parameters", settings.value.join_parameters);
+  formData.append("join_parameters", settings.value.join_parameters || "");
 
   formData.append("_method", "PUT");
 
