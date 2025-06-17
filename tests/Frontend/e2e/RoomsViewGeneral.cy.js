@@ -1847,4 +1847,100 @@ describe("Room View general", function () {
     cy.get("#tab-history").should("be.visible");
     cy.get("#tab-settings").should("be.visible");
   });
+
+  it("displays meeting ended reason", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123?reason=Meeting+ended+by+John+Doe");
+    cy.wait("@roomRequest");
+
+    // Reason message should be shown
+    cy.get('[data-test="room-meeting-ended-reason"]')
+      .should("be.visible")
+      .should("have.text", "Meeting ended by John Doe");
+
+    // Close reason message
+    cy.get('[data-test="room-meeting-ended-reason"] button').click();
+
+    // Check that reason message is removed
+    cy.get('[data-test="room-meeting-ended-reason"]').should("not.exist");
+
+    // Check reason message is removed from URL
+    cy.url().should("not.include", "reason");
+  });
+
+  it("displays bbb error messages", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.fixture("en.json").then((locale) => {
+      locale.data = {
+        rooms: {
+          bbb_error_message: {
+            guestDeniedAccess: "Guest access denied",
+            maxParticipantsReached: "Maximum participants reached",
+          },
+        },
+      };
+      cy.intercept("GET", "api/v1/locale/en", {
+        statusCode: 200,
+        body: locale,
+      });
+    });
+
+    // Simulate BBB errors
+    let errors = encodeURIComponent(
+      JSON.stringify([
+        { key: "guestDeniedAccess" },
+        { key: "maxParticipantsReached" },
+        { key: "unknown_error" },
+      ]),
+    );
+    cy.visit(`/rooms/abc-def-123?errors=${errors}`);
+    cy.wait("@roomRequest");
+
+    // Check only two error messages are shown
+    cy.get('[data-test="room-meeting-bbb-error"]').should("have.length", 2);
+
+    cy.get('[data-test="room-meeting-bbb-error"]')
+      .eq(0)
+      .should("contain.text", "Guest access denied");
+    cy.get('[data-test="room-meeting-bbb-error"]')
+      .eq(1)
+      .should("contain.text", "Maximum participants reached");
+
+    // Close first error message
+    cy.get('[data-test="room-meeting-bbb-error"]').eq(0).find("button").click();
+
+    // Check only one error message is shown
+    cy.get('[data-test="room-meeting-bbb-error"]').should("have.length", 1);
+    cy.get('[data-test="room-meeting-bbb-error"]')
+      .eq(0)
+      .should("contain.text", "Maximum participants reached");
+
+    // Check url is updated (closed and invalid error removed)
+    cy.url().should("include", "[{%22key%22:%22maxParticipantsReached%22}]");
+
+    // Close last error message
+    cy.get('[data-test="room-meeting-bbb-error"]').eq(0).find("button").click();
+
+    // Check no error messages are shown
+    cy.get('[data-test="room-meeting-bbb-error"]').should("not.exist");
+
+    // Check url is updated (no errors)
+    cy.url().should("not.include", "errors");
+  });
 });

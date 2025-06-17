@@ -38,6 +38,8 @@
           </Badge>
         </template>
         <template #content>
+          <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
+
           <span class="font-bold">
             {{ $t("rooms.only_used_by_authenticated_users") }}
           </span>
@@ -98,6 +100,8 @@
                 :hide-favorites="true"
                 :hide-membership="true"
                 :disable-reload="authThrottledFor > 0"
+                :bbb-errors="bbbErrors"
+                :bbb-reason="bbbReason"
                 @reload="reload"
               />
               <Divider />
@@ -162,6 +166,8 @@
                 :loading="loading"
                 :access-code="accessCode"
                 :details-inline="true"
+                :bbb-errors="bbbErrors"
+                :bbb-reason="bbbReason"
                 @reload="reload"
                 @invalid-code="handleInvalidCode"
                 @joined-membership="
@@ -247,6 +253,14 @@ const props = defineProps({
     required: true,
   },
   token: {
+    type: String,
+    default: null,
+  },
+  bbbReason: {
+    type: String,
+    default: null,
+  },
+  bbbErrors: {
     type: String,
     default: null,
   },
