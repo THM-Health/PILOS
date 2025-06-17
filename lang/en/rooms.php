@@ -4,8 +4,8 @@ return [
     'access_code' => 'Access code',
     'auth_throttled' => 'Too many attempts. Please try again in :try_again seconds.',
     'bbb_error_message' => [
-        'maxParticipantsReached' => 'Failed to join meeting: The number of participants allowed for this meeting has been reached.',
         'guestDeniedAccess' => 'Failed to join meeting: You have been denied access to this meeting based on the meeting\'s guest policy.',
+        'maxParticipantsReached' => 'Failed to join meeting: The number of participants allowed for this meeting has been reached.',
         'meetingForciblyEnded' => 'Failed to join meeting: The meeting is no longer running.',
     ],
     'become_member' => 'Become member',
