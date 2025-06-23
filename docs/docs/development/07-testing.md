@@ -7,15 +7,12 @@ Our goal is to build a high-quality product by focusing equally on robust archit
 Maintaining product quality is an ongoing process that requires consistent effort. To prevent quality degradation over time, we have established a comprehensive testing strategy that includes the following components:
 
 1. **PHP Backend Testing**
-
     - We use several levels of backend testing, including unit testing, integration testing and more. These tests ensure that each component works correctly and integrates seamlessly with others.
 
 2. **Frontend Testing**
-
     - Our frontend tests focus on isolated End-to-End (E2E) testing, with most tests stubbing the backend. This allows us to validate the frontend functionality independently and comprehensively.
 
 3. **System Testing**
-
     - We perform system testing to verify that the entire application works as expected. This includes ensuring that the Docker container initialises correctly, and confirming that the frontend and backend work together seamlessly.
 
 4. **Visual Regression Testing**

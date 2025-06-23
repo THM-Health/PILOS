@@ -54,7 +54,6 @@ Once livestreaming is enabled in the .env file, additional settings can be confi
 
 - **Default pause image**: Pause image, used if no pause image is set for the room type or room.
 - **CSS style file**: Custom CSS file to customize the BBB UI for streaming.
-
     - **Example for BBB 2.7 and BBB 3.0**
 
         ```css

@@ -53,7 +53,6 @@ Careful management of user and role permissions is crucial to prevent privilege 
 
 1. **User Management**:  
    A user with permission to edit or create users can:
-
     - Assign roles with higher permissions to others.
     - Create new users with elevated privileges.
 
@@ -75,7 +74,6 @@ Careful management of user and role permissions is crucial to prevent privilege 
 When two levels of administrators are required (e.g., superusers and regular admins):
 
 1. Assign the **superuser** role to the highest-level administrators.
-
     - Superusers have unrestricted access.
     - Non-superusers cannot edit, delete, or create superusers.
 
