@@ -6,13 +6,11 @@ use App\Auth\MissingAttributeException;
 use App\Http\Controllers\Controller;
 use App\Models\SessionData;
 use Auth;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class OIDCController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('guest');
@@ -37,7 +35,7 @@ class OIDCController extends Controller
     public function callback(Request $request)
     {
         try {
-        $this->oidc->authenticate();
+            $this->oidc->authenticate();
 
         } catch (\Exception $e) {
             Log::error($e);
@@ -47,12 +45,9 @@ class OIDCController extends Controller
 
         // Create new open-id connect user
 
-
         try {
             $user_info = get_object_vars($this->oidc->requestUserInfo());
             $oidc_user = new OIDCUser($user_info);
-
-
 
         } catch (MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
@@ -73,10 +68,10 @@ class OIDCController extends Controller
         Auth::login($user);
 
         $sessionData = [
-            ['key' => 'oidc_sub', 'value' => $user_info['sub']]
+            ['key' => 'oidc_sub', 'value' => $user_info['sub']],
         ];
 
-        if(isset($this->oidc->getIdTokenPayload()->sid)){
+        if (isset($this->oidc->getIdTokenPayload()->sid)) {
             $sessionData[] = ['key' => 'oidc_sid', 'value' => $this->oidc->getIdTokenPayload()->sid];
         }
 
@@ -98,7 +93,7 @@ class OIDCController extends Controller
     {
         Log::debug('OIDC backchannel logout handler called');
 
-        try{
+        try {
             if (! $this->oidc->verifyLogoutToken()) {
                 Log::warning('Logout token verification failed');
 
@@ -108,8 +103,7 @@ class OIDCController extends Controller
             $sub = $this->oidc->getSubjectFromBackChannel();
             $sid = $this->oidc->getSidFromBackChannel();
 
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error($e);
 
             return response('', 400)
@@ -122,7 +116,7 @@ class OIDCController extends Controller
             Auth::logout();
         }
 
-        if($sid){
+        if ($sid) {
             // If sid is present, delete only the session with that sid
 
             $lookupSessions = SessionData::where('key', 'oidc_sid')->where('value', $sid)->get();
@@ -131,8 +125,7 @@ class OIDCController extends Controller
                 Log::info('Deleting session of user {user}', ['user' => $user, 'type' => 'oidc']);
                 $lookupSession->session()->delete();
             }
-        }
-        else {
+        } else {
             // If sid is not present, delete all sessions with that sub
 
             $lookupSessions = SessionData::where('key', 'oidc_sub')->where('value', $sub)->get();
