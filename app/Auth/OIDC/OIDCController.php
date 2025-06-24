@@ -36,32 +36,27 @@ class OIDCController extends Controller
 
     public function callback(Request $request)
     {
-        //try {
-            $this->oidc->authenticate();
+        try {
+        $this->oidc->authenticate();
 
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error($e);
 
             return redirect('/external_login?error=openid_connect_exception');
-        }*/
+        }
 
         // Create new open-id connect user
+
+
         try {
             $user_info = get_object_vars($this->oidc->requestUserInfo());
             $oidc_user = new OIDCUser($user_info);
 
-            // Check subject
-            // @todo: Remove when https://github.com/jumbojett/OpenID-Connect-PHP/pull/478 is merged
-            if (! isset($user_info['sub']) || $user_info['sub'] !== $this->oidc->getIdTokenPayload()->sub) {
-                // Invalid subject in user info response
-                throw new \Exception('Invalid Subject in user info response');
-            }
+
 
         } catch (MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
         } catch (\Exception $e) {
-            Log::error($e);
-
             return redirect('/external_login?error=openid_connect_exception');
         }
 
@@ -77,9 +72,15 @@ class OIDCController extends Controller
 
         Auth::login($user);
 
-        session(['session_data' => [
-            ['key' => 'oidc_sub', 'value' => $user_info['sub']],
-        ]]);
+        $sessionData = [
+            ['key' => 'oidc_sub', 'value' => $user_info['sub']]
+        ];
+
+        if(isset($this->oidc->getIdTokenPayload()->sid)){
+            $sessionData[] = ['key' => 'oidc_sid', 'value' => $this->oidc->getIdTokenPayload()->sid];
+        }
+
+        session(['session_data' => $sessionData]);
 
         session()->put('oidc_id_token', $this->oidc->getIdToken());
 
@@ -105,9 +106,7 @@ class OIDCController extends Controller
             }
 
             $sub = $this->oidc->getSubjectFromBackChannel();
-            if (! isset($sub)) {
-                throw new \Exception('Subject missing in backchannel logout request');
-            }
+            $sid = $this->oidc->getSidFromBackChannel();
 
         }
         catch (\Exception $e) {
@@ -117,18 +116,31 @@ class OIDCController extends Controller
                 ->header('Cache-Control', 'no-store');
         }
 
-        // Delete all sessions of the user
+        // Destroy the session of the user, if used for frontchannel logout
         $user = Auth::user();
         if ($user) {
-            $user->sessions()->delete();
-            Log::info('Deleting session of user {user}', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
+            Auth::logout();
         }
 
-        $lookupSessions = SessionData::where('key', 'oidc_sub')->where('value', $sub)->get();
-        foreach ($lookupSessions as $lookupSession) {
-            $user = $lookupSession->session->user->getLogLabel();
-            Log::info('Deleting session of user {user}', ['user' => $user, 'type' => 'oidc']);
-            $lookupSession->session()->delete();
+        if($sid){
+            // If sid is present, delete only the session with that sid
+
+            $lookupSessions = SessionData::where('key', 'oidc_sid')->where('value', $sid)->get();
+            foreach ($lookupSessions as $lookupSession) {
+                $user = $lookupSession->session->user->getLogLabel();
+                Log::info('Deleting session of user {user}', ['user' => $user, 'type' => 'oidc']);
+                $lookupSession->session()->delete();
+            }
+        }
+        else {
+            // If sid is not present, delete all sessions with that sub
+
+            $lookupSessions = SessionData::where('key', 'oidc_sub')->where('value', $sub)->get();
+            foreach ($lookupSessions as $lookupSession) {
+                $user = $lookupSession->session->user->getLogLabel();
+                Log::info('Deleting session of user {user}', ['user' => $user, 'type' => 'oidc']);
+                $lookupSession->session()->delete();
+            }
         }
 
         return response('', 200)
