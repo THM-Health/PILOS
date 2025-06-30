@@ -35,7 +35,7 @@
     "happo-e2e": "^4.1.1",
     "happo.io": "^13.0.0",
     "nyc": "^17.1.0",
-    "prettier": "^3.6.0",
+    "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.13",
     "vite-plugin-istanbul": "^7.0.0",
     "vue-eslint-parser": "^10.1.3"
