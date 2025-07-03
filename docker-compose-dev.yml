@@ -30,7 +30,6 @@ services:
       timeout: 5s
     volumes:
       - "./:/var/www/html/"
-      - "../OpenID-Connect-PHP/:/var/www/OpenID-Connect-PHP/"
       - "./ssl:/local/certs/"
     depends_on:
       db:

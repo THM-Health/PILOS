@@ -240,6 +240,7 @@ return [
 
         App\Auth\LDAP\LDAPServiceProvider::class,
         App\Auth\Shibboleth\ShibbolethServiceProvider::class,
+        App\Auth\OIDC\OIDCServiceProvider::class,
 
         App\Providers\TranslationServiceProvider::class,
 

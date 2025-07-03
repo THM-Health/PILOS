@@ -13,8 +13,11 @@ return [
     'error' => [
         'login_failed' => 'Login failed',
         'missing_attributes' => 'Attributes for authentication are missing.',
+        'openid_connect_exception' => 'Authentication failed due to an error.',
+        'openid_connect_network_exception' => 'Failed to connect to the authentication provider.',
         'reason' => 'Error reason',
-        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
+        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use.',
+        'try_again' => 'Please try logging in again or contact support if the problem persists.',
     ],
     'failed' => 'These credentials do not match our records.',
     'flash' => [

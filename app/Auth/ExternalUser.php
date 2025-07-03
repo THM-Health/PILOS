@@ -114,6 +114,9 @@ abstract class ExternalUser
         }
     }
 
+    /**
+     * @throws MissingAttributeException
+     */
     public function syncWithEloquentModel(User $eloquentUser, array $roles): User
     {
         // Validate attributes

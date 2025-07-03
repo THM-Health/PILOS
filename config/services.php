@@ -55,6 +55,10 @@ return [
         'client_id' => env('OIDC_CLIENT_ID'),
         'client_secret' => env('OIDC_CLIENT_SECRET'),
         'scopes' => explode(',', env('OIDC_SCOPES', 'profile,email')),
+        'leeway' => (int) env('OIDC_LEEWAY', 300),
+        'timeout' => (int) env('OIDC_TIMEOUT', 10),
+        'cache_config_max_age' => (int) env('OIDC_CACHE_CONFIG_MAX_AGE', 0),
+        'cache_jwks_max_age' => (int) env('OIDC_CACHE_JWKS_MAX_AGE', 0),
         'mapping' => $oidcEnabled ? json_decode(file_get_contents(app_path('Auth/config/oidc_mapping.json'))) : null,
     ],
 ];
