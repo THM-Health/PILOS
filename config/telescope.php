@@ -119,7 +119,7 @@ return [
 
         Watchers\CacheWatcher::class => [
             'enabled' => env('TELESCOPE_CACHE_WATCHER', true),
-            'hidden' => [],
+            'ignore' => ['laravel:pulse:restart'],
         ],
 
         Watchers\ClientRequestWatcher::class => env('TELESCOPE_CLIENT_REQUEST_WATCHER', true),
