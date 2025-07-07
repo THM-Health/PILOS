@@ -23,8 +23,12 @@ class OIDCController extends Controller
         try {
             return $this->provider->redirect($request->query('redirect'));
         } catch (OpenIDConnectNetworkException $e) {
+            \Log::error($e->getMessage());
+
             return redirect('/external_login?error=openid_connect_network_exception');
         } catch (\Throwable $e) {
+            \Log::error($e->getMessage());
+
             return redirect('/external_login?error=openid_connect_exception');
         }
     }
@@ -36,13 +40,21 @@ class OIDCController extends Controller
     {
         try {
             $user = $this->provider->login($request);
-        } catch (OpenIDConnectCodeMissingException) {
+        } catch (OpenIDConnectCodeMissingException $e) {
+            \Log::error($e->getMessage());
+
             return redirect()->route('auth.oidc.redirect');
         } catch (MissingAttributeException $e) {
+            \Log::error($e->getMessage());
+
             return redirect('/external_login?error=missing_attributes');
         } catch (OpenIDConnectNetworkException $e) {
+            \Log::error($e->getMessage());
+
             return redirect('/external_login?error=openid_connect_network_exception');
         } catch (\Throwable $e) {
+            \Log::error($e->getMessage());
+
             // Any other error that occurs during the login process
             return redirect('/external_login?error=openid_connect_exception');
         }
