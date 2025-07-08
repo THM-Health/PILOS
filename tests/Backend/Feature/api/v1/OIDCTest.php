@@ -7,7 +7,29 @@ use App\Models\User;
 use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Core\JWK;
+use Jose\Component\KeyManagement\JWKFactory;
+use Jose\Component\Signature\Algorithm\EdDSA;
+use Jose\Component\Signature\Algorithm\ES256;
+use Jose\Component\Signature\Algorithm\ES384;
+use Jose\Component\Signature\Algorithm\ES512;
+use Jose\Component\Signature\Algorithm\HS256;
+use Jose\Component\Signature\Algorithm\HS384;
+use Jose\Component\Signature\Algorithm\HS512;
+use Jose\Component\Signature\Algorithm\PS256;
+use Jose\Component\Signature\Algorithm\PS384;
+use Jose\Component\Signature\Algorithm\PS512;
+use Jose\Component\Signature\Algorithm\RS256;
+use Jose\Component\Signature\Algorithm\RS384;
+use Jose\Component\Signature\Algorithm\RS512;
+use Jose\Component\Signature\JWS;
+use Jose\Component\Signature\JWSBuilder;
+use Jose\Component\Signature\Serializer\CompactSerializer;
 use Tests\Backend\TestCase;
 
 class OIDCTest extends TestCase
@@ -17,11 +39,11 @@ class OIDCTest extends TestCase
     private $mapping = '
     {
         "attributes": {
-          "external_id": "principalname",
-          "first_name": "givenname",
-          "last_name": "surname",
-          "email": "mail",
-          "affiliation": "scoped-affiliation"
+          "external_id": "sub",
+          "first_name": "given_name",
+          "last_name": "family_name",
+          "email": "email",
+          "groups": "groups"
         },
         "roles": [
           {
@@ -34,7 +56,7 @@ class OIDCTest extends TestCase
                 "regex": "/@it.university.org$/i"
               },
               {
-                "attribute": "affiliation",
+                "attribute": "groups",
                 "regex": "/^(staff|employee)@university.org$/i"
               }
             ]
@@ -44,19 +66,19 @@ class OIDCTest extends TestCase
             "disabled": false,
             "rules": [
               {
-                "attribute": "affiliation",
+                "attribute": "groups",
                 "regex": "/^faculty@university.org$/i"
               },
               {
-                "attribute": "affiliation",
+                "attribute": "groups",
                 "regex": "/^student@university.org$/i"
               },
               {
-                "attribute": "affiliation",
+                "attribute": "groups",
                 "regex": "/^staff@university.org$/i"
               },
               {
-                "attribute": "affiliation",
+                "attribute": "groups",
                 "regex": "/^employee@university.org$/i"
               }
             ]
@@ -76,12 +98,24 @@ class OIDCTest extends TestCase
       }
     ';
 
+    private $discovery = [
+        'issuer' => 'https://example.org/',
+        'authorization_endpoint' => 'https://example.org/authorize',
+        'token_endpoint' => 'https://example.org/token',
+        'userinfo_endpoint' => 'https://example.org/userinfo',
+        'jwks_uri' => 'https://example.org/jwks',
+        'response_types_supported' => ['code', 'id_token'],
+        'subject_types_supported' => ['public'],
+        'id_token_signing_alg_values_supported' => ['RS256'],
+    ];
+
     /**
      * Setup resources for all tests
      */
     protected function setUp(): void
     {
         parent::setUp();
+        Http::preventStrayRequests();
         Config::set('services.oidc.enabled', true);
         Config::set('services.oidc.client_id', 'fake-client-id');
         Config::set('services.oidc.client_secret', 'fake-client-secret');
@@ -101,17 +135,56 @@ class OIDCTest extends TestCase
         Role::factory()->create(['name' => 'guests']);
 
         Http::fake([
-            'https://example.org/.well-known/openid-configuration' => Http::response([
-                'issuer' => 'https://example.org/',
-                'authorization_endpoint' => 'https://example.org/authorize',
-                'token_endpoint' => 'https://example.org/token',
-                'userinfo_endpoint' => 'https://example.org/userinfo',
-                'jwks_uri' => 'https://example.org/jwks',
-                'response_types_supported' => ['code', 'id_token'],
-                'subject_types_supported' => ['public'],
-                'id_token_signing_alg_values_supported' => ['RS256'],
-            ]),
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
         ]);
+    }
+
+    public function createJWS(array $claims, JWK $privateKey, string $alg, array $additionalHeaders = []): JWS
+    {
+        $algorithmManager = new AlgorithmManager([
+            new RS256,
+            new RS384,
+            new RS512,
+
+            new PS256,
+            new PS384,
+            new PS512,
+
+            new ES256,
+            new ES384,
+            new ES512,
+
+            new EdDSA,
+
+            new HS256,
+            new HS384,
+            new HS512,
+        ]);
+
+        $jwsBuilder = new JWSBuilder($algorithmManager);
+
+        $payload = json_encode($claims);
+
+        return $jwsBuilder
+            ->create()
+            ->withPayload($payload)
+            ->addSignature($privateKey, ['alg' => $alg, ...$additionalHeaders])
+            ->build();
+    }
+
+    public function signClaims(array $claims, JWK $privateKey, string $alg, array $additionalHeaders = []): string
+    {
+        $jws = $this->createJWS($claims, $privateKey, $alg, $additionalHeaders);
+
+        $serializer = new CompactSerializer;
+
+        return $serializer->serialize($jws, 0);
+    }
+
+    public function base64url_encode($data)
+    {
+        // Convert Base64 to Base64URL by replacing "+" with "-" and "/" with "_" and remove tailing "=" if any
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
     /**
@@ -132,7 +205,7 @@ class OIDCTest extends TestCase
      *
      * @return void
      */
-    public function test_redirect_route_error()
+    public function test_redirect_route_network_error()
     {
         Http::fake([
             'https://example.org/.well-known/openid-configuration' => Http::failedConnection(),
@@ -187,7 +260,7 @@ class OIDCTest extends TestCase
     }
 
     /**
-     * Test that the callback route cannot be accessed by logged in users
+     * Test that the callback route cannot be accessed by logged-in users
      *
      * @return void
      */
@@ -196,5 +269,940 @@ class OIDCTest extends TestCase
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get(route('auth.oidc.callback'));
         $response->assertStatus(420);
+    }
+
+    public function test_callback_route_missing_code()
+    {
+        $response = $this->get(route('auth.oidc.callback'));
+        $response->assertRedirect('http://localhost/auth/oidc/redirect');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_user_info_signed()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $userInfoClaims = [
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+        ];
+
+        // Sign user info claims
+        $userInfoResponse = $this->signClaims($userInfoClaims, $private_key, 'RS256', ['kid' => $kid]);
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response($userInfoResponse, 200, [
+                'Content-Type' => 'application/jwt',
+            ]),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $recorded = Http::recorded();
+
+        // Check well-known configuration is fetched
+        $this->assertEquals('https://example.org/.well-known/openid-configuration', $recorded[0][0]->url());
+
+        // Check if token is requested using client_secret_basic authentication and the correct parameters
+        $this->assertEquals('https://example.org/token', $recorded[1][0]->url());
+        $this->assertEquals('Basic ZmFrZS1jbGllbnQtaWQ6ZmFrZS1jbGllbnQtc2VjcmV0', $recorded[1][0]->header('Authorization')[0]);
+        $this->assertEquals('authorization_code', $recorded[1][0]->data()['grant_type']);
+        $this->assertEquals($code, $recorded[1][0]->data()['code']);
+        $this->assertEquals('http://localhost/auth/oidc/callback', $recorded[1][0]->data()['redirect_uri']);
+
+        // Check if JWKS is requested as the token is signed with RS256
+        $this->assertEquals('https://example.org/jwks', $recorded[2][0]->url());
+
+        // Check if userinfo is requested with the access token
+        $this->assertEquals('https://example.org/userinfo', $recorded[3][0]->url());
+        $this->assertEquals('Bearer fake-access-token', $recorded[3][0]->header('Authorization')[0]);
+
+        $response->assertRedirect('http://localhost/external_login');
+        $this->assertAuthenticated();
+
+        $this->assertCount(1, \App\Models\Session::all());
+
+        $this->withCookies([session()->getName() => \App\Models\Session::first()->id])->get($response->getTargetUrl());
+        $this->assertAuthenticated();
+
+        $user = Auth::user();
+
+        $session = $user->sessions()->first();
+
+        $this->assertEquals($sid, $session->sessionData()->where('key', 'oidc_sid')->first()->value);
+        $this->assertEquals($sub, $session->sessionData()->where('key', 'oidc_sub')->first()->value);
+
+    }
+
+    public function test_callback_with_user_info_unsigned()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $userInfoClaims = [
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+        ];
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response($userInfoClaims),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $recorded = Http::recorded();
+
+        // Check well-known configuration is fetched
+        $this->assertEquals('https://example.org/.well-known/openid-configuration', $recorded[0][0]->url());
+
+        // Check if token is requested using client_secret_basic authentication and the correct parameters
+        $this->assertEquals('https://example.org/token', $recorded[1][0]->url());
+        $this->assertEquals('Basic ZmFrZS1jbGllbnQtaWQ6ZmFrZS1jbGllbnQtc2VjcmV0', $recorded[1][0]->header('Authorization')[0]);
+        $this->assertEquals('authorization_code', $recorded[1][0]->data()['grant_type']);
+        $this->assertEquals($code, $recorded[1][0]->data()['code']);
+        $this->assertEquals('http://localhost/auth/oidc/callback', $recorded[1][0]->data()['redirect_uri']);
+
+        // Check if JWKS is requested as the token is signed with RS256
+        $this->assertEquals('https://example.org/jwks', $recorded[2][0]->url());
+
+        // Check if userinfo is requested with the access token
+        $this->assertEquals('https://example.org/userinfo', $recorded[3][0]->url());
+        $this->assertEquals('Bearer fake-access-token', $recorded[3][0]->header('Authorization')[0]);
+
+        $response->assertRedirect('http://localhost/external_login');
+        $this->assertAuthenticated();
+
+        $this->assertCount(1, \App\Models\Session::all());
+
+        $this->withCookies([session()->getName() => \App\Models\Session::first()->id])->get($response->getTargetUrl());
+        $this->assertAuthenticated();
+
+        $user = Auth::user();
+
+        $session = $user->sessions()->first();
+
+        $this->assertEquals($sid, $session->sessionData()->where('key', 'oidc_sid')->first()->value);
+        $this->assertEquals($sub, $session->sessionData()->where('key', 'oidc_sub')->first()->value);
+    }
+
+    public function test_callback_with_user_info_signed_wrong_sub()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $userInfoClaims = [
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => 'other-sub', // Check against token substitution attacks
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+        ];
+
+        // Sign user info claims
+        $userInfoResponse = $this->signClaims($userInfoClaims, $private_key, 'RS256', ['kid' => $kid]);
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response($userInfoResponse, 200, [
+                'Content-Type' => 'application/jwt',
+            ]),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_user_info_unsigned_wrong_sub()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $userInfoClaims = [
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => 'other-sub', // Check against token substitution attacks
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+        ];
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response($userInfoClaims),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_user_info_missing_content_type()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response('demo'),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_user_info_response_error()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response([
+                'error' => 'invalid_token',
+                'error_description' => 'The Access Token expired',
+            ], 401),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_user_info_network_error()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::failedConnection(),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_network_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_invalid_iss()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://idp.com',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $userInfoClaims = [
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+        ];
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response($userInfoClaims),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_invalid_state()
+    {
+        // Simulate the state in the session and the return state are different
+        Session::put('openid_connect_state', Str::random());
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => Str::random(),
+            'state' => Str::random(),
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_response_error()
+    {
+        $response = $this->get(route('auth.oidc.callback', [
+            'error' => 'invalid_request',
+            'error_description' => 'Unsupported response_type value',
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_network_error()
+    {
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::failedConnection(),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_network_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_token_response_error()
+    {
+        // Generate random values for the ID token
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/token' => Http::response([
+                'error' => 'invalid_grant',
+                'error_description' => 'Invalid authorization code',
+            ], 400),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_token_response_missing_id_token()
+    {
+        // Generate random values for the ID token
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/token' => Http::response([
+                'access_token' => Str::random(),
+                'token_type' => 'Bearer',
+            ]),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_token_response_missing_access_token()
+    {
+        // Generate random values for the ID token
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/token' => Http::response([
+                'id_token' => Str::random(),
+                'token_type' => 'Bearer',
+            ]),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_token_response_missing_token_type()
+    {
+        // Generate random values for the ID token
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/token' => Http::response([
+                'id_token' => Str::random(),
+                'access_token' => Str::random(),
+            ]),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_token_response_invalid_token_type()
+    {
+        // Generate random values for the ID token
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/token' => Http::response([
+                'id_token' => Str::random(),
+                'access_token' => Str::random(),
+                'token_type' => 'InvalidTokenType',
+            ]),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_token_network_error()
+    {
+        // Generate random values for the ID token
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/token' => Http::failedConnection(),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_network_exception');
+        $this->assertGuest();
     }
 }

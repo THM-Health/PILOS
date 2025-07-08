@@ -26,6 +26,7 @@ class OIDCServiceProvider extends ServiceProvider implements DeferrableProvider
             $oidc->setTimeout(config('services.oidc.timeout'));
             $oidc->setCacheConfigMaxAge(config('services.oidc.cache_config_max_age'));
             $oidc->setCacheJwksMaxAge(config('services.oidc.cache_jwks_max_age'));
+            $oidc->setVerifyPeer(config('services.oidc.verify_peer'));
 
             return new OIDCProvider($oidc);
         });

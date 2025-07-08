@@ -246,12 +246,6 @@ class OpenIDConnectClient
         // Request token from the server using the code
         $token_json = $this->requestTokens($request->input('code'));
 
-        // Throw an error if the server returns an error
-        if (isset($token_json->error)) {
-            $desc = isset($token_json->error_description) ? ' Description: '.$token_json->error_description : '';
-            throw new OpenIDConnectProviderException('Token Error Response'.$desc, $token_json->error);
-        }
-
         if (! property_exists($token_json, 'id_token')) {
             throw new OpenIDConnectValidationException('Token Response is missing id_token');
         }
@@ -558,6 +552,7 @@ class OpenIDConnectClient
      * @throws OpenIDConnectClientException
      * @throws OpenIDConnectNetworkException
      * @throws RequestException
+     * @throws OpenIDConnectProviderException
      */
     protected function requestTokens(string $code): ?object
     {
@@ -571,14 +566,18 @@ class OpenIDConnectClient
 
         // Using client_secret_basic authentication
         try {
-            $this->tokenResponse = $this->getHttpClient()
+            $response = $this->getHttpClient()
                 ->withBasicAuth(urlencode($this->clientID), urlencode($this->clientSecret))
                 ->asForm()
-                ->post($token_endpoint, $token_params)
-                ->throw()
-                ->object();
+                ->post($token_endpoint, $token_params);
         } catch (\Throwable $e) {
             throw new OpenIDConnectNetworkException('Unable to fetch tokens '.$e->getMessage(), $e->getCode());
+        }
+
+        try {
+            $this->tokenResponse = $response->throw()->object();
+        } catch (\Throwable $e) {
+            throw new OpenIDConnectProviderException('Token Error Response '.$e->getMessage(), $e->getCode());
         }
 
         return $this->tokenResponse;
@@ -698,10 +697,10 @@ class OpenIDConnectClient
      *
      * @throws OpenIDConnectValidationException
      */
-    public function verifyJWSHeader(JWS $jws, int $index = 0, array $mandatoryHeaderParameters = ['alg']): void
+    public function verifyJWSHeader(JWS $jws): void
     {
         try {
-            $this->headerCheckerManager->check($jws, $index, $mandatoryHeaderParameters);
+            $this->headerCheckerManager->check($jws, 0, ['alg']);
         } catch (\Throwable $e) {
             throw new OpenIDConnectValidationException('Error verifying JWS header: '.$e->getMessage(), $e->getCode(), $e);
         }
@@ -735,6 +734,7 @@ class OpenIDConnectClient
      * @throws OpenIDConnectClientException
      * @throws OpenIDConnectNetworkException
      * @throws OpenIDConnectValidationException
+     * @throws OpenIDConnectProviderException
      */
     public function requestUserInfo(): object
     {
@@ -743,12 +743,18 @@ class OpenIDConnectClient
         // The accessToken has to be sent in the Authorization header.
         // Accept json to indicate response type
         try {
-            $response = $this->getHttpClient()->acceptJson()->withToken($this->accessToken)->get($user_info_endpoint)->throw();
+            $response = $this->getHttpClient()->acceptJson()->withToken($this->accessToken)->get($user_info_endpoint);
         } catch (\Throwable $e) {
             throw new OpenIDConnectNetworkException('Unable to retrieve user data: '.$e->getMessage(), $e->getCode());
         }
 
-        return $this->getClaimsFromUserInfoResponse($response);
+        try {
+            $body = $response->throw();
+        } catch (\Throwable $e) {
+            throw new OpenIDConnectProviderException('UserInfo Error Response: '.$e->getMessage(), $e->getCode());
+        }
+
+        return $this->getClaimsFromUserInfoResponse($body);
     }
 
     /**
@@ -1009,6 +1015,11 @@ class OpenIDConnectClient
     public function setLeeway(int $leeway)
     {
         $this->leeway = $leeway;
+    }
+
+    public function setVerifyPeer(bool $verifyPeer): void
+    {
+        $this->verifyPeer = $verifyPeer;
     }
 
     public function setCacheJwksMaxAge(int $cacheJwksMaxAge): void
