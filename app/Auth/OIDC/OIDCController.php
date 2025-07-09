@@ -61,6 +61,10 @@ class OIDCController extends Controller
 
         \Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
 
+        // Update the last login timestamp
+        $user->last_login = now();
+        $user->save();
+
         $url = '/external_login';
 
         if ($request->session()->has('redirect_url')) {

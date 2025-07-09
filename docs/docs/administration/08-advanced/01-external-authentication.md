@@ -1,6 +1,6 @@
 ---
 title: External Authentication
-description: Guide how to connect PILOS to external authentication systems like LDAP and Shibboleth
+description: Guide how to connect PILOS to external authentication systems like LDAP, Shibboleth and OpenID Connect.
 ---
 
 ## Introduction
@@ -132,7 +132,7 @@ To enable OpenID Connect, you need to add/set the following options in the `.env
 
 The required `openid` scope is always present, even if not explicitly set. If you need more scopes to get all required attributes, add them as a comma separated list. The default value for `OIDC_SCOPES` is `profile,email`.
 
-```
+```bash
 # OpenID Connect config
 OIDC_ENABLED=true
 OIDC_ISSUER=http://idp.university.org
@@ -145,7 +145,22 @@ In your IDP you should configure the following:
 
 - Redirect URI: https://your-domain.com/auth/oidc/callback
 - Post Logout Redirect URI: https://your-domain.com/logout
-- Backchannel Logout URI: https://your-domain.com/auth/oidc/logout
+- Back-Channel Logout URI: https://your-domain.com/auth/oidc/logout
+
+#### Configuration Options
+
+| Option                      | Default Value   | Description                                                                                              |
+| --------------------------- | --------------- | -------------------------------------------------------------------------------------------------------- |
+| `OIDC_ENABLED`              | `false`         | Enable OpenID Connect authentication.                                                                    |
+| `OIDC_ISSUER`               | `null`          | The issuer URL of the OpenID Connect IDP.                                                                |
+| `OIDC_CLIENT_ID`            | `null`          | The client ID for the OpenID Connect application.                                                        |
+| `OIDC_CLIENT_SECRET`        | `null`          | The client secret for the OpenID Connect application.                                                    |
+| `OIDC_SCOPES`               | `profile,email` | The scopes to request from the OpenID Connect IDP.                                                       |
+| `OIDC_LEEWAY`               | `300`           | The leeway in seconds for validating the ID token's expiration time.                                     |
+| `OIDC_TIMEOUT`              | `10`            | The timeout in seconds for the OpenID Connect requests.                                                  |
+| `OIDC_VERIFY_PEER`          | `true`          | Whether to verify the SSL certificate of the OpenID Connect IDP. This can only be disabled in local env. |
+| `OIDC_CACHE_CONFIG_MAX_AGE` | `0`             | Overwrite openid-configuration cache duration if IDP doesn't set a max-age cache duration > 0            |
+| `OIDC_CACHE_JWKS_MAX_AGE`   | `0`             | Overwrite jwks cache duration if IDP doesn't set a max-age cache duration > 0                            |
 
 ## Configure mapping
 

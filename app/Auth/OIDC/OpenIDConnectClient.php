@@ -138,17 +138,17 @@ class OpenIDConnectClient
     /**
      * @var string if we acquire a sid in back-channel logout it will be stored here
      */
-    private string $backChannelSid;
+    private ?string $backChannelSid = null;
 
     /**
      * @var string if we acquire a sub in back-channel logout it will be stored here
      */
-    private $backChannelSubject;
+    private ?string $backChannelSubject = null;
 
     /**
      * @var string jti (JWT ID) of back-channel logout it will be stored here
      */
-    private $backChannelJti;
+    private string $backChannelJti;
 
     private AlgorithmManagerFactory $algorithmManagerFactory;
 
@@ -329,17 +329,14 @@ class OpenIDConnectClient
      * @throws OpenIDConnectClientException
      * @throws OpenIDConnectNetworkException
      */
-    public function getSignOutUrl(string $idToken, $redirect): string
+    public function getSignOutUrl(string $idToken, string $redirect): string
     {
         $sign_out_endpoint = $this->getProviderConfigValue('end_session_endpoint');
 
-        if ($redirect === null) {
-            $signout_params = ['id_token_hint' => $idToken];
-        } else {
-            $signout_params = [
-                'id_token_hint' => $idToken,
-                'post_logout_redirect_uri' => $redirect];
-        }
+        $signout_params = [
+            'id_token_hint' => $idToken,
+            'post_logout_redirect_uri' => $redirect,
+        ];
 
         return Uri::of($sign_out_endpoint)->withQuery($signout_params)->value();
     }
@@ -1032,12 +1029,12 @@ class OpenIDConnectClient
         $this->cacheConfigMaxAge = $cacheConfigMaxAge;
     }
 
-    public function getSidFromBackChannel(): string
+    public function getSidFromBackChannel(): ?string
     {
         return $this->backChannelSid;
     }
 
-    public function getSubjectFromBackChannel(): string
+    public function getSubjectFromBackChannel(): ?string
     {
         return $this->backChannelSubject;
     }

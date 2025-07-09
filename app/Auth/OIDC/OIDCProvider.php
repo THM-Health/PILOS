@@ -26,7 +26,7 @@ class OIDCProvider
      *
      * @param  false|string  $redirect  URL to redirect for logout or false if not available
      */
-    public function logout($redirect): false|string
+    public function logout(string $redirect): false|string
     {
         if (! $this->openIDConnectClient->hasEndSessionEndpoint()) {
             return false;
@@ -35,6 +35,8 @@ class OIDCProvider
         try {
             return $this->openIDConnectClient->getSignOutUrl(session('oidc_id_token'), $redirect);
         } catch (\Throwable $e) {
+            \Log::error($e->getMessage());
+
             return false;
         }
     }

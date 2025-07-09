@@ -606,4 +606,251 @@ class OpenIDConnectClientTest extends TestCase
 
         ];
     }
+
+    #[DataProvider('provide_test_verify_logout_token_claims_data')]
+    public function test_verify_logout_token_claims($claims, $expectedResult)
+    {
+        $client = new OpenIDConnectClient('https://example.org',
+            'fake-client-id',
+            'fake-client-secret',
+            'https://localhost/callback');
+
+        $actualResult = true;
+        try {
+            $client->verifyLogoutTokenClaims($claims);
+        } catch (\Throwable $exception) {
+            $actualResult = false;
+        }
+
+        $this->assertEquals($expectedResult, $actualResult);
+    }
+
+    public static function provide_test_verify_logout_token_claims_data(): array
+    {
+        return [
+            'valid-single-aud' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => 'fake-client-id',
+                    'sid' => 'fake-client-sid',
+                    'sub' => 'fake-client-sub',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                true,
+            ],
+            'valid-multiple-auds' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'sub' => 'fake-client-sub',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                true,
+            ],
+            'invalid-no-sid-and-no-sub' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+            'valid-no-sid' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sub' => 'fake-client-sub',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                true,
+            ],
+            'valid-no-sub' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                true,
+            ],
+            'invalid-with-nonce' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                    'nonce' => 'must-not-be-set',
+                ],
+                false,
+            ],
+            'invalid-no-events' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'nonce' => 'must-not-be-set',
+                ],
+                false,
+            ],
+            'invalid-no-backchannel-event' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [],
+                    'nonce' => 'must-not-be-set',
+                ],
+                false,
+            ],
+            'invalid-no-iat' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+            'invalid-bad-iat' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time() + 400,
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+            'invalid-no-exp' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+            'invalid-bad-exp' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() - 301,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+            'valid-missing-jti' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => 'fake-client-id',
+                    'sid' => 'fake-client-sid',
+                    'sub' => 'fake-client-sub',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+            'valid-single-aud' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => 'fake-client-id',
+                    'sid' => 'fake-client-sid',
+                    'sub' => 'fake-client-sub',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                true,
+            ],
+            'invalid-no-iss' => [
+                (object) [
+                    'aud' => 'fake-client-id',
+                    'sid' => 'fake-client-sid',
+                    'sub' => 'fake-client-sub',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+            'invalid-bad-iss' => [
+                (object) [
+                    'iss' => 'https://bad-issuer.org',
+                    'aud' => 'fake-client-id',
+                    'sid' => 'fake-client-sid',
+                    'sub' => 'fake-client-sub',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => (object) [],
+                    ],
+                ],
+                false,
+            ],
+        ];
+    }
 }
