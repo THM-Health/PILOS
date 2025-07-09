@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docs: HTTP Strict Transport Security (HSTS) recommendations ([#2519])
 - Virus scan results to metrics ([#2304])
 - Admin option to upload a custom CSS file ([#2496], [#2553], [#2554])
+- OpenID Connect authentication ([#300], [#2281])
 
 ### Changed
 
@@ -411,6 +412,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
 [#77]: https://github.com/THM-Health/PILOS/issues/77
+[#300]: https://github.com/THM-Health/PILOS/issues/300
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
@@ -560,6 +562,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
+[#2281]: https://github.com/THM-Health/PILOS/pull/2281
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
 [#2304]: https://github.com/THM-Health/PILOS/pull/2304
 [#2313]: https://github.com/THM-Health/PILOS/issues/2313
