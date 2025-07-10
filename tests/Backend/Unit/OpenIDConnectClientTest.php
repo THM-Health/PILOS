@@ -2,8 +2,10 @@
 
 namespace Tests\Backend\Unit;
 
+use App\Auth\OIDC\OpenIDConnectAlgorithmSubset;
 use App\Auth\OIDC\OpenIDConnectClient;
 use App\Auth\OIDC\OpenIDConnectClientException;
+use App\Auth\OIDC\OpenIDConnectNetworkException;
 use App\Auth\OIDC\OpenIDConnectValidationException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -1086,5 +1088,126 @@ class OpenIDConnectClientTest extends TestCase
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
         Http::assertSentCount(4);
+    }
+
+    /**
+     * Check if header verification passes if the used algorithm
+     * is supported by the RP and supported by the OP
+     */
+    public function test_verify_jws_header_for_id_token_alg_in_list()
+    {
+        $discovery = $this->discovery;
+        $discovery['id_token_signing_alg_values_supported'] = ['RS256'];
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($discovery),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $jws = $this->createJWS(['sub' => 'test'], JWKFactory::createRSAKey(2048), 'RS256', ['kid' => 'test-kid']);
+        $this->expectNotToPerformAssertions();
+        $client->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::ID_TOKEN);
+    }
+
+    /**
+     * Check if header verification fails if the used algorithm is not in the list
+     * provided by the discovery document.
+     */
+    public function test_verify_jws_header_for_id_token_alg_not_in_list()
+    {
+        $discovery = $this->discovery;
+        $discovery['id_token_signing_alg_values_supported'] = ['RS512'];
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($discovery),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $jws = $this->createJWS(['sub' => 'test'], JWKFactory::createRSAKey(2048), 'RS256', ['kid' => 'test-kid']);
+        $this->expectException(OpenIDConnectValidationException::class);
+        $client->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::ID_TOKEN);
+    }
+
+    /**
+     * Check if header verification fails if the discovery document cannot be fetched
+     * as we cannot check the OP-provided list of supported algorithms.
+     */
+    public function test_verify_jws_header_for_id_token_network_error()
+    {
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::failedConnection(),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $jws = $this->createJWS(['sub' => 'test'], JWKFactory::createRSAKey(2048), 'RS256', ['kid' => 'test-kid']);
+        $this->expectException(OpenIDConnectNetworkException::class);
+        $client->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::ID_TOKEN);
+    }
+
+    /**
+     * Check if header verification passes if the used algorithm
+     * supported by the RP and the optional discovery parameter provides a list
+     * containing the algorithm.
+     */
+    public function test_verify_jws_header_for_userinfo_alg_in_list()
+    {
+        $discovery = $this->discovery;
+        $discovery['userinfo_signing_alg_values_supported'] = ['RS256'];
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($discovery),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $jws = $this->createJWS(['sub' => 'test'], JWKFactory::createRSAKey(2048), 'RS256', ['kid' => 'test-kid']);
+        $this->expectNotToPerformAssertions();
+        $client->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::USERINFO);
+    }
+
+    /**
+     * Check if header verification fails if used algorithm is not in the list
+     * provided by the discovery document.
+     */
+    public function test_verify_jws_header_for_userinfo_alg_not_in_list()
+    {
+        $discovery = $this->discovery;
+        $discovery['userinfo_signing_alg_values_supported'] = ['RS512'];
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($discovery),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $jws = $this->createJWS(['sub' => 'test'], JWKFactory::createRSAKey(2048), 'RS256', ['kid' => 'test-kid']);
+        $this->expectException(OpenIDConnectValidationException::class);
+        $client->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::USERINFO);
+    }
+
+    /**
+     * Check if header verification passes with all algorithms supported by the RP
+     * if the optional discovery parameter userinfo_signing_alg_values_supported is not set.
+     */
+    public function test_verify_jws_header_for_userinfo_no_list()
+    {
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $jws = $this->createJWS(['sub' => 'test'], JWKFactory::createRSAKey(2048), 'RS256', ['kid' => 'test-kid']);
+        $this->expectNotToPerformAssertions();
+        $client->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::USERINFO);
+    }
+
+    /**
+     * Check if header verification fails if the discovery document cannot be fetched
+     * as we cannot check if the OP provides a restricted list of algorithms.
+     */
+    public function test_verify_jws_header_for_userinfo_network_error()
+    {
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::failedConnection(),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $jws = $this->createJWS(['sub' => 'test'], JWKFactory::createRSAKey(2048), 'RS256', ['kid' => 'test-kid']);
+        $this->expectException(OpenIDConnectNetworkException::class);
+        $client->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::USERINFO);
     }
 }
