@@ -149,8 +149,6 @@ class OpenIDConnectClient
 
     private CompactSerializer $compactSerializer;
 
-    private HeaderCheckerManager $headerCheckerManager;
-
     /**
      * @param  string  $provider_url
      */
@@ -174,16 +172,6 @@ class OpenIDConnectClient
         $this->algorithmManagerFactory = $algorithmManagerFactory;
 
         $this->compactSerializer = new CompactSerializer;
-
-        $jwsTokenSupport = new JWSTokenSupport;
-        $this->headerCheckerManager = new HeaderCheckerManager(
-            [
-                new AlgorithmChecker($this->algorithmManagerFactory->aliases()),
-            ],
-            [
-                $jwsTokenSupport,
-            ]
-        );
     }
 
     /**
@@ -246,7 +234,7 @@ class OpenIDConnectClient
         $jws = $this->unserializeJWS($id_token);
 
         // Verify header
-        $this->verifyJWSHeader($jws);
+        $this->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::ID_TOKEN);
 
         // Verify the signature
         $this->verifyJWSSignature($jws);
@@ -354,7 +342,8 @@ class OpenIDConnectClient
         $jws = $this->unserializeJWS($logout_token);
 
         // Verify header
-        $this->verifyJWSHeader($jws);
+        // "Like ID Tokens, selection of the algorithm used is governed by the id_token_signing_alg_values_supported Discovery parameter"
+        $this->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::ID_TOKEN);
 
         // Verify the signature
         $this->verifyJWSSignature($jws);
@@ -434,7 +423,7 @@ class OpenIDConnectClient
      * @throws OpenIDConnectClientException
      * @throws OpenIDConnectNetworkException
      */
-    public function getWellKnownConfigValue(string $param): string
+    public function getWellKnownConfigValue(string $param): mixed
     {
         // If the configuration value is not available, attempt to fetch it from a well-known config endpoint
         // This is also known as auto "discovery"
@@ -465,10 +454,8 @@ class OpenIDConnectClient
             }
         }
 
-        $value = $this->wellKnown->{$param} ?? false;
-
-        if ($value) {
-            return $value;
+        if (property_exists($this->wellKnown, $param)) {
+            return $this->wellKnown->{$param};
         }
 
         throw new OpenIDConnectClientException("The provider $param could not be fetched. Make sure your provider has a well known configuration available.");
@@ -663,11 +650,33 @@ class OpenIDConnectClient
      * Verifies the JWS header of a JWS object
      *
      * @throws OpenIDConnectValidationException
+     * @throws OpenIDConnectNetworkException
      */
-    public function verifyJWSHeader(JWS $jws): void
+    public function verifyJWSHeader(JWS $jws, OpenIDConnectAlgorithmSubset $algSubset): void
     {
+        $jwsTokenSupport = new JWSTokenSupport;
+        $rpSupportedAlgs = $this->algorithmManagerFactory->aliases();
+
+        $supportedAlgs = [];
+
         try {
-            $this->headerCheckerManager->check($jws, 0, ['alg']);
+            $opSupportedAlgs = $this->getWellKnownConfigValue($algSubset->value);
+            $supportedAlgs = array_intersect($opSupportedAlgs, $rpSupportedAlgs);
+        } catch (OpenIDConnectClientException $e) {
+            // Discovery document doesn't provide a list of supported signing algorithms
+            // we will use all algorithms that we support
+            $supportedAlgs = $rpSupportedAlgs;
+        }
+
+        try {
+            new HeaderCheckerManager(
+                [
+                    new AlgorithmChecker($supportedAlgs),
+                ],
+                [
+                    $jwsTokenSupport,
+                ]
+            )->check($jws, 0, ['alg']);
         } catch (\Throwable $e) {
             throw new OpenIDConnectValidationException('Error verifying JWS header: '.$e->getMessage(), $e->getCode(), $e);
         }
@@ -799,7 +808,7 @@ class OpenIDConnectClient
         $jws = $this->unserializeJWS($jwt);
 
         // Verify header
-        $this->verifyJWSHeader($jws);
+        $this->verifyJWSHeader($jws, OpenIDConnectAlgorithmSubset::USERINFO);
 
         // Verify the signature
         $this->verifyJWSSignature($jws);

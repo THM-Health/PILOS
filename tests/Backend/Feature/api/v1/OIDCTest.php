@@ -326,9 +326,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -462,9 +459,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -560,9 +554,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -678,9 +669,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -786,9 +774,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -900,9 +885,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -988,9 +970,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1072,9 +1051,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1145,9 +1121,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1222,9 +1195,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1295,9 +1265,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1359,9 +1326,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1423,9 +1387,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1488,9 +1449,6 @@ class OIDCTest extends TestCase
             'aud' => 'fake-client-id',
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1754,6 +1712,175 @@ class OIDCTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_callback_with_missing_attributes()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $userInfoClaims = [
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'given_name' => $firstName,
+        ];
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response($userInfoClaims),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=missing_attributes');
+        $this->assertGuest();
+    }
+
+    public function test_redirect_and_callback()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $public_key = $private_key->toPublic();
+
+        $kid = Str::random();
+
+        // List of JWKs to be returned by the JWKS endpoint
+        $jwks = [[
+            'kid' => $kid,
+            ...$public_key->jsonSerialize(),
+        ]];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response([
+                'keys' => $jwks,
+            ]),
+        ]);
+
+        $response = $this->get(route('auth.oidc.redirect', ['redirect' => '/rooms/abc-123-def']));
+        $targetUrl = $response->getTargetUrl();
+
+        $query = parse_url($targetUrl, PHP_URL_QUERY);
+        $queryParams = [];
+        parse_str($query, $queryParams);
+        $state = $queryParams['state'];
+        $nonce = $queryParams['nonce'];
+
+        // Generate random values for the ID token
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $userInfoClaims = [
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+        ];
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        $code = Str::random();
+
+        Http::fake([
+            'https://example.org/token' => Http::response($tokenResponse),
+            'https://example.org/userinfo' => Http::response($userInfoClaims),
+        ]);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+        $this->assertAuthenticated();
+
+        $redirectUrl = $response->getTargetUrl();
+
+        $redirectUrlParsed = parse_url($redirectUrl);
+        $queryParams = [];
+        parse_str($redirectUrlParsed['query'], $queryParams);
+        $this->assertEquals('/rooms/abc-123-def', $queryParams['redirect']);
+    }
+
     public function test_rp_initiated_logout_disabled()
     {
         // Create a new RSA key pair for signing the ID token
@@ -1786,9 +1913,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1881,9 +2005,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -1989,9 +2110,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -2110,9 +2228,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -2227,9 +2342,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 
@@ -2345,9 +2457,6 @@ class OIDCTest extends TestCase
             'at_hash' => $this->base64url_encode(substr(hash('sha256', 'fake-access-token', true), 0, 16)),
             'sub' => $sub,
             'sid' => $sid,
-            'given_name' => $firstName,
-            'family_name' => $lastName,
-            'email' => $email,
             'nonce' => $nonce,
         ];
 

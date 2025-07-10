@@ -69,7 +69,7 @@ class OIDCController extends Controller
 
         if ($request->session()->has('redirect_url')) {
             return redirect(\Uri::of($url)
-                ->withQuery(['redirect', $request->session()->get('redirect_url')])
+                ->withQuery(['redirect' => $request->session()->get('redirect_url')])
                 ->value());
         }
 
