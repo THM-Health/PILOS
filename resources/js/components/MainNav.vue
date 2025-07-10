@@ -329,6 +329,19 @@ const loginRoute = computed(() => {
   return loginRoute;
 });
 
+/**
+ * Handle the page is restored from the back/forward cache after logout.
+ * The loading spinner is still visible, so we need to remove it
+ * and redirect the user to the logout page.
+ */
+async function pageShownAfterLogoutHandler(event) {
+  window.removeEventListener("pageshow", pageShownAfterLogoutHandler);
+  if (event.persisted) {
+    await router.push({ name: "logout" });
+    loadingStore.setLoadingFinished();
+  }
+}
+
 async function logout() {
   let response;
   try {
@@ -342,6 +355,9 @@ async function logout() {
   }
 
   if (response.data.redirect) {
+    // Add listener for when user returns to this page
+    // without a full page reload, state is restored from back/forward cache
+    window.addEventListener("pageshow", pageShownAfterLogoutHandler);
     window.location = response.data.redirect;
     return;
   }
