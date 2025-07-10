@@ -32,7 +32,7 @@ use Tests\Backend\TestCase;
 class OpenIDConnectClientTest extends TestCase
 {
     private $discovery = [
-        'issuer' => 'https://example.org/',
+        'issuer' => 'https://example.org',
         'authorization_endpoint' => 'https://example.org/authorize',
         'token_endpoint' => 'https://example.org/token',
         'userinfo_endpoint' => 'https://example.org/userinfo',
@@ -48,10 +48,6 @@ class OpenIDConnectClientTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Http::preventStrayRequests();
-        Http::fake([
-            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
-        ]);
     }
 
     public function assertVerifyJWSSignatureException(OpenIDConnectClient $client, JWS $jws, string $expectedException): void
@@ -120,6 +116,11 @@ class OpenIDConnectClientTest extends TestCase
 
     public function test_verify_jwt_signature_with_rsassa()
     {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
+
         // Create a new RSA key pairs for signing the ID token
         $pkRS256 = JWKFactory::createRSAKey(
             2048,
@@ -202,6 +203,11 @@ class OpenIDConnectClientTest extends TestCase
 
     public function test_verify_jwt_signature_with_rsass_a_pss()
     {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
+
         // Create a new RSA key pairs for signing the ID token
         $pkPS256 = JWKFactory::createRSAKey(
             2048,
@@ -283,6 +289,11 @@ class OpenIDConnectClientTest extends TestCase
 
     public function test_verify_jwt_signature_with_ecdsa()
     {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
+
         // Create a new elliptic curve key pairs for signing the ID token
         $pkES256 = JWKFactory::createECKey('P-256');
         $kidES256 = bin2hex(random_bytes(6));
@@ -341,6 +352,11 @@ class OpenIDConnectClientTest extends TestCase
 
     public function test_verify_jwt_signature_with_ed_dsa()
     {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
+
         // Create octet key pair for signing the ID token
         $pkEd25519 = JWKFactory::createOKPKey('Ed25519');
         $kidEd25519 = bin2hex(random_bytes(6));
@@ -379,6 +395,11 @@ class OpenIDConnectClientTest extends TestCase
 
     public function test_verify_jwt_signature_with_hmac()
     {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
+
         $clientSecret = bin2hex(random_bytes(32));
 
         $keyHS256 = JWKFactory::createFromSecret(
@@ -428,6 +449,10 @@ class OpenIDConnectClientTest extends TestCase
     #[DataProvider('provideTestVerifyIdTokenClaimsData')]
     public function test_verify_id_token_claims($claims, $idToken, $accessToken, $expectedResult)
     {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
 
         $client = $this->getMockBuilder(OpenIDConnectClient::class)
             ->setConstructorArgs(['https://example.org',
@@ -610,6 +635,11 @@ class OpenIDConnectClientTest extends TestCase
     #[DataProvider('provide_test_verify_logout_token_claims_data')]
     public function test_verify_logout_token_claims($claims, $expectedResult)
     {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+        ]);
+
         $client = new OpenIDConnectClient('https://example.org',
             'fake-client-id',
             'fake-client-secret',
@@ -852,5 +882,209 @@ class OpenIDConnectClientTest extends TestCase
                 false,
             ],
         ];
+    }
+
+    public function test_get_well_known_config_value_with_max_age()
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery, 200, [
+                'cache-control' => 'public, max-age=3600',
+            ]),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(0);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(1);
+
+        // Call again to check if the discovery document is not fetched again
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(0);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(1);
+
+        // Travel forward in time to invalidate the cache
+        $this->travel(3601)->seconds();
+
+        // Call again to check if the discovery document is fetched again
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(0);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(2);
+    }
+
+    public function test_get_well_known_config_value_with_no_cache()
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery, 200, [
+                'cache-control' => 'no-cache',
+            ]),
+        ]);
+
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(0);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(1);
+
+        // Call again to check if the discovery document is fetched again
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(0);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(2);
+
+        // Call again but setting a custom cache max age
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(60);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(3);
+
+        // Call again to check if the discovery document is not fetched again
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(60);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(3);
+
+        // Travel forward in time to invalidate the cache
+        $this->travel(61)->seconds();
+        $client = new OpenIDConnectClient('https://example.org', 'fake-client-id', 'fake-client-secret', 'https://localhost/callback');
+        $client->setCacheConfigMaxAge(60);
+        $client->getWellKnownConfigValue('issuer');
+        Http::assertSentCount(4);
+    }
+
+    public function test_get_jwk_set_with_max_age()
+    {
+        $privateKey = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $kid = bin2hex(random_bytes(6));
+
+        $jwksResponse = [
+            'keys' => [
+                [
+                    'kid' => $kid,
+                    ...$privateKey->toPublic()->jsonSerialize(),
+                ],
+            ],
+        ];
+
+        $clientMockBuilder = $this->getMockBuilder(OpenIDConnectClient::class)
+            ->setConstructorArgs(['https://example.org',
+                'fake-client-id',
+                'fake-client-secret',
+                'https://localhost/callback'])
+            ->onlyMethods(['getWellKnownConfigValue']);
+
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/jwks' => Http::response($jwksResponse, 200, ['cache-control' => 'public, max-age=3600']),
+        ]);
+
+        // Check if the jwks are correctly fetched
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(0);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(1);
+
+        // Call again to check if the jwks are not fetched again, but returned from cache
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(0);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(1);
+
+        // Travel forward in time to invalidate the cache
+        $this->travel(3601)->seconds();
+
+        // Call again to check if the jwks are fetched again
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(0);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(2);
+    }
+
+    public function test_get_jwk_set_with_no_cache()
+    {
+        $privateKey = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+        $kid = bin2hex(random_bytes(6));
+
+        $jwksResponse = [
+            'keys' => [
+                [
+                    'kid' => $kid,
+                    ...$privateKey->toPublic()->jsonSerialize(),
+                ],
+            ],
+        ];
+
+        $clientMockBuilder = $this->getMockBuilder(OpenIDConnectClient::class)
+            ->setConstructorArgs(['https://example.org',
+                'fake-client-id',
+                'fake-client-secret',
+                'https://localhost/callback'])
+            ->onlyMethods(['getWellKnownConfigValue']);
+
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://example.org/jwks' => Http::response($jwksResponse, 200, ['cache-control' => 'no-cache']),
+        ]);
+
+        // Check if the jwks are correctly fetched
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(0);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(1);
+
+        // Call again to check if jwks are correctly fetched again
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(0);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(2);
+
+        // Call again but setting a custom cache max age
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(60);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(3);
+
+        // Call again to check if the jwks are not fetched again but returned from cache
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(60);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(3);
+
+        // Travel forward in time to invalidate the cache
+        $this->travel(61)->seconds();
+        $client = $clientMockBuilder->getMock();
+        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client->setCacheJwksMaxAge(60);
+        $jwksSet = $client->getJwkSet();
+        $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
+        Http::assertSentCount(4);
     }
 }

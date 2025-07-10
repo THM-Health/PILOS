@@ -76,11 +76,6 @@ use Symfony\Component\Clock\Clock;
 class OpenIDConnectClient
 {
     /**
-     * @var array holds the provider configuration
-     */
-    private array $providerConfig = [];
-
-    /**
      * @var bool Verify SSL peer on transactions
      */
     private bool $verifyPeer = true;
@@ -159,10 +154,8 @@ class OpenIDConnectClient
     /**
      * @param  string  $provider_url
      */
-    public function __construct(string $providerUrl, private string $clientID, private string $clientSecret, private string $redirectURL)
+    public function __construct(private string $providerUrl, private string $clientID, private string $clientSecret, private string $redirectURL)
     {
-        $this->setProviderURL($providerUrl);
-        $this->setIssuer($providerUrl);
 
         $algorithmManagerFactory = new AlgorithmManagerFactory;
         $algorithmManagerFactory->add('PS256', new PS256);
@@ -191,16 +184,6 @@ class OpenIDConnectClient
                 $jwsTokenSupport,
             ]
         );
-    }
-
-    public function setProviderURL($provider_url)
-    {
-        $this->providerConfig['providerUrl'] = $provider_url;
-    }
-
-    public function setIssuer($issuer)
-    {
-        $this->providerConfig['issuer'] = $issuer;
     }
 
     /**
@@ -298,6 +281,8 @@ class OpenIDConnectClient
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
+     * @throws OpenIDConnectClientException
+     * @throws OpenIDConnectNetworkException
      */
     public function verifyIdTokenClaims(object $claims): void
     {
@@ -309,7 +294,7 @@ class OpenIDConnectClient
                 new AudienceChecker(audience: $this->clientID),
                 new IsEqualChecker(key: 'nonce', value: $this->getNonce()),
                 new AccessTokenHashChecker($this),
-                new IssuerChecker($this),
+                new IsEqualChecker(key: 'iss', value: $this->getWellKnownConfigValue('issuer')),
             ]
         );
 
@@ -331,7 +316,7 @@ class OpenIDConnectClient
      */
     public function getSignOutUrl(string $idToken, string $redirect): string
     {
-        $sign_out_endpoint = $this->getProviderConfigValue('end_session_endpoint');
+        $sign_out_endpoint = $this->getWellKnownConfigValue('end_session_endpoint');
 
         $signout_params = [
             'id_token_hint' => $idToken,
@@ -405,6 +390,8 @@ class OpenIDConnectClient
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
+     * @throws OpenIDConnectClientException
+     * @throws OpenIDConnectNetworkException
      */
     public function verifyLogoutTokenClaims(object $claims): void
     {
@@ -414,7 +401,7 @@ class OpenIDConnectClient
                 new IssuedAtChecker(clock: $clock, allowedTimeDrift: $this->leeway),
                 new ExpirationTimeChecker(clock: $clock, allowedTimeDrift: $this->leeway),
                 new AudienceChecker(audience: $this->clientID),
-                new IssuerChecker($this),
+                new IsEqualChecker(key: 'iss', value: $this->getWellKnownConfigValue('issuer')),
                 new EventsChecker('http://schemas.openid.net/event/backchannel-logout'),
             ]
         );
@@ -443,35 +430,16 @@ class OpenIDConnectClient
     /**
      * Gets anything that we need configuration wise including endpoints, and other values
      *
-     * @param  string|null  $default  optional
      *
      * @throws OpenIDConnectClientException
      * @throws OpenIDConnectNetworkException
      */
-    protected function getProviderConfigValue(string $param, ?string $default = null): string
+    public function getWellKnownConfigValue(string $param): string
     {
-        // If the configuration value is not available, attempt to fetch it from a well known config endpoint
-        // This is also known as auto "discovery"
-        if (! isset($this->providerConfig[$param])) {
-            $this->providerConfig[$param] = $this->getWellKnownConfigValue($param, $default);
-        }
-
-        return $this->providerConfig[$param];
-    }
-
-    /**
-     * Gets anything that we need configuration wise including endpoints, and other values
-     *
-     *
-     * @throws OpenIDConnectClientException
-     * @throws OpenIDConnectNetworkException
-     */
-    protected function getWellKnownConfigValue(string $param, ?string $default = null): string
-    {
-        // If the configuration value is not available, attempt to fetch it from a well known config endpoint
+        // If the configuration value is not available, attempt to fetch it from a well-known config endpoint
         // This is also known as auto "discovery"
         if (! $this->wellKnown) {
-            $well_known_config_url = Str::finish($this->getProviderURL(), '/').'.well-known/openid-configuration';
+            $well_known_config_url = Str::finish($this->providerUrl, '/').'.well-known/openid-configuration';
 
             // If we have the response cached, use it
             if (\Cache::has($well_known_config_url)) {
@@ -503,12 +471,42 @@ class OpenIDConnectClient
             return $value;
         }
 
-        if (isset($default)) {
-            // Uses default value if provided
-            return $default;
+        throw new OpenIDConnectClientException("The provider $param could not be fetched. Make sure your provider has a well known configuration available.");
+    }
+
+    /**
+     * @throws OpenIDConnectClientException
+     * @throws OpenIDConnectNetworkException
+     * @throws JsonException
+     */
+    public function getJwkSet(): JWKSet
+    {
+        $jwksUri = $this->getWellKnownConfigValue('jwks_uri');
+
+        // If we have the response cached, use it
+        if (\Cache::has($jwksUri)) {
+            $jwkSetResponse = \Cache::get($jwksUri);
+        } else {
+            // Try to fetch the jwks
+            try {
+                $response = $this->getHttpClient()->get($jwksUri)->throw();
+            } catch (\Throwable $e) {
+                throw new OpenIDConnectNetworkException('Unable to fetch jwks: '.$e->getMessage(), $e->getCode());
+            }
+            $maxAge = $this->cacheJwksMaxAge;
+            if ($response->hasHeader('Cache-Control')) {
+                if (preg_match('/max-age=(\d+)/i', $response->header('Cache-Control'), $matches)) {
+                    $maxAge = (int) $matches[1] ?: $maxAge;
+                }
+            }
+            if ($maxAge > 0) {
+                \Cache::put($jwksUri, $response->body(), $maxAge);
+            }
+
+            $jwkSetResponse = $response->body();
         }
 
-        throw new OpenIDConnectClientException("The provider $param could not be fetched. Make sure your provider has a well known configuration available.");
+        return JWKSet::createFromJson($jwkSetResponse);
     }
 
     /**
@@ -519,7 +517,7 @@ class OpenIDConnectClient
      */
     public function getAuthenticationRequestUrl(): string
     {
-        $auth_endpoint = $this->getProviderConfigValue('authorization_endpoint');
+        $auth_endpoint = $this->getWellKnownConfigValue('authorization_endpoint');
 
         // Generate and store a nonce in the session
         // The nonce is an arbitrary value
@@ -553,7 +551,7 @@ class OpenIDConnectClient
      */
     protected function requestTokens(string $code): ?object
     {
-        $token_endpoint = $this->getProviderConfigValue('token_endpoint');
+        $token_endpoint = $this->getWellKnownConfigValue('token_endpoint');
 
         $token_params = [
             'grant_type' => 'authorization_code',
@@ -633,35 +631,7 @@ class OpenIDConnectClient
                 if ($signature->hasProtectedHeaderParameter('jwk')) {
                     throw new OpenIDConnectClientException('Self signed JWK header is not valid');
                 } else {
-                    $jwksUri = $this->getProviderConfigValue('jwks_uri');
-                    if (! $jwksUri) {
-                        throw new OpenIDConnectClientException('Unable to verify signature due to no jwks_uri being defined');
-                    }
-
-                    // If we have the response cached, use it
-                    if (\Cache::has($jwksUri)) {
-                        $jwkSetResponse = \Cache::get($jwksUri);
-                    } else {
-                        // Try to fetch the jwks
-                        try {
-                            $response = $this->getHttpClient()->get($jwksUri)->throw();
-                        } catch (\Throwable $e) {
-                            throw new OpenIDConnectNetworkException('Unable to fetch jwks: '.$e->getMessage(), $e->getCode());
-                        }
-                        $maxAge = $this->cacheJwksMaxAge;
-                        if ($response->hasHeader('Cache-Control')) {
-                            if (preg_match('/max-age=(\d+)/i', $response->header('Cache-Control'), $matches)) {
-                                $maxAge = (int) $matches[1] ?: $maxAge;
-                            }
-                        }
-                        if ($maxAge > 0) {
-                            \Cache::put($jwksUri, $response->body(), $maxAge);
-                        }
-
-                        $jwkSetResponse = $response->body();
-                    }
-
-                    $jwkSet = JWKSet::createFromJson($jwkSetResponse);
+                    $jwkSet = $this->getJwkSet();
 
                     $restrictions = [];
                     if ($signature->hasProtectedHeaderParameter('kid')) {
@@ -735,7 +705,7 @@ class OpenIDConnectClient
      */
     public function requestUserInfo(): object
     {
-        $user_info_endpoint = $this->getProviderConfigValue('userinfo_endpoint');
+        $user_info_endpoint = $this->getWellKnownConfigValue('userinfo_endpoint');
 
         // The accessToken has to be sent in the Authorization header.
         // Accept json to indicate response type
@@ -808,7 +778,7 @@ class OpenIDConnectClient
 
         new ClaimCheckerManager(
             [
-                new IsEqualChecker('sub', $this->getIdTokenPayload()->sub),
+                new IsEqualChecker(key: 'sub', value: $this->getIdTokenPayload()->sub),
             ]
         )->check((array) $claims, ['sub']);
 
@@ -849,8 +819,8 @@ class OpenIDConnectClient
         new ClaimCheckerManager(
             [
                 new AudienceChecker($this->clientID),
-                new IssuerChecker($this),
-                new IsEqualChecker('sub', $this->getIdTokenPayload()->sub),
+                new IsEqualChecker(key: 'iss', value: $this->getWellKnownConfigValue('issuer')),
+                new IsEqualChecker(key: 'sub', value: $this->getIdTokenPayload()->sub),
             ]
         )->check((array) $claims, ['sub', 'aud', 'iss']);
 
@@ -871,42 +841,6 @@ class OpenIDConnectClient
         }
 
         return $client;
-    }
-
-    /**
-     * @throws OpenIDConnectClientException
-     * @throws OpenIDConnectNetworkException
-     */
-    public function getWellKnownIssuer(bool $appendSlash = false): string
-    {
-        return $this->getWellKnownConfigValue('issuer').($appendSlash ? '/' : '');
-    }
-
-    /**
-     * @throws OpenIDConnectClientException
-     */
-    public function getIssuer(): string
-    {
-
-        if (! isset($this->providerConfig['issuer'])) {
-            throw new OpenIDConnectClientException('The issuer has not been set');
-        }
-
-        return $this->providerConfig['issuer'];
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws OpenIDConnectClientException
-     */
-    public function getProviderURL()
-    {
-        if (! isset($this->providerConfig['providerUrl'])) {
-            throw new OpenIDConnectClientException('The provider URL has not been set');
-        }
-
-        return $this->providerConfig['providerUrl'];
     }
 
     /**
@@ -1042,16 +976,6 @@ class OpenIDConnectClient
     public function getJtiFromBackChannel(): string
     {
         return $this->backChannelJti;
-    }
-
-    /**
-     * Checks if an end_session_endpoint is available in the OIDC provider's well-known configuration.
-     *
-     * @return {boolean}
-     */
-    public function hasEndSessionEndpoint(): bool
-    {
-        return (bool) $this->getProviderConfigValue('end_session_endpoint', false);
     }
 
     public function base64url_encode($data)

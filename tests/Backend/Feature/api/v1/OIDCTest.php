@@ -91,7 +91,7 @@ class OIDCTest extends TestCase
     ';
 
     private $discovery = [
-        'issuer' => 'https://example.org/',
+        'issuer' => 'https://example.org',
         'authorization_endpoint' => 'https://example.org/authorize',
         'token_endpoint' => 'https://example.org/token',
         'userinfo_endpoint' => 'https://example.org/userinfo',
@@ -1262,6 +1262,198 @@ class OIDCTest extends TestCase
         ]));
 
         $response->assertRedirect('http://localhost/external_login?error=openid_connect_network_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_jwks_response_error()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response('', 404),
+            'https://example.org/token' => Http::response($tokenResponse),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_network_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_jwks_network_error()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::failedConnection(),
+            'https://example.org/token' => Http::response($tokenResponse),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_network_exception');
+        $this->assertGuest();
+    }
+
+    public function test_callback_with_jwks_invalid_response_error()
+    {
+        // Create a new RSA key pair for signing the ID token
+        $private_key = JWKFactory::createRSAKey(
+            2048,
+            [
+                'alg' => 'RS256',
+                'use' => 'sig',
+            ]
+        );
+
+        // Generate random values for the ID token
+        $kid = Str::random();
+        $code = Str::random();
+        $nonce = Str::random();
+        $state = Str::random();
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $sub = $this->faker->uuid();
+        $sid = $this->faker->uuid();
+
+        // Create claims for the ID token
+        $claims = [
+            'exp' => time() + 60,
+            'iat' => time(),
+            'iss' => 'https://example.org',
+            'aud' => 'fake-client-id',
+            'sub' => $sub,
+            'sid' => $sid,
+            'given_name' => $firstName,
+            'family_name' => $lastName,
+            'email' => $email,
+            'nonce' => $nonce,
+        ];
+
+        // Create id token
+        $idToken = $this->signClaims($claims, $private_key, 'RS256', ['kid' => $kid]);
+
+        $tokenResponse = [
+            'access_token' => 'fake-access-token',
+            'token_type' => 'Bearer',
+            'id_token' => $idToken,
+        ];
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
+            'https://example.org/jwks' => Http::response('{"keys": "invalid"}'),
+            'https://example.org/token' => Http::response($tokenResponse),
+        ]);
+
+        // Simulate the state and nonce have been set in the session
+        Session::put('openid_connect_state', $state);
+        Session::put('openid_connect_nonce', $nonce);
+
+        $response = $this->get(route('auth.oidc.callback', [
+            'code' => $code,
+            'state' => $state,
+        ]));
+
+        $response->assertRedirect('http://localhost/external_login?error=openid_connect_exception');
         $this->assertGuest();
     }
 
