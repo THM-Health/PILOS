@@ -28,12 +28,10 @@ class OIDCProvider
      */
     public function logout(string $redirect): false|string
     {
-        if (! $this->openIDConnectClient->hasEndSessionEndpoint()) {
-            return false;
-        }
-
         try {
             return $this->openIDConnectClient->getSignOutUrl(session('oidc_id_token'), $redirect);
+        } catch (OpenIDConnectClientException $e) {
+            return false;
         } catch (\Throwable $e) {
             \Log::error($e->getMessage());
 
