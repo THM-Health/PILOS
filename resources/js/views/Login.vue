@@ -10,21 +10,25 @@
               <TabList>
                 <Tab
                   v-if="settingsStore.getSetting('auth.ldap')"
+                  data-test="login-tab-button-ldap"
                   value="ldap"
                   >{{ $t("auth.ldap.tab_title") }}</Tab
                 >
                 <Tab
                   v-if="settingsStore.getSetting('auth.shibboleth')"
+                  data-test="login-tab-button-shibboleth"
                   value="shibboleth"
                   >{{ $t("auth.shibboleth.tab_title") }}</Tab
                 >
                 <Tab
                   v-if="settingsStore.getSetting('auth.oidc')"
+                  data-test="login-tab-button-oidc"
                   value="oidc"
                   >{{ $t("auth.oidc.tab_title") }}</Tab
                 >
                 <Tab
                   v-if="settingsStore.getSetting('auth.local')"
+                  data-test="login-tab-button-local"
                   value="local"
                   >{{ $t("auth.email.tab_title") }}</Tab
                 >
