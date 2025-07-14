@@ -17,7 +17,7 @@
             >
             <Message
               v-if="props.message === 'session_expired'"
-              severity="warning"
+              severity="warn"
               :closable="false"
               >{{ $t("auth.session_expired") }}</Message
             >
