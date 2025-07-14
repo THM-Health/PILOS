@@ -8,13 +8,10 @@
 <script setup>
 import { EditorContent, Editor } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import { Color } from "@tiptap/extension-color";
-import TextStyle from "@tiptap/extension-text-style";
+import { Color, TextStyle } from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 
 import { onBeforeMount, onUnmounted, ref } from "vue";
 
@@ -53,8 +50,13 @@ function TipTapEditor(content, onUpdate) {
         heading: {
           levels: [1, 2, 3],
         },
+        link: {
+          protocols: ["https", "http", "mailto"],
+          openOnClick: false,
+          autolink: true,
+          linkOnPaste: true,
+        },
       }),
-      Underline,
       Color,
       TextStyle,
       TextAlign.configure({
@@ -63,12 +65,6 @@ function TipTapEditor(content, onUpdate) {
       }),
       Highlight.configure({ multicolor: true }),
       CustomImage,
-      Link.configure({
-        protocols: ["https", "http", "mailto"],
-        openOnClick: false,
-        autolink: true,
-        linkOnPaste: true,
-      }),
     ],
     autofocus: "end",
     editorProps: {

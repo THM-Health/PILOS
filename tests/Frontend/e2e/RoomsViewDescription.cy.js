@@ -311,7 +311,8 @@ describe("Rooms view description", function () {
         cy.get("h1")
           .should("have.text", "New test description")
           .and("be.visible");
-        cy.get("p").should("not.exist");
+        // Added tailing node
+        cy.get("p").should("have.text", "").and("be.visible");
       });
 
     cy.window().should((win) => {
@@ -346,7 +347,6 @@ describe("Rooms view description", function () {
           .find("strong")
           .should("have.text", "New test description")
           .and("be.visible");
-        cy.get("p").should("not.exist");
       });
 
     // Save description
@@ -367,7 +367,7 @@ describe("Rooms view description", function () {
 
     cy.wait("@saveDescriptionRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        description: "<h1><strong>New test description</strong></h1>",
+        description: "<h1><strong>New test description</strong></h1><p></p>",
       });
     });
     cy.wait("@roomRequest");

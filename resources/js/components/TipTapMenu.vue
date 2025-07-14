@@ -255,7 +255,7 @@
         text
         :aria-label="$t('rooms.description.tooltips.delete')"
         icon="fa-solid fa-trash"
-        @click="props.editor.commands.clearContent(true)"
+        @click="props.editor.commands.clearContent()"
       />
       <TipTapSource :editor="props.editor" />
     </template>
