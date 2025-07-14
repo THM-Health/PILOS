@@ -7,17 +7,21 @@ use Jose\Component\Checker\InvalidClaimException;
 
 final class EventsChecker implements ClaimChecker
 {
-    public function __construct(protected string $event) {}
+    public function __construct(protected string $expectedEvent) {}
 
     public function checkClaim($value): void
     {
-
-        $events = (array) $value;
-        if (! isset($events['http://schemas.openid.net/event/backchannel-logout']) ||
-            ! is_object($events['http://schemas.openid.net/event/backchannel-logout'])) {
-            throw new InvalidClaimException('The claim "events" does not contain the expected value.', 'events', $events);
+        if (! is_object($value)) {
+            throw new InvalidClaimException('The claim "events" must be a JSON object.', 'events', $value);
         }
 
+        if (! property_exists($value, $this->expectedEvent)) {
+            throw new InvalidClaimException('The claim "events" does not contain the expected event "'.$this->expectedEvent.'".', 'events', $value);
+        }
+
+        if (! is_object($value->{$this->expectedEvent}) || ! empty((array) $value->{$this->expectedEvent})) {
+            throw new InvalidClaimException('The claim "events" member "'.$this->expectedEvent.'" is not an empty JSON object.', 'events', $value);
+        }
     }
 
     public function supportedClaim(): string
