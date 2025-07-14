@@ -1363,6 +1363,7 @@ class UserTest extends TestCase
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
+        Config::set('antivirus.enabled', false);
     }
 
     public function test_show()

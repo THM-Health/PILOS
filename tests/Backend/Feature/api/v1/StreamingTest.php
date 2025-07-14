@@ -544,6 +544,7 @@ class StreamingTest extends TestCase
             ->putJson(route('api.v1.roomTypes.streaming.update', ['roomType' => $lecture]), $data)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['default_pause_image']);
+        Config::set('antivirus.enabled', false);
 
         // Disable streaming globally, route should be disabled
         config(['streaming.enabled' => false]);

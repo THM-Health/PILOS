@@ -330,6 +330,7 @@ class RoomStreamingTest extends TestCase
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['pause_image']);
+        Config::set('antivirus.enabled', false);
     }
 
     /**

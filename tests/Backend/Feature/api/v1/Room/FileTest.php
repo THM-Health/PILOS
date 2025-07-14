@@ -129,6 +129,7 @@ class FileTest extends TestCase
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => UploadedFile::fake()->create('virus.txt')])
             ->assertJsonValidationErrors('file');
+        Config::set('antivirus.enabled', false);
     }
 
     /**
