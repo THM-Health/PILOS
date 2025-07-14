@@ -93,6 +93,6 @@
     "test": "php artisan test --parallel",
     "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
     "test-integration": "php artisan test --parallel --testsuite=Integration",
-    "fix-cs": "pint"
+    "fix-cs": "pint --parallel"
   }
 }
