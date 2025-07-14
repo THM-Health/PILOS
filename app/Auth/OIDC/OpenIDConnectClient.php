@@ -197,7 +197,7 @@ class OpenIDConnectClient
         // Do a preemptive check to see if the provider has thrown an error from a previous redirect
         if ($request->has('error')) {
             $desc = $request->has('error_description') ? ' Description: '.$request->input('error_description') : '';
-            throw new OpenIDConnectProviderException('Authentication Error Response'.$desc, $request->input('error'));
+            throw new OpenIDConnectProviderException('Authentication Error Response: Error: '.$request->input('error').$desc);
         }
 
         // If the authorization code is missing, the authentication has failed
@@ -446,11 +446,17 @@ class OpenIDConnectClient
                         $maxAge = (int) $matches[1] ?: $maxAge;
                     }
                 }
-                if ($maxAge > 0) {
-                    \Cache::put($well_known_config_url, $response->object(), $maxAge);
+
+                if (is_object($response->object())) {
+                    $this->wellKnown = $response->object();
+
+                    if ($maxAge > 0) {
+                        \Cache::put($well_known_config_url, $this->wellKnown, $maxAge);
+                    }
+                } else {
+                    throw new OpenIDConnectClientException('The well-known configuration is not a valid JSON object.');
                 }
 
-                $this->wellKnown = $response->object();
             }
         }
 
