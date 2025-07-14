@@ -1881,7 +1881,7 @@ class OIDCTest extends TestCase
         $this->assertEquals('/rooms/abc-123-def', $queryParams['redirect']);
     }
 
-    public function test_rp_initiated_logout_disabled()
+    public function test_rp_initiated_logout_missing_end_session_endpoint()
     {
         // Create a new RSA key pair for signing the ID token
         $private_key = JWKFactory::createRSAKey(
@@ -2076,6 +2076,23 @@ class OIDCTest extends TestCase
 
         $this->assertEquals('http://localhost/logout', $queryParams['post_logout_redirect_uri']);
         $this->assertEquals($idToken, $queryParams['id_token_hint']);
+    }
+
+    public function test_rp_initiated_logout_network_error()
+    {
+        $user = User::factory()->create(['authenticator' => 'oidc']);
+
+        Http::fake([
+            'https://example.org/.well-known/openid-configuration' => Http::failedConnection(),
+        ]);
+
+        $header['referer'] = 'http://localhost';
+        $response = $this->actingAs($user)
+            ->withSession(['oidc_id_token' => 'fake-id-token'])
+            ->postJson(route('api.v1.logout'), [], $header);
+        $this->assertGuest();
+
+        $response->assertJsonPath('redirect', false);
     }
 
     public function test_back_channel_logout_with_sub()
