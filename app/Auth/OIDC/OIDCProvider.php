@@ -31,9 +31,10 @@ class OIDCProvider
         try {
             return $this->openIDConnectClient->getSignOutUrl(session('oidc_id_token'), $redirect);
         } catch (OpenIDConnectClientException $e) {
+            // Expected exception when the logout URL is not available / OP does not support logout
             return false;
         } catch (\Throwable $e) {
-            \Log::error($e->getMessage());
+            \Log::error('OIDC logout failed: '.$e->getMessage());
 
             return false;
         }
@@ -73,7 +74,7 @@ class OIDCProvider
     {
         if (! $this->openIDConnectClient->authenticate($request)) {
             // Response is missing the code parameters
-            throw new OpenIDConnectCodeMissingException("Authentication failed, missing 'code' parameter in response.");
+            throw new OpenIDConnectCodeMissingException("Response is missing 'code' parameter.");
         }
 
         $claims = $this->openIDConnectClient->getVerifiedClaims();
@@ -127,7 +128,7 @@ class OIDCProvider
             Cache::put('oidc-jti-'.$jti, true, Carbon::createFromTimestamp($exp));
 
         } catch (\Throwable $e) {
-            Log::error('OIDC back-channel logout failed', ['exception' => $e]);
+            Log::error('OIDC back-channel logout failed: '.$e->getMessage());
 
             return response('', 400)
                 ->header('Cache-Control', 'no-store');
