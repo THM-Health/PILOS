@@ -771,6 +771,34 @@ class OpenIDConnectClientTest extends TestCase
                 ],
                 false,
             ],
+            'invalid-no-backchannel-event-not-json' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => 'http://schemas.openid.net/event/backchannel-logout',
+                    'nonce' => 'must-not-be-set',
+                ],
+                false,
+            ],
+            'invalid-no-backchannel-event-member-not-empty-json' => [
+                (object) [
+                    'iss' => 'https://example.org',
+                    'aud' => ['fake-client-id', 'some-other-aud'],
+                    'sid' => 'fake-client-sid',
+                    'jti' => 'fake-client-jti',
+                    'iat' => time(),
+                    'exp' => time() + 300,
+                    'events' => (object) [
+                        'http://schemas.openid.net/event/backchannel-logout' => 'test',
+                    ],
+                    'nonce' => 'must-not-be-set',
+                ],
+                false,
+            ],
             'invalid-no-iat' => [
                 (object) [
                     'iss' => 'https://example.org',
