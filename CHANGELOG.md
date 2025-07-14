@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show unavailable room types in change room type dialog ([#2265], [#2279])
 - Infinite loading when navigating back after logout redirect due to bfcache ([#2282])
 
+### Fixed
+- Logout session_expired warning message style ([68abce8](https://github.com/THM-Health/PILOS/commit/68abce87bcd241db3261a448cf53e430bd639e28))
+
 ## [v4.6.1] - 2025-06-16
 
 ### Fixed
