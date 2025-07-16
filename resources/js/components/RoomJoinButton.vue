@@ -183,6 +183,7 @@ import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
+import { useDark } from "@vueuse/core";
 
 const props = defineProps({
   roomId: {
@@ -217,6 +218,7 @@ const emit = defineEmits([
 ]);
 
 const authStore = useAuthStore();
+const isDark = useDark();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
@@ -344,6 +346,7 @@ function getJoinUrl() {
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
       consent_streaming: streamingAgreement.value,
+      dark_mode: isDark.value,
     },
   };
 
