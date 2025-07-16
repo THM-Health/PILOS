@@ -1381,6 +1381,67 @@ describe("Rooms view meetings", function () {
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
   });
 
+  it("join running meeting with dark mode", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 200,
+      body: {
+        url: "https://example.org/?foo=a&bar=b",
+      },
+    }).as("joinRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Toggle dark mode
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    cy.get('[data-test="room-join-button"]').click();
+    cy.wait("@preJoinRequest");
+
+    // Check that correct query is sent, dark mode is enabled
+    cy.wait("@joinRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "",
+        consent_record_attendance: false,
+        consent_record: false,
+        consent_record_video: false,
+        consent_streaming: false,
+        dark_mode: true,
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin("https://example.org", () => {
+      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    });
+  });
+
   it("start meeting", function () {
     const startRequest = interceptIndefinitely(
       "POST",
