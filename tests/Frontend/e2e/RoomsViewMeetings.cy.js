@@ -2804,4 +2804,51 @@ describe("Rooms view meetings", function () {
     // Check dialog is closed
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
   });
+
+  it("start meeting with dark mode", function () {
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 200,
+      body: {
+        url: "https://example.org/?foo=a&bar=b",
+      },
+    }).as("startRequest");
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preStartRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    cy.get('[data-test="room-start-button"]').click();
+
+    cy.wait("@preStartRequest");
+
+    // Check that correct query is sent
+    cy.wait("@startRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "",
+        consent_record_attendance: false,
+        consent_record: false,
+        consent_record_video: false,
+        consent_streaming: false,
+        dark_mode: true,
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin("https://example.org", () => {
+      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    });
+  });
 });
