@@ -505,10 +505,10 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2134]: https://github.com/THM-Health/PILOS/pull/2134
 [#2150]: https://github.com/THM-Health/PILOS/pull/2150
 [#2151]: https://github.com/THM-Health/PILOS/pull/2151
+[#2153]: https://github.com/THM-Health/PILOS/issues/2153
+[#2154]: https://github.com/THM-Health/PILOS/pull/2154
 [#2222]: https://github.com/THM-Health/PILOS/pull/2222
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
-[#2153]: https://github.com/THM-Health/PILOS/pull/2153
-[#2154]: https://github.com/THM-Health/PILOS/pull/2154
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
