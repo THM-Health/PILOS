@@ -28,7 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last login datetime to the admin user list ([#2132], [#2150])
 - Custom join parameters in room type settings ([#2099], [#2151])
 
-
 ### Fixed
 
 - Container restart ([#2134])
