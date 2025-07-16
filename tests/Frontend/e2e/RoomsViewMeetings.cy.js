@@ -77,6 +77,7 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -161,6 +162,7 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -245,6 +247,7 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: true,
+        dark_mode: false,
       });
     });
 
@@ -332,6 +335,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -399,6 +403,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -473,6 +478,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -550,6 +556,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -676,6 +683,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for access code is set
       expect(interception.request.headers["access-code"]).to.eq("123456789");
@@ -907,6 +915,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for token is set
       expect(interception.request.headers.token).to.eq(
@@ -1429,6 +1438,7 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -1504,6 +1514,7 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -1579,6 +1590,7 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: true,
+        dark_mode: false,
       });
     });
 
@@ -1657,6 +1669,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -1711,6 +1724,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -1778,6 +1792,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -1848,6 +1863,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -1962,6 +1978,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for access code is set
       expect(interception.request.headers["access-code"]).to.eq("123456789");
@@ -2163,6 +2180,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for token is set
       expect(interception.request.headers.token).to.eq(
