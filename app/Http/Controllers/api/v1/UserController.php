@@ -46,7 +46,7 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        $query = User::withNameOrEmail($request->query('query'));
+        $query = User::withNameOrEmailWithPrivacy($request->query('query'));
 
         if ($query->count() > config('bigbluebutton.user_search_limit')) {
             abort(204, 'Too many results');
@@ -207,6 +207,9 @@ class UserController extends Controller
         }
         if ($request->has('bbb_skip_check_audio')) {
             $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
+        }
+        if ($request->has('discoverable')) {
+            $user->discoverable = $request->discoverable;
         }
 
         $user->save();

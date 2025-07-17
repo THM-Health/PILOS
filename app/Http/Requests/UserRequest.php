@@ -26,6 +26,7 @@ class UserRequest extends FormRequest
             'roles' => ['sometimes', 'required', 'array'],
             'roles.*' => ['sometimes', 'distinct', 'integer', 'exists:App\Models\Role,id', Rule::notIn($prohibitedRoles)],
             'image' => ['bail', 'sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100', Rule::prohibitedIf($this->user?->has_external_image), new Antivirus],
+            'discoverable' => ['sometimes', 'required', 'boolean'],
         ];
 
         if (! $this->user || $this->user->authenticator === 'local') {

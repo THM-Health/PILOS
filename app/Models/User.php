@@ -54,6 +54,7 @@ class User extends Authenticatable implements HasLocalePreference
         'bbb_skip_check_audio' => 'boolean',
         'initial_password_set' => 'boolean',
         'last_login' => 'datetime',
+        'discoverable' => 'boolean',
     ];
 
     protected $appends = ['fullname'];
@@ -231,6 +232,32 @@ class User extends Authenticatable implements HasLocalePreference
                 });
             }
         });
+    }
+
+    /**
+     * Scope a query to only get users that have a name/email like the passed one, respecting discoverable
+     * setting and add the possibility to find users with their exact email address regardless of discoverable setting.
+     *
+     * The name gets split up by the whitespaces and each part will be searched
+     * in the corresponding name fields or the full name will be searched in the email fields.
+     *
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $input  Name or email to search for
+     * @return Builder The scoped query
+     */
+    public function scopewithNameOrEmailWithPrivacy(Builder $query, $input)
+    {
+        $input = preg_replace('/\s\s+/', ' ', $input);
+        $inputParts = explode(' ', $input);
+
+        return $query->where(function (Builder $query) use ($inputParts) {
+            foreach ($inputParts as $inputPart) {
+                $query->where(function (Builder $query) use ($inputPart) {
+                    $query->withFirstName($inputPart)->orWhere->withLastName($inputPart)->orWhere->withEmail($inputPart);
+                });
+            }
+            $query->where('discoverable', true);
+        })->orWhere('email', $input);
     }
 
     /**

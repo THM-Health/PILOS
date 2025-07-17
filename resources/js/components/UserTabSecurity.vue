@@ -21,6 +21,15 @@
       />
     </AdminPanel>
 
+    <AdminPanel :title="$t('auth.privacy.title')">
+      <UserTabSecurityPrivacySection
+        :user="user"
+        :view-only="viewOnly"
+        @stale-error="handleStaleError"
+        @update-user="updateUser"
+      />
+    </AdminPanel>
+
     <AdminPanel v-if="isOwnUser" :title="$t('auth.sessions.active')">
       <UserTabSecuritySessionsSection />
     </AdminPanel>

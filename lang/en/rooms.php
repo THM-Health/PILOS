@@ -216,6 +216,7 @@ return [
                 'no_options' => 'Enter the name or email address of a user.',
                 'no_result' => 'Oops! No user was found for this query.',
                 'placeholder' => 'Name or email',
+                'privacy_note' => 'Users may be hidden in the search by name but can still be added with their full email address.',
                 'select_role' => 'Please select a role',
                 'select_user' => 'Please select the user you would like to add',
                 'too_many_results' => 'Too many users were found. Please enter a more precise search term.',

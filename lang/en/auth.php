@@ -46,6 +46,11 @@ return [
         'title' => 'Log in with OpenID Connect',
     ],
     'password' => 'Password',
+    'privacy' => [
+        'discoverable' => 'Discoverable',
+        'discoverable_help' => 'Toggle your visibility in the public user list when others search your name. Users can still add you if they know your full email address.',
+        'title' => 'Privacy',
+    ],
     'reset_password' => 'Reset password',
     'send_email_confirm_mail' => 'A verification email has been sent to :email. Please confirm the new email address by clicking on the link in the email.',
     'send_password_reset_link' => 'Send password reset link',

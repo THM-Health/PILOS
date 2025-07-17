@@ -88,6 +88,7 @@ class UserResource extends JsonResource
             'initial_password_set' => $this->initial_password_set,
             'timezone' => $this->timezone,
             'superuser' => $this->superuser,
+            'discoverable' => $this->discoverable,
         ];
     }
 }

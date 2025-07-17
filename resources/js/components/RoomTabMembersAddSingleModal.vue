@@ -56,6 +56,7 @@
         :show-no-results="true"
         :show-labels="false"
         :invalid="formErrors.fieldInvalid('user')"
+        aria-describedby="user_help"
         @search-change="asyncFind"
       >
         <template #noResult>
@@ -79,6 +80,9 @@
         </template>
       </multiselect>
       <FormError :errors="formErrors.fieldError('user')" />
+      <small id="user_help">{{
+        $t("rooms.members.modals.add.privacy_note")
+      }}</small>
     </div>
 
     <!-- select role -->
