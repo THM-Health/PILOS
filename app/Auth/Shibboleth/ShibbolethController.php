@@ -4,6 +4,7 @@ namespace App\Auth\Shibboleth;
 
 use App\Auth\MissingAttributeException;
 use App\Http\Controllers\Controller;
+use App\Prometheus\Counter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -46,12 +47,15 @@ class ShibbolethController extends Controller
         try {
             $user = $this->provider->login($request);
         } catch (MissingAttributeException $e) {
+            Counter::get('login_failed_total')->inc('shibboleth');
+
             return redirect('/external_login?error=missing_attributes');
         } catch (ShibbolethSessionDuplicateException $e) {
             // Prevented login attempt with duplicate shibboleth session, redirect to logout to kill SP session
             return redirect($this->provider->logout(url('/external_login?error=shibboleth_session_duplicate_exception')));
         }
 
+        Counter::get('pilos_login_total')->inc('shibboleth');
         Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'shibboleth']);
 
         // Update the last login timestamp

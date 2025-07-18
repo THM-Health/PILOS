@@ -6,6 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Events\RoomStarted;
 use App\Models\Meeting;
 use App\Models\Room;
+use App\Prometheus\Counter;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Log;
@@ -67,6 +68,7 @@ class RoomService
             if ($server == null) {
                 $lock->release();
                 Log::error('Failed to create meeting for room {room}; no servers found', ['room' => $this->room->getLogLabel()]);
+                Counter::get('room_start_errors_total')->inc('no_server_found');
                 abort(CustomStatusCodes::NO_SERVER_AVAILABLE->value, __('app.errors.no_server_available'));
             }
 
@@ -87,9 +89,11 @@ class RoomService
 
                 $lock->release();
                 Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
+                Counter::get('room_start_errors_total')->inc('start_failed');
                 abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
             }
 
+            Counter::get('room_started_total')->inc();
             Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
 
             // Set start time after successful api call, prevents server poller from ending a meeting that has been started
@@ -146,6 +150,7 @@ class RoomService
             $meetingRunning = $meetingService->isRunning();
         } catch (\Exception $e) {
             Log::warning('Error checking if room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
+            Counter::get('room_join_errors_total')->inc('checking_meeting_running_on_server_error');
             abort(CustomStatusCodes::JOIN_FAILED->value, __('app.errors.join_failed'));
         }
 
@@ -153,10 +158,13 @@ class RoomService
         if (! $meetingRunning) {
             $meetingService->setEnd();
             Log::warning('Meeting {meeting} for room {room} is not running on the BBB server', ['room' => $this->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
+            Counter::get('room_join_errors_total')->inc('meeting_not_running_on_server');
             abort(CustomStatusCodes::ROOM_NOT_RUNNING->value, __('app.errors.not_running'));
         }
 
         Log::info('Meeting {meeting} for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
+
+        Counter::get('room_joined_total')->inc();
 
         return $meetingService;
     }

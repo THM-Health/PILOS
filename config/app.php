@@ -244,6 +244,8 @@ return [
         App\Providers\TranslationServiceProvider::class,
 
         App\Plugins\PluginServiceProvider::class,
+
+        App\Providers\MetricsServiceProvider::class,
     ],
 
     /*

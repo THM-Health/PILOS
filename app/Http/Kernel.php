@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
+use App\Http\Middleware\RequestMetricsMiddleware;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIfConfig;
 use App\Http\Middleware\StoreSessionData;
@@ -20,6 +21,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
+        \Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks::class,
         \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
@@ -27,6 +29,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        RequestMetricsMiddleware::class,
     ];
 
     /**

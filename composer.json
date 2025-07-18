@@ -27,17 +27,21 @@
     "maatwebsite/excel": "^3.1",
     "maennchen/zipstream-php": "^3.1",
     "nunomaduro/collision": "^8.1",
+    "predis/predis": "^3.0",
+    "promphp/prometheus_client_php": "^2.14",
     "spatie/image": "^3.8",
     "spatie/laravel-csp": "^3.4",
     "spatie/laravel-ignition": "^2.0",
     "spatie/laravel-settings": "^3.3",
-    "symfony/var-exporter": "^7.0"
+    "symfony/var-exporter": "^7.0",
+    "ext-redis": "*"
   },
   "require-dev": {
     "barryvdh/laravel-ide-helper": "^3.0",
     "brianium/paratest": "^7.9",
     "fakerphp/faker": "^1.9.1",
     "laravel/pint": "^1.14",
+    "m6web/redis-mock": "^5.6",
     "mockery/mockery": "^1.4.2",
     "php-coveralls/php-coveralls": "^2.3.0",
     "phpunit/phpunit": "^12.1",

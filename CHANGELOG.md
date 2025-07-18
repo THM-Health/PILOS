@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show meeting ended reason ([#2223])
 - Show BBB join errors ([#2223])
 - Pass color-scheme preference to BigBlueButton ([#2153], [#2154])
+- Metrics endpoint (`/metrics`) ([#2165])
 
 ### Fixed
 

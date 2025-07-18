@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Room;
 use App\Models\RoomToken;
+use App\Prometheus\Counter;
 use App\Services\RoomAuthService;
 use Closure;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,7 @@ class RoomAuthenticate
             $token = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->first();
 
             if ($token == null) {
+                Counter::get('room_authentication_errors_total')->inc('token');
                 Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
                 abort(401, 'invalid_token');
             }
@@ -58,6 +60,8 @@ class RoomAuthenticate
 
         // user is not authenticated and room is not allowed for guests
         if (! $room->getRoomSetting('allow_guests') && ! $authenticated && ! Auth::user()) {
+            Counter::get('room_authentication_errors_total')->inc('guest_access');
+
             Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
             abort(403, 'guests_not_allowed');
@@ -84,6 +88,7 @@ class RoomAuthenticate
             if (is_numeric($accessCode) && $room->access_code == $accessCode) {
                 $authenticated = true;
             } else {
+                Counter::get('room_authentication_errors_total')->inc('access_code_invalid');
                 Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
 
                 // Increment counter for failed access code attempts
