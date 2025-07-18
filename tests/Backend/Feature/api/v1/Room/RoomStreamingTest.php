@@ -12,11 +12,13 @@ use App\Models\Server;
 use App\Models\User;
 use App\Services\StreamingService;
 use App\Services\StreamingServiceFactory;
+use Config;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Storage;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\Backend\TestCase;
@@ -318,6 +320,17 @@ class RoomStreamingTest extends TestCase
             ->assertSuccessful();
         $this->room->streaming->refresh();
         $this->assertNull($this->room->streaming->pause_image_url);
+
+        // Virus file
+        Config::set('antivirus.enabled', true);
+        Config::set('antivirus.clamav.url', 'http://clamav');
+        Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
+        $data['pause_image'] = $this->file_valid;
+        $this->actingAs($this->room->owner)
+            ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['pause_image']);
+        Config::set('antivirus.enabled', false);
     }
 
     /**

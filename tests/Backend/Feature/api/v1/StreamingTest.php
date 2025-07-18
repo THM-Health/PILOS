@@ -6,10 +6,12 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\User;
+use Config;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
 
 class StreamingTest extends TestCase
@@ -270,6 +272,18 @@ class StreamingTest extends TestCase
         $this->streamingSettings->refresh();
         $this->assertNull($this->streamingSettings->default_pause_image);
 
+        // Virus file
+        Config::set('antivirus.enabled', true);
+        Config::set('antivirus.clamav.url', 'http://clamav');
+        Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), [
+                'default_pause_image' => $this->file_valid,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['default_pause_image']);
+        Config::set('antivirus.enabled', false);
+
         // Upload css file
         $data['css_file'] = UploadedFile::fake()->create('streaming.css', 100, 'text/css');
         $this->actingAs($this->user)
@@ -308,6 +322,17 @@ class StreamingTest extends TestCase
         $this->assertNull($result->json('data.css_file'));
         $this->streamingSettings->refresh();
         $this->assertNull($this->streamingSettings->css_file);
+
+        // Virus file
+        Config::set('antivirus.enabled', true);
+        Config::set('antivirus.clamav.url', 'http://clamav');
+        Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
+        $data['css_file'] = UploadedFile::fake()->create('streaming.css', 100, 'text/css');
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.streaming.update'), $data)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['css_file']);
+        Config::set('antivirus.enabled', false);
 
         // Add valid join parameters
         $data['join_parameters'] = "enforceLayout=PRESENTATION_FOCUS\nuserdata-bbb_hide_nav_bar=true\nuserdata-bbb_show_participants_on_login=false\nuserdata-bbb_show_public_chat_on_login=false";
@@ -509,6 +534,17 @@ class StreamingTest extends TestCase
         $this->assertNull($result->json('data.default_pause_image'));
         $lecture->streamingSettings->refresh();
         $this->assertNull($lecture->streamingSettings->default_pause_image);
+
+        // Virus file
+        Config::set('antivirus.enabled', true);
+        Config::set('antivirus.clamav.url', 'http://clamav');
+        Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
+        $data['default_pause_image'] = $this->file_valid;
+        $this->actingAs($this->user)
+            ->putJson(route('api.v1.roomTypes.streaming.update', ['roomType' => $lecture]), $data)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['default_pause_image']);
+        Config::set('antivirus.enabled', false);
 
         // Disable streaming globally, route should be disabled
         config(['streaming.enabled' => false]);

@@ -14,12 +14,14 @@ use App\Notifications\UserWelcome;
 use App\Notifications\VerifyEmail;
 use Cache;
 use Carbon\Carbon;
+use Config;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Storage;
 use Tests\Backend\TestCase;
@@ -1352,6 +1354,16 @@ class UserTest extends TestCase
         // Check if database is updated
         $user->refresh();
         $this->assertNull($user->image);
+
+        // Virus file
+        Config::set('antivirus.enabled', true);
+        Config::set('antivirus.clamav.url', 'http://clamav');
+        Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
+        $changes['image'] = $file;
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['image']);
+        Config::set('antivirus.enabled', false);
     }
 
     public function test_show()
