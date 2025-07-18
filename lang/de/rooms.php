@@ -3,6 +3,11 @@
 return [
     'access_code' => 'Zugangscode',
     'auth_throttled' => 'Zu viele Versuche. Bitte versuchen Sie es in :try_again Sekunden erneut.',
+    'bbb_error_message' => [
+        'guestDeniedAccess' => 'Teilnahme an Meeting fehlgeschlagen: Der Zugang zu diesem Meeting wurde Ihnen aufgrund der Gastrichtlinien des Meetings verweigert.',
+        'maxParticipantsReached' => 'Teilnahme an Meeting fehlgeschlagen: Die zulässige Teilnehmerzahl für dieses Meeting wurde erreicht.',
+        'meetingForciblyEnded' => 'Teilnahme an Meeting fehlgeschlagen: Das Meeting läuft nicht mehr.',
+    ],
     'become_member' => 'Mitglied werden',
     'change_type' => [
         'changing_settings' => 'Es kommt zur folgenden Veränderung der Raumeinstellungen',
