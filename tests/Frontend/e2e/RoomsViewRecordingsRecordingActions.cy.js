@@ -30,7 +30,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
       "viewRecordingRequest",
@@ -72,7 +72,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 
@@ -140,7 +140,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -165,7 +165,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 
@@ -370,7 +370,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -397,7 +397,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
   });
@@ -481,7 +481,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -503,7 +503,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/recording?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 

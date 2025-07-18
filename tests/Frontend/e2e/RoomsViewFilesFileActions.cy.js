@@ -734,7 +734,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -754,7 +754,7 @@ describe("Rooms view files file actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
         "_blank",
       );
 
@@ -812,7 +812,7 @@ describe("Rooms view files file actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
         "_blank",
       );
 
@@ -855,7 +855,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -877,7 +877,7 @@ describe("Rooms view files file actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
         "_blank",
       );
   });
@@ -1032,7 +1032,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -1057,7 +1057,7 @@ describe("Rooms view files file actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
         "_blank",
       );
   });
@@ -1120,7 +1120,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -1140,7 +1140,7 @@ describe("Rooms view files file actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/file?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
         "_blank",
       );
 

@@ -9,8 +9,7 @@ describe("Banner", function () {
       config.data.banner.title = "Banner title";
       config.data.banner.icon = "fa-solid fa-door-open";
       config.data.banner.message = "Banner text message";
-      config.data.banner.link =
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b";
+      config.data.banner.link = `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`;
       config.data.banner.link_text = "Example link";
       config.data.banner.link_style = "link";
       config.data.banner.link_target = "blank";
@@ -43,7 +42,7 @@ describe("Banner", function () {
         .and(
           "have.attr",
           "href",
-          "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+          `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
         )
         .and("have.attr", "target", "_blank")
         .and("have.text", "Example link");

@@ -203,8 +203,7 @@ describe("General", function () {
 
   it("check help button if help url specified", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.help_url =
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b";
+      config.data.general.help_url = `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`;
 
       cy.intercept("GET", "/api/v1/config", config).as("configRequest");
     });
@@ -215,7 +214,7 @@ describe("General", function () {
       .should(
         "have.attr",
         "href",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`,
       )
       .and("have.attr", "target", "_blank")
       .invoke("removeAttr", "target");
@@ -223,10 +222,10 @@ describe("General", function () {
     cy.get('[data-test="navbar-help"]').click();
 
     // Check that redirect worked
-    cy.origin("https://thm-health.github.io", () => {
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
       cy.url().should(
         "eq",
-        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b",
+        `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`,
       );
     });
   });
