@@ -16,6 +16,6 @@ class SessionCollector implements Collector
     public function collect(): void
     {
         Gauge::get('active_sessions_total')
-            ->set(Session::count());
+            ->set(Session::whereNotNull('user_id')->count());
     }
 }
