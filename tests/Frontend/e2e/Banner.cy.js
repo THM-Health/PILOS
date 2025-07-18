@@ -9,7 +9,7 @@ describe("Banner", function () {
       config.data.banner.title = "Banner title";
       config.data.banner.icon = "fa-solid fa-door-open";
       config.data.banner.message = "Banner text message";
-      config.data.banner.link = "https://example.org/?foo=a&bar=b";
+      config.data.banner.link = `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`;
       config.data.banner.link_text = "Example link";
       config.data.banner.link_style = "link";
       config.data.banner.link_target = "blank";
@@ -39,7 +39,11 @@ describe("Banner", function () {
         .and("have.text", "Banner text message");
       cy.get('[data-test="banner-link-button"]')
         .should("be.visible")
-        .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
+        .and(
+          "have.attr",
+          "href",
+          `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
+        )
         .and("have.attr", "target", "_blank")
         .and("have.text", "Example link");
       cy.get('[data-test="banner-link-button"]')

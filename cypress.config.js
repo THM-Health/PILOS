@@ -10,6 +10,10 @@ export default defineConfig({
   screenshotsFolder: "tests/Frontend/screenshots",
   videosFolder: "tests/Frontend/videos",
 
+  env: {
+    redirectBaseUrl: "https://thm-health.github.io/PILOS-Redirect_Test_Pages",
+  },
+
   e2e: {
     setupNodeEvents(on, config) {
       configCodeCoverage(on, config);

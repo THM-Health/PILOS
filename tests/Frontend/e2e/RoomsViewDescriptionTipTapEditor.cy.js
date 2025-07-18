@@ -312,7 +312,7 @@ describe("Rooms view description TipTap Editor", function () {
 
         // Change url to valid value
         cy.get("#url").clear();
-        cy.get("#url").type("https://example.org/?foo=a&bar=b");
+        cy.get("#url").type(`${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`);
 
         // Check that error message is hidden and save button is enabled
         cy.contains("rooms.description.modals.link.invalid_url").should(
@@ -333,7 +333,11 @@ describe("Rooms view description TipTap Editor", function () {
       .within(() => {
         cy.get("a")
           .should("be.visible")
-          .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
+          )
           .and("have.text", "Room description");
       });
 
@@ -346,8 +350,7 @@ describe("Rooms view description TipTap Editor", function () {
 
   it("edit link", function () {
     cy.fixture("room.json").then((room) => {
-      room.data.description =
-        '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
+      room.data.description = `<a href="${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b">Test Link</a>`;
 
       cy.intercept("GET", "/api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -369,7 +372,11 @@ describe("Rooms view description TipTap Editor", function () {
       .within(() => {
         cy.get("a")
           .should("be.visible")
-          .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
+          )
           .and("have.text", "Test Link");
       });
 
@@ -392,7 +399,10 @@ describe("Rooms view description TipTap Editor", function () {
       .within(() => {
         // Change to invalid url
         cy.get("#url")
-          .should("have.value", "https://example.org/?foo=a&bar=b")
+          .should(
+            "have.value",
+            `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
+          )
           .clear();
         cy.get("#url").type("invalid");
 
@@ -404,7 +414,7 @@ describe("Rooms view description TipTap Editor", function () {
 
         // Change url back to valid value
         cy.get("#url").clear();
-        cy.get("#url").type("https://example.org/");
+        cy.get("#url").type(`${Cypress.env("redirectBaseUrl")}`);
 
         // Check that error message is hidden and save button is enabled
         cy.contains("rooms.description.modals.link.invalid_url").should(
@@ -431,7 +441,7 @@ describe("Rooms view description TipTap Editor", function () {
       .within(() => {
         cy.get("a")
           .should("be.visible")
-          .and("have.attr", "href", "https://example.org/")
+          .and("have.attr", "href", `${Cypress.env("redirectBaseUrl")}`)
           .and("have.text", "Test Link")
           .click();
       });
@@ -439,8 +449,7 @@ describe("Rooms view description TipTap Editor", function () {
 
   it("delete link", function () {
     cy.fixture("room.json").then((room) => {
-      room.data.description =
-        '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
+      room.data.description = `<a href="${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b">Test Link</a>`;
 
       cy.intercept("GET", "/api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -463,7 +472,11 @@ describe("Rooms view description TipTap Editor", function () {
         cy.get("a")
           .should("be.visible")
           .and("have.text", "Test Link")
-          .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
+          );
       });
 
     selectTiptapContent();

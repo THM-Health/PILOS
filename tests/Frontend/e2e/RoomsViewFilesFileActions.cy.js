@@ -734,7 +734,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -752,7 +752,11 @@ describe("Rooms view files file actions", function () {
 
     cy.get("@fileDownload")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
+        "_blank",
+      );
 
     // Reload as guest and with terms of use
     cy.fixture("config.json").then((config) => {
@@ -806,7 +810,11 @@ describe("Rooms view files file actions", function () {
 
     cy.get("@secondFileDownload")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
+        "_blank",
+      );
 
     cy.get('[data-test="terms-of-use-required-info"]').should("not.exist");
   });
@@ -847,7 +855,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -867,7 +875,11 @@ describe("Rooms view files file actions", function () {
     });
     cy.get("@fileDownload")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
+        "_blank",
+      );
   });
 
   it("download file with access code errors", function () {
@@ -1020,7 +1032,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -1043,7 +1055,11 @@ describe("Rooms view files file actions", function () {
 
     cy.get("@fileDownload")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
+        "_blank",
+      );
   });
 
   it("download file with token errors", function () {
@@ -1104,7 +1120,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       },
     }).as("downloadFileRequest");
 
@@ -1122,7 +1138,11 @@ describe("Rooms view files file actions", function () {
 
     cy.get("@fileDownload")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
+        "_blank",
+      );
 
     // Check toast message is shown (browser is blocking download)
     cy.checkToastMessage("app.flash.popup_blocked");

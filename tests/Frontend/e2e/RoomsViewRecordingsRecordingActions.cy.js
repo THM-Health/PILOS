@@ -30,7 +30,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
       "viewRecordingRequest",
@@ -70,7 +70,11 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.get("@recordingView")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        "_blank",
+      );
 
     // Check that dialog stayed open and close it
     cy.get('[data-test="room-recordings-view-dialog"]')
@@ -136,7 +140,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -159,7 +163,11 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.get("@recordingView")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        "_blank",
+      );
 
     // Check that dialog stayed open and close it
     cy.get('[data-test="room-recordings-view-dialog"]').should("be.visible");
@@ -362,7 +370,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -387,7 +395,11 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.get("@recordingView")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        "_blank",
+      );
   });
 
   it("view recording with token errors", function () {
@@ -469,7 +481,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -489,7 +501,11 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.get("@recordingView")
       .should("be.calledOnce")
-      .and("be.calledWith", "https://example.org/?foo=a&bar=b", "_blank");
+      .and(
+        "be.calledWith",
+        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        "_blank",
+      );
 
     // Check toast message is shown (browser is blocking download)
     cy.checkToastMessage("app.flash.popup_blocked");
