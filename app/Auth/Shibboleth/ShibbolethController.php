@@ -55,7 +55,7 @@ class ShibbolethController extends Controller
             return redirect($this->provider->logout(url('/external_login?error=shibboleth_session_duplicate_exception')));
         }
 
-        Counter::get('pilos_login_total')->inc('shibboleth');
+        Counter::get('login_total')->inc('shibboleth');
         Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'shibboleth']);
 
         // Update the last login timestamp
