@@ -61,14 +61,28 @@ describe("Rooms index create new room", function () {
     // Check that room limit tag does not exist
     cy.contains("rooms.room_limit").should("not.exist");
 
-    cy.intercept("GET", "api/v1/roomTypes*", {
-      fixture: "roomTypesWithSettings.json",
-    });
+    const roomTypesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes*",
+      {
+        fixture: "roomTypesWithSettings.json",
+      },
+      "roomTypesRequest",
+    );
 
     // Open room create modal
     cy.get('[data-test="room-create-button"]')
       .should("have.text", "rooms.create.title")
       .click();
+
+    roomTypesRequest.sendResponse();
+    cy.wait("@roomTypesRequest").then((interception) => {
+      expect(interception.request.query).to.deep.equal({
+        with_room_settings: "true",
+        with_features: "true",
+        filter: "own",
+      });
+    });
 
     cy.get('[data-test="room-create-dialog"]')
       .should("be.visible")

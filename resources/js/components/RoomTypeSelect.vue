@@ -160,7 +160,7 @@ function reloadRoomTypes() {
   isLoadingAction.value = true;
   const config = {
     params: {
-      filter: props.roomId ? "own" : props.roomId,
+      filter: props.roomId ?? "own",
       with_room_settings: true,
       with_features: true,
     },

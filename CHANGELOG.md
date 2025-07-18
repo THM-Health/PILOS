@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Logout session_expired warning message style ([68abce8](https://github.com/THM-Health/PILOS/commit/68abce87bcd241db3261a448cf53e430bd639e28))
 
+### Fixed
+
+- Show unavailable room types in create room dialog ([#2265], [#2279])
+- Show unavailable room types in change room type dialog ([#2265], [#2279])
+
 ## [v4.6.1] - 2025-06-16
 
 ### Fixed
@@ -509,6 +514,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2154]: https://github.com/THM-Health/PILOS/pull/2154
 [#2222]: https://github.com/THM-Health/PILOS/pull/2222
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
+[#2265]: https://github.com/THM-Health/PILOS/issues/2265
+[#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
