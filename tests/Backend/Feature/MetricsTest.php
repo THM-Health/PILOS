@@ -11,25 +11,12 @@ use App\Models\Session;
 use App\Models\User;
 use App\Prometheus\Counter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 
 class MetricsTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $token = ParallelTesting::token();
-        $prefix = 'TESTING_'.($token ? $token.'_' : '').config('metrics.redis.prefix');
-        config(['metrics.enabled' => true]);
-        config(['metrics.redis.prefix' => $prefix]);
-        $registry = $this->app->make(\App\Prometheus\CollectorRegistry::class);
-        $registry->wipeStorage();
-    }
 
     private function getMetrics(): array
     {

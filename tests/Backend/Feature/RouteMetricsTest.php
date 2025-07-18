@@ -3,7 +3,6 @@
 namespace Tests\Backend\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 
@@ -16,13 +15,6 @@ class RouteMetricsTest extends TestCase
         putenv('DISABLE_CATCHALL_ROUTES=true');
 
         parent::setUp();
-
-        $token = ParallelTesting::token();
-        $prefix = 'TESTING_'.($token ? $token.'_' : '').config('metrics.redis.prefix');
-        config(['metrics.enabled' => true]);
-        config(['metrics.redis.prefix' => $prefix]);
-        $registry = $this->app->make(\App\Prometheus\CollectorRegistry::class);
-        $registry->wipeStorage();
 
         \Route::get('test/{code}', [
             'as' => 'test',
