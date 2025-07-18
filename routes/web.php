@@ -47,7 +47,9 @@ if (config('greenlight.compatibility')) {
     });
 }
 
-Route::get('metrics', \App\Http\Controllers\MetricsController::class)->middleware(['enable_if_config:metrics.enabled']);
+Route::get('metrics', \App\Http\Controllers\MetricsController::class)
+    ->middleware(['enable_if_config:metrics.enabled'])
+    ->withoutMiddleware('web');
 
 if (! env('DISABLE_CATCHALL_ROUTES')) {
     Route::any('/{any}', [ApplicationController::class, 'index'])->where('any', '.*')->middleware(Spatie\Csp\AddCspHeaders::class);

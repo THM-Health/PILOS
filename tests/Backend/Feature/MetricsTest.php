@@ -191,10 +191,10 @@ class MetricsTest extends TestCase
         $this->assertEquals(15, $metrics['pilos_users_total']);
         $this->assertEquals(5, $metrics['pilos_active_sessions_total']);
 
-        // Get metrics again, without changing the counters (first request created a new session)
+        // Get metrics again, without changing the counters
         $metrics = $this->getMetrics();
         $this->assertEquals(15, $metrics['pilos_users_total']);
-        $this->assertEquals(6, $metrics['pilos_active_sessions_total']);
+        $this->assertEquals(5, $metrics['pilos_active_sessions_total']);
 
         // Create more users
         User::factory()->count(5)->create();
@@ -203,7 +203,7 @@ class MetricsTest extends TestCase
         // Get metrics again, after adding more files, meetings, recordings
         $metrics = $this->getMetrics();
         $this->assertEquals(25, $metrics['pilos_users_total']);
-        $this->assertEquals(11, $metrics['pilos_active_sessions_total']);
+        $this->assertEquals(10, $metrics['pilos_active_sessions_total']);
     }
 
     public function test_server_gauge_metrics()
