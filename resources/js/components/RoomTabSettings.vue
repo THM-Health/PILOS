@@ -28,6 +28,7 @@
                 !ROOM_SETTINGS_DEFINITION[item.setting]?.expert_setting
               "
               v-model="settings"
+              :room="room"
               :invalid="formErrors.fieldInvalid(item.setting)"
               :errors="formErrors.fieldError(item.setting)"
               :disabled="disabled"

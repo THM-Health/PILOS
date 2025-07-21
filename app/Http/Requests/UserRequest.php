@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Role;
+use App\Rules\Antivirus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class UserRequest extends FormRequest
             'timezone' => ['sometimes', 'required', 'string', Rule::in(timezone_identifiers_list())],
             'roles' => ['sometimes', 'required', 'array'],
             'roles.*' => ['sometimes', 'distinct', 'integer', 'exists:App\Models\Role,id', Rule::notIn($prohibitedRoles)],
-            'image' => ['sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100', Rule::prohibitedIf($this->user?->has_external_image)],
+            'image' => ['bail', 'sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100', Rule::prohibitedIf($this->user?->has_external_image), new Antivirus],
         ];
 
         if (! $this->user || $this->user->authenticator === 'local') {

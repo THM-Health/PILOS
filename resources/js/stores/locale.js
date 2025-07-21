@@ -14,7 +14,6 @@ export const useLocaleStore = defineStore("locale", {
   },
   actions: {
     async setLocale(currentLocale) {
-      console.log(currentLocale);
       this.currentLocale = currentLocale;
 
       const api = useApi();

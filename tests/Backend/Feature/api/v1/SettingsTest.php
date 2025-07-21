@@ -11,10 +11,12 @@ use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RoomSettings;
+use Config;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 
@@ -1080,5 +1082,85 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
         $this->assertNull(app(BigBlueButtonSettings::class)->logo_dark);
+    }
+
+    public function test_virus_files()
+    {
+        Config::set('antivirus.enabled', true);
+        Config::set('antivirus.clamav.url', 'http://clamav');
+        Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
+
+        $role = Role::factory()->create();
+        $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
+        $this->user->roles()->attach($role);
+
+        $logo = UploadedFile::fake()->create('logo.png');
+        $favicon = UploadedFile::fake()->create('favicon.ico');
+        $style = UploadedFile::fake()->create('style.css');
+        $presentation = UploadedFile::fake()->create('presentation.pdf');
+
+        config(['recording.max_retention_period' => -1]);
+
+        $payload = [
+            'general_name' => 'test',
+            'general_pagination_page_size' => 10,
+            'general_toast_lifetime' => 10,
+            'general_default_timezone' => 'Europe/Berlin',
+            'general_help_url' => 'http://localhost',
+            'general_legal_notice_url' => 'http://localhost',
+            'general_privacy_policy_url' => 'http://localhost',
+            'general_no_welcome_page' => false,
+
+            'theme_logo_file' => $logo,
+            'theme_logo_dark_file' => $logo,
+            'theme_favicon_file' => $favicon,
+            'theme_favicon_dark_file' => $favicon,
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
+
+            'banner_enabled' => 0,
+            'banner_message' => 'Welcome to Test!',
+            'banner_title' => 'Welcome',
+            'banner_color' => '#fff',
+            'banner_background' => '#4a5c66',
+            'banner_link' => 'http://localhost',
+            'banner_link_target' => 'self',
+            'banner_link_style' => 'primary',
+            'banner_icon' => 'fas fa-door-open',
+
+            'room_limit' => -1,
+            'room_token_expiration' => -1,
+            'room_auto_delete_inactive_period' => 14,
+            'room_auto_delete_never_used_period' => 30,
+            'room_auto_delete_deadline_period' => 7,
+
+            'user_password_change_allowed' => 1,
+
+            'recording_server_usage_enabled' => 0,
+            'recording_server_usage_retention_period' => 7,
+            'recording_meeting_usage_enabled' => 1,
+            'recording_meeting_usage_retention_period' => 90,
+            'recording_attendance_retention_period' => 14,
+            'recording_recording_retention_period' => 7,
+
+            'bbb_logo_file' => $logo,
+            'bbb_logo_dark_file' => $logo,
+            'bbb_style' => $style,
+            'bbb_default_presentation' => $presentation,
+        ];
+
+        $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
+            ->assertJsonValidationErrors([
+                'theme_logo_file',
+                'theme_logo_dark_file',
+                'theme_favicon_file',
+                'theme_favicon_dark_file',
+                'bbb_logo_file',
+                'bbb_logo_dark_file',
+                'bbb_style',
+                'bbb_default_presentation',
+            ]);
+
+        Http::assertSentCount(8);
     }
 }

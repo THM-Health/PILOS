@@ -12,6 +12,7 @@ use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\ParallelTesting;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 
 abstract class TestCase extends BaseTestCase
@@ -56,6 +57,8 @@ abstract class TestCase extends BaseTestCase
 
         $this->initSettings();
 
+        $this->initPrometheus();
+
         $this->withoutVite();
     }
 
@@ -69,6 +72,16 @@ abstract class TestCase extends BaseTestCase
         $this->recordingSettings = app(RecordingSettings::class);
         $this->bigBlueButtonSettings = app(BigBlueButtonSettings::class);
         $this->streamingSettings = app(StreamingSettings::class);
+    }
+
+    protected function initPrometheus(): void
+    {
+        $token = ParallelTesting::token();
+        $prefix = 'TESTING_'.($token ? $token.'_' : '').config('metrics.redis.prefix');
+        config(['metrics.enabled' => true]);
+        config(['metrics.redis.prefix' => $prefix]);
+        $registry = $this->app->make(\App\Prometheus\CollectorRegistry::class);
+        $registry->wipeStorage();
     }
 
     protected function tearDown(): void

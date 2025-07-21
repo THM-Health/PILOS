@@ -143,6 +143,8 @@ export const routes = [
       return {
         id: route.params.id,
         token: route.params.token,
+        bbbReason: route.query.reason,
+        bbbErrors: route.query.errors,
       };
     },
   },

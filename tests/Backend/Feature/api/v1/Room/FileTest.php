@@ -13,6 +13,8 @@ use App\Services\RoomFileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
@@ -120,6 +122,14 @@ class FileTest extends TestCase
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_toobig])
             ->assertJsonValidationErrors('file');
         Storage::disk('local')->assertMissing($this->room->id.'/'.$this->file_toobig->hashName());
+
+        // Virus file
+        Config::set('antivirus.enabled', true);
+        Config::set('antivirus.clamav.url', 'http://clamav');
+        Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => UploadedFile::fake()->create('virus.txt')])
+            ->assertJsonValidationErrors('file');
+        Config::set('antivirus.enabled', false);
     }
 
     /**

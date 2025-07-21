@@ -5,8 +5,8 @@ describe("Footer", function () {
 
   it("check footer shown correctly with 2 links, version and no whitelabel", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.legal_notice_url = "https://example.org/legal";
-      config.data.general.privacy_policy_url = "https://example.org/privacy";
+      config.data.general.legal_notice_url = `${Cypress.env("redirectBaseUrl")}/legal`;
+      config.data.general.privacy_policy_url = `${Cypress.env("redirectBaseUrl")}/privacy`;
       config.data.general.version = "1.0.0";
       config.data.general.whitelabel = false;
 
@@ -24,12 +24,16 @@ describe("Footer", function () {
         cy.get('[data-test="legal-notice-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.legal_notice")
-          .and("have.attr", "href", "https://example.org/legal");
+          .and("have.attr", "href", `${Cypress.env("redirectBaseUrl")}/legal`);
 
         cy.get('[data-test="privacy-policy-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.privacy_policy")
-          .and("have.attr", "href", "https://example.org/privacy");
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/privacy`,
+          );
 
         cy.get('[data-test="github-button"]')
           .should("be.visible")
@@ -43,7 +47,7 @@ describe("Footer", function () {
 
   it("check footer shown correctly with only legal notice link, no version and whitelabel", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.legal_notice_url = "https://example.org/legal";
+      config.data.general.legal_notice_url = `${Cypress.env("redirectBaseUrl")}/legal`;
       config.data.general.privacy_policy_url = "";
       config.data.general.version = null;
       config.data.general.whitelabel = true;
@@ -62,7 +66,7 @@ describe("Footer", function () {
         cy.get('[data-test="legal-notice-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.legal_notice")
-          .and("have.attr", "href", "https://example.org/legal");
+          .and("have.attr", "href", `${Cypress.env("redirectBaseUrl")}/legal`);
 
         cy.get('[data-test="privacy-policy-button"]').should("not.exist");
 
@@ -74,7 +78,7 @@ describe("Footer", function () {
   it("check footer shown correctly with only privacy policy link, no version and whitelabel", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = "";
-      config.data.general.privacy_policy_url = "https://example.org/privacy";
+      config.data.general.privacy_policy_url = `${Cypress.env("redirectBaseUrl")}/privacy`;
       config.data.general.version = null;
       config.data.general.whitelabel = true;
 
@@ -93,7 +97,11 @@ describe("Footer", function () {
         cy.get('[data-test="privacy-policy-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.privacy_policy")
-          .and("have.attr", "href", "https://example.org/privacy");
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/privacy`,
+          );
 
         cy.get('[data-test="github-button"]').should("not.exist");
         cy.get('[data-test="version"]').should("not.exist");
@@ -159,8 +167,8 @@ describe("Footer", function () {
 
   it("check footer shown correctly with 2 links, version and whitelabel", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.legal_notice_url = "https://example.org/legal";
-      config.data.general.privacy_policy_url = "https://example.org/privacy";
+      config.data.general.legal_notice_url = `${Cypress.env("redirectBaseUrl")}/legal`;
+      config.data.general.privacy_policy_url = `${Cypress.env("redirectBaseUrl")}/privacy`;
       config.data.general.version = "1.0.0";
       config.data.general.whitelabel = true;
 
@@ -177,12 +185,16 @@ describe("Footer", function () {
         cy.get('[data-test="legal-notice-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.legal_notice")
-          .and("have.attr", "href", "https://example.org/legal");
+          .and("have.attr", "href", `${Cypress.env("redirectBaseUrl")}/legal`);
 
         cy.get('[data-test="privacy-policy-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.privacy_policy")
-          .and("have.attr", "href", "https://example.org/privacy");
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/privacy`,
+          );
 
         cy.get('[data-test="github-button"]').should("not.exist");
         cy.get('[data-test="version"]')
@@ -193,8 +205,8 @@ describe("Footer", function () {
 
   it("check footer shown correctly with 2 links, no version and whitelabel", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.legal_notice_url = "https://example.org/legal";
-      config.data.general.privacy_policy_url = "https://example.org/privacy";
+      config.data.general.legal_notice_url = `${Cypress.env("redirectBaseUrl")}/legal`;
+      config.data.general.privacy_policy_url = `${Cypress.env("redirectBaseUrl")}/privacy`;
       config.data.general.version = "";
       config.data.general.whitelabel = true;
 
@@ -210,12 +222,16 @@ describe("Footer", function () {
         cy.get('[data-test="legal-notice-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.legal_notice")
-          .and("have.attr", "href", "https://example.org/legal");
+          .and("have.attr", "href", `${Cypress.env("redirectBaseUrl")}/legal`);
 
         cy.get('[data-test="privacy-policy-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.privacy_policy")
-          .and("have.attr", "href", "https://example.org/privacy");
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/privacy`,
+          );
 
         cy.get('[data-test="github-button"]').should("not.exist");
         cy.get('[data-test="version"]').should("not.exist");
@@ -241,7 +257,7 @@ describe("Footer", function () {
 
   it("check footer shown correctly with only legal notice link, version and whitelabel", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.legal_notice_url = "https://example.org/legal";
+      config.data.general.legal_notice_url = `${Cypress.env("redirectBaseUrl")}/legal`;
       config.data.general.privacy_policy_url = "";
       config.data.general.version = "1.2.0";
       config.data.general.whitelabel = true;
@@ -260,7 +276,7 @@ describe("Footer", function () {
         cy.get('[data-test="legal-notice-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.legal_notice")
-          .and("have.attr", "href", "https://example.org/legal");
+          .and("have.attr", "href", `${Cypress.env("redirectBaseUrl")}/legal`);
 
         cy.get('[data-test="privacy-policy-button"]').should("not.exist");
 
@@ -274,7 +290,7 @@ describe("Footer", function () {
   it("check footer shown correctly with only privacy policy link, version and whitelabel", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = "";
-      config.data.general.privacy_policy_url = "https://example.org/privacy";
+      config.data.general.privacy_policy_url = `${Cypress.env("redirectBaseUrl")}/privacy`;
       config.data.general.version = "2.1.0";
       config.data.general.whitelabel = true;
 
@@ -293,7 +309,11 @@ describe("Footer", function () {
         cy.get('[data-test="privacy-policy-button"]')
           .should("be.visible")
           .and("have.text", "app.footer.privacy_policy")
-          .and("have.attr", "href", "https://example.org/privacy");
+          .and(
+            "have.attr",
+            "href",
+            `${Cypress.env("redirectBaseUrl")}/privacy`,
+          );
 
         cy.get('[data-test="github-button"]').should("not.exist");
         cy.get('[data-test="version"]')
@@ -304,7 +324,7 @@ describe("Footer", function () {
 
   it("open legal notice link", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.legal_notice_url = "https://example.org/?foo=a&bar=b";
+      config.data.general.legal_notice_url = `${Cypress.env("redirectBaseUrl")}/legal?foo=a&bar=b`;
 
       cy.intercept("GET", "/api/v1/config", config).as("configRequest");
     });
@@ -314,15 +334,17 @@ describe("Footer", function () {
 
     cy.get('[data-test="legal-notice-button"]').click();
 
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/legal?foo=a&bar=b`,
+      );
     });
   });
 
   it("open privacy policy link", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.privacy_policy_url =
-        "https://example.org/?foo=a&bar=b";
+      config.data.general.privacy_policy_url = `${Cypress.env("redirectBaseUrl")}/privacy?foo=a&bar=b`;
 
       cy.intercept("GET", "/api/v1/config", config).as("configRequest");
     });
@@ -332,8 +354,11 @@ describe("Footer", function () {
 
     cy.get('[data-test="privacy-policy-button"]').click();
 
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/privacy?foo=a&bar=b`,
+      );
     });
   });
 });

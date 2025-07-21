@@ -203,7 +203,7 @@ describe("General", function () {
 
   it("check help button if help url specified", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.help_url = "https://example.org/?foo=a&bar=b";
+      config.data.general.help_url = `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`;
 
       cy.intercept("GET", "/api/v1/config", config).as("configRequest");
     });
@@ -211,15 +211,22 @@ describe("General", function () {
 
     cy.get('[data-test="navbar-help"]')
       .should("be.visible")
-      .should("have.attr", "href", "https://example.org/?foo=a&bar=b")
+      .should(
+        "have.attr",
+        "href",
+        `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`,
+      )
       .and("have.attr", "target", "_blank")
       .invoke("removeAttr", "target");
 
     cy.get('[data-test="navbar-help"]').click();
 
     // Check that redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`,
+      );
     });
   });
 

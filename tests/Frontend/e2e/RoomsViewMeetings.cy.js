@@ -38,7 +38,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -77,12 +77,16 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -118,7 +122,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -161,12 +165,16 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -202,7 +210,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -245,12 +253,16 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: true,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -286,7 +298,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -332,12 +344,16 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -371,7 +387,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("joinRequest");
 
@@ -399,12 +415,16 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -458,7 +478,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
           statusCode: 200,
           body: {
-            url: "https://example.org/?foo=a&bar=b",
+            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("joinRequest");
 
@@ -473,12 +493,16 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -550,6 +574,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -661,7 +686,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
           statusCode: 200,
           body: {
-            url: "https://example.org/?foo=a&bar=b",
+            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("joinRequest");
 
@@ -676,14 +701,18 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for access code is set
       expect(interception.request.headers["access-code"]).to.eq("123456789");
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -870,7 +899,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("joinRequest");
 
@@ -907,6 +936,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for token is set
       expect(interception.request.headers.token).to.eq(
@@ -915,8 +945,11 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -1372,6 +1405,70 @@ describe("Rooms view meetings", function () {
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
   });
 
+  it("join running meeting with dark mode", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preJoinRequest");
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 200,
+      body: {
+        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      },
+    }).as("joinRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Toggle dark mode
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    cy.get('[data-test="room-join-button"]').click();
+    cy.wait("@preJoinRequest");
+
+    // Check that correct query is sent, dark mode is enabled
+    cy.wait("@joinRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "",
+        consent_record_attendance: false,
+        consent_record: false,
+        consent_record_video: false,
+        consent_streaming: false,
+        dark_mode: true,
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
+    });
+  });
+
   it("start meeting", function () {
     const startRequest = interceptIndefinitely(
       "POST",
@@ -1379,7 +1476,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1429,12 +1526,16 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -1449,7 +1550,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1504,12 +1605,16 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -1524,7 +1629,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1579,12 +1684,16 @@ describe("Rooms view meetings", function () {
         consent_record: false,
         consent_record_video: false,
         consent_streaming: true,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -1599,7 +1708,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: "https://example.org/?foo=a&bar=b",
+          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1657,12 +1766,16 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -1687,7 +1800,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("startRequest");
 
@@ -1711,12 +1824,16 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: false,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -1763,7 +1880,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
           statusCode: 200,
           body: {
-            url: "https://example.org/?foo=a&bar=b",
+            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("startRequest");
 
@@ -1778,12 +1895,16 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -1848,6 +1969,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
     });
 
@@ -1947,7 +2069,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
           statusCode: 200,
           body: {
-            url: "https://example.org/?foo=a&bar=b",
+            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("startRequest");
 
@@ -1962,14 +2084,18 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for access code is set
       expect(interception.request.headers["access-code"]).to.eq("123456789");
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -2133,7 +2259,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 200,
       body: {
-        url: "https://example.org/?foo=a&bar=b",
+        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("startRequest");
 
@@ -2163,6 +2289,7 @@ describe("Rooms view meetings", function () {
         consent_record: true,
         consent_record_video: true,
         consent_streaming: false,
+        dark_mode: false,
       });
       // Check that header for token is set
       expect(interception.request.headers.token).to.eq(
@@ -2171,8 +2298,11 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -2573,7 +2703,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
           statusCode: 200,
           body: {
-            url: "https://example.org/?foo=a&bar=b",
+            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("joinRequest");
 
@@ -2582,8 +2712,11 @@ describe("Rooms view meetings", function () {
     cy.wait("@joinRequest");
 
     // Check if redirect worked
-    cy.origin("https://example.org", () => {
-      cy.url().should("eq", "https://example.org/?foo=a&bar=b");
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
     });
   });
 
@@ -2724,5 +2857,55 @@ describe("Rooms view meetings", function () {
 
     // Check dialog is closed
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
+  });
+
+  it("start meeting with dark mode", function () {
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 200,
+      body: {
+        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      },
+    }).as("startRequest");
+
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
+      statusCode: 200,
+      body: {
+        data: {
+          features: {
+            recording: false,
+            attendance_recording: false,
+            streaming: false,
+          },
+        },
+      },
+    }).as("preStartRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    cy.get('[data-test="room-start-button"]').click();
+
+    cy.wait("@preStartRequest");
+
+    // Check that correct query is sent
+    cy.wait("@startRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "",
+        consent_record_attendance: false,
+        consent_record: false,
+        consent_record_video: false,
+        consent_streaming: false,
+        dark_mode: true,
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin(Cypress.env("redirectBaseUrl"), () => {
+      cy.url().should(
+        "eq",
+        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      );
+    });
   });
 });

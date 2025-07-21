@@ -67,7 +67,7 @@ function showModal() {
  * Apply changes to the editor
  */
 function save() {
-  props.editor.commands.setContent(source.value, true);
+  props.editor.commands.setContent(source.value);
   modalVisible.value = false;
 }
 </script>

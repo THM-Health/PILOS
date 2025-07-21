@@ -3519,6 +3519,117 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test joining urls contains correct userdata-bbb_prefer_dark_theme parameter
+     * for start and join room depending on the dark_mode api parameter
+     * defaulting to false if no value is passed
+     */
+    public function test_join_url_dark_mode()
+    {
+        $room = Room::factory()->create();
+
+        $server = Server::factory()->create();
+        $room->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Create meeting 3 times
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
+        // Get meeting info 3 times
+        $meetingInfoRequest = function (Request $request) {
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        };
+        for ($i = 0; $i < 3; $i++) {
+            $bbbfaker->addRequest($meetingInfoRequest);
+        }
+
+        // Start meeting with passing dark mode parameter invalid
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false, 'dark_mode' => 'invalid'])
+            ->assertJsonValidationErrors(['dark_mode']);
+
+        // Start meeting without passing dark mode parameter, should default to false
+        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('false', $queryParams['userdata-bbb_prefer_dark_theme']);
+        // End meeting to reset state
+        $room->refresh();
+        new MeetingService($room->latestMeeting)->setEnd();
+
+        // Start meeting with passing dark mode parameter false
+        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false, 'dark_mode' => false])
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('false', $queryParams['userdata-bbb_prefer_dark_theme']);
+        // End meeting to reset state
+        $room->refresh();
+        new MeetingService($room->latestMeeting)->setEnd();
+
+        // Start meeting with passing dark mode parameter true
+        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false, 'dark_mode' => true])
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('true', $queryParams['userdata-bbb_prefer_dark_theme']);
+
+        // Join without passing dark mode parameter, should default to false
+        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('false', $queryParams['userdata-bbb_prefer_dark_theme']);
+
+        // Join with passing dark mode parameter false
+        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false, 'dark_mode' => false])
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('false', $queryParams['userdata-bbb_prefer_dark_theme']);
+
+        // Join with passing dark mode parameter true
+        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false, 'dark_mode' => true])
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('true', $queryParams['userdata-bbb_prefer_dark_theme']);
+
+        // Join with passing dark mode parameter invalid
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false, 'dark_mode' => 'invalid'])
+            ->assertJsonValidationErrors(['dark_mode']);
+    }
+
+    /**
      * Tests if record parameters are validated based on the current running meeting
      */
     public function test_join_record()

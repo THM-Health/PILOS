@@ -51,6 +51,7 @@
           <RoomTypeSelect
             ref="roomTypeSelect"
             v-model="newRoomType"
+            :room-id="room.id"
             aria-labelledby="room-type-label"
             :redirect-on-unauthenticated="false"
             @loading-error="(value) => (roomTypeSelectLoadingError = value)"
@@ -99,6 +100,10 @@ import { resetSetting } from "../composables/useRoomHelpers.js";
 const model = defineModel({ type: Object });
 
 defineProps({
+  room: {
+    type: Object,
+    required: true,
+  },
   setting: {
     type: String,
     required: true,

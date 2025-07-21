@@ -20,6 +20,7 @@ class JoinMeeting extends FormRequest
     {
         $rules = [
             'name' => auth()->check() || $this->roomAuthService->getRoomToken($this->room) ? [] : ['required', 'min:2', 'max:50',  new ValidName],
+            'dark_mode' => ['sometimes', 'boolean'],
         ];
 
         $rules += $this->getAttendanceRecordingRules();

@@ -8,9 +8,14 @@ describe("Rooms view settings room type actions", function () {
   });
 
   it("change room type with expert mode enabled", function () {
-    cy.intercept("GET", "api/v1/roomTypes*", {
-      fixture: "roomTypesWithSettings.json",
-    });
+    const roomTypesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes*",
+      {
+        fixture: "roomTypesWithSettings.json",
+      },
+      "roomTypesRequest",
+    );
 
     cy.visit("/rooms/abc-def-123#tab=settings");
 
@@ -20,6 +25,16 @@ describe("Rooms view settings room type actions", function () {
     cy.get('[data-test="room-unsaved-changes-message"]').should("not.exist");
     cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
     cy.get('[data-test="room-type-change-button"]').click();
+
+    roomTypesRequest.sendResponse();
+    cy.wait("@roomTypesRequest").then((interception) => {
+      expect(interception.request.query).to.deep.equal({
+        with_room_settings: "true",
+        with_features: "true",
+        filter: "abc-def-123",
+      });
+    });
+
     cy.get('[data-test="room-type-change-dialog"]')
       .should("be.visible")
       .and("include.text", "rooms.change_type.title")
