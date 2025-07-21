@@ -3,6 +3,11 @@
 return [
     'access_code' => 'Code d\'accès',
     'auth_throttled' => 'Trop de tentatives. Merci de retenter dans :try_again secondes.',
+    'bbb_error_message' => [
+        'guestDeniedAccess' => 'Connexion à la salle échouée: Vous avez été refusé d\'accès dû aux règles d\'accès pour les invités.',
+        'maxParticipantsReached' => 'Connexion à la salle échouée: Le nombre maximum de participants autorisés a été atteint.',
+        'meetingForciblyEnded' => 'Connexion à la salle échouée: La salle n\'est plus ouverte.',
+    ],
     'become_member' => 'Devenir membre',
     'change_type' => [
         'changing_settings' => 'Les changements suivants seront appliqués aux paramètres de la salle',
