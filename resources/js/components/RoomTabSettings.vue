@@ -216,12 +216,6 @@ const form = computed(() => {
           options: [
             { value: 0, label: t("app.disabled") },
             { value: 1, label: t("app.enabled") },
-            {
-              value: 2,
-              label: t(
-                "rooms.settings.video_conference.lobby.only_for_guests_enabled",
-              ),
-            },
           ],
           component: RoomTabSettingsRadioGroup,
           warningMessage: lobbyAlert.value,
