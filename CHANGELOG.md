@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.7.0] - 2025-07-21
+
 ### Added
 
 - Show meeting ended reason ([#2223])
@@ -514,12 +516,13 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2151]: https://github.com/THM-Health/PILOS/pull/2151
 [#2153]: https://github.com/THM-Health/PILOS/issues/2153
 [#2154]: https://github.com/THM-Health/PILOS/pull/2154
+[#2165]: https://github.com/THM-Health/PILOS/pull/2165
 [#2222]: https://github.com/THM-Health/PILOS/pull/2222
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -535,3 +538,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.5.0
 [v4.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.6.0
 [v4.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.6.1
+[v4.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.7.0
