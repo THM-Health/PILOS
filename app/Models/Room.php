@@ -136,6 +136,7 @@ class Room extends Model
         'lobby' => [
             'cast' => RoomLobby::class,
             'expert' => true,
+            'only' => [RoomLobby::ENABLED, RoomLobby::DISABLED],
         ],
         'visibility' => [
             'cast' => RoomVisibility::class,
@@ -357,7 +358,7 @@ class Room extends Model
                 return $token->role;
             }
 
-            return RoomUserRole::GUEST;
+            return $this->getRoomSetting('default_role');
         }
 
         if ($this->owner->is($user) || $user->can('rooms.manage')) {

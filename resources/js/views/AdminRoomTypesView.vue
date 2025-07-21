@@ -564,23 +564,6 @@
                     />
                     <label for="lobby-enabled">{{ $t("app.enabled") }}</label>
                   </div>
-                  <div
-                    class="flex items-center gap-2"
-                    data-test="lobby-only-for-guests-field"
-                  >
-                    <RadioButton
-                      v-model.number="model.lobby_default"
-                      :disabled="isBusy || modelLoadingError || viewOnly"
-                      :value="2"
-                      name="lobby"
-                      input-id="lobby-only-for-guests"
-                    />
-                    <label for="lobby-only-for-guests">{{
-                      $t(
-                        "rooms.settings.video_conference.lobby.only_for_guests_enabled",
-                      )
-                    }}</label>
-                  </div>
                 </div>
                 <ToggleButton
                   v-model="model.lobby_enforced"

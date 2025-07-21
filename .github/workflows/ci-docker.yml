@@ -2,12 +2,11 @@ name: CI Docker build
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  # release:
+  #   types: [published]
   push:
     branches:
-      - develop
-      - "[0-9].x"
+      - guest-mods
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -22,17 +21,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2.0.0
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4.0.1
         with:
-          images: pilos/pilos
+          images: ghcr.io/${{ github.repository }}
           flavor: |
             latest=auto
             prefix=
@@ -59,5 +59,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=pilos/pilos:buildcache
-          cache-to: type=registry,ref=pilos/pilos:buildcache,mode=max
+
