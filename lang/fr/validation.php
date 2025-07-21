@@ -9,6 +9,10 @@ return [
     'alpha' => 'Le champ :attribute doit contenir uniquement des lettres.',
     'alpha_dash' => 'Le champ :attribute doit contenir uniquement des lettres, nombres, tirets ou traits de soulignement.',
     'alpha_num' => 'Le champ :attribute doit contenir uniquement des lettres et nombres.',
+    'antivirus' => [
+        'error' => 'L\'anti-virus pour le fichier :file a échoué.',
+        'virus' => ':file contient un virus.',
+    ],
     'array' => 'Le champ :attribute doit être un tableau.',
     'ascii' => 'Le champ « :attribute » doit être au format ASCII (un unique octet par caractère alphanumérique ou symbol)',
     'attached' => '« :attribute » est déjà attaché.',
