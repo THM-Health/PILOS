@@ -323,6 +323,22 @@ const autoJoin = computed(() => {
 });
 
 /**
+ * Handle the page is restored from the back/forward cache after redirecting to BBB
+ * The modal is still shown and loaded, close and reload the page
+ */
+async function pageShownAfterBBBHandler(event) {
+  window.removeEventListener("pageshow", pageShownAfterBBBHandler);
+  if (event.persisted) {
+    // Disable loading indicator
+    isLoadingAction.value = false;
+    // Hide modal
+    modalVisible.value = false;
+    // Reload
+    emit("changed");
+  }
+}
+
+/**
  * Join/start
  */
 function getJoinUrl() {
@@ -362,7 +378,9 @@ function getJoinUrl() {
     .then((response) => {
       // Check if response has a join url, if yes redirect
       if (response.data.url !== undefined) {
-        modalVisible.value = false;
+        // Add listener for when user returns to this page
+        // without a full page reload, state is restored from back/forward cache
+        window.addEventListener("pageshow", pageShownAfterBBBHandler);
         window.location = response.data.url;
       }
     })
