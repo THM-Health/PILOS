@@ -9,8 +9,13 @@ jobs:
 
     steps:
       - name: Get the latest BBB Recording Player release
-        run: curl -s https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest > player-release.json
-
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s --request GET \
+          --url "https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest" \
+          --header "Authorization: Bearer $GH_TOKEN" \
+          > player-release.json
       - name: Debug output
         run: cat player-release.json
       - name: Debug jq output
