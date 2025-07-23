@@ -1,9 +1,7 @@
 name: BBB Recording Player Updates
 
 on:
-  schedule:
-    - cron: "0 0 * * *" # Run every day at midnight
-
+  push:
 jobs:
   check-for-updates:
     name: Check for BBB Recording Player Updates
@@ -13,6 +11,12 @@ jobs:
       - name: Get the latest BBB Recording Player release
         run: curl -s https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest > player-release.json
 
+      - name: Debug output
+        run: cat player-release.json
+      - name: Debug jq output
+        run: jq -r '.tag_name' player-release.json
+      - name: Debug sed output
+        run: jq -r '.tag_name' player-release.json | sed 's/^v//'
       - name: Extract the latest BBB Recording Player version
         run: echo "LATEST_PLAYER_VERSION=$(jq -r '.tag_name' player-release.json | sed 's/^v//')" >> $GITHUB_ENV
       - name: Extract release notes
