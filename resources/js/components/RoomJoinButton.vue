@@ -39,7 +39,7 @@
     <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-    <Form :disabled="isLoadingAction || loadingError" @submit="getJoinUrl">
+    <Form id="startJoinForm" :disabled="isLoadingAction || loadingError" @submit="getJoinUrl">
       <OverlayComponent :show="isLoadingAction || loadingError" :opacity="0">
         <template #overlay>
           <LoadingRetryButton
@@ -48,9 +48,12 @@
           />
         </template>
 
-        <div v-if="!isLoadingAction && !loadingError">
+        <div
+          v-if="!isLoadingAction && !loadingError"
+          class="flex flex-col gap-2"
+        >
           <!-- Ask guests for their first and lastname -->
-          <div v-if="requiresGuestName" class="mb-4 flex flex-col gap-2">
+          <div v-if="requiresGuestName" class="flex flex-col gap-2">
             <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
             <InputText
               id="guest-name"
@@ -64,7 +67,7 @@
 
           <div
             v-if="features.attendance_recording"
-            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
+            class="flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{
               $t("rooms.recording_attendance_info")
@@ -88,7 +91,7 @@
 
           <div
             v-if="features.recording"
-            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
+            class="flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
             <i>{{ $t("rooms.recording_hint") }}</i>
@@ -127,7 +130,7 @@
 
           <div
             v-if="features.streaming"
-            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
+            class="flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
             <i>{{ $t("rooms.streaming_hint") }}</i>
@@ -147,8 +150,9 @@
           </div>
         </div>
       </OverlayComponent>
-
-      <div class="flex justify-end gap-2">
+    </form>
+    <template #footer>
+      <div class="flex shrink-0 justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
           data-test="dialog-cancel-button"
@@ -163,9 +167,10 @@
           :disabled="isLoadingAction || loadingError"
           size="small"
           type="submit"
+          form="startJoinForm"
         />
       </div>
-    </Form>
+    </template>
   </Dialog>
 </template>
 <script setup>
