@@ -366,7 +366,7 @@ return [
         ],
         'expert_mode' => [
             'activate' => 'Activate expert mode',
-            'deactivate' => 'Deactivate expert mode',
+            'deactivate' => 'Reset settings to basic mode',
             'warning' => [
                 'activate' => 'When activating the expert mode new default settings of the room type will no longer be applied.',
                 'deactivate' => 'When deactivating the expert mode all settings except the general settings will be reset to the default settings of the room type.',

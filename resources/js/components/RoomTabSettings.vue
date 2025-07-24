@@ -6,6 +6,12 @@
           <LoadingRetryButton :error="loadingError" @reload="load" />
         </template>
 
+        <RoomTabSettingsExpertModeButton
+          :disabled="disabled"
+          :expert-mode="settings.expert_mode"
+          @toggle-expert-mode="toggleExpertMode"
+        />
+
         <div
           v-for="(section, sectionIndex) in form"
           :key="sectionIndex"
@@ -89,11 +95,6 @@
             :disabled="disabled"
             :room="room"
             @transferred-ownership="emit('settingsChanged')"
-          />
-          <RoomTabSettingsExpertModeButton
-            :disabled="disabled"
-            :expert-mode="settings.expert_mode"
-            @toggle-expert-mode="toggleExpertMode"
           />
         </div>
         <Button

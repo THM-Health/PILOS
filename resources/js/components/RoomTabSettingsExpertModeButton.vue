@@ -1,16 +1,19 @@
 <template>
-  <Button
-    data-test="room-settings-expert-mode-button"
-    severity="secondary"
-    icon="fa-solid fa-cog"
-    :label="
-      expertMode
-        ? $t('rooms.settings.expert_mode.deactivate')
-        : $t('rooms.settings.expert_mode.activate')
-    "
-    :disabled="disabled"
-    @click="modalVisible = true"
-  />
+  <div class="flex justify-end">
+    <Button
+      data-test="room-settings-expert-mode-button"
+      severity="secondary"
+      :icon="expertMode ? 'fa-solid fa-rotate-left' : 'fa-solid fa-toolbox'"
+      icon="fa-solid fa-cog"
+      :label="
+        expertMode
+          ? $t('rooms.settings.expert_mode.deactivate')
+          : $t('rooms.settings.expert_mode.activate')
+      "
+      :disabled="disabled"
+      @click="modalVisible = true"
+    />
+  </div>
 
   <Dialog
     v-model:visible="modalVisible"
