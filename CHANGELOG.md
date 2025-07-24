@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Support for legacy 6-digit access codes imported from Greenlight v2 ([#2433])
+### Fixed
+
+- Cancel and Continue buttons not immediately visible on small screens in the Start/Join Room dialog ([#2333])
 
 ## [v4.7.0] - 2025-07-21
 
@@ -542,12 +545,17 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
+<<<<<<< HEAD
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.1...develop
 =======
 [#2281]: https://github.com/THM-Health/PILOS/pull/2281
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.1...develop
 >>>>>>> 52b3ec2d (Adjust changelog)
+=======
+[#2333]: https://github.com/THM-Health/PILOS/pull/2333
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.0...develop
+>>>>>>> b8e6a263 (Update changelog)
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
