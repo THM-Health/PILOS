@@ -39,6 +39,15 @@
           <Divider v-if="sectionIndex + 1 < form.length" class="col-span-12" />
         </div>
 
+        <Message
+          v-if="!settings.expert_mode"
+          severity="secondary"
+          icon="fa-solid fa-circle-info"
+        >
+          Looking for more options? Activate expert mode to fully customize the
+          room.
+        </Message>
+
         <div v-if="settingsDirty" class="sticky bottom-0 px-px py-4">
           <div class="rounded-lg dark:bg-surface-900/80">
             <Message
