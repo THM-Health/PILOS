@@ -172,7 +172,7 @@
   </Dialog>
 </template>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onUnmounted } from "vue";
 import { useAuthStore } from "../stores/auth.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
@@ -337,6 +337,10 @@ async function pageShownAfterBBBHandler(event) {
     emit("changed");
   }
 }
+
+onUnmounted(() => {
+  window.removeEventListener("pageshow", pageShownAfterBBBHandler);
+});
 
 /**
  * Join/start

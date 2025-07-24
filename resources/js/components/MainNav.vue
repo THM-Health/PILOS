@@ -141,7 +141,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useSettingsStore } from "../stores/settings.js";
 import { useAuthStore } from "../stores/auth.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -341,6 +341,10 @@ async function pageShownAfterLogoutHandler(event) {
     loadingStore.setLoadingFinished();
   }
 }
+
+onUnmounted(() => {
+  window.removeEventListener("pageshow", pageShownAfterLogoutHandler);
+});
 
 async function logout() {
   let response;
