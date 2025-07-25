@@ -45,7 +45,7 @@
           </span>
         </template>
         <template #footer>
-          <div class="flex w-full justify-start">
+          <div class="flex w-full justify-start gap-2">
             <!-- Reload page, in case the room settings changed -->
             <Button
               data-test="reload-room-button"
@@ -54,6 +54,13 @@
               icon="fa-solid fa-sync"
               :label="$t('rooms.try_again')"
               @click="reload"
+            />
+
+            <Button
+              icon="fa-solid fa-lock"
+              :label="$t('auth.login')"
+              as="router-link"
+              :to="{ name: 'login', query: { redirect: $route.fullPath } }"
             />
           </div>
         </template>
