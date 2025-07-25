@@ -54,8 +54,9 @@
           <!-- Ask guests for their first and lastname -->
           <div
             v-if="!authStore.isAuthenticated && !token"
-            class="mb-4 flex flex-col gap-2"
+            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
           >
+            <h4 class="font-bold">{{ $t("rooms.continue_as_guest") }}</h4>
             <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
             <InputText
               id="guest-name"
@@ -65,6 +66,17 @@
               :invalid="formErrors.fieldInvalid('name')"
             />
             <FormError :errors="formErrors.fieldError('name')" />
+            <divider
+              class="m-0 w-full before:border-surface-300 dark:before:border-surface-600"
+              pt:content:class="bg-surface-200 dark:bg-surface-800"
+              >{{ $t("app.or") }}</divider
+            >
+            <h4 class="font-bold">{{ $t("rooms.continue_as_user") }}</h4>
+            <Button
+              as="router-link"
+              :to="{ name: 'login', query: { redirect: $route.fullPath } }"
+              >{{ $t("auth.login") }}</Button
+            >
           </div>
 
           <div
