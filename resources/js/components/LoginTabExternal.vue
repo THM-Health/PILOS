@@ -1,5 +1,5 @@
 <template>
-  <div data-test="login-tab-external">
+  <div>
     <h1 class="p-card-title">{{ props.title }}</h1>
     <Button
       class="mt-4"

@@ -13,8 +13,11 @@ return [
     'error' => [
         'login_failed' => 'Login failed',
         'missing_attributes' => 'Attributes for authentication are missing.',
+        'openid_connect_exception' => 'Authentication failed due to an error.',
+        'openid_connect_network_exception' => 'Failed to connect to the authentication provider.',
         'reason' => 'Error reason',
-        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
+        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use.',
+        'try_again' => 'Please try logging in again or contact support if the problem persists.',
     ],
     'failed' => 'These credentials do not match our records.',
     'flash' => [
@@ -37,6 +40,12 @@ return [
     'logout_success' => 'Successfully logged out',
     'new_password' => 'New password',
     'new_password_confirmation' => 'New password confirmation',
+    'oidc' => [
+        'redirect' => 'Log in',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'Log in with OpenID Connect',
+        'logout_incomplete' => 'You are still logged in at the OpenID Connect provider.',
+    ],
     'password' => 'Password',
     'reset_password' => 'Reset password',
     'send_email_confirm_mail' => 'A verification email has been sent to :email. Please confirm the new email address by clicking on the link in the email.',

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pass color-scheme preference to BigBlueButton ([#2153], [#2154])
 - Metrics endpoint (`/metrics`) ([#2165])
 - Virus Scanning using ClamAV for all file uploads ([#77], [#1133])
+- OpenID Connect authentication ([#300], [#2281])
 
 ### Fixed
 
@@ -371,7 +372,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
+<<<<<<< HEAD
 [#77]: https://github.com/THM-Health/PILOS/issues/77
+=======
+[#300]: https://github.com/THM-Health/PILOS/issues/300
+>>>>>>> upstream/300-add-oidc
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
@@ -519,10 +524,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2165]: https://github.com/THM-Health/PILOS/pull/2165
 [#2222]: https://github.com/THM-Health/PILOS/pull/2222
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
+<<<<<<< HEAD
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.0...develop
+=======
+[#2281]: https://github.com/THM-Health/PILOS/pull/2281
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.6.1...develop
+>>>>>>> upstream/300-add-oidc
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2

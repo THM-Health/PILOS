@@ -10,16 +10,25 @@
               <TabList>
                 <Tab
                   v-if="settingsStore.getSetting('auth.ldap')"
+                  data-test="login-tab-button-ldap"
                   value="ldap"
                   >{{ $t("auth.ldap.tab_title") }}</Tab
                 >
                 <Tab
                   v-if="settingsStore.getSetting('auth.shibboleth')"
+                  data-test="login-tab-button-shibboleth"
                   value="shibboleth"
                   >{{ $t("auth.shibboleth.tab_title") }}</Tab
                 >
                 <Tab
+                  v-if="settingsStore.getSetting('auth.oidc')"
+                  data-test="login-tab-button-oidc"
+                  value="oidc"
+                  >{{ $t("auth.oidc.tab_title") }}</Tab
+                >
+                <Tab
                   v-if="settingsStore.getSetting('auth.local')"
+                  data-test="login-tab-button-local"
                   value="local"
                   >{{ $t("auth.email.tab_title") }}</Tab
                 >
@@ -49,6 +58,17 @@
                     :title="$t('auth.shibboleth.title')"
                     :redirect-label="$t('auth.shibboleth.redirect')"
                     :redirect-url="shibbolethRedirectUrl"
+                  />
+                </TabPanel>
+                <TabPanel
+                  v-if="settingsStore.getSetting('auth.oidc')"
+                  value="oidc"
+                >
+                  <LoginTabExternal
+                    id="oidc"
+                    :title="$t('auth.oidc.title')"
+                    :redirect-label="$t('auth.oidc.redirect')"
+                    :redirect-url="oidcRedirectUrl"
                   />
                 </TabPanel>
                 <TabPanel
@@ -105,9 +125,18 @@ onMounted(() => {
     activeTab.value = "ldap";
   } else if (settingsStore.getSetting("auth.shibboleth")) {
     activeTab.value = "shibboleth";
+  } else if (settingsStore.getSetting("auth.oidc")) {
+    activeTab.value = "oidc";
   } else {
     activeTab.value = "local";
   }
+});
+
+const oidcRedirectUrl = computed(() => {
+  const url = "/auth/oidc/redirect";
+  return route.query.redirect
+    ? url + "?redirect=" + encodeURIComponent(route.query.redirect)
+    : url;
 });
 
 const shibbolethRedirectUrl = computed(() => {

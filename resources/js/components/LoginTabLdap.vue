@@ -1,5 +1,5 @@
 <template>
-  <div data-test="login-tab-ldap">
+  <div>
     <h1 class="p-card-title">{{ props.title }}</h1>
     <form @submit.prevent="submit">
       <div class="flex flex-col gap-2" data-test="username-field">

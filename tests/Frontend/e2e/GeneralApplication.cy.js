@@ -173,7 +173,7 @@ describe("General", function () {
     // Should be redirected to rooms overview, but since the user is not authenticated, should be redirected to login page
     cy.url().should("contain", "/login?redirect=/rooms");
 
-    cy.get('[data-test="login-tab-local"]').should("be.visible");
+    cy.get('[data-test="login-tab-button-local"]').should("be.visible");
   });
 
   it("disabled welcome page redirect authenticated users to rooms overview", function () {
