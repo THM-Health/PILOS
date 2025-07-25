@@ -11,8 +11,13 @@ jobs:
 
     steps:
       - name: Get the latest BBB Recording Player release
-        run: curl -s https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest > player-release.json
-
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s --request GET \
+          --url "https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest" \
+          --header "Authorization: Bearer $GH_TOKEN" \
+          > player-release.json
       - name: Extract the latest BBB Recording Player version
         run: echo "LATEST_PLAYER_VERSION=$(jq -r '.tag_name' player-release.json | sed 's/^v//')" >> $GITHUB_ENV
       - name: Extract release notes
