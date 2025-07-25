@@ -41,7 +41,7 @@
     <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-    <form ref="joinForm" @submit.prevent="getJoinUrl">
+    <form ref="joinForm" id="startJoinForm" @submit.prevent="getJoinUrl">
       <OverlayComponent :show="isLoadingAction || loadingError" :opacity="0">
         <template #overlay>
           <LoadingRetryButton
@@ -164,8 +164,9 @@
           </div>
         </div>
       </OverlayComponent>
-
-      <div class="flex justify-end gap-2">
+    </form>
+    <template #footer>
+      <div class="mt-3 flex shrink-0 justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
           data-test="dialog-cancel-button"
@@ -180,9 +181,10 @@
           :disabled="isLoadingAction || loadingError"
           size="small"
           type="submit"
+          form="startJoinForm"
         />
       </div>
-    </form>
+    </template>
   </Dialog>
 </template>
 <script setup>

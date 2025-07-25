@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Cancel and Continue buttons not immediately visible on small screens in the Start/Join Room dialog ([#2333])
+
 ## [v4.7.0] - 2025-07-21
 
 ### Added
@@ -528,6 +532,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
+[#2333]: https://github.com/THM-Health/PILOS/pull/2333
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.0...develop
 =======
 [#2281]: https://github.com/THM-Health/PILOS/pull/2281

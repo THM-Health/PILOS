@@ -3,7 +3,7 @@ import { useDark } from "@vueuse/core";
 const isDark = useDark();
 </script>
 <template>
-  <div class="relative h-[1em] w-[1em] text-xl">
+  <div class="relative h-[1em] w-[1.25em] text-xl">
     <Transition name="dark">
       <i v-if="isDark" class="fa-solid fa-moon absolute w-full text-center" />
     </Transition>
