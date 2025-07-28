@@ -32,7 +32,7 @@
     "eslint-plugin-vue": "^10.3.0",
     "globals": "^16.3.0",
     "happo-cypress": "^4.3.1",
-    "happo-e2e": "^4.1.1",
+    "happo-e2e": "^4.1.2",
     "happo.io": "^13.0.0",
     "nyc": "^17.1.0",
     "prettier": "^3.6.2",
