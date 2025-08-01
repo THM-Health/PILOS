@@ -9,10 +9,7 @@ use App\Auth\OIDC\OpenIDConnectNetworkException;
 use App\Auth\OIDC\OpenIDConnectValidationException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
-use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
-use Jose\Component\Signature\Algorithm\EdDSA;
 use Jose\Component\Signature\Algorithm\ES256;
 use Jose\Component\Signature\Algorithm\ES384;
 use Jose\Component\Signature\Algorithm\ES512;
@@ -26,13 +23,14 @@ use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\Algorithm\RS384;
 use Jose\Component\Signature\Algorithm\RS512;
 use Jose\Component\Signature\JWS;
-use Jose\Component\Signature\JWSBuilder;
-use Jose\Component\Signature\Serializer\CompactSerializer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\JWTTestHelpers;
 
 class OpenIDConnectClientTest extends TestCase
 {
+    use JWTTestHelpers;
+
     private $discovery = [
         'issuer' => 'https://example.org',
         'authorization_endpoint' => 'https://example.org/authorize',
@@ -72,48 +70,6 @@ class OpenIDConnectClientTest extends TestCase
             $thrownException = get_class($e);
         }
         $this->assertNull($thrownException, "VerifyJWSSignature should not throw an exception, but got: $thrownException");
-    }
-
-    public function createJWS(array $claims, JWK $privateKey, string $alg, array $additionalHeaders = []): JWS
-    {
-        $algorithmManager = new AlgorithmManager([
-            new RS256,
-            new RS384,
-            new RS512,
-
-            new PS256,
-            new PS384,
-            new PS512,
-
-            new ES256,
-            new ES384,
-            new ES512,
-
-            new EdDSA,
-
-            new HS256,
-            new HS384,
-            new HS512,
-        ]);
-
-        $jwsBuilder = new JWSBuilder($algorithmManager);
-
-        $payload = json_encode($claims);
-
-        return $jwsBuilder
-            ->create()
-            ->withPayload($payload)
-            ->addSignature($privateKey, ['alg' => $alg, ...$additionalHeaders])
-            ->build();
-    }
-
-    public function signClaims(array $claims, JWK $privateKey, string $alg, array $additionalHeaders = []): string
-    {
-        $jws = $this->createJWS($claims, $privateKey, $alg, $additionalHeaders);
-
-        $serializer = new CompactSerializer;
-
-        return $serializer->serialize($jws, 0);
     }
 
     public function test_verify_jwt_signature_with_rsassa()

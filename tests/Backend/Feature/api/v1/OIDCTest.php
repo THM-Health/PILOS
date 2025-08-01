@@ -12,32 +12,16 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
-use Jose\Component\Signature\Algorithm\EdDSA;
-use Jose\Component\Signature\Algorithm\ES256;
-use Jose\Component\Signature\Algorithm\ES384;
-use Jose\Component\Signature\Algorithm\ES512;
-use Jose\Component\Signature\Algorithm\HS256;
-use Jose\Component\Signature\Algorithm\HS384;
-use Jose\Component\Signature\Algorithm\HS512;
-use Jose\Component\Signature\Algorithm\PS256;
-use Jose\Component\Signature\Algorithm\PS384;
-use Jose\Component\Signature\Algorithm\PS512;
 use Jose\Component\Signature\Algorithm\RS256;
-use Jose\Component\Signature\Algorithm\RS384;
-use Jose\Component\Signature\Algorithm\RS512;
-use Jose\Component\Signature\JWS;
-use Jose\Component\Signature\JWSBuilder;
-use Jose\Component\Signature\Serializer\CompactSerializer;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\JWTTestHelpers;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
 class OIDCTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use JWTTestHelpers, RefreshDatabase, WithFaker;
 
     private $mapping = '
     {
@@ -127,54 +111,6 @@ class OIDCTest extends TestCase
         Role::factory()->create(['name' => 'guests']);
     }
 
-    public function createJWS(array $claims, JWK $privateKey, string $alg, array $additionalHeaders = []): JWS
-    {
-        $algorithmManager = new AlgorithmManager([
-            new RS256,
-            new RS384,
-            new RS512,
-
-            new PS256,
-            new PS384,
-            new PS512,
-
-            new ES256,
-            new ES384,
-            new ES512,
-
-            new EdDSA,
-
-            new HS256,
-            new HS384,
-            new HS512,
-        ]);
-
-        $jwsBuilder = new JWSBuilder($algorithmManager);
-
-        $payload = json_encode($claims);
-
-        return $jwsBuilder
-            ->create()
-            ->withPayload($payload)
-            ->addSignature($privateKey, ['alg' => $alg, ...$additionalHeaders])
-            ->build();
-    }
-
-    public function signClaims(array $claims, JWK $privateKey, string $alg, array $additionalHeaders = []): string
-    {
-        $jws = $this->createJWS($claims, $privateKey, $alg, $additionalHeaders);
-
-        $serializer = new CompactSerializer;
-
-        return $serializer->serialize($jws, 0);
-    }
-
-    public function base64url_encode($data)
-    {
-        // Convert Base64 to Base64URL by replacing "+" with "-" and "/" with "_" and remove tailing "=" if any
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-    }
-
     /**
      * Test that the redirect route is disabled if disabled in env
      *
@@ -206,7 +142,7 @@ class OIDCTest extends TestCase
 
     /**
      * Test that the redirect route redirects to the external login page
-     * with an error if the OIDC provider is not reachable
+     * with an error if the OIDC provider returns an invalid configuration
      *
      * @return void
      */
