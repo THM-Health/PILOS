@@ -5,7 +5,8 @@
     :aria-label="$t('rooms.files.view')"
     :disabled="disabled"
     target="_blank"
-    :icon="loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-eye'"
+    :loading="loading"
+    icon="fa-solid fa-eye"
     data-test="room-files-view-button"
     @click="downloadFile"
   />

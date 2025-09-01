@@ -36,7 +36,6 @@
           :label="$t('app.save')"
           severity="success"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction"
           data-test="dialog-save-button"
           @click="save"
         />

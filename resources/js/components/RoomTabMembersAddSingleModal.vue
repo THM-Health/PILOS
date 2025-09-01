@@ -24,7 +24,6 @@
         <Button
           :label="$t('rooms.members.modals.add.add')"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction"
           data-test="dialog-save-button"
           @click="save"
         />

@@ -28,7 +28,6 @@
         <div class="flex justify-end">
           <Button
             v-if="!viewOnly"
-            :disabled="isBusy"
             type="submit"
             :loading="isBusy"
             icon="fa-solid fa-save"

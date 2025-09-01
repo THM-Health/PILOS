@@ -158,7 +158,6 @@
           :label="$t('rooms.modals.transfer_ownership.transfer')"
           severity="danger"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction"
           data-test="dialog-continue-button"
           @click="transferOwnership"
         />
