@@ -49,7 +49,6 @@
         type="submit"
         data-test="login-button"
         class="mt-6"
-        :disabled="props.loading"
         :loading="props.loading"
         icon="fa-solid fa-right-to-bracket"
         :label="props.submitLabel"

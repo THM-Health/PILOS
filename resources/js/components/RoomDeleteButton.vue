@@ -39,7 +39,6 @@
           :label="$t('app.yes')"
           severity="danger"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction"
           data-test="dialog-continue-button"
           @click="deleteRoom"
         />

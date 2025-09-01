@@ -24,7 +24,8 @@
             :aria-label="$t('app.reload')"
             severity="secondary"
             :disabled="props.loading || disableReload"
-            :icon="props.loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
+            :loading="props.loading"
+            icon="fa-solid fa-sync"
             data-test="reload-room-button"
             @click="emit('reload')"
           />

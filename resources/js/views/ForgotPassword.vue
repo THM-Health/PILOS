@@ -25,7 +25,6 @@
               <Button
                 class="mt-6"
                 type="submit"
-                :disabled="loading"
                 :loading="loading"
                 :label="$t('auth.send_password_reset_link')"
                 data-test="send-reset-link-button"

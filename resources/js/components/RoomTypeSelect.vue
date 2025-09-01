@@ -9,7 +9,8 @@
       v-tooltip="$t('app.reload')"
       :aria-label="$t('app.reload')"
       :disabled="disabled || isLoadingAction"
-      :icon="isLoadingAction ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
+      :loading="isLoadingAction"
+      icon="fa-solid fa-sync"
       data-test="reload-room-types-button"
       @click="reloadRoomTypes"
     />

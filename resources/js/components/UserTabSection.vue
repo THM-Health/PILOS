@@ -79,7 +79,6 @@
           <Button
             :label="$t('app.reload')"
             :loading="isBusy"
-            :disabled="isBusy"
             data-test="stale-dialog-reload-button"
             @click="refreshUser"
           />

@@ -54,7 +54,6 @@
 
               <Button
                 type="submit"
-                :disabled="loading"
                 :loading="loading"
                 :label="
                   welcome ? $t('auth.set_password') : $t('auth.change_password')
