@@ -236,7 +236,7 @@ describe("Admin server pools view", function () {
 
     // Close dropdown
     cy.get(".multiselect__select").click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Check that save button is shown
     cy.get('[data-test="server-pools-save-button"]')

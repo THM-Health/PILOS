@@ -436,7 +436,6 @@ describe("Admin room types view room type actions", function () {
     });
     cy.get('[data-test="server-pool-dropdown"]').click();
     cy.get(".multiselect__content")
-      .eq(0)
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 4);
