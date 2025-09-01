@@ -95,7 +95,7 @@ const props = defineProps({
     default: false,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
   disableReload: {

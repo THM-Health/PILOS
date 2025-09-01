@@ -203,7 +203,7 @@ const props = defineProps({
     default: null,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
 });

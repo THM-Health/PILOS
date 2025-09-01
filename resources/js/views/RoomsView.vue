@@ -119,8 +119,8 @@
                     id="access-code"
                     v-model="accessCodeInput"
                     autofocus
-                    mask="999-999-999"
-                    placeholder="123-456-789"
+                    :mask="room.legacy_code ? '999-999' : '999-999-999'"
+                    :placeholder="room.legacy_code ? '123-456' : '123-456-789'"
                     :invalid="accessCodeInvalid"
                     :disabled="authThrottledFor > 0"
                     class="text-center"
@@ -530,8 +530,8 @@ function setPageTitle(roomName) {
  * Handle login with access code
  */
 function login() {
-  // Parse to int
-  accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, ""));
+  // Remove dashes from the access code
+  accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
   // Reload the room with an access code
   reload();
 }

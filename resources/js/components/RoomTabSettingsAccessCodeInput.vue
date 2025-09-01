@@ -29,7 +29,7 @@
         <!-- Access code -->
         <InputText
           :id="'room-setting-' + setting"
-          v-model.number="model[setting]"
+          v-model="model[setting]"
           :disabled="disabled"
           :invalid="invalid"
           :placeholder="placeholder"
@@ -108,7 +108,8 @@ const props = defineProps({
  * Create a new access code for the room
  */
 function createAccessCode() {
-  model.value[props.setting] =
+  const newCode =
     Math.floor(Math.random() * (999999999 - 111111112)) + 111111111;
+  model.value[props.setting] = newCode.toString();
 }
 </script>
