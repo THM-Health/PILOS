@@ -180,7 +180,7 @@ describe("Admin room types edit", function () {
           .and("have.text", "Exam 01");
       });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-pool-field"]')
       .should("be.visible")
       .and("include.text", "app.server_pool")
@@ -217,7 +217,7 @@ describe("Admin room types edit", function () {
 
     cy.get(".multiselect__option").eq(1).click();
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-pool-dropdown"]').within(() => {
       cy.get(".multiselect__tags").should("include.text", "Production");
     });
@@ -899,7 +899,7 @@ describe("Admin room types edit", function () {
       });
 
     // Check role setting and change it
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="role-field"]')
       .should("be.visible")
       .within(() => {
@@ -922,7 +922,6 @@ describe("Admin room types edit", function () {
 
     // Check if correct options are shown
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 5);
@@ -999,8 +998,6 @@ describe("Admin room types edit", function () {
     );
 
     cy.get(".multiselect__content")
-      .eq(1)
-
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="previous-page-button"]')
@@ -1031,7 +1028,6 @@ describe("Admin room types edit", function () {
     cy.wait("@rolesRequest");
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="previous-page-button"]').should("not.be.disabled");
@@ -2338,7 +2334,6 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="role-dropdown"]').click();
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 5);
@@ -2353,7 +2348,6 @@ describe("Admin room types edit", function () {
     }).as("rolesRequest");
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();
@@ -2422,7 +2416,6 @@ describe("Admin room types edit", function () {
     }).as("rolesRequest");
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();
@@ -2511,7 +2504,6 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="server-pool-dropdown"]').click();
 
     cy.get(".multiselect__content")
-      .eq(0)
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 3);
@@ -2526,7 +2518,6 @@ describe("Admin room types edit", function () {
     }).as("serverPoolsRequest");
 
     cy.get(".multiselect__content")
-      .eq(0)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();
@@ -2591,7 +2582,6 @@ describe("Admin room types edit", function () {
     }).as("serverPoolsRequest");
 
     cy.get(".multiselect__content")
-      .eq(0)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();

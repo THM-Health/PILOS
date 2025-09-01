@@ -1851,7 +1851,7 @@ describe("Rooms view settings", function () {
 
         // Select new owner
         cy.get(".multiselect__option").eq(1).click();
-        cy.get(".multiselect__content").should("not.be.visible");
+        cy.get(".multiselect__content").should("not.exist");
 
         // Check that role checkboxes and labels are shown correctly
         cy.get('[data-test="participant-role-group"]').within(() => {
@@ -1987,7 +1987,7 @@ describe("Rooms view settings", function () {
 
     // Select new owner
     cy.get(".multiselect__option").eq(1).click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     cy.get("#no-role").click();
 
@@ -2108,7 +2108,7 @@ describe("Rooms view settings", function () {
     // Select new owner
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").eq(1).click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Transfer ownership with 422 error (role missing)
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {

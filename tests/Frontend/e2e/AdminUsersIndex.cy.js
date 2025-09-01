@@ -650,7 +650,7 @@ describe("Admin users index", function () {
     ]);
 
     // Check that multiselect is closed and disabled
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="role-dropdown"]')
       .find(".multiselect__tags")
       .should("include.text", "admin.users.role_filter");
@@ -913,7 +913,7 @@ describe("Admin users index", function () {
       });
     });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="clear-roles-button"]').should("not.exist");
 
     cy.get('[data-test="role-dropdown"]')
@@ -971,7 +971,7 @@ describe("Admin users index", function () {
       });
     });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.contains("admin.users.no_data_filtered").should("be.visible");
     cy.get('[data-test="user-item"]').should("have.length", 0);
 
@@ -1005,7 +1005,7 @@ describe("Admin users index", function () {
       });
     });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.contains("admin.users.no_data").should("be.visible");
     cy.get('[data-test="user-item"]').should("have.length", 0);
 
@@ -1138,7 +1138,7 @@ describe("Admin users index", function () {
       });
     });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="user-item"]').should("have.length", 1);
     cy.get('[data-test="user-item"]').eq(0).should("include.text", "John");
 

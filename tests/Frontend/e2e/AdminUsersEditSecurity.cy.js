@@ -345,7 +345,7 @@ describe("Admin users edit email", function () {
     });
 
     // Check that dropdown is hidden
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Save new roles
     cy.fixture("userDataUser").then((user) => {
