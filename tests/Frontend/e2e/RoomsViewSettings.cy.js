@@ -1061,7 +1061,7 @@ describe("Rooms view settings", function () {
               expect(interception.request.body).to.eql({
                 name: "Meeting Two",
                 expert_mode: true,
-                access_code: parseInt(newAccessCodeValue),
+                access_code: newAccessCodeValue,
                 allow_guests: false,
                 short_description: "Short description two",
                 everyone_can_start: true,
