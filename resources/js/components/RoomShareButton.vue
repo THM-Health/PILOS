@@ -115,6 +115,8 @@ const roomUrl = computed(() => {
 });
 
 const formattedAccessCode = computed(() => {
-  return props.room.access_code.match(/.{1,3}/g).join("-");
+  return String(props.room.access_code)
+    .match(/.{1,3}/g)
+    .join("-");
 });
 </script>
