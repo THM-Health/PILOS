@@ -137,7 +137,7 @@ class RecordingTest extends TestCase
             ->assertForbidden();
 
         // Access as guest with wrong access code
-        $this->withHeaders(['Access-Code' => 111])
+        $this->withHeaders(['Access-Code' => '111'])
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertUnauthorized();
 
@@ -155,7 +155,7 @@ class RecordingTest extends TestCase
 
         // Access as authenticated user, with wrong access code
         $this->actingAs($this->user)
-            ->withHeaders(['Access-Code' => 111])
+            ->withHeaders(['Access-Code' => '111'])
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertUnauthorized();
 
@@ -383,7 +383,7 @@ class RecordingTest extends TestCase
             ->assertForbidden();
 
         // Access as guest with wrong access code
-        $this->withHeaders(['Access-Code' => 111])
+        $this->withHeaders(['Access-Code' => '111'])
             ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
             ->assertUnauthorized();
 

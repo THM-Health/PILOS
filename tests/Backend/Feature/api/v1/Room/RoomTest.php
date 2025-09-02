@@ -564,19 +564,19 @@ class RoomTest extends TestCase
 
         // Try 6 times with wrong access code
         for ($i = 0; $i < 6; $i++) {
-            $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
                 ->assertUnauthorized();
         }
 
         // Check if rate limit is reached
-        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(429);
 
         // Time travel 1 minute to reset rate limit
         $this->travel(1)->minutes();
 
         // Try again
-        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertUnauthorized();
     }
 
