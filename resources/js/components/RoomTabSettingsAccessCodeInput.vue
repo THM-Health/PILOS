@@ -108,8 +108,14 @@ const props = defineProps({
  * Create a new access code for the room
  */
 function createAccessCode() {
-  const newCode =
-    Math.floor(Math.random() * (999999999 - 111111112)) + 111111111;
+  // Generate a random value between 0 and 1
+  const array = new Uint32Array(1);
+  window.crypto.getRandomValues(array);
+  const randomValue = array[0] / (0xffffffff + 1);
+
+  const min = 111_111_111;
+  const max = 999_999_999;
+  const newCode = Math.floor(randomValue * (max - min + 1)) + min;
   model.value[props.setting] = newCode.toString();
 }
 </script>
