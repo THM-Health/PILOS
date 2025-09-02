@@ -3,6 +3,7 @@
 use App\Models\Room;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -25,8 +26,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('rooms', function (Blueprint $table) {
-            $table->integer('access_code')->length(11)->nullable()->change();
-        });
+        $driver = DB::connection($this->getConnection())->getDriverName();
+
+        switch ($driver) {
+            case 'pgsql':
+                DB::statement('ALTER TABLE rooms ALTER COLUMN access_code TYPE integer USING access_code::integer');
+                break;
+            default:
+                Schema::table('rooms', function (Blueprint $table) {
+                    $table->integer('access_code')->length(11)->nullable()->change();
+                });
+        }
     }
 };
