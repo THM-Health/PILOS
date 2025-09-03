@@ -76,7 +76,7 @@ import { EVENT_FORBIDDEN } from "../constants/events.js";
 
 const props = defineProps({
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
   token: {
