@@ -66,6 +66,7 @@ class Room extends Model
             'expert_mode' => 'boolean',
             'delete_inactive' => 'datetime',
             'access_code' => 'integer',
+            'dialin_pin' => 'integer',
         ];
 
         // Generate casts for settings that are also present in the room type

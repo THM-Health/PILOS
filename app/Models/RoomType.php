@@ -21,6 +21,8 @@ class RoomType extends Model
             // Default room settings
             'has_access_code_default' => 'boolean',
             'has_access_code_enforced' => 'boolean',
+            'has_dialin_pin_default' => 'boolean',
+            'has_dialin_pin_enforced' => 'boolean',
         ];
 
         // Generate casts for default room settings (that are also present in the room)

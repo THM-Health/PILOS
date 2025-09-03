@@ -98,7 +98,8 @@ class MeetingService
             ->setLockSettingsDisableNotes($this->meeting->room->getRoomSetting('lock_settings_disable_note'))
             ->setLockSettingsHideUserList($this->meeting->room->getRoomSetting('lock_settings_hide_user_list'))
             ->setLockSettingsLockOnJoin(true)
-            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'));
+            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
+            ->setVoiceBridge($this->meeting->room->getRoomSetting('dialin_pin'));
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));

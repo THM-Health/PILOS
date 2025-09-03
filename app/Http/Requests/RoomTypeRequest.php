@@ -27,6 +27,8 @@ class RoomTypeRequest extends FormRequest
             // Default room settings
             'has_access_code_default' => ['required', 'boolean'],
             'has_access_code_enforced' => ['required', 'boolean'],
+            'has_dialin_pin_default' => ['required', 'boolean'],
+            'has_dialin_pin_enforced' => ['required', 'boolean'],
         ];
 
         // Default room settings
@@ -52,6 +54,8 @@ class RoomTypeRequest extends FormRequest
         $locales = [
             'has_access_code_default' => __('validation.room_type_attribute_default', ['attribute' => __('validation.attributes.has_access_code')]),
             'has_access_code_enforced' => __('validation.room_type_attribute_enforced', ['attribute' => __('validation.attributes.has_access_code')]),
+            'has_dialin_pin_default' => __('validation.room_type_attribute_default', ['attribute' => __('validation.attributes.has_dialin_pin')]),
+            'has_dialin_pin_enforced' => __('validation.room_type_attribute_enforced', ['attribute' => __('validation.attributes.has_dialin_pin')]),
         ];
 
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {

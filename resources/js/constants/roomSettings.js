@@ -50,6 +50,9 @@ export const ROOM_SETTINGS_DEFINITION = {
   visibility: {
     expert_setting: true,
   },
+  dialin_pin: {
+    expert_setting: true,
+  },
   welcome: {
     expert_setting: true,
     has_no_room_type_default: true,

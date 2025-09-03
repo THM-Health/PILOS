@@ -109,6 +109,8 @@ class RoomTypeController extends Controller
 
         $roomType->has_access_code_default = $request->has_access_code_default;
         $roomType->has_access_code_enforced = $request->has_access_code_enforced;
+        $roomType->has_dialin_pin_default = $request->has_dialin_pin_default;
+        $roomType->has_dialin_pin_enforced = $request->has_dialin_pin_enforced; 
 
         $roomType->save();
 
@@ -145,6 +147,8 @@ class RoomTypeController extends Controller
 
         $roomType->has_access_code_default = $request->has_access_code_default;
         $roomType->has_access_code_enforced = $request->has_access_code_enforced;
+        $roomType->has_dialin_pin_default = $request->has_dialin_pin_default;
+        $roomType->has_dialin_pin_enforced = $request->has_dialin_pin_enforced;
 
         $roomType->save();
 
