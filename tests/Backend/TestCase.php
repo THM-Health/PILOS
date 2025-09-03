@@ -90,7 +90,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function createAccessCode(int $digits = 9): string
     {
-       return $this->faker->numerify(Str::repeat('#', $digits));
+        return $this->faker->numerify(Str::repeat('#', $digits));
     }
 
     protected function tearDown(): void

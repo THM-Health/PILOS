@@ -552,7 +552,7 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['current_user' => null]);
 
         // Try with legacy 6 digit access code
-        $room->access_code = "012345";
+        $room->access_code = '012345';
         $room->save();
         $this->withHeaders(['Access-Code' => '012345'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
@@ -2299,28 +2299,28 @@ class RoomTest extends TestCase
         $this->assertNull($room->access_code);
 
         // Keep 6-digit access code
-        $room->access_code = "012345";
+        $room->access_code = '012345';
         $room->save();
-        $settings['access_code'] = "012345";
+        $settings['access_code'] = '012345';
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertSuccessful();
         $room->refresh();
         $this->assertEquals($settings['access_code'], $room->access_code);
 
         // Prevent setting a new 6-digit access code
-        $settings['access_code'] = "654321";
+        $settings['access_code'] = '654321';
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['access_code']);
 
         // Allow setting a new 9-digit access code
-        $settings['access_code'] = "012345678";
+        $settings['access_code'] = '012345678';
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertSuccessful();
         $room->refresh();
         $this->assertEquals($settings['access_code'], $room->access_code);
 
         // Prevent downgrading to a 6-digit access code
-        $settings['access_code'] = "012345";
+        $settings['access_code'] = '012345';
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['access_code']);
     }
