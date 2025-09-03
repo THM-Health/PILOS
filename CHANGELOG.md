@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 # Changed
 
-- Improve secure access code generation ([#2433])
+- Value range and randomness of access code generation ([#2433])
 
 # Fixed
 
