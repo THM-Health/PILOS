@@ -108,14 +108,28 @@ const props = defineProps({
  * Create a new access code for the room
  */
 function createAccessCode() {
-  // Generate a random value between 0 and 1
-  const array = new Uint32Array(1);
-  window.crypto.getRandomValues(array);
-  const randomValue = array[0] / (0xffffffff + 1);
-
-  const min = 111_111_111;
+  // Define the minimum and maximum values for the access code range
+  const min = 0;
   const max = 999_999_999;
-  const newCode = Math.floor(randomValue * (max - min + 1)) + min;
-  model.value[props.setting] = newCode.toString();
+
+  // Calculate the range and the largest multiple of the range that fits in a 32-bit unsigned integer
+  const range = max - min + 1;
+  const limit = Math.floor(0xffffffff / range) * range;
+
+  // Create a array to hold the random uint32 value
+  const array = new Uint32Array(1);
+
+  // Generate a random value within the acceptable range using rejection sampling
+  do {
+    crypto.getRandomValues(array);
+  } while (array[0] > limit);
+
+  // Calculate the random number within the desired range
+  // using modulo to fit it into the range, only possible because of the rejection sampling above
+  // otherwise this would introduce bias
+  const randomNumber = array[0] % range;
+
+  // Convert the random number to a zero-padded 9-digit string
+  model.value[props.setting] = randomNumber.toString().padStart(9, "0");
 }
 </script>
