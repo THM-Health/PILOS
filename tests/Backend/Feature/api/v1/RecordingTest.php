@@ -119,7 +119,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = true;
-        $room->access_code = (string) $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -203,7 +203,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
-        $room->access_code = (string) $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -244,7 +244,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
-        $room->access_code = (string) $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -312,7 +312,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
-        $room->access_code = (string) $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -375,7 +375,7 @@ class RecordingTest extends TestCase
         $recording->save();
 
         $room->allow_guests = true;
-        $room->access_code = (string) $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         // Access as guest without access code
@@ -403,7 +403,7 @@ class RecordingTest extends TestCase
         $recording->save();
 
         $room->allow_guests = false;
-        $room->access_code = (string) $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         // Access as guest with correct access code
@@ -422,7 +422,7 @@ class RecordingTest extends TestCase
         $recording->save();
 
         $room->allow_guests = false;
-        $room->access_code = (string) $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         // Create token
