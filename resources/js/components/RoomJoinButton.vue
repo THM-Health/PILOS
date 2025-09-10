@@ -4,7 +4,6 @@
     v-if="props.running"
     data-test="room-join-button"
     class="p-button-block"
-    :disabled="isLoadingAction || disabled"
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.join')"
@@ -16,7 +15,6 @@
     v-else-if="canStart"
     data-test="room-start-button"
     class="p-button-block"
-    :disabled="isLoadingAction || disabled"
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.start')"
@@ -205,7 +203,7 @@ const props = defineProps({
     default: null,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
 });

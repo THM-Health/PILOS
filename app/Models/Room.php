@@ -65,7 +65,6 @@ class Room extends Model
         $casts = [
             'expert_mode' => 'boolean',
             'delete_inactive' => 'datetime',
-            'access_code' => 'integer',
         ];
 
         // Generate casts for settings that are also present in the room type

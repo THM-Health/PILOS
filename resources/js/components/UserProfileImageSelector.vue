@@ -106,7 +106,6 @@
         <Button
           :label="$t('admin.users.image.save')"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction"
           data-test="dialog-save-button"
           @click="save"
         />

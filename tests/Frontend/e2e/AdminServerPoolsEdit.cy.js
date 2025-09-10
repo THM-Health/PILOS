@@ -138,7 +138,7 @@ describe("Admin server pools edit", function () {
         cy.get("#description").type("Server Pool 1 description");
       });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-field"]')
       .should("be.visible")
       .within(() => {
@@ -301,7 +301,7 @@ describe("Admin server pools edit", function () {
     });
 
     // Check that dropdown is hidden
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Save changes
     cy.fixture("servers.json").then((servers) => {
@@ -397,7 +397,7 @@ describe("Admin server pools edit", function () {
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").eq(0).click();
     cy.get(".multiselect__select").click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/serverPools/1", {

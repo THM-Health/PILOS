@@ -29,7 +29,6 @@
               v-tooltip="$t('app.reload')"
               :aria-label="$t('app.reload')"
               severity="secondary"
-              :disabled="isBusy"
               icon="fa-solid fa-sync"
               :loading="isBusy"
               data-test="meetings-reload-button"

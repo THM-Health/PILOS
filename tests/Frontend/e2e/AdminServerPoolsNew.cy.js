@@ -86,7 +86,7 @@ describe("Admin server pools new", function () {
           .type("Server Pool 1 description");
       });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-field"]')
       .should("be.visible")
       .and("include.text", "app.servers")
@@ -165,7 +165,7 @@ describe("Admin server pools new", function () {
     });
 
     // Check that dialog is closed
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Save new server pool
     cy.fixture("serverPool.json").then((serverPool) => {
@@ -249,7 +249,7 @@ describe("Admin server pools new", function () {
       .type("Server Pool 1 description");
 
     // Check server setting and change it
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-field"]')
       .should("be.visible")
       .within(() => {
@@ -398,7 +398,7 @@ describe("Admin server pools new", function () {
     cy.get(".multiselect__select").click({ force: true }); // ToDo remove force when possible
 
     // Check that dialog is closed
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Save new server pool
     cy.fixture("servers.json").then((servers) => {
@@ -448,7 +448,7 @@ describe("Admin server pools new", function () {
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").eq(0).click();
     cy.get(".multiselect__select").click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Check with 422 error
     cy.intercept("POST", "api/v1/serverPools", {

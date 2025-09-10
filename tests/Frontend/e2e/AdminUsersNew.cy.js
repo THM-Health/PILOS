@@ -187,7 +187,7 @@ describe("Admin users new", function () {
     );
 
     // Check role setting and change it
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="role-field"]')
       .should("be.visible")
       .and("include.text", "app.roles")
@@ -262,7 +262,7 @@ describe("Admin users new", function () {
     });
 
     // Check that dialog is closed
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Check password settings and change them
     cy.get('[data-test="generate-password-field"]')
@@ -399,7 +399,7 @@ describe("Admin users new", function () {
     cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
 
     // Check role setting and change it
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="role-field"]')
       .should("be.visible")
       .within(() => {
@@ -572,7 +572,7 @@ describe("Admin users new", function () {
     cy.get(".multiselect__select").click({ force: true }); // ToDo remove force when possible
 
     // Check that dialog is closed
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Check password settings and change them
     cy.get("#generate_password").and("not.be.checked").click();
@@ -640,7 +640,7 @@ describe("Admin users new", function () {
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").eq(0).click();
     cy.get(".multiselect__select").click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get("#new_password").type("Password!123");
     cy.get("#new_password_confirmation").type("Password!123");
 

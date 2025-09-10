@@ -491,7 +491,7 @@ describe("Admin users view user actions", function () {
 
     // Close dropdown
     cy.get(".multiselect__select").click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Change value of password field
     cy.get("#new_password").type("secretPassword123#");

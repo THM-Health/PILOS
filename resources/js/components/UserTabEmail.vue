@@ -57,7 +57,6 @@
         <div class="flex justify-end">
           <Button
             v-if="!viewOnly && userPermissions.can('updateAttributes', user)"
-            :disabled="isBusy"
             type="submit"
             :loading="isBusy"
             :label="$t('auth.change_email')"

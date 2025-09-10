@@ -46,7 +46,6 @@
         />
         <Button
           v-if="validUsers.length > 0"
-          :disabled="isLoadingAction"
           :loading="isLoadingAction"
           :label="
             $t('rooms.members.modals.bulk_import.import_importable_button')
