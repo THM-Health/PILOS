@@ -55,6 +55,7 @@ class Room extends JsonResource
         return [
             'username' => $this->when(! empty($this->token), ! empty($this->token) ? $this->token->fullname : null),
             'authenticated' => $this->authenticated,
+            'legacy_code' => $this->access_code && strlen($this->access_code) == 6,
             'description' => $this->when($this->authenticated, $this->description),
             'allow_membership' => $this->getRoomSetting('allow_membership'),
             'is_member' => $this->resource->isMember(Auth::user()),

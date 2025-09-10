@@ -40,7 +40,7 @@ class MembershipTest extends TestCase
             'allow_guests' => true,
             'expert_mode' => true,
             'allow_membership' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -50,7 +50,7 @@ class MembershipTest extends TestCase
         $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertUnauthorized();
 
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertUnauthorized();
 
         $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -85,80 +85,80 @@ class MembershipTest extends TestCase
         $roomAllowMembershipEnforced1 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeAllowMembershipEnforced->id,
         ]);
 
         $roomAllowMembershipEnforced2 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeAllowMembershipEnforced->id,
         ]);
 
         $roomAllowMembershipEnforced3 = Room::factory()->create([
             'expert_mode' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeAllowMembershipEnforced->id,
         ]);
 
         $roomAllowMembershipDefault = Room::factory()->create([
             'expert_mode' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeAllowMembershipDefault->id,
         ]);
 
         $roomAllowMembershipExpert1 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeNoMembershipAllowedDefault->id,
         ]);
 
         $roomAllowMembershipExpert2 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeAllowMembershipDefault->id,
         ]);
 
         $roomNoMembershipAllowedEnforced1 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeNoMembershipAllowedEnforced->id,
         ]);
 
         $roomNoMembershipAllowedEnforced2 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeNoMembershipAllowedEnforced->id,
         ]);
 
         $roomNoMembershipAllowedEnforced3 = Room::factory()->create([
             'expert_mode' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeNoMembershipAllowedEnforced->id,
         ]);
 
         $roomNoMembershipAllowedDefault = Room::factory()->create([
             'expert_mode' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeNoMembershipAllowedDefault->id,
         ]);
 
         $roomNoMembershipAllowedExpert1 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeAllowMembershipDefault->id,
         ]);
 
         $roomNoMembershipAllowedExpert2 = Room::factory()->create([
             'expert_mode' => true,
             'allow_membership' => false,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'room_type_id' => $roomTypeNoMembershipAllowedDefault->id,
         ]);
 
@@ -260,7 +260,7 @@ class MembershipTest extends TestCase
             'allow_guests' => true,
             'allow_membership' => true,
             'expert_mode' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
 
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -289,7 +289,7 @@ class MembershipTest extends TestCase
 
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
 
         $john = User::factory()->create(['firstname' => 'John', 'lastname' => 'Doe', 'image' => 'test.jpg']);
@@ -431,7 +431,7 @@ class MembershipTest extends TestCase
 
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -520,7 +520,7 @@ class MembershipTest extends TestCase
 
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -600,7 +600,7 @@ class MembershipTest extends TestCase
 
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -668,7 +668,7 @@ class MembershipTest extends TestCase
 
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -823,7 +823,7 @@ class MembershipTest extends TestCase
         // create and save new test-room
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -973,7 +973,7 @@ class MembershipTest extends TestCase
         // create and save new test-room
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
         $room->owner()->associate($owner);
         $room->save();

@@ -529,7 +529,7 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
         // Try without access code
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -542,7 +542,7 @@ class RoomTest extends TestCase
             ->assertUnauthorized();
 
         // Try with random access code
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertUnauthorized();
 
         // Try with correct access code
@@ -550,6 +550,13 @@ class RoomTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonFragment(['current_user' => null]);
+
+        // Try with legacy 6 digit access code
+        $room->access_code = '012345';
+        $room->save();
+        $this->withHeaders(['Access-Code' => '012345'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true]);
     }
 
     /**
@@ -564,19 +571,19 @@ class RoomTest extends TestCase
 
         // Try 6 times with wrong access code
         for ($i = 0; $i < 6; $i++) {
-            $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
                 ->assertUnauthorized();
         }
 
         // Check if rate limit is reached
-        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(429);
 
         // Time travel 1 minute to reset rate limit
         $this->travel(1)->minutes();
 
         // Try again
-        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertUnauthorized();
     }
 
@@ -612,7 +619,7 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['current_user' => null]);
 
         // Test room with access code if the room type has no access code as default
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
         $roomType->has_access_code_default = false;
         $roomType->save();
@@ -650,7 +657,7 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
 
         // Try without access code
@@ -664,7 +671,7 @@ class RoomTest extends TestCase
             ->assertUnauthorized();
 
         // Try with random access code
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertUnauthorized();
 
         // Try with correct access code
@@ -985,6 +992,24 @@ class RoomTest extends TestCase
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertJsonPath('data.type.features.streaming.enabled', true);
+
+        // Test with regular access code (9-digit number)
+        $room->access_code = $this->createAccessCode();
+        $room->save();
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.legacy_code', false);
+
+        // Test with legacy access code (6-digit number)
+        $room->access_code = $this->createAccessCode(6);
+        $room->save();
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.legacy_code', true);
+
+        // Test without access code
+        $room->access_code = null;
+        $room->save();
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.legacy_code', false);
     }
 
     /**
@@ -1626,7 +1651,7 @@ class RoomTest extends TestCase
     public function test_access_code_shown()
     {
         $room = Room::factory()->create([
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
 
         // Testing unauthenticated user
@@ -1753,7 +1778,7 @@ class RoomTest extends TestCase
         ]);
 
         // Test without allow guests enforced in room type
-        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
+        $settings['access_code'] = $this->createAccessCode();
         $settings['room_type'] = $roomType->id;
         $settings['expert_mode'] = false;
         $settings['name'] = RoomFactory::createValidRoomName();
@@ -1863,7 +1888,7 @@ class RoomTest extends TestCase
             'auto_start_recording_default' => false,
         ]);
 
-        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
+        $settings['access_code'] = $this->createAccessCode();
         $settings['expert_mode'] = false;
         $settings['room_type'] = $roomType->id;
         $settings['name'] = RoomFactory::createValidRoomName();
@@ -2017,7 +2042,7 @@ class RoomTest extends TestCase
             'restrict' => false,
         ]);
 
-        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
+        $settings['access_code'] = $this->createAccessCode();
         $settings['expert_mode'] = true;
         $settings['room_type'] = $roomType->id;
         $settings['name'] = RoomFactory::createValidRoomName();
@@ -2154,7 +2179,7 @@ class RoomTest extends TestCase
             'has_access_code_enforced' => true,
         ]);
 
-        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
+        $settings['access_code'] = $this->createAccessCode();
         $settings['room_type'] = $roomType->id;
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['access_code']);
@@ -2239,6 +2264,65 @@ class RoomTest extends TestCase
                 'expert_mode',
                 'allow_guests',
             ]);
+    }
+
+    public function test_update_settings_access_code()
+    {
+        config(['bigbluebutton.welcome_message_limit' => 5]);
+        $room = Room::factory()->create([
+            'expert_mode' => true,
+            'access_code' => $this->createAccessCode(),
+        ]);
+        // Get current settings
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful();
+
+        $settings = $response->json('data');
+        $settings['room_type'] = $settings['room_type']['id'];
+
+        // Keep access code / do nothing
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+
+        // Change access code
+        $settings['access_code'] = $this->createAccessCode();
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+        $room->refresh();
+        $this->assertEquals($settings['access_code'], $room->access_code);
+
+        // Remove access code
+        $settings['access_code'] = null;
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+        $room->refresh();
+        $this->assertNull($room->access_code);
+
+        // Keep 6-digit access code
+        $room->access_code = '012345';
+        $room->save();
+        $settings['access_code'] = '012345';
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+        $room->refresh();
+        $this->assertEquals($settings['access_code'], $room->access_code);
+
+        // Prevent setting a new 6-digit access code
+        $settings['access_code'] = '654321';
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertJsonValidationErrors(['access_code']);
+
+        // Allow setting a new 9-digit access code
+        $settings['access_code'] = '012345678';
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+        $room->refresh();
+        $this->assertEquals($settings['access_code'], $room->access_code);
+
+        // Prevent downgrading to a 6-digit access code
+        $settings['access_code'] = '012345';
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertJsonValidationErrors(['access_code']);
     }
 
     /**
@@ -2548,7 +2632,7 @@ class RoomTest extends TestCase
     public function test_start_restricted_no_server()
     {
         $room = Room::factory()->create([
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
 
         // Testing guests
@@ -2611,13 +2695,13 @@ class RoomTest extends TestCase
             'allow_guests' => true,
             'expert_mode' => true,
             'everyone_can_start' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
         ]);
 
         // Testing guests
         $this->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized();
         $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name');
@@ -2650,7 +2734,7 @@ class RoomTest extends TestCase
         // Testing authorized users
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized();
         $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
@@ -3122,7 +3206,7 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'access_code' => $this->createAccessCode(),
             'expert_mode' => true,
             'record_attendance' => true,
         ]);
@@ -3293,7 +3377,7 @@ class RoomTest extends TestCase
         // Join as authorized users
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized();
         $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();

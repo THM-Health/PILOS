@@ -119,7 +119,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = true;
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -137,7 +137,7 @@ class RecordingTest extends TestCase
             ->assertForbidden();
 
         // Access as guest with wrong access code
-        $this->withHeaders(['Access-Code' => 111])
+        $this->withHeaders(['Access-Code' => '111'])
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertUnauthorized();
 
@@ -155,7 +155,7 @@ class RecordingTest extends TestCase
 
         // Access as authenticated user, with wrong access code
         $this->actingAs($this->user)
-            ->withHeaders(['Access-Code' => 111])
+            ->withHeaders(['Access-Code' => '111'])
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertUnauthorized();
 
@@ -203,7 +203,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -244,7 +244,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -312,7 +312,7 @@ class RecordingTest extends TestCase
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
@@ -375,7 +375,7 @@ class RecordingTest extends TestCase
         $recording->save();
 
         $room->allow_guests = true;
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         // Access as guest without access code
@@ -383,7 +383,7 @@ class RecordingTest extends TestCase
             ->assertForbidden();
 
         // Access as guest with wrong access code
-        $this->withHeaders(['Access-Code' => 111])
+        $this->withHeaders(['Access-Code' => '111'])
             ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
             ->assertUnauthorized();
 
@@ -403,7 +403,7 @@ class RecordingTest extends TestCase
         $recording->save();
 
         $room->allow_guests = false;
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         // Access as guest with correct access code
@@ -422,7 +422,7 @@ class RecordingTest extends TestCase
         $recording->save();
 
         $room->allow_guests = false;
-        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->access_code = $this->createAccessCode();
         $room->save();
 
         // Create token

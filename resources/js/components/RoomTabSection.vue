@@ -161,7 +161,7 @@ const props = defineProps({
     required: true,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
   token: {

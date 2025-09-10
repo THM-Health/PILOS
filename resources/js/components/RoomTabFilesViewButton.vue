@@ -32,7 +32,7 @@ const props = defineProps({
     required: false,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
   token: {

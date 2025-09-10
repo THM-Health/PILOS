@@ -194,9 +194,9 @@ class ImportGreenlight2Test extends TestCase
         $rooms[] = new GreenlightRoom(5, $users[4]->id, 'Test Room 5', 'abc-def-xyz-567');
         $rooms[] = new GreenlightRoom(6, $users[5]->id, 'Test Room 6', 'abc-def-xyz-678');
 
-        $rooms[] = new GreenlightRoom(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', 123456, ['muteOnStart' => false, 'requireModeratorApproval' => true, 'anyoneCanStart' => false, 'joinModerator' => true]);
+        $rooms[] = new GreenlightRoom(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', '012345', ['muteOnStart' => false, 'requireModeratorApproval' => true, 'anyoneCanStart' => false, 'joinModerator' => true]);
         $rooms[] = new GreenlightRoom(8, $users[0]->id, 'Test Room 8', 'hij-klm-xyz-234', null, ['muteOnStart' => true, 'requireModeratorApproval' => false, 'anyoneCanStart' => true, 'joinModerator' => false]);
-        $rooms[] = new GreenlightRoom(9, 99, 'Test Room 9', 'hij-klm-xyz-456', 123456);
+        $rooms[] = new GreenlightRoom(9, 99, 'Test Room 9', 'hij-klm-xyz-456', '012345');
         $rooms[] = new GreenlightRoom(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
 
         // Create fake shared accesses
@@ -229,7 +229,7 @@ class ImportGreenlight2Test extends TestCase
             ->expectsOutput('+-------------+-----------------+-------------+')
             ->expectsOutput('| Name        | ID              | Access code |')
             ->expectsOutput('+-------------+-----------------+-------------+')
-            ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 123456      |') // user was not found in greenlight DB
+            ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |') // user was not found in greenlight DB
             ->expectsOutput('+-------------+-----------------+-------------+')
             ->expectsOutput('Importing shared room accesses')
             ->expectsOutput('3 created, 3 skipped (user or room not found)')
@@ -260,7 +260,7 @@ class ImportGreenlight2Test extends TestCase
         $this->assertNull(Room::find('abc-def-xyz-456')->access_code);
         $this->assertNull(Room::find('abc-def-xyz-567')->access_code);
         $this->assertNull(Room::find('abc-def-xyz-678')->access_code);
-        $this->assertEquals(123456, Room::find('hij-klm-xyz-123')->access_code);
+        $this->assertEquals('012345', Room::find('hij-klm-xyz-123')->access_code);
         $this->assertNull(Room::find('hij-klm-xyz-234')->access_code);
 
         // check room settings

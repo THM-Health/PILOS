@@ -28,6 +28,7 @@
     "is_co_owner": false,
     "can_start": true,
     "access_code": 508307005,
+    "legacy_code": false,
     "room_type_invalid": false,
     "record_attendance": false,
     "record": false,

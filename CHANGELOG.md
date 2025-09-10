@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Value range and randomness of access code generation ([#2433])
+
+### Fixed
+
+- Support for legacy 6-digit access codes imported from Greenlight v2 ([#2433])
+
 ## [v4.7.0] - 2025-07-21
 
 ### Added
@@ -522,6 +530,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
+[#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

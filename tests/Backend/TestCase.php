@@ -12,11 +12,15 @@ use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\Str;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 
 abstract class TestCase extends BaseTestCase
 {
+    use WithFaker;
+
     /**
      * Creates the application.
      *
@@ -82,6 +86,11 @@ abstract class TestCase extends BaseTestCase
         config(['metrics.redis.prefix' => $prefix]);
         $registry = $this->app->make(\App\Prometheus\CollectorRegistry::class);
         $registry->wipeStorage();
+    }
+
+    protected function createAccessCode(int $digits = 9): string
+    {
+        return $this->faker->numerify(Str::repeat('#', $digits));
     }
 
     protected function tearDown(): void
