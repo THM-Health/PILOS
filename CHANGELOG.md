@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-# Changed
+### Changed
 
 - Value range and randomness of access code generation ([#2433])
 
-# Fixed
+### Fixed
 
 - Support for legacy 6-digit access codes imported from Greenlight v2 ([#2433])
 
