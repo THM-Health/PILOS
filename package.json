@@ -33,7 +33,7 @@
     "globals": "^16.3.0",
     "happo-cypress": "^4.3.1",
     "happo-e2e": "^5.0.0",
-    "happo.io": "^13.0.0",
+    "happo.io": "^13.0.1",
     "nyc": "^17.1.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
