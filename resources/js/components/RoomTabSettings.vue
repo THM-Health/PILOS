@@ -40,7 +40,7 @@
         </div>
 
         <div v-if="settingsDirty" class="sticky bottom-0 px-px py-4">
-          <div class="rounded-lg dark:bg-surface-900/80">
+          <div class="dark:bg-surface-900/80 rounded-lg">
             <Message
               severity="warn"
               :pt="{

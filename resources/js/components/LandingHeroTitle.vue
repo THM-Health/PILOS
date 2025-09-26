@@ -1,5 +1,5 @@
 <template>
-  <h1 class="text-4xl font-bold tracking-tight text-color sm:text-6xl">
+  <h1 class="text-color text-4xl font-bold tracking-tight sm:text-6xl">
     {{ $t("home.title.first_line.before_flip_words")
     }}<LandingHeroTitleFlipWords
       :words="$t('home.title.first_line.flip_words').split('|')"

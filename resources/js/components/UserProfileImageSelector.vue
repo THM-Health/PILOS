@@ -67,7 +67,7 @@
         :image="croppedImage ? croppedImage : image"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        class="overflow-hidden rounded-border"
+        class="rounded-border overflow-hidden"
         shape="square"
         data-test="profile-image-preview"
       />

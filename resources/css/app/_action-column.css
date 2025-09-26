@@ -16,8 +16,7 @@ td.action-column > div {
     gap: var(--action-column-button-gap);
 }
 
-@media (width < theme(--breakpoint-lg))
-{
+@media (width < theme(--breakpoint-lg)) {
     .table-auto {
         table-layout: auto;
 
@@ -33,7 +32,6 @@ td.action-column > div {
             width: 1px;
         }
     }
-
 }
 
 @media (width >= theme(--breakpoint-lg)) {

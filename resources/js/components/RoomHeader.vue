@@ -6,7 +6,7 @@
       <div class="grow">
         <!-- Display room type, name and owner  -->
         <RoomTypeBadge :room-type="props.room.type" />
-        <h1 class="my-2 text-3xl text-color">
+        <h1 class="text-color my-2 text-3xl">
           {{ props.room.name }}
         </h1>
 

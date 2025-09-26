@@ -155,7 +155,7 @@
                       $t(`admin.roles.permissions.${permission.name}`)
                     }}</label>
                     <p
-                      class="font-monospace text-sm text-surface-400 dark:text-surface-300"
+                      class="font-monospace text-surface-400 dark:text-surface-300 text-sm"
                     >
                       {{ permission.rawName }}
                     </p>

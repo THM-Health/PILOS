@@ -12,7 +12,7 @@
       <fieldset class="flex w-full flex-col gap-2">
         <legend
           id="room-invitation-title"
-          class="block whitespace-nowrap font-bold"
+          class="block font-bold whitespace-nowrap"
         >
           {{ $t("rooms.invitation.title") }}
         </legend>
@@ -27,7 +27,7 @@
             </InputIcon>
             <InputText
               id="invitationLink"
-              class="w-full text-ellipsis border-surface-0 shadow-none dark:border-surface-900"
+              class="border-surface-0 dark:border-surface-900 w-full text-ellipsis shadow-none"
               :aria-label="$t('rooms.invitation.link')"
               readonly
               :value="roomUrl"
@@ -45,7 +45,7 @@
             </InputIcon>
             <InputText
               id="invitationCode"
-              class="w-full border-surface-0 shadow-none dark:border-surface-900"
+              class="border-surface-0 dark:border-surface-900 w-full shadow-none"
               :aria-label="$t('rooms.invitation.code')"
               readonly
               :value="formattedAccessCode"

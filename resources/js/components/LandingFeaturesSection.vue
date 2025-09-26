@@ -1,14 +1,14 @@
 <template>
   <!-- Feature section -->
-  <div class="z-10 mx-auto mb-24 mt-24 max-w-7xl px-6 sm:mt-24 lg:px-8">
+  <div class="z-10 mx-auto mt-24 mb-24 max-w-7xl px-6 sm:mt-24 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
-      <h2 class="text-base font-semibold leading-7 text-primary">
+      <h2 class="text-primary text-base leading-7 font-semibold">
         {{ $t("home.features.vision") }}
       </h2>
-      <p class="mt-2 text-3xl font-bold tracking-tight text-color sm:text-4xl">
+      <p class="text-color mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
         {{ $t("home.features.title") }}
       </p>
-      <p class="mt-6 text-lg leading-8 text-color">
+      <p class="text-color mt-6 text-lg leading-8">
         {{ $t("home.features.description") }}
       </p>
     </div>
@@ -21,9 +21,9 @@
           :key="feature.name"
           class="relative pl-16"
         >
-          <dt class="text-base font-semibold leading-7 text-color">
+          <dt class="text-color text-base leading-7 font-semibold">
             <div
-              class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary"
+              class="bg-primary absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-lg"
             >
               <i
                 :class="'fa-' + feature.icon"
@@ -33,7 +33,7 @@
             </div>
             {{ feature.title }}
           </dt>
-          <dd class="mt-2 text-base leading-7 text-color">
+          <dd class="text-color mt-2 text-base leading-7">
             {{ feature.description }}
           </dd>
         </div>

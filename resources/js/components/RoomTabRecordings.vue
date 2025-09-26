@@ -145,7 +145,7 @@
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-recording-item"
-                class="flex flex-col justify-between gap-4 border-t py-4 border-surface md:flex-row"
+                class="border-surface flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
                   <p class="m-0 text-lg font-semibold">
@@ -276,7 +276,7 @@
         },
       }"
     >
-      <div class="font-normal leading-3">
+      <div class="leading-3 font-normal">
         <p class="text-xl font-semibold">
           {{ $t("rooms.recordings.retention_period.title") }}
         </p>

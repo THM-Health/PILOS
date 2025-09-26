@@ -1,5 +1,5 @@
 <template>
-  <div v-cloak class="container mb-8 mt-8">
+  <div v-cloak class="container mt-8 mb-8">
     <!-- room token is invalid -->
     <div v-if="tokenInvalid" class="mt-20 flex justify-center">
       <!-- Show message that room can only be used by logged in users -->
