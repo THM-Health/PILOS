@@ -191,26 +191,22 @@ function loadData() {
 }
 
 const textColor = ref("");
-const surfaceBorder = ref("");
+const surfaceBorderColor = ref("");
 
 onMounted(() => {
-  textColor.value = window
-    .getComputedStyle(document.body)
-    .getPropertyValue("--p-text-color");
-  surfaceBorder.value = window
-    .getComputedStyle(document.body)
-    .getPropertyValue("--p-content-border-color");
+  setColors();
 });
 
 watch(isDark, async () => {
   await nextTick();
-  textColor.value = window
-    .getComputedStyle(document.body)
-    .getPropertyValue("--p-text-color");
-  surfaceBorder.value = window
-    .getComputedStyle(document.body)
-    .getPropertyValue("--p-content-border-color");
+  setColors();
 });
+
+function setColors() {
+  const style = getComputedStyle(document.body);
+  textColor.value = style.getPropertyValue("--p-text-color");
+  surfaceBorderColor.value = style.getPropertyValue("--p-content-border-color");
+}
 
 const chartFontFamily = sansFontFamily.join(", ");
 
@@ -239,7 +235,7 @@ const chartOptions = computed(() => {
           },
         },
         grid: {
-          color: surfaceBorder.value,
+          color: surfaceBorderColor.value,
         },
         ticks: {
           major: {
@@ -274,7 +270,7 @@ const chartOptions = computed(() => {
           },
         },
         grid: {
-          color: surfaceBorder.value,
+          color: surfaceBorderColor.value,
         },
         ticks: {
           font: {
