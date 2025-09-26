@@ -16,6 +16,7 @@ td.action-column > div {
     gap: var(--action-column-button-gap);
 }
 
+/* biome-ignore lint/correctness/noUnknownFunction: Tailwind resolves theme() tokens at build time */
 @media (width < theme(--breakpoint-lg)) {
     .table-auto {
         table-layout: auto;
@@ -34,6 +35,7 @@ td.action-column > div {
     }
 }
 
+/* biome-ignore lint/correctness/noUnknownFunction: Tailwind resolves theme() tokens at build time */
 @media (width >= theme(--breakpoint-lg)) {
     .lg\:table-fixed {
         th.action-column-1 {
