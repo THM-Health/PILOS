@@ -16,20 +16,24 @@ td.action-column > div {
     gap: var(--action-column-button-gap);
 }
 
-.table-auto {
-    table-layout: auto;
+@media (width < theme(--breakpoint-lg))
+{
+    .table-auto {
+        table-layout: auto;
 
-    th.id-column {
-        width: 1px;
+        th.id-column {
+            width: 1px;
+        }
+
+        th.picture-column {
+            width: 1px;
+        }
+
+        th.action-column {
+            width: 1px;
+        }
     }
 
-    th.picture-column {
-        width: 1px;
-    }
-
-    th.action-column {
-        width: 1px;
-    }
 }
 
 @media (width >= theme(--breakpoint-lg)) {
