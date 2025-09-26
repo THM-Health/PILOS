@@ -7,12 +7,12 @@
     <div
       v-if="props.show"
       data-test="overlay"
-      class="inset-0 backdrop-blur-sm"
+      class="inset-0 backdrop-blur-xs"
       :class="fixed ? 'fixed' : 'absolute'"
       :style="{ 'z-index': props.zIndex }"
     >
       <div
-        class="absolute bg-surface-100 dark:bg-surface-900"
+        class="bg-surface-100 dark:bg-surface-900 absolute"
         style="inset: 0"
         :style="{ opacity: props.opacity }"
       />

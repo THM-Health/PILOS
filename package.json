@@ -46,6 +46,7 @@
     "@noble/hashes": "^2.0.1",
     "@primevue/auto-import-resolver": "^4.4.1",
     "@primevue/themes": "^4.4.1",
+    "@tailwindcss/vite": "^4.1.14",
     "@tiptap/extension-highlight": "^3.7.2",
     "@tiptap/extension-image": "^3.7.2",
     "@tiptap/extension-text-align": "^3.7.2",
@@ -55,7 +56,6 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "@vueuse/components": "^13.9.0",
     "@vueuse/core": "^13.9.0",
-    "autoprefixer": "^10.4.21",
     "axe-core": "^4.11.0",
     "axios": "^1.12.2",
     "chart.js": "^4.5.1",
@@ -67,11 +67,9 @@
     "lodash": "^4.17.19",
     "mitt": "^3.0.1",
     "pinia": "^3.0.3",
-    "postcss": "^8.5.6",
     "primeicons": "^7.0.0",
     "primevue": "^4.4.1",
-    "sass": "^1.93.2",
-    "tailwindcss": "^3.4.18",
+    "tailwindcss": "^4.1.14",
     "tailwindcss-primeui": "^0.6.1",
     "ua-parser-js": "^1.0.41",
     "unplugin-vue-components": "^30.0.0",
@@ -85,6 +83,6 @@
     "vue-router": "^4.6.3"
   },
   "engines": {
-    "node": "^10.12.0 || >=12.0.0"
+    "node": ">=20.0.0"
   }
 }

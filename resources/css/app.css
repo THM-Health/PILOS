@@ -1,30 +1,29 @@
-@use "@fortawesome/fontawesome-free/scss/variables" with (
-    $font-path: "@fortawesome/fontawesome-free/webfonts"
-);
-
-@layer tailwind-base, primevue, tailwind-utilities;
-
-@layer tailwind-base {
-    @tailwind base;
+@import "tailwindcss";
+@theme {
+    --font-sans:
+        Open Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
 }
+@custom-variant dark (&:where(.dark, .dark *));
+@import "tailwindcss-primeui";
 
-@layer tailwind-utilities {
-    @tailwind components;
-    @tailwind utilities;
-}
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
 
 @import "primeicons/primeicons.css";
 
-@import "app/app";
+@import "./app/app.css";
 
-// Font Awesome
-@import "@fortawesome/fontawesome-free/scss/fontawesome";
-@import "@fortawesome/fontawesome-free/scss/solid";
+/* Font Awesome */
+@import "@fortawesome/fontawesome-free/css/fontawesome.css";
+@import "@fortawesome/fontawesome-free/css/solid.css";
 
-// Vue Multi-Select
+/* Vue Multi-Select **/
 @import "vue-multiselect/dist/vue-multiselect.css";
 
-@import "override/override";
+@import "./override/override.css";
 
 @layer base {
     /* open-sans-300 */

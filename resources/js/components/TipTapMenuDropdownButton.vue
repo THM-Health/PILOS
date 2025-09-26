@@ -20,7 +20,7 @@
   >
     <ul
       v-on-click-outside="onClickOutsideHandler"
-      class="origin-top cursor-pointer list-none border border-surface-50 bg-white px-1 shadow rounded-border dark:border-surface-800 dark:bg-surface-900"
+      class="border-surface-50 rounded-border dark:border-surface-800 dark:bg-surface-900 origin-top cursor-pointer list-none border bg-white px-1 shadow-sm"
       @click="closeDropdown"
     >
       <slot />
