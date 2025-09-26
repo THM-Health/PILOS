@@ -17,20 +17,18 @@ td.action-column > div {
 }
 
 .table-auto {
-    table {
-        table-layout: auto;
+    table-layout: auto;
 
-        th.id-column {
-            width: 1px;
-        }
+    th.id-column {
+        width: 1px;
+    }
 
-        th.picture-column {
-            width: 1px;
-        }
+    th.picture-column {
+        width: 1px;
+    }
 
-        th.action-column {
-            width: 1px;
-        }
+    th.action-column {
+        width: 1px;
     }
 }
 

@@ -1,17 +1,5 @@
 @import "tailwindcss";
-@theme {
-    --font-sans:
-        Open Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-        "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
-}
-@custom-variant dark (&:where(.dark, .dark *));
 @import "tailwindcss-primeui";
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
 @import "primeicons/primeicons.css";
 
 @import "./app/app.css";
@@ -24,6 +12,14 @@
 @import "vue-multiselect/dist/vue-multiselect.css";
 
 @import "./override/override.css";
+
+@theme {
+    --font-sans:
+        Open Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
     /* open-sans-300 */
@@ -123,3 +119,6 @@
         src: url("../fonts/open-sans/open-sans-800italic.woff2") format("woff2");
     }
 }
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
