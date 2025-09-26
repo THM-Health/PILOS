@@ -119,6 +119,3 @@
         src: url("../fonts/open-sans/open-sans-800italic.woff2") format("woff2");
     }
 }
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';

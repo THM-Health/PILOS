@@ -66,7 +66,7 @@
       </div>
     </div>
     <div
-      class="rounded-border col-span-12 flex justify-center border p-2 lg:col-span-3"
+      class="rounded-border border-surface col-span-12 flex justify-center border p-2 lg:col-span-3"
       :class="previewBgClass"
     >
       <img

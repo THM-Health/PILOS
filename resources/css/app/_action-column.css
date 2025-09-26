@@ -32,7 +32,7 @@ td.action-column > div {
     }
 }
 
-@media (width >= 64rem) {
+@media (width >= theme(--breakpoint-lg)) {
     .lg\:table-fixed {
         th.action-column-1 {
             width: 8rem;
