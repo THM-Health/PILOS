@@ -265,3 +265,13 @@ x-docker-pilos-common: &pilos-common
     volumes:
         - "./storage/logs:/var/www/html/storage/logs"
 ```
+
+## Security
+
+Keep your installation secure by applying updates regularly and following best practices.
+To view supported versions or report a vulnerability, see our [Security Policy](https://github.com/THM-Health/PILOS/security/policy).
+
+### HTTP Strict Transport Security (HSTS)
+
+We recommend enabling [HSTS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security) to protect against downgrade attacks.
+For setup instructions, see [Security Configuration](03-configuration.md#security-configuration).
