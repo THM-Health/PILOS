@@ -48,6 +48,8 @@ const route = useRoute();
  * Route-specific CSS class for each route/view
  */
 const routeClass = computed(() => {
-  return route.name ? `route-${route.name.toString().replace(/\./g, "-")}` : "";
+  return route.name
+    ? `route-${route.name.toString().replace(/\./g, "-").toLowerCase()}`
+    : "";
 });
 </script>
