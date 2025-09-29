@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Route-specific CSS classes to frontend pages ([#2496], [#2497])
+
 ## [v4.7.1] - 2025-09-10
 
 ### Changed
@@ -533,6 +537,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
+[#2496]: https://github.com/THM-Health/PILOS/issues/2496
+[#2497]: https://github.com/THM-Health/PILOS/pull/2497
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
