@@ -81,13 +81,11 @@ describe("Rooms view meetings", function () {
       });
     });
 
-    // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    // Check if redirect worked{
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting with attendance logging", function () {
@@ -170,12 +168,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting with streaming", function () {
@@ -258,12 +254,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting with recording", function () {
@@ -349,12 +343,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting with recording without video", function () {
@@ -420,12 +412,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting guests", function () {
@@ -498,12 +488,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting guests errors", function () {
@@ -708,12 +696,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting access code errors", function () {
@@ -945,12 +931,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("join running meeting token errors", function () {
@@ -1461,12 +1445,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting", function () {
@@ -1531,12 +1513,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting with attendance logging", function () {
@@ -1610,12 +1590,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting with streaming", function () {
@@ -1689,12 +1667,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting with recording", function () {
@@ -1771,12 +1747,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting with recording without video", function () {
@@ -1829,12 +1803,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting guests", function () {
@@ -1900,12 +1872,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting guests errors", function () {
@@ -2091,12 +2061,6 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
   });
 
   it("start meeting access code errors", function () {
@@ -2298,12 +2262,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting token errors", function () {
@@ -2712,12 +2674,10 @@ describe("Rooms view meetings", function () {
     cy.wait("@joinRequest");
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 
   it("start meeting load requirements errors", function () {
@@ -2901,11 +2861,9 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+    );
   });
 });

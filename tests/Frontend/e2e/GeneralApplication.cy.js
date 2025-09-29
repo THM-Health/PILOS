@@ -222,12 +222,7 @@ describe("General", function () {
     cy.get('[data-test="navbar-help"]').click();
 
     // Check that redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`,
-      );
-    });
+    cy.url().should("eq", `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`);
   });
 
   it("check help button hidden if help url not specified", function () {
