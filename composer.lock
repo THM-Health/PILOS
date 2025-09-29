@@ -5631,16 +5631,16 @@
         },
         {
             "name": "spatie/laravel-csp",
-            "version": "3.17.2",
+            "version": "3.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-csp.git",
-                "reference": "532330226ab2be6da35ec53e3f25b84d44e086ab"
+                "reference": "ca84f7a0fea5aa2acb52ab99c2442890b21ee387"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-csp/zipball/532330226ab2be6da35ec53e3f25b84d44e086ab",
-                "reference": "532330226ab2be6da35ec53e3f25b84d44e086ab",
+                "url": "https://api.github.com/repos/spatie/laravel-csp/zipball/ca84f7a0fea5aa2acb52ab99c2442890b21ee387",
+                "reference": "ca84f7a0fea5aa2acb52ab99c2442890b21ee387",
                 "shasum": ""
             },
             "require": {
@@ -5704,7 +5704,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/laravel-csp/tree/3.17.2"
+                "source": "https://github.com/spatie/laravel-csp/tree/3.18.0"
             },
             "funding": [
                 {
@@ -5712,7 +5712,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-09-18T15:21:17+00:00"
+            "time": "2025-09-22T12:44:54+00:00"
         },
         {
             "name": "spatie/laravel-ignition",
