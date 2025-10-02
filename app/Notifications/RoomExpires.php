@@ -74,7 +74,7 @@ class RoomExpires extends Notification implements ShouldQueue
         }
         // If room has a meeting, that was too long ago
         else {
-            $days = now()->diffInDays($lastMeeting->start);
+            $days = (int) now()->diffInDays($lastMeeting->start, absolute: true);
             $message->line(__('mail.room_expires.inactivity', ['name' => $this->room->name, 'date' => $createdAt, 'days' => $days]));
         }
 

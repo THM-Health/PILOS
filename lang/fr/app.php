@@ -35,8 +35,8 @@ return [
     'errors' => [
         'attendance_agreement_missing' => 'Le consentement à l\'enregistrement des présences est requis.',
         'join_failed' => 'La salle n\'a pas pu être rejointe car une erreur de connexion est survenue.',
-        'meeting_attendance_disabled' => 'L\'enregistrement des présences n\'est pas disponible.',
-        'meeting_attendance_not_ended' => 'L\'enregistrement des présences n\'est pas encore terminé pour cette salle.',
+        'meeting_attendance_disabled' => 'L\'enregistrement des présences n\'était pas activée pour cette réunion.',
+        'meeting_attendance_not_ended' => 'L\'enregistrement des présences n\'est pas disponible car la réunion n\'est pas encore terminée.',
         'meeting_statistics_disabled' => 'Les données d\'utilisations sont indisponibles.',
         'membership_disabled' => 'Accès échoué ! L\'accès à cette salle n\'est actuellement pas disponible.',
         'no_room_access' => 'Vous ne disposez pas des autorisations nécessaires pour modifier cette salle.',

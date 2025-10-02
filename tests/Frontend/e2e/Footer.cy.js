@@ -334,12 +334,10 @@ describe("Footer", function () {
 
     cy.get('[data-test="legal-notice-button"]').click();
 
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/legal?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/legal?foo=a&bar=b`,
+    );
   });
 
   it("open privacy policy link", function () {
@@ -354,11 +352,9 @@ describe("Footer", function () {
 
     cy.get('[data-test="privacy-policy-button"]').click();
 
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/privacy?foo=a&bar=b`,
-      );
-    });
+    cy.url().should(
+      "eq",
+      `${Cypress.env("redirectBaseUrl")}/privacy?foo=a&bar=b`,
+    );
   });
 });
