@@ -20,7 +20,7 @@ return [
     'listener_count' => 'Auditeur',
     'no_data' => 'Il n\'y a aucune réunion en cours !',
     'no_data_filtered' => 'Aucune réunion en cours n\'a été trouvée pour cette recherche !',
-    'no_historical_data' => 'Aucun historique disponible',
+    'no_historical_data' => 'Il n\'y a aucun historique disponible',
     'now' => 'maintenant',
     'owner' => 'Propriétaire',
     'participant_count' => 'Participant',
