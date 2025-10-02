@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Negative floating point number in room expire email ([#2476], [#2480])
+- Infinite loading when navigating back to rooms from BBB due to bfcache ([#2313], [#2319])
 
 ## [v4.7.1] - 2025-09-10
 
@@ -536,6 +537,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
+[#2313]: https://github.com/THM-Health/PILOS/issues/2313
+[#2319]: https://github.com/THM-Health/PILOS/pull/2319
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2476]: https://github.com/THM-Health/PILOS/issues/2476
 [#2480]: https://github.com/THM-Health/PILOS/pull/2480
