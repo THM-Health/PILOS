@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@floating-ui/vue": "^1.1.9",
-    "@fortawesome/fontawesome-free": "^7.0.1",
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@noble/hashes": "^2.0.1",
     "@primevue/auto-import-resolver": "^4.3.9",
     "@primevue/themes": "^4.3.9",
