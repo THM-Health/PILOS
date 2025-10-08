@@ -267,7 +267,7 @@
           {{ $t("admin.roles.room_limit.help_modal.examples") }}
         </p>
         <table class="p-datatable p-datatable-table">
-          <thead class="p-datatable-thead">
+          <thead class="p-datatable-thead text-left">
             <tr>
               <th scope="col">
                 {{ $t("admin.roles.room_limit.help_modal.system_default") }}
