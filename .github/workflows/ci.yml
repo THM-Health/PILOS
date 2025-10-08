@@ -134,9 +134,7 @@ jobs:
           LOG_CHANNEL: stack
           BBB_TEST_SERVER_HOST: ${{ secrets.BBB_TEST_SERVER_HOST }}
           BBB_TEST_SERVER_SECRET: ${{ secrets.BBB_TEST_SERVER_SECRET }}
-
-        run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
-
+        run: php artisan test --parallel --coverage-clover=coverage.xml
       - name: Execute tests (Unit and Feature tests) via PHPUnit using Postgres
         env:
           DB_CONNECTION: pgsql
