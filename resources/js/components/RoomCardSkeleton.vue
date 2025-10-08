@@ -1,12 +1,12 @@
 <template>
-  <div class="h-100">
-    <!--      room card-->
+  <div class="h-full">
+    <!-- room card -->
     <div
       tabindex="0"
       class="room-card border-surface-300 rounded-border dark:border-surface-500 relative h-full shadow-none"
     >
-      <div class="h-100 p-4">
-        <div class="flex h-100 flex-col">
+      <div class="p-4">
+        <div class="flex flex-col">
           <div class="grow">
             <div class="flex items-start justify-between">
               <Skeleton
