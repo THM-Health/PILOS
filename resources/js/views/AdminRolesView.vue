@@ -269,16 +269,16 @@
         <table class="p-datatable p-datatable-table">
           <thead class="p-datatable-thead text-left">
             <tr>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("admin.roles.room_limit.help_modal.system_default") }}
               </th>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("admin.roles.room_limit.help_modal.role_a") }}
               </th>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("admin.roles.room_limit.help_modal.role_b") }}
               </th>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("app.room_limit") }}
               </th>
             </tr>
