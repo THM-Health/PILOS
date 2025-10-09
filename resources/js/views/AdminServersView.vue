@@ -239,7 +239,7 @@
       >
         <div class="grid grid-cols-12 gap-4">
           <div class="md:col col-span-12">
-            <h3 class="mt-0">
+            <h3 class="mt-0 text-xl font-medium">
               {{ $t("admin.servers.current_usage") }}
             </h3>
             <Divider />

@@ -112,7 +112,9 @@
             <FormError :errors="formErrors.fieldError('room_limit')" />
           </div>
         </div>
-        <h3>{{ $t("admin.roles.permissions_title") }}</h3>
+        <h3 class="text-xl font-medium">
+          {{ $t("admin.roles.permissions_title") }}
+        </h3>
         <div
           v-if="!isBusy && Object.keys(permissions).length > 0"
           class="grid grid-cols-12 gap-4"
