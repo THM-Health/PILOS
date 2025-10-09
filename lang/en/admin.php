@@ -442,7 +442,7 @@ return [
             'ldap' => 'LDAP',
             'local' => 'Local',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Auth. Type',
+            'title' => 'Login method',
         ],
         'base_data' => 'Base data',
         'bbb' => 'BigBlueButton',
