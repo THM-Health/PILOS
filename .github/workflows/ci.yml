@@ -155,7 +155,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: laravel.log
+          name: laravel-backend-tests.log
           path: storage/logs/laravel.log
   frontend-code-style-check:
     name: Frontend Code Style Check
@@ -442,3 +442,9 @@ jobs:
         with:
           name: cypress-screenshots
           path: tests/System/screenshots
+      - name: Upload laravel logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: laravel-system-tests.log
+          path: storage/logs/laravel.log
