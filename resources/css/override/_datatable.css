@@ -1,0 +1,7 @@
+/* biome-ignore lint/correctness/noUnknownFunction: Tailwind resolves theme() tokens at build time */
+@media (width >= theme(--breakpoint-lg)) {
+    .p-datatable-header-cell {
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+}
