@@ -38,7 +38,7 @@
                 ref="search"
                 v-model="rawSearchQuery"
                 :disabled="loadingRooms"
-                :placeholder="$t('app.search')"
+                :placeholder="$t('rooms.search')"
                 @keyup.enter="loadRooms(1)"
               />
               <Button

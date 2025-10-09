@@ -355,6 +355,7 @@ return [
         'loading_error' => 'An error occurred during loading of the room types.',
         'reload' => 'Reload room types',
     ],
+    'search' => 'Search by room name or owner...',
     'settings' => [
         'advanced' => [
             'title' => 'Advanced',

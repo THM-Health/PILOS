@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Route-specific CSS classes to frontend pages ([#2496], [#2497])
 
+### Changed
+
+- UX: Placeholder in room search box ([#2383], [#2449])
+
 ### Fixed
 
 - Negative floating point number in room expire email ([#2476], [#2480])
@@ -544,7 +548,9 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
 [#2313]: https://github.com/THM-Health/PILOS/issues/2313
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
+[#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
+[#2449]: https://github.com/THM-Health/PILOS/pull/2449
 [#2476]: https://github.com/THM-Health/PILOS/issues/2476
 [#2478]: https://github.com/THM-Health/PILOS/issues/2478
 [#2479]: https://github.com/THM-Health/PILOS/pull/2479
