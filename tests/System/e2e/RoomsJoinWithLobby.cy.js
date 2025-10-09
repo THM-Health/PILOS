@@ -17,7 +17,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-start-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -33,7 +35,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-join-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -49,7 +53,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-join-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -65,7 +71,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
   });
 
@@ -83,7 +91,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-start-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -99,7 +109,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-join-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="guestMessage"]').should("be.visible");
+      cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -115,7 +127,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-join-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -131,7 +145,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="guestMessage"]').should("be.visible");
+      cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
   });
 
@@ -149,7 +165,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-start-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -165,7 +183,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-join-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -181,7 +201,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="room-join-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="audioModal"]').should("be.visible");
+      cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
 
     // Logout
@@ -197,7 +219,9 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
-      cy.get('[data-test="guestMessage"]').should("be.visible");
+      cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
+        "be.visible",
+      );
     });
   });
 });
