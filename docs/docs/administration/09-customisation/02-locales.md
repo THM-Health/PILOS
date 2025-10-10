@@ -26,6 +26,7 @@ Placeholders in localization strings are defined using the `:placeholder` syntax
 **DO NOT** use `:n` and `:count` as these are reserved for pluralization.
 
 For example:
+
 ```
 "Welcome, :name!"
 ```
@@ -50,18 +51,17 @@ Pluralization can be complex, and we currently support the **flexible pluralizat
 
 Each plural form is separated by a pipe (`|`):
 
-* **Curly braces `{}`** define exact numbers.
-* **Square brackets `[]`** define numeric ranges.
-* The **asterisk (`*`)** denotes an open upper range.
+- **Curly braces `{}`** define exact numbers.
+- **Square brackets `[]`** define numeric ranges.
+- The **asterisk (`*`)** denotes an open upper range.
 
 Pluralization forms must be listed in ascending order, and you can define as many as required for a given locale.
 
 #### Placeholders
 
-* Singular strings support arbitrary placeholders using the `:placeholder` syntax.
-* Pluralization strings only support the `:count` placeholder to represent the number of items.
+- Singular strings support arbitrary placeholders using the `:placeholder` syntax.
+- Pluralization strings only support the `:count` placeholder to represent the number of items.
   Additional placeholders are not supported.
-
 
 ## Overriding locales
 
