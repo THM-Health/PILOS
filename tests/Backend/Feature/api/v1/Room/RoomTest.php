@@ -417,6 +417,59 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test room enumeration attack prevention using a rate limit
+     */
+    public function test_room_404_rate_limit()
+    {
+        $room = Room::factory()->create();
+
+        // Guest trying to access non-existing rooms
+        for ($i = 0; $i < 10; $i++) {
+            $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+                ->assertNotFound();
+        }
+        // Check route is now rate limited
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertStatus(429);
+        // Check other room routes are also rate limited
+        $this->getJson(route('api.v1.rooms.files.show', ['room' => 999999, 'file' => 999999]))
+            ->assertStatus(429);
+
+        // User trying to access non-existing rooms
+        // The rate limit is per user or IP for unauthenticated users, so the user should have its own limit
+        $this->actingAs($room->owner);
+        for ($i = 0; $i < 10; $i++) {
+            $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+                ->assertNotFound();
+        }
+        // Check route is now rate limited
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertStatus(429);
+        // Check other room routes are also rate limited
+        $this->getJson(route('api.v1.rooms.files.show', ['room' => 999999, 'file' => 999999]))
+            ->assertStatus(429);
+
+        // Time travel 1 minute to reset rate limit
+        $this->travel(1)->minutes();
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertNotFound();
+
+        $this->actingAsGuest();
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertNotFound();
+
+        // Time travel 1 minute to reset rate limit
+        $this->travel(1)->minutes();
+
+        // Check calling routes for an existing room that also result in a 404
+        // due to other reasons than the room not existing are not so strictly rate limited
+        for ($i = 0; $i < 50; $i++) {
+            $this->actingAs($room->owner)->getJson(route('api.v1.rooms.files.show', ['room' => $room, 'file' => 999999]))
+                ->assertNotFound();
+        }
+    }
+
+    /**
      * Test if guests can access room
      */
     public function test_guest_access()
