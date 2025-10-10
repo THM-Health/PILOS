@@ -31,7 +31,7 @@ class AuthenticationServiceTest extends TestCase
         $authService = new AuthenticationService($user);
 
         // Create multiple sessions for the user
-        $currentSession = new Session();
+        $currentSession = new Session;
         $currentSession->id = $this->faker->uuid();
         $currentSession->user_id = $user->id;
         $currentSession->ip_address = $this->faker->ipv4();
@@ -40,7 +40,7 @@ class AuthenticationServiceTest extends TestCase
         $currentSession->last_activity = now()->timestamp;
         $currentSession->save();
 
-        $otherSession1 = new Session();
+        $otherSession1 = new Session;
         $otherSession1->id = $this->faker->uuid();
         $otherSession1->user_id = $user->id;
         $otherSession1->ip_address = $this->faker->ipv4();
@@ -49,7 +49,7 @@ class AuthenticationServiceTest extends TestCase
         $otherSession1->last_activity = now()->timestamp;
         $otherSession1->save();
 
-        $otherSession2 = new Session();
+        $otherSession2 = new Session;
         $otherSession2->id = $this->faker->uuid();
         $otherSession2->user_id = $user->id;
         $otherSession2->ip_address = $this->faker->ipv4();
@@ -96,7 +96,7 @@ class AuthenticationServiceTest extends TestCase
         $authService = new AuthenticationService($user);
 
         // Create multiple sessions for the user
-        $session1 = new Session();
+        $session1 = new Session;
         $session1->id = $this->faker->uuid();
         $session1->user_id = $user->id;
         $session1->ip_address = $this->faker->ipv4();
@@ -105,7 +105,7 @@ class AuthenticationServiceTest extends TestCase
         $session1->last_activity = now()->timestamp;
         $session1->save();
 
-        $session2 = new Session();
+        $session2 = new Session;
         $session2->id = $this->faker->uuid();
         $session2->user_id = $user->id;
         $session2->ip_address = $this->faker->ipv4();
@@ -158,7 +158,7 @@ class AuthenticationServiceTest extends TestCase
         $authService = new AuthenticationService($user);
 
         // Create multiple sessions
-        $currentSession = new Session();
+        $currentSession = new Session;
         $currentSession->id = 'current-session-id';
         $currentSession->user_id = $user->id;
         $currentSession->ip_address = $this->faker->ipv4();
@@ -167,7 +167,7 @@ class AuthenticationServiceTest extends TestCase
         $currentSession->last_activity = now()->timestamp;
         $currentSession->save();
 
-        $otherSession = new Session();
+        $otherSession = new Session;
         $otherSession->id = 'other-session-id';
         $otherSession->user_id = $user->id;
         $otherSession->ip_address = $this->faker->ipv4();
@@ -194,7 +194,7 @@ class AuthenticationServiceTest extends TestCase
 
         // Create multiple sessions
         for ($i = 0; $i < 5; $i++) {
-            $session = new Session();
+            $session = new Session;
             $session->id = "session-{$i}";
             $session->user_id = $user->id;
             $session->ip_address = $this->faker->ipv4();
@@ -218,7 +218,7 @@ class AuthenticationServiceTest extends TestCase
         $authService = new AuthenticationService($user1);
 
         // Create sessions for user1
-        $user1Session1 = new Session();
+        $user1Session1 = new Session;
         $user1Session1->id = 'user1-session-1';
         $user1Session1->user_id = $user1->id;
         $user1Session1->ip_address = $this->faker->ipv4();
@@ -227,7 +227,7 @@ class AuthenticationServiceTest extends TestCase
         $user1Session1->last_activity = now()->timestamp;
         $user1Session1->save();
 
-        $user1Session2 = new Session();
+        $user1Session2 = new Session;
         $user1Session2->id = 'user1-session-2';
         $user1Session2->user_id = $user1->id;
         $user1Session2->ip_address = $this->faker->ipv4();
@@ -237,7 +237,7 @@ class AuthenticationServiceTest extends TestCase
         $user1Session2->save();
 
         // Create session for user2
-        $user2Session = new Session();
+        $user2Session = new Session;
         $user2Session->id = 'user2-session-1';
         $user2Session->user_id = $user2->id;
         $user2Session->ip_address = $this->faker->ipv4();
@@ -266,7 +266,7 @@ class AuthenticationServiceTest extends TestCase
         $authService = new AuthenticationService($user1);
 
         // Create sessions for both users
-        $user1Session = new Session();
+        $user1Session = new Session;
         $user1Session->id = 'user1-session';
         $user1Session->user_id = $user1->id;
         $user1Session->ip_address = $this->faker->ipv4();
@@ -275,7 +275,7 @@ class AuthenticationServiceTest extends TestCase
         $user1Session->last_activity = now()->timestamp;
         $user1Session->save();
 
-        $user2Session = new Session();
+        $user2Session = new Session;
         $user2Session->id = 'user2-session';
         $user2Session->user_id = $user2->id;
         $user2Session->ip_address = $this->faker->ipv4();
@@ -332,7 +332,7 @@ class AuthenticationServiceTest extends TestCase
         $authService = new AuthenticationService($user1);
 
         // Create sessions for both users
-        $user1Session = new Session();
+        $user1Session = new Session;
         $user1Session->id = 'user1-current';
         $user1Session->user_id = $user1->id;
         $user1Session->ip_address = $this->faker->ipv4();
@@ -341,7 +341,7 @@ class AuthenticationServiceTest extends TestCase
         $user1Session->last_activity = now()->timestamp;
         $user1Session->save();
 
-        $user1OtherSession = new Session();
+        $user1OtherSession = new Session;
         $user1OtherSession->id = 'user1-other';
         $user1OtherSession->user_id = $user1->id;
         $user1OtherSession->ip_address = $this->faker->ipv4();
@@ -350,7 +350,7 @@ class AuthenticationServiceTest extends TestCase
         $user1OtherSession->last_activity = now()->timestamp;
         $user1OtherSession->save();
 
-        $user2Session = new Session();
+        $user2Session = new Session;
         $user2Session->id = 'user2-session';
         $user2Session->user_id = $user2->id;
         $user2Session->ip_address = $this->faker->ipv4();

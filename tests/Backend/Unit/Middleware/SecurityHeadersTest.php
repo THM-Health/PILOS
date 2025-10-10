@@ -25,7 +25,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -37,7 +36,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -51,7 +49,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -65,7 +62,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -79,7 +75,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -95,7 +90,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -113,7 +107,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -131,7 +124,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -149,7 +141,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -167,7 +158,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -188,7 +178,6 @@ class SecurityHeadersTest extends TestCase
             $request = Request::create('/test', 'GET');
             
             $response = $this->middleware->handle($request, function ($req) {
-                (void) $req;
                 return new Response('test content');
             });
 
@@ -208,7 +197,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -224,7 +212,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) use ($expectedContent) {
-            (void) $req;
             return new Response($expectedContent);
         });
 
@@ -236,7 +223,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test', 201);
         });
 
@@ -248,7 +234,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/api/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return response()->json(['data' => 'test']);
         });
 
@@ -262,7 +247,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return redirect('/other-page');
         });
 
@@ -290,7 +274,6 @@ class SecurityHeadersTest extends TestCase
             $request = Request::create('/test', 'GET');
             
             $response = $this->middleware->handle($request, function ($req) {
-                (void) $req;
                 return new Response('test');
             });
 
@@ -307,7 +290,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             return new Response('test content');
         });
 
@@ -320,7 +302,6 @@ class SecurityHeadersTest extends TestCase
         $request = Request::create('/test', 'GET');
         
         $response = $this->middleware->handle($request, function ($req) {
-            (void) $req;
             $response = new Response('test content');
             $response->headers->set('X-Custom-Header', 'custom-value');
             $response->headers->set('Cache-Control', 'no-cache');
