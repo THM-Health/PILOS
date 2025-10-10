@@ -5,7 +5,7 @@ import { createI18n } from "vue-i18n";
  * Custom message compiler for vue-i18n to use Laravel locale file syntax
  */
 function messageCompiler(message) {
-  // Check if message is missing in the locales (!!missing!! injected by missingHandler)
+  // Check if a message is missing in the locales (!!missing!! injected by missingHandler)
   const isMissing = message.startsWith("!!missing!!");
   // Remove "!!missing!!" from message
   if (isMissing) {
@@ -17,12 +17,18 @@ function messageCompiler(message) {
       if (!ctx.values) {
         return message;
       }
+
+      // If ctx.values has n property, we have to handle pluralization
+      if (ctx.values["n"] !== undefined) {
+        message = getPluralization(message, ctx.values["n"]);
+      }
+
       Object.keys(ctx.values).forEach((key) => {
         // Use Laravel syntax :placeholder instead of {placeholder}
         message = message.replace(`:${key}`, ctx.values[key]);
       });
 
-      // If message is missing and values are present, append values to message for debugging
+      // If a message is missing and values are present, append values to the message for debugging
       if (isMissing && Object.keys(ctx.values).length > 0) {
         return message + "_" + JSON.stringify(ctx.values);
       }
@@ -30,6 +36,32 @@ function messageCompiler(message) {
       return message;
     };
   }
+}
+
+function getPluralization(message, count) {
+  const messageParts = message.split("|");
+  const regex = /^(?:(?:\{(\d+)\})|(?:\[(\d+),(\d+|\*)\])) (.*)$/;
+
+  for (const part of messageParts) {
+    const match = part.trim().match(regex);
+    if (match) {
+      // Match {n}
+      if (match[1] !== undefined && Number(match[1]) === Number(count)) {
+        return match[4];
+      }
+      if (match[1] === undefined) {
+        // Match [n,m] or [n,*]
+        const n = Number(match[2]);
+        const m = match[3] === "*" ? Infinity : Number(match[3]);
+        if (Number(count) >= n && Number(count) <= m) {
+          return match[4];
+        }
+      }
+    }
+  }
+
+  // Fallback; should not happen if the syntax is correct
+  return message;
 }
 
 function missingHandler(locale, key) {
