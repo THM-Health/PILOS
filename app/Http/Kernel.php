@@ -7,6 +7,7 @@ use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RequestMetricsMiddleware;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIfConfig;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\StoreSessionData;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
@@ -30,6 +31,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         RequestMetricsMiddleware::class,
+        SecurityHeaders::class,
     ];
 
     /**
