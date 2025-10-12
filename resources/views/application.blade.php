@@ -13,6 +13,12 @@
 
     <!-- Scripts -->
     @vite(['resources/js/app.js', 'resources/sass/app.scss'])
+
+    <!-- ToDo fix / improve this (especially fix behaviour after changes?) -->
+    @if(app(\App\Settings\ThemeSettings::class)->custom_css )
+        <link rel="stylesheet" href="{{ app(\App\Settings\ThemeSettings::class)->custom_css }}">
+    @endif
+
 </head>
 <body class="bg-surface-50 dark:bg-surface-950">
     <div id='app'>

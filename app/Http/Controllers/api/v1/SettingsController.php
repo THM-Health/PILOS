@@ -89,6 +89,18 @@ class SettingsController extends Controller
             $faviconDark = $request->input('theme_favicon_dark');
         }
 
+        // Custom CSS file // ToDo randomize the filename to avoid caching issues
+        if ($request->has('theme_custom_css')) {
+            if (! empty($request->file('theme_custom_css'))) {
+                $path = $request->file('theme_custom_css')->storeAs('styles', 'custom.css', 'public');
+                $url = Storage::url($path);
+                $themeSettings->custom_css = url($url);
+            } else {
+                Storage::disk('public')->delete('styles/custom.css');
+                $themeSettings->custom_css = null;
+            }
+        }
+
         // Default presentation for BBB
         if ($request->has('bbb_default_presentation')) {
             if ($bigBlueButtonSettings->default_presentation != null) {
