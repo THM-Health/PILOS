@@ -19,7 +19,6 @@ use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-
 class SettingsController extends Controller
 {
     /**
@@ -94,12 +93,12 @@ class SettingsController extends Controller
         // Custom CSS file // ToDo fix randomized file names and deletion of old files
         if ($request->has('theme_custom_css')) {
             // Remove current file if existing
-            if ($themeSettings->custom_css){
+            if ($themeSettings->custom_css !== null) {
                 Storage::disk('public')->delete($themeSettings->custom_css);
             }
 
             if (! empty($request->file('theme_custom_css'))) {
-                $fileName = Str::random(20) . '.css';
+                $fileName = Str::random(20).'.css';
                 $path = $request->file('theme_custom_css')->storeAs('styles', $fileName, 'public');
                 $url = Storage::url($path);
 

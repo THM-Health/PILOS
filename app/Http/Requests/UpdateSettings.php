@@ -50,7 +50,7 @@ class UpdateSettings extends FormRequest
             'theme_favicon_dark_file' => ['bail', 'required_without:theme_favicon_dark', 'mimes:ico', 'max:500', new Antivirus], // 500 KB, larger files are bad for loading times
             'theme_primary_color' => ['required', 'string', 'hex_color'],
             'theme_rounded' => ['required', 'boolean'],
-            'theme_custom_css' =>  ['bail', 'nullable', 'file', 'max:500', 'extensions:css', new Antivirus],
+            'theme_custom_css' => ['bail', 'nullable', 'file', 'max:500', 'extensions:css', new Antivirus],
 
             'banner_enabled' => ['required', 'boolean'],
             'banner_title' => ['nullable', 'string', 'max:255'],

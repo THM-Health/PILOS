@@ -1650,7 +1650,27 @@ function updateSettings() {
         settings.value.general_toast_lifetime === 0 ? "unlimited" : "custom";
 
       // Reload the page to make sure css changes are applied ToDo Improve / Remove this (Could be that only updating the stylesheet link would be enough)
-      window.location.reload();
+      //window.location.reload();
+
+      // Refresh custom css stylesheet link // ToDo only refresh if stylesheet was changed?
+      let customCssLink = document.getElementById("custom-css-stylesheet");
+      if (customCssLink) {
+        // Stylesheet link already exists -> update href or remove link
+        if (settings.value.theme_custom_css !== null) {
+          customCssLink.href = settings.value.theme_custom_css;
+        } else {
+          customCssLink.remove();
+        }
+      } else {
+        // Stylesheet link does not exist yet -> add link if custom css is set
+        if (settings.value.theme_custom_css !== null) {
+          customCssLink = document.createElement("link");
+          customCssLink.id = "custom-css-stylesheet";
+          customCssLink.rel = "stylesheet";
+          customCssLink.href = settings.value.theme_custom_css;
+          document.head.appendChild(customCssLink);
+        }
+      }
     })
     .catch((error) => {
       if (
