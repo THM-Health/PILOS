@@ -1648,6 +1648,9 @@ function updateSettings() {
         settings.value.room_limit === -1 ? "unlimited" : "custom";
       toastLifetimeMode.value =
         settings.value.general_toast_lifetime === 0 ? "unlimited" : "custom";
+
+      // Reload the page to make sure css changes are applied ToDo Improve / Remove this (Could be that only updating the stylesheet link would be enough)
+      window.location.reload();
     })
     .catch((error) => {
       if (

@@ -17,6 +17,8 @@ use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class SettingsController extends Controller
 {
@@ -89,14 +91,20 @@ class SettingsController extends Controller
             $faviconDark = $request->input('theme_favicon_dark');
         }
 
-        // Custom CSS file // ToDo randomize the filename to avoid caching issues
+        // Custom CSS file // ToDo fix randomized file names and deletion of old files
         if ($request->has('theme_custom_css')) {
+            // Remove current file if existing
+            if ($themeSettings->custom_css){
+                Storage::disk('public')->delete($themeSettings->custom_css);
+            }
+
             if (! empty($request->file('theme_custom_css'))) {
-                $path = $request->file('theme_custom_css')->storeAs('styles', 'custom.css', 'public');
+                $fileName = Str::random(20) . '.css';
+                $path = $request->file('theme_custom_css')->storeAs('styles', $fileName, 'public');
                 $url = Storage::url($path);
-                $themeSettings->custom_css = url($url);
+
+                $themeSettings->custom_css = $url;
             } else {
-                Storage::disk('public')->delete('styles/custom.css');
                 $themeSettings->custom_css = null;
             }
         }
