@@ -317,6 +317,8 @@ describe("Admin settings with edit permission", function () {
     cy.get("#no-welcome-page").should("not.be.checked");
   });
 
+  // ToDo improve or move custom css checks to separate
+  //   -> custom css file added, custom css file changed, no changes, custom css file removed
   it("change theme settings", function () {
     cy.visit("/admin/settings");
 
@@ -410,6 +412,13 @@ describe("Admin settings with edit permission", function () {
         cy.get("#theme-rounded").should("be.checked").click();
       });
 
+    cy.get('[data-test="theme-custom-css-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.custom_css.title")
+      .within(() => {
+        cy.checkSettingsFileSelector("", "theme_custom_css.css", true);
+      });
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.theme_favicon = "/images/favicon2.ico";
@@ -418,6 +427,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -499,6 +509,17 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
+
+      const uploadedThemeCustomCss = formData.get("theme_custom_css");
+      expect(uploadedThemeCustomCss.name).to.eql("theme_custom_css.css");
+      expect(uploadedThemeCustomCss.type).to.eql("text/css");
+
+      cy.fixture("files/theme_custom_css.css", "base64").then((content) => {
+        uploadedThemeCustomCss.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(content).to.eql(base64);
+        });
+      });
     });
 
     // Check that loading is done
@@ -533,6 +554,27 @@ describe("Admin settings with edit permission", function () {
     });
     cy.get("#theme-rounded").should("not.be.checked");
 
+    cy.get('[data-test="theme-custom-css-field"]').within(() => {
+      cy.get('[data-test="file-input-button"]').should(
+        "have.text",
+        "app.browse",
+      );
+
+      cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
+
+      cy.get('[data-test="settings-file-view-button"]')
+        .should("be.visible")
+        .and("include.text", "app.view")
+        .and("have.attr", "href", "/storage/styles/theme_custom_css.css");
+    });
+
+    // Check that stylesheet was added
+    cy.get("#custom-css-stylesheet").should(
+      "have.attr",
+      "href",
+      "/storage/styles/theme_custom_css.css",
+    );
+
     // Save changes again
     cy.fixture("settings.json").then((settings) => {
       settings.data.theme_favicon = "/images/favicon2.ico";
@@ -541,6 +583,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -574,7 +617,120 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
+
+      expect(formData.get("theme_custom_css")).to.eql(null);
     });
+
+    // Check that stylesheet is still there
+    cy.get("#custom-css-stylesheet").should(
+      "have.attr",
+      "href",
+      "/storage/styles/theme_custom_css.css",
+    );
+
+    // Change custom css file
+    cy.get('[data-test="theme-custom-css-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.custom_css.title")
+      .within(() => {
+        cy.get('[data-test="file-input-input"]').selectFile(
+          "tests/Frontend/fixtures/files/theme_custom_css.css",
+          {
+            force: true,
+          },
+        );
+      });
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css2.css";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      const uploadedThemeCustomCss = formData.get("theme_custom_css");
+      expect(uploadedThemeCustomCss.name).to.eql("theme_custom_css.css");
+      expect(uploadedThemeCustomCss.type).to.eql("text/css");
+
+      cy.fixture("files/theme_custom_css.css", "base64").then((content) => {
+        uploadedThemeCustomCss.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(content).to.eql(base64);
+        });
+      });
+    });
+
+    // Check that stylesheet was updated
+    cy.get("#custom-css-stylesheet").should(
+      "have.attr",
+      "href",
+      "/storage/styles/theme_custom_css2.css",
+    );
+
+    // Remove custom css
+    cy.get('[data-test="theme-custom-css-field"]').within(() => {
+      cy.get('[data-test="settings-file-delete-button"]').click();
+      cy.get('[data-test="file-input-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-undo-delete-button"]')
+        .should("be.visible")
+        .and("have.text", "app.undo_delete")
+        .click();
+
+      cy.get('[data-test="file-input-button"]').should(
+        "have.text",
+        "app.browse",
+      );
+
+      cy.get('[data-test="settings-file-view-button"]')
+        .should("be.visible")
+        .and("include.text", "app.view")
+        .and("have.attr", "href", "/storage/styles/theme_custom_css2.css");
+
+      cy.get('[data-test="settings-file-delete-button"]')
+        .should("be.visible")
+        .click();
+    });
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_custom_css = null;
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_custom_css")).to.eql("");
+    });
+
+    // Check that stylesheet was removed
+    cy.get("#custom-css-stylesheet").should("not.exist");
   });
 
   it("change banner settings", function () {
@@ -2585,6 +2741,7 @@ describe("Admin settings with edit permission", function () {
           theme_logo_dark_file: ["The theme logo dark file field is required."],
           theme_primary_color: ["The theme primary color field is required."],
           theme_rounded: ["The theme rounded field is required."],
+          theme_custom_css: ["The theme custom css field is required."],
           banner_enabled: ["The banner enabled field is required."],
           banner_title: ["The selected banner title is invalid."],
           banner_icon: ["The selected banner icon is invalid."],
@@ -2703,6 +2860,11 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="theme-rounded-field"]').should(
       "include.text",
       "The theme rounded field is required.",
+    );
+
+    cy.get('[data-test="theme-custom-css-field"]').should(
+      "include.text",
+      "The theme custom css field is required.",
     );
 
     cy.get('[data-test="banner-enabled-field"]').should(
