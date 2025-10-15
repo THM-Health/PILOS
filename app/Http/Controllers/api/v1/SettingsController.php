@@ -94,7 +94,10 @@ class SettingsController extends Controller
         if ($request->has('theme_custom_css')) {
             // Remove current file if existing
             if ($themeSettings->custom_css !== null) {
-                Storage::disk('public')->delete($themeSettings->custom_css);
+
+                $file_path = substr($themeSettings->custom_css, strlen('/storage/'));
+                Storage::disk('public')->delete($file_path);
+
             }
 
             if (! empty($request->file('theme_custom_css'))) {
