@@ -49,7 +49,7 @@
           <label
             for="authenticator"
             class="col-span-12 mb-2 md:col-span-3 md:mb-0"
-            >{{ $t("auth.authenticator") }}</label
+            >{{ $t("admin.users.authenticator.title") }}</label
           >
           <div class="col-span-12 md:col-span-9">
             <InputText
