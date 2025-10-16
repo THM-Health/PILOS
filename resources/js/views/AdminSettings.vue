@@ -1626,6 +1626,26 @@ function updateSettings() {
       },
     })
     .then((response) => {
+      // Reload the page if any settings were changed
+      // that are explicitly set in the HTML head
+      if (
+        // Favicon file uploaded
+        formData.has("theme_favicon_file") ||
+        // Favicon url changed
+        formData.get("theme_favicon") !==
+          settingsStore.getSetting("theme.favicon") ||
+        // Favicon dark file uploaded
+        formData.has("theme_favicon_dark_file") ||
+        // Favicon dark url changed
+        formData.get("theme_favicon_dark") !==
+          settingsStore.getSetting("theme.favicon_dark") ||
+        // Custom css file changed (uploaded or deleted)
+        formData.has("theme_custom_css")
+      ) {
+        window.location.reload();
+        return;
+      }
+
       settingsStore.getSettings();
       uploadLogoFile.value = null;
       uploadLogoDarkFile.value = null;
@@ -1648,29 +1668,6 @@ function updateSettings() {
         settings.value.room_limit === -1 ? "unlimited" : "custom";
       toastLifetimeMode.value =
         settings.value.general_toast_lifetime === 0 ? "unlimited" : "custom";
-
-      // Reload the page to make sure css changes are applied ToDo Improve / Remove this (Could be that only updating the stylesheet link would be enough)
-      //window.location.reload();
-
-      // Refresh custom css stylesheet link // ToDo only refresh if stylesheet was changed?
-      let customCssLink = document.getElementById("custom-css-stylesheet");
-      if (customCssLink) {
-        // Stylesheet link already exists -> update href or remove link
-        if (settings.value.theme_custom_css !== null) {
-          customCssLink.href = settings.value.theme_custom_css;
-        } else {
-          customCssLink.remove();
-        }
-      } else {
-        // Stylesheet link does not exist yet -> add link if custom css is set
-        if (settings.value.theme_custom_css !== null) {
-          customCssLink = document.createElement("link");
-          customCssLink.id = "custom-css-stylesheet";
-          customCssLink.rel = "stylesheet";
-          customCssLink.href = settings.value.theme_custom_css;
-          document.head.appendChild(customCssLink);
-        }
-      }
     })
     .catch((error) => {
       if (

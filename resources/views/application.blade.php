@@ -14,9 +14,8 @@
     <!-- Scripts -->
     @vite(['resources/js/app.js', 'resources/sass/app.scss'])
 
-    <!-- ToDo fix / improve this (especially fix behaviour after changes?) -->
     @if(app(\App\Settings\ThemeSettings::class)->custom_css )
-        <link id="custom-css-stylesheet" rel="stylesheet" href="{{ app(\App\Settings\ThemeSettings::class)->custom_css }}">
+        <link rel="stylesheet" nonce="{{ app('csp-nonce') }}" href="{{ app(\App\Settings\ThemeSettings::class)->custom_css }}">
     @endif
 
 </head>
