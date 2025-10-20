@@ -200,10 +200,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .and(i === 4 ? "have.class" : "not.have.class", "selected");
         }
 
@@ -325,10 +323,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .and("not.have.class", "selected");
         }
 
@@ -346,10 +342,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .and("not.have.class", "selected");
         }
 
@@ -469,10 +463,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .should(i === 0 ? "have.class" : "not.have.class", "selected");
         }
 
@@ -492,10 +484,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .should(i === 7 ? "have.class" : "not.have.class", "selected");
         }
 

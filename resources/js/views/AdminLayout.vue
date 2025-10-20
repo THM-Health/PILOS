@@ -1,8 +1,8 @@
 <template>
-  <div class="container mb-8 mt-4">
+  <div class="container mt-4 mb-8">
     <Card :pt="{ content: { class: 'p-0' } }">
       <template #header>
-        <div class="flex flex-col gap-2 border-b p-4 border-surface">
+        <div class="flex flex-col gap-2 border-b border-surface p-4">
           <h1 class="text-3xl font-medium">
             {{ $t("admin.title") }}
           </h1>

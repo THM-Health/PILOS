@@ -1074,8 +1074,14 @@ class UserTest extends TestCase
         $user->refresh();
         $this->assertTrue(Hash::check($newPassword, $user->password));
 
-        // Check if other sessions are deleted, but not the current one or of other users
-        $this->assertNotNull(Session::find($currentSession->id));
+        // Get current session ID
+        $newSessionId = $this->app['session']->getId();
+
+        // Verify the session ID was regenerated
+        $this->assertNotEquals($newSessionId, $currentSession->id);
+
+        // Check if old and other sessions are deleted, but not of other users
+        $this->assertNull(Session::find($currentSession->id));
         $this->assertNull(Session::find($otherSession->id));
         $this->assertNotNull(Session::find($otherUserSession->id));
 
@@ -1360,6 +1366,7 @@ class UserTest extends TestCase
         Config::set('antivirus.clamav.url', 'http://clamav');
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $changes['image'] = $file;
+        $changes['updated_at'] = $user->updated_at;
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);

@@ -4,7 +4,7 @@
 
     <div class="w-full">
       <div
-        class="flex flex-col gap-2 border border-surface-200 p-4 rounded-border md:max-h-64 md:overflow-y-auto dark:border-surface-600"
+        class="flex flex-col gap-2 rounded-border border border-surface-200 p-4 md:max-h-64 md:overflow-y-auto dark:border-surface-600"
       >
         <!-- Description for the room type -->
         <span class="font-bold">{{ $t("app.description") }}</span>
