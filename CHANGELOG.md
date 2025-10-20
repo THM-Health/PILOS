@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security header X-XSS-Protection ([#2519])
 - Security header Referrer-Policy ([#2519])
 - Docs: HTTP Strict Transport Security (HSTS) recommendations ([#2519])
+- Virus scan results to metrics ([#2304])
 
 ### Changed
 
@@ -558,6 +559,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
+[#2304]: https://github.com/THM-Health/PILOS/pull/2304
 [#2313]: https://github.com/THM-Health/PILOS/issues/2313
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
