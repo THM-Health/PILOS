@@ -128,7 +128,7 @@ describe("Admin users view", function () {
 
     cy.get('[data-test="authenticator-field"]')
       .should("be.visible")
-      .and("include.text", "auth.authenticator")
+      .and("include.text", "admin.users.authenticator.title")
       .within(() => {
         cy.get("#authenticator")
           .should("have.value", "admin.users.authenticator.local")
