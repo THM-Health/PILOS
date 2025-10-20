@@ -18,6 +18,16 @@ describe("Admin settings with edit permission", function () {
         body: currentUser,
       });
     });
+
+    cy.fixture("config.json").then((config) => {
+      config.data.theme.favicon = "/images/favicon.ico";
+      config.data.theme.favicon_dark = "/images/favicon-dark.ico";
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
   });
 
   it("change application settings", function () {
@@ -317,37 +327,14 @@ describe("Admin settings with edit permission", function () {
     cy.get("#no-welcome-page").should("not.be.checked");
   });
 
-  // ToDo improve or move custom css checks to separate
-  //   -> custom css file added, custom css file changed, no changes, custom css file removed
-  it("change theme settings", function () {
+  it("change theme settings that do not trigger reload", function () {
     cy.visit("/admin/settings");
 
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.theme.title");
 
-    cy.get('[data-test="favicon-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.settings.favicon.title")
-      .within(() => {
-        cy.checkSettingsImageSelector(
-          "/images/favicon.ico",
-          "favicon.ico",
-          false,
-        );
-      });
-
-    cy.get('[data-test="favicon-dark-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.settings.favicon_dark.title")
-      .within(() => {
-        cy.checkSettingsImageSelector(
-          "/images/favicon-dark.ico",
-          "favicon-dark.ico",
-          false,
-        );
-      });
-
+    // Change settings that do not trigger reload
     cy.get('[data-test="logo-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.logo.title")
@@ -395,7 +382,7 @@ describe("Admin settings with edit permission", function () {
             .should("not.have.class", "selected");
         }
 
-        // Set custom color and check that color buttons is selected
+        // Set custom color and check that color button is selected
         cy.get("#theme-primary-color").type("#14b8a6");
 
         for (let i = 0; i < 10; i++) {
@@ -412,22 +399,12 @@ describe("Admin settings with edit permission", function () {
         cy.get("#theme-rounded").should("be.checked").click();
       });
 
-    cy.get('[data-test="theme-custom-css-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.settings.theme.custom_css.title")
-      .within(() => {
-        cy.checkSettingsFileSelector("", "theme_custom_css.css", true);
-      });
-
     // Save changes
     cy.fixture("settings.json").then((settings) => {
-      settings.data.theme_favicon = "/images/favicon2.ico";
-      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
       settings.data.theme_logo = "/images/logo2.svg";
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
-      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -458,30 +435,13 @@ describe("Admin settings with edit permission", function () {
         interception.request.headers,
       );
 
-      const uploadedFavicon = formData.get("theme_favicon_file");
+      expect(formData.get("theme_favicon_file")).to.eql(null);
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon.ico");
 
-      expect(uploadedFavicon.name).to.eql("favicon.ico");
-      expect(uploadedFavicon.type).to.eql("image/vnd.microsoft.icon");
-      cy.fixture("files/favicon.ico", "base64").then((content) => {
-        uploadedFavicon.arrayBuffer().then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          expect(base64).to.eql(content);
-        });
-      });
-
-      expect(formData.get("theme_favicon")).to.eql(null);
-
-      const uploadedFaviconDark = formData.get("theme_favicon_dark_file");
-      expect(uploadedFaviconDark.name).to.eql("favicon-dark.ico");
-      expect(uploadedFaviconDark.type).to.eql("image/vnd.microsoft.icon");
-      cy.fixture("files/favicon-dark.ico", "base64").then((content) => {
-        uploadedFaviconDark.arrayBuffer().then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          expect(content).to.eql(base64);
-        });
-      });
-
-      expect(formData.get("theme_favicon_dark")).to.eql(null);
+      expect(formData.get("theme_favicon_dark_file")).to.eql(null);
+      expect(formData.get("theme_favicon_dark")).to.eql(
+        "/images/favicon-dark.ico",
+      );
 
       const uploadedLogo = formData.get("theme_logo_file");
       expect(uploadedLogo.name).to.eql("logo.svg");
@@ -510,31 +470,16 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
 
-      const uploadedThemeCustomCss = formData.get("theme_custom_css");
-      expect(uploadedThemeCustomCss.name).to.eql("theme_custom_css.css");
-      expect(uploadedThemeCustomCss.type).to.eql("text/css");
-
-      cy.fixture("files/theme_custom_css.css", "base64").then((content) => {
-        uploadedThemeCustomCss.arrayBuffer().then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          expect(content).to.eql(base64);
-        });
-      });
+      expect(formData.get("theme_custom_css")).to.eql(null);
     });
+
+    // Check that page was not reloaded (ToDo) and check that changes are applied
 
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
 
     // Check that settings are shown correctly
-    cy.get('[data-test="favicon-field"]')
-      .find('[data-test="settings-image-preview"]')
-      .should("have.attr", "src")
-      .and("include", "/images/favicon2.ico");
-    cy.get('[data-test="favicon-dark-field"]')
-      .find('[data-test="settings-image-preview"]')
-      .should("have.attr", "src")
-      .and("include", "/images/favicon-dark2.ico");
     cy.get('[data-test="logo-field"]')
       .find('[data-test="settings-image-preview"]')
       .should("have.attr", "src")
@@ -543,6 +488,7 @@ describe("Admin settings with edit permission", function () {
       .find('[data-test="settings-image-preview"]')
       .should("have.attr", "src")
       .and("include", "/images/logo-dark2.svg");
+
     cy.get('[data-test="primary-color-field"]').within(() => {
       for (let i = 0; i < 10; i++) {
         cy.get('[data-test="color-button"]')
@@ -554,36 +500,12 @@ describe("Admin settings with edit permission", function () {
     });
     cy.get("#theme-rounded").should("not.be.checked");
 
-    cy.get('[data-test="theme-custom-css-field"]').within(() => {
-      cy.get('[data-test="file-input-button"]').should(
-        "have.text",
-        "app.browse",
-      );
-
-      cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
-
-      cy.get('[data-test="settings-file-view-button"]')
-        .should("be.visible")
-        .and("include.text", "app.view")
-        .and("have.attr", "href", "/storage/styles/theme_custom_css.css");
-    });
-
-    // Check that stylesheet was added
-    cy.get("#custom-css-stylesheet").should(
-      "have.attr",
-      "href",
-      "/storage/styles/theme_custom_css.css",
-    );
-
-    // Save changes again
+    // Save changes again (no new changes)
     cy.fixture("settings.json").then((settings) => {
-      settings.data.theme_favicon = "/images/favicon2.ico";
-      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
       settings.data.theme_logo = "/images/logo2.svg";
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
-      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -602,11 +524,11 @@ describe("Admin settings with edit permission", function () {
       );
 
       expect(formData.get("theme_favicon_file")).to.eql(null);
-      expect(formData.get("theme_favicon")).to.eql("/images/favicon2.ico");
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon.ico");
 
       expect(formData.get("theme_favicon_dark_file")).to.eql(null);
       expect(formData.get("theme_favicon_dark")).to.eql(
-        "/images/favicon-dark2.ico",
+        "/images/favicon-dark.ico",
       );
 
       expect(formData.get("theme_logo_file")).to.eql(null);
@@ -621,34 +543,383 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
 
-    // Check that stylesheet is still there
-    cy.get("#custom-css-stylesheet").should(
-      "have.attr",
-      "href",
-      "/storage/styles/theme_custom_css.css",
-    );
+    // ToDo check that page was not reloaded
 
-    // Change custom css file
-    cy.get('[data-test="theme-custom-css-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.settings.theme.custom_css.title")
-      .within(() => {
-        cy.get('[data-test="file-input-input"]').selectFile(
-          "tests/Frontend/fixtures/files/theme_custom_css.css",
-          {
-            force: true,
-          },
-        );
-      });
+    // Check that settings are shown correctly
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo2.svg");
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo-dark2.svg");
+
+    cy.get('[data-test="primary-color-field"]').within(() => {
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-test="color-button"]')
+          .eq(i)
+          .should(i === 3 ? "have.class" : "not.have.class", "selected");
+      }
+
+      cy.get("#theme-primary-color").should("have.value", "#14b8a6");
+    });
+    cy.get("#theme-rounded").should("not.be.checked");
+
+    // Change logo urls
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/logo2.svg")
+      .clear();
+
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/logo3.svg");
+
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/logo-dark2.svg")
+      .clear();
+
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/logo-dark3.svg");
 
     // Save changes again
     cy.fixture("settings.json").then((settings) => {
-      settings.data.theme_custom_css = "/storage/styles/theme_custom_css2.css";
+      settings.data.theme_logo = "/images/logo3.svg";
+      settings.data.theme_logo_dark = "/images/logo-dark3.svg";
+      settings.data.theme_primary_color = "#14b8a6";
+      settings.data.theme_rounded = false;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
         body: settings,
       }).as("saveChangesRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_favicon_file")).to.eql(null);
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon.ico");
+
+      expect(formData.get("theme_favicon_dark_file")).to.eql(null);
+      expect(formData.get("theme_favicon_dark")).to.eql(
+        "/images/favicon-dark.ico",
+      );
+
+      expect(formData.get("theme_logo_file")).to.eql(null);
+      expect(formData.get("theme_logo")).to.eql("/images/logo3.svg");
+
+      expect(formData.get("theme_logo_dark_file")).to.eql(null);
+      expect(formData.get("theme_logo_dark")).to.eql("/images/logo-dark3.svg");
+
+      expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
+      expect(formData.get("theme_rounded")).to.equal("0");
+
+      expect(formData.get("theme_custom_css")).to.eql(null);
+    });
+
+    // Check that page was not reloaded and settings where updated (ToDo)
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo3.svg");
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo-dark3.svg");
+
+    cy.get('[data-test="primary-color-field"]').within(() => {
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-test="color-button"]')
+          .eq(i)
+          .should(i === 3 ? "have.class" : "not.have.class", "selected");
+      }
+
+      cy.get("#theme-primary-color").should("have.value", "#14b8a6");
+    });
+    cy.get("#theme-rounded").should("not.be.checked");
+  });
+
+  it("change theme favicon setting", function () {
+    cy.visit("/admin/settings");
+
+    cy.wait("@settingsRequest");
+
+    cy.contains("admin.settings.theme.title");
+
+    // Upload new favicon
+    cy.get('[data-test="favicon-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.favicon.title")
+      .within(() => {
+        cy.checkSettingsImageSelector(
+          "/images/favicon.ico",
+          "favicon.ico",
+          false,
+        );
+      });
+
+    // Save changes
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon = "/images/favicon2.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      const uploadedFavicon = formData.get("theme_favicon_file");
+
+      expect(uploadedFavicon.name).to.eql("favicon.ico");
+      expect(uploadedFavicon.type).to.eql("image/vnd.microsoft.icon");
+      cy.fixture("files/favicon.ico", "base64").then((content) => {
+        uploadedFavicon.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(base64).to.eql(content);
+        });
+      });
+
+      expect(formData.get("theme_favicon")).to.eql(null);
+    });
+
+    // ToDo check that page was reloaded
+
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon2.ico");
+
+    // Change favicon url
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/favicon2.ico")
+      .clear();
+
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/favicon3.ico");
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon = "/images/favicon3.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_favicon_file")).to.eql(null);
+
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon3.ico");
+    });
+
+    // ToDo check that page was reloaded
+
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon3.ico");
+  });
+
+  it("change theme favicon dark setting", function () {
+    cy.visit("/admin/settings");
+
+    cy.wait("@settingsRequest");
+
+    cy.contains("admin.settings.theme.title");
+
+    // Upload new favicon
+    cy.get('[data-test="favicon-dark-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.favicon_dark.title")
+      .within(() => {
+        cy.checkSettingsImageSelector(
+          "/images/favicon-dark.ico",
+          "favicon-dark.ico",
+          false,
+        );
+      });
+
+    // Save changes
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      const uploadedFavicon = formData.get("theme_favicon_dark_file");
+
+      expect(uploadedFavicon.name).to.eql("favicon-dark.ico");
+      expect(uploadedFavicon.type).to.eql("image/vnd.microsoft.icon");
+      cy.fixture("files/favicon-dark.ico", "base64").then((content) => {
+        uploadedFavicon.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(base64).to.eql(content);
+        });
+      });
+
+      expect(formData.get("theme_favicon_dark")).to.eql(null);
+    });
+
+    // ToDo check that page was reloaded
+
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon-dark2.ico");
+
+    // Change favicon url
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/favicon-dark2.ico")
+      .clear();
+
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/favicon-dark3.ico");
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon_dark = "/images/favicon-dark3.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_favicon_dark_file")).to.eql(null);
+
+      expect(formData.get("theme_favicon_dark")).to.eql(
+        "/images/favicon-dark3.ico",
+      );
+    });
+
+    // ToDo check that page was reloaded
+
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon-dark3.ico");
+  });
+
+  it("change theme custom css setting", function () {
+    cy.visit("/admin/settings");
+
+    cy.wait("@settingsRequest");
+
+    cy.contains("admin.settings.theme.title");
+
+    // Upload new css file
+    cy.get('[data-test="theme-custom-css-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.custom_css.title")
+      .within(() => {
+        cy.checkSettingsFileSelector("", "theme_custom_css.css", true);
+      });
+
+    // Save changes
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
 
       cy.get('[data-test="settings-save-button"]')
         .should("include.text", "app.save")
@@ -673,37 +944,26 @@ describe("Admin settings with edit permission", function () {
       });
     });
 
-    // Check that stylesheet was updated
-    cy.get("#custom-css-stylesheet").should(
-      "have.attr",
-      "href",
-      "/storage/styles/theme_custom_css2.css",
-    );
+    // ToDo check that page was reloaded
 
-    // Remove custom css
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
     cy.get('[data-test="theme-custom-css-field"]').within(() => {
-      cy.get('[data-test="settings-file-delete-button"]').click();
-      cy.get('[data-test="file-input-button"]').should("not.exist");
-      cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
-      cy.get('[data-test="settings-file-undo-delete-button"]')
-        .should("be.visible")
-        .and("have.text", "app.undo_delete")
-        .click();
-
       cy.get('[data-test="file-input-button"]').should(
         "have.text",
         "app.browse",
       );
 
+      cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
+
       cy.get('[data-test="settings-file-view-button"]')
         .should("be.visible")
         .and("include.text", "app.view")
-        .and("have.attr", "href", "/storage/styles/theme_custom_css2.css");
+        .and("have.attr", "href", "/storage/styles/theme_custom_css.css");
 
-      cy.get('[data-test="settings-file-delete-button"]')
-        .should("be.visible")
-        .click();
+      // Remove file
+      cy.get('[data-test="settings-file-delete-button"]').click();
     });
 
     // Save changes again
@@ -714,6 +974,11 @@ describe("Admin settings with edit permission", function () {
         statusCode: 200,
         body: settings,
       }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
 
       cy.get('[data-test="settings-save-button"]')
         .should("include.text", "app.save")
@@ -729,8 +994,21 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql("");
     });
 
-    // Check that stylesheet was removed
-    cy.get("#custom-css-stylesheet").should("not.exist");
+    // ToDo check that page was reloaded
+
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="theme-custom-css-field"]').within(() => {
+      cy.get('[data-test="file-input-button"]').should(
+        "have.text",
+        "app.browse",
+      );
+
+      cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
+
+      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+    });
   });
 
   it("change banner settings", function () {

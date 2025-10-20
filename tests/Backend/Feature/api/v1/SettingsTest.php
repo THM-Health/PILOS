@@ -596,7 +596,7 @@ class SettingsTest extends TestCase
     }
 
     /**
-     * Test to update the custom theme style sheet ToDo improve
+     * Test to update the custom theme style sheet
      */
     public function test_update_theme_custom_css()
     {
@@ -662,7 +662,7 @@ class SettingsTest extends TestCase
 
         $this->assertEquals('body { background-color: #273035; }', Storage::disk('public')->get($rel_path));
 
-        // Update old file gets deleted
+        // Update again and check that old file gets deleted
         $style2 = UploadedFile::fake()->create('style.css');
         file_put_contents($style2->getRealPath(), 'body { background-color: #000; }');
 
@@ -685,14 +685,21 @@ class SettingsTest extends TestCase
         $request->assertStatus(200);
         $this->assertNotNull($response->json('data.theme_custom_css'));
 
+        $rel_path3 = substr($request->json('data.theme_custom_css'), strlen('/storage/'));
+        $this->assertEquals($rel_path2, $rel_path3);
+
         Storage::disk('public')->assertExists($rel_path2);
 
         $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get($rel_path2));
 
-        // Clear default presentation (file deleted and setting removed)
+        // Clear css file (file deleted and setting removed)
         $payload['theme_custom_css'] = '';
-        $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
-            ->assertSuccessful();
+        $request = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
+
+        $request->assertStatus(200);
+        $this->assertNotNull($response->json('data.theme_custom_css'));
+
+        // Check that setting is updated and file is deleted
         $this->assertNull(app(ThemeSettings::class)->custom_css);
         Storage::disk('public')->assertMissing($rel_path2);
     }
