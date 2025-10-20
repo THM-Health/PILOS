@@ -4,7 +4,7 @@
     <div
       tabindex="0"
       data-test="room-card"
-      class="border-surface rounded-border hover:bg-emphasis relative h-full border shadow-none"
+      class="relative h-full rounded-border border border-surface shadow-none hover:bg-emphasis"
       @click="open"
       @keyup.enter="open"
     >
@@ -38,7 +38,7 @@
               </div>
             </div>
             <p
-              class="text-break text-color mt-2 mb-4 font-bold"
+              class="text-break mt-2 mb-4 font-bold text-color"
               style="width: 100%"
             >
               {{ props.room.name }}

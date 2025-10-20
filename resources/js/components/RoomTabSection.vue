@@ -3,7 +3,7 @@
     <template #header>
       <!-- Tab header -->
       <div
-        class="border-surface mb-5 flex flex-row justify-between border-b px-6 py-4"
+        class="mb-5 flex flex-row justify-between border-b border-surface px-6 py-4"
       >
         <!-- Current tab -->
         <div class="flex flex-row items-center gap-2 px-2 text-xl">
@@ -107,7 +107,7 @@
         class="flex h-16 w-16 items-center justify-center rounded-full"
       >
         <i
-          class="fa-solid fa-ban dark:text-surface-950 text-4xl text-white"
+          class="fa-solid fa-ban text-4xl text-white dark:text-surface-950"
         ></i>
       </Badge>
     </div>

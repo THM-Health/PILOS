@@ -105,7 +105,7 @@
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-history-item"
-                class="border-surface flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
+                class="flex flex-col justify-between gap-4 border-t border-surface py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
                   <p class="m-0 text-lg font-semibold">

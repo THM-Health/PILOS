@@ -33,7 +33,7 @@
     <div class="flex flex-col gap-2">
       <label
         for="file"
-        class="p-button p-component rounded-border flex flex-row justify-center gap-2"
+        class="p-button p-component flex flex-row justify-center gap-2 rounded-border"
         :class="{ 'p-disabled': disabled || isUploading }"
         tabindex="0"
         data-test="upload-file-button"
@@ -58,7 +58,7 @@
       />
       <div
         ref="dropZoneRef"
-        class="border-surface-400 rounded-border dark:border-surface-400 cursor-pointer items-center border p-2 text-center"
+        class="cursor-pointer items-center rounded-border border border-surface-400 p-2 text-center dark:border-surface-400"
         :class="dropZoneClasses"
         data-test="drop-zone"
         @keyup.enter="fileInputRef.click()"

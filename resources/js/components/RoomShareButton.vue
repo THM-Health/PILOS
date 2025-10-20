@@ -27,7 +27,7 @@
             </InputIcon>
             <InputText
               id="invitationLink"
-              class="border-surface-0 dark:border-surface-900 w-full text-ellipsis shadow-none"
+              class="w-full border-surface-0 text-ellipsis shadow-none dark:border-surface-900"
               :aria-label="$t('rooms.invitation.link')"
               readonly
               :value="roomUrl"
@@ -45,7 +45,7 @@
             </InputIcon>
             <InputText
               id="invitationCode"
-              class="border-surface-0 dark:border-surface-900 w-full shadow-none"
+              class="w-full border-surface-0 shadow-none dark:border-surface-900"
               :aria-label="$t('rooms.invitation.code')"
               readonly
               :value="formattedAccessCode"

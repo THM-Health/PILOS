@@ -185,7 +185,7 @@
               <div
                 data-test="room-member-item"
                 class="flex flex-col justify-between gap-4 py-4 md:flex-row"
-                :class="{ 'border-surface border-t': index !== 0 }"
+                :class="{ 'border-t border-surface': index !== 0 }"
               >
                 <div class="flex flex-row gap-6">
                   <div

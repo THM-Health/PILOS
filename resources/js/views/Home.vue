@@ -1,7 +1,7 @@
 <template>
   <div class="relative isolate">
     <svg
-      class="stroke-surface-200 dark:stroke-surface-800 absolute inset-x-0 top-0 -z-10 h-[64rem] w-full [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]"
+      class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] stroke-surface-200 dark:stroke-surface-800"
       aria-hidden="true"
     >
       <defs>
@@ -19,7 +19,7 @@
       <svg
         x="50%"
         y="-1"
-        class="fill-surface-200 dark:fill-surface-700 overflow-visible"
+        class="overflow-visible fill-surface-200 dark:fill-surface-700"
       >
         <path
           d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
@@ -38,7 +38,7 @@
       aria-hidden="true"
     >
       <div
-        class="from-primary-400 to-primary-600 aspect-[801/1036] w-[50.0625rem] bg-gradient-to-tr opacity-30"
+        class="aspect-[801/1036] w-[50.0625rem] bg-gradient-to-tr from-primary-400 to-primary-600 opacity-30"
         style="
           clip-path: polygon(
             63.1% 29.5%,

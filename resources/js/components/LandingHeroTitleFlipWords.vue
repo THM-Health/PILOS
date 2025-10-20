@@ -7,7 +7,7 @@
     <span
       v-if="currentWord"
       :key="currentWord"
-      class="text-primary relative inline"
+      class="relative inline text-primary"
     >
       {{ currentWord }}
     </span>

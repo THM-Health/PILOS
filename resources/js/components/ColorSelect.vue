@@ -4,7 +4,7 @@
       v-for="color in props.colors"
       :key="color"
       role="button"
-      class="color-select border-surface rounded-border relative h-11 w-11 overflow-hidden border"
+      class="color-select relative h-11 w-11 overflow-hidden rounded-border border border-surface"
       :style="{ 'background-color': color }"
       :class="{
         selected: isColorSelected(color),

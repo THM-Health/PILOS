@@ -5,7 +5,7 @@
     >
       <div class="relative w-full max-w-xl lg:shrink-0 xl:max-w-2xl">
         <LandingHeroTitle />
-        <p class="text-color mt-6 text-lg leading-8 sm:max-w-md lg:max-w-none">
+        <p class="mt-6 text-lg leading-8 text-color sm:max-w-md lg:max-w-none">
           {{ $t("home.description_intro") }}<br />
           {{ $t("home.description_details") }}
         </p>

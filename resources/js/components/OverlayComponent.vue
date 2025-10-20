@@ -12,7 +12,7 @@
       :style="{ 'z-index': props.zIndex }"
     >
       <div
-        class="bg-surface-100 dark:bg-surface-900 absolute"
+        class="absolute bg-surface-100 dark:bg-surface-900"
         style="inset: 0"
         :style="{ opacity: props.opacity }"
       />

@@ -144,7 +144,7 @@
               :invalid="formErrors.fieldInvalid('strength')"
               :stars="10"
               aria-describedby="strength-help"
-              class="border-surface-300 rounded-border dark:border-surface-600 flex justify-between border px-6 py-3"
+              class="flex justify-between rounded-border border border-surface-300 px-6 py-3 dark:border-surface-600"
               data-test="strength-rating"
               :pt="{
                 option: {

@@ -4,7 +4,7 @@
 
     <div class="w-full">
       <div
-        class="border-surface-200 rounded-border dark:border-surface-600 flex flex-col gap-2 border p-4 md:max-h-64 md:overflow-y-auto"
+        class="flex flex-col gap-2 rounded-border border border-surface-200 p-4 md:max-h-64 md:overflow-y-auto dark:border-surface-600"
       >
         <!-- Description for the room type -->
         <span class="font-bold">{{ $t("app.description") }}</span>
@@ -53,7 +53,7 @@
               }}</AccordionHeader
             >
             <AccordionContent
-              class="border-surface rounded-b border-x border-b"
+              class="rounded-b border-x border-b border-surface"
             >
               <!-- Show all room setting grouped by category -->
               <div
