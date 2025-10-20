@@ -101,7 +101,7 @@ class SettingsController extends Controller
             }
 
             if (! empty($request->file('theme_custom_css'))) {
-                $fileName = Str::random(20).'.css';
+                $fileName = Str::random(40).'.css';
                 $path = $request->file('theme_custom_css')->storeAs('styles', $fileName, 'public');
                 $url = Storage::url($path);
 
