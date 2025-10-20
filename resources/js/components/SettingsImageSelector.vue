@@ -27,7 +27,7 @@
           v-if="image"
           :disabled="disabled"
           severity="danger"
-          class="flex-shrink-0"
+          class="shrink-0"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
           data-test="settings-image-cancel-button"
@@ -37,7 +37,7 @@
         <Button
           v-if="showDelete && !image && imageUrl && !imageDeleted && !readonly"
           :disabled="disabled"
-          class="flex-shrink-0"
+          class="shrink-0"
           severity="danger"
           :label="$t('app.delete')"
           icon="fa-solid fa-trash"
@@ -66,7 +66,7 @@
       </div>
     </div>
     <div
-      class="col-span-12 flex justify-center border p-2 rounded-border lg:col-span-3"
+      class="col-span-12 flex justify-center rounded-border border border-surface p-2 lg:col-span-3"
       :class="previewBgClass"
     >
       <img

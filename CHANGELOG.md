@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - UX: Placeholder in room search box ([#2383], [#2449])
+- Upgraded to Tailwind CSS v4 and migrated styles from SASS to plain CSS ([#2477])
 
 ### Fixed
 
@@ -552,6 +553,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2449]: https://github.com/THM-Health/PILOS/pull/2449
 [#2476]: https://github.com/THM-Health/PILOS/issues/2476
+[#2477]: https://github.com/THM-Health/PILOS/pull/2477
 [#2478]: https://github.com/THM-Health/PILOS/issues/2478
 [#2479]: https://github.com/THM-Health/PILOS/pull/2479
 [#2480]: https://github.com/THM-Health/PILOS/pull/2480
