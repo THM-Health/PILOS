@@ -24,7 +24,8 @@ class OIDCProvider
     /**
      * Logout url for RP-initiated logout.
      *
-     * @param  false|string  $redirect  URL to redirect for logout or false if not available
+     * @param  string  $redirect  URL to redirect the user back to the application
+     * @return false|string URL to redirect for logout or false if not available
      */
     public function logout(string $redirect): false|string
     {
