@@ -144,7 +144,7 @@ This application uses the **Authorization Code Flow** for OpenID Connect authent
     - RS256, RS384, RS512
     - PS256, PS384, PS512
     - ES256, ES384, ES512
-    - EdDSA
+    - EdDSA (only with the Ed25519 curve)
     - HS256, HS384, HS512
 
 - ##### Limitations
