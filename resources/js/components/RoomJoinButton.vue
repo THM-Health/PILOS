@@ -67,7 +67,7 @@
 
           <div
             v-if="features.attendance_recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{
               $t("rooms.recording_attendance_info")
@@ -91,7 +91,7 @@
 
           <div
             v-if="features.recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
             <i>{{ $t("rooms.recording_hint") }}</i>
@@ -130,7 +130,7 @@
 
           <div
             v-if="features.streaming"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
             <i>{{ $t("rooms.streaming_hint") }}</i>

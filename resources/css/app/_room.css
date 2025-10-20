@@ -1,14 +1,12 @@
-.room-details {
-    &__icon {
-        width: 1.5rem;
-        margin-right: 0.5rem;
-        flex-shrink: 0;
-        text-align: center;
-    }
+.room-details__icon {
+    width: 1.5rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+    text-align: center;
+}
 
-    &__text {
-        flex-grow: 1;
-    }
+.room-details__text {
+    flex-grow: 1;
 }
 
 .room-dropdown {

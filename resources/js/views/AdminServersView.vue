@@ -144,7 +144,7 @@
               :invalid="formErrors.fieldInvalid('strength')"
               :stars="10"
               aria-describedby="strength-help"
-              class="flex justify-between border border-surface-300 px-6 py-3 rounded-border dark:border-surface-700"
+              class="flex justify-between rounded-border border border-surface-300 px-6 py-3 dark:border-surface-600"
               data-test="strength-rating"
               :pt="{
                 option: {
@@ -239,7 +239,7 @@
       >
         <div class="grid grid-cols-12 gap-4">
           <div class="md:col col-span-12">
-            <h3 class="mt-0">
+            <h3 class="mt-0 text-xl font-medium">
               {{ $t("admin.servers.current_usage") }}
             </h3>
             <Divider />

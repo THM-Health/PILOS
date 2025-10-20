@@ -58,7 +58,7 @@
       />
       <div
         ref="dropZoneRef"
-        class="cursor-pointer items-center border border-surface-400 p-2 text-center rounded-border dark:border-surface-400"
+        class="cursor-pointer items-center rounded-border border border-surface-400 p-2 text-center dark:border-surface-400"
         :class="dropZoneClasses"
         data-test="drop-zone"
         @keyup.enter="fileInputRef.click()"
