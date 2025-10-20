@@ -145,8 +145,10 @@ class OIDCProvider
         }
 
         foreach ($lookupSessions as $lookupSession) {
-            $user = $lookupSession->session->user->getLogLabel();
-            Log::info('Deleting session of user {user} via OIDC back-channel logout', ['user' => $user, 'type' => 'oidc']);
+            $user = $lookupSession->session->user;
+            if ($user) {
+                Log::info('Deleting session of user {user} via OIDC back-channel logout', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
+            }
             $lookupSession->session()->delete();
         }
 
