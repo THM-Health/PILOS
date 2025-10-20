@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Settings\GeneralSettings;
 use Hash;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Log;
 use Spatie\Image\Enums\Fit;
@@ -149,23 +150,48 @@ abstract class ExternalUser
             // External authenticator provided an image
 
             try {
-                // Get hash of image
+                // Get hash of image (binary or url)
                 $imageHash = hash('sha256', $image);
 
-                // Check if profile image is already set to the same file
+                // Check if the profile image is already set to the same file
                 if ($eloquentUser->external_image_hash == $imageHash) {
                     return;
                 }
 
-                // Write image to temporary location
-                $tempFile = tempnam(sys_get_temp_dir(), 'profile_image');
-                file_put_contents($tempFile, $image);
+                // Check if image is a url or binary
+                if (filter_var($image, FILTER_VALIDATE_URL)) {
+                    // Image is a URL
 
-                $uploadedImage = new UploadedFile($tempFile, 'profile_image.jpg');
+                    // Write image to a temporary location
+                    $tempFile = tempnam(sys_get_temp_dir(), 'profile_image');
+                    // Fetch image from URL
+                    $response = Http::sink($tempFile)->get($image)->throw();
 
-                // Validate image
-                if ($uploadedImage->getMimeType() != 'image/jpeg') {
-                    throw new \Exception('Invalid image type: '.$uploadedImage->getMimeType());
+                    $contentType = $response->getHeader('Content-Type')[0] ?? '';
+
+                    $fileExtension = match ($contentType) {
+                        'image/jpeg' => 'jpg',
+                        'image/png' => 'png',
+                        'image/gif' => 'gif',
+                        default => throw new \Exception('Unsupported image type: '.$contentType),
+                    };
+
+                    // Save image
+                    $uploadedImage = new UploadedFile($tempFile, 'profile_image.'.$fileExtension);
+
+                } else {
+                    // Image is a Binary string
+
+                    // Write image to a temporary location
+                    $tempFile = tempnam(sys_get_temp_dir(), 'profile_image');
+                    file_put_contents($tempFile, $image);
+
+                    $uploadedImage = new UploadedFile($tempFile, 'profile_image.jpg');
+
+                    // Validate image
+                    if ($uploadedImage->getMimeType() != 'image/jpeg') {
+                        throw new \Exception('Invalid image type: '.$uploadedImage->getMimeType());
+                    }
                 }
 
                 // Save new image and crop it to 100x100

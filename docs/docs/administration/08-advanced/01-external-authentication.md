@@ -223,7 +223,7 @@ User accounts are not shared between authentication providers.
 
 If the value of one of the **required** attributes is an array, the first array entry is used.
 
-#### Profile image
+#### Profile image (LDAP)
 
 An LDAP server can store a profile image in the `jpegPhoto` attribute as per [RFC 2798](https://www.rfc-editor.org/rfc/rfc2798.html#section-2.6).
 To sync the profile image, map `jpegPhoto` to `image` in the mapping file.
@@ -237,6 +237,27 @@ While the profile image is stored in the LDAP server, it cannot be changed by th
         "last_name": "sn",
         "email": "mail",
         "image": "jpegPhoto"
+    }
+}
+```
+
+#### Profile image (OpenID Connect)
+
+The OpenID Connect providers may return a `picture` claim (see [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims)).
+The claim must be a valid image URL (jpg, png, or gif).
+PILOS downloads and stores the image and only re-fetches it if the URL changes.
+To enable syncing, map `picture` to `image` in the mapping file.
+You might also have to add additional scopes to `OIDC_SCOPES` to get the claim from the provider.
+While the `picture` claim is present, the user cannot change the profile image in the PILOS UI; it is updated on each login.
+
+```json
+{
+    "attributes": {
+        "external_id": "preferred_username",
+        "first_name": "given_name",
+        "last_name": "family_name",
+        "email": "email",
+        "image": "picture"
     }
 }
 ```
