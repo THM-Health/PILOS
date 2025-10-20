@@ -90,7 +90,7 @@ class SettingsController extends Controller
             $faviconDark = $request->input('theme_favicon_dark');
         }
 
-        // Custom CSS file // ToDo fix randomized file names and deletion of old files
+        // Custom CSS file
         if ($request->has('theme_custom_css')) {
             // Remove current file if existing
             if ($themeSettings->custom_css !== null) {
