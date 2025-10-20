@@ -8,6 +8,7 @@ use App\Prometheus\Counter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Uri;
 
 class OIDCController extends Controller
 {
@@ -75,7 +76,7 @@ class OIDCController extends Controller
         $url = '/external_login';
 
         if ($request->session()->has('redirect_url')) {
-            return redirect(\Uri::of($url)
+            return redirect(Uri::of($url)
                 ->withQuery(['redirect' => $request->session()->get('redirect_url')])
                 ->value());
         }
