@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'authenticator_id' => 'External user ID',
+    'authenticator' => 'Authenticator',
+    'authenticator_id' => 'Authenticator-ID',
     'change_email' => 'Change Email',
     'change_password' => 'Change password',
     'current_password' => 'Current password',
