@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mb-6 flex flex-col justify-between md:flex-row">
+    <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
       <div>
         <InputGroup data-test="room-type-search">
           <InputText

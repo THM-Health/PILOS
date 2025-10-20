@@ -74,6 +74,7 @@ COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
 # Enable nginx site
 COPY ./docker/app/nginx/sites-enabled /etc/nginx/sites-enabled
 COPY ./docker/app/nginx/templates /etc/nginx/templates
+COPY ./docker/app/nginx/snippets /etc/nginx/snippets
 COPY ./docker/app/nginx/snippets-available /etc/nginx/snippets-available
 RUN ls -la /etc/nginx/
 RUN mkdir -p /etc/nginx/snippets

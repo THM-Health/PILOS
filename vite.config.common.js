@@ -4,6 +4,7 @@ import * as fs from "fs";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { loadEnv } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 
 export default (mode) => {
   const ENV_PREFIX = ["VITE_"];
@@ -15,8 +16,9 @@ export default (mode) => {
 
   return {
     plugins: [
+      tailwindcss(),
       laravel({
-        input: ["resources/js/app.js", "resources/sass/app.scss"],
+        input: ["resources/js/app.js", "resources/css/app.css"],
       }),
       vue(),
       Components({

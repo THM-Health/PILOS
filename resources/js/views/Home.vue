@@ -1,7 +1,7 @@
 <template>
   <div class="relative isolate">
     <svg
-      class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full stroke-surface-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] dark:stroke-surface-800"
+      class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] stroke-surface-200 dark:stroke-surface-800"
       aria-hidden="true"
     >
       <defs>
@@ -34,7 +34,7 @@
       />
     </svg>
     <div
-      class="absolute left-1/2 right-0 top-0 -z-10 -ml-24 transform-gpu overflow-hidden blur-3xl lg:ml-24 xl:ml-48"
+      class="absolute top-0 right-0 left-1/2 -z-10 -ml-24 transform-gpu overflow-hidden blur-3xl lg:ml-24 xl:ml-48"
       aria-hidden="true"
     >
       <div
