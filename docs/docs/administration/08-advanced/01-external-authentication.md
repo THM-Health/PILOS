@@ -11,7 +11,7 @@ PILOS has two types of users:
 Local users can be created by administrators. They can log in to the system with the combination of email address and password. Via PILOS, an email can be sent to the user upon creation, also a password reset function can be activated.
 
 **External users**
-In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP, Shibboleth and OpenID-Connect are available as interfaces. All three authentication providers can be operated in parallel, but none of them more than once.
+In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP, Shibboleth and OpenID Connect are available as interfaces. All three authentication providers can be operated in parallel, but none of them more than once.
 
 ## Setup of external authentication providers
 
@@ -179,18 +179,20 @@ OIDC_SCOPES="profile,email"
 
 #### Configuration Options
 
-| Option                      | Default Value   | Description                                                                                                                                                    |
-| --------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OIDC_ENABLED`              | `false`         | Enable OpenID Connect authentication.                                                                                                                          |
-| `OIDC_ISSUER`               | `null`          | The issuer URL of the OpenID Connect Provider.                                                                                                                 |
-| `OIDC_CLIENT_ID`            | `null`          | The client ID for the OpenID Connect application.                                                                                                              |
-| `OIDC_CLIENT_SECRET`        | `null`          | The client secret for the OpenID Connect application.                                                                                                          |
-| `OIDC_SCOPES`               | `profile,email` | The scopes (e.g., `profile,email`) to request from the OpenID Connect Provider as a comma-separated list. The `openid` scope is always included automatically. |
-| `OIDC_LEEWAY`               | `300`           | The leeway in seconds for validating the ID token's expiration time.                                                                                           |
-| `OIDC_TIMEOUT`              | `10`            | The timeout in seconds for the OpenID Connect requests.                                                                                                        |
-| `OIDC_VERIFY_PEER`          | `true`          | Whether to verify the SSL certificate of the OpenID Connect Provider. This can only be disabled in local env.                                                  |
-| `OIDC_CACHE_CONFIG_MAX_AGE` | `0`             | Overwrite openid-configuration cache duration if OpenID Connect Provider doesn't set a max-age cache duration > 0                                              |
-| `OIDC_CACHE_JWKS_MAX_AGE`   | `0`             | Overwrite jwks cache duration if OpenID Connect Provider doesn't set a max-age cache duration > 0                                                              |
+| Option                             | Default Value   | Description                                                                                                                                                    |
+| ---------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OIDC_ENABLED`                     | `false`         | Enable OpenID Connect authentication.                                                                                                                          |
+| `OIDC_ISSUER`                      | `null`          | The issuer URL of the OpenID Connect Provider.                                                                                                                 |
+| `OIDC_CLIENT_ID`                   | `null`          | The client ID for the OpenID Connect application.                                                                                                              |
+| `OIDC_CLIENT_SECRET`               | `null`          | The client secret for the OpenID Connect application.                                                                                                          |
+| `OIDC_SCOPES`                      | `profile,email` | The scopes (e.g., `profile,email`) to request from the OpenID Connect Provider as a comma-separated list. The `openid` scope is always included automatically. |
+| `OIDC_LEEWAY`                      | `300`           | The leeway in seconds for validating the ID token's expiration time.                                                                                           |
+| `OIDC_TIMEOUT`                     | `10`            | The timeout in seconds for the OpenID Connect requests.                                                                                                        |
+| `OIDC_VERIFY_PEER`                 | `true`          | Whether to verify the SSL certificate of the OpenID Connect Provider. This can only be disabled in local env.                                                  |
+| `OIDC_CACHE_CONFIG_MAX_AGE`        | `0`             | Overwrite openid-configuration cache duration if OpenID Connect Provider doesn't set a max-age cache duration > 0                                              |
+| `OIDC_CACHE_JWKS_MAX_AGE`          | `0`             | Overwrite jwks cache duration if OpenID Connect Provider doesn't set a max-age cache duration > 0                                                              |
+| `OIDC_PROFILE_IMAGE_TRUSTED_HOSTS` | `null`          | Comma-separated list of trusted hosts to load profile images from.                                                                                             |
+| `OIDC_PROFILE_IMAGE_MAX_SIZE`      | `5`             | Maximum size in megabytes for profile images fetched from OpenID Connect Providers.                                                                            |
 
 ## Configure mapping
 

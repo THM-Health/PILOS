@@ -61,5 +61,7 @@ return [
         'cache_config_max_age' => (int) env('OIDC_CACHE_CONFIG_MAX_AGE', 0),
         'cache_jwks_max_age' => (int) env('OIDC_CACHE_JWKS_MAX_AGE', 0),
         'mapping' => $oidcEnabled ? json_decode(file_get_contents(app_path('Auth/config/oidc_mapping.json'))) : null,
+        'profile_image_trusted_hosts' => explode(',', env('OIDC_PROFILE_IMAGE_TRUSTED_HOSTS', '')),
+        'profile_image_max_size' => (int) env('OIDC_PROFILE_IMAGE_MAX_SIZE', 5), // 5 MB
     ],
 ];
