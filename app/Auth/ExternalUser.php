@@ -157,11 +157,15 @@ abstract class ExternalUser
                 if (Str::isUrl($image, ['http', 'https'])) {
                     // Image is a URL
 
-                    $host = parse_url($image, PHP_URL_HOST);
-                    $trustedHosts = config('services.oidc.profile_image_trusted_hosts');
+                    $host = strtolower((string) parse_url($image, PHP_URL_HOST));
+                    $trustedHosts = array_filter(array_map('strtolower', config('services.oidc.profile_image_trusted_hosts')));
+                    // If no trusted hosts are configured, reject all hosts
+                    if (empty($trustedHosts)) {
+                        throw new \Exception('Rejected host '.$host.'. No trusted hosts configured for profile images.');
+                    }
                     // Check if host is in allowlist
-                    if (! in_array($host, $trustedHosts)) {
-                        throw new \Exception('Profile image host not is list of trusted host: '.$host);
+                    if (! in_array($host, $trustedHosts, true)) {
+                        throw new \Exception('Rejected host '.$host.'. Not in trusted hosts for profile images.');
                     }
 
                     // Fetch image from URL
