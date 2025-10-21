@@ -332,6 +332,11 @@ describe("Admin settings with edit permission", function () {
 
     cy.wait("@settingsRequest");
 
+    // Intercept settings request again to be able to check that it is not called again
+    cy.intercept("GET", "api/v1/settings", {
+      fixture: "settings.json",
+    }).as("settingsReloadRequest");
+
     cy.contains("admin.settings.theme.title");
 
     // Change settings that do not trigger reload
@@ -473,8 +478,6 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
 
-    // Check that page was not reloaded (ToDo) and check that changes are applied
-
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -499,6 +502,9 @@ describe("Admin settings with edit permission", function () {
       cy.get("#theme-primary-color").should("have.value", "#14b8a6");
     });
     cy.get("#theme-rounded").should("not.be.checked");
+
+    // Check that page was not reloaded (settingsReloadRequest was not called)
+    cy.get("@settingsReloadRequest").should("be.null");
 
     // Save changes again (no new changes)
     cy.fixture("settings.json").then((settings) => {
@@ -543,8 +549,6 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
 
-    // ToDo check that page was not reloaded
-
     // Check that settings are shown correctly
     cy.get('[data-test="logo-field"]')
       .find('[data-test="settings-image-preview"]')
@@ -565,6 +569,9 @@ describe("Admin settings with edit permission", function () {
       cy.get("#theme-primary-color").should("have.value", "#14b8a6");
     });
     cy.get("#theme-rounded").should("not.be.checked");
+
+    // Check that page was not reloaded (settingsReloadRequest was not called)
+    cy.get("@settingsReloadRequest").should("be.null");
 
     // Change logo urls
     cy.get('[data-test="logo-field"]')
@@ -628,8 +635,6 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
 
-    // Check that page was not reloaded and settings where updated (ToDo)
-
     // Check that settings are shown correctly
     cy.get('[data-test="logo-field"]')
       .find('[data-test="settings-image-preview"]')
@@ -650,6 +655,9 @@ describe("Admin settings with edit permission", function () {
       cy.get("#theme-primary-color").should("have.value", "#14b8a6");
     });
     cy.get("#theme-rounded").should("not.be.checked");
+
+    // Check that page was not reloaded (settingsReloadRequest was not called)
+    cy.get("@settingsReloadRequest").should("be.null");
   });
 
   it("change theme favicon setting", function () {
@@ -710,8 +718,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_favicon")).to.eql(null);
     });
 
-    // ToDo check that page was reloaded
-
+    // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
     // Check that settings are shown correctly
@@ -760,8 +767,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_favicon")).to.eql("/images/favicon3.ico");
     });
 
-    // ToDo check that page was reloaded
-
+    // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
     // Check that settings are shown correctly
@@ -829,8 +835,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_favicon_dark")).to.eql(null);
     });
 
-    // ToDo check that page was reloaded
-
+    // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
     // Check that settings are shown correctly
@@ -881,8 +886,7 @@ describe("Admin settings with edit permission", function () {
       );
     });
 
-    // ToDo check that page was reloaded
-
+    // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
     // Check that settings are shown correctly
@@ -944,8 +948,7 @@ describe("Admin settings with edit permission", function () {
       });
     });
 
-    // ToDo check that page was reloaded
-
+    // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
     // Check that settings are shown correctly
@@ -994,8 +997,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql("");
     });
 
-    // ToDo check that page was reloaded
-
+    // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
     // Check that settings are shown correctly
