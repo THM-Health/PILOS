@@ -219,7 +219,7 @@ describe("Admin settings with edit permission", function () {
 
     cy.get('[data-test="theme-custom-css-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.theme.custom_css.title")
+      .and("include.text", "admin.settings.theme.custom_css")
       .within(() => {
         cy.checkSettingsFileSelectorOnlyView("");
       });

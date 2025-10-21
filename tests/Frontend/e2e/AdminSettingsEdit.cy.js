@@ -906,7 +906,7 @@ describe("Admin settings with edit permission", function () {
     // Upload new css file
     cy.get('[data-test="theme-custom-css-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.theme.custom_css.title")
+      .and("include.text", "admin.settings.theme.custom_css")
       .within(() => {
         cy.checkSettingsFileSelector("", "theme_custom_css.css", true);
       });

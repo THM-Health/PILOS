@@ -444,8 +444,7 @@
                 id="theme-custom-css-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
               >
-                <!-- ToDo add translation -->
-                {{ $t("admin.settings.theme.custom_css.title") }}
+                {{ $t("admin.settings.theme.custom_css") }}
               </legend>
               <div class="col-span-12 md:col-span-8">
                 <SettingsFileSelector
