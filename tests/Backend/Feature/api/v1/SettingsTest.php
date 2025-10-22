@@ -596,7 +596,9 @@ class SettingsTest extends TestCase
     }
 
     /**
-     * Test to update the custom theme style sheet
+     * Test to update the custom css file
+     *
+     * @return void
      */
     public function test_update_theme_custom_css()
     {
@@ -680,26 +682,26 @@ class SettingsTest extends TestCase
 
         // Send request without changes, should keep the style unchanged
         unset($payload['theme_custom_css']);
-        $request = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
 
-        $request->assertStatus(200);
+        $response->assertStatus(200);
         $this->assertNotNull($response->json('data.theme_custom_css'));
 
-        $rel_path3 = substr($request->json('data.theme_custom_css'), strlen('/storage/'));
+        $rel_path3 = substr($response->json('data.theme_custom_css'), strlen('/storage/'));
         $this->assertEquals($rel_path2, $rel_path3);
 
         Storage::disk('public')->assertExists($rel_path2);
 
         $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get($rel_path2));
 
-        // Clear css file (file deleted and setting removed)
+        // Clear css file, file should be deleted and setting should be set to null
         $payload['theme_custom_css'] = '';
-        $request = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
 
-        $request->assertStatus(200);
-        $this->assertNotNull($response->json('data.theme_custom_css'));
+        $response->assertStatus(200);
 
-        // Check that setting is updated and file is deleted
+        $this->assertNull($response->json('data.theme_custom_css'));
+
         $this->assertNull(app(ThemeSettings::class)->custom_css);
         Storage::disk('public')->assertMissing($rel_path2);
     }
