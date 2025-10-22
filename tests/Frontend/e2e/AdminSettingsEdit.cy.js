@@ -20,6 +20,8 @@ describe("Admin settings with edit permission", function () {
     });
 
     cy.fixture("config.json").then((config) => {
+      // Add favicon settings to config because otherwise page will always
+      // be reloaded if settings are saved
       config.data.theme.favicon = "/images/favicon.ico";
       config.data.theme.favicon_dark = "/images/favicon-dark.ico";
 
@@ -339,7 +341,7 @@ describe("Admin settings with edit permission", function () {
 
     cy.contains("admin.settings.theme.title");
 
-    // Change settings that do not trigger reload
+    // Change settings
     cy.get('[data-test="logo-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.logo.title")
@@ -410,6 +412,8 @@ describe("Admin settings with edit permission", function () {
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
+      // Respond with custom css set to check that it is handled correctly in the next request
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -546,6 +550,8 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
 
+      // Make sure that custom css is still null, even though it was set
+      // after the previous request (was not changed by the user)
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
 

@@ -101,12 +101,14 @@ class SettingsController extends Controller
             }
 
             if (! empty($request->file('theme_custom_css'))) {
+                // New file uploaded, create random file name and store file
                 $fileName = Str::random(40).'.css';
                 $path = $request->file('theme_custom_css')->storeAs('styles', $fileName, 'public');
                 $url = Storage::url($path);
 
                 $themeSettings->custom_css = $url;
             } else {
+                // No file uploaded, set to null
                 $themeSettings->custom_css = null;
             }
         }

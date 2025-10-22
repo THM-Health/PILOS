@@ -14,6 +14,7 @@
     <!-- Scripts -->
     @vite(['resources/js/app.js', 'resources/css/app.css'])
 
+    <!-- Custom CSS -->
     @if(app(\App\Settings\ThemeSettings::class)->custom_css )
         <link rel="stylesheet" nonce="{{ app('csp-nonce') }}" href="{{ app(\App\Settings\ThemeSettings::class)->custom_css }}">
     @endif
