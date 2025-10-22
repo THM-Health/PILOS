@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'authenticator_id' => 'External user ID',
     'change_email' => 'Change Email',
     'change_password' => 'Change password',
     'current_password' => 'Current password',
@@ -15,6 +14,7 @@ return [
         'reason' => 'Error reason',
         'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
     ],
+    'external_user_id' => 'External user ID',
     'failed' => 'These credentials do not match our records.',
     'flash' => [
         'login' => 'Successfully logged in',

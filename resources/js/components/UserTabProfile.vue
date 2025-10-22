@@ -65,16 +65,16 @@
         <div
           v-if="model.authenticator !== 'local'"
           class="field grid grid-cols-12 gap-4"
-          data-test="authenticator-id-field"
+          data-test="external-user-id-field"
         >
           <label
-            for="authenticator_id"
+            for="external-user-id"
             class="col-span-12 mb-2 md:col-span-3 md:mb-0"
-            >{{ $t("auth.authenticator_id") }}</label
+            >{{ $t("auth.external_user_id") }}</label
           >
           <div class="col-span-12 md:col-span-9">
             <InputText
-              id="authenticator_id"
+              id="external-user-id"
               v-model="model.external_id"
               type="text"
               disabled
