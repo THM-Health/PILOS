@@ -10,16 +10,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Route-specific CSS classes to frontend pages ([#2496], [#2497])
+- Security header X-XSS-Protection ([#2519])
+- Security header Referrer-Policy ([#2519])
+- Docs: HTTP Strict Transport Security (HSTS) recommendations ([#2519])
+- Virus scan results to metrics ([#2304])
 
 ### Changed
 
 - UX: Placeholder in room search box ([#2383], [#2449])
+- Upgraded to Tailwind CSS v4 and migrated styles from SASS to plain CSS ([#2477])
+- PHP.ini defaults to align with OWASP recommendations ([#2519])
+- Security header X-Frame-Options value to DENY ([#2519])
 
 ### Fixed
 
 - Negative floating point number in room expire email ([#2476], [#2480])
 - Infinite loading when navigating back to rooms from BBB due to bfcache ([#2313], [#2319])
 - Broken dark mode after using room utilisation statistic dialog ([#2478], [#2479])
+
+### Security
+
+- Regenerate session after password change ([#2519])
+- Removed unused CORS header ([#2519])
+- Removed PHP version header ([#2519])
 
 ## [v4.7.1] - 2025-09-10
 
@@ -546,17 +559,20 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
+[#2304]: https://github.com/THM-Health/PILOS/pull/2304
 [#2313]: https://github.com/THM-Health/PILOS/issues/2313
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2449]: https://github.com/THM-Health/PILOS/pull/2449
 [#2476]: https://github.com/THM-Health/PILOS/issues/2476
+[#2477]: https://github.com/THM-Health/PILOS/pull/2477
 [#2478]: https://github.com/THM-Health/PILOS/issues/2478
 [#2479]: https://github.com/THM-Health/PILOS/pull/2479
 [#2480]: https://github.com/THM-Health/PILOS/pull/2480
 [#2496]: https://github.com/THM-Health/PILOS/issues/2496
 [#2497]: https://github.com/THM-Health/PILOS/pull/2497
+[#2519]: https://github.com/THM-Health/PILOS/pull/2519
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

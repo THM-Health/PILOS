@@ -8,7 +8,7 @@
         !settingsStore.getSetting('general.whitelabel')
       "
       ref="footer_container"
-      class="border-t bg-white p-2 border-surface dark:bg-surface-900"
+      class="border-t border-surface bg-white p-2 dark:bg-surface-900"
       data-test="app-footer"
     >
       <div class="container">

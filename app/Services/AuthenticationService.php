@@ -43,6 +43,9 @@ class AuthenticationService
         // If session id provided, keep session alive, otherwise logout all sessions of the user
         if ($session) {
             $this->logoutOtherSessions($session);
+
+            // Recreate new session for the requesting session
+            session()->regenerate(true);
         } else {
             $this->logoutAllSessions();
         }

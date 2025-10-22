@@ -137,10 +137,8 @@ describe("Admin room types edit", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "not.have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "cursor-pointer")
+            .and("not.have.class", "pointer-events-none opacity-80")
             .and("not.have.class", "selected");
         }
 
@@ -746,10 +744,8 @@ describe("Admin room types edit", function () {
         cy.get('[data-test="color-button"]')
           .eq(i)
           .should("have.attr", "role", "button")
-          .and(
-            "have.class",
-            "pointer-events-none cursor-not-allowed opacity-80",
-          );
+          .and("have.class", "pointer-events-none opacity-80")
+          .and("not.have.class", "cursor-pointer");
       }
       cy.get("#custom-color").should("be.disabled");
       cy.get('[data-test="server-pool-dropdown"]').should(
