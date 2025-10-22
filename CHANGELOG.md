@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security header Referrer-Policy ([#2519])
 - Docs: HTTP Strict Transport Security (HSTS) recommendations ([#2519])
 - Virus scan results to metrics ([#2304])
+- Admin option to upload a custom CSS file ([#2496], [#2553], [#2554])
 
 ### Changed
 
@@ -573,6 +574,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2496]: https://github.com/THM-Health/PILOS/issues/2496
 [#2497]: https://github.com/THM-Health/PILOS/pull/2497
 [#2519]: https://github.com/THM-Health/PILOS/pull/2519
+[#2553]: https://github.com/THM-Health/PILOS/pull/2553
+[#2554]: https://github.com/THM-Health/PILOS/issues/2554
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
