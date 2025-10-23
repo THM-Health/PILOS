@@ -442,6 +442,7 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Local',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
             'title' => 'Login method',
         ],
