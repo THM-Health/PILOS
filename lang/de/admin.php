@@ -401,7 +401,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Eigene Farbe',
-            'custom_css' => 'BCSS Style Datei',
+            'custom_css' => 'Eigene CSS Style Datei',
             'primary_color' => 'Primärfarbe',
             'rounded' => 'Abgerundete Ecken',
             'title' => 'Design',
