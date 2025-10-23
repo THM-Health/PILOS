@@ -145,6 +145,7 @@ return [
         'streaming_pause_image' => 'Pause image',
         'streaming_url' => 'RTMP(S) URL',
         'strength' => 'Server strength',
+        'theme_custom_css' => 'Custom CSS style file',
         'theme_favicon' => 'Favicon',
         'theme_favicon_dark' => 'Dark version favicon',
         'theme_favicon_dark_file' => 'Dark version favicon file',
