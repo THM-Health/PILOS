@@ -401,6 +401,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Eigene Farbe',
+            'custom_css' => 'BCSS Style Datei',
             'primary_color' => 'Primärfarbe',
             'rounded' => 'Abgerundete Ecken',
             'title' => 'Design',
@@ -442,7 +443,7 @@ return [
             'ldap' => 'LDAP',
             'local' => 'Lokal',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Anmeldeart',
+            'title' => 'Login-Methode',
         ],
         'base_data' => 'Stammdaten',
         'bbb' => 'BigBlueButton',

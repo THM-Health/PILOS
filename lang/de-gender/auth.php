@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'authenticator' => 'Authentifikator',
-    'authenticator_id' => 'Authentifikator-ID',
     'change_email' => 'E-Mail-Adresse ändern',
     'change_password' => 'Passwort ändern',
     'current_password' => 'Aktuelles Passwort',

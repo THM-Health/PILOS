@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'authenticator' => 'Authentifikator',
-    'authenticator_id' => 'Authentifikator-ID',
     'change_email' => 'E-Mail-Adresse ändern',
     'change_password' => 'Passwort ändern',
     'current_password' => 'Aktuelles Passwort',
@@ -16,6 +14,7 @@ return [
         'reason' => 'Fehlergrund',
         'shibboleth_session_duplicate_exception' => 'Die Shibboleth-Session ist bereits in Verwendung. Bitte melden Sie sich erneut an.',
     ],
+    'external_user_id' => 'Externe Benutzer-ID',
     'failed' => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
     'flash' => [
         'login' => 'Erfolgreich angemeldet',

@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'authenticator' => 'احراز هویت',
-    'authenticator_id' => 'شناسه احراز هویت',
     'change_email' => 'تغییر ایمیل',
     'change_password' => 'تغییر رمز عبور',
     'current_password' => 'رمز عبور فعلی',
