@@ -146,7 +146,7 @@ abstract class ExternalUser
     public function syncImage($eloquentUser): void
     {
         $image = $this->getFirstAttributeValue('image');
-        if ($image) {
+        if ($image != null && $image !== '') {
             // External authenticator provided an image
 
             // Path to store temporary image
@@ -154,11 +154,12 @@ abstract class ExternalUser
 
             try {
                 // Check if image is a url or binary
-                if (Str::isUrl($image, ['http', 'https'])) {
+                if (Str::isUrl($image, ['https'])) {
                     // Image is a URL
 
                     $host = strtolower((string) parse_url($image, PHP_URL_HOST));
                     $trustedHosts = array_filter(array_map('strtolower', config('services.oidc.profile_image_trusted_hosts')));
+
                     // If no trusted hosts are configured, reject all hosts
                     if (empty($trustedHosts)) {
                         throw new \Exception('Rejected host '.$host.'. No trusted hosts configured for profile images.');
@@ -183,7 +184,7 @@ abstract class ExternalUser
                     }
 
                     // Check content type and determine file extension
-                    $contentType = $response->getHeader('Content-Type')[0] ?? '';
+                    $contentType = $response->header('Content-Type');
                     $fileExtension = match ($contentType) {
                         'image/jpeg' => 'jpg',
                         'image/png' => 'png',
