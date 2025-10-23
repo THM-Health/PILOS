@@ -401,6 +401,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Custom color',
+            'custom_css' => 'Custom CSS style file',
             'primary_color' => 'Primary color',
             'rounded' => 'Rounded corners',
             'title' => 'Theme',
