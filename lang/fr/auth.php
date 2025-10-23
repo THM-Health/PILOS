@@ -14,6 +14,7 @@ return [
         'reason' => 'Cause de l\'erreur',
         'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation. Veuillez vous connecter à nouveau.',
     ],
+    'external_user_id' => 'ID d\'utilisateur externe',
     'failed' => 'Ces informations d\'identification ne correspondent pas à nos enregistrements.',
     'flash' => [
         'login' => 'Connexion réussie',

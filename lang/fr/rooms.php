@@ -336,7 +336,7 @@ return [
     'require_access_code' => 'Un code d\'accès est requis pour rejoindre cette salle.',
     'role' => 'Rôle',
     'roles' => [
-        'co_owner' => 'Copropriétaire',
+        'co_owner' => 'Co-propriétaire',
         'guest' => 'Invité',
         'moderator' => 'Modérateur',
         'no_role' => 'Sans rôle',
@@ -355,6 +355,7 @@ return [
         'loading_error' => 'Une erreur s\'est produite lors du chargement des types de salle.',
         'reload' => 'Recharger les types de salle',
     ],
+    'search' => 'Recherche par nom de salle ou par propriétaire ...',
     'settings' => [
         'advanced' => [
             'title' => 'Avancé',

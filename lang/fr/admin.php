@@ -401,6 +401,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Couleur personnalisée',
+            'custom_css' => 'Fichier de styles CSS personnalisé',
             'primary_color' => 'Couleur principale',
             'rounded' => 'Coins arrondis',
             'title' => 'Thème',
