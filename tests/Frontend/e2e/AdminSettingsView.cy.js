@@ -216,6 +216,13 @@ describe("Admin settings with edit permission", function () {
       .within(() => {
         cy.get("#theme-rounded").should("be.checked").and("be.disabled");
       });
+
+    cy.get('[data-test="theme-custom-css-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.custom_css")
+      .within(() => {
+        cy.checkSettingsFileSelectorOnlyView("");
+      });
   });
 
   it("check banner settings with only view permission", function () {
