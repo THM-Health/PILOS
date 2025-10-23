@@ -28,13 +28,14 @@ describe("Admin settings with edit permission", function () {
       cy.intercept("GET", "api/v1/config", {
         statusCode: 200,
         body: config,
-      });
+      }).as("configRequest");
     });
   });
 
   it("change application settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.application");
@@ -233,6 +234,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_no_welcome_page")).to.equal("0");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -309,6 +313,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_no_welcome_page")).to.equal("0");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that settings are shown correctly
     cy.get("#application-name").should("have.value", "PILOS test application");
     cy.get("#help-url").should("have.value", "");
@@ -332,6 +339,7 @@ describe("Admin settings with edit permission", function () {
   it("change theme settings that do not trigger reload", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     // Intercept settings request again to be able to check that it is not called again
@@ -482,6 +490,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -554,6 +565,9 @@ describe("Admin settings with edit permission", function () {
       // after the previous request (was not changed by the user)
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that settings are shown correctly
     cy.get('[data-test="logo-field"]')
@@ -641,6 +655,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that settings are shown correctly
     cy.get('[data-test="logo-field"]')
       .find('[data-test="settings-image-preview"]')
@@ -669,6 +686,7 @@ describe("Admin settings with edit permission", function () {
   it("change theme favicon setting", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.theme.title");
@@ -724,6 +742,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_favicon")).to.eql(null);
     });
 
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
     // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
@@ -773,6 +794,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_favicon")).to.eql("/images/favicon3.ico");
     });
 
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
     // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
@@ -786,6 +810,7 @@ describe("Admin settings with edit permission", function () {
   it("change theme favicon dark setting", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.theme.title");
@@ -841,6 +866,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_favicon_dark")).to.eql(null);
     });
 
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
     // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
@@ -892,6 +920,9 @@ describe("Admin settings with edit permission", function () {
       );
     });
 
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
     // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
@@ -905,6 +936,7 @@ describe("Admin settings with edit permission", function () {
   it("change theme custom css setting", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.theme.title");
@@ -953,6 +985,9 @@ describe("Admin settings with edit permission", function () {
         });
       });
     });
+
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
 
     // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
@@ -1003,6 +1038,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("theme_custom_css")).to.eql("");
     });
 
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
     // Check that page was reloaded (settingsReloadRequest was called)
     cy.wait("@settingsReloadRequest");
 
@@ -1022,6 +1060,7 @@ describe("Admin settings with edit permission", function () {
   it("change banner settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.banner.title");
@@ -1506,6 +1545,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("banner_background")).to.equal("#ef4444");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -1663,6 +1705,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("banner_background")).to.equal("");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that settings are shown correctly
     cy.get("#banner-enabled").should("not.be.checked");
     cy.get('[data-test="app-banner"]')
@@ -1713,6 +1758,7 @@ describe("Admin settings with edit permission", function () {
   it("change room settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("app.rooms");
@@ -2061,6 +2107,9 @@ describe("Admin settings with edit permission", function () {
       );
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -2135,6 +2184,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("room_file_terms_of_use")).to.equal("");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that settings are shown correctly
     cy.get("#room-limit-mode-unlimited")
       .should("be.checked")
@@ -2166,6 +2218,7 @@ describe("Admin settings with edit permission", function () {
   it("change user settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("app.users");
@@ -2213,6 +2266,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("user_password_change_allowed")).to.equal("0");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -2224,6 +2280,7 @@ describe("Admin settings with edit permission", function () {
   it("change recording and statistics settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.recording_and_statistics_title");
@@ -2587,6 +2644,9 @@ describe("Admin settings with edit permission", function () {
       );
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -2614,6 +2674,7 @@ describe("Admin settings with edit permission", function () {
   it("change bbb settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.bbb.title");
@@ -2734,6 +2795,9 @@ describe("Admin settings with edit permission", function () {
         });
       });
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
@@ -2911,6 +2975,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("bbb_default_presentation")).to.be.eql("");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that settings are shown correctly
     cy.get('[data-test="bbb-logo-field"]').within(() => {
       cy.get('[data-test="settings-image-url-input"]')
@@ -2982,6 +3049,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("bbb_style")).to.eql(null);
       expect(formData.get("bbb_default_presentation")).to.be.eql(null);
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
   });
 
   it("save changes errors", function () {
