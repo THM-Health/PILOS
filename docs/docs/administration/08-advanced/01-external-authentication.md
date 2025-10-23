@@ -13,7 +13,7 @@ Local users can be created by administrators. They can log in to the system with
 **External users**
 In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP and Shibboleth are available as interfaces. All authentication providers can be operated in parallel, but none of them more than once.
 
-## Setup of external authenticators
+## Setup of external authentication providers
 
 ### LDAP
 
@@ -128,13 +128,13 @@ SHIBBOLETH_SESSION_CHECK_ENABLED=false
 
 ## Configure mapping
 
-For each external authenticator the attribute and role mapping needs to be configured.
-The mapping is defined in a JSON file, which is stored in the directory `app/Auth/config` of the pilos installation.
+For each external authentication provider the attribute and role mapping needs to be configured.
+The mapping is defined in a JSON file, which is stored in the directory `app/Auth/config` of the PILOS installation.
 
-| Authenticator | Filename                |
-| ------------- | ----------------------- |
-| LDAP          | ldap_mapping.json       |
-| Shibboleth    | shibboleth_mapping.json |
+| Authentication Provider | Filename                |
+| ----------------------- | ----------------------- |
+| LDAP                    | ldap_mapping.json       |
+| Shibboleth              | shibboleth_mapping.json |
 
 ### Attribute mapping
 
@@ -149,8 +149,8 @@ You must add attribute mapping for the following attributes.
 | last_name   | Last name                                    |
 | email       | Email                                        |
 
-**Notice:** The external identifier (`external_id`) is used to uniquely identify a user within each authenicator.
-User accounts are not shared between authenicators.
+**Notice:** The external identifier (`external_id`) is used to uniquely identify a user within each authentication provider.
+User accounts are not shared between authentication providers.
 
 #### Array attributes
 
@@ -184,7 +184,7 @@ These attributes are not saved in the database, but they can be used for role ma
 ### Roles
 
 To add a mapping to a role, add a new object to the `roles` array.
-The attribute `name` must match the name of the role in pilos.
+The attribute `name` must match the name of the role in PILOS.
 
 #### Disable roles
 

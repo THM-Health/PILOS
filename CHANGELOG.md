@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded to Tailwind CSS v4 and migrated styles from SASS to plain CSS ([#2477])
 - PHP.ini defaults to align with OWASP recommendations ([#2519])
 - Security header X-Frame-Options value to DENY ([#2519])
+- Authenticator label texts and term in external authentication documentation ([#2551])
 
 ### Fixed
 
@@ -574,6 +575,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2496]: https://github.com/THM-Health/PILOS/issues/2496
 [#2497]: https://github.com/THM-Health/PILOS/pull/2497
 [#2519]: https://github.com/THM-Health/PILOS/pull/2519
+[#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.1...develop
