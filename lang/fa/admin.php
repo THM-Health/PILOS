@@ -441,7 +441,6 @@ return [
             'ldap' => 'LDAP',
             'local' => 'محلی',
             'shibboleth' => 'Shibboleth',
-            'title' => 'نوع احراز هویت',
         ],
         'base_data' => 'داده‌های پایه',
         'bbb' => 'BigBlueButton',

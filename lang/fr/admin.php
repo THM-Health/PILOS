@@ -442,7 +442,7 @@ return [
             'ldap' => 'LDAP',
             'local' => 'Interne',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Type d\'identification',
+            'title' => 'Méthode de connexion',
         ],
         'base_data' => 'Données de base',
         'bbb' => 'BigBlueButton',
