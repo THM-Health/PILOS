@@ -8,25 +8,25 @@
     "packages": [
         {
             "name": "brick/math",
-            "version": "0.13.1",
+            "version": "0.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brick/math.git",
-                "reference": "fc7ed316430118cc7836bf45faff18d5dfc8de04"
+                "reference": "113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/fc7ed316430118cc7836bf45faff18d5dfc8de04",
-                "reference": "fc7ed316430118cc7836bf45faff18d5dfc8de04",
+                "url": "https://api.github.com/repos/brick/math/zipball/113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2",
+                "reference": "113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.1"
+                "php": "^8.2"
             },
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.2",
-                "phpunit/phpunit": "^10.1",
-                "vimeo/psalm": "6.8.8"
+                "phpstan/phpstan": "2.1.22",
+                "phpunit/phpunit": "^11.5"
             },
             "type": "library",
             "autoload": {
@@ -56,7 +56,7 @@
             ],
             "support": {
                 "issues": "https://github.com/brick/math/issues",
-                "source": "https://github.com/brick/math/tree/0.13.1"
+                "source": "https://github.com/brick/math/tree/0.14.0"
             },
             "funding": [
                 {
@@ -64,7 +64,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-03-29T13:50:30+00:00"
+            "time": "2025-08-29T12:40:03+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -5942,20 +5942,20 @@
         },
         {
             "name": "spomky-labs/pki-framework",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Spomky-Labs/pki-framework.git",
-                "reference": "eced5b5ce70518b983ff2be486e902bbd15135ae"
+                "reference": "bf6f55a9d9eb25b7781640221cb54f5c727850d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Spomky-Labs/pki-framework/zipball/eced5b5ce70518b983ff2be486e902bbd15135ae",
-                "reference": "eced5b5ce70518b983ff2be486e902bbd15135ae",
+                "url": "https://api.github.com/repos/Spomky-Labs/pki-framework/zipball/bf6f55a9d9eb25b7781640221cb54f5c727850d7",
+                "reference": "bf6f55a9d9eb25b7781640221cb54f5c727850d7",
                 "shasum": ""
             },
             "require": {
-                "brick/math": "^0.10|^0.11|^0.12|^0.13",
+                "brick/math": "^0.10|^0.11|^0.12|^0.13|^0.14",
                 "ext-mbstring": "*",
                 "php": ">=8.1"
             },
@@ -5963,7 +5963,7 @@
                 "ekino/phpstan-banned-code": "^1.0|^2.0|^3.0",
                 "ext-gmp": "*",
                 "ext-openssl": "*",
-                "infection/infection": "^0.28|^0.29",
+                "infection/infection": "^0.28|^0.29|^0.31",
                 "php-parallel-lint/php-parallel-lint": "^1.3",
                 "phpstan/extension-installer": "^1.3|^2.0",
                 "phpstan/phpstan": "^1.8|^2.0",
@@ -5973,8 +5973,8 @@
                 "phpunit/phpunit": "^10.1|^11.0|^12.0",
                 "rector/rector": "^1.0|^2.0",
                 "roave/security-advisories": "dev-latest",
-                "symfony/string": "^6.4|^7.0",
-                "symfony/var-dumper": "^6.4|^7.0",
+                "symfony/string": "^6.4|^7.0|^8.0",
+                "symfony/var-dumper": "^6.4|^7.0|^8.0",
                 "symplify/easy-coding-standard": "^12.0"
             },
             "suggest": {
@@ -6035,7 +6035,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Spomky-Labs/pki-framework/issues",
-                "source": "https://github.com/Spomky-Labs/pki-framework/tree/1.3.0"
+                "source": "https://github.com/Spomky-Labs/pki-framework/tree/1.4.0"
             },
             "funding": [
                 {
@@ -6047,7 +6047,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-06-13T08:35:04+00:00"
+            "time": "2025-10-22T08:24:34+00:00"
         },
         {
             "name": "symfony/clock",
@@ -9133,31 +9133,31 @@
         },
         {
             "name": "web-token/jwt-framework",
-            "version": "4.0.6",
+            "version": "4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-framework.git",
-                "reference": "2362f23fee99937e39b11f7a8ed0c8735368515f"
+                "reference": "f50494a9b02a804191c848ae27672aab9786d399"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-framework/zipball/2362f23fee99937e39b11f7a8ed0c8735368515f",
-                "reference": "2362f23fee99937e39b11f7a8ed0c8735368515f",
+                "url": "https://api.github.com/repos/web-token/jwt-framework/zipball/f50494a9b02a804191c848ae27672aab9786d399",
+                "reference": "f50494a9b02a804191c848ae27672aab9786d399",
                 "shasum": ""
             },
             "require": {
-                "brick/math": "^0.12|^0.13",
+                "brick/math": "^0.12|^0.13|^0.14",
                 "ext-openssl": "*",
                 "php": ">=8.2",
                 "psr/clock": "^1.0",
                 "psr/event-dispatcher": "^1.0",
                 "spomky-labs/pki-framework": "^1.2.1",
-                "symfony/config": "^7.0",
-                "symfony/console": "^7.0",
-                "symfony/dependency-injection": "^7.0",
-                "symfony/event-dispatcher": "^7.0",
+                "symfony/config": "^7.0|^8.0",
+                "symfony/console": "^7.0|^8.0",
+                "symfony/dependency-injection": "^7.0|^8.0",
+                "symfony/event-dispatcher": "^7.0|^8.0",
                 "symfony/http-client-contracts": "^3.4",
-                "symfony/http-kernel": "^7.0"
+                "symfony/http-kernel": "^7.0|^8.0"
             },
             "conflict": {
                 "spomky-labs/jose": "*"
@@ -9168,40 +9168,22 @@
                 "web-token/jwt-library": "self.version"
             },
             "require-dev": {
-                "deptrac/deptrac": "^2.0",
-                "ekino/phpstan-banned-code": "^2.0|^3.0",
-                "ergebnis/phpunit-slow-test-detector": "^2.14",
                 "ext-curl": "*",
                 "ext-gmp": "*",
                 "ext-sodium": "*",
-                "infection/infection": "^0.29",
                 "matthiasnoback/symfony-config-test": "^6.0",
                 "paragonie/sodium_compat": "^1.20|^2.0",
-                "php-parallel-lint/php-parallel-lint": "^1.3",
                 "phpbench/phpbench": "^1.2",
-                "phpstan/extension-installer": "^1.3|^2.0",
-                "phpstan/phpstan": "^1.8|^2.0",
-                "phpstan/phpstan-deprecation-rules": "^1.0|^2.0",
-                "phpstan/phpstan-doctrine": "^1.3|^2.0",
-                "phpstan/phpstan-phpunit": "^1.1|^2.0",
-                "phpstan/phpstan-strict-rules": "^1.4|^2.0",
-                "phpstan/phpstan-symfony": "^1.3|^2.0",
-                "phpunit/phpunit": "^10.5.10|^11.0|^12.0",
-                "rector/rector": "^1.0|^2.0",
                 "roave/security-advisories": "dev-latest",
-                "spomky-labs/aes-key-wrap": "^7.0",
-                "staabm/phpstan-dba": "^0.2.79|^0.3",
-                "staabm/phpstan-todo-by": "^0.1.25|^0.2",
-                "struggle-for-php/sfp-phpstan-psr-log": "^0.20|^0.21|^0.22|^0.23|^0.24",
-                "symfony/browser-kit": "^7.0",
-                "symfony/clock": "^7.0",
-                "symfony/finder": "^7.0",
-                "symfony/framework-bundle": "^7.0",
-                "symfony/http-client": "^7.0",
-                "symfony/serializer": "^7.0",
-                "symfony/var-dumper": "^7.0",
-                "symfony/yaml": "^7.0",
-                "symplify/easy-coding-standard": "^12.0"
+                "spomky-labs/aes-key-wrap": "^7.0|^8.0",
+                "symfony/browser-kit": "^7.0|^8.0",
+                "symfony/clock": "^7.0|^8.0",
+                "symfony/finder": "^7.0|^8.0",
+                "symfony/framework-bundle": "^7.0|^8.0",
+                "symfony/http-client": "^7.0|^8.0",
+                "symfony/serializer": "^7.0|^8.0",
+                "symfony/var-dumper": "^7.0|^8.0",
+                "symfony/yaml": "^7.0|^8.0"
             },
             "suggest": {
                 "spomky-labs/aes-key-wrap": "To enable AES Key Wrap algorithm.",
@@ -9252,7 +9234,7 @@
             ],
             "support": {
                 "issues": "https://github.com/web-token/jwt-framework/issues",
-                "source": "https://github.com/web-token/jwt-framework/tree/4.0.6"
+                "source": "https://github.com/web-token/jwt-framework/tree/4.1.0"
             },
             "funding": [
                 {
@@ -9264,7 +9246,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-08-13T20:11:07+00:00"
+            "time": "2025-10-22T08:07:59+00:00"
         },
         {
             "name": "webmozart/assert",
