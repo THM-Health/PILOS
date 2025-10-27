@@ -40,10 +40,10 @@ return [
     'new_password' => 'New password',
     'new_password_confirmation' => 'New password confirmation',
     'oidc' => [
+        'logout_incomplete' => 'You are still logged in at the OpenID Connect provider.',
         'redirect' => 'Log in',
         'tab_title' => 'OpenID Connect',
         'title' => 'Log in with OpenID Connect',
-        'logout_incomplete' => 'You are still logged in at the OpenID Connect provider.',
     ],
     'password' => 'Password',
     'reset_password' => 'Reset password',
