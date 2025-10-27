@@ -26,7 +26,7 @@
 
 Cypress.Commands.add("seed", () => {
   cy.exec(
-    "docker compose -f ../../compose.test.yml exec app pilos-cli demo:create --force",
+    "docker compose -f ../../compose.test.yml exec app pilos-cli demo:create --force --disable-bbb-session-check",
   );
 });
 

@@ -134,9 +134,7 @@ jobs:
           LOG_CHANNEL: stack
           BBB_TEST_SERVER_HOST: ${{ secrets.BBB_TEST_SERVER_HOST }}
           BBB_TEST_SERVER_SECRET: ${{ secrets.BBB_TEST_SERVER_SECRET }}
-
-        run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
-
+        run: php artisan test --parallel --coverage-clover=coverage.xml
       - name: Execute tests (Unit and Feature tests) via PHPUnit using Postgres
         env:
           DB_CONNECTION: pgsql
@@ -157,7 +155,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: laravel.log
+          name: laravel-backend-tests.log
           path: storage/logs/laravel.log
   frontend-code-style-check:
     name: Frontend Code Style Check
@@ -444,3 +442,9 @@ jobs:
         with:
           name: cypress-screenshots
           path: tests/System/screenshots
+      - name: Upload laravel logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: laravel-system-tests.log
+          path: storage/logs/laravel.log
