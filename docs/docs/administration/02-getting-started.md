@@ -135,7 +135,8 @@ You will need to set up a reverse proxy that routes the traffic to this applicat
 ```nginx
 location / {
   proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    X-Forwarded-Host $host;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Host  $host;
   proxy_set_header    X-Forwarded-Port  $server_port;
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
@@ -156,7 +157,8 @@ location / {
   limit_req_status 429;
 
   proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    X-Forwarded-Host $host;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Host  $host;
   proxy_set_header    X-Forwarded-Port  $server_port;
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
