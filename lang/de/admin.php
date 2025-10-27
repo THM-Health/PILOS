@@ -401,6 +401,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Eigene Farbe',
+            'custom_css' => 'Eigene CSS Style Datei',
             'primary_color' => 'Primärfarbe',
             'rounded' => 'Abgerundete Ecken',
             'title' => 'Design',
@@ -441,8 +442,9 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Lokal',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Anmeldeart',
+            'title' => 'Login-Methode',
         ],
         'base_data' => 'Stammdaten',
         'bbb' => 'BigBlueButton',

@@ -1,5 +1,5 @@
 <template>
-  <div class="border-b bg-white py-2 border-surface dark:bg-surface-900">
+  <div class="border-b border-surface bg-white py-2 dark:bg-surface-900">
     <div class="container flex flex-row justify-between">
       <Menubar
         :breakpoint="menuBreakpoint + 'px'"
@@ -141,7 +141,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useSettingsStore } from "../stores/settings.js";
 import { useAuthStore } from "../stores/auth.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -342,6 +342,10 @@ async function pageShownAfterLogoutHandler(event) {
   }
 }
 
+onUnmounted(() => {
+  window.removeEventListener("pageshow", pageShownAfterLogoutHandler);
+});
+
 async function logout() {
   let response;
   try {
@@ -362,7 +366,8 @@ async function logout() {
     return;
   }
 
-  await router.push({ name: "logout" });
+  const message = response.data.message || null;
+  await router.push({ name: "logout", query: { message } });
 
   loadingStore.setLoadingFinished();
 }

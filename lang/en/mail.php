@@ -25,7 +25,7 @@ return [
     'room_expires' => [
         'delete' => 'If you no longer need the room, you can also delete it on your own.',
         'expire' => 'If you don\'t take action, the room will be automatically deleted on :date.',
-        'inactivity' => 'Your room ":name" was created on :date, but the last usage was :days ago.',
+        'inactivity' => 'Your room ":name" was created on :date, but the last usage was :days days ago.',
         'intro' => 'to save server resources, unused rooms are automatically deleted.',
         'keep' => 'If you would like to continue using the room, please start the room before the deadline.',
         'no_meeting' => 'Your room ":name" was created on :date but never started.',

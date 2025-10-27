@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Prometheus\CollectorRegistry;
+use App\Prometheus\Collectors\AntiVirusCollector;
 use App\Prometheus\Collectors\AuthCollector;
 use App\Prometheus\Collectors\FileCollector;
 use App\Prometheus\Collectors\HorizonCollector;
@@ -31,6 +32,7 @@ class MetricsServiceProvider extends ServiceProvider implements DeferrableProvid
         HorizonCollector::class,
         AuthCollector::class,
         RequestCollector::class,
+        AntiVirusCollector::class,
     ];
 
     /**

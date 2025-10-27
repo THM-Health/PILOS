@@ -16,9 +16,9 @@ class AuthCollector implements Collector
     public function collect(): void
     {
         Counter::get('login_failed_total')
-            ->init(['local', 'ldap', 'shibboleth']);
+            ->init(['local', 'ldap', 'shibboleth', 'oidc']);
         Counter::get('login_total')
-            ->init(['local', 'ldap', 'shibboleth']);
+            ->init(['local', 'ldap', 'shibboleth', 'oidc']);
 
     }
 }

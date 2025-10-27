@@ -128,7 +128,7 @@ describe("Admin users view", function () {
 
     cy.get('[data-test="authenticator-field"]')
       .should("be.visible")
-      .and("include.text", "auth.authenticator")
+      .and("include.text", "admin.users.authenticator.title")
       .within(() => {
         cy.get("#authenticator")
           .should("have.value", "admin.users.authenticator.local")
@@ -270,10 +270,10 @@ describe("Admin users view", function () {
       .should("have.value", "admin.users.authenticator.ldap")
       .and("be.disabled");
 
-    cy.get('[data-test="authenticator-id-field"]')
-      .should("include.text", "auth.authenticator_id")
+    cy.get('[data-test="external-user-id-field"]')
+      .should("include.text", "auth.external_user_id")
       .within(() => {
-        cy.get("#authenticator_id")
+        cy.get("#external-user-id")
           .should("have.value", "lwr")
           .and("be.disabled");
       });

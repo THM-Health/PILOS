@@ -1,5 +1,5 @@
 <template>
-  <div class="container mb-8 mt-8">
+  <div class="container mt-8 mb-8">
     <Card>
       <!--  heading and option to add new rooms-->
       <template #title>
@@ -38,7 +38,7 @@
                 ref="search"
                 v-model="rawSearchQuery"
                 :disabled="loadingRooms"
-                :placeholder="$t('app.search')"
+                :placeholder="$t('rooms.search')"
                 @keyup.enter="loadRooms(1)"
               />
               <Button

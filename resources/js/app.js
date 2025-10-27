@@ -30,7 +30,7 @@ const setupApp = (app) => {
       options: {
         cssLayer: {
           name: "primevue",
-          order: "tailwind-base, primevue, tailwind-utilities",
+          order: "theme, base, primevue",
         },
         darkModeSelector: ".dark",
       },

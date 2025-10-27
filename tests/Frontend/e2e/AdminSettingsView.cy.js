@@ -200,10 +200,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .and(i === 4 ? "have.class" : "not.have.class", "selected");
         }
 
@@ -217,6 +215,13 @@ describe("Admin settings with edit permission", function () {
       .and("include.text", "admin.settings.theme.rounded")
       .within(() => {
         cy.get("#theme-rounded").should("be.checked").and("be.disabled");
+      });
+
+    cy.get('[data-test="theme-custom-css-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.custom_css")
+      .within(() => {
+        cy.checkSettingsFileSelectorOnlyView("");
       });
   });
 
@@ -325,10 +330,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .and("not.have.class", "selected");
         }
 
@@ -346,10 +349,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .and("not.have.class", "selected");
         }
 
@@ -469,10 +470,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .should(i === 0 ? "have.class" : "not.have.class", "selected");
         }
 
@@ -492,10 +491,8 @@ describe("Admin settings with edit permission", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .and("have.class", "pointer-events-none opacity-80")
+            .and("not.have.class", "cursor-pointer")
             .should(i === 7 ? "have.class" : "not.have.class", "selected");
         }
 

@@ -17,6 +17,7 @@ use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SettingsController extends Controller
 {
@@ -87,6 +88,29 @@ class SettingsController extends Controller
             $faviconDark = $url;
         } else {
             $faviconDark = $request->input('theme_favicon_dark');
+        }
+
+        // Custom CSS file
+        if ($request->has('theme_custom_css')) {
+            // Remove current file if existing
+            if ($themeSettings->custom_css !== null) {
+
+                $file_path = substr($themeSettings->custom_css, strlen('/storage/'));
+                Storage::disk('public')->delete($file_path);
+
+            }
+
+            if (! empty($request->file('theme_custom_css'))) {
+                // New file uploaded, create random file name and store file
+                $fileName = Str::random(40).'.css';
+                $path = $request->file('theme_custom_css')->storeAs('styles', $fileName, 'public');
+                $url = Storage::url($path);
+
+                $themeSettings->custom_css = $url;
+            } else {
+                // No file uploaded, set to null
+                $themeSettings->custom_css = null;
+            }
         }
 
         // Default presentation for BBB

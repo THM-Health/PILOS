@@ -24,7 +24,7 @@ class CreateDemoSystem extends Command
      *
      * @var string
      */
-    protected $signature = 'demo:create {--force}';
+    protected $signature = 'demo:create {--force} {--disable-bbb-session-check}';
 
     /**
      * The console command description.
@@ -100,6 +100,14 @@ class CreateDemoSystem extends Command
         $exam = RoomType::where('name', 'Exam')->first();
         $seminar = RoomType::where('name', 'Seminar')->first();
 
+        // Disable bbb session check for all room types
+        if ($this->option('disable-bbb-session-check')) {
+            foreach (RoomType::all() as $roomType) {
+                $roomType->create_parameters = 'allowRequestsWithoutSession=true';
+                $roomType->save();
+            }
+        }
+
         // Create rooms
         $anatomyRoom = new Room;
         $anatomyRoom->id = 'abc-def-123';
@@ -108,6 +116,7 @@ class CreateDemoSystem extends Command
         $anatomyRoom->access_code = 123456789;
         $anatomyRoom->owner()->associate($daniel);
         $anatomyRoom->roomType()->associate($lecture);
+        $anatomyRoom->expert_mode = true;
         $anatomyRoom->save();
 
         $mathRoom = new Room;
@@ -149,7 +158,7 @@ class CreateDemoSystem extends Command
 
         // Attach users to rooms
         $anatomyRoom->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
-        $anatomyRoom->members()->attach($william, ['role' => RoomUserRole::USER]);
+        $anatomyRoom->members()->attach($william, ['role' => RoomUserRole::MODERATOR]);
         $mathRoom->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
         $mathRoom->members()->attach($william, ['role' => RoomUserRole::USER]);
         $mathRoom->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);
