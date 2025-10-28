@@ -2908,20 +2908,21 @@
         },
         {
             "name": "littleredbutton/bigbluebutton-api-php",
-            "version": "6.1.0",
+            "version": "6.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/littleredbutton/bigbluebutton-api-php.git",
-                "reference": "7a7f832b521f101b66607789d2a7efbddf138a31"
+                "reference": "9194583adb1610690e2f972ad485b5e1a1be487d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/7a7f832b521f101b66607789d2a7efbddf138a31",
-                "reference": "7a7f832b521f101b66607789d2a7efbddf138a31",
+                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/9194583adb1610690e2f972ad485b5e1a1be487d",
+                "reference": "9194583adb1610690e2f972ad485b5e1a1be487d",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
+                "ext-dom": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
@@ -3034,7 +3035,7 @@
                 "issues": "https://github.com/littleredbutton/bigbluebutton-api-php/issues",
                 "source": "https://github.com/littleredbutton/bigbluebutton-api-php/"
             },
-            "time": "2024-10-04T18:06:51+00:00"
+            "time": "2025-10-28T12:01:57+00:00"
         },
         {
             "name": "livewire/livewire",
