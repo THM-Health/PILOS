@@ -89,7 +89,7 @@
         }"
       >
         <template #item="{ item, props, hasSubmenu, root }">
-          <component v-if="item.component" :is="item.component" />
+          <component :is="item.component" v-if="item.component" />
           <router-link
             v-else-if="item.route"
             v-slot="{ href, navigate }"
@@ -108,12 +108,12 @@
           </router-link>
           <a
             v-else
+            v-tooltip.bottom="item.tooltip"
             :href="item.url"
             :target="item.target"
             v-bind="props.action"
             class="flex items-center"
             :data-test="item.dataTest"
-            v-tooltip.bottom="item.tooltip"
           >
             <i v-if="item.icon" :class="item.icon" />
             <UserAvatar

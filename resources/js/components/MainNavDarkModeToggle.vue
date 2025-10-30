@@ -38,14 +38,14 @@ const { t } = useI18n();
     </div>
   </div>
   <div
-    class="absolute inset-0 h-full w-full cursor-pointer"
     v-if="isDark"
     v-tooltip.bottom="t('app.dark_mode_disable')"
+    class="absolute inset-0 h-full w-full cursor-pointer"
   />
   <div
-    class="absolute inset-0 h-full w-full cursor-pointer"
     v-else
     v-tooltip.bottom="t('app.dark_mode_enable')"
+    class="absolute inset-0 h-full w-full cursor-pointer"
   />
 </template>
 <style scoped>
