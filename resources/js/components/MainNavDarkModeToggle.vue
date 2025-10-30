@@ -1,8 +1,6 @@
 <script setup>
 import { useDark } from "@vueuse/core";
-import { useI18n } from "vue-i18n";
 const isDark = useDark();
-const { t } = useI18n();
 </script>
 <template>
   <div class="flex items-center">
@@ -39,12 +37,12 @@ const { t } = useI18n();
   </div>
   <div
     v-if="isDark"
-    v-tooltip.bottom="t('app.dark_mode_disable')"
+    v-tooltip.bottom="$t('app.dark_mode_disable')"
     class="absolute inset-0 h-full w-full"
   />
   <div
     v-else
-    v-tooltip.bottom="t('app.dark_mode_enable')"
+    v-tooltip.bottom="$t('app.dark_mode_enable')"
     class="absolute inset-0 h-full w-full"
   />
 </template>
