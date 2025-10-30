@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Tooltips for icon-only menu bar items ([#2575])
+
+### Changed
+
+- Sun & moon icon in the menu bar ([#2575])
+
+### Fixed
+
+- Uneven height of right menu bar items ([#2575])
+
 ## [v4.8.0] - 2025-10-27
 
 ### Added
@@ -585,6 +597,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
+[#2575]: https://github.com/THM-Health/PILOS/pull/2575
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.8.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
