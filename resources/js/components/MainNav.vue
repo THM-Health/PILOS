@@ -155,7 +155,6 @@ import env from "../env.js";
 import { useLocaleStore } from "../stores/locale.js";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
-import MainNavDarkModeToggle from "./MainNavDarkModeToggle.vue";
 
 const menuBreakpoint = 1023;
 
