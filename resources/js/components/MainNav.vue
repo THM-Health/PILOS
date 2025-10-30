@@ -89,9 +89,8 @@
         }"
       >
         <template #item="{ item, props, hasSubmenu, root }">
-          <component :is="item.component" v-if="item.component" />
           <router-link
-            v-else-if="item.route"
+            v-if="item.route"
             v-slot="{ href, navigate }"
             :to="item.route"
             custom
@@ -123,6 +122,7 @@
               :image="authStore.currentUser.image"
               class="bg-secondary"
             />
+            <MainNavDarkModeToggle v-if="item?.type === 'darkMode'" />
             <span v-if="!item?.type && !item.icon">{{ item.label }}</span>
             <i
               v-if="hasSubmenu"
@@ -290,7 +290,7 @@ const userMenuItems = computed(() => {
   }
 
   items.push({
-    component: MainNavDarkModeToggle,
+    type: "darkMode",
     dataTest: "navbar-dark-mode",
     label: isDark.value
       ? t("app.dark_mode_disable")

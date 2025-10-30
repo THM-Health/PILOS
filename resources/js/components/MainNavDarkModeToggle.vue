@@ -5,7 +5,7 @@ const isDark = useDark();
 const { t } = useI18n();
 </script>
 <template>
-  <div class="p-menubar-item-link flex items-center">
+  <div class="flex items-center">
     <div class="relative h-[1.25em] w-[1.25em] text-xl">
       <Transition name="dark">
         <svg
@@ -40,12 +40,12 @@ const { t } = useI18n();
   <div
     v-if="isDark"
     v-tooltip.bottom="t('app.dark_mode_disable')"
-    class="absolute inset-0 h-full w-full cursor-pointer"
+    class="absolute inset-0 h-full w-full"
   />
   <div
     v-else
     v-tooltip.bottom="t('app.dark_mode_enable')"
-    class="absolute inset-0 h-full w-full cursor-pointer"
+    class="absolute inset-0 h-full w-full"
   />
 </template>
 <style scoped>
