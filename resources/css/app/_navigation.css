@@ -2,3 +2,9 @@
     justify-content: space-between;
     width: 100%;
 }
+
+.user-avatar{
+    .p-menubar-item-link{
+        @apply py-1;
+    }
+}

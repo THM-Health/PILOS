@@ -89,8 +89,9 @@
         }"
       >
         <template #item="{ item, props, hasSubmenu, root }">
+          <component v-if="item.component" :is="item.component" />
           <router-link
-            v-if="item.route"
+            v-else-if="item.route"
             v-slot="{ href, navigate }"
             :to="item.route"
             custom
@@ -112,6 +113,7 @@
             v-bind="props.action"
             class="flex items-center"
             :data-test="item.dataTest"
+            v-tooltip.bottom="item.tooltip"
           >
             <i v-if="item.icon" :class="item.icon" />
             <UserAvatar
@@ -121,7 +123,6 @@
               :image="authStore.currentUser.image"
               class="bg-secondary"
             />
-            <MainNavDarkModeToggle v-if="item?.type === 'darkMode'" />
             <span v-if="!item?.type && !item.icon">{{ item.label }}</span>
             <i
               v-if="hasSubmenu"
@@ -154,6 +155,7 @@ import env from "../env.js";
 import { useLocaleStore } from "../stores/locale.js";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
+import MainNavDarkModeToggle from "./MainNavDarkModeToggle.vue";
 
 const menuBreakpoint = 1023;
 
@@ -278,8 +280,9 @@ const userMenuItems = computed(() => {
 
   if (settingsStore.getSetting("general.help_url")) {
     items.push({
-      icon: "fa-solid fa-circle-question text-xl",
+      icon: "fa-solid fa-circle-question text-2xl",
       label: t("app.help"),
+      tooltip: t("app.help"),
       target: "_blank",
       dataTest: "navbar-help",
       url: settingsStore.getSetting("general.help_url"),
@@ -287,7 +290,7 @@ const userMenuItems = computed(() => {
   }
 
   items.push({
-    type: "darkMode",
+    component: MainNavDarkModeToggle,
     dataTest: "navbar-dark-mode",
     label: isDark.value
       ? t("app.dark_mode_disable")
@@ -298,8 +301,9 @@ const userMenuItems = computed(() => {
   // Only show the locale menu if more than one locale is enabled
   if (locales.value.length > 1) {
     const localeItem = {
-      icon: "fa-solid fa-language text-xl",
+      icon: "fa-solid fa-language text-2xl",
       label: t("app.change_locale"),
+      tooltip: t("app.change_locale"),
       dataTest: "navbar-locale",
       items: [],
     };
