@@ -29,6 +29,8 @@
                   icon="fa-solid fa-info"
                   data-test="room-info-button"
                   @click.stop="modalVisible = true"
+                  v-tooltip="$t('rooms.index.room_component.show_details')"
+                  :aria-label="$t('rooms.index.room_component.show_details')"
                 />
                 <RoomFavoriteButton
                   :room="props.room"
