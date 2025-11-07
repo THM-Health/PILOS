@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Stop auto-reload if room guest access is denied ([#2588])
+
 ## [v4.8.0] - 2025-10-27
 
 ### Added
@@ -585,6 +589,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
+[#2588]: https://github.com/THM-Health/PILOS/pull/2588
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.8.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
