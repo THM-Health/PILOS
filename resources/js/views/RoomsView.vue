@@ -346,6 +346,7 @@ function handleGuestsNotAllowed() {
   // Disable auto reload as this error is permanent until the room settings are changed
   // or the user logs in
   clearInterval(reloadInterval.value);
+  reloadInterval.value = null;
 }
 
 /**
@@ -370,6 +371,7 @@ function handleInvalidToken() {
   toast.error(t("rooms.flash.token_invalid"));
   // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
   clearInterval(reloadInterval.value);
+  reloadInterval.value = null;
 }
 
 /**
