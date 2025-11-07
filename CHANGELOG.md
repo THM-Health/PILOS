@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Stop auto-reload if room guest access is denied ([#2588])
+- Auto-reload of rooms now disabled for guests without access ([#2588])
 
 ## [v4.8.0] - 2025-10-27
 
