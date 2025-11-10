@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 class StorageCollector implements Collector
 {
-    // ToDo move to config
-    protected const array DISK_NAMES = ['local', 'recordings', 'recordings-spool'];
-
     public function register(CollectorRegistry $registry): void
     {
         Gauge::register($registry, 'storage_total_bytes', 'Total storage space in bytes', ['disk']);
@@ -19,14 +16,17 @@ class StorageCollector implements Collector
 
     public function collect(): void
     {
-        $storageTotalGauge = Gauge::get('storage_total_bytes');
-        $storageFreeGauge = Gauge::get('storage_free_bytes');
+        if (config('metrics.collectors.storage.enabled')) {
+            $storageTotalGauge = Gauge::get('storage_total_bytes');
+            $storageFreeGauge = Gauge::get('storage_free_bytes');
 
-        foreach (self::DISK_NAMES as $diskName) {
-            $storageTotalGauge
-                ->set(disk_total_space(Storage::disk($diskName)->path('')), $diskName);
-            $storageFreeGauge
-                ->set(disk_free_space(Storage::disk($diskName)->path('')), $diskName);
+            foreach (config('metrics.collectors.storage.disk_names') as $diskName) {
+                $storageTotalGauge
+                    ->set(disk_total_space(Storage::disk($diskName)->path('')), $diskName);
+                $storageFreeGauge
+                    ->set(disk_free_space(Storage::disk($diskName)->path('')), $diskName);
+            }
         }
+
     }
 }
