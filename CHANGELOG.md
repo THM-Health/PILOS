@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Storage space to metrics ([#2345], [#2604])
+
 ## [v4.8.0] - 2025-10-27
 
 ### Added
@@ -570,6 +574,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2304]: https://github.com/THM-Health/PILOS/pull/2304
 [#2313]: https://github.com/THM-Health/PILOS/issues/2313
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
+[#2345]: https://github.com/THM-Health/PILOS/issues/2345
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2449]: https://github.com/THM-Health/PILOS/pull/2449
@@ -585,6 +590,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
+[#2604]: https://github.com/THM-Health/PILOS/pull/2604
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.8.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

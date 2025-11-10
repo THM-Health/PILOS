@@ -11,6 +11,7 @@ use App\Models\Session;
 use App\Models\User;
 use App\Prometheus\Counter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\InteractWithMetrics;
 
@@ -246,5 +247,38 @@ class MetricsTest extends TestCase
         $this->assertEquals(29, $metrics['pilos_servers_total{status="unhealthy"}']);
         $this->assertEquals(39, $metrics['pilos_servers_total{status="offline"}']);
         $this->assertEquals(53, $metrics['pilos_servers_total{status="online"}']);
+    }
+
+    public function test_storage_gauge_metrics()
+    {
+        // Disable storage metrics collector
+        config(['metrics.collectors.storage.enabled' => false]);
+
+        Storage::fake('local');
+        Storage::fake('recordings');
+        Storage::fake('recordings-spool');
+
+        // Get metrics and check that storage metrics are not present
+        $metrics = $this->getMetrics();
+
+        $this->assertArrayNotHasKey('pilos_storage_total_bytes{disk="local"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_free_bytes{disk="local"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_total_bytes{disk="recordings"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_free_bytes{disk="recordings"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_total_bytes{disk="recordings-spool"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_free_bytes{disk="recordings-spool"}', $metrics);
+
+        // Enable storage metrics collector
+        config(['metrics.collectors.storage.enabled' => true]);
+
+        // Get metrics and check that storage metrics are present and greater than 0
+        $metrics = $this->getMetrics();
+
+        $this->assertGreaterThan(0, $metrics['pilos_storage_total_bytes{disk="local"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_free_bytes{disk="local"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_total_bytes{disk="recordings"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_free_bytes{disk="recordings"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_total_bytes{disk="recordings-spool"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_free_bytes{disk="recordings-spool"}']);
     }
 }
