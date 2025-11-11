@@ -24,13 +24,13 @@
               <div class="relative z-10 flex shrink-0 gap-2">
                 <Button
                   v-if="props.room.short_description != null"
+                  v-tooltip="$t('rooms.index.room_component.show_details')"
                   severity="secondary"
                   class="room-card-button h-8 w-8 p-0 text-sm"
                   icon="fa-solid fa-info"
                   data-test="room-info-button"
-                  @click.stop="modalVisible = true"
-                  v-tooltip="$t('rooms.index.room_component.show_details')"
                   :aria-label="$t('rooms.index.room_component.show_details')"
+                  @click.stop="modalVisible = true"
                 />
                 <RoomFavoriteButton
                   :room="props.room"
