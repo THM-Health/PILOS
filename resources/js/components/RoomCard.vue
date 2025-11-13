@@ -4,7 +4,7 @@
     <div
       tabindex="0"
       data-test="room-card"
-      class="relative h-full rounded-border border border-surface shadow-none hover:bg-emphasis"
+      class="room-card relative h-full rounded-border border border-surface shadow-none hover:bg-emphasis"
       @click="open"
       @keyup.enter="open"
     >
@@ -25,14 +25,14 @@
                 <Button
                   v-if="props.room.short_description != null"
                   severity="secondary"
-                  class="h-8 w-8 p-0 text-sm"
+                  class="room-card-button h-8 w-8 p-0 text-sm"
                   icon="fa-solid fa-info"
                   data-test="room-info-button"
                   @click.stop="modalVisible = true"
                 />
                 <RoomFavoriteButton
                   :room="props.room"
-                  class="h-8 w-8 p-0 text-sm"
+                  class="room-card-button h-8 w-8 p-0 text-sm"
                   @favorites-changed="$emit('favoritesChanged')"
                 />
               </div>
