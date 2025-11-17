@@ -40,7 +40,6 @@ const avatarLabel = computed(() => {
   if (!props.firstname || !props.lastname) {
     return "";
   }
-
   return (
     _.split(props.firstname?.toUpperCase(), "", 1)[0] +
     _.split(props.lastname?.toUpperCase(), "", 1)[0]
