@@ -13,6 +13,7 @@ use App\Prometheus\Collectors\RequestCollector;
 use App\Prometheus\Collectors\RoomCollector;
 use App\Prometheus\Collectors\ServerCollector;
 use App\Prometheus\Collectors\SessionCollector;
+use App\Prometheus\Collectors\StorageCollector;
 use App\Prometheus\Collectors\UserCollector;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Foundation\Application;
@@ -33,6 +34,7 @@ class MetricsServiceProvider extends ServiceProvider implements DeferrableProvid
         AuthCollector::class,
         RequestCollector::class,
         AntiVirusCollector::class,
+        StorageCollector::class,
     ];
 
     /**
