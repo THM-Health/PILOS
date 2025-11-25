@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Log;
 use ReflectionProperty;
+use URL;
 
 class MeetingService
 {
@@ -60,6 +61,11 @@ class MeetingService
     public function getCallbackUrl(): string
     {
         return url()->route('api.v1.meetings.endcallback', ['meeting' => $this->meeting, 'salt' => Hash::make($this->getCallbackSalt())]);
+    }
+
+    public function getPersistentStateUrl(): string
+    {
+        return URL::signedRoute('api.v1.meetings.persistent-state.get', ['meeting' => $this->meeting]);
     }
 
     /**
@@ -102,6 +108,7 @@ class MeetingService
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
+        $meetingParams->addMeta('persistent-state', $this->getPersistentStateUrl());
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();

@@ -159,4 +159,38 @@ class MeetingController extends Controller
 
         return Attendee::collection($meetingService->attendance());
     }
+
+    public function getPersistentState(Meeting $meeting)
+    {
+        // Only allow get if the meeting is currently running
+        if ($meeting->end != null) {
+            abort(403);
+        }
+
+        $path = $meeting->room_id.'/persistent.state';
+        if(!\Storage::exists($path)){
+            abort(404);
+        }
+
+        $fileAlias = config('filesystems.x-accel.url_prefix').'/app/'.$path;
+
+        return response(null, 200)
+            ->header('Content-Type', null)
+            ->header('X-Accel-Redirect', $fileAlias);
+    }
+
+    public function updatePersistentState(Meeting $meeting)
+    {
+        // Only allow update if there is the lastest meeting of the room
+        // Currently running or the last finished one
+        if(!$meeting->room->latestMeeting->is($meeting)){
+            abort(403);
+        }
+
+        // Get raw request body
+        $data = request()->getContent();
+
+        // Save persistent state file
+        \Storage::put($meeting->room_id.'/persistent.state', $data);
+    }
 }

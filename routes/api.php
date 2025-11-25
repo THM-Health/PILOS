@@ -179,6 +179,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class, 'endMeetingCallback'])->name('meetings.endcallback');
+    Route::get( 'meetings/{meeting}/persistent_state', [MeetingController::class, 'getPersistentState'])->name('meetings.persistent-state.get')->middleware('signed');
+    Route::put( 'meetings/{meeting}/persistent_state', [MeetingController::class, 'updatePersistentState'])->name('meetings.persistent-state.update')->middleware('signed');
 });
 
 if (! env('DISABLE_CATCHALL_ROUTES')) {
