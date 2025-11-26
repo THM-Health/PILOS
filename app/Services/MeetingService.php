@@ -104,11 +104,11 @@ class MeetingService
             ->setLockSettingsDisableNotes($this->meeting->room->getRoomSetting('lock_settings_disable_note'))
             ->setLockSettingsHideUserList($this->meeting->room->getRoomSetting('lock_settings_hide_user_list'))
             ->setLockSettingsLockOnJoin(true)
-            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'));
+            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
+            ->setPersistentStateUrl($this->getPersistentStateUrl());
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
-        $meetingParams->addMeta('persistent-state', $this->getPersistentStateUrl());
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();

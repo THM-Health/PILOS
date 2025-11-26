@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "81f449c9b0ea3e29836a1f1ecafb57b0",
+    "content-hash": "07b6750ef33f5f4a365089c3dd70280d",
     "packages": [
         {
             "name": "brick/math",
@@ -2907,17 +2907,11 @@
         },
         {
             "name": "littleredbutton/bigbluebutton-api-php",
-            "version": "6.2.1",
+            "version": "dev-add-persistent-state-url",
             "source": {
                 "type": "git",
-                "url": "https://github.com/littleredbutton/bigbluebutton-api-php.git",
-                "reference": "a8c6b3cd84ae586d5676aa979197f608d6be22a9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/a8c6b3cd84ae586d5676aa979197f608d6be22a9",
-                "reference": "a8c6b3cd84ae586d5676aa979197f608d6be22a9",
-                "shasum": ""
+                "url": "https://github.com/THM-Health/bigbluebutton-api-php",
+                "reference": "a4e5e792bdae4910b4bd3fbc1a89737ca75132ea"
             },
             "require": {
                 "ext-curl": "*",
@@ -2946,20 +2940,10 @@
             },
             "type": "library",
             "extra": {
-                "cotor": {
-                    "extensions": {
-                        "phpunit/phpunit": {
-                            "fakerphp/faker": "1.20.*"
-                        }
-                    },
-                    "vimeo/psalm": "^5.23",
-                    "rector/rector": "^1.0",
-                    "phpstan/phpstan": "^1.10",
-                    "phpunit/phpunit": "^9",
-                    "friendsofphp/php-cs-fixer": "^3.3",
-                    "brainmaestro/composer-git-hooks": "^2.8"
-                },
                 "hooks": {
+                    "pre-commit": [
+                        "tools/php-cs-fixer fix --dry-run --allow-risky=yes"
+                    ],
                     "pre-push": [
                         "tools/phpunit --testsuite=\"BigBlueButton unit test suite,BigBlueButton integration test suite\"",
                         "tools/psalm --threads=1",
@@ -2967,10 +2951,20 @@
                         "tools/rector process --dry-run src/ tests/"
                     ],
                     "post-merge": "composer install",
-                    "pre-commit": [
-                        "tools/php-cs-fixer fix --dry-run --allow-risky=yes"
-                    ],
                     "post-checkout": "composer install"
+                },
+                "cotor": {
+                    "brainmaestro/composer-git-hooks": "^2.8",
+                    "extensions": {
+                        "phpunit/phpunit": {
+                            "fakerphp/faker": "1.20.*"
+                        }
+                    },
+                    "friendsofphp/php-cs-fixer": "^3.3",
+                    "phpstan/phpstan": "^1.10",
+                    "phpunit/phpunit": "^9",
+                    "rector/rector": "^1.0",
+                    "vimeo/psalm": "^5.23"
                 }
             },
             "autoload": {
@@ -2981,7 +2975,63 @@
                     ]
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "BigBlueButton\\Tests\\Common\\": [
+                        "tests/common"
+                    ],
+                    "BigBlueButton\\Tests\\Functional\\": [
+                        "tests/functional"
+                    ],
+                    "BigBlueButton\\Tests\\Integration\\": [
+                        "tests/integration"
+                    ],
+                    "BigBlueButton\\Tests\\Unit\\": [
+                        "tests/unit"
+                    ]
+                }
+            },
+            "scripts": {
+                "test": [
+                    "tools/phpunit  --testsuite=\"BigBlueButton unit test suite\""
+                ],
+                "test-integration": [
+                    "tools/phpunit  --testsuite=\"BigBlueButton integration test suite\""
+                ],
+                "test-functional": [
+                    "tools/phpunit --testsuite=\"BigBlueButton functional test suite\" --exclude-group=functional-legacy"
+                ],
+                "cs-fix": [
+                    "tools/php-cs-fixer fix --allow-risky=yes"
+                ],
+                "cs-test": [
+                    "tools/php-cs-fixer fix --dry-run --allow-risky=yes"
+                ],
+                "psalm": [
+                    "tools/psalm --threads=1"
+                ],
+                "psalm-clear": [
+                    "tools/psalm --clear-cache && tools/psalm --clear-global-cache"
+                ],
+                "psalm-fix": [
+                    "tools/psalm --alter --issues=InvalidReturnType,InvalidNullableReturnType,MissingParamType,InvalidFalsableReturnType"
+                ],
+                "phpstan": [
+                    "tools/phpstan analyse"
+                ],
+                "rector": [
+                    "tools/rector process --dry-run src/ tests/"
+                ],
+                "rector-fix": [
+                    "tools/rector process src/ tests/"
+                ],
+                "post-install-cmd": [
+                    "tools/composer-git-hooks add --ignore-lock"
+                ],
+                "post-update-cmd": [
+                    "tools/composer-git-hooks update"
+                ]
+            },
             "license": [
                 "LGPL-3.0-or-later"
             ],
@@ -3030,11 +3080,11 @@
                 "bigbluebutton"
             ],
             "support": {
-                "docs": "https://github.com/littleredbutton/bigbluebutton-api-php/blob/master/README.md",
                 "issues": "https://github.com/littleredbutton/bigbluebutton-api-php/issues",
-                "source": "https://github.com/littleredbutton/bigbluebutton-api-php/"
+                "source": "https://github.com/littleredbutton/bigbluebutton-api-php/",
+                "docs": "https://github.com/littleredbutton/bigbluebutton-api-php/blob/master/README.md"
             },
-            "time": "2025-10-28T15:05:36+00:00"
+            "time": "2025-11-26T08:42:16+00:00"
         },
         {
             "name": "livewire/livewire",
@@ -11911,7 +11961,8 @@
     "aliases": [],
     "minimum-stability": "beta",
     "stability-flags": {
-        "laravel/pulse": 10
+        "laravel/pulse": 10,
+        "littleredbutton/bigbluebutton-api-php": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
@@ -11924,5 +11975,5 @@
         "ext-zip": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

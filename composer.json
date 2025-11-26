@@ -24,7 +24,7 @@
     "laravel/telescope": "^5.0",
     "laravel/tinker": "^2.0",
     "laravel/ui": "^4.3",
-    "littleredbutton/bigbluebutton-api-php": "^6.0",
+    "littleredbutton/bigbluebutton-api-php": "dev-add-persistent-state-url",
     "maatwebsite/excel": "^3.1",
     "maennchen/zipstream-php": "^3.1",
     "nunomaduro/collision": "^8.1",
@@ -99,5 +99,11 @@
     "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
     "test-integration": "php artisan test --parallel --testsuite=Integration",
     "fix-cs": "pint --parallel"
-  }
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/THM-Health/bigbluebutton-api-php"
+    }
+  ]
 }
