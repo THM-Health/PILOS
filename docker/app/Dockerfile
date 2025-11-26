@@ -5,7 +5,7 @@ LABEL description="Development and production container for PILOS, compatible wi
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
-ARG PLAYBACK_PLAYER_VERSION=5.4.1
+ARG PLAYBACK_PLAYER_VERSION=5.4.2
 ARG VITE_COVERAGE="false"
 
 WORKDIR /var/www/html
