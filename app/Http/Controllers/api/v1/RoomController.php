@@ -467,7 +467,7 @@ class RoomController extends Controller
 
             $accessCode = $request->access_code;
 
-            if (is_numeric($accessCode) && $room->access_code == $accessCode) {
+            if ($room->access_code == $accessCode) {
                 // Generate new room auth token or retrieve existing one
                 $roomAuthToken = RoomAuthToken::firstOrCreate([
                     'room_id' => $room->id,

@@ -42,12 +42,17 @@ class UpdateRoomSettings extends FormRequest
      */
     private function getAccessCodeValidationRule(): array
     {
-        // Support keeping old 6-digit codes (Greenlight v2)
+        // Support keeping
+        // * old 6-digit numeric codes (Greenlight v2)
+        // * old 6-digit alphanumeric codes (Greenlight v3)
         $current = $this->room->access_code ?? '';
         $incoming = $this->str('access_code') ?? '';
+        $alphanumeric = $current == $incoming && ! is_numeric($current);
         $digits = ($current == $incoming && strlen($current) == 6) ? 6 : 9;
 
-        $rules = ['numeric', 'digits:'.$digits, 'bail'];
+        $rules = $alphanumeric
+               ? ['alpha_num:ascii', 'lowercase', 'size:6', 'bail']
+               : ['numeric', 'digits:'.$digits, 'bail'];
 
         // Make sure that the given room type id is a number
         if (is_numeric($this->input('room_type'))) {

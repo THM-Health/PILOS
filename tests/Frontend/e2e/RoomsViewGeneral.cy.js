@@ -428,7 +428,7 @@ describe("Room View general", function () {
         cy.contains("rooms.require_access_code").should("be.visible");
 
         // Submit valid access code
-        cy.get("#access-code").type("012345");
+        cy.get("#access-code").type("012abc");
       });
 
     // Intercept room auth request
@@ -460,7 +460,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_code: "012345",
+        access_code: "012abc",
         type: 0,
       });
     });
