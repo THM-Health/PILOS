@@ -268,6 +268,7 @@ const props = defineProps({
 const reloadInterval = ref(null);
 const loading = ref(false); // Room settings/details loading
 const room = ref(null); // Room object
+const roomAuthToken = ref(null); // Room authentication token
 const accessCode = ref(null); // Access code to use for requests
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
@@ -294,6 +295,10 @@ onMounted(() => {
 
   EventBus.on(EVENT_FORBIDDEN, reload);
   EventBus.on(EVENT_UNAUTHORIZED, reload);
+
+  if (props.token) {
+    authenticate();
+  }
 
   load();
 });
@@ -373,10 +378,8 @@ function load() {
   // Build room api url, include access code if set
   const config = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { "Access-Code": accessCode.value };
+  if (roomAuthToken.value) {
+    config.params = { room_auth_token: roomAuthToken.value.id };
   }
 
   const url = "rooms/" + props.id;
@@ -444,10 +447,8 @@ function reload() {
   // Build room api url, include access code if set
   const config = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { "Access-Code": accessCode.value };
+  if (roomAuthToken.value) {
+    config.params = { room_auth_token: roomAuthToken.value.id };
   }
 
   const url = "rooms/" + props.id;
@@ -532,8 +533,38 @@ function setPageTitle(roomName) {
 function login() {
   // Remove dashes from the access code
   accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
-  // Reload the room with an access code
-  reload();
+
+  // Retrieve room auth token
+  authenticate();
+}
+
+// ToDo Fix this (including reload etc.) to prevent unnecessary calls of load / reload / authenticate
+function authenticate() {
+  let data;
+
+  if (props.token) {
+    data = {
+      type: 1,
+      access_token: props.token,
+    };
+  } else if (accessCode.value != null) {
+    data = {
+      type: 0,
+      access_code: accessCode.value,
+    };
+  }
+
+  // Retrieve room auth token
+  const url = "rooms/" + props.id + "/auth";
+  api
+    .call(url, {
+      method: "POST",
+      data: data,
+    })
+    .then((response) => {
+      roomAuthToken.value = response.data.data;
+      reload();
+    });
 }
 
 const running = computed(() => {

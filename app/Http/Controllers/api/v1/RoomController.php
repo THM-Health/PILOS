@@ -3,21 +3,27 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomSortingType;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\JoinMeeting;
+use App\Http\Requests\RoomAuthRequest;
 use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartMeeting;
 use App\Http\Requests\TransferOwnershipRequest;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
+use App\Http\Resources\RoomAuthTokenResource;
 use App\Http\Resources\RoomSettings;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
+use App\Models\RoomToken;
 use App\Models\RoomType;
 use App\Models\User;
+use App\Prometheus\Counter;
 use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use App\Settings\GeneralSettings;
@@ -27,6 +33,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Log;
 
 class RoomController extends Controller
@@ -421,6 +428,81 @@ class RoomController extends Controller
             Log::error('Failed to transfer ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
 
             return abort(500);
+        }
+    }
+
+    /**
+     * Authenticate a user based on a provided access code or
+     * room token and return a room auth token for further requests
+     */
+    public function authenticate(Room $room, RoomAuthRequest $request)
+    {
+        // ToDo prevent users that dont need a room auth token from requesting one
+        // ToDo kow to handle access code given but none is required?
+        switch ($request->type) {
+            case RoomAuthTokenType::CODE->value:
+                // Key used to rate limit access code attempts
+                $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
+
+                // Check if rate limit has been reached
+                if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
+                    return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
+                }
+
+                $accessCode = $request->access_code;
+
+                if (is_numeric($accessCode) && $room->access_code == $accessCode) {
+                    // Generate new room auth token
+                    $roomAuthToken = RoomAuthToken::firstOrCreate([
+                        'room_id' => $room->id,
+                        'session_id' => $request->session()->getId(),
+                        'type' => RoomAuthTokenType::CODE,
+                    ]);
+
+                    return new RoomAuthTokenResource($roomAuthToken);
+                } else {
+                    // Access code is incorrect
+
+                    // Metrics and logging
+                    Counter::get('room_authentication_errors_total')->inc('access_code_invalid');
+                    Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+
+                    // Increment rate limit counter for failed access code attempts
+                    RateLimiter::increment($rateLimitKey);
+
+                    abort(401, 'invalid_code');
+                }
+            case RoomAuthTokenType::TOKEN->value:
+                if (! Auth::guest()) {
+                    abort(420, 'guests only');
+                }
+
+                $accessToken = RoomToken::where('token', $request->access_token)
+                    ->where('room_id', $room->id)
+                    ->first();
+
+                if ($accessToken == null) {
+                    // Access token is invalid
+
+                    // Metrics and logging
+                    Counter::get('room_authentication_errors_total')->inc('token');
+
+                    Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                    abort(401, 'invalid_token');
+                }
+
+                $accessToken->last_usage = now();
+                $accessToken->save();
+
+                // Generate new room auth token
+                $roomAuthToken = RoomAuthToken::firstOrCreate([
+                    'room_id' => $room->id,
+                    'room_token_id' => $accessToken->id,
+                    'session_id' => $request->session()->getId(),
+                    'type' => RoomAuthTokenType::TOKEN,
+                ]);
+
+                return new RoomAuthTokenResource($roomAuthToken);
         }
     }
 }

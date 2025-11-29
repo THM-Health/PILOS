@@ -2,14 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\RoomAuthTokenType;
 use App\Models\Room;
-use App\Models\RoomToken;
+use App\Models\RoomAuthToken;
 use App\Prometheus\Counter;
 use App\Services\RoomAuthService;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\RateLimiter;
 
 class RoomAuthenticate
 {
@@ -38,24 +38,32 @@ class RoomAuthenticate
         $authenticated = false;
         $room = $request->route('room');
         $token = null;
+        $roomAuthToken = null;
 
         // requested user is the owner or a member of the room
         if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
             $authenticated = true;
         }
 
-        if (! Auth::user() && $request->headers->has('Token')) {
-            $token = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->first();
+        // Retrieve room auth token if provided
+        // ToDo Metrics / Logging? / RateLimiting?
+        if ($request->has('room_auth_token')) {
+            // Room Auth Token was provided
+            $roomAuthToken = RoomAuthToken::where('id', $request->get('room_auth_token'))
+                ->where('room_id', $room->id)
+                ->where('session_id', $request->session()->getId())
+                ->first();
 
-            if ($token == null) {
-                Counter::get('room_authentication_errors_total')->inc('token');
-                Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+            if ($roomAuthToken == null) {
                 abort(401, 'invalid_token');
             }
+        }
 
-            $token->last_usage = now();
-            $token->save();
+        // Valid room auth token with type TOKEN was provided
+        if ($roomAuthToken && $roomAuthToken->type === RoomAuthTokenType::TOKEN) {
+            // ToDo update last usage?
             $authenticated = true;
+            $token = $roomAuthToken->accessToken;
         }
 
         // user is not authenticated and room is not allowed for guests
@@ -72,31 +80,8 @@ class RoomAuthenticate
             $authenticated = true;
         }
 
-        // request provided access code
-        if ($request->headers->has('Access-Code')) {
-
-            // Key used to rate limit access code attempts
-            $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
-
-            // Check if rate limit has been reached
-            if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
-                return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
-            }
-
-            $accessCode = $request->header('Access-Code');
-            // check if access code is correct
-            if (is_numeric($accessCode) && $room->access_code == $accessCode) {
-                $authenticated = true;
-            } else {
-                Counter::get('room_authentication_errors_total')->inc('access_code_invalid');
-                Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
-
-                // Increment counter for failed access code attempts
-                RateLimiter::increment($rateLimitKey);
-
-                // access code is incorrect
-                abort(401, 'invalid_code');
-            }
+        if ($roomAuthToken && $roomAuthToken->type === RoomAuthTokenType::CODE) {
+            $authenticated = true;
         }
 
         // user is not authenticated and should not continue with the request

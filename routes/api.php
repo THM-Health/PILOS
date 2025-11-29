@@ -164,6 +164,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
+    Route::post('rooms/{room}/auth', [RoomController::class, 'authenticate'])->name('rooms.authenticate');
 
     Route::middleware('room.authenticate')->scopeBindings()->group(function () {
         Route::options('rooms/{room}/start', [RoomController::class, 'getStartRequirements'])->name('rooms.start-requirements')->middleware('can:start,room');
