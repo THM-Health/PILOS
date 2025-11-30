@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
@@ -50,6 +51,16 @@ class Room extends Model
                     }
                 }
                 $model->id = $newId;
+            }
+        });
+
+        static::updated(function ($model) {
+            if ($model->access_code !== $model->getOriginal('access_code')) {
+                // Access code has changed
+                // Delete all room auth tokens with type CODE linked to this room
+                RoomAuthToken::where('room_id', $model->id)
+                    ->where('type', RoomAuthTokenType::CODE)
+                    ->delete();
             }
         });
 

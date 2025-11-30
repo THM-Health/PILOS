@@ -439,6 +439,7 @@ class RoomController extends Controller
     {
         // ToDo prevent users that dont need a room auth token from requesting one
         // ToDo kow to handle access code given but none is required?
+        // ToDo Guests not allowed?
         switch ($request->type) {
             case RoomAuthTokenType::CODE->value:
                 // Key used to rate limit access code attempts
@@ -497,7 +498,7 @@ class RoomController extends Controller
                 // Generate new room auth token
                 $roomAuthToken = RoomAuthToken::firstOrCreate([
                     'room_id' => $room->id,
-                    'room_token_id' => $accessToken->id,
+                    'room_token_id' => $accessToken->token,
                     'session_id' => $request->session()->getId(),
                     'type' => RoomAuthTokenType::TOKEN,
                 ]);
