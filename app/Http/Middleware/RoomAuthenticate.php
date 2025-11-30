@@ -86,6 +86,7 @@ class RoomAuthenticate
 
         // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
+            // ToDo rename to require_token
             abort(403, 'require_code');
         }
 

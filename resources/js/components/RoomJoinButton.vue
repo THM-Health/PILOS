@@ -51,7 +51,7 @@
         <div v-if="!isLoadingAction && !loadingError">
           <!-- Ask guests for their first and lastname -->
           <div
-            v-if="!authStore.isAuthenticated && !token"
+            v-if="!authStore.isAuthenticated && !roomAuthToken.type === 0"
             class="mb-4 flex flex-col gap-2"
           >
             <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
@@ -198,19 +198,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  token: {
-    type: String,
-    default: null,
-  },
-  accessCode: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
 });
 
 const emit = defineEmits([
-  "invalidCode",
-  "invalidToken",
+  "invalidRoomAuthToken",
   "guestsNotAllowed",
   "changed",
 ]);
@@ -269,10 +264,8 @@ function loadStartJoinRequirements() {
       method: "options",
     };
 
-    if (props.token) {
-      config.headers = { Token: props.token };
-    } else if (props.accessCode != null) {
-      config.headers = { "Access-Code": props.accessCode };
+    if (props.roomAuthToken) {
+      config.params = { room_auth_token: props.roomAuthToken.id };
     }
 
     api
@@ -359,7 +352,7 @@ function getJoinUrl() {
   const config = {
     method: "post",
     data: {
-      name: props.token ? null : name.value,
+      name: props.roomAuthToken.type === 0 ? null : name.value,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
@@ -368,10 +361,8 @@ function getJoinUrl() {
     },
   };
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+  if (props.roomAuthToken) {
+    config.data.room_auth_token = props.roomAuthToken.id;
   }
 
   const url = "rooms/" + props.roomId + "/" + action.value;
@@ -434,32 +425,23 @@ function getJoinUrl() {
  * @return {boolean} true if error was handled, false otherwise
  */
 function handleError(error) {
-  // Access code invalid
-  if (
-    error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === "invalid_code"
-  ) {
-    emit("invalidCode");
-    modalVisible.value = false;
-    return true;
-  }
-
   // Access code is required
   if (
     error.response.status === env.HTTP_FORBIDDEN &&
     error.response.data.message === "require_code"
   ) {
-    emit("invalidCode");
+    // ToDo: fix this
+    emit("invalidRoomAuthToken");
     modalVisible.value = false;
     return true;
   }
 
-  // Room token is invalid
+  // Room auth token is invalid
   if (
     error.response.status === env.HTTP_UNAUTHORIZED &&
     error.response.data.message === "invalid_token"
   ) {
-    emit("invalidToken");
+    emit("invalidRoomAuthToken");
     modalVisible.value = false;
     return true;
   }

@@ -322,17 +322,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  accessCode: {
-    type: String,
-    default: null,
-  },
-  token: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
 });
 
-const emit = defineEmits(["invalidCode", "invalidToken"]);
+const emit = defineEmits(["invalidCode", "invalidRoomAuthToken"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -397,10 +393,8 @@ function loadData(page = null) {
     },
   };
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+  if (props.roomAuthToken) {
+    config.params.room_auth_token = props.roomAuthToken.id;
   }
 
   api
@@ -416,20 +410,12 @@ function loadData(page = null) {
     })
     .catch((error) => {
       if (error.response) {
-        // Access code invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
-        ) {
-          return emit("invalidCode");
-        }
-
-        // Room token is invalid
+        // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
           error.response.data.message === "invalid_token"
         ) {
-          return emit("invalidToken");
+          return emit("invalidRoomAuthToken");
         }
 
         // Forbidden, require access code
@@ -437,7 +423,8 @@ function loadData(page = null) {
           error.response.status === env.HTTP_FORBIDDEN &&
           error.response.data.message === "require_code"
         ) {
-          return emit("invalidCode");
+          // ToDo fix this
+          return emit("invalidRoomAuthToken");
         }
       }
       loadingError.value = true;

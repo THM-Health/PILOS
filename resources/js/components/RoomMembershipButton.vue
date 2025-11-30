@@ -68,8 +68,8 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  accessCode: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
   disabled: {
@@ -82,7 +82,7 @@ const props = defineProps({
 const emit = defineEmits([
   "joinedMembership",
   "leftMembership",
-  "invalidCode",
+  "invalidRoomAuthToken",
   "membershipDisabled",
 ]);
 
@@ -100,10 +100,14 @@ function joinMembership() {
   isLoadingAction.value = true;
 
   // Join room as member, send access code if needed
-  const config =
-    props.accessCode == null
-      ? { method: "post" }
-      : { method: "post", headers: { "Access-Code": props.accessCode } };
+  const config = {
+    method: "post",
+  };
+
+  if (props.roomAuthToken) {
+    config.data = { room_auth_token: props.roomAuthToken.id };
+  }
+
   api
     .call("rooms/" + props.room.id + "/membership", config)
     .then(() => {
@@ -113,9 +117,9 @@ function joinMembership() {
       // Access code invalid
       if (
         error.response.status === env.HTTP_UNAUTHORIZED &&
-        error.response.data.message === "invalid_code"
+        error.response.data.message === "invalid_token"
       ) {
-        return emit("invalidCode");
+        return emit("invalidRoomAuthToken");
       }
 
       // Membership is disabled

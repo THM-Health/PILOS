@@ -163,14 +163,14 @@
                 class="mx-6 mt-6"
                 :room="room"
                 :loading="loading"
-                :access-code="accessCode"
+                :room-auth-token="roomAuthToken"
                 :details-inline="true"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
                 @reload="reload"
-                @invalid-code="handleInvalidCode"
+                @invalid-room-auth-token="handleInvalidRoomAuthToken"
                 @joined-membership="
-                  accessCode = null;
+                  roomAuthToken = null;
                   reload();
                 "
               />
@@ -198,10 +198,8 @@
                     :running="running"
                     :disabled="room.room_type_invalid"
                     :can-start="room.can_start"
-                    :token="props.token"
-                    :access-code="accessCode"
-                    @invalid-code="handleInvalidCode"
-                    @invalid-token="handleInvalidToken"
+                    :room-auth-token="roomAuthToken"
+                    @invalid-room-auth-token="handleInvalidRoomAuthToken"
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
                   />
@@ -218,11 +216,9 @@
           </Card>
           <!-- Show room tabs -->
           <RoomTabSection
-            :access-code="accessCode"
-            :token="token"
+            :room-auth-token="roomAuthToken"
             :room="room"
-            @invalid-code="handleInvalidCode"
-            @invalid-token="handleInvalidToken"
+            @invalid-room-auth-token="handleInvalidRoomAuthToken"
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
           />
@@ -269,7 +265,6 @@ const reloadInterval = ref(null);
 const loading = ref(false); // Room settings/details loading
 const room = ref(null); // Room object
 const roomAuthToken = ref(null); // Room authentication token
-const accessCode = ref(null); // Access code to use for requests
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const roomLoading = ref(false); // Room loading indicator for initial load
@@ -299,7 +294,7 @@ onMounted(() => {
   if (props.token) {
     // ToDo Fix loading state
     roomLoading.value = true;
-    authenticate().then(() => {
+    authenticate("token", props.token).then(() => {
       load();
     });
   } else {
@@ -341,11 +336,21 @@ function getRandomRefreshInterval() {
 function handleGuestsNotAllowed() {
   guestsNotAllowed.value = true;
 
-  // Remove a potential access code
-  accessCode.value = null;
+  // Remove potential room auth token // ToDo check if needed
+  roomAuthToken.value = null;
 
   // Set current user to null, as the user is not logged in
   authStore.setCurrentUser(null);
+}
+
+function handleInvalidRoomAuthToken() {
+  const tokenType = roomAuthToken.value?.type;
+  roomAuthToken.value = null;
+  if (tokenType === 0) {
+    return handleInvalidCode();
+  } else if (tokenType === 1) {
+    return handleInvalidToken();
+  }
 }
 
 /**
@@ -354,8 +359,7 @@ function handleGuestsNotAllowed() {
 function handleInvalidCode() {
   // Show access code is valid
   accessCodeInvalid.value = true;
-  // Reset access code (not the form input) to load the general room details again
-  accessCode.value = null;
+
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
   reload();
@@ -411,13 +415,7 @@ function load() {
           error.response.status === env.HTTP_UNAUTHORIZED &&
           error.response.data.message === "invalid_token"
         ) {
-          const tokenType = roomAuthToken.value?.type;
-          roomAuthToken.value = null;
-          if (tokenType === 0) {
-            return handleInvalidCode();
-          } else if (tokenType === 1) {
-            return handleInvalidToken();
-          }
+          handleInvalidRoomAuthToken();
         }
 
         // Forbidden, guests not allowed
@@ -531,28 +529,28 @@ function setPageTitle(roomName) {
  */
 function login() {
   // Remove dashes from the access code
-  accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
+  const accessCode = accessCodeInput.value.replace(/[-]/g, "");
 
   // Retrieve room auth token
-  authenticate().then(() => {
+  authenticate("code", accessCode).then(() => {
     // Reload room details after authentication
     reload();
   });
 }
 
 // ToDo Fix this (including reload etc.) to prevent unnecessary calls of load / reload / authenticate
-async function authenticate() {
+async function authenticate(type, codeOrToken) {
   let data;
 
-  if (props.token) {
+  if (type === "token") {
     data = {
       type: 1,
-      access_token: props.token,
+      access_token: codeOrToken,
     };
-  } else if (accessCode.value != null) {
+  } else if (type === "code") {
     data = {
       type: 0,
-      access_code: accessCode.value,
+      access_code: codeOrToken,
     };
   }
 
