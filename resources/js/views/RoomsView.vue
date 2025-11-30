@@ -297,10 +297,14 @@ onMounted(() => {
   EventBus.on(EVENT_UNAUTHORIZED, reload);
 
   if (props.token) {
-    authenticate();
+    // ToDo Fix loading state
+    roomLoading.value = true;
+    authenticate().then(() => {
+      load();
+    });
+  } else {
+    load();
   }
-
-  load();
 });
 
 onUnmounted(() => {
@@ -402,13 +406,18 @@ function load() {
           return;
         }
 
-        // Room token is invalid
+        // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
           error.response.data.message === "invalid_token"
         ) {
-          tokenInvalid.value = true;
-          return;
+          const tokenType = roomAuthToken.value?.type;
+          roomAuthToken.value = null;
+          if (tokenType === 0) {
+            return handleInvalidCode();
+          } else if (tokenType === 1) {
+            return handleInvalidToken();
+          }
         }
 
         // Forbidden, guests not allowed
@@ -479,28 +488,18 @@ function reload() {
           return;
         }
 
-        // Room auth rate limit reached (throttled)
-        if (
-          error.response.status === env.HTTP_TOO_MANY_REQUESTS &&
-          error.response.data?.limit === "room_auth"
-        ) {
-          authThrottledFor.value = error.response.data.retry_after;
-        }
-
-        // Access code invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
-        ) {
-          return handleInvalidCode();
-        }
-
-        // Room token is invalid
+        // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
           error.response.data.message === "invalid_token"
         ) {
-          return handleInvalidToken();
+          const tokenType = roomAuthToken.value?.type;
+          roomAuthToken.value = null;
+          if (tokenType === 0) {
+            return handleInvalidCode();
+          } else if (roomAuthToken.value?.type === 1) {
+            return handleInvalidToken();
+          }
         }
 
         // Forbidden, guests not allowed
@@ -535,11 +534,14 @@ function login() {
   accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
 
   // Retrieve room auth token
-  authenticate();
+  authenticate().then(() => {
+    // Reload room details after authentication
+    reload();
+  });
 }
 
 // ToDo Fix this (including reload etc.) to prevent unnecessary calls of load / reload / authenticate
-function authenticate() {
+async function authenticate() {
   let data;
 
   if (props.token) {
@@ -556,15 +558,26 @@ function authenticate() {
 
   // Retrieve room auth token
   const url = "rooms/" + props.id + "/auth";
-  api
-    .call(url, {
+
+  try {
+    const response = await api.call(url, {
       method: "POST",
       data: data,
-    })
-    .then((response) => {
-      roomAuthToken.value = response.data.data;
-      reload();
     });
+
+    roomAuthToken.value = response.data.data;
+  } catch (error) {
+    // ToDo error handling
+    // Room auth rate limit reached (throttled)
+    if (
+      error.response.status === env.HTTP_TOO_MANY_REQUESTS &&
+      error.response.data?.limit === "room_auth"
+    ) {
+      authThrottledFor.value = error.response.data.retry_after;
+    } else {
+      api.error(error, { redirectOnUnauthenticated: false });
+    }
+  }
 }
 
 const running = computed(() => {
