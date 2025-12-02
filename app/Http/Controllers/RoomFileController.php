@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Room;
 use App\Models\RoomFile;
 use App\Services\RoomFileService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Class FileController
+ * Class RoomFileController
  * Handle file management for rooms
  */
-class FileController extends Controller
+class RoomFileController extends Controller
 {
     /**
      * Display/Download a file
      *
      * @return StreamedResponse
      */
-    public function show(RoomFile $roomFile)
+    public function show(Room $room, RoomFile $roomFile)
     {
         $roomFileService = new RoomFileService($roomFile);
 

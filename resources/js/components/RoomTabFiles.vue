@@ -257,16 +257,13 @@
                 >
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"
-                    :file-id="item.id"
-                    :token="props.token"
-                    :access-code="props.accessCode"
+                    :file-url="item.url"
+                    :room-auth-token="props.roomAuthToken"
                     :disabled="isBusy"
                     :require-terms-of-use-acceptance="
                       !downloadAgreement && requireAgreement
                     "
                     @not-found="loadData()"
-                    @invalid-code="emit('invalidCode')"
-                    @invalid-token="emit('invalidToken')"
                   />
                   <RoomTabFilesEditButton
                     v-if="userPermissions.can('manageSettings', props.room)"
