@@ -1807,16 +1807,16 @@
         },
         {
             "name": "laravel/horizon",
-            "version": "v5.40.0",
+            "version": "v5.40.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/horizon.git",
-                "reference": "bc15081bd94a150ca5f299e6b3a5217a05708f97"
+                "reference": "0c2916824b9ee2f925cecc7053f2a98cc542f290"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/horizon/zipball/bc15081bd94a150ca5f299e6b3a5217a05708f97",
-                "reference": "bc15081bd94a150ca5f299e6b3a5217a05708f97",
+                "url": "https://api.github.com/repos/laravel/horizon/zipball/0c2916824b9ee2f925cecc7053f2a98cc542f290",
+                "reference": "0c2916824b9ee2f925cecc7053f2a98cc542f290",
                 "shasum": ""
             },
             "require": {
@@ -1836,9 +1836,8 @@
             },
             "require-dev": {
                 "mockery/mockery": "^1.0",
-                "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0",
+                "orchestra/testbench": "^7.55|^8.36|^9.15|^10.8",
                 "phpstan/phpstan": "^1.10|^2.0",
-                "phpunit/phpunit": "^9.0|^10.4|^11.5|^12.0",
                 "predis/predis": "^1.1|^2.0|^3.0"
             },
             "suggest": {
@@ -1881,9 +1880,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/horizon/issues",
-                "source": "https://github.com/laravel/horizon/tree/v5.40.0"
+                "source": "https://github.com/laravel/horizon/tree/v5.40.1"
             },
-            "time": "2025-11-11T22:41:12+00:00"
+            "time": "2025-11-25T14:45:37+00:00"
         },
         {
             "name": "laravel/prompts",
