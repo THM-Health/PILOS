@@ -81,6 +81,7 @@ if [ "$DEV_MODE" == "true" ]; then
     echo "** DEVELOPMENT MODE ENABLED **"
 
     echo "Clearing all caches"
+    su-exec www-data composer dump-autoload
     pilos-cli optimize:clear
 
     # Enable xdebug if environment variable ENABLE_XDEBUG is set to 'yes'

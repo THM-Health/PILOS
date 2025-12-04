@@ -18,4 +18,14 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
             return new FileLoader($app['files'], [config('app.default_locale_dir'), config('app.custom_locale_dir')]);
         });
     }
+
+    public function boot(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->optimizes(
+                optimize: 'locales:cache',
+                key: 'locales'
+            );
+        }
+    }
 }
