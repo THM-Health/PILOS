@@ -297,13 +297,14 @@
 </template>
 <script setup>
 import env from "../env.js";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
 import { usePaginator } from "../composables/usePaginator.js";
 import { useI18n } from "vue-i18n";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 import { useSettingsStore } from "../stores/settings.js";
+import { useToast } from "../composables/useToast.js";
 
 const props = defineProps({
   room: {
@@ -323,6 +324,7 @@ const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 const { t } = useI18n();
 const settingsStore = useSettingsStore();
+const toast = useToast();
 
 const files = ref([]);
 const defaultFile = ref(null);
@@ -435,4 +437,24 @@ onRoomHasChanged(
   () => props.room,
   () => loadData(),
 );
+
+function handleMessages(event) {
+  console.log(event.data);
+  if (event.data.type === "file-not-found") {
+    toast.error(t("rooms.flash.file_gone"));
+    loadData();
+  } else if (event.data.type === "invalid_token") {
+    emit("invalidRoomAuthToken");
+  } else if (event.data.type === "require_code") {
+    emit("invalidRoomAuthToken");
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("message", handleMessages);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("message", handleMessages);
+});
 </script>

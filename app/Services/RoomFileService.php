@@ -51,7 +51,9 @@ class RoomFileService
         Log::info('Download room file {file}', ['file' => $this->file->getLogLabel()]);
 
         if (! $this->checkFileExists()) {
-            abort(404);
+            return response(view('file-error', [
+                'type' => 'file-not-found',
+            ]))->setStatusCode(404);
         }
 
         $fileAlias = config('filesystems.x-accel.url_prefix').'/app/'.$this->file->path;

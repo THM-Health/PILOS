@@ -349,6 +349,7 @@ function handleInvalidRoomAuthToken() {
   if (tokenType === 0) {
     return handleInvalidCode();
   } else if (tokenType === 1) {
+    // ToDo retry auth with props token?
     return handleInvalidToken();
   }
 }

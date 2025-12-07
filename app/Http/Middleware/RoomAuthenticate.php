@@ -55,7 +55,13 @@ class RoomAuthenticate
                 ->first();
 
             if ($roomAuthToken == null) {
-                abort(401, 'invalid_token');
+                if ($request->expectsJson()) {
+                    abort(401, 'invalid_token');
+                } else {
+                    return response(view('file-error', [
+                        'type' => 'invalid_token',
+                    ]))->setStatusCode(401);
+                }
             }
         }
 
@@ -87,7 +93,13 @@ class RoomAuthenticate
         // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
             // ToDo rename to require_token
-            abort(403, 'require_code');
+            if ($request->expectsJson()) {
+                abort(403, 'require_code');
+            } else {
+                return response(view('file-error', [
+                    'type' => 'require_code',
+                ]))->setStatusCode(403);
+            }
         }
 
         // make authentication status and token available to other parts of the application

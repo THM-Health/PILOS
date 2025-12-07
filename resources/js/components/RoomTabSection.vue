@@ -84,7 +84,7 @@
           v-if="tab.active && !tab.disabled"
           :room-auth-token="roomAuthToken"
           :room="props.room"
-          @invalid-room-auth-token="handleInvalidRoomAuthToken"
+          @invalid-room-auth-token="$emit('invalidRoomAuthToken')"
           @guests-not-allowed="$emit('guestsNotAllowed')"
           @settings-changed="$emit('settingsChanged')"
         />
@@ -146,12 +146,7 @@ import { useUrlSearchParams } from "@vueuse/core";
 import { useSettingsStore } from "../stores/settings.js";
 import RoomTabStreaming from "./RoomTabStreaming.vue";
 
-defineEmits([
-  "invalidCode",
-  "invalidToken",
-  "guestsNotAllowed",
-  "settingsChanged",
-]);
+defineEmits(["invalidRoomAuthToken", "guestsNotAllowed", "settingsChanged"]);
 
 const props = defineProps({
   room: {
