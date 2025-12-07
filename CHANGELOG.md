@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Sun & moon icon in the menu bar ([#2575])
+- Hover style of buttons in room cards ([#2577])
 
 ### Fixed
 
@@ -600,6 +601,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
 [#2575]: https://github.com/THM-Health/PILOS/pull/2575
+[#2577]: https://github.com/THM-Health/PILOS/pull/2577
 [#2604]: https://github.com/THM-Health/PILOS/pull/2604
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.8.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

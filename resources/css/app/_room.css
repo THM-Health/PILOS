@@ -1,3 +1,17 @@
+.room-card {
+    @apply transition-colors duration-200;
+
+    &:hover {
+        .room-card-button.p-button-secondary {
+            @apply border-surface-200 bg-surface-200 text-surface-700 transition-colors duration-200 dark:border-surface-700 dark:bg-surface-700 dark:text-surface-200;
+
+            &:hover {
+                @apply border-surface-300 bg-surface-300 text-surface-800 dark:border-surface-600 dark:bg-surface-600 dark:text-surface-100;
+            }
+        }
+    }
+}
+
 .room-details__icon {
     width: 1.5rem;
     margin-right: 0.5rem;
