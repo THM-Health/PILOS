@@ -303,7 +303,7 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
+          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: always()
@@ -376,7 +376,7 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
+          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
   system-tests:
     name: System Tests
     runs-on: ubuntu-latest
@@ -435,7 +435,7 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
+          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: always()

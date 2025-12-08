@@ -10,8 +10,8 @@
     "prettier:fix": "prettier . --write --experimental-cli",
     "docs:install": "cd docs && npm install",
     "docs:dev": "cd docs && npm run start -- --host 0.0.0.0",
-    "cypress:open": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress open",
-    "cypress:run": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=--lang=en cypress run",
+    "cypress:open": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=\"--lang=en --force-prefers-reduced-motion\" cypress open",
+    "cypress:run": "TZ=America/New_York ELECTRON_EXTRA_LAUNCH_ARGS=\"--lang=en --force-prefers-reduced-motion\" cypress run",
     "create-coverage-report": "nyc report --reporter html -t coverage",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions"
