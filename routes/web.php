@@ -24,7 +24,7 @@ Route::get('download/recording/{recording}', [RecordingController::class, 'downl
 
 // Do not change this url format! Needs to be in this format in order to be compatible with the BBB recording player
 Route::get('recording/{formatName}/{recording}/{resource?}', [RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
-Route::get('presentation/{recording}/{resource?}', [RecordingController::class, 'presentationResource'])->where('resource', '.*')->name('recording.presentation');
+Route::get('presentation/{recording}/{resource}', [RecordingController::class, 'presentationResource'])->name('recording.presentation');
 
 Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');

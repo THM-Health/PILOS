@@ -10,7 +10,7 @@ use ZipStream\ZipStream;
 
 class RecordingController extends Controller
 {
-    public function presentationResource(Recording $recording, string $resource = 'index.html'): \Illuminate\Http\Response
+    public function presentationResource(Recording $recording, string $resource): \Illuminate\Http\Response
     {
         return $this->resource('presentation', $recording, $resource);
     }
