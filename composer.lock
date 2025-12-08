@@ -5804,16 +5804,16 @@
         },
         {
             "name": "spatie/laravel-settings",
-            "version": "3.5.0",
+            "version": "3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-settings.git",
-                "reference": "bdb12449ce1f7afcf12fac59f6c7a63a39513fe7"
+                "reference": "fae93dadb8f748628ecaf5710f494adf790255b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-settings/zipball/bdb12449ce1f7afcf12fac59f6c7a63a39513fe7",
-                "reference": "bdb12449ce1f7afcf12fac59f6c7a63a39513fe7",
+                "url": "https://api.github.com/repos/spatie/laravel-settings/zipball/fae93dadb8f748628ecaf5710f494adf790255b2",
+                "reference": "fae93dadb8f748628ecaf5710f494adf790255b2",
                 "shasum": ""
             },
             "require": {
@@ -5873,7 +5873,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-settings/issues",
-                "source": "https://github.com/spatie/laravel-settings/tree/3.5.0"
+                "source": "https://github.com/spatie/laravel-settings/tree/3.6.0"
             },
             "funding": [
                 {
@@ -5885,7 +5885,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-10-24T13:01:51+00:00"
+            "time": "2025-12-03T10:29:27+00:00"
         },
         {
             "name": "spatie/temporary-directory",
