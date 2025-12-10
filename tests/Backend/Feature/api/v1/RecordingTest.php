@@ -591,6 +591,8 @@ class RecordingTest extends TestCase
 
     public function test_show_url()
     {
+        Storage::fake('recordings');
+
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
@@ -606,12 +608,19 @@ class RecordingTest extends TestCase
         $recording = $format->recording;
         $room = $recording->room;
 
+        UploadedFile::fake()->create('metadata.xml', 100, 'application/xml')->storeAs($recording->id.'/presentation', 'metadata.xml', 'recordings');
+
         config(['recording.player' => 'https://example.com/player']);
 
         $this->actingAs($room->owner)
             ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
             ->assertOk()
             ->assertJson(['url' => 'https://example.com/player/'.$recording->id.'/']);
+
+        // Access presentation files (requested by the player)
+        $this->actingAs($room->owner)
+            ->get(route('recording.presentation', ['recording' => $recording->id, 'resource' => 'metadata.xml']))
+            ->assertHeader('x-accel-redirect', '/private-storage/recordings/'.$recording->id.'/presentation/metadata.xml');
     }
 
     public function test_update()
@@ -886,10 +895,7 @@ class RecordingTest extends TestCase
         // Create format
         $notes = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
 
-        // Create folder with recording files
-        Storage::disk('recordings')->makeDirectory($recording->id);
-        Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
-        Storage::disk('recordings')->makeDirectory($recording->id.'/podcast');
+        // Create recording files
         UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
         UploadedFile::fake()->create('audio.ogg', 100, 'audio/ogg')->storeAs($recording->id.'/podcast', 'audio.ogg', 'recordings');
 

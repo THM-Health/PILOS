@@ -23,8 +23,9 @@ Route::get('room/{room}/file/{roomFile}/{filename?}', [RoomFileController::class
 Route::get('download/attendance/{meeting}', [MeetingController::class, 'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 Route::get('download/recording/{recording}', [RecordingController::class, 'download'])->middleware('auth:users,ldap')->name('recording.download');
 
-// Do not change this url format! Needs to be in this format in order to be compatible with the BBB recording player
 Route::get('recording/{formatName}/{recording}/{resource?}', [RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
+// Do not change this url! Needs to be in this format to be compatible with the BBB recording player
+Route::get('presentation/{recording}/{resource}', [RecordingController::class, 'presentationResource'])->where('resource', '.*')->name('recording.presentation');
 
 Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');
