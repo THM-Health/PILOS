@@ -76,7 +76,7 @@ class RoomFileService
     {
         Log::info('Create download url for room file {file}', ['file' => $this->file->getLogLabel()]);
         $params = ['roomFile' => $this->file->id, 'filename' => $this->file->filename];
-        $routeName = 'download.file.deprecated';
+        $routeName = 'rooms.files.download.bbb';
 
         if (! $this->checkFileExists()) {
             abort(404);
