@@ -263,7 +263,6 @@
                     :require-terms-of-use-acceptance="
                       !downloadAgreement && requireAgreement
                     "
-                    @not-found="loadData()"
                   />
                   <RoomTabFilesEditButton
                     v-if="userPermissions.can('manageSettings', props.room)"
@@ -317,7 +316,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidCode", "invalidRoomAuthToken"]);
+const emit = defineEmits(["invalidRoomAuthToken"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -410,7 +409,7 @@ function loadData(page = null) {
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === "require_token"
         ) {
           // ToDo fix this
           return emit("invalidRoomAuthToken");
@@ -445,7 +444,7 @@ function handleMessages(event) {
     loadData();
   } else if (event.data.type === "invalid_token") {
     emit("invalidRoomAuthToken");
-  } else if (event.data.type === "require_code") {
+  } else if (event.data.type === "require_token") {
     emit("invalidRoomAuthToken");
   }
 }

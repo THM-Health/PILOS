@@ -438,7 +438,7 @@ class RoomController extends Controller
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
         // ToDo prevent users that dont need a room auth token from requesting one
-        // ToDo kow to handle access code given but none is required?
+        // ToDo how to handle access code given but none is required?
         // ToDo Guests not allowed?
         switch ($request->type) {
             case RoomAuthTokenType::CODE->value:

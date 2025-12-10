@@ -178,7 +178,7 @@ function downloadFormat(format) {
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === "require_token"
         ) {
           return emit("invalidCode");
         }

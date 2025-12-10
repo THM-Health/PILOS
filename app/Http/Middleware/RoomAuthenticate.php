@@ -92,12 +92,11 @@ class RoomAuthenticate
 
         // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
-            // ToDo rename to require_token
             if ($request->expectsJson()) {
-                abort(403, 'require_code');
+                abort(403, 'require_token');
             } else {
                 return response(view('file-error', [
-                    'type' => 'require_code',
+                    'type' => 'require_token',
                 ]))->setStatusCode(403);
             }
         }

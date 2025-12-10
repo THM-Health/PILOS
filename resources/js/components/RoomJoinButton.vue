@@ -428,7 +428,7 @@ function handleError(error) {
   // Access code is required
   if (
     error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "require_code"
+    error.response.data.message === "require_token"
   ) {
     // ToDo: fix this
     emit("invalidRoomAuthToken");
