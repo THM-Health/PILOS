@@ -430,7 +430,6 @@ function handleError(error) {
     error.response.status === env.HTTP_FORBIDDEN &&
     error.response.data.message === "require_token"
   ) {
-    // ToDo: fix this
     emit("invalidRoomAuthToken");
     modalVisible.value = false;
     return true;

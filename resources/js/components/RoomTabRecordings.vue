@@ -423,7 +423,6 @@ function loadData(page = null) {
           error.response.status === env.HTTP_FORBIDDEN &&
           error.response.data.message === "require_token"
         ) {
-          // ToDo fix this
           return emit("invalidRoomAuthToken");
         }
       }
