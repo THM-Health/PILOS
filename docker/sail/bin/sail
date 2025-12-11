@@ -95,6 +95,7 @@ function display_help {
     echo
     echo "${YELLOW}Binaries:${NC}"
     echo "  ${GREEN}sail bin ...${NC}   Run Composer binary scripts from the vendor/bin directory"
+    echo "  ${GREEN}sail run ...${NC}   Run a command within the application container"
     echo
     echo "${YELLOW}Customization:${NC}"
     echo "  ${GREEN}sail artisan sail:publish${NC}   Publish the Sail configuration files"
@@ -113,12 +114,16 @@ else
 fi
 
 # Source the ".env" file so Laravel's environment variables are available...
-if [ -f ./.env ]; then
-    source ./.env
+# shellcheck source=/dev/null
+if [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
+  source ./.env."$APP_ENV";
+elif [ -f ./.env ]; then
+  source ./.env;
 fi
 
 # Define environment variables...
 export APP_SERVICE=${APP_SERVICE:-"app"}
+export APP_USER=${APP_USER:-"www-data"}
 export SAIL_FILES=${SAIL_FILES:-"docker-compose-dev.yml"}
 export WWWUSER=${WWWUSER:-$(id -u)}
 export WWWGROUP=${WWWGROUP:-$(id -g)}
@@ -133,8 +138,7 @@ function sail_is_not_running {
 }
 
 # Define Docker Compose command prefix...
-docker compose &> /dev/null
-if [ $? == 0 ]; then
+if docker compose &> /dev/null; then
     DOCKER_COMPOSE=(docker compose)
 else
     DOCKER_COMPOSE=(docker-compose)
@@ -142,7 +146,7 @@ fi
 
 if [ -n "$SAIL_FILES" ]; then
     # Convert SAIL_FILES to an array...
-    SAIL_FILES=("${SAIL_FILES//:/ }")
+    IFS=':' read -ra SAIL_FILES <<< "$SAIL_FILES"
 
     for FILE in "${SAIL_FILES[@]}"; do
         if [ -f "$FILE" ]; then
@@ -184,9 +188,9 @@ if [ "$1" == "php" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" "php" "$@")
+        ARGS+=("$APP_SERVICE" "php")
     else
         sail_is_not_running
     fi
@@ -196,9 +200,25 @@ elif [ "$1" == "bin" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        CMD=$1
+        shift 1
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" ./vendor/bin/"$@")
+        ARGS+=("$APP_SERVICE" ./vendor/bin/"$CMD")
+    else
+        sail_is_not_running
+    fi
+
+# Proxy commands on the application container...
+elif [ "$1" == "run" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        CMD=$1
+        shift 1
+        ARGS+=(exec -u "$APP_USER")
+        [ ! -t 0 ] && ARGS+=(-T)
+        ARGS+=("$APP_SERVICE" "$CMD")
     else
         sail_is_not_running
     fi
@@ -208,7 +228,7 @@ elif [ "$1" == "docker-compose" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" "${DOCKER_COMPOSE[@]}")
     else
@@ -220,21 +240,21 @@ elif [ "$1" == "composer" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" "composer" "$@")
+        ARGS+=("$APP_SERVICE" "composer")
     else
         sail_is_not_running
     fi
 
 # Proxy Artisan commands to the "artisan" binary on the application container...
-elif [ "$1" == "artisan" ] || [ "$1" == "art" ]; then
+elif [ "$1" == "artisan" ] || [ "$1" == "art" ] || [ "$1" == "a" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" php artisan "$@")
+        ARGS+=("$APP_SERVICE" php artisan)
     else
         sail_is_not_running
     fi
@@ -246,7 +266,7 @@ elif [ "$1" == "pilos-cli" ]; then
     if [ "$EXEC" == "yes" ]; then
         ARGS+=(exec)
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" pilos-cli "$@")
+        ARGS+=("$APP_SERVICE" pilos-cli)
     else
         sail_is_not_running
     fi
@@ -256,9 +276,9 @@ elif [ "$1" == "debug" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data -e XDEBUG_SESSION=1)
+        ARGS+=(exec -u "$APP_USER" -e XDEBUG_TRIGGER=1)
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" php artisan "$@")
+        ARGS+=("$APP_SERVICE" php artisan)
     else
         sail_is_not_running
     fi
@@ -268,9 +288,9 @@ elif [ "$1" == "test" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" php artisan test "$@")
+        ARGS+=("$APP_SERVICE" php artisan test)
     else
         sail_is_not_running
     fi
@@ -280,9 +300,9 @@ elif [ "$1" == "phpunit" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" php vendor/bin/phpunit "$@")
+        ARGS+=("$APP_SERVICE" php vendor/bin/phpunit)
     else
         sail_is_not_running
     fi
@@ -292,9 +312,9 @@ elif [ "$1" == "pint" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" php vendor/bin/pint "$@")
+        ARGS+=("$APP_SERVICE" php vendor/bin/pint)
     else
         sail_is_not_running
     fi
@@ -304,11 +324,11 @@ elif [ "$1" == "dusk" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
         ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
-        ARGS+=("$APP_SERVICE" php artisan dusk "$@")
+        ARGS+=("$APP_SERVICE" php artisan dusk)
     else
         sail_is_not_running
     fi
@@ -318,21 +338,21 @@ elif [ "$1" == "dusk:fails" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
         ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
-        ARGS+=("$APP_SERVICE" php artisan dusk:fails "$@")
+        ARGS+=("$APP_SERVICE" php artisan dusk:fails)
     else
         sail_is_not_running
     fi
 
 # Initiate a Laravel Tinker session within the application container...
-elif [ "$1" == "tinker" ] ; then
+elif [ "$1" == "tinker" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php artisan tinker)
     else
@@ -344,9 +364,9 @@ elif [ "$1" == "node" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" node "$@")
+        ARGS+=("$APP_SERVICE" node)
     else
         sail_is_not_running
     fi
@@ -356,9 +376,9 @@ elif [ "$1" == "npm" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" npm "$@")
+        ARGS+=("$APP_SERVICE" npm)
     else
         sail_is_not_running
     fi
@@ -368,21 +388,21 @@ elif [ "$1" == "npx" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" npx "$@")
+        ARGS+=("$APP_SERVICE" npx)
     else
         sail_is_not_running
     fi
 
-# Proxy YARN commands to the "yarn" binary on the application container...
+# Proxy Yarn commands to the "yarn" binary on the application container...
 elif [ "$1" == "yarn" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" yarn "$@")
+        ARGS+=("$APP_SERVICE" yarn)
     else
         sail_is_not_running
     fi
@@ -395,7 +415,7 @@ elif [ "$1" == "mysql" ]; then
         ARGS+=(exec)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(mysql bash -c)
-        ARGS+=("MYSQL_PWD=\${MYSQL_PASSWORD} mysql -u \${MYSQL_USER} \${MYSQL_DATABASE}")
+        ARGS+=("MYSQL_PWD=\${MYSQL_PASSWORD} mysql -u \${MYSQL_USER} \${MYSQL_DATABASE} \${MYSQL_EXTRA_OPTIONS}")
     else
         sail_is_not_running
     fi
@@ -408,7 +428,7 @@ elif [ "$1" == "mariadb" ]; then
         ARGS+=(exec)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(mariadb bash -c)
-        ARGS+=("MYSQL_PWD=\${MYSQL_PASSWORD} mysql -u \${MYSQL_USER} \${MYSQL_DATABASE}")
+        ARGS+=("MYSQL_PWD=\${MYSQL_PASSWORD} mariadb -u \${MYSQL_USER} \${MYSQL_DATABASE}")
     else
         sail_is_not_running
     fi
@@ -431,9 +451,9 @@ elif [ "$1" == "shell" ] || [ "$1" == "bash" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u www-data)
+        ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" bash "$@")
+        ARGS+=("$APP_SERVICE" bash)
     else
         sail_is_not_running
     fi
@@ -443,15 +463,15 @@ elif [ "$1" == "root-shell" ] || [ "$1" == "root-bash" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec)
+        ARGS+=(exec -u root)
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" bash "$@")
+        ARGS+=("$APP_SERVICE" bash)
     else
         sail_is_not_running
     fi
 
 # Initiate a Redis CLI terminal session within the "redis" container...
-elif [ "$1" == "redis" ] ; then
+elif [ "$1" == "redis" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
@@ -462,10 +482,7 @@ elif [ "$1" == "redis" ] ; then
         sail_is_not_running
     fi
 
-# Pass unknown commands to the "docker-compose" binary...
-else
-    ARGS+=("$@")
 fi
 
 # Run Docker Compose with the defined arguments...
-"${DOCKER_COMPOSE[@]}" "${ARGS[@]}"
+"${DOCKER_COMPOSE[@]}" "${ARGS[@]}" "$@"
