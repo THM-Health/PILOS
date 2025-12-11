@@ -1,24 +1,35 @@
 # Frontend Guidelines
 
 ## Tools and Architecture
-- PrimeVue is used for building user interfaces as a Vue.js SPA application.
-- Vue Router is used for client-side routing.
-- Pinia is used for state management.
-- Axios is used for making HTTP requests to the backend API.
-- Vite is used as the build tool for faster development and optimized production builds.
-- Vue 3 Composition API is preferred for building components and managing state.
-- vue18n is used for internationalization and localization.
+
+- **PrimeVue** is used for building the UI within a Vue.js SPA.
+- **Vue Router** handles client-side routing.
+- **Pinia** manages application state.
+- **Axios** is used for HTTP communication with the backend API.
+- **Vite** is the build tool for fast development and optimized production builds.
+- **Vue 3 Composition API** is the preferred pattern for components and state logic.
+- **vue-i18n** provides internationalization and localization support.
 
 ## Documentation
-- Follow PrimeVue documentation for component usage and customization at https://primevue.org/llms/llms.txt
+
+- Follow the official PrimeVue documentation for component usage and customization: https://primevue.org/llms/llms.txt
 
 ## Styling
-- PrimeVue's styled mode is used, which is using Tailwind CSS utility classes for styling. PrimeVue has it's own tailwind styles but it can be extended with Tailwind CSS classes.
-- Always prefer using PrimeVue components over custom components when possible.
-- Use PrimeVue's colors over specifying custom colors to maintain design consistency.
+
+- PrimeVue’s **styled mode** is used, built on top of Tailwind CSS utility classes.
+- PrimeVue includes its own Tailwind presets, like custom colors.
+- Prefer **PrimeVue components** over custom UI components whenever possible.
+- Use **PrimeVue color tokens** instead of custom colors to maintain design consistency.
 
 ## Conventions
-- The frontend contains of pages and components. Each frontend route maps to a page component located in the `resources/js/views` directory.
-- For CRUD resources we usually have an Index page (for listing items), a View page (for viewing a single item). If the logic for creating is vastly different from editing, we have a dedicated New page, otherwise we use the View page for creating, viewing and editing.
-- Complex pages or sections should be broken down into smaller, reusable components located in the `resources/js/components` directory.
-- All pages and components follow the PascalCase naming convention describing their purpose from the broder context to the more specific context.
+
+- The frontend is structured into **pages** and **components**:
+    - Page components are stored in `resources/js/views` and map directly to routes.
+    - Reusable components are stored in `resources/js/components`.
+- For CRUD resources:
+    - Use an **Index** page for listing items.
+    - Use a **View** page for viewing/editing a single item.
+    - Add a **New** page only if the creation flow is significantly different from editing.
+- Naming conventions:
+    - Use **PascalCase** for all pages and components.
+    - Names should go from broad context → specific purpose (e.g., `UserProfileForm`, `ProjectListItem`).
