@@ -108,7 +108,7 @@
       "type": "path",
       "url": "docker/sail",
       "options": {
-        "symlink": false
+        "symlink": true
       }
     }
   ]

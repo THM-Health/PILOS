@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ffa15baa607d6c02905658e915371caf",
+    "content-hash": "f35f97baf494a74a6533340e8fa9a5df",
     "packages": [
         {
             "name": "brick/math",
@@ -4334,14 +4334,14 @@
             "dist": {
                 "type": "path",
                 "url": "docker/sail",
-                "reference": "bdab893dc9d11de4d8178f673e8b17580a4b967e"
+                "reference": "106dc4c46292ef7a21abd2e0a5b05db65eeedd66"
             },
             "bin": [
                 "bin/sail"
             ],
             "type": "library",
             "transport-options": {
-                "symlink": false,
+                "symlink": true,
                 "relative": true
             }
         },

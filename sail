@@ -1,1 +1,1 @@
-vendor/bin/sail
+docker/sail/bin/sail
