@@ -438,72 +438,81 @@ class RoomController extends Controller
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
         // ToDo prevent users that dont need a room auth token from requesting one
-        // ToDo how to handle access code given but none is required?
-        // ToDo Guests not allowed?
-        switch ($request->type) {
-            case RoomAuthTokenType::CODE->value:
-                // Key used to rate limit access code attempts
-                $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
+        // ToDo how to handle access code given but none is required? (Currently requests fails with invalid code)
+        if ($request->type === RoomAuthTokenType::CODE->value) {
+            if (! $room->getRoomSetting('allow_guests') && ! Auth::user()) {
+                // user is not authenticated and room is not allowed for guests // ToDo check if needed
+                Counter::get('room_authentication_errors_total')->inc('guest_access');
 
-                // Check if rate limit has been reached
-                if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
-                    return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
-                }
+                Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-                $accessCode = $request->access_code;
+                abort(403, 'guests_not_allowed');
+            }
 
-                if (is_numeric($accessCode) && $room->access_code == $accessCode) {
-                    // Generate new room auth token
-                    $roomAuthToken = RoomAuthToken::firstOrCreate([
-                        'room_id' => $room->id,
-                        'session_id' => $request->session()->getId(),
-                        'type' => RoomAuthTokenType::CODE,
-                    ]);
+            // Key used to rate limit access code attempts
+            $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
 
-                    return new RoomAuthTokenResource($roomAuthToken);
-                } else {
-                    // Access code is incorrect
+            // Check if rate limit has been reached
+            if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
+                return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
+            }
 
-                    // Metrics and logging
-                    Counter::get('room_authentication_errors_total')->inc('access_code_invalid');
-                    Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+            $accessCode = $request->access_code;
 
-                    // Increment rate limit counter for failed access code attempts
-                    RateLimiter::increment($rateLimitKey);
-
-                    abort(401, 'invalid_code');
-                }
-            case RoomAuthTokenType::TOKEN->value:
-                if (! Auth::guest()) {
-                    abort(420, 'guests only');
-                }
-
-                $accessToken = RoomToken::where('token', $request->access_token)
-                    ->where('room_id', $room->id)
-                    ->first();
-
-                if ($accessToken == null) {
-                    // Access token is invalid
-
-                    // Metrics and logging
-                    Counter::get('room_authentication_errors_total')->inc('token');
-
-                    Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
-                    abort(401, 'invalid_token');
-                }
-
-                $accessToken->last_usage = now();
-                $accessToken->save();
-
+            if (is_numeric($accessCode) && $room->access_code == $accessCode) {
                 // Generate new room auth token
                 $roomAuthToken = RoomAuthToken::firstOrCreate([
                     'room_id' => $room->id,
-                    'room_token_id' => $accessToken->token,
                     'session_id' => $request->session()->getId(),
-                    'type' => RoomAuthTokenType::TOKEN,
+                    'type' => RoomAuthTokenType::CODE,
                 ]);
 
                 return new RoomAuthTokenResource($roomAuthToken);
+            } else {
+                // Access code is incorrect
+
+                // Metrics and logging
+                Counter::get('room_authentication_errors_total')->inc('access_code_invalid');
+                Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+
+                // Increment rate limit counter for failed access code attempts
+                RateLimiter::increment($rateLimitKey);
+
+                abort(401, 'invalid_code');
+            }
+        } elseif ($request->type === RoomAuthTokenType::TOKEN->value) {
+            if (! Auth::guest()) {
+                abort(420, 'guests only');
+            }
+
+            $accessToken = RoomToken::where('token', $request->access_token)
+                ->where('room_id', $room->id)
+                ->first();
+
+            if ($accessToken == null) {
+                // Access token is invalid
+
+                // Metrics and logging
+                Counter::get('room_authentication_errors_total')->inc('token');
+
+                Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                abort(401, 'invalid_token');
+            }
+
+            $accessToken->last_usage = now();
+            $accessToken->save();
+
+            // Generate new room auth token
+            $roomAuthToken = RoomAuthToken::firstOrCreate([
+                'room_id' => $room->id,
+                'room_token_id' => $accessToken->token,
+                'session_id' => $request->session()->getId(),
+                'type' => RoomAuthTokenType::TOKEN,
+            ]);
+
+            return new RoomAuthTokenResource($roomAuthToken);
         }
+
+        // ToDo return error?
     }
 }

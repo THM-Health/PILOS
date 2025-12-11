@@ -46,7 +46,7 @@ class RoomAuthenticate
         }
 
         // Retrieve room auth token if provided
-        // ToDo Metrics / Logging? / RateLimiting?
+        // ToDo RateLimiting?
         if ($request->has('room_auth_token')) {
             // Room Auth Token was provided
             $roomAuthToken = RoomAuthToken::where('id', $request->get('room_auth_token'))
@@ -55,6 +55,10 @@ class RoomAuthenticate
                 ->first();
 
             if ($roomAuthToken == null) {
+                // Metrics and logging
+                Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
+                Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+
                 if ($request->expectsJson()) {
                     abort(401, 'invalid_token');
                 } else {

@@ -5,6 +5,7 @@
 </head>
 <body>
 <script>
+    // ToDo improve when no opener present
     if(window.opener){
         window.opener.postMessage(
             {

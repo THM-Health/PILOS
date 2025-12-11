@@ -297,6 +297,7 @@ onMounted(() => {
       .then(() => {
         load();
       })
+      .catch(() => {})
       .finally(() => {
         roomLoading.value = false;
       });
@@ -352,6 +353,7 @@ function handleInvalidRoomAuthToken() {
   if (tokenType === 0) {
     return handleInvalidCode();
   } else if (tokenType === 1) {
+    // ToDo improve (currently results in the room reloaded correctly but e.g. file tab not being refreshed)
     // Try to re-authenticate with the provided token prop
     // Will fail again if the token is invalid and then handle the error
     authenticate("token", props.token).then(() => {
@@ -551,10 +553,12 @@ function login() {
   const accessCode = accessCodeInput.value.replace(/[-]/g, "");
 
   // Retrieve room auth token
-  authenticate("code", accessCode).then(() => {
-    // Reload room details after authentication
-    reload();
-  });
+  authenticate("code", accessCode)
+    .then(() => {
+      // Reload room details after authentication
+      reload();
+    })
+    .catch(() => {});
 }
 
 async function authenticate(type, codeOrToken) {
@@ -599,13 +603,19 @@ async function authenticate(type, codeOrToken) {
     ) {
       handleInvalidToken();
     }
-
     // Access code is invalid
     if (
       error.response.status === env.HTTP_UNAUTHORIZED &&
       error.response.data.message === "invalid_code"
     ) {
       handleInvalidCode();
+    }
+    // Forbidden, guests not allowed
+    if (
+      error.response.status === env.HTTP_FORBIDDEN &&
+      error.response.data.message === "guests_not_allowed"
+    ) {
+      return handleGuestsNotAllowed();
     }
 
     throw error;

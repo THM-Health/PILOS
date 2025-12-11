@@ -24,7 +24,7 @@ class RoomCollector implements Collector
         Gauge::get('rooms_total')
             ->set(Room::count());
         Counter::get('room_authentication_errors_total')
-            ->init(['access_code_invalid', 'guest_access', 'token']);
+            ->init(['access_code_invalid', 'guest_access', 'token', 'room_auth_token_invalid']);
         Counter::get('room_started_total')
             ->init();
         Counter::get('room_start_errors_total')
