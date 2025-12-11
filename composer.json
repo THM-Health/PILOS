@@ -95,7 +95,8 @@
       "@php artisan key:generate --ansi"
     ],
     "post-update-cmd": [
-      "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+      "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+      "@php artisan boost:update --ansi"
     ],
     "test": "php artisan test --parallel",
     "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
