@@ -437,6 +437,7 @@ onRoomHasChanged(
 );
 
 function handleMessages(event) {
+  if (event.origin !== settingsStore.getSetting("general.base_url")) return;
   console.log(event.data);
   if (event.data.type === "file-not-found") {
     toast.error(t("rooms.flash.file_gone"));

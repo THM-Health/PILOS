@@ -438,10 +438,9 @@ class RoomController extends Controller
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
         // ToDo prevent users that dont need a room auth token from requesting one
-        // ToDo how to handle access code given but none is required? (Currently requests fails with invalid code)
         if ($request->type === RoomAuthTokenType::CODE->value) {
             if (! $room->getRoomSetting('allow_guests') && ! Auth::user()) {
-                // user is not authenticated and room is not allowed for guests // ToDo check if needed
+                // user is not authenticated and room is not allowed for guests
                 Counter::get('room_authentication_errors_total')->inc('guest_access');
 
                 Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);

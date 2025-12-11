@@ -46,7 +46,6 @@ class RoomAuthenticate
         }
 
         // Retrieve room auth token if provided
-        // ToDo RateLimiting?
         if ($request->has('room_auth_token')) {
             // Room Auth Token was provided
             $roomAuthToken = RoomAuthToken::where('id', $request->get('room_auth_token'))
@@ -71,7 +70,6 @@ class RoomAuthenticate
 
         // Valid room auth token with type TOKEN was provided
         if ($roomAuthToken && $roomAuthToken->type === RoomAuthTokenType::TOKEN) {
-            // ToDo update last usage?
             $authenticated = true;
             $token = $roomAuthToken->accessToken;
         }

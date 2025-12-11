@@ -353,14 +353,7 @@ function handleInvalidRoomAuthToken() {
   if (tokenType === 0) {
     return handleInvalidCode();
   } else if (tokenType === 1) {
-    // ToDo improve (currently results in the room reloaded correctly but e.g. file tab not being refreshed)
-    // Try to re-authenticate with the provided token prop
-    // Will fail again if the token is invalid and then handle the error
-    authenticate("token", props.token).then(() => {
-      // Auth succeeded (will e.g. be the case if the provided token prop is still valid but the
-      // room auth token expired (e.g. because the session expired))
-      reload();
-    });
+    window.location.reload();
   }
 }
 

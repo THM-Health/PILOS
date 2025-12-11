@@ -11,7 +11,7 @@
             {
                 type: @json($type),
             },
-            "*"
+            "{{config('app.url')}}"
         );
         window.opener.focus();
         window.close();
