@@ -1,4 +1,4 @@
 #!/bin/bash
 
-php artisan migrate --seed
-npm run dev
+composer install
+npm install
