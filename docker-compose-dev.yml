@@ -1,7 +1,7 @@
 name: pilos-dev
 
 x-docker-build-data: &app-image
-  image: "pilos/pilos:local-dev"
+  image: "${CONTAINER_DEV_IMAGE:-pilos/pilos:local-dev}"
   build:
     context: ./
     dockerfile: docker/app/Dockerfile

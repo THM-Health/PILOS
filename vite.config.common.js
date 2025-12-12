@@ -50,6 +50,8 @@ export default (mode) => {
       strictPort: true,
       hmr: {
         host: VITE_HMR_HOST,
+        protocol: 'wss',
+        clientPort: '443'
       },
     },
     optimizeDeps: {

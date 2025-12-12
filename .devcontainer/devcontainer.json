@@ -1,0 +1,46 @@
+{
+	"name": "PILOS",
+	"dockerComposeFile": [
+		"../docker-compose-dev.yml"
+	],
+	"service": "app",
+	"workspaceFolder": "/var/www/html",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"laravel.vscode-laravel",
+				"mikestead.dotenv",
+                "Vue.volar"
+			],
+			"settings": {}
+		}
+	},
+	"remoteUser": "www-data",
+    "forwardPorts": [80,1073,3000,6680,8025,8080],
+    "portsAttributes": {
+        "80": {
+            "label": "Application",
+	        "visibility": "public"
+	    },
+        "1073": {
+            "label": "Vite",
+            "visibility": "public"
+        },
+        "3000": {
+            "label": "Docusaurus",
+            "visibility": "private"
+        },
+        "6680": {
+            "label": "phpLDAPadmin",
+            "visibility": "private"
+        },
+        "8025": {
+            "label": "Mailpit",
+            "visibility": "private"
+        },
+        "8080": {
+            "label": "PHPMyAdmin",
+            "visibility": "private"
+        }
+    }
+}
