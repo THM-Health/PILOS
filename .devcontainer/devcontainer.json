@@ -19,6 +19,7 @@
     "forwardPorts": [80,1073,3000,6680,8025,8080],
     "initializeCommand": "./.devcontainer/init.sh",
     "postCreateCommand": "./.devcontainer/post_create.sh",
+    "postStartCommand": "./.devcontainer/post_start.sh",
     "portsAttributes": {
         "80": {
             "label": "Application",
