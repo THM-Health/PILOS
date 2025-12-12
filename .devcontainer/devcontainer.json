@@ -21,6 +21,9 @@
     "initializeCommand": "./.devcontainer/init.sh",
     "postCreateCommand": "./.devcontainer/post_create.sh",
     "postStartCommand": "./.devcontainer/post_start.sh",
+    "containerEnv": {
+        "SHELL": "/bin/bash"
+    },
     "portsAttributes": {
         "80": {
             "label": "Application",
