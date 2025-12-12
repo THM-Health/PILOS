@@ -24,7 +24,8 @@
     "portsAttributes": {
         "80": {
             "label": "Application",
-	        "visibility": "public"
+	        "visibility": "public",
+            "onAutoForward": "openBrowser"
 	    },
         "1073": {
             "label": "Vite",
