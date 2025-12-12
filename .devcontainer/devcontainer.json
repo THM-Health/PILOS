@@ -3,6 +3,7 @@
 	"dockerComposeFile": [
 		"../docker-compose-dev.yml"
 	],
+    "overrideCommand": false,
 	"service": "app",
 	"workspaceFolder": "/var/www/html",
 	"customizations": {
