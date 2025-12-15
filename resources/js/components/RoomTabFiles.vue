@@ -304,6 +304,8 @@ import { useI18n } from "vue-i18n";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 import { useSettingsStore } from "../stores/settings.js";
 import { useToast } from "../composables/useToast.js";
+import { EVENT_FORBIDDEN } from "../constants/events.js";
+import EventBus from "../services/EventBus.js";
 
 const props = defineProps({
   room: {
@@ -446,6 +448,10 @@ function handleMessages(event) {
     emit("invalidRoomAuthToken");
   } else if (event.data.type === "require_token") {
     emit("invalidRoomAuthToken");
+  } else if (event.data.type === "forbidden") {
+    // ToDo Reload files?
+    toast.error(t("rooms.flash.file_forbidden"));
+    EventBus.emit(EVENT_FORBIDDEN);
   }
 }
 
