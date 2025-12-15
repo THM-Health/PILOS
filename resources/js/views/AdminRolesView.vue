@@ -349,7 +349,7 @@ import { onMounted, ref, computed, inject, watch } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "vue-i18n";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 
