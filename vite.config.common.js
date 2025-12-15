@@ -11,8 +11,9 @@ export default (mode) => {
 
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), ENV_PREFIX) };
 
-  const VITE_HMR_HOST = process.env.VITE_HOST || "localhost";
   const VITE_PORT = parseInt(process.env.VITE_PORT || 1073);
+  const VITE_HMR_HOST = process.env.VITE_HOST || "localhost";
+  const VITE_HMR_PORT = parseInt(process.env.VITE_HMR_PORT || process.env.VITE_PORT || 1073);
 
   return {
     plugins: [
@@ -51,7 +52,7 @@ export default (mode) => {
       hmr: {
         host: VITE_HMR_HOST,
         protocol: 'wss',
-        clientPort: '443'
+        clientPort: VITE_HMR_PORT,
       },
     },
     optimizeDeps: {
