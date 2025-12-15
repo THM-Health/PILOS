@@ -11,6 +11,7 @@
 
 <script setup>
 import { computed } from "vue";
+import * as _ from "lodash-es";
 
 const props = defineProps({
   firstname: {
@@ -40,8 +41,8 @@ const avatarLabel = computed(() => {
     return "";
   }
   return (
-    props.firstname?.toUpperCase().charAt(0) +
-    props.lastname?.toUpperCase().charAt(0)
+    _.split(props.firstname?.toUpperCase(), "", 1)[0] +
+    _.split(props.lastname?.toUpperCase(), "", 1)[0]
   );
 });
 </script>
