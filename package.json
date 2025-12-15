@@ -23,7 +23,7 @@
     "@eslint/json": "^0.14.0",
     "@intlify/eslint-plugin-vue-i18n": "^4.1.0",
     "cypress": "^15.7.1",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-cypress": "^5.2.0",
     "eslint-plugin-import": "^2.32.0",
