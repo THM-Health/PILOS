@@ -11,7 +11,7 @@
 
 <script setup>
 import { computed } from "vue";
-import _ from "lodash";
+import * as _ from "lodash-es";
 
 const props = defineProps({
   firstname: {
