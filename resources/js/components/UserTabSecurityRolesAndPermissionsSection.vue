@@ -40,7 +40,7 @@
 
 <script setup>
 import env from "../env";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { computed, onBeforeMount, ref, watch } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";

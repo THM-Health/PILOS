@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useLocaleStore } from "./locale";
 import { useApi } from "../composables/useApi";
 import { useSettingsStore } from "./settings.js";

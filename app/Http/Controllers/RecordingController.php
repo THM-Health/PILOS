@@ -10,6 +10,11 @@ use ZipStream\ZipStream;
 
 class RecordingController extends Controller
 {
+    public function presentationResource(Recording $recording, string $resource): \Illuminate\Http\Response
+    {
+        return $this->resource('presentation', $recording, $resource);
+    }
+
     public function resource(string $formatName, Recording $recording, string $resource = 'index.html'): \Illuminate\Http\Response
     {
         // Get format with the given name of the recording
