@@ -242,8 +242,8 @@ describe("General", function () {
     // Check if light mode is enabled by default
     cy.get("html").should("not.have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
-      .find("i")
-      .should("have.class", "fa-sun");
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
 
     // Toggle dark mode
     cy.get('[data-test="navbar-dark-mode"]').click();
@@ -251,8 +251,8 @@ describe("General", function () {
     // Check if dark mode is enabled
     cy.get("html").should("have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
-      .find("i")
-      .should("have.class", "fa-moon");
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
 
     // Toggle dark mode again
     cy.get('[data-test="navbar-dark-mode"]').click();
@@ -260,7 +260,7 @@ describe("General", function () {
     // Check if light mode is enabled again
     cy.get("html").should("not.have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
-      .find("i")
-      .should("have.class", "fa-sun");
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
   });
 });

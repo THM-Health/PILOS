@@ -94,7 +94,7 @@
 
 <script setup>
 import { ref } from "vue";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
 import { resetSetting } from "../composables/useRoomHelpers.js";
 const model = defineModel({ type: Object });

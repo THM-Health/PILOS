@@ -122,7 +122,7 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 | Option                   | Default Value | Description                                                   |
 | ------------------------ | ------------- | ------------------------------------------------------------- |
 | `WELCOME_MESSAGE_LIMIT`  | `500`         | Maximum length of room welcome message. (max. 5000)           |
-| `ROOM_NAME_LIMIT`        | `50`          | Maximum length of room name.                                  |
+| `ROOM_NAME_LIMIT`        | `50`          | Maximum length of room name. (max. 256)                       |
 | `ROOM_REFRESH_RATE`      | `5`           | Base time in seconds to automatically reload room page.       |
 | `USER_SEARCH_LIMIT`      | `10`          | Maximum amount of users to be shown in user search            |
 | `HIDE_DISABLED_FEATURES` | `true`        | Hide all disabled features from the UI (currently: streaming) |

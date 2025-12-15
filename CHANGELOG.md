@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.9.0] - 2025-12-15
+
+### Added
+
+- Storage space to metrics ([#2345], [#2604])
+- Tooltips for icon-only menu bar items ([#2575])
+
+### Changed
+
+- Sun & moon icon in the menu bar ([#2575])
+- Hover style of buttons in room cards ([#2577])
+- URL for loading BBB recording player resources ([#2616])
+
+### Fixed
+
+- Uneven height of right menu bar items ([#2575])
+- Emoji handling in user avatar ([#2613])
+
 ## [v4.8.0] - 2025-10-27
 
 ### Added
@@ -570,6 +588,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2304]: https://github.com/THM-Health/PILOS/pull/2304
 [#2313]: https://github.com/THM-Health/PILOS/issues/2313
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
+[#2345]: https://github.com/THM-Health/PILOS/issues/2345
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2449]: https://github.com/THM-Health/PILOS/pull/2449
@@ -585,7 +604,12 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.8.0...develop
+[#2575]: https://github.com/THM-Health/PILOS/pull/2575
+[#2577]: https://github.com/THM-Health/PILOS/pull/2577
+[#2604]: https://github.com/THM-Health/PILOS/pull/2604
+[#2613]: https://github.com/THM-Health/PILOS/pull/2613
+[#2616]: https://github.com/THM-Health/PILOS/pull/2616
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.9.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -604,3 +628,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.7.0
 [v4.7.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.7.1
 [v4.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.8.0
+[v4.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.9.0

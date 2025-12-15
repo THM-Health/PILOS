@@ -216,7 +216,7 @@ import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useConfirm } from "primevue/useconfirm";
 import { Multiselect } from "vue-multiselect";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { inject, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import ConfirmDialog from "primevue/confirmdialog";

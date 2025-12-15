@@ -165,7 +165,7 @@
 
 <script setup>
 import env from "../env";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useAuthStore } from "../stores/auth";
 import { ref, computed, watch, onBeforeMount } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";
