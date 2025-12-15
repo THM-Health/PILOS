@@ -97,6 +97,8 @@
     "post-update-cmd": [
       "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
       "@php artisan boost:update --ansi"
+      "@php artisan ide-helper:generate",
+      "@php artisan ide-helper:meta"
     ],
     "test": "php artisan test --parallel",
     "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
