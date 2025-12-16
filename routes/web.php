@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('download/file/{roomFile}/{filename?}', [RoomFileController::class, 'show'])->name('rooms.files.download.bbb')->middleware('signed');
+Route::get('download/file/{roomFile}/{filename?}', [RoomFileController::class, 'showPresentation'])->name('rooms.files.download.bbb')->middleware('signed');
 Route::get('room/{room}/file/{roomFile}/{filename?}', [RoomFileController::class, 'show'])->name('rooms.files.download')->middleware(['signed:room_auth_token', 'room.authenticate']);
 Route::get('download/attendance/{meeting}', [MeetingController::class, 'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 Route::get('download/recording/{recording}', [RecordingController::class, 'download'])->middleware('auth:users,ldap')->name('recording.download');

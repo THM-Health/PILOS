@@ -61,8 +61,11 @@ class RoomAuthenticate
                 if ($request->expectsJson()) {
                     abort(401, 'invalid_token');
                 } else {
-                    return response(view('file-error', [
+                    return response(view('new-tab-error', [
                         'type' => 'invalid_token',
+                        'code' => 401,
+                        'title' => 'Invalid token',
+                        'message' => 'Invalid room auth token provided',
                     ]))->setStatusCode(401);
                 }
             }
@@ -97,8 +100,11 @@ class RoomAuthenticate
             if ($request->expectsJson()) {
                 abort(403, 'require_token');
             } else {
-                return response(view('file-error', [
+                return response(view('new-tab-error', [
                     'type' => 'require_token',
+                    'code' => 403,
+                    'title' => 'Require token',
+                    'message' => 'Room auth token required',
                 ]))->setStatusCode(403);
             }
         }

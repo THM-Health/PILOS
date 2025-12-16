@@ -51,8 +51,11 @@ class RoomFileService
         Log::info('Download room file {file}', ['file' => $this->file->getLogLabel()]);
 
         if (! $this->checkFileExists()) {
-            return response(view('file-error', [
+            return response(view('new-tab-error', [
                 'type' => 'file-not-found',
+                'code' => 404,
+                'title' => 'File not found',
+                'message' => __('rooms.flash.file_gone'),
             ]))->setStatusCode(404);
         }
 

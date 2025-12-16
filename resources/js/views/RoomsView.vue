@@ -350,9 +350,11 @@ function handleGuestsNotAllowed() {
 function handleInvalidRoomAuthToken() {
   const tokenType = roomAuthToken.value?.type;
   roomAuthToken.value = null;
-  if (tokenType === 0) {
+  if (!tokenType || tokenType === 0) {
+    // Access code is invalid or missing
     return handleInvalidCode();
   } else if (tokenType === 1) {
+    // Personal link token is invalid or session expired
     window.location.reload();
   }
 }

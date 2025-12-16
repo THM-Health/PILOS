@@ -21,18 +21,34 @@ class RoomFileController extends Controller
      */
     public function show(Room $room, RoomFile $roomFile)
     {
-        // ToDo fix BBB file access
+        // Check authorization // ToDo think about moving this to room file service
         try {
             $this->authorize('downloadFile', [$room, $roomFile]);
         } catch (AuthorizationException $e) {
             // User is not authorized to download the file
-            return response(view('file-error', [
+            return response(view('new-tab-error', [
                 'type' => 'forbidden',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.flash.file_forbidden'),
             ]))->setStatusCode(403);
         }
 
         $roomFileService = new RoomFileService($roomFile);
 
         return $roomFileService->download();
+    }
+
+    /**
+     * Display/Download a file without authorization check
+     * (Needed to allow bbb server to access the presentation files)
+     *
+     * @return StreamedResponse
+     */
+    public function showPresentation(Room $room, RoomFile $roomFile)
+    {
+        $roomFileService = new RoomFileService($roomFile);
+
+        return $roomFileService->download(false);
     }
 }
