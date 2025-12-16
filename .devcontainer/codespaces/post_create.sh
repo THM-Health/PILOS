@@ -2,7 +2,6 @@
 
 composer install
 npm install
-npm run build
 
 sed -i "s|APP_URL=.*|APP_URL=https://${CODESPACE_NAME}-80.app.github.dev|g" .env
 sed -i "s|#VITE_HOST=.*|VITE_HOST=${CODESPACE_NAME}-1073.app.github.dev|g" .env
