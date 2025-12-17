@@ -437,7 +437,11 @@ class RoomController extends Controller
      */
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
-        // ToDo prevent users that dont need a room auth token from requesting one
+        // Check if user tries to authenticate even though it is not necessary // ToDo change error code and message?
+        if (\Illuminate\Support\Facades\Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
+            abort(420, 'auth_not_required');
+        }
+
         if ($request->type === RoomAuthTokenType::CODE->value) {
             if (! $room->getRoomSetting('allow_guests') && ! Auth::user()) {
                 // user is not authenticated and room is not allowed for guests
@@ -510,8 +514,9 @@ class RoomController extends Controller
             ]);
 
             return new RoomAuthTokenResource($roomAuthToken);
+        } else {
+            // Unknown authentication type
+            abort(500);
         }
-
-        // ToDo return error?
     }
 }
