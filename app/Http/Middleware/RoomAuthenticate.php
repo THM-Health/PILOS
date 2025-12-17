@@ -50,7 +50,7 @@ class RoomAuthenticate
             // Room Auth Token was provided
             $roomAuthToken = RoomAuthToken::where('id', $request->get('room_auth_token'))
                 ->where('room_id', $room->id)
-                ->where('session_id', $request->session()->getId())
+                ->where('session_id', session()->getId())
                 ->first();
 
             if ($roomAuthToken == null) {
