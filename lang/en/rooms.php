@@ -157,12 +157,12 @@ return [
         'only_favorites' => 'Only show favorites',
         'reset_filter' => 'Reset filter',
         'room_component' => [
-            'show_details' => 'Show room details',
             'details' => 'Details',
             'last_ran_till' => 'Last run until :date',
             'never_started' => 'Never started before',
             'open' => 'Open',
             'running_since' => 'Running since :date',
+            'show_details' => 'Show room details',
         ],
         'show_all' => 'All rooms',
         'show_own' => 'Own rooms',
