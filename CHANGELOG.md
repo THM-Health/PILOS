@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Tooltip for the room info button ([#2576])
+
 ## [v4.9.0] - 2025-12-15
 
 ### Added
