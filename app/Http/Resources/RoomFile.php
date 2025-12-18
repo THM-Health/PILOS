@@ -19,7 +19,7 @@ class RoomFile extends JsonResource
             'id' => $this->id,
             'filename' => $this->filename,
             'uploaded' => $this->created_at,
-            'url' => URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'roomFile' => $this->id, 'filename' => $this->filename]),
+            'url' => URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $this->id, 'filename' => $this->filename]),
         ];
     }
 }

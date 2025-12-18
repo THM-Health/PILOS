@@ -19,11 +19,11 @@ class RoomFileController extends Controller
      *
      * @return StreamedResponse
      */
-    public function show(Room $room, RoomFile $roomFile)
+    public function show(Room $room, RoomFile $file)
     {
         // Check authorization // ToDo think about moving this to room file service
         try {
-            $this->authorize('downloadFile', [$room, $roomFile]);
+            $this->authorize('downloadFile', [$room, $file]);
         } catch (AuthorizationException $e) {
             // User is not authorized to download the file
             return response(view('new-tab-error', [
@@ -34,7 +34,7 @@ class RoomFileController extends Controller
             ]))->setStatusCode(403);
         }
 
-        $roomFileService = new RoomFileService($roomFile);
+        $roomFileService = new RoomFileService($file);
 
         return $roomFileService->download();
     }

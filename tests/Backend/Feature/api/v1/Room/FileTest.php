@@ -337,7 +337,7 @@ class FileTest extends TestCase
         $room_file->save();
         \Auth::logout();
 
-        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'roomFile' => $room_file->id, 'filename' => $room_file->filename]);
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
 
         // Access as guest, without guest access
         $this->get($download_link)
@@ -370,7 +370,7 @@ class FileTest extends TestCase
         $room_file->save();
         \Auth::logout();
 
-        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'roomFile' => $room_file->id, 'filename' => $room_file->filename]);
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
 
         // Access as guest, without guest access and without access code
         $this->get($download_link)
@@ -464,7 +464,7 @@ class FileTest extends TestCase
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
         \Auth::logout();
 
-        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'roomFile' => $room_file->id, 'filename' => $room_file->filename]);
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
 
         // Access as guest
         $this->get($download_link)
@@ -505,7 +505,7 @@ class FileTest extends TestCase
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
-        $download_link = URL::signedRoute('rooms.files.download', ['room' => $other_room->id, 'roomFile' => $room_file->id, 'filename' => $room_file->filename]);
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $other_room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->get($download_link)
@@ -620,7 +620,7 @@ class FileTest extends TestCase
         // delete file on the drive
         Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
 
-        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'roomFile' => $room_file->id, 'filename' => $room_file->filename]);
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
 
         // Download file
         $this->get($download_link)
