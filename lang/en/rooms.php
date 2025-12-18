@@ -162,6 +162,7 @@ return [
             'never_started' => 'Never started before',
             'open' => 'Open',
             'running_since' => 'Running since :date',
+            'show_details' => 'Show room details',
         ],
         'show_all' => 'All rooms',
         'show_own' => 'Own rooms',
