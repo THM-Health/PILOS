@@ -28,7 +28,6 @@
         <div class="flex justify-end">
           <Button
             v-if="!viewOnly"
-            :disabled="isBusy"
             type="submit"
             :loading="isBusy"
             icon="fa-solid fa-save"
@@ -43,7 +42,7 @@
 
 <script setup>
 import env from "../env";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { onBeforeMount, ref, watch } from "vue";

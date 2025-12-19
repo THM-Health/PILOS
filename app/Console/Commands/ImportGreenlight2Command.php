@@ -53,7 +53,7 @@ class ImportGreenlight2Command extends Command
         $rooms = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
-        $availableAuthenticators = ['shibboleth'];
+        $availableAuthenticators = ['shibboleth', 'oidc'];
         $socialProviders = DB::connection('greenlight')->table('users')->select('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->distinct()->get();
         $providerAuthenticatorMap = [];
 

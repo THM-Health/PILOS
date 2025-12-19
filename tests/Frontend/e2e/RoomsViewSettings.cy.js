@@ -1061,7 +1061,7 @@ describe("Rooms view settings", function () {
               expect(interception.request.body).to.eql({
                 name: "Meeting Two",
                 expert_mode: true,
-                access_code: parseInt(newAccessCodeValue),
+                access_code: newAccessCodeValue,
                 allow_guests: false,
                 short_description: "Short description two",
                 everyone_can_start: true,
@@ -1851,7 +1851,7 @@ describe("Rooms view settings", function () {
 
         // Select new owner
         cy.get(".multiselect__option").eq(1).click();
-        cy.get(".multiselect__content").should("not.be.visible");
+        cy.get(".multiselect__content").should("not.exist");
 
         // Check that role checkboxes and labels are shown correctly
         cy.get('[data-test="participant-role-group"]').within(() => {
@@ -1987,7 +1987,7 @@ describe("Rooms view settings", function () {
 
     // Select new owner
     cy.get(".multiselect__option").eq(1).click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     cy.get("#no-role").click();
 
@@ -2108,7 +2108,7 @@ describe("Rooms view settings", function () {
     // Select new owner
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").eq(1).click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Transfer ownership with 422 error (role missing)
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {

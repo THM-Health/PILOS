@@ -1,5 +1,5 @@
 <template>
-  <div data-test="login-tab-local">
+  <div>
     <h1 class="p-card-title">{{ props.title }}</h1>
     <form @submit.prevent="submit">
       <div class="flex flex-col gap-2" data-test="email-field">
@@ -58,7 +58,6 @@
         type="submit"
         data-test="login-button"
         class="mt-6"
-        :disabled="props.loading"
         :loading="props.loading"
         :label="props.submitLabel"
         icon="fa-solid fa-right-to-bracket"

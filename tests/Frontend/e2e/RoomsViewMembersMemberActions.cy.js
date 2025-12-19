@@ -140,7 +140,7 @@ describe("Rooms view members member actions", function () {
 
     // Select new user
     cy.get(".multiselect__option").eq(1).click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Check that role checkboxes and labels are shown correctly
     cy.get('[data-test="participant-role-group"]').within(() => {
@@ -344,7 +344,7 @@ describe("Rooms view members member actions", function () {
     // Select new user
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").eq(1).click();
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Try to add user to the room and respond with 422 error (role missing)
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member", {

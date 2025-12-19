@@ -7,6 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Tooltip for the room info button ([#2576])
+
+### Changed
+
+- Auto-reload of rooms now disabled for guests without access ([#2588])
+
+### Fixed
+
+- Icon alignment inside room tabs ([#2660], [#2686])
+
+## [v4.9.0] - 2025-12-15
+
+### Added
+
+- Storage space to metrics ([#2345], [#2604])
+- Tooltips for icon-only menu bar items ([#2575])
+
+### Changed
+
+- Sun & moon icon in the menu bar ([#2575])
+- Hover style of buttons in room cards ([#2577])
+- URL for loading BBB recording player resources ([#2616])
+
+### Fixed
+
+- Uneven height of right menu bar items ([#2575])
+- Emoji handling in user avatar ([#2613])
+
+## [v4.8.0] - 2025-10-27
+
+### Added
+
+- Route-specific CSS classes to frontend pages ([#2496], [#2497])
+- Security header X-XSS-Protection ([#2519])
+- Security header Referrer-Policy ([#2519])
+- Docs: HTTP Strict Transport Security (HSTS) recommendations ([#2519])
+- Virus scan results to metrics ([#2304])
+- Admin option to upload a custom CSS file ([#2496], [#2553], [#2554])
+- OpenID Connect authentication ([#300], [#2281])
+
+### Changed
+
+- UX: Placeholder in room search box ([#2383], [#2449])
+- Upgraded to Tailwind CSS v4 and migrated styles from SASS to plain CSS ([#2477])
+- PHP.ini defaults to align with OWASP recommendations ([#2519])
+- Security header X-Frame-Options value to DENY ([#2519])
+- Authenticator label texts and term in external authentication documentation ([#2551])
+
+### Fixed
+
+- Negative floating point number in room expire email ([#2476], [#2480])
+- Infinite loading when navigating back to rooms from BBB due to bfcache ([#2313], [#2319])
+- Broken dark mode after using room utilisation statistic dialog ([#2478], [#2479])
+- BBB waiting room integration tests ([#2517])
+
+### Security
+
+- Regenerate session after password change ([#2519])
+- Removed unused CORS header ([#2519])
+- Removed PHP version header ([#2519])
+
+## [v4.7.1] - 2025-09-10
+
+### Changed
+
+- Value range and randomness of access code generation ([#2433])
+
+### Fixed
+
+- Support for legacy 6-digit access codes imported from Greenlight v2 ([#2433])
+
 ## [v4.7.0] - 2025-07-21
 
 ### Added
@@ -372,6 +445,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
 [#77]: https://github.com/THM-Health/PILOS/issues/77
+[#300]: https://github.com/THM-Health/PILOS/issues/300
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
@@ -521,8 +595,37 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
+[#2281]: https://github.com/THM-Health/PILOS/pull/2281
 [#2282]: https://github.com/THM-Health/PILOS/pull/2282
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.7.0...develop
+[#2304]: https://github.com/THM-Health/PILOS/pull/2304
+[#2313]: https://github.com/THM-Health/PILOS/issues/2313
+[#2319]: https://github.com/THM-Health/PILOS/pull/2319
+[#2345]: https://github.com/THM-Health/PILOS/issues/2345
+[#2383]: https://github.com/THM-Health/PILOS/issues/2383
+[#2433]: https://github.com/THM-Health/PILOS/pull/2433
+[#2449]: https://github.com/THM-Health/PILOS/pull/2449
+[#2476]: https://github.com/THM-Health/PILOS/issues/2476
+[#2477]: https://github.com/THM-Health/PILOS/pull/2477
+[#2478]: https://github.com/THM-Health/PILOS/issues/2478
+[#2479]: https://github.com/THM-Health/PILOS/pull/2479
+[#2480]: https://github.com/THM-Health/PILOS/pull/2480
+[#2496]: https://github.com/THM-Health/PILOS/issues/2496
+[#2497]: https://github.com/THM-Health/PILOS/pull/2497
+[#2517]: https://github.com/THM-Health/PILOS/pull/2517
+[#2519]: https://github.com/THM-Health/PILOS/pull/2519
+[#2551]: https://github.com/THM-Health/PILOS/pull/2551
+[#2553]: https://github.com/THM-Health/PILOS/pull/2553
+[#2554]: https://github.com/THM-Health/PILOS/issues/2554
+[#2575]: https://github.com/THM-Health/PILOS/pull/2575
+[#2576]: https://github.com/THM-Health/PILOS/pull/2576
+[#2577]: https://github.com/THM-Health/PILOS/pull/2577
+[#2588]: https://github.com/THM-Health/PILOS/pull/2588
+[#2604]: https://github.com/THM-Health/PILOS/pull/2604
+[#2613]: https://github.com/THM-Health/PILOS/pull/2613
+[#2616]: https://github.com/THM-Health/PILOS/pull/2616
+[#2660]: https://github.com/THM-Health/PILOS/issues/2660
+[#2686]: https://github.com/THM-Health/PILOS/pull/2686
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.9.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -539,3 +642,6 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.6.0
 [v4.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.6.1
 [v4.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.7.0
+[v4.7.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.7.1
+[v4.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.8.0
+[v4.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.9.0

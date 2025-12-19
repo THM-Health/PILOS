@@ -193,14 +193,14 @@
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-file-item"
-                class="flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
+                class="flex flex-col justify-between gap-4 border-t border-surface py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
                   <p class="text-word-break m-0 text-lg font-semibold">
                     {{ item.filename }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="m-0 text-sm">
                         {{ $d(new Date(item.uploaded), "datetimeLong") }}
@@ -211,7 +211,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     class="flex flex-col items-start gap-2"
                   >
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-download" />
                       <p class="m-0 text-sm">
                         <Tag v-if="item.download" severity="success">{{
@@ -227,7 +227,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     class="flex flex-col items-start gap-2"
                   >
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i
                         v-if="item.use_in_meeting"
                         class="fa-solid fa-circle-check"
@@ -314,7 +314,7 @@ const props = defineProps({
     required: true,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
   token: {

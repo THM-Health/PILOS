@@ -74,7 +74,7 @@ class RoomDescriptionTest extends TestCase
     {
         $description = $this->faker->text(1000);
 
-        $room = Room::factory()->create(['description' => $description, 'allow_guests' => true, 'access_code' => $this->faker->numberBetween(111111111, 999999999)]);
+        $room = Room::factory()->create(['description' => $description, 'allow_guests' => true, 'access_code' => $this->createAccessCode()]);
 
         // Test anoymous user without access code
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))

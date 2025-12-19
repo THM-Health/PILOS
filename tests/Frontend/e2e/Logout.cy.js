@@ -55,12 +55,7 @@ describe("Logout", function () {
       });
     cy.wait("@logoutRequest");
     // Check if redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/idp?foo=a&bar=b`,
-      );
-    });
+    cy.url().should("eq", `${Cypress.env("redirectBaseUrl")}/idp?foo=a&bar=b`);
   });
 
   it("failed logout", function () {

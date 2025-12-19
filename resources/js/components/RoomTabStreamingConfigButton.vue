@@ -100,7 +100,7 @@
                 <img
                   :alt="$t('rooms.streaming.config.pause_image')"
                   :src="streamingPauseImageUrl"
-                  class="border rounded-border"
+                  class="rounded-border border border-surface"
                   data-test="streaming-pause-image-preview"
                 />
               </div>
@@ -108,12 +108,12 @@
                 <img
                   :alt="$t('rooms.streaming.config.pause_image')"
                   :src="roomTypeDefaultPauseImageUrl"
-                  class="border rounded-border"
+                  class="rounded-border border border-surface"
                   data-test="streaming-pause-image-room-type-preview"
                 />
                 <Tag
                   severity="info"
-                  class="absolute bottom-2 right-2"
+                  class="absolute right-2 bottom-2"
                   :value="$t('rooms.streaming.config.default_pause_image')"
                 />
               </div>
@@ -121,12 +121,12 @@
                 <img
                   :alt="$t('rooms.streaming.config.pause_image')"
                   :src="systemDefaultPauseImageUrl"
-                  class="border rounded-border"
+                  class="rounded-border border border-surface"
                   data-test="streaming-pause-image-system-preview"
                 />
                 <Tag
                   severity="info"
-                  class="absolute bottom-2 right-2"
+                  class="absolute right-2 bottom-2"
                   :value="$t('rooms.streaming.config.default_pause_image')"
                 />
               </div>

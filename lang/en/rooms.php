@@ -138,7 +138,7 @@ return [
         'use_in_next_meeting_disabled' => 'Not available in video conference',
         'view' => 'View file',
     ],
-    'first_and_lastname' => 'First- und last name',
+    'first_and_lastname' => 'First- and last name',
     'flash' => [
         'access_code_invalid' => 'The access code is invalid.',
         'file_forbidden' => 'The access to the requested file was forbidden.',
@@ -162,6 +162,7 @@ return [
             'never_started' => 'Never started before',
             'open' => 'Open',
             'running_since' => 'Running since :date',
+            'show_details' => 'Show room details',
         ],
         'show_all' => 'All rooms',
         'show_own' => 'Own rooms',
@@ -359,6 +360,7 @@ return [
         'loading_error' => 'An error occurred during loading of the room types.',
         'reload' => 'Reload room types',
     ],
+    'search' => 'Search by room name or owner...',
     'settings' => [
         'advanced' => [
             'title' => 'Advanced',

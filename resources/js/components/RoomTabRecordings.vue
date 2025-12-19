@@ -145,20 +145,20 @@
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-recording-item"
-                class="flex flex-col justify-between gap-4 border-t py-4 border-surface md:flex-row"
+                class="flex flex-col justify-between gap-4 border-t border-surface py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
                   <p class="m-0 text-lg font-semibold">
                     {{ item.description }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="m-0 text-sm">
                         {{ $d(new Date(item.start), "datetimeShort") }}
                       </p>
                     </div>
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p
                         v-tooltip.bottom="
@@ -180,7 +180,7 @@
                     </div>
                     <div
                       v-if="userPermissions.can('manageSettings', props.room)"
-                      class="flex flex-row gap-2"
+                      class="flex flex-row items-center gap-2"
                     >
                       <i class="fa-solid fa-lock"></i>
                       <RoomRecordingAccessBadge :access="item.access" />
@@ -276,7 +276,7 @@
         },
       }"
     >
-      <div class="font-normal leading-3">
+      <div class="leading-3 font-normal">
         <p class="text-xl font-semibold">
           {{ $t("rooms.recordings.retention_period.title") }}
         </p>
@@ -323,7 +323,7 @@ const props = defineProps({
     required: true,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
   token: {

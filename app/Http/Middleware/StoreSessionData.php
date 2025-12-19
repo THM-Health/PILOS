@@ -21,14 +21,14 @@ class StoreSessionData
     public function handle(Request $request, Closure $next): Response
     {
         // Check if any session data is stored in the session
-        if (! Auth::guest() && $request->session()->has('session_data')) {
-            $dataSets = $request->session()->get('session_data');
+        if (! Auth::guest() && session()->has('session_data')) {
+            $dataSets = session()->get('session_data');
 
             // Store the data in the database
             foreach ($dataSets as $dataSet) {
                 SessionData::updateOrCreate(
                     [
-                        'session_id' => $request->session()->getId(),
+                        'session_id' => session()->getId(),
                         'key' => $dataSet['key'],
                         'value' => $dataSet['value'],
                     ]
@@ -36,7 +36,7 @@ class StoreSessionData
             }
 
             // Remove the data from the session
-            $request->session()->forget('session_data');
+            session()->forget('session_data');
         }
 
         return $next($request);

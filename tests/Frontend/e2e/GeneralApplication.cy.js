@@ -173,7 +173,7 @@ describe("General", function () {
     // Should be redirected to rooms overview, but since the user is not authenticated, should be redirected to login page
     cy.url().should("contain", "/login?redirect=/rooms");
 
-    cy.get('[data-test="login-tab-local"]').should("be.visible");
+    cy.get('[data-test="login-tab-button-local"]').should("be.visible");
   });
 
   it("disabled welcome page redirect authenticated users to rooms overview", function () {
@@ -222,12 +222,7 @@ describe("General", function () {
     cy.get('[data-test="navbar-help"]').click();
 
     // Check that redirect worked
-    cy.origin(Cypress.env("redirectBaseUrl"), () => {
-      cy.url().should(
-        "eq",
-        `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`,
-      );
-    });
+    cy.url().should("eq", `${Cypress.env("redirectBaseUrl")}/help?foo=a&bar=b`);
   });
 
   it("check help button hidden if help url not specified", function () {
@@ -247,8 +242,8 @@ describe("General", function () {
     // Check if light mode is enabled by default
     cy.get("html").should("not.have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
-      .find("i")
-      .should("have.class", "fa-sun");
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
 
     // Toggle dark mode
     cy.get('[data-test="navbar-dark-mode"]').click();
@@ -256,8 +251,8 @@ describe("General", function () {
     // Check if dark mode is enabled
     cy.get("html").should("have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
-      .find("i")
-      .should("have.class", "fa-moon");
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
 
     // Toggle dark mode again
     cy.get('[data-test="navbar-dark-mode"]').click();
@@ -265,7 +260,7 @@ describe("General", function () {
     // Check if light mode is enabled again
     cy.get("html").should("not.have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
-      .find("i")
-      .should("have.class", "fa-sun");
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
   });
 });

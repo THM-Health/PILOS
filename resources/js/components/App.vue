@@ -24,7 +24,7 @@
 
         <MainNav />
       </header>
-      <main>
+      <main :class="routeClass">
         <router-view />
       </main>
       <AppFooter />
@@ -36,7 +36,20 @@
 import { useLoadingStore } from "../stores/loading";
 import { useSettingsStore } from "../stores/settings";
 import Toast from "primevue/toast";
+import { useRoute } from "vue-router";
+import { computed } from "vue";
 
 const loadingStore = useLoadingStore();
 const settingsStore = useSettingsStore();
+
+const route = useRoute();
+
+/**
+ * Route-specific CSS class for each route/view
+ */
+const routeClass = computed(() => {
+  return route.name
+    ? `route-${route.name.toString().replace(/\./g, "-").toLowerCase()}`
+    : "";
+});
 </script>

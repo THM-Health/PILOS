@@ -4,7 +4,6 @@
     v-if="props.running"
     data-test="room-join-button"
     class="p-button-block"
-    :disabled="isLoadingAction || disabled"
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.join')"
@@ -16,7 +15,6 @@
     v-else-if="canStart"
     data-test="room-start-button"
     class="p-button-block"
-    :disabled="isLoadingAction || disabled"
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.start')"
@@ -69,7 +67,7 @@
 
           <div
             v-if="features.attendance_recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{
               $t("rooms.recording_attendance_info")
@@ -93,7 +91,7 @@
 
           <div
             v-if="features.recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
             <i>{{ $t("rooms.recording_hint") }}</i>
@@ -132,7 +130,7 @@
 
           <div
             v-if="features.streaming"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="mb-4 flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
             <i>{{ $t("rooms.streaming_hint") }}</i>
@@ -174,7 +172,7 @@
   </Dialog>
 </template>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onUnmounted } from "vue";
 import { useAuthStore } from "../stores/auth.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
@@ -205,7 +203,7 @@ const props = defineProps({
     default: null,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
 });
@@ -325,6 +323,26 @@ const autoJoin = computed(() => {
 });
 
 /**
+ * Handle the page is restored from the back/forward cache after redirecting to BBB
+ * The modal is still shown and loaded, close and reload the page
+ */
+async function pageShownAfterBBBHandler(event) {
+  window.removeEventListener("pageshow", pageShownAfterBBBHandler);
+  if (event.persisted) {
+    // Disable loading indicator
+    isLoadingAction.value = false;
+    // Hide modal
+    modalVisible.value = false;
+    // Reload
+    emit("changed");
+  }
+}
+
+onUnmounted(() => {
+  window.removeEventListener("pageshow", pageShownAfterBBBHandler);
+});
+
+/**
  * Join/start
  */
 function getJoinUrl() {
@@ -364,7 +382,9 @@ function getJoinUrl() {
     .then((response) => {
       // Check if response has a join url, if yes redirect
       if (response.data.url !== undefined) {
-        modalVisible.value = false;
+        // Add listener for when user returns to this page
+        // without a full page reload, state is restored from back/forward cache
+        window.addEventListener("pageshow", pageShownAfterBBBHandler);
         window.location = response.data.url;
       }
     })

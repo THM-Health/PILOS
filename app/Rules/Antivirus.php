@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Prometheus\Counter;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Http\UploadedFile;
@@ -39,12 +40,14 @@ class Antivirus implements ValidationRule
 
             // File is clean
             if ($response->status() === 200) {
+                Counter::get('virus_scan_total')->inc('clean');
+
                 return;
             }
 
             // Infected file
             if ($response->status() === 406) {
-
+                Counter::get('virus_scan_total')->inc('virus');
                 $description = $response->json('0.Description');
 
                 Log::warning('Virus {virus_description} detected', [
@@ -58,6 +61,8 @@ class Antivirus implements ValidationRule
 
                 return;
             }
+
+            Counter::get('virus_scan_total')->inc('error');
 
             // Other clamav errors
             Log::log('error', 'Virus scan failed', ['status' => $response->status()]);

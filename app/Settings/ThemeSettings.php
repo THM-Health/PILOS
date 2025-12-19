@@ -18,6 +18,8 @@ class ThemeSettings extends Settings
 
     public bool $rounded;
 
+    public ?string $custom_css;
+
     public static function group(): string
     {
         return 'theme';

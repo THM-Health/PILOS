@@ -112,7 +112,7 @@
 
 <script setup>
 import env from "../env.js";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useSettingsStore } from "../stores/settings";
 import { useApi } from "../composables/useApi.js";
 import { resetSetting } from "../composables/useRoomHelpers.js";
@@ -120,7 +120,8 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { onMounted, ref, computed } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
-import { sha256 } from "@noble/hashes/sha2";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { utf8ToBytes } from "@noble/hashes/utils.js";
 import { useElementVisibility } from "@vueuse/core";
 import RoomTabSettingsTextInput from "./RoomTabSettingsTextInput.vue";
 import { useI18n } from "vue-i18n";
@@ -403,7 +404,7 @@ function getSettingsHash(settingsData) {
   const data = _.clone(settingsData);
   data.room_type = data.room_type?.id;
 
-  return btoa(sha256(JSON.stringify(data)));
+  return btoa(sha256(utf8ToBytes(JSON.stringify(data))));
 }
 
 const settingsDirty = computed(() => {

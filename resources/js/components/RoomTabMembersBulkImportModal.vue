@@ -46,7 +46,6 @@
         />
         <Button
           v-if="validUsers.length > 0"
-          :disabled="isLoadingAction"
           :loading="isLoadingAction"
           :label="
             $t('rooms.members.modals.bulk_import.import_importable_button')
@@ -184,7 +183,7 @@
 </template>
 
 <script setup>
-import _ from "lodash";
+import * as _ from "lodash-es";
 import env from "../env";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";

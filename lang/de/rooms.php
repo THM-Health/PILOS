@@ -355,6 +355,7 @@ return [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload' => 'Raumarten neuladen',
     ],
+    'search' => 'Suche nach Raumnamen oder Eigentümer...',
     'settings' => [
         'advanced' => [
             'title' => 'Erweitert',

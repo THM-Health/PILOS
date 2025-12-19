@@ -217,13 +217,13 @@
                       {{ item.firstname }} {{ item.lastname }}
                     </p>
                     <div class="flex flex-col items-start gap-2">
-                      <div class="flex flex-row gap-2">
+                      <div class="flex flex-row items-center gap-2">
                         <i class="fa-solid fa-envelope" />
                         <p class="text-word-break m-0 text-sm">
                           {{ item.email }}
                         </p>
                       </div>
-                      <div class="flex flex-row gap-2">
+                      <div class="flex flex-row items-center gap-2">
                         <i class="fa-solid fa-user-tag"></i>
                         <RoomRoleBadge :role="item.role" />
                       </div>

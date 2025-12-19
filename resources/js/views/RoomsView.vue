@@ -1,5 +1,5 @@
 <template>
-  <div v-cloak class="container mb-8 mt-8">
+  <div v-cloak class="container mt-8 mb-8">
     <!-- room token is invalid -->
     <div v-if="tokenInvalid" class="mt-20 flex justify-center">
       <!-- Show message that room can only be used by logged in users -->
@@ -10,7 +10,7 @@
         <template #header>
           <Badge
             severity="danger"
-            class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
+            class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
           >
             <i class="fa-solid fa-unlink text-2xl text-white"></i>
           </Badge>
@@ -32,7 +32,7 @@
         <template #header>
           <Badge
             severity="danger"
-            class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
+            class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
           >
             <i class="fa-solid fa-lock text-2xl text-white"></i>
           </Badge>
@@ -49,7 +49,6 @@
             <!-- Reload page, in case the room settings changed -->
             <Button
               data-test="reload-room-button"
-              :disabled="loading"
               :loading="loading"
               icon="fa-solid fa-sync"
               :label="$t('rooms.try_again')"
@@ -87,7 +86,7 @@
             <template #header>
               <Badge
                 severity="danger"
-                class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
+                class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
               >
                 <i class="fa-solid fa-lock text-2xl text-white"></i>
               </Badge>
@@ -120,8 +119,8 @@
                     id="access-code"
                     v-model="accessCodeInput"
                     autofocus
-                    mask="999-999-999"
-                    placeholder="123-456-789"
+                    :mask="room.legacy_code ? '999-999' : '999-999-999'"
+                    :placeholder="room.legacy_code ? '123-456' : '123-456-789'"
                     :invalid="accessCodeInvalid"
                     :disabled="authThrottledFor > 0"
                     class="text-center"
@@ -303,14 +302,27 @@ onUnmounted(() => {
   EventBus.off(EVENT_UNAUTHORIZED, reload);
   EventBus.off(EVENT_FORBIDDEN, reload);
 
-  clearInterval(reloadInterval.value);
+  stopAutoRefresh();
 });
 
 /**
  * Reload room details in a set interval, change in the .env
  */
 function startAutoRefresh() {
-  reloadInterval.value = setInterval(reload, getRandomRefreshInterval() * 1000);
+  if (reloadInterval.value === null) {
+    reloadInterval.value = setInterval(
+      reload,
+      getRandomRefreshInterval() * 1000,
+    );
+  }
+}
+
+function stopAutoRefresh() {
+  if (reloadInterval.value === null) {
+    return;
+  }
+  clearInterval(reloadInterval.value);
+  reloadInterval.value = null;
 }
 
 /**
@@ -338,6 +350,10 @@ function handleGuestsNotAllowed() {
 
   // Set current user to null, as the user is not logged in
   authStore.setCurrentUser(null);
+
+  // Disable auto reload as this error is permanent until the room settings are changed
+  // or the user logs in
+  stopAutoRefresh();
 }
 
 /**
@@ -361,7 +377,7 @@ function handleInvalidToken() {
   tokenInvalid.value = true;
   toast.error(t("rooms.flash.token_invalid"));
   // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
-  clearInterval(reloadInterval.value);
+  stopAutoRefresh();
 }
 
 /**
@@ -415,7 +431,6 @@ function load() {
           error.response.data.message === "guests_not_allowed"
         ) {
           guestsNotAllowed.value = true;
-          startAutoRefresh();
           return;
         }
       }
@@ -464,6 +479,8 @@ function reload() {
       }
 
       setPageTitle(room.value.name);
+
+      startAutoRefresh();
 
       // Update current user, if logged in/out in another tab or session expired
       // to have the can/cannot component use the correct state
@@ -531,8 +548,8 @@ function setPageTitle(roomName) {
  * Handle login with access code
  */
 function login() {
-  // Parse to int
-  accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, ""));
+  // Remove dashes from the access code
+  accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
   // Reload the room with an access code
   reload();
 }

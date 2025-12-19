@@ -112,7 +112,9 @@
             <FormError :errors="formErrors.fieldError('room_limit')" />
           </div>
         </div>
-        <h3>{{ $t("admin.roles.permissions_title") }}</h3>
+        <h3 class="text-xl font-medium">
+          {{ $t("admin.roles.permissions_title") }}
+        </h3>
         <div
           v-if="!isBusy && Object.keys(permissions).length > 0"
           class="grid grid-cols-12 gap-4"
@@ -267,18 +269,18 @@
           {{ $t("admin.roles.room_limit.help_modal.examples") }}
         </p>
         <table class="p-datatable p-datatable-table">
-          <thead class="p-datatable-thead">
+          <thead class="p-datatable-thead text-left">
             <tr>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("admin.roles.room_limit.help_modal.system_default") }}
               </th>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("admin.roles.room_limit.help_modal.role_a") }}
               </th>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("admin.roles.room_limit.help_modal.role_b") }}
               </th>
-              <th scope="col">
+              <th scope="col" class="px-4 py-2">
                 {{ $t("app.room_limit") }}
               </th>
             </tr>
@@ -347,7 +349,7 @@ import { onMounted, ref, computed, inject, watch } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "vue-i18n";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 

@@ -19,5 +19,9 @@ return [
             'enabled' => env('METRICS_COLLECTOR_REQUEST_TOTAL_ENABLED', true),
             'exclude_routes' => explode(',', env('METRICS_COLLECTOR_REQUEST_TOTAL_EXCLUDE_ROUTES', 'metrics')),
         ],
+        'storage' => [
+            'enabled' => env('METRICS_COLLECTOR_STORAGE_ENABLED', true),
+            'disk_names' => ['local', 'recordings', 'recordings-spool'],
+        ],
     ],
 ];

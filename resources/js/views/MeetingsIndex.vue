@@ -1,5 +1,5 @@
 <template>
-  <div class="container mb-8 mt-8">
+  <div class="container mt-8 mb-8">
     <Card>
       <template #title
         ><h1 class="m-0 text-3xl">
@@ -29,7 +29,6 @@
               v-tooltip="$t('app.reload')"
               :aria-label="$t('app.reload')"
               severity="secondary"
-              :disabled="isBusy"
               icon="fa-solid fa-sync"
               :loading="isBusy"
               data-test="meetings-reload-button"

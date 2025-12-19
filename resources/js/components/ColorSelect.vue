@@ -4,11 +4,12 @@
       v-for="color in props.colors"
       :key="color"
       role="button"
-      class="color-select relative h-11 w-11 overflow-hidden border border-surface rounded-border"
+      class="color-select relative h-11 w-11 overflow-hidden rounded-border border border-surface"
       :style="{ 'background-color': color }"
       :class="{
         selected: isColorSelected(color),
-        'pointer-events-none cursor-not-allowed opacity-80': props.disabled,
+        'cursor-pointer': !props.disabled,
+        'pointer-events-none opacity-80': props.disabled,
       }"
       data-test="color-button"
       @click="selectColor(color)"

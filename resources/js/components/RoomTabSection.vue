@@ -3,7 +3,7 @@
     <template #header>
       <!-- Tab header -->
       <div
-        class="mb-5 flex flex-row justify-between border-b px-6 py-4 border-surface"
+        class="mb-5 flex flex-row justify-between border-b border-surface px-6 py-4"
       >
         <!-- Current tab -->
         <div class="flex flex-row items-center gap-2 px-2 text-xl">
@@ -101,10 +101,10 @@
     :draggable="false"
     :style="{ width: '25rem' }"
   >
-    <div class="mb-5 mt-4 flex justify-center">
+    <div class="mt-4 mb-5 flex justify-center">
       <Badge
         severity="contrast"
-        class="flex h-16 w-16 items-center justify-center rounded-full"
+        class="flex !h-16 !w-16 items-center justify-center rounded-full"
       >
         <i
           class="fa-solid fa-ban text-4xl text-white dark:text-surface-950"
@@ -161,7 +161,7 @@ const props = defineProps({
     required: true,
   },
   accessCode: {
-    type: Number,
+    type: String,
     default: null,
   },
   token: {

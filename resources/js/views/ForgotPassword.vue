@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="mb-8 mt-6 grid grid-cols-12 gap-4">
+    <div class="mt-6 mb-8 grid grid-cols-12 gap-4">
       <div
         class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
       >
@@ -25,7 +25,6 @@
               <Button
                 class="mt-6"
                 type="submit"
-                :disabled="loading"
                 :loading="loading"
                 :label="$t('auth.send_password_reset_link')"
                 data-test="send-reset-link-button"

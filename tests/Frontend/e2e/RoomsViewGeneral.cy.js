@@ -349,6 +349,92 @@ describe("Room View general", function () {
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
   });
 
+  it("room view with legacy access code", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.legacy_code = true;
+      room.data.authenticated = false;
+      room.data.description = "<p>Test</p>";
+      room.data.allow_membership = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    cy.title().should("eq", "Meeting One - PILOS Test");
+
+    // Check that access code input is shown correctly
+    cy.get('[data-test="room-access-code-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        cy.contains("Meeting One").should("be.visible");
+        cy.contains("Max Doe").should("be.visible");
+        cy.contains("rooms.index.room_component.never_started").should(
+          "be.visible",
+        );
+        cy.contains("rooms.require_access_code").should("be.visible");
+
+        // Submit valid access code
+        cy.get("#access-code").type("012345");
+      });
+
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.description = "<p>Test</p>";
+      room.data.allow_membership = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.headers["access-code"]).to.eq("012345");
+    });
+
+    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+
+    // Check that room Header is shown correctly
+    cy.contains("Meeting One").should("be.visible");
+    cy.contains("Max Doe").should("be.visible");
+    cy.contains("rooms.index.room_component.never_started").should(
+      "be.visible",
+    );
+
+    // Check that buttons are shown correctly
+    cy.get('[data-test="reload-room-button"]').should("be.visible");
+    cy.get('[data-test="room-join-membership-button"]').should("be.visible");
+    cy.get('[data-test="room-end-membership-button"]').should("not.exist");
+    cy.get('[data-test="room-favorites-button"]').should("be.visible");
+
+    // Check that tabs are shown correctly
+    cy.get("#tab-description").should("be.visible");
+    cy.get("#tab-members").should("not.exist");
+    cy.get("#tab-tokens").should("not.exist");
+    cy.get("#tab-files").should("be.visible");
+    cy.get("#tab-recordings").should("be.visible");
+    cy.get("#tab-history").should("not.exist");
+    cy.get("#tab-settings").should("not.exist");
+
+    // Check that the correct tab is shown
+    cy.contains("rooms.description.title").should("be.visible");
+  });
+
   it("room view as member", function () {
     cy.interceptRoomFilesRequest();
     cy.fixture("room.json").then((room) => {
@@ -1706,6 +1792,63 @@ describe("Room View general", function () {
     cy.url()
       .should("include", "/404")
       .should("not.include", "/rooms/abc-def-123");
+  });
+
+  it("auto-reload", function () {
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.fixture("config.json").then((config) => {
+      config.data.room.refresh_rate = 60;
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    cy.interceptRoomFilesRequest();
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.clock();
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+    cy.contains("Meeting One").should("be.visible");
+
+    // Wait more than 60 seconds (due to reload randomness) for a auto-reload
+    cy.tick(100000);
+    cy.get("@roomRequest.all").should("have.length", 2);
+  });
+
+  it("auto-reload disabled on error", function () {
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.fixture("config.json").then((config) => {
+      config.data.room.refresh_rate = 60;
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      statusCode: 403,
+      body: {
+        message: "guests_not_allowed",
+      },
+    }).as("roomRequest");
+
+    cy.clock();
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+
+    // Check that the error message is shown
+    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
+
+    // Wait more than 60 seconds (due to reload randomness) for no auto-reload
+    cy.tick(100000);
+    cy.get("@roomRequest.all").should("have.length", 1);
   });
 
   it("reload with errors", function () {

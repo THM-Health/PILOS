@@ -1,5 +1,5 @@
 <template>
-  <div class="border-b bg-white py-2 border-surface dark:bg-surface-900">
+  <div class="border-b border-surface bg-white py-2 dark:bg-surface-900">
     <div class="container flex flex-row justify-between">
       <Menubar
         :breakpoint="menuBreakpoint + 'px'"
@@ -107,6 +107,7 @@
           </router-link>
           <a
             v-else
+            v-tooltip.bottom="item.tooltip"
             :href="item.url"
             :target="item.target"
             v-bind="props.action"
@@ -141,7 +142,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useSettingsStore } from "../stores/settings.js";
 import { useAuthStore } from "../stores/auth.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -278,8 +279,9 @@ const userMenuItems = computed(() => {
 
   if (settingsStore.getSetting("general.help_url")) {
     items.push({
-      icon: "fa-solid fa-circle-question text-xl",
+      icon: "fa-solid fa-circle-question text-2xl",
       label: t("app.help"),
+      tooltip: t("app.help"),
       target: "_blank",
       dataTest: "navbar-help",
       url: settingsStore.getSetting("general.help_url"),
@@ -298,8 +300,9 @@ const userMenuItems = computed(() => {
   // Only show the locale menu if more than one locale is enabled
   if (locales.value.length > 1) {
     const localeItem = {
-      icon: "fa-solid fa-language text-xl",
+      icon: "fa-solid fa-language text-2xl",
       label: t("app.change_locale"),
+      tooltip: t("app.change_locale"),
       dataTest: "navbar-locale",
       items: [],
     };
@@ -342,6 +345,10 @@ async function pageShownAfterLogoutHandler(event) {
   }
 }
 
+onUnmounted(() => {
+  window.removeEventListener("pageshow", pageShownAfterLogoutHandler);
+});
+
 async function logout() {
   let response;
   try {
@@ -362,7 +369,8 @@ async function logout() {
     return;
   }
 
-  await router.push({ name: "logout" });
+  const message = response.data.message || null;
+  await router.push({ name: "logout", query: { message } });
 
   loadingStore.setLoadingFinished();
 }

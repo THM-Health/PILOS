@@ -95,10 +95,8 @@ describe("Admin room types new", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "not.have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .should("have.class", "cursor-pointer")
+            .and("not.have.class", "pointer-events-none opacity-80")
             .and(i === 0 ? "have.class" : "not.have.class", "selected");
         }
 
@@ -133,7 +131,7 @@ describe("Admin room types new", function () {
           .and("have.text", "Exam 01");
       });
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-pool-field"]')
       .should("be.visible")
       .and("include.text", "app.server_pool")
@@ -171,7 +169,7 @@ describe("Admin room types new", function () {
 
     cy.get(".multiselect__option").eq(1).click();
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-pool-dropdown"]').within(() => {
       cy.get(".multiselect__tags").should("include.text", "Production");
     });
@@ -626,10 +624,8 @@ describe("Admin room types new", function () {
         cy.get('[data-test="color-button"]')
           .eq(i)
           .should("have.attr", "role", "button")
-          .and(
-            "have.class",
-            "pointer-events-none cursor-not-allowed opacity-80",
-          );
+          .and("have.class", "pointer-events-none opacity-80")
+          .and("not.have.class", "cursor-pointer");
       }
       cy.get("#custom-color").should("be.disabled");
       cy.get('[data-test="server-pool-dropdown"]').should(
@@ -757,12 +753,12 @@ describe("Admin room types new", function () {
 
     cy.get("#room-type-name").should("have.value", "").type("Exam");
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-pool-dropdown"]').click();
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").eq(0).click();
 
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="server-pool-dropdown"]').within(() => {
       cy.get(".multiselect__tags").should("include.text", "Test");
     });
@@ -778,7 +774,7 @@ describe("Admin room types new", function () {
       });
 
     // Check role setting and change it
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
     cy.get('[data-test="role-field"]')
       .should("be.visible")
       .within(() => {
@@ -792,7 +788,6 @@ describe("Admin room types new", function () {
 
     // Check if correct options are shown
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 5);
@@ -869,8 +864,6 @@ describe("Admin room types new", function () {
     );
 
     cy.get(".multiselect__content")
-      .eq(1)
-
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="previous-page-button"]')
@@ -901,7 +894,6 @@ describe("Admin room types new", function () {
     cy.wait("@userRoleRequest");
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="previous-page-button"]').should("not.be.disabled");
@@ -958,7 +950,7 @@ describe("Admin room types new", function () {
     cy.get(".multiselect__select").eq(1).click();
 
     // Check that dialog is closed
-    cy.get(".multiselect__content").should("not.be.visible");
+    cy.get(".multiselect__content").should("not.exist");
 
     // Add new room type
     cy.fixture("roomType.json").then((roomType) => {
@@ -1616,7 +1608,6 @@ describe("Admin room types new", function () {
     cy.get('[data-test="role-dropdown"]').click();
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 5);
@@ -1631,7 +1622,6 @@ describe("Admin room types new", function () {
     }).as("rolesRequest");
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();
@@ -1687,7 +1677,6 @@ describe("Admin room types new", function () {
     }).as("rolesRequest");
 
     cy.get(".multiselect__content")
-      .eq(1)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();
@@ -1770,7 +1759,6 @@ describe("Admin room types new", function () {
     cy.get('[data-test="server-pool-dropdown"]').click();
 
     cy.get(".multiselect__content")
-      .eq(0)
       .should("be.visible")
       .within(() => {
         cy.get(".multiselect__option").should("have.length", 3);
@@ -1785,7 +1773,6 @@ describe("Admin room types new", function () {
     }).as("serverPoolsRequest");
 
     cy.get(".multiselect__content")
-      .eq(0)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();
@@ -1846,7 +1833,6 @@ describe("Admin room types new", function () {
     }).as("serverPoolsRequest");
 
     cy.get(".multiselect__content")
-      .eq(0)
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="next-page-button"]').click();

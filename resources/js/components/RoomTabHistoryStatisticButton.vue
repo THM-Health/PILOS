@@ -73,12 +73,12 @@
   </Dialog>
 </template>
 <script setup>
-import { computed, ref } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useI18n } from "vue-i18n";
 import "chartjs-adapter-date-fns";
 import { useColors } from "../composables/useColors.js";
-import { useCssVar } from "@vueuse/core";
+import { useDark } from "@vueuse/core";
 import { sansFontFamily } from "../font.js";
 import env from "../env";
 
@@ -123,6 +123,7 @@ const chartDataRows = ref({
 const api = useApi();
 const { t, d } = useI18n();
 const colors = useColors();
+const isDark = useDark();
 
 function showModal() {
   // Reset chart data
@@ -189,12 +190,23 @@ function loadData() {
     });
 }
 
-const textColor = computed(() => {
-  return useCssVar("--p-text-color").value;
+const textColor = ref("");
+const surfaceBorderColor = ref("");
+
+onMounted(() => {
+  setColors();
 });
-const surfaceBorder = computed(() => {
-  return useCssVar("--p-content-border-color").value;
+
+watch(isDark, async () => {
+  await nextTick();
+  setColors();
 });
+
+function setColors() {
+  const style = getComputedStyle(document.body);
+  textColor.value = style.getPropertyValue("--p-text-color");
+  surfaceBorderColor.value = style.getPropertyValue("--p-content-border-color");
+}
 
 const chartFontFamily = sansFontFamily.join(", ");
 
@@ -223,7 +235,7 @@ const chartOptions = computed(() => {
           },
         },
         grid: {
-          color: surfaceBorder.value,
+          color: surfaceBorderColor.value,
         },
         ticks: {
           major: {
@@ -258,7 +270,7 @@ const chartOptions = computed(() => {
           },
         },
         grid: {
-          color: surfaceBorder.value,
+          color: surfaceBorderColor.value,
         },
         ticks: {
           font: {

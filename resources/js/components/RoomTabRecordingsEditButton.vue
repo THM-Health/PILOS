@@ -46,7 +46,6 @@
         <Button
           :label="$t('app.save')"
           :loading="isLoadingAction"
-          :disabled="isLoadingAction"
           data-test="dialog-save-button"
           @click="save"
         />
@@ -126,7 +125,7 @@ import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { computed, ref } from "vue";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useSettingsStore } from "../stores/settings.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
