@@ -7,6 +7,4 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 #[ObservedBy([PermissionRoleObserver::class])]
-class PermissionRole extends Pivot
-{
-}
+class PermissionRole extends Pivot {}
