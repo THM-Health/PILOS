@@ -75,9 +75,9 @@ class OIDCController extends Controller
 
         $url = '/external_login';
 
-        if ($request->session()->has('redirect_url')) {
+        if (session()->has('redirect_url')) {
             return redirect(Uri::of($url)
-                ->withQuery(['redirect' => $request->session()->get('redirect_url')])
+                ->withQuery(['redirect' => session()->get('redirect_url')])
                 ->value());
         }
 

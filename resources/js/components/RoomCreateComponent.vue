@@ -86,7 +86,7 @@
 </template>
 <script setup>
 import env from "../env.js";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useAuthStore } from "../stores/auth";
 import { reactive, ref } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";

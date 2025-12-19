@@ -1517,7 +1517,7 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { onMounted, ref, computed, watch, inject } from "vue";
 import { useRouter } from "vue-router";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { Multiselect } from "vue-multiselect";
 import { useConfirm } from "primevue/useconfirm";
 import { useI18n } from "vue-i18n";

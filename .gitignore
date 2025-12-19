@@ -24,3 +24,6 @@ components.d.ts
 public/playback-player
 tests/Frontend/screenshots
 tests/Frontend/videos
+boost.json
+.github/copilot-instructions.md
+.junie/mcp/mcp.json

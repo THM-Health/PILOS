@@ -28,11 +28,15 @@ export default defineConfig({
             selected_languages: "en",
           };
 
+          launchOptions.args.push("--force-prefers-reduced-motion");
+
           return launchOptions;
         }
 
         if (browser.family === "firefox") {
           launchOptions.preferences["intl.accept_languages"] = "en";
+          launchOptions.preferences["ui.prefersReducedMotion"] = 1;
+
           return launchOptions;
         }
       });

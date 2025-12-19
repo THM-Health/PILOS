@@ -183,7 +183,7 @@
 </template>
 
 <script setup>
-import _ from "lodash";
+import * as _ from "lodash-es";
 import env from "../env";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
