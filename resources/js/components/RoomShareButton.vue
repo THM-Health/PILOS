@@ -18,7 +18,7 @@
         </legend>
         <div class="grow">
           <InputGroup>
-            <InputGroupAddon class="border-none">
+            <InputGroupAddon class="min-w-5 border-none px-0">
               <i
                 v-tooltip="$t('rooms.invitation.link')"
                 class="fa-solid fa-link"
@@ -46,7 +46,7 @@
           </InputGroup>
 
           <InputGroup class="mt-2" v-if="room.access_code">
-            <InputGroupAddon class="border-none">
+            <InputGroupAddon class="min-w-5 border-none px-0">
               <i
                 v-tooltip="$t('rooms.invitation.code')"
                 class="fa-solid fa-key"
