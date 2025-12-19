@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\RoomUserRole;
 use App\Enums\TimePeriod;
+use App\Observers\RoomTokenObserver;
 use App\Settings\RoomSettings;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
+#[ObservedBy([RoomTokenObserver::class])]
 class RoomToken extends Model
 {
     use HasFactory;
@@ -34,25 +35,6 @@ class RoomToken extends Model
      * @var string Override primary key type.
      */
     protected $keyType = 'string';
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            while (true) {
-                $token = Str::random(100);
-                if (DB::table('room_tokens')->where('token', '=', $token)->doesntExist()) {
-                    $model->token = $token;
-
-                    break;
-                }
-            }
-        });
-    }
 
     /**
      * Room the token belongs to
