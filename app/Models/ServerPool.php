@@ -16,21 +16,6 @@ class ServerPool extends Model
     protected $fillable = ['name', 'description'];
 
     /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::deleting(function (self $model) {
-            // Delete server pool only possible if no room types associated
-            if ($model->roomTypes()->count() != 0) {
-                return false;
-            }
-        });
-    }
-
-    /**
      * Servers that are port of this server pool
      */
     public function servers(): BelongsToMany

@@ -36,25 +36,6 @@ class RoomToken extends Model
     protected $keyType = 'string';
 
     /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            while (true) {
-                $token = Str::random(100);
-                if (DB::table('room_tokens')->where('token', '=', $token)->doesntExist()) {
-                    $model->token = $token;
-
-                    break;
-                }
-            }
-        });
-    }
-
-    /**
      * Room the token belongs to
      *
      * @return BelongsTo
