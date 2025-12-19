@@ -4,13 +4,16 @@ namespace App\Models;
 
 use App\Enums\RoomUserRole;
 use App\Enums\TimePeriod;
+use App\Observers\RoomTokenObserver;
 use App\Settings\RoomSettings;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+#[ObservedBy([RoomTokenObserver::class])]
 class RoomToken extends Model
 {
     use HasFactory;

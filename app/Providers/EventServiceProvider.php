@@ -7,22 +7,6 @@ use App\Events\RoomStarted;
 use App\Listeners\ConfigureStreamingOnRoomStart;
 use App\Listeners\FailedLoginAttempt;
 use App\Listeners\ResetStreamingOnRoomStop;
-use App\Models\IncludedPermissionPermission;
-use App\Models\PermissionRole;
-use App\Models\RoleUser;
-use App\Models\Room;
-use App\Models\RoomToken;
-use App\Models\Server;
-use App\Models\ServerPool;
-use App\Models\User;
-use App\Observers\IncludedPermissionPermissionObserver;
-use App\Observers\PermissionRoleObserver;
-use App\Observers\RoleUserObserver;
-use App\Observers\RoomObserver;
-use App\Observers\RoomTokenObserver;
-use App\Observers\ServerObserver;
-use App\Observers\ServerPoolObserver;
-use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -55,14 +39,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        IncludedPermissionPermission::observe(IncludedPermissionPermissionObserver::class);
-        PermissionRole::observe(PermissionRoleObserver::class);
-        RoleUser::observe(RoleUserObserver::class);
-        RoomToken::observe(RoomTokenObserver::class);
-        ServerPool::observe(ServerPoolObserver::class);
-        User::observe(UserObserver::class);
-        Server::observe(ServerObserver::class);
-        Room::observe(RoomObserver::class);
+        //
     }
 
     /**

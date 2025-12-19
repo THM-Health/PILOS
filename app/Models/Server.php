@@ -4,13 +4,16 @@ namespace App\Models;
 
 use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
+use App\Observers\ServerObserver;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([ServerObserver::class])]
 class Server extends Model
 {
     use AddsModelNameTrait, HasFactory;

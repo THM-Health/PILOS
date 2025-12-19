@@ -6,9 +6,11 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Exceptions\RoomIdGenerationFailed;
+use App\Observers\RoomObserver;
 use App\Services\RoomAuthService;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
+#[ObservedBy([RoomObserver::class])]
 class Room extends Model
 {
     use AddsModelNameTrait, HasFactory;
