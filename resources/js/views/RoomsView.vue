@@ -302,7 +302,7 @@ onUnmounted(() => {
   EventBus.off(EVENT_UNAUTHORIZED, reload);
   EventBus.off(EVENT_FORBIDDEN, reload);
 
-  clearInterval(reloadInterval.value);
+  stopAutoRefresh();
 });
 
 /**
@@ -315,6 +315,14 @@ function startAutoRefresh() {
       getRandomRefreshInterval() * 1000,
     );
   }
+}
+
+function stopAutoRefresh() {
+  if (reloadInterval.value === null) {
+    return;
+  }
+  clearInterval(reloadInterval.value);
+  reloadInterval.value = null;
 }
 
 /**
@@ -345,8 +353,7 @@ function handleGuestsNotAllowed() {
 
   // Disable auto reload as this error is permanent until the room settings are changed
   // or the user logs in
-  clearInterval(reloadInterval.value);
-  reloadInterval.value = null;
+  stopAutoRefresh();
 }
 
 /**
@@ -370,8 +377,7 @@ function handleInvalidToken() {
   tokenInvalid.value = true;
   toast.error(t("rooms.flash.token_invalid"));
   // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
-  clearInterval(reloadInterval.value);
-  reloadInterval.value = null;
+  stopAutoRefresh();
 }
 
 /**
