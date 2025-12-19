@@ -543,10 +543,9 @@ describe("Room View general", function () {
     );
     cy.get("#invitationCode").should("have.value", "508-307-005");
 
+    // Copy invitation message
     cy.get('[data-test="room-copy-invitation-button"]').click();
-
-    cy.checkToastMessage("rooms.invitation.copied");
-
+    cy.checkToastMessage("rooms.invitation.copied_message");
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
@@ -554,6 +553,26 @@ describe("Room View general", function () {
             Cypress.config("baseUrl") +
             "/rooms/abc-def-123\nrooms.invitation.code: 508-307-005",
         );
+      });
+    });
+
+    // Copy room link
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get('[data-test="room-invitation-copy-link-button"]').click();
+    cy.checkToastMessage("rooms.invitation.copied_url");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq(Cypress.config("baseUrl") + "/rooms/abc-def-123");
+      });
+    });
+
+    // Copy room access code
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get('[data-test="room-invitation-copy-code-button"]').click();
+    cy.checkToastMessage("rooms.invitation.copied_code");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq("508-307-005");
       });
     });
   });
