@@ -85,7 +85,7 @@ class Server extends Model
         return self::calcHealth($this->recover_count, $this->error_count);
     }
 
-    private static function calcHealth(int $recover_count, int $error_count): ServerHealth
+    public static function calcHealth(int $recover_count, int $error_count): ServerHealth
     {
         if ($recover_count >= config('bigbluebutton.server_online_threshold')) {
             return ServerHealth::ONLINE;

@@ -52,8 +52,8 @@ class ServerObserver
         }
 
         // Check if server health changed
-        $newHealth = self::calcHealth($server->recover_count, $server->error_count);
-        $previousHealth = self::calcHealth($server->getOriginal('recover_count'), $server->getOriginal('error_count'));
+        $newHealth = Server::calcHealth($server->recover_count, $server->error_count);
+        $previousHealth = Server::calcHealth($server->getOriginal('recover_count'), $server->getOriginal('error_count'));
         if ($newHealth != $previousHealth) {
             if ($newHealth == ServerHealth::OFFLINE) {
                 \Log::error('Server {server} health changed to offline', [
@@ -89,20 +89,5 @@ class ServerObserver
         }
 
         return true;
-    }
-
-    /**
-     * Calculate server health based on recover and error counts.
-     */
-    private static function calcHealth(int $recover_count, int $error_count): ServerHealth
-    {
-        if ($recover_count >= config('bigbluebutton.server_online_threshold')) {
-            return ServerHealth::ONLINE;
-        }
-        if ($error_count >= config('bigbluebutton.server_offline_threshold')) {
-            return ServerHealth::OFFLINE;
-        }
-
-        return ServerHealth::UNHEALTHY;
     }
 }
