@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tooltip for the room info button ([#2576])
 
+### Changed
+
+- Auto-reload of rooms now disabled for guests without access ([#2588])
+
 ### Fixed
 
 - Icon alignment inside room tabs ([#2660], [#2686])
@@ -615,6 +619,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2575]: https://github.com/THM-Health/PILOS/pull/2575
 [#2576]: https://github.com/THM-Health/PILOS/pull/2576
 [#2577]: https://github.com/THM-Health/PILOS/pull/2577
+[#2588]: https://github.com/THM-Health/PILOS/pull/2588
 [#2604]: https://github.com/THM-Health/PILOS/pull/2604
 [#2613]: https://github.com/THM-Health/PILOS/pull/2613
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616

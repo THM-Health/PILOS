@@ -1794,6 +1794,63 @@ describe("Room View general", function () {
       .should("not.include", "/rooms/abc-def-123");
   });
 
+  it("auto-reload", function () {
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.fixture("config.json").then((config) => {
+      config.data.room.refresh_rate = 60;
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    cy.interceptRoomFilesRequest();
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.clock();
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+    cy.contains("Meeting One").should("be.visible");
+
+    // Wait more than 60 seconds (due to reload randomness) for a auto-reload
+    cy.tick(100000);
+    cy.get("@roomRequest.all").should("have.length", 2);
+  });
+
+  it("auto-reload disabled on error", function () {
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.fixture("config.json").then((config) => {
+      config.data.room.refresh_rate = 60;
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      statusCode: 403,
+      body: {
+        message: "guests_not_allowed",
+      },
+    }).as("roomRequest");
+
+    cy.clock();
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+
+    // Check that the error message is shown
+    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
+
+    // Wait more than 60 seconds (due to reload randomness) for no auto-reload
+    cy.tick(100000);
+    cy.get("@roomRequest.all").should("have.length", 1);
+  });
+
   it("reload with errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
