@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tooltip for the room info button ([#2576])
 
+### Fixed
+
+- Icon alignment inside room tabs ([#2660], [#2686])
+
 ## [v4.9.0] - 2025-12-15
 
 ### Added
@@ -614,6 +618,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2604]: https://github.com/THM-Health/PILOS/pull/2604
 [#2613]: https://github.com/THM-Health/PILOS/pull/2613
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616
+[#2660]: https://github.com/THM-Health/PILOS/issues/2660
+[#2686]: https://github.com/THM-Health/PILOS/pull/2686
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.9.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

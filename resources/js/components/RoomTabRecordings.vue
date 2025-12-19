@@ -152,13 +152,13 @@
                     {{ item.description }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="m-0 text-sm">
                         {{ $d(new Date(item.start), "datetimeShort") }}
                       </p>
                     </div>
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p
                         v-tooltip.bottom="
@@ -180,7 +180,7 @@
                     </div>
                     <div
                       v-if="userPermissions.can('manageSettings', props.room)"
-                      class="flex flex-row gap-2"
+                      class="flex flex-row items-center gap-2"
                     >
                       <i class="fa-solid fa-lock"></i>
                       <RoomRecordingAccessBadge :access="item.access" />
