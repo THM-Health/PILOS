@@ -199,6 +199,7 @@ class FileTest extends TestCase
             ->getJson(route('api.v1.rooms.files.get', [
                 'room' => $this->room,
                 'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::CODE->value,
             ]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data');
@@ -212,6 +213,7 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', [
             'room' => $this->room,
             'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data');
@@ -390,7 +392,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $this->currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertForbidden();
         $this->flushHeaders();
 
@@ -406,7 +408,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $this->currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();
         $this->flushHeaders();
 
@@ -446,7 +448,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $this->currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();
         $this->flushHeaders();
     }
@@ -495,7 +497,6 @@ class FileTest extends TestCase
     /**
      * Check if download possible for a file from another room is working, if parameters in the url are changed
      */
-    // ToDo fix code to work with this test
     public function test_download_files_download_url_manipulation()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])

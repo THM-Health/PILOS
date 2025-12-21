@@ -437,9 +437,9 @@ class RoomController extends Controller
      */
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
-        // Check if user tries to authenticate even though it is not necessary // ToDo change error code and message?
+        // Check if user tries to authenticate even though it is not necessary
         if (\Illuminate\Support\Facades\Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
-            abort(420, 'auth_not_required');
+            return response()->noContent();
         }
 
         if ($request->type === RoomAuthTokenType::CODE->value) {
@@ -450,6 +450,11 @@ class RoomController extends Controller
                 Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
                 abort(403, 'guests_not_allowed');
+            }
+
+            if ($room->access_code == null) {
+                // room has no access code set therefore authentication by access code is not required
+                return response()->noContent();
             }
 
             // Key used to rate limit access code attempts
@@ -466,7 +471,7 @@ class RoomController extends Controller
                 // Generate new room auth token
                 $roomAuthToken = RoomAuthToken::firstOrCreate([
                     'room_id' => $room->id,
-                    'session_id' => $request->session()->getId(),
+                    'session_id' => session()->getId(),
                     'type' => RoomAuthTokenType::CODE,
                 ]);
 
@@ -509,7 +514,7 @@ class RoomController extends Controller
             $roomAuthToken = RoomAuthToken::firstOrCreate([
                 'room_id' => $room->id,
                 'room_token_id' => $accessToken->token,
-                'session_id' => $request->session()->getId(),
+                'session_id' => session()->getId(),
                 'type' => RoomAuthTokenType::TOKEN,
             ]);
 

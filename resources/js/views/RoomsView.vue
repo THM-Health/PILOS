@@ -297,7 +297,6 @@ onMounted(() => {
       if (success) {
         load();
       }
-      roomLoading.value = false;
     });
   } else {
     load();
@@ -384,11 +383,6 @@ function handleInvalidToken() {
   clearInterval(reloadInterval.value);
 }
 
-function handleAuthNotRequired() {
-  // Reload room details
-  reload();
-}
-
 /**
  * Initial loading of the room
  */
@@ -400,7 +394,10 @@ function load() {
   const config = {};
 
   if (roomAuthToken.value) {
-    config.params = { room_auth_token: roomAuthToken.value.id };
+    config.params = {
+      room_auth_token: roomAuthToken.value.id,
+      room_auth_token_type: roomAuthToken.value.type,
+    };
   }
 
   const url = "rooms/" + props.id;
@@ -468,7 +465,10 @@ function reload() {
   const config = {};
 
   if (roomAuthToken.value) {
-    config.params = { room_auth_token: roomAuthToken.value.id };
+    config.params = {
+      room_auth_token: roomAuthToken.value.id,
+      room_auth_token_type: roomAuthToken.value.type,
+    };
   }
 
   const url = "rooms/" + props.id;
@@ -555,6 +555,13 @@ function login() {
   });
 }
 
+/**
+ * Authenticate using access code or personal link token to retrieve room auth token
+ *
+ * @param type
+ * @param codeOrToken
+ * @returns {Promise<boolean>}
+ */
 async function authenticate(type, codeOrToken) {
   let data;
 
@@ -578,8 +585,11 @@ async function authenticate(type, codeOrToken) {
       method: "POST",
       data: data,
     });
+    if (response.status !== 204) {
+      // Set room auth token for further requests if response is not empty
+      roomAuthToken.value = response.data.data;
+    }
 
-    roomAuthToken.value = response.data.data;
     return true;
   } catch (error) {
     // ToDo Form errors
@@ -614,14 +624,6 @@ async function authenticate(type, codeOrToken) {
         error.response.data.message === "guests_not_allowed"
       ) {
         handleGuestsNotAllowed();
-        return false;
-      }
-      if (
-        error.response.status === env.HTTP_GUESTS_ONLY &&
-        error.response.data.message === "auth_not_required"
-      ) {
-        // Authentication is not required
-        handleAuthNotRequired();
         return false;
       }
     }

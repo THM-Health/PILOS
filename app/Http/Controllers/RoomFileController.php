@@ -21,7 +21,7 @@ class RoomFileController extends Controller
      */
     public function show(Room $room, RoomFile $file)
     {
-        // Check authorization // ToDo think about moving this to room file service
+        // Check authorization
         try {
             $this->authorize('downloadFile', [$room, $file]);
         } catch (AuthorizationException $e) {
@@ -49,6 +49,6 @@ class RoomFileController extends Controller
     {
         $roomFileService = new RoomFileService($roomFile);
 
-        return $roomFileService->download(false);
+        return $roomFileService->download();
     }
 }

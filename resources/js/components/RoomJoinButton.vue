@@ -265,7 +265,10 @@ function loadStartJoinRequirements() {
     };
 
     if (props.roomAuthToken) {
-      config.params = { room_auth_token: props.roomAuthToken.id };
+      config.params = {
+        room_auth_token: props.roomAuthToken.id,
+        room_auth_token_type: props.roomAuthToken.type,
+      };
     }
 
     api
@@ -363,6 +366,7 @@ function getJoinUrl() {
 
   if (props.roomAuthToken) {
     config.data.room_auth_token = props.roomAuthToken.id;
+    config.data.room_auth_token_type = props.roomAuthToken.type;
   }
 
   const url = "rooms/" + props.roomId + "/" + action.value;

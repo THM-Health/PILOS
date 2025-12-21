@@ -384,6 +384,7 @@ function loadData(page = null) {
 
   if (props.roomAuthToken) {
     config.params.room_auth_token = props.roomAuthToken.id;
+    config.params.room_auth_token_type = props.roomAuthToken.type;
   }
 
   api

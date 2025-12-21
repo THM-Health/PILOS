@@ -65,7 +65,12 @@ const op = ref();
 const downloadUrl = computed(() => {
   let url = props.fileUrl;
   if (props.roomAuthToken) {
-    url = url + "&room_auth_token=" + props.roomAuthToken.id;
+    url =
+      url +
+      "&room_auth_token=" +
+      props.roomAuthToken.id +
+      "&room_auth_token_type=" +
+      props.roomAuthToken.type;
   }
   return url;
 });
