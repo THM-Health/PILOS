@@ -10,7 +10,6 @@ use App\Models\Room;
 use App\Models\RoomAuthToken;
 use App\Models\RoomFile;
 use App\Models\Server;
-use App\Models\Session;
 use App\Models\User;
 use App\Services\RoomFileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,10 +21,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
+use Tests\Backend\Utils\SessionHelpers;
 
 class FileTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, SessionHelpers, WithFaker;
 
     protected $user;
 
@@ -55,15 +55,6 @@ class FileTest extends TestCase
         $this->file_valid = UploadedFile::fake()->create('document.pdf', config('bigbluebutton.max_filesize') * 1000 - 1, 'application/pdf');
         $this->file_wrongmime = UploadedFile::fake()->create('documents.zip', config('bigbluebutton.max_filesize') * 1000 - 1, 'application/zip');
         $this->file_toobig = UploadedFile::fake()->create('document.pdf', config('bigbluebutton.max_filesize') * 1000 + 1, 'application/pdf');
-
-        $this->currentSession = new Session;
-        $this->currentSession->id = $this->app['session']->getId();
-        $this->currentSession->user_agent = 'Agent 1';
-        $this->currentSession->ip_address = $this->faker->ipv4;
-        $this->currentSession->payload = '';
-        $this->currentSession->last_activity = now();
-        $this->currentSession->user()->associate(null);
-        $this->currentSession->save();
     }
 
     /**
@@ -186,8 +177,10 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Create RoomAuthToken with token type code
+        $currentSession = $this->startNewSession();
+
         $roomAuthToken = RoomAuthToken::factory()->create([
-            'session_id' => $this->currentSession->id,
+            'session_id' => $currentSession->id,
             'room_id' => $this->room->id,
             'type' => RoomAuthTokenType::CODE,
         ]);
@@ -203,12 +196,15 @@ class FileTest extends TestCase
             ]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data');
-        $this->flushHeaders();
 
-        // ToDo think about changing session id / creating new session?
         // Testing users with room auth token (access code)
-        $this->currentSession->user()->associate($this->user);
-        $this->currentSession->save();
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', [
             'room' => $this->room,
@@ -217,7 +213,6 @@ class FileTest extends TestCase
         ]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data');
-        $this->flushHeaders();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -379,8 +374,10 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Create RoomAuthToken with token type code
+        $currentSession = $this->startNewSession();
+
         $roomAuthToken = RoomAuthToken::factory()->create([
-            'session_id' => $this->currentSession->id,
+            'session_id' => $currentSession->id,
             'room_id' => $this->room->id,
             'type' => RoomAuthTokenType::CODE,
         ]);
@@ -390,7 +387,7 @@ class FileTest extends TestCase
         // Access as guest, without guest access and with room auth token
         $this
             ->withCookies([
-                session()->getName() => $this->currentSession->id,
+                session()->getName() => $currentSession->id,
             ])
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertForbidden();
@@ -400,13 +397,18 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->get($download_link)
             ->assertForbidden();
 
-        $this->currentSession->user()->associate($this->user);
-        $this->currentSession->save();
-
         // Testing user with room auth token
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this
             ->withCookies([
-                session()->getName() => $this->currentSession->id,
+                session()->getName() => $currentSession->id,
             ])
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();
@@ -444,9 +446,17 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Access as guest, with guest access and room auth token
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this
             ->withCookies([
-                session()->getName() => $this->currentSession->id,
+                session()->getName() => $currentSession->id,
             ])
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();

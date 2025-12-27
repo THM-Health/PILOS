@@ -58,7 +58,9 @@ class RoomAuthenticate
             // Check if room auth token is valid and correct room auth token type was provided
             // If no room auth token was found and provided type is not CODE, the token is invalid
             // If a room auth token was found, but type does not match the provided type, the token is also invalid
-            if (($roomAuthToken == null && $providedRoomAuthTokenType !== RoomAuthTokenType::CODE) || $roomAuthToken->type->value !== $providedRoomAuthTokenType) {
+            $roomAuthTokenNotNeeded = $providedRoomAuthTokenType === RoomAuthTokenType::CODE->value && $room->access_code == null;
+
+            if (($roomAuthToken == null && ! $roomAuthTokenNotNeeded) || ($roomAuthToken !== null && $roomAuthToken->type->value !== $providedRoomAuthTokenType)) {
                 // Metrics and logging
                 Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                 Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
@@ -77,7 +79,7 @@ class RoomAuthenticate
         }
 
         // Valid room auth token with type TOKEN was provided
-        if ($roomAuthToken && $roomAuthToken->type === RoomAuthTokenType::TOKEN) {
+        if (! Auth::user() && $roomAuthToken && $roomAuthToken->type === RoomAuthTokenType::TOKEN) {
             $authenticated = true;
             $token = $roomAuthToken->accessToken;
         }

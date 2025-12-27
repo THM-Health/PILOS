@@ -3,6 +3,7 @@
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
@@ -13,9 +14,11 @@ use App\Models\Meeting;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
 use App\Models\RoomToken;
 use App\Models\RoomType;
 use App\Models\Server;
+use App\Models\Session;
 use App\Models\User;
 use App\Services\MeetingService;
 use App\Services\ServerService;
@@ -31,13 +34,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
+use Tests\Backend\Utils\SessionHelpers;
 
 /**
  * General room api feature tests
  */
 class RoomTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, SessionHelpers, WithFaker;
 
     protected $user;
 
@@ -525,44 +529,87 @@ class RoomTest extends TestCase
     /**
      * Test how guests can log into room with or without valid access code
      */
-    public function test_access_code_guests()
+    public function test_auth_with_access_code_guests()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
             'access_code' => $this->createAccessCode(),
         ]);
-        // Try without access code
-        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false])
-            ->assertJsonFragment(['current_user' => null]);
 
-        // Try with empty access code
-        $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertUnauthorized();
+        $currentSession = $this->startNewSession();
+
+        // Try without access code
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['type']);
+
+        // Try with type but missing access code
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['access_code']);
+
+        // Try with empty acces code
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => ''])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['access_code']);
 
         // Try with random access code
-        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertUnauthorized();
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $this->createAccessCode()])
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_code']);
 
         // Try with correct access code
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true])
-            ->assertJsonFragment(['current_user' => null]);
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(201);
+
+        // Check that room auth token was created
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+        $this->assertDatabaseHas('room_auth_tokens', [
+            'room_id' => $room->id,
+            'session_id' => $currentSession->id,
+            'type' => RoomAuthTokenType::CODE->value,
+        ]);
+
+        // Try with correct access code again
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(200);
+
+        // Check that only one room auth token exists
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+
+        // Check with access code but room does not require access code
+        $room->access_code = null;
+        $room->save();
+
+        // Check that room auth tokens are deleted in db
+        $this->assertDatabaseCount('room_auth_tokens', 0);
+
+        $this->startNewSession();
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => '999999999'])
+            ->assertStatus(204);
+
+        $currentSession = $this->startNewSession();
 
         // Try with legacy 6 digit access code
         $room->access_code = '012345';
         $room->save();
-        $this->withHeaders(['Access-Code' => '012345'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(201);
+
+        // Check that room auth token was created
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+        $this->assertDatabaseHas('room_auth_tokens', [
+            'room_id' => $room->id,
+            'session_id' => $currentSession->id,
+            'type' => RoomAuthTokenType::CODE->value,
+        ]);
     }
 
     /**
      * Test access code authentication rate limiting
      */
-    public function test_access_code_rate_limit()
+    public function test_auth_with_access_code_rate_limit()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -571,27 +618,102 @@ class RoomTest extends TestCase
 
         // Try 6 times with wrong access code
         for ($i = 0; $i < 6; $i++) {
-            $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => '999999999'])
                 ->assertUnauthorized();
         }
 
         // Check if rate limit is reached
-        $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => '999999999'])
             ->assertStatus(429);
 
         // Time travel 1 minute to reset rate limit
         $this->travel(1)->minutes();
 
         // Try again
-        $this->withHeaders(['Access-Code' => '999999999'])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => '999999999'])
             ->assertUnauthorized();
+    }
+
+    public function test_room_auth_token_access_code_guests()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code' => $this->createAccessCode(),
+        ]);
+
+        // Try without token
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => false])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Try with empty room auth token
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => '',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with invalid room auth token
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => 'invalidtoken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with valid room auth token but missing type
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with valid room auth token of type access code
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Try with room auth token but room does not require access code
+        $room->access_code = null;
+        $room->save();
+
+        // Check that room auth token was deleted in db
+        $this->assertDatabaseCount('room_auth_tokens', 0);
+
+        // Check that request with previous room auth token still works because no room auth token is required anymore
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
     }
 
     /**
      * Test that the existing access code setting is not changed if the default setting changes in the room type
      * (The access code in the room should not be automatically be overwritten by the room type setting)
      */
-    public function test_access_code_different_settings()
+    public function test_room_auth_token_access_code_different_settings()
     {
         $roomType = RoomType::factory()->create([
             'has_access_code_default' => true,
@@ -603,7 +725,7 @@ class RoomTest extends TestCase
             'room_type_id' => $roomType->id,
         ]);
 
-        // Test room without an access code if the room type enforces an access code
+        // Test room without an access code room auth token if the room type enforces an access code
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
@@ -624,12 +746,24 @@ class RoomTest extends TestCase
         $roomType->has_access_code_default = false;
         $roomType->save();
 
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false])
             ->assertJsonFragment(['current_user' => null]);
 
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonFragment(['current_user' => null]);
@@ -637,14 +771,17 @@ class RoomTest extends TestCase
         // Test room with access code if the room type enforces no access code
         $roomType->has_access_code_enforced = true;
         $roomType->save();
-        $this->flushHeaders();
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false])
             ->assertJsonFragment(['current_user' => null]);
 
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonFragment(['current_user' => null]);
@@ -653,38 +790,162 @@ class RoomTest extends TestCase
     /**
      * Test how users can log into room with or without valid access code
      */
-    public function test_access_code_user()
+    public function test_auth_with_access_code_user()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
             'access_code' => $this->createAccessCode(),
         ]);
 
+        $currentSession = $this->startNewSession();
+
         // Try without access code
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.authenticate', ['room' => $room]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['type']);
+
+        // Try with empty access code
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['access_code']);
+
+        // Try with empty acces code
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => ''])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['access_code']);
+
+        // Try with random access code
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $this->createAccessCode()])
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_code']);
+
+        // Try with correct access code
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(201);
+
+        // Check that room auth token was created
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+        $this->assertDatabaseHas('room_auth_tokens', [
+            'room_id' => $room->id,
+            'session_id' => $currentSession->id,
+            'type' => RoomAuthTokenType::CODE->value,
+        ]);
+
+        // Try with access code but room does not require access code
+        $room->access_code = null;
+        $room->save();
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => '999999999'])
+            ->assertStatus(204);
+
+        // Try with access code but user is member (user)
+        $room->access_code = $this->createAccessCode();
+        $room->save();
+
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::USER]]);
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(204);
+    }
+
+    public function test_room_auth_token_access_code_user()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code' => $this->createAccessCode(),
+        ]);
+
+        // Try without token
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false, 'allow_membership' => false])
             ->assertJsonPath('data.current_user.id', $this->user->id);
 
-        // Try with empty access code
-        $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertUnauthorized();
+        // Try with empty room auth token
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => '',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
-        // Try with random access code
-        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertUnauthorized();
+        // Try with invalid room auth token
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => 'invalidtoken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
-        // Try with correct access code
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        // Try with valid room auth token but missing type
+        $currentSession = $this->startNewSession($this->user);
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with valid room auth token of type access code
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonPath('data.current_user.id', $this->user->id);
 
-        // Try without access code but membership
-        $this->flushHeaders();
+        // Try with room auth token but room does not require access code
+        $room->access_code = null;
+        $room->save();
 
-        // Try with member user
+        // Check that room auth token was deleted in db
+        $this->assertDatabaseCount('room_auth_tokens', 0);
+
+        // Check that request with previous room auth token still works because no room auth token is required anymore
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
+
+        // Try with room auth token and membership (room auth token not required)
+        $room->access_code = $this->createAccessCode();
+        $room->save();
+
         $room->members()->sync([$this->user->id => ['role' => RoomUserRole::USER]]);
+
+        // Create new room auth token and new session
+        $currentSession = $this->startNewSession($this->user);
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
+
+        // Try without room auth token but with membership
+        // Try with member user
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
@@ -723,6 +984,200 @@ class RoomTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonPath('data.current_user.id', $this->user->id);
+    }
+
+    public function test_auth_with_token()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code' => $this->createAccessCode(),
+        ]);
+
+        $currentSession = $this->startNewSession();
+
+        // Try without token
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['type']);
+
+        // Try with type but missing token
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::TOKEN->value])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['access_token']);
+
+        // Try with empty token
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::TOKEN->value,
+            'access_token' => '',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['access_token']);
+
+        // Try with invalid token
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::TOKEN->value,
+            'access_token' => 'invalidToken',
+        ])
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with valid user token
+        $roomToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role' => RoomUserRole::USER,
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+        ]);
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::TOKEN->value,
+            'access_token' => $roomToken->token,
+        ])
+            ->assertStatus(201);
+
+        // Check that room auth token was created
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+        $this->assertDatabaseHas('room_auth_tokens', [
+            'room_id' => $room->id,
+            'session_id' => $currentSession->id,
+            'room_token_id' => $roomToken->token,
+            'type' => RoomAuthTokenType::TOKEN->value,
+        ]);
+
+        // Try with valid token again
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::TOKEN->value,
+            'access_token' => $roomToken->token,
+        ])
+            ->assertStatus(200);
+
+        // Check that only one room auth token exists
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+
+        // Check with valid moderator token
+        $currentSession = $this->startNewSession();
+
+        $roomToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role' => RoomUserRole::MODERATOR,
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+        ]);
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::TOKEN->value,
+            'access_token' => $roomToken->token,
+        ])
+            ->assertStatus(201);
+
+        // Check that room auth token was created
+        $this->assertDatabaseCount('room_auth_tokens', 2);
+        $this->assertDatabaseHas('room_auth_tokens', [
+            'room_id' => $room->id,
+            'session_id' => $currentSession->id,
+            'room_token_id' => $roomToken->token,
+            'type' => RoomAuthTokenType::TOKEN->value,
+        ]);
+    }
+
+    public function test_auth_token_with_token()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code' => $this->createAccessCode(),
+        ]);
+        // Try without token
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => false])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Try with empty room auth token
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => '',
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with invalid room auth token
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => 'invalidtoken',
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with valid room auth token but missing type
+        $currentSession = $this->startNewSession();
+
+        $roomToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role' => RoomUserRole::USER,
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+        ]);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $roomToken->id,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        // Try with valid room auth token of type token (user)
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Moderator token
+        $currentSession = $this->startNewSession();
+
+        $roomToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role' => RoomUserRole::MODERATOR,
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+        ]);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $roomToken->id,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Try with logged in user ToDo fix?
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => false]);
     }
 
     /**
@@ -1660,10 +2115,21 @@ class RoomTest extends TestCase
             ->assertJsonMissing(['access_code' => $room->access_code]);
 
         // Testing authenticated user
-        $this->withHeaders(['Access-Code' => $room->access_code])->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertSuccessful()
             ->assertJsonMissing(['access_code' => $room->access_code]);
-        $this->flushHeaders();
 
         // Testing member
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -2636,18 +3102,40 @@ class RoomTest extends TestCase
         ]);
 
         // Testing guests
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->flushHeaders();
 
         // Testing authorized users
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->flushHeaders();
 
         // Testing member
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -2698,15 +3186,36 @@ class RoomTest extends TestCase
             'access_code' => $this->createAccessCode(),
         ]);
 
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         // Testing guests
         $this->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => 'invalidToken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized();
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name');
         // Join as guest with invalid/dangerous name
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['name' => '<script>alert("HI");</script>', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['name' => '<script>alert("HI");</script>', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
                 'errors' => [
@@ -2716,7 +3225,11 @@ class RoomTest extends TestCase
                 ],
             ]);
         // Join as guest with invalid/dangerous name that contains non utf8 chars
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['name' => '§´`', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['name' => '§´`', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
                 'errors' => [
@@ -2726,20 +3239,28 @@ class RoomTest extends TestCase
                 ],
             ]);
 
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['name' => $this->faker->name, 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['name' => $this->faker->name, 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
-
-        $this->flushHeaders();
 
         // Testing authorized users
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => 'invalidToken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized();
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
-
-        $this->flushHeaders();
 
         // Testing owner
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
@@ -2854,8 +3375,20 @@ class RoomTest extends TestCase
             'lastname' => 'Doe',
         ]);
 
-        $response = $this->withHeaders(['Token' => $moderatorToken->token])
-            ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $moderatorToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $response = $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
@@ -2864,17 +3397,16 @@ class RoomTest extends TestCase
         $room->refresh();
         (new MeetingService($room->latestMeeting))->end();
 
-        $this->flushHeaders();
-
         $room->allow_guests = true;
         $room->everyone_can_start = false;
         $room->save();
 
-        $this->withHeaders(['Token' => 'Test'])
-            ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => 'Test',
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized();
-
-        $this->flushHeaders();
 
         // Room token user
         $userToken = RoomToken::factory()->create([
@@ -2884,17 +3416,30 @@ class RoomTest extends TestCase
             'lastname' => 'Doe',
         ]);
 
-        $this->withHeaders(['Token' => $userToken->token])
-            ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertForbidden();
+        $currentSession = $this->startNewSession();
 
-        $this->flushHeaders();
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $userToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+            ->assertForbidden();
 
         $room->everyone_can_start = true;
         $room->save();
 
-        $response = $this->withHeaders(['Token' => $userToken->token])
-            ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
+        $response = $this->postJson(route('api.v1.rooms.start', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
@@ -2903,12 +3448,21 @@ class RoomTest extends TestCase
         $room->refresh();
         (new MeetingService($room->latestMeeting))->end();
 
-        $this->flushHeaders();
+        $currentSession = $this->startNewSession($this->user);
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $userToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
 
-        // Token with authenticated user
-        $response = $this->withHeaders(['Token' => $userToken->token])
-            ->actingAs($this->user)
-            ->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
+        // Token with authenticated user // ToDo fix / improve this?
+        $response = $this->actingAs($this->user)
+            ->postJson(route('api.v1.rooms.start', [
+                'room' => $room,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+            ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
@@ -2916,8 +3470,6 @@ class RoomTest extends TestCase
         // Clear
         $room->refresh();
         (new MeetingService($room->latestMeeting))->end();
-
-        $this->flushHeaders();
 
         // Check with wrong salt/secret
         foreach (Server::all() as $server) {
@@ -3302,16 +3854,32 @@ class RoomTest extends TestCase
             ->assertSuccessful()
             ->assertJsonPath('latest_meeting.end', null);
 
-        // Join as guest, without required access code
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        // Join as guest, without required room auth token
         $this->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
 
         // Join as guest without name
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name');
 
         // Join as guest with invalid/dangerous name
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['name' => '<script>alert("HI");</script>', 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['name' => '<script>alert("HI");</script>', 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
                 'errors' => [
@@ -3322,13 +3890,15 @@ class RoomTest extends TestCase
             ]);
 
         // Join as guest
-        $response = $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['name' => $this->faker->name, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $response = $this->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['name' => $this->faker->name, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('false', $queryParams['userdata-bbb_skip_check_audio']);
-
-        $this->flushHeaders();
 
         // Join token moderator
         Auth::logout();
@@ -3340,13 +3910,24 @@ class RoomTest extends TestCase
             'lastname' => 'Doe',
         ]);
 
-        $response = $this->withHeaders(['Token' => $moderatorToken->token])
-            ->postJson(route('api.v1.rooms.join', ['room' => $room]), ['name' => 'Max Mustermann', 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $moderatorToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $response = $this->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), ['name' => 'Max Mustermann', 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        $this->flushHeaders();
 
         // Join token user
         $userToken = RoomToken::factory()->create([
@@ -3356,33 +3937,73 @@ class RoomTest extends TestCase
             'lastname' => 'Doe',
         ]);
 
-        $response = $this->withHeaders(['Token' => $userToken->token])
-            ->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $userToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $response = $this->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        $this->flushHeaders();
 
-        // Join as authorized users with token
-        $response = $this->actingAs($this->user)->withHeaders(['Access-Code' => $room->access_code, 'Token' => $userToken->token])
-            ->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $currentSession = $this->startNewSession($this->user);
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'room_token_id' => $userToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        // Join as authorized users with token // ToDo fix / improve this?
+        $room->access_code = null;
+        $room->save();
+
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
-        $this->flushHeaders();
         Auth::logout();
 
         // Join as authorized users
+        $room->access_code = $this->createAccessCode();
+        $room->save();
+
+        $currentSession = $this->startNewSession($this->user);
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => 'InvalidToken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized();
-        $this->withHeaders(['Access-Code' => $room->access_code])->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
+        $this->postJson(route('api.v1.rooms.join', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE,
+        ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
-
-        $this->flushHeaders();
 
         // Testing owner
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
