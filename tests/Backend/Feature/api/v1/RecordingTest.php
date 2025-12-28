@@ -3,12 +3,14 @@
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\RecordingAccess;
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Recording;
 use App\Models\RecordingFormat;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
 use App\Models\RoomToken;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Storage;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\FileHelper;
+use Tests\Backend\Utils\SessionHelpers;
 use ZipArchive;
 
 /**
@@ -26,7 +29,7 @@ use ZipArchive;
  */
 class RecordingTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, SessionHelpers, WithFaker;
 
     protected $user;
 
@@ -132,40 +135,66 @@ class RecordingTest extends TestCase
             RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
-        // Access as guest without access code
+        // Access as guest without room auth token
         $this->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertForbidden();
 
-        // Access as guest with wrong access code
-        $this->withHeaders(['Access-Code' => '111'])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+        // Access as guest invalid room auth token
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => 'invalidToken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertUnauthorized();
 
-        // Access as guest with correct access code
-        $this->withHeaders(['Access-Code' => $room->access_code])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        // Access as guest with valid room auth token
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertOk()
             ->assertJsonCount(2, 'data');
-        $this->flushHeaders();
 
-        // Access as authenticated user, without access code
+        // Access as authenticated user, without room auth token
         $this->actingAs($this->user)
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertForbidden();
 
-        // Access as authenticated user, with wrong access code
+        // Access as authenticated user, with invalid room auth token
         $this->actingAs($this->user)
-            ->withHeaders(['Access-Code' => '111'])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => 'invalidToken',
+                'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+            ]))
             ->assertUnauthorized();
 
         // Access as authenticated user, with correct access code but only show public recordings
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this->actingAs($this->user)
-            ->withHeaders(['Access-Code' => $room->access_code])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+            ]))
             ->assertOk()
             ->assertJsonCount(2, 'data');
-        $this->flushHeaders();
 
         // Access as member, show public recordings + participant recordings
         $room->members()->attach($this->user->id, ['role' => RoomUserRole::USER]);
@@ -216,21 +245,43 @@ class RecordingTest extends TestCase
             RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
-        // Access as guest with correct access code
-        $this->withHeaders(['Access-Code' => $room->access_code])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+        // Access as guest with valid room auth token
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertForbidden();
         $this->flushHeaders();
 
-        // Access as authenticated user, without access code
+        // Access as authenticated user, without room auth token
         $this->actingAs($this->user)
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertForbidden();
 
         // Access as authenticated user, with correct access
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         $this->actingAs($this->user)
-            ->withHeaders(['Access-Code' => $room->access_code])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+            ]))
             ->assertOk()
             ->assertJsonCount(2, 'data');
         $this->flushHeaders();
@@ -330,9 +381,21 @@ class RecordingTest extends TestCase
         $token->role = RoomUserRole::USER;
         $token->save();
 
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::TOKEN,
+            'room_token_id' => $token->token,
+        ]);
+
         // Access as guest with token with room participant role
-        $this->withHeaders(['Token' => $token->token])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
             ->assertSuccessful()
             ->assertJsonCount(5, 'data');
 
@@ -341,8 +404,11 @@ class RecordingTest extends TestCase
         $token->save();
 
         // Access as guest with token with room moderator role
-        $this->withHeaders(['Token' => $token->token])
-            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
             ->assertSuccessful()
             ->assertJsonCount(11, 'data');
     }
@@ -378,18 +444,36 @@ class RecordingTest extends TestCase
         $room->access_code = $this->createAccessCode();
         $room->save();
 
-        // Access as guest without access code
+        // Access as guest without room auth token
         $this->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
             ->assertForbidden();
 
-        // Access as guest with wrong access code
-        $this->withHeaders(['Access-Code' => '111'])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        // Access as guest with invalid room auth token
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => 'invalidToken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertUnauthorized();
 
         // Access as guest with correct access code
-        $this->withHeaders(['Access-Code' => $room->access_code])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertOk();
     }
 
@@ -406,9 +490,22 @@ class RecordingTest extends TestCase
         $room->access_code = $this->createAccessCode();
         $room->save();
 
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         // Access as guest with correct access code
-        $this->withHeaders(['Access-Code' => $room->access_code])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertForbidden();
     }
 
@@ -430,9 +527,22 @@ class RecordingTest extends TestCase
         $token->role = RoomUserRole::USER;
         $token->save();
 
+        $currentSession = $this->startNewSession();
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::TOKEN,
+            'room_token_id' => $token->token,
+        ]);
+
         // Access as guest with token with room participant role
-        $this->withHeaders(['Token' => $token->token])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
             ->assertSuccessful();
 
         // Increase recording access to participant
@@ -440,8 +550,13 @@ class RecordingTest extends TestCase
         $recording->save();
 
         // Access as guest with token with room participant role
-        $this->withHeaders(['Token' => $token->token])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
             ->assertSuccessful();
 
         // Increase recording access to moderator
@@ -449,8 +564,13 @@ class RecordingTest extends TestCase
         $recording->save();
 
         // Access as guest with token with room participant role
-        $this->withHeaders(['Token' => $token->token])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
             ->assertForbidden();
 
         // Increase token role to moderator
@@ -458,8 +578,13 @@ class RecordingTest extends TestCase
         $token->save();
 
         // Access as guest with token with room moderator role
-        $this->withHeaders(['Token' => $token->token])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
             ->assertSuccessful();
 
         // Increase recording access to owner
@@ -467,8 +592,13 @@ class RecordingTest extends TestCase
         $recording->save();
 
         // Access as guest with token with room moderator role
-        $this->withHeaders(['Token' => $token->token])
-            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+        ]))
             ->assertForbidden();
     }
 

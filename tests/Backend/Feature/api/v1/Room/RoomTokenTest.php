@@ -2,20 +2,23 @@
 
 namespace Tests\Backend\Feature\api\v1\Room;
 
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomUserRole;
 use App\Enums\TimePeriod;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
 use App\Models\RoomToken;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\SessionHelpers;
 
 class RoomTokenTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, SessionHelpers, WithFaker;
 
     protected $user;
 
@@ -55,8 +58,20 @@ class RoomTokenTest extends TestCase
             ->assertUnauthorized();
 
         // Moderator through token
-        $this->withHeaders(['Token' => $moderatorToken->token])
-            ->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'room_token_id' => $moderatorToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.tokens.get', [
+            'room' => $this->room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]))
             ->assertUnauthorized();
 
         // Testing moderator member
@@ -205,8 +220,20 @@ class RoomTokenTest extends TestCase
             ->assertUnauthorized();
 
         // Create as guest with moderator token
-        $this->withHeaders(['Token' => $moderatorToken->token])
-            ->postJson(route('api.v1.rooms.tokens.add', ['room' => $this->room]), $payload)
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'room_token_id' => $moderatorToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $this->postJson(route('api.v1.rooms.tokens.add', [
+            'room' => $this->room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), $payload)
             ->assertUnauthorized();
 
         // Create as moderator
@@ -284,8 +311,21 @@ class RoomTokenTest extends TestCase
             ->assertUnauthorized();
 
         // Update as guest with moderator token
-        $this->withHeaders(['Token' => $moderatorToken->token])
-            ->putJson(route('api.v1.rooms.tokens.update', ['room' => $this->room, 'token' => $token]), $payload)
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'room_token_id' => $moderatorToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $this->putJson(route('api.v1.rooms.tokens.update', [
+            'room' => $this->room,
+            'token' => $token,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]), $payload)
             ->assertUnauthorized();
 
         // Update as moderator
@@ -372,8 +412,21 @@ class RoomTokenTest extends TestCase
             ->assertUnauthorized();
 
         // Delete as guest with moderator token
-        $this->withHeaders(['Token' => $moderatorToken->token])
-            ->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'room_token_id' => $moderatorToken->token,
+            'type' => RoomAuthTokenType::TOKEN,
+        ]);
+
+        $this->deleteJson(route('api.v1.rooms.tokens.destroy', [
+            'room' => $this->room,
+            'token' => $token,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]))
             ->assertUnauthorized();
 
         // Delete as moderator
