@@ -51,7 +51,10 @@
         <div v-if="!isLoadingAction && !loadingError">
           <!-- Ask guests for their first and lastname -->
           <div
-            v-if="!authStore.isAuthenticated && roomAuthToken?.type === 0"
+            v-if="
+              !authStore.isAuthenticated &&
+              (roomAuthToken === null || roomAuthToken.type !== 1)
+            "
             class="mb-4 flex flex-col gap-2"
           >
             <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
@@ -299,7 +302,10 @@ function loadStartJoinRequirements() {
 }
 
 const autoJoin = computed(() => {
-  if (!authStore.isAuthenticated && props.roomAuthToken?.type === 0) {
+  if (
+    !authStore.isAuthenticated &&
+    (props.roomAuthToken === null || props.roomAuthToken.type !== 1)
+  ) {
     return false;
   }
 
@@ -355,7 +361,10 @@ function getJoinUrl() {
   const config = {
     method: "post",
     data: {
-      name: props.roomAuthToken?.type === 0 ? name.value : null,
+      name:
+        props.roomAuthToken && props.roomAuthToken.type === 1
+          ? null
+          : name.value,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
@@ -365,8 +374,10 @@ function getJoinUrl() {
   };
 
   if (props.roomAuthToken) {
-    config.data.room_auth_token = props.roomAuthToken.id;
-    config.data.room_auth_token_type = props.roomAuthToken.type;
+    config.params = {
+      room_auth_token: props.roomAuthToken.id,
+      room_auth_token_type: props.roomAuthToken.type,
+    };
   }
 
   const url = "rooms/" + props.roomId + "/" + action.value;

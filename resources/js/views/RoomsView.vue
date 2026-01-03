@@ -600,7 +600,6 @@ async function authenticate(type, codeOrToken) {
         error.response.data?.limit === "room_auth"
       ) {
         authThrottledFor.value = error.response.data.retry_after;
-        return false;
       }
       // Room token is invalid
       if (

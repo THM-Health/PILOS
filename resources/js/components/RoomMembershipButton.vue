@@ -105,7 +105,7 @@ function joinMembership() {
   };
 
   if (props.roomAuthToken) {
-    config.data = {
+    config.params = {
       room_auth_token: props.roomAuthToken.id,
       room_auth_token_type: props.roomAuthToken.type,
     };

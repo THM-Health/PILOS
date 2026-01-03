@@ -215,14 +215,12 @@
                     :hide-disabled-formats="
                       !userPermissions.can('manageSettings', room)
                     "
-                    :token="props.token"
+                    :room-auth-token="props.roomAuthToken"
                     :start="item.start"
                     :end="item.end"
                     :description="item.description"
-                    :access-code="props.accessCode"
                     :disabled="isBusy"
-                    @invalid-code="$emit('invalidCode')"
-                    @invalid-token="$emit('invalidToken')"
+                    @invalid-room-auth-token="$emit('invalidRoomAuthToken')"
                     @not-found="loadData()"
                   />
 
@@ -328,7 +326,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidCode", "invalidRoomAuthToken"]);
+const emit = defineEmits(["invalidRoomAuthToken"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
