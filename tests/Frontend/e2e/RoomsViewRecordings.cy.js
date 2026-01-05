@@ -457,7 +457,7 @@ describe("Rooms view recordings", function () {
           type: 1,
         },
       },
-    });
+    }).as("roomAuthRequest");
 
     cy.fixture("roomRecordings.json").then((roomRecordings) => {
       roomRecordings.data = roomRecordings.data.slice(0, 1);
@@ -475,6 +475,7 @@ describe("Rooms view recordings", function () {
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR#tab=recordings",
     );
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
     cy.wait("@roomRecordingsRequest").then((interception) => {
@@ -553,6 +554,8 @@ describe("Rooms view recordings", function () {
     }).as("roomAuthRequest");
 
     cy.wait("@roomRecordingsRequest");
+
+    cy.wait("@roomAuthRequest");
 
     // Check if error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");

@@ -441,7 +441,6 @@ onRoomHasChanged(
 
 function handleMessages(event) {
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
-  console.log(event.data);
   if (event.data.type === "file-not-found") {
     toast.error(t("rooms.flash.file_gone"));
     loadData();
@@ -450,9 +449,10 @@ function handleMessages(event) {
   } else if (event.data.type === "require_token") {
     emit("invalidRoomAuthToken");
   } else if (event.data.type === "forbidden") {
-    // ToDo Reload files?
     toast.error(t("rooms.flash.file_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
+  } else {
+    toast.error(t("app.flash.server_error.empty_message"));
   }
 }
 
