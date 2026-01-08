@@ -90,7 +90,16 @@ class RoomAuthenticate
 
             Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-            abort(403, 'guests_not_allowed');
+            if ($request->expectsJson()) {
+                abort(403, 'guests_not_allowed');
+            } else {
+                return response(view('new-tab-error', [
+                    'type' => 'guests_not_allowed',
+                    'code' => 403,
+                    'title' => 'Forbidden',
+                    'message' => 'guests_not_allowed',
+                ]))->setStatusCode(403);
+            }
         }
 
         // if room has no access code
@@ -105,13 +114,13 @@ class RoomAuthenticate
         // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
             if ($request->expectsJson()) {
-                abort(403, 'require_token');
+                abort(403, 'require_code');
             } else {
                 return response(view('new-tab-error', [
-                    'type' => 'require_token',
+                    'type' => 'require_code',
                     'code' => 403,
-                    'title' => 'Require token',
-                    'message' => 'Room auth token required',
+                    'title' => 'Forbidden',
+                    'message' => 'require_code',
                 ]))->setStatusCode(403);
             }
         }

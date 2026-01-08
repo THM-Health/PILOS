@@ -317,7 +317,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 403,
         body: {
-          message: "require_token",
+          message: "require_code",
         },
       },
     ).as("viewRecordingRequest");

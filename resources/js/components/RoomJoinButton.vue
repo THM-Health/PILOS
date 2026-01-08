@@ -53,7 +53,8 @@
           <div
             v-if="
               !authStore.isAuthenticated &&
-              (roomAuthToken === null || roomAuthToken.type !== 1)
+              (roomAuthToken === null ||
+                roomAuthToken.type !== ROOM_AUTH_TOKEN_TYPE_TOKEN)
             "
             class="mb-4 flex flex-col gap-2"
           >
@@ -185,6 +186,7 @@ import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import { useDark } from "@vueuse/core";
+import { ROOM_AUTH_TOKEN_TYPE_TOKEN } from "../constants/roomAuthTokenTypes.js";
 
 const props = defineProps({
   roomId: {
@@ -304,7 +306,8 @@ function loadStartJoinRequirements() {
 const autoJoin = computed(() => {
   if (
     !authStore.isAuthenticated &&
-    (props.roomAuthToken === null || props.roomAuthToken.type !== 1)
+    (props.roomAuthToken === null ||
+      props.roomAuthToken.type !== ROOM_AUTH_TOKEN_TYPE_TOKEN)
   ) {
     return false;
   }
@@ -443,7 +446,7 @@ function handleError(error) {
   // Access code is required
   if (
     error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "require_token"
+    error.response.data.message === "require_code"
   ) {
     emit("invalidRoomAuthToken");
     modalVisible.value = false;

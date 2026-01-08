@@ -313,11 +313,11 @@ describe("Rooms View Files", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
 
-    // Test require_token
+    // Test require_code
     cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
       statusCode: 403,
       body: {
-        message: "require_token",
+        message: "require_code",
       },
     }).as("roomFilesRequest");
 

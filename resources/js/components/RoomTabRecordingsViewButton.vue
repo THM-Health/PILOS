@@ -167,7 +167,7 @@ function downloadFormat(format) {
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_token"
+          error.response.data.message === "require_code"
         ) {
           return emit("invalidRoomAuthToken");
         }

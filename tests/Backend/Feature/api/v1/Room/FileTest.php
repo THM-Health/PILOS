@@ -338,7 +338,14 @@ class FileTest extends TestCase
 
         // Access as guest, without guest access
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'guests_not_allowed',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => 'guests_not_allowed',
+            ]);
 
         // Testing user (room has no access code => download allowed)
         $this->actingAs($this->user)->get($download_link)
@@ -371,7 +378,14 @@ class FileTest extends TestCase
 
         // Access as guest, without guest access and without access code
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'guests_not_allowed',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => 'guests_not_allowed',
+            ]);
 
         // Create RoomAuthToken with token type code
         $currentSession = $this->startNewSession();
@@ -390,12 +404,25 @@ class FileTest extends TestCase
                 session()->getName() => $currentSession->id,
             ])
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
-            ->assertForbidden();
-        $this->flushHeaders();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'guests_not_allowed',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => 'guests_not_allowed',
+            ]);
 
         // Testing user without access code
         $this->actingAs($this->user)->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'require_code',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => 'require_code',
+            ]);
 
         // Testing user with room auth token
         $currentSession = $this->startNewSession($this->user);
@@ -412,7 +439,6 @@ class FileTest extends TestCase
             ])
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();
-        $this->flushHeaders();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -443,7 +469,14 @@ class FileTest extends TestCase
 
         // Access as guest, with guest access and without access code
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'require_code',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => 'require_code',
+            ]);
 
         // Access as guest, with guest access and room auth token
         $currentSession = $this->startNewSession();
@@ -460,8 +493,9 @@ class FileTest extends TestCase
             ])
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();
-        $this->flushHeaders();
     }
+
+    // ToDo test_download_files_download_with_token_type_token
 
     /**
      * Test get download url of file that is not downloadable with participants of a room
@@ -480,17 +514,38 @@ class FileTest extends TestCase
 
         // Access as guest
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'forbidden',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.flash.file_forbidden'),
+            ]);
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
         $this->actingAs($this->user)->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'forbidden',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.flash.file_forbidden'),
+            ]);
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'forbidden',
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.flash.file_forbidden'),
+            ]);
 
         // Testing owner
         $this->actingAs($this->room->owner)->get($download_link)
@@ -635,7 +690,14 @@ class FileTest extends TestCase
 
         // Download file
         $this->get($download_link)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'file-not-found',
+                'code' => 404,
+                'title' => 'File not found',
+                'message' => __('rooms.flash.file_gone'),
+            ]);
 
         // Check if model was deleted as well
         $this->assertDatabaseMissing('room_files', ['id' => $room_file->id]);

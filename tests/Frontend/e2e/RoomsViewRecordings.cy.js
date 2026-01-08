@@ -377,7 +377,7 @@ describe("Rooms view recordings", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
       statusCode: 403,
       body: {
-        message: "require_token",
+        message: "require_code",
       },
     }).as("roomRecordingsRequest");
 

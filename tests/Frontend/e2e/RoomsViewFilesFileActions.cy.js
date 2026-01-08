@@ -750,6 +750,7 @@ describe("Rooms view files file actions", function () {
         "href",
         `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       )
+      .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank")
       .invoke("removeAttr", "target");
 
@@ -811,6 +812,7 @@ describe("Rooms view files file actions", function () {
         "href",
         `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
       )
+      .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank")
       .invoke("removeAttr", "target");
 
@@ -884,6 +886,7 @@ describe("Rooms view files file actions", function () {
         `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b&room_auth_token=roomAuthToken&room_auth_token_type=0`,
       )
       .and("have.attr", "target", "_blank")
+      .and("have.attr", "rel", "opener")
       .invoke("removeAttr", "target");
 
     cy.get('[data-test="room-file-item"]')
@@ -987,7 +990,7 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
-    // Check require_token error
+    // Check require_code error
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
       room.data.authenticated = false;
@@ -1000,7 +1003,7 @@ describe("Rooms view files file actions", function () {
 
     cy.window().then(($window) => {
       const message = {
-        type: "require_token",
+        type: "require_code",
       };
       $window.postMessage(message, Cypress.config("baseUrl"));
     });
@@ -1070,6 +1073,7 @@ describe("Rooms view files file actions", function () {
         "href",
         `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b&room_auth_token=roomAuthToken&room_auth_token_type=1`,
       )
+      .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank")
       .invoke("removeAttr", "target");
 
@@ -1138,6 +1142,7 @@ describe("Rooms view files file actions", function () {
     cy.contains("rooms.invalid_personal_link").should("be.visible");
   });
 
+  // ToDo guests not allowed
   it("download file errors", function () {
     cy.fixture("config.json").then((config) => {
       config.data.room.file_terms_of_use = "Test terms of use";

@@ -849,7 +849,7 @@ describe("Rooms view meetings", function () {
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
-    // Test require_token
+    // Test require_code
     // Intercept join request with error response and room request for reload (not authenticated anymore)
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
@@ -868,7 +868,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 403,
       body: {
-        message: "require_token",
+        message: "require_code",
       },
     }).as("joinRequest");
 
@@ -1431,7 +1431,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
       statusCode: 403,
       body: {
-        message: "require_token",
+        message: "require_code",
       },
     }).as("preJoinRequest");
 
@@ -2295,12 +2295,12 @@ describe("Rooms view meetings", function () {
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
-    // Test require_token
+    // Test require_code
     // Intercept start request with error response and room request for reload (not authenticated anymore)
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 403,
       body: {
-        message: "require_token",
+        message: "require_code",
       },
     }).as("startRequest");
 
@@ -2935,11 +2935,11 @@ describe("Rooms view meetings", function () {
     // Reload
     cy.visit("/rooms/abc-def-123");
 
-    // Test require_token
+    // Test require_code
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
       statusCode: 403,
       body: {
-        message: "require_token",
+        message: "require_code",
       },
     }).as("preStartRequest");
 

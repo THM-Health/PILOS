@@ -412,7 +412,7 @@ function loadData(page = null) {
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_token"
+          error.response.data.message === "require_code"
         ) {
           return emit("invalidRoomAuthToken");
         }
@@ -439,6 +439,7 @@ onRoomHasChanged(
   () => loadData(),
 );
 
+// ToDo guests not allowed?
 function handleMessages(event) {
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
   if (event.data.type === "file-not-found") {
@@ -446,7 +447,7 @@ function handleMessages(event) {
     loadData();
   } else if (event.data.type === "invalid_token") {
     emit("invalidRoomAuthToken");
-  } else if (event.data.type === "require_token") {
+  } else if (event.data.type === "require_code") {
     emit("invalidRoomAuthToken");
   } else if (event.data.type === "forbidden") {
     toast.error(t("rooms.flash.file_forbidden"));
