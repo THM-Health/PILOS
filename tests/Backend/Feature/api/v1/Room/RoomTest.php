@@ -577,7 +577,15 @@ class RoomTest extends TestCase
         // Check that only one room auth token exists
         $this->assertDatabaseCount('room_auth_tokens', 1);
 
+        // Try with guests not allowed
+        $room->allow_guests = false;
+        $room->save();
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertForbidden();
+
         // Check with access code but room does not require access code
+        $room->allow_guests = true;
         $room->access_code = null;
         $room->save();
 
@@ -831,6 +839,13 @@ class RoomTest extends TestCase
             'type' => RoomAuthTokenType::CODE->value,
         ]);
 
+        // Try with guests not allowed
+        $room->allow_guests = false;
+        $room->save();
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(200);
+
         // Try with access code but room does not require access code
         $room->access_code = null;
         $room->save();
@@ -1078,6 +1093,13 @@ class RoomTest extends TestCase
             'room_token_id' => $roomToken->token,
             'type' => RoomAuthTokenType::TOKEN->value,
         ]);
+
+        // Try with logged in user
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::TOKEN->value,
+            'access_token' => $roomToken->token,
+        ])
+            ->assertStatus(420);
     }
 
     public function test_auth_token_with_token()

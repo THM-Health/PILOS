@@ -318,7 +318,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidRoomAuthToken"]);
+const emit = defineEmits(["invalidRoomAuthToken", "guestsNotAllowed"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -439,10 +439,9 @@ onRoomHasChanged(
   () => loadData(),
 );
 
-// ToDo guests not allowed?
 function handleMessages(event) {
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
-  if (event.data.type === "file-not-found") {
+  if (event.data.type === "file_not_found") {
     toast.error(t("rooms.flash.file_gone"));
     loadData();
   } else if (event.data.type === "invalid_token") {
@@ -452,6 +451,8 @@ function handleMessages(event) {
   } else if (event.data.type === "forbidden") {
     toast.error(t("rooms.flash.file_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
+  } else if (event.data.type === "guests_not_allowed") {
+    emit("guestsNotAllowed");
   } else {
     toast.error(t("app.flash.server_error.empty_message"));
   }

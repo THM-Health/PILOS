@@ -72,7 +72,7 @@ class RoomAuthenticate
                         'type' => 'invalid_token',
                         'code' => 401,
                         'title' => 'Invalid token',
-                        'message' => 'Invalid room auth token provided',
+                        'message' => 'invalid_token',
                     ]))->setStatusCode(401);
                 }
             }

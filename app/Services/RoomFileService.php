@@ -11,20 +11,6 @@ class RoomFileService
 {
     private RoomFile $file;
 
-    private ?int $timeLimit = null;
-
-    public function getTimeLimit(): int
-    {
-        return $this->timeLimit;
-    }
-
-    public function setTimeLimit(?int $timeLimit): self
-    {
-        $this->timeLimit = $timeLimit;
-
-        return $this;
-    }
-
     public function __construct(RoomFile $file)
     {
         $this->file = $file;
@@ -52,7 +38,7 @@ class RoomFileService
 
         if (! $this->checkFileExists()) {
             return response(view('new-tab-error', [
-                'type' => 'file-not-found',
+                'type' => 'file_not_found',
                 'code' => 404,
                 'title' => 'File not found',
                 'message' => __('rooms.flash.file_gone'),
@@ -85,10 +71,6 @@ class RoomFileService
             abort(404);
         }
 
-        if ($this->timeLimit == null) {
-            return URL::signedRoute($routeName, $params);
-        }
-
-        return URL::temporarySignedRoute($routeName, now()->addMinutes($this->timeLimit), $params);
+        return URL::signedRoute($routeName, $params);
     }
 }

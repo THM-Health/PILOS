@@ -1142,7 +1142,6 @@ describe("Rooms view files file actions", function () {
     cy.contains("rooms.invalid_personal_link").should("be.visible");
   });
 
-  // ToDo guests not allowed
   it("download file errors", function () {
     cy.fixture("config.json").then((config) => {
       config.data.room.file_terms_of_use = "Test terms of use";
@@ -1173,7 +1172,7 @@ describe("Rooms view files file actions", function () {
 
     cy.window().then(($window) => {
       const message = {
-        type: "file-not-found",
+        type: "file_not_found",
       };
       $window.postMessage(message, Cypress.config("baseUrl"));
     });
@@ -1249,5 +1248,19 @@ describe("Rooms view files file actions", function () {
       .eq(1)
       .find('[data-test="room-files-delete-button"]')
       .should("not.exist");
+
+    // Check guests not allowed error
+    cy.window().then(($window) => {
+      const message = {
+        type: "guests_not_allowed",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that the error message is shown
+    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
+
+    // Check that reload button is shown
+    cy.get('[data-test="reload-room-button"]').should("be.visible");
   });
 });
