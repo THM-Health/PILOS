@@ -316,7 +316,7 @@ describe("Admin servers view server actions", function () {
     cy.wait("@serverRequest");
 
     const panicRequest = interceptIndefinitely(
-      "GET",
+      "POST",
       "api/v1/servers/1/panic",
       {
         statusCode: 200,
@@ -391,7 +391,7 @@ describe("Admin servers view server actions", function () {
     cy.wait("@serverRequest");
 
     // Check with 500 error
-    cy.intercept("GET", "api/v1/servers/1/panic", {
+    cy.intercept("POST", "api/v1/servers/1/panic", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -409,7 +409,7 @@ describe("Admin servers view server actions", function () {
     ]);
 
     // Check with 401 error
-    cy.intercept("GET", "api/v1/servers/1/panic", {
+    cy.intercept("POST", "api/v1/servers/1/panic", {
       statusCode: 401,
     }).as("panicRequest");
 

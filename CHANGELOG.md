@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Auto-reload of rooms now disabled for guests without access ([#2588])
+- API request method from GET to POST to panic a server
 
 ### Fixed
 
