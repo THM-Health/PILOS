@@ -167,8 +167,6 @@ return [
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation' => [
         'code' => 'Zugangscode',
-        'copied' => 'Zugangsdaten in Zwischenablage kopiert',
-        'copy' => 'Kopieren',
         'link' => 'Link',
         'room' => 'An ":roomname" mit :platform teilnehmen',
         'share' => 'Teilen',
