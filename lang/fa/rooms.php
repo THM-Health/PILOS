@@ -172,8 +172,6 @@ return [
     'invalid_personal_link' => 'این لینک شخصی‌سازی شده اتاق نامعتبر است.',
     'invitation' => [
         'code' => 'کد دسترسی',
-        'copied' => 'اطلاعات دسترسی در کلیپ‌بورد کپی شد',
-        'copy' => 'کپی',
         'link' => 'لینک',
         'room' => 'پیوستن به ":roomname" با :platform',
         'share' => 'اشتراک‌گذاری',
