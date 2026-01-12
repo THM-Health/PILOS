@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Auto-reload of rooms now disabled for guests without access ([#2588])
-- API request method from GET to POST to panic a server
+- API request method from GET to POST to panic a server ([d9ab9bb](https://github.com/THM-Health/PILOS/commit/d9ab9bb7ac0a8581c25e24cb7db2152d40be4d1b))
 
 ### Fixed
 
