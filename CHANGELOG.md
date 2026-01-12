@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.10.0] - 2026-01-12
+
 ## Added
 
 - Tooltip for the room info button ([#2576])
@@ -629,7 +631,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616
 [#2660]: https://github.com/THM-Health/PILOS/issues/2660
 [#2686]: https://github.com/THM-Health/PILOS/pull/2686
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.9.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.10.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -649,3 +651,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.7.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.7.1
 [v4.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.8.0
 [v4.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.9.0
+[v4.10.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.10.0
