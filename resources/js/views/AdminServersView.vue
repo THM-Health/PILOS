@@ -460,7 +460,7 @@ function panic() {
   panicking.value = true;
 
   api
-    .call(`servers/${props.id}/panic`)
+    .call(`servers/${props.id}/panic`, { method: "post" })
     .then((response) => {
       if (response.status === 200) {
         toast.success(

@@ -158,7 +158,7 @@
                     {{ item.firstname }} {{ item.lastname }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="m-0 text-sm">
                         <span v-if="item.last_usage == null">{{
@@ -176,7 +176,7 @@
                     </div>
                     <div
                       v-if="item.expires !== null"
-                      class="flex flex-row gap-2"
+                      class="flex flex-row items-center gap-2"
                     >
                       <i class="fa-regular fa-calendar-xmark"></i>
                       <p class="m-0 text-sm">
@@ -187,7 +187,7 @@
                         }}
                       </p>
                     </div>
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-user-tag"></i>
                       <RoomRoleBadge :role="item.role" />
                     </div>

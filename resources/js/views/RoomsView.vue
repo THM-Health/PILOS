@@ -302,14 +302,27 @@ onUnmounted(() => {
   EventBus.off(EVENT_UNAUTHORIZED, reload);
   EventBus.off(EVENT_FORBIDDEN, reload);
 
-  clearInterval(reloadInterval.value);
+  stopAutoRefresh();
 });
 
 /**
  * Reload room details in a set interval, change in the .env
  */
 function startAutoRefresh() {
-  reloadInterval.value = setInterval(reload, getRandomRefreshInterval() * 1000);
+  if (reloadInterval.value === null) {
+    reloadInterval.value = setInterval(
+      reload,
+      getRandomRefreshInterval() * 1000,
+    );
+  }
+}
+
+function stopAutoRefresh() {
+  if (reloadInterval.value === null) {
+    return;
+  }
+  clearInterval(reloadInterval.value);
+  reloadInterval.value = null;
 }
 
 /**
@@ -337,6 +350,10 @@ function handleGuestsNotAllowed() {
 
   // Set current user to null, as the user is not logged in
   authStore.setCurrentUser(null);
+
+  // Disable auto reload as this error is permanent until the room settings are changed
+  // or the user logs in
+  stopAutoRefresh();
 }
 
 /**
@@ -360,7 +377,7 @@ function handleInvalidToken() {
   tokenInvalid.value = true;
   toast.error(t("rooms.flash.token_invalid"));
   // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
-  clearInterval(reloadInterval.value);
+  stopAutoRefresh();
 }
 
 /**
@@ -414,7 +431,6 @@ function load() {
           error.response.data.message === "guests_not_allowed"
         ) {
           guestsNotAllowed.value = true;
-          startAutoRefresh();
           return;
         }
       }
@@ -463,6 +479,8 @@ function reload() {
       }
 
       setPageTitle(room.value.name);
+
+      startAutoRefresh();
 
       // Update current user, if logged in/out in another tab or session expired
       // to have the can/cannot component use the correct state
