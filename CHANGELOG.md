@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v4.10.0] - 2026-01-12
 
-## Added
+### Added
 
 - Tooltip for the room info button ([#2576])
 - Buttons to only copy room link and room access code in room share popover ([#1419], [#2325])
