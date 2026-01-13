@@ -514,14 +514,6 @@ function reload() {
           return handleInvalidRoomAuthToken();
         }
 
-        // Forbidden, require access code
-        if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
-        ) {
-          return handleInvalidRoomAuthToken();
-        }
-
         // Forbidden, guests not allowed
         if (
           error.response.status === env.HTTP_FORBIDDEN &&

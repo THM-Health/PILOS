@@ -430,28 +430,28 @@ function onPage(event) {
   loadData(event.page + 1);
 }
 
-onMounted(() => {
-  loadData();
-});
-
-onRoomHasChanged(
-  () => props.room,
-  () => loadData(),
-);
-
-function handleMessages(event) {
+/**
+ * Handle file error messages
+ */
+function handleFileErrorMessages(event) {
+  // Check origin
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
   if (event.data.type === "file_not_found") {
+    // File not found
     toast.error(t("rooms.flash.file_gone"));
     loadData();
   } else if (event.data.type === "invalid_token") {
+    // Room auth token is invalid
     emit("invalidRoomAuthToken");
   } else if (event.data.type === "require_code") {
+    // Forbidden, require access code
     emit("invalidRoomAuthToken");
   } else if (event.data.type === "forbidden") {
+    // Forbidden, not allowed to view file
     toast.error(t("rooms.flash.file_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
   } else if (event.data.type === "guests_not_allowed") {
+    // Guests are not allowed
     emit("guestsNotAllowed");
   } else {
     toast.error(t("app.flash.server_error.empty_message"));
@@ -459,10 +459,17 @@ function handleMessages(event) {
 }
 
 onMounted(() => {
-  window.addEventListener("message", handleMessages);
+  loadData();
+  // Listen for messages from file viewer window
+  window.addEventListener("message", handleFileErrorMessages);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("message", handleMessages);
+  window.removeEventListener("message", handleFileErrorMessages);
 });
+
+onRoomHasChanged(
+  () => props.room,
+  () => loadData(),
+);
 </script>

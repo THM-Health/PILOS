@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
 use Tests\Backend\Utils\SessionHelpers;
@@ -765,6 +766,27 @@ class FileTest extends TestCase
 
         $this->get((new RoomFileService($room_file))->url())
             ->assertSuccessful();
+    }
+
+    /**
+     * Testing download link for bbb for file that was deleted on the drive
+     */
+    public function test_download_for_bbb_for_file_deleted_from_drive()
+    {
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+            ->assertSuccessful();
+        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
+
+        Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
+
+        // delete file on the drive
+        Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
+
+        \Auth::logout();
+
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->get((new RoomFileService($room_file))->url());
     }
 
     /**

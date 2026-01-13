@@ -468,7 +468,7 @@ class RoomController extends Controller
             $accessCode = $request->access_code;
 
             if (is_numeric($accessCode) && $room->access_code == $accessCode) {
-                // Generate new room auth token
+                // Generate new room auth token or retrieve existing one
                 $roomAuthToken = RoomAuthToken::firstOrCreate([
                     'room_id' => $room->id,
                     'session_id' => session()->getId(),
@@ -490,6 +490,7 @@ class RoomController extends Controller
             }
         } elseif ($request->type === RoomAuthTokenType::TOKEN->value) {
             if (! Auth::guest()) {
+                // current user is authenticated
                 abort(420, 'guests only');
             }
 

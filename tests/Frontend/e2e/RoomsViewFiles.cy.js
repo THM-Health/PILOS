@@ -495,30 +495,35 @@ describe("Rooms View Files", function () {
       },
     }).as("roomAuthRequest");
 
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
-      statusCode: 401,
-      body: {
-        message: "invalid_token",
+    const fileRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/rooms/abc-def-123/files*",
+      {
+        statusCode: 401,
+        body: {
+          message: "invalid_token",
+        },
       },
-    }).as("roomFilesRequest");
+      "roomFilesRequest",
+    );
 
     // Visit room with token
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    cy.wait("@roomAuthRequest");
+    cy.wait("@roomAuthRequest").then(() => {
+      cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+        statusCode: 401,
+        body: {
+          message: "invalid_token",
+        },
+      }).as("roomAuthRequest");
+
+      fileRequest.sendResponse();
+    });
     cy.wait("@roomRequest");
-
-    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
-      statusCode: 401,
-      body: {
-        message: "invalid_token",
-      },
-    }).as("roomAuthRequest");
-
     cy.wait("@roomFilesRequest");
-
     cy.wait("@roomAuthRequest");
 
     // Check if error message is shown
