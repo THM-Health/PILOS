@@ -112,7 +112,7 @@
                     {{ $d(new Date(item.start), "datetimeShort") }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p
                         v-tooltip.bottom="

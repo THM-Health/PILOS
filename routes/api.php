@@ -149,7 +149,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('sessions', [SessionController::class, 'destroy'])->name('sessions.destroy');
 
         Route::post('servers/check', [ServerController::class, 'check'])->name('servers.check')->middleware('can:viewAny,App\Models\Server');
-        Route::get('servers/{server}/panic', [ServerController::class, 'panic'])->name('servers.panic')->middleware('can:update,server');
+        Route::post('servers/{server}/panic', [ServerController::class, 'panic'])->name('servers.panic')->middleware('can:update,server');
         Route::apiResource('servers', ServerController::class);
         Route::apiResource('serverPools', ServerPoolController::class);
 

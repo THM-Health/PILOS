@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Notifications\PasswordReset;
+use App\Observers\UserObserver;
 use App\Settings\RoomSettings;
 use App\Traits\AddsModelNameTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,21 +19,10 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use Storage;
 
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable implements HasLocalePreference
 {
     use AddsModelNameTrait, HasApiTokens, HasFactory, Notifiable;
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::deleting(function ($model) {
-            $model->myRooms->each->delete();
-        });
-    }
 
     /**
      * The attributes that are mass assignable.

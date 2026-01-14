@@ -412,13 +412,13 @@ class OpenIDConnectClientTest extends TestCase
             'https://example.org/.well-known/openid-configuration' => Http::response($this->discovery),
         ]);
 
-        $client = $this->getMockBuilder(OpenIDConnectClient::class)
+        $client = $this->getStubBuilder(OpenIDConnectClient::class)
             ->setConstructorArgs(['https://example.org',
                 'fake-client-id',
                 'fake-client-secret',
                 'https://localhost/callback'])
             ->onlyMethods(['getIdToken', 'getAccessToken'])
-            ->getMock();
+            ->getStub();
 
         $idTokenJWS = $client->unserializeJWS($idToken);
 
@@ -960,7 +960,7 @@ class OpenIDConnectClientTest extends TestCase
             ],
         ];
 
-        $clientMockBuilder = $this->getMockBuilder(OpenIDConnectClient::class)
+        $clientMockBuilder = $this->getStubBuilder(OpenIDConnectClient::class)
             ->setConstructorArgs(['https://example.org',
                 'fake-client-id',
                 'fake-client-secret',
@@ -973,7 +973,7 @@ class OpenIDConnectClientTest extends TestCase
         ]);
 
         // Check if the jwks are correctly fetched
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
@@ -981,7 +981,7 @@ class OpenIDConnectClientTest extends TestCase
         Http::assertSentCount(1);
 
         // Call again to check if the jwks are not fetched again, but returned from cache
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
@@ -992,7 +992,7 @@ class OpenIDConnectClientTest extends TestCase
         $this->travel(3601)->seconds();
 
         // Call again to check if the jwks are fetched again
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
@@ -1020,7 +1020,7 @@ class OpenIDConnectClientTest extends TestCase
             ],
         ];
 
-        $clientMockBuilder = $this->getMockBuilder(OpenIDConnectClient::class)
+        $clientMockBuilder = $this->getStubBuilder(OpenIDConnectClient::class)
             ->setConstructorArgs(['https://example.org',
                 'fake-client-id',
                 'fake-client-secret',
@@ -1033,7 +1033,7 @@ class OpenIDConnectClientTest extends TestCase
         ]);
 
         // Check if the jwks are correctly fetched
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
@@ -1041,7 +1041,7 @@ class OpenIDConnectClientTest extends TestCase
         Http::assertSentCount(1);
 
         // Call again to check if jwks are correctly fetched again
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
@@ -1049,7 +1049,7 @@ class OpenIDConnectClientTest extends TestCase
         Http::assertSentCount(2);
 
         // Call again but setting a custom cache max age
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(60);
         $jwksSet = $client->getJwkSet();
@@ -1057,7 +1057,7 @@ class OpenIDConnectClientTest extends TestCase
         Http::assertSentCount(3);
 
         // Call again to check if the jwks are not fetched again but returned from cache
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(60);
         $jwksSet = $client->getJwkSet();
@@ -1066,7 +1066,7 @@ class OpenIDConnectClientTest extends TestCase
 
         // Travel forward in time to invalidate the cache
         $this->travel(61)->seconds();
-        $client = $clientMockBuilder->getMock();
+        $client = $clientMockBuilder->getStub();
         $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(60);
         $jwksSet = $client->getJwkSet();

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useApi } from "../composables/useApi.js";
 import { setToastLifetime } from "../composables/useToast";
 import { updateTheme } from "../composables/useTheme";

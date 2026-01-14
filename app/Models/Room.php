@@ -2,21 +2,20 @@
 
 namespace App\Models;
 
-use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
-use App\Exceptions\RoomIdGenerationFailed;
+use App\Observers\RoomObserver;
 use App\Services\RoomAuthService;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
+#[ObservedBy([RoomObserver::class])]
 class Room extends Model
 {
     use AddsModelNameTrait, HasFactory;
@@ -24,52 +23,6 @@ class Room extends Model
     public $incrementing = false;
 
     protected $keyType = 'string';
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            // if the meeting has no ID yet, create a unique id
-            // 36^9 possible room ids ≈ 10^14
-
-            if (! $model->id) {
-                $count_tries = 0;
-                $newId = null;
-                while (true) {
-                    $count_tries++;
-                    if ($count_tries >= config('bigbluebutton.room_id_max_tries')) {
-                        throw new RoomIdGenerationFailed;
-                    }
-
-                    $newId = implode('-', str_split(Str::lower(Str::random(9)), 3));
-                    if (DB::table('rooms')->where('id', 'LIKE', $newId)->doesntExist()) {
-                        break;
-                    }
-                }
-                $model->id = $newId;
-            }
-        });
-
-        static::updated(function ($model) {
-            if ($model->access_code !== $model->getOriginal('access_code')) {
-                // Access code has changed
-                // Delete all room auth tokens with type CODE linked to this room
-                RoomAuthToken::where('room_id', $model->id)
-                    ->where('type', RoomAuthTokenType::CODE)
-                    ->delete();
-            }
-        });
-
-        static::deleting(function ($model) {
-            $model->files->each->delete();
-            $model->recordings->each->delete();
-            \Storage::deleteDirectory($model->id);
-        });
-    }
 
     protected function casts()
     {

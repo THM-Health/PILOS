@@ -200,7 +200,7 @@
                     {{ item.filename }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="m-0 text-sm">
                         {{ $d(new Date(item.uploaded), "datetimeLong") }}
@@ -211,7 +211,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     class="flex flex-col items-start gap-2"
                   >
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-download" />
                       <p class="m-0 text-sm">
                         <Tag v-if="item.download" severity="success">{{
@@ -227,7 +227,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     class="flex flex-col items-start gap-2"
                   >
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i
                         v-if="item.use_in_meeting"
                         class="fa-solid fa-circle-check"

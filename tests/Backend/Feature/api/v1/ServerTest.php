@@ -487,11 +487,11 @@ class ServerTest extends TestCase
         $server = Server::factory()->create();
 
         // Test guests
-        $this->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertUnauthorized();
 
         // Test logged in users
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertForbidden();
 
         // Authorize user for view servers
@@ -501,7 +501,7 @@ class ServerTest extends TestCase
         $this->user->roles()->attach($role);
 
         // Test without update permission
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertForbidden();
 
         // Give update permission
@@ -511,7 +511,7 @@ class ServerTest extends TestCase
         $meeting = Meeting::factory()->create(['server_id' => $server->id, 'end' => null]);
 
         // Test with update permission, but as the server is fake, ending the meeting will not work
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertSuccessful()
             ->assertJson(['total' => 1, 'success' => 0]);
 
