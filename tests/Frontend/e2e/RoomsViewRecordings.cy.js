@@ -362,10 +362,8 @@ describe("Rooms view recordings", function () {
 
     cy.wait("@roomRequest").then((interception) => {
       // Check that room auth token is reset
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -425,10 +423,8 @@ describe("Rooms view recordings", function () {
 
     // Check that room auth token is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown

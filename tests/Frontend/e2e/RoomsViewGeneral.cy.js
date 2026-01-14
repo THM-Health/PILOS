@@ -1537,10 +1537,8 @@ describe("Room View general", function () {
     });
 
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     cy.get('[data-test="room-join-membership-button"]').should("not.exist");
@@ -1582,17 +1580,13 @@ describe("Room View general", function () {
       });
 
     cy.wait("@endMembershipRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
@@ -1710,10 +1704,8 @@ describe("Room View general", function () {
     });
     // Wait for room request and check that access code is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown
@@ -1859,10 +1851,8 @@ describe("Room View general", function () {
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait("@endMembershipRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -1900,10 +1890,8 @@ describe("Room View general", function () {
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait("@endMembershipRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     cy.wait("@roomRequest");

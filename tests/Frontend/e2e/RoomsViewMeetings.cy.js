@@ -885,10 +885,8 @@ describe("Rooms view meetings", function () {
 
     // Check that access code header is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown
@@ -2272,10 +2270,8 @@ describe("Rooms view meetings", function () {
 
     // Check thet room auth token is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -2327,10 +2323,8 @@ describe("Rooms view meetings", function () {
 
     // Check that access code header is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query).not.to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown
