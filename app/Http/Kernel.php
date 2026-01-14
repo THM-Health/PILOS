@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\EnsureModelNotStale;
+use App\Http\Middleware\FrontendVersion;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RequestMetricsMiddleware;
 use App\Http\Middleware\RoomAuthenticate;
@@ -59,6 +60,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
             LogContext::class,
+            FrontendVersion::class,
         ],
     ];
 

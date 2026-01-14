@@ -26,6 +26,7 @@
       </header>
       <main :class="routeClass">
         <router-view />
+        <FrontendOutdatedDialog />
       </main>
       <AppFooter />
     </div>
@@ -37,7 +38,7 @@ import { useLoadingStore } from "../stores/loading";
 import { useSettingsStore } from "../stores/settings";
 import Toast from "primevue/toast";
 import { useRoute } from "vue-router";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 
 const loadingStore = useLoadingStore();
 const settingsStore = useSettingsStore();
