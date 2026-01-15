@@ -48,39 +48,46 @@ class RoomAuthenticate
 
         // Retrieve room auth token if provided
         if ($request->has('room_auth_token')) {
+            // ToDo validate input
             $providedRoomAuthToken = $request->get('room_auth_token');
             $providedRoomAuthTokenType = $request->get('room_auth_token_type') == null ? null : (int) $request->get('room_auth_token_type');
 
-            // ToDo fix this / Think about adding uuid version
-            if (Str::isUuid($providedRoomAuthToken)) {
-                // Room Auth Token was provided and is a UUID
-                $roomAuthToken = RoomAuthToken::where('id', $providedRoomAuthToken)
-                    ->where('room_id', $room->id)
-                    ->where('session_id', session()->getId())
-                    ->first();
-            }
-
-            // Check if room auth token is valid and correct room auth token type was provided
-            // If no room auth token was found and provided type is not CODE, the token is invalid
-            // If a room auth token was found, but type does not match the provided type, the token is also invalid
-            $roomAuthTokenNotNeeded = $providedRoomAuthTokenType === RoomAuthTokenType::CODE->value && $room->access_code == null;
-
-            // ToDo fix this
-            if (($roomAuthToken == null && ! $roomAuthTokenNotNeeded) || ($roomAuthToken !== null && $roomAuthToken->type->value !== $providedRoomAuthTokenType)) {
-                // Metrics and logging
+            // Check if provided room auth token is a valid UUID
+            if (! Str::isUuid($providedRoomAuthToken)) {
                 Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                 Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
 
-                if ($request->expectsJson()) {
-                    abort(401, 'invalid_token');
-                } else {
-                    return response(view('new-tab-error', [
-                        'type' => 'invalid_token',
-                        'code' => 401,
-                        'title' => 'Invalid token',
-                        'message' => 'invalid_token',
-                    ]))->setStatusCode(401);
+                return $this->handleError('invalid_token', 401, 'Invalid token', 'invalid_token');
+            }
+
+            // Room Auth Token was provided and is a UUID
+            $roomAuthToken = RoomAuthToken::where('id', $providedRoomAuthToken)
+                ->where('room_id', $room->id)
+                ->where('session_id', session()->getId())
+                ->first();
+
+            if ($roomAuthToken == null) {
+                // No room auth token matching the provided room auth token found (Invalid room auth token was provided)
+                if ($providedRoomAuthTokenType === RoomAuthTokenType::TOKEN->value || $room->access_code != null) {
+                    // Invalid room auth token provided and room requires an access code
+                    // Metrics and logging
+                    Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
+                    Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+
+                    return $this->handleError('invalid_token', 401, 'Invalid token', 'invalid_token');
                 }
+            } else {
+                // Room auth token was found - check if provided type matches the found token type
+                if ($roomAuthToken->type->value !== $providedRoomAuthTokenType) {
+                    // Provided room auth token type does not match the type of the found room auth token
+                    // Metrics and logging
+                    Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
+                    Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+
+                    return $this->handleError('invalid_token', 401, 'Invalid token', 'invalid_token');
+                }
+
+                // ToDo Check if authenticated and token of type TOKEN was provided -> reject
             }
         }
 
@@ -96,16 +103,7 @@ class RoomAuthenticate
 
             Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-            if ($request->expectsJson()) {
-                abort(403, 'guests_not_allowed');
-            } else {
-                return response(view('new-tab-error', [
-                    'type' => 'guests_not_allowed',
-                    'code' => 403,
-                    'title' => 'Forbidden',
-                    'message' => 'guests_not_allowed',
-                ]))->setStatusCode(403);
-            }
+            return $this->handleError('guests_not_allowed', 403, 'Forbidden', 'guests_not_allowed');
         }
 
         // if room has no access code
@@ -119,16 +117,7 @@ class RoomAuthenticate
 
         // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
-            if ($request->expectsJson()) {
-                abort(403, 'require_code');
-            } else {
-                return response(view('new-tab-error', [
-                    'type' => 'require_code',
-                    'code' => 403,
-                    'title' => 'Forbidden',
-                    'message' => 'require_code',
-                ]))->setStatusCode(403);
-            }
+            return $this->handleError('require_code', 403, 'Forbidden', 'require_code');
         }
 
         // make authentication status and token available to other parts of the application
@@ -136,5 +125,19 @@ class RoomAuthenticate
         $this->roomAuthService->setRoomToken($room, $token);
 
         return $next($request);
+    }
+
+    private function handleError($type, $code, $title, $message)
+    {
+        if (request()->expectsJson()) {
+            abort($code, $type);
+        } else {
+            return response(view('new-tab-error', [
+                'type' => $type,
+                'code' => $code,
+                'title' => $title,
+                'message' => $message,
+            ]))->setStatusCode($code);
+        }
     }
 }

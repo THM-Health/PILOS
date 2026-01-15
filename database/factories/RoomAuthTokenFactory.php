@@ -32,15 +32,24 @@ class RoomAuthTokenFactory extends Factory
                 RoomAuthTokenType::TOKEN,
             ]),
             'room_id' => Room::factory(),
-            'room_token_id' => function (array $attributes) {
-                if ($attributes['type'] === RoomAuthTokenType::TOKEN) {
-                    return RoomToken::factory()->create([
-                        'room_id' => $attributes['room_id'],
-                    ]);
-                }
-
-                return null;
-            },
+            'room_token_id' => null,
         ];
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (RoomAuthToken $roomAuthToken) {
+            if ($roomAuthToken->type === RoomAuthTokenType::TOKEN && $roomAuthToken->room_token_id === null) {
+                $roomToken = RoomToken::factory()->create([
+                    'room_id' => $roomAuthToken->room_id,
+                ]);
+                // ToDo improve / change to room_token_id?
+                $roomAuthToken->accessToken()->associate($roomToken);
+                $roomAuthToken->save();
+            }
+        });
     }
 }

@@ -453,8 +453,6 @@ function handleFileErrorMessages(event) {
   } else if (event.data.type === "guests_not_allowed") {
     // Guests are not allowed
     emit("guestsNotAllowed");
-  } else {
-    toast.error(t("app.flash.server_error.empty_message"));
   }
 }
 

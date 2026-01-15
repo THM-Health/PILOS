@@ -141,6 +141,7 @@ class FileTest extends TestCase
     /**
      * Testing access to internal and public file list as different users and permissions
      */
+    // ToDo add url tests
     public function test_view_files()
     {
         $document = RoomFile::factory()->create(['filename' => 'document.pdf', 'created_at' => '2024-04-01 08:00:00', 'download' => true, 'default' => true, 'use_in_meeting' => true, 'room_id' => $this->room->id]);
@@ -327,7 +328,8 @@ class FileTest extends TestCase
      */
     public function test_download_files_download()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        // ToDo fix route in other tests
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
         // Set file to downloadable
@@ -336,6 +338,7 @@ class FileTest extends TestCase
         $room_file->save();
         \Auth::logout();
 
+        // ToDo load file with get (also in other tests)
         $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
 
         // Access as guest, without guest access

@@ -1018,6 +1018,7 @@ describe("Rooms view files file actions", function () {
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
   });
 
+  // ToDo remove and add general url check in view file tests
   it("download file with token", function () {
     cy.fixture("roomFilesNoDetails.json").then((roomFiles) => {
       for (const roomFile in roomFiles.data) {
@@ -1180,17 +1181,6 @@ describe("Rooms view files file actions", function () {
     cy.checkToastMessage("rooms.flash.file_gone");
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
 
-    // Check unknown error
-    cy.window().then(($window) => {
-      const message = {
-        type: "unknown server error",
-      };
-      $window.postMessage(message, Cypress.config("baseUrl"));
-    });
-
-    // Check that error message gets shown
-    cy.checkToastMessage(["app.flash.server_error.empty_message"]);
-
     // Check forbidden error
     cy.interceptRoomFilesRequest();
 
@@ -1258,5 +1248,46 @@ describe("Rooms view files file actions", function () {
 
     // Check that reload button is shown
     cy.get('[data-test="reload-room-button"]').should("be.visible");
+
+    // Check with different base_url
+    cy.fixture("config.json").then((config) => {
+      config.data.room.file_terms_of_use = "Test terms of use";
+      config.data.general.base_url = "";
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
+
+    cy.interceptRoomFilesRequest(true);
+
+    cy.reload();
+
+    cy.wait("@roomFilesRequest");
+
+    // Intercept room files request again to check that it is not reloaded
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      fixture: "roomFiles.json",
+    }).as("reloadRoomFilesRequest");
+
+    cy.window().then(($window) => {
+      const message = {
+        type: "file_not_found",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    // Check that files were not reloaded
+    cy.get("@reloadRoomFilesRequest").should("be.null");
   });
 });

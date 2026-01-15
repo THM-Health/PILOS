@@ -16,4 +16,12 @@ class RoomAuthRequest extends FormRequest
             'access_token' => ['required_if:type,'.RoomAuthTokenType::TOKEN->value],
         ];
     }
+
+    public function messages()
+    {
+        // ToDo Adjust error message
+        return [
+            'access_code.required_if' => __('validation.custom.streaming_pause_image_file.dimensions'),
+        ];
+    }
 }
