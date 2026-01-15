@@ -10,6 +10,7 @@ use App\Services\RoomAuthService;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Str;
 
 class RoomAuthenticate
 {
@@ -47,19 +48,24 @@ class RoomAuthenticate
 
         // Retrieve room auth token if provided
         if ($request->has('room_auth_token')) {
+            $providedRoomAuthToken = $request->get('room_auth_token');
             $providedRoomAuthTokenType = $request->get('room_auth_token_type') == null ? null : (int) $request->get('room_auth_token_type');
 
-            // Room Auth Token was provided
-            $roomAuthToken = RoomAuthToken::where('id', $request->get('room_auth_token'))
-                ->where('room_id', $room->id)
-                ->where('session_id', session()->getId())
-                ->first();
+            // ToDo fix this / Think about adding uuid version
+            if (Str::isUuid($providedRoomAuthToken)) {
+                // Room Auth Token was provided and is a UUID
+                $roomAuthToken = RoomAuthToken::where('id', $providedRoomAuthToken)
+                    ->where('room_id', $room->id)
+                    ->where('session_id', session()->getId())
+                    ->first();
+            }
 
             // Check if room auth token is valid and correct room auth token type was provided
             // If no room auth token was found and provided type is not CODE, the token is invalid
             // If a room auth token was found, but type does not match the provided type, the token is also invalid
             $roomAuthTokenNotNeeded = $providedRoomAuthTokenType === RoomAuthTokenType::CODE->value && $room->access_code == null;
 
+            // ToDo fix this
             if (($roomAuthToken == null && ! $roomAuthTokenNotNeeded) || ($roomAuthToken !== null && $roomAuthToken->type->value !== $providedRoomAuthTokenType)) {
                 // Metrics and logging
                 Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
