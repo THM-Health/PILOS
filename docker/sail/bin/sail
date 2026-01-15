@@ -383,7 +383,7 @@ elif [ "$1" == "mariadb" ]; then
         ARGS+=(exec)
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=(db bash -c)
-        ARGS+=("MYSQL_PWD=\${MYSQL_PASSWORD} mariadb -u \${MYSQL_USER} \${MYSQL_DATABASE}")
+        ARGS+=("MYSQL_PWD=\${MARIADB_PASSWORD:-\${MYSQL_PASSWORD}} mariadb -u \${MARIADB_USER:-\${MYSQL_USER}} \${MARIADB_DATABASE:-\${MYSQL_DATABASE}}")
     else
         sail_is_not_running
     fi
