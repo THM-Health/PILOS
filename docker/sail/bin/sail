@@ -70,9 +70,8 @@ function display_help {
     echo "  ${GREEN}sail yarn run prod${NC}"
     echo
     echo "${YELLOW}Database Commands:${NC}"
-    echo "  ${GREEN}sail mysql${NC}     Start a MySQL CLI session within the 'mysql' container"
-    echo "  ${GREEN}sail mariadb${NC}   Start a MySQL CLI session within the 'mariadb' container"
-    echo "  ${GREEN}sail psql${NC}      Start a PostgreSQL CLI session within the 'pgsql' container"
+    echo "  ${GREEN}sail mariadb${NC}   Start a MySQL CLI session within the 'db' container"
+    echo "  ${GREEN}sail psql${NC}      Start a PostgreSQL CLI session within the 'db' container"
     echo "  ${GREEN}sail redis${NC}     Start a Redis CLI session within the 'redis' container"
     echo
     echo "${YELLOW}Debugging:${NC}"
@@ -83,8 +82,6 @@ function display_help {
     echo "  ${GREEN}sail test${NC}          Run the PHPUnit tests via the Artisan test command"
     echo "  ${GREEN}sail phpunit ...${NC}   Run PHPUnit"
     echo "  ${GREEN}sail pint ...${NC}      Run Pint"
-    echo "  ${GREEN}sail dusk${NC}          Run the Dusk tests (Requires the laravel/dusk package)"
-    echo "  ${GREEN}sail dusk:fails${NC}    Re-run previously failed Dusk tests (Requires the laravel/dusk package)"
     echo
     echo "${YELLOW}Container CLI:${NC}"
     echo "  ${GREEN}sail shell${NC}        Start a shell session within the application container"
@@ -98,7 +95,6 @@ function display_help {
     echo "  ${GREEN}sail run ...${NC}   Run a command within the application container"
     echo
     echo "${YELLOW}Customization:${NC}"
-    echo "  ${GREEN}sail artisan sail:publish${NC}   Publish the Sail configuration files"
     echo "  ${GREEN}sail build --no-cache${NC}       Rebuild all of the Sail containers"
 
     exit 1
@@ -319,34 +315,6 @@ elif [ "$1" == "pint" ]; then
         sail_is_not_running
     fi
 
-# Proxy the "dusk" command to the "php artisan dusk" Artisan command...
-elif [ "$1" == "dusk" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
-        ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
-        ARGS+=("$APP_SERVICE" php artisan dusk)
-    else
-        sail_is_not_running
-    fi
-
-# Proxy the "dusk:fails" command to the "php artisan dusk:fails" Artisan command...
-elif [ "$1" == "dusk:fails" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
-        ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
-        ARGS+=("$APP_SERVICE" php artisan dusk:fails)
-    else
-        sail_is_not_running
-    fi
-
 # Initiate a Laravel Tinker session within the application container...
 elif [ "$1" == "tinker" ]; then
     shift 1
@@ -407,40 +375,27 @@ elif [ "$1" == "yarn" ]; then
         sail_is_not_running
     fi
 
-# Initiate a MySQL CLI terminal session within the "mysql" container...
-elif [ "$1" == "mysql" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec)
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(mysql bash -c)
-        ARGS+=("MYSQL_PWD=\${MYSQL_PASSWORD} mysql -u \${MYSQL_USER} \${MYSQL_DATABASE} \${MYSQL_EXTRA_OPTIONS}")
-    else
-        sail_is_not_running
-    fi
-
-# Initiate a MySQL CLI terminal session within the "mariadb" container...
+# Initiate a MySQL CLI terminal session within the "db" container...
 elif [ "$1" == "mariadb" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
         ARGS+=(exec)
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(mariadb bash -c)
+        ARGS+=(db bash -c)
         ARGS+=("MYSQL_PWD=\${MYSQL_PASSWORD} mariadb -u \${MYSQL_USER} \${MYSQL_DATABASE}")
     else
         sail_is_not_running
     fi
 
-# Initiate a PostgreSQL CLI terminal session within the "pgsql" container...
+# Initiate a PostgreSQL CLI terminal session within the "db" container...
 elif [ "$1" == "psql" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
         ARGS+=(exec)
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(pgsql bash -c)
+        ARGS+=(db bash -c)
         ARGS+=("PGPASSWORD=\${PGPASSWORD} psql -U \${POSTGRES_USER} \${POSTGRES_DB}")
     else
         sail_is_not_running
