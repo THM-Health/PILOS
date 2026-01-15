@@ -242,9 +242,8 @@
                         }}</Tag>
                         <Tag
                           v-if="defaultFile?.id === item.id"
-                          class="flex flex-row items-start gap-2"
+                          icon="fa-solid fa-star"
                         >
-                          <i class="fa-solid fa-star"></i>
                           {{ $t("rooms.files.default") }}
                         </Tag>
                       </p>
