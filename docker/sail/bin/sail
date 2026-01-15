@@ -82,8 +82,6 @@ function display_help {
     echo "  ${GREEN}sail test${NC}          Run the PHPUnit tests via the Artisan test command"
     echo "  ${GREEN}sail phpunit ...${NC}   Run PHPUnit"
     echo "  ${GREEN}sail pint ...${NC}      Run Pint"
-    echo "  ${GREEN}sail dusk${NC}          Run the Dusk tests (Requires the laravel/dusk package)"
-    echo "  ${GREEN}sail dusk:fails${NC}    Re-run previously failed Dusk tests (Requires the laravel/dusk package)"
     echo
     echo "${YELLOW}Container CLI:${NC}"
     echo "  ${GREEN}sail shell${NC}        Start a shell session within the application container"
@@ -97,7 +95,6 @@ function display_help {
     echo "  ${GREEN}sail run ...${NC}   Run a command within the application container"
     echo
     echo "${YELLOW}Customization:${NC}"
-    echo "  ${GREEN}sail artisan sail:publish${NC}   Publish the Sail configuration files"
     echo "  ${GREEN}sail build --no-cache${NC}       Rebuild all of the Sail containers"
 
     exit 1
@@ -314,34 +311,6 @@ elif [ "$1" == "pint" ]; then
         ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" php vendor/bin/pint)
-    else
-        sail_is_not_running
-    fi
-
-# Proxy the "dusk" command to the "php artisan dusk" Artisan command...
-elif [ "$1" == "dusk" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
-        ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
-        ARGS+=("$APP_SERVICE" php artisan dusk)
-    else
-        sail_is_not_running
-    fi
-
-# Proxy the "dusk:fails" command to the "php artisan dusk:fails" Artisan command...
-elif [ "$1" == "dusk:fails" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=(-e "APP_URL=http://${APP_SERVICE}")
-        ARGS+=(-e "DUSK_DRIVER_URL=http://selenium:4444/wd/hub")
-        ARGS+=("$APP_SERVICE" php artisan dusk:fails)
     else
         sail_is_not_running
     fi
