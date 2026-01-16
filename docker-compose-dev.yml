@@ -40,7 +40,12 @@ services:
     <<: *app-image
     env_file:
       - .env
-    entrypoint: ["pilos-cli", "run:cron"]
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "pilos-cli create-spool-group && pilos-cli schedule:work",
+      ]
     volumes:
       - "./:/var/www/html/"
     depends_on:
@@ -50,7 +55,12 @@ services:
     <<: *app-image
     env_file:
       - .env
-    entrypoint: ["pilos-cli", "run:horizon"]
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "pilos-cli create-spool-group && pilos-cli horizon:listen --poll",
+      ]
     volumes:
       - "./:/var/www/html/"
     depends_on:
