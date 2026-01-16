@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Icon alignment inside room files tab ([#2660], [#2728])
+- Race condition during room start ([#2742])
 
 ## [v4.10.0] - 2026-01-12
 
@@ -636,6 +637,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2660]: https://github.com/THM-Health/PILOS/issues/2660
 [#2686]: https://github.com/THM-Health/PILOS/pull/2686
 [#2728]: https://github.com/THM-Health/PILOS/pull/2728
+[#2742]: https://github.com/THM-Health/PILOS/pull/2742
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.10.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
