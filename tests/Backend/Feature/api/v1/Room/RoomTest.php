@@ -22,6 +22,7 @@ use App\Services\ServerService;
 use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Http;
+use Illuminate\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -3126,8 +3127,9 @@ class RoomTest extends TestCase
 
     /**
      * Tests parallel starting of the same room
+     * The lock if not released within the timeout
      */
-    public function test_start_while_starting()
+    public function test_start_while_starting_lock_not_released()
     {
         config(['bigbluebutton.server_timeout' => 2]);
         config(['bigbluebutton.server_connect_timeout' => 2]);
@@ -3147,6 +3149,59 @@ class RoomTest extends TestCase
         } catch (LockTimeoutException $e) {
             $this->fail('lock did not work');
         }
+    }
+
+    /**
+     * Tests parallel starting of the same room
+     * The lock is released within the timeout because another request started the meeting
+     * and released the lock before the timeout is reached
+     */
+    public function test_start_while_starting_lock_released()
+    {
+        config(['bigbluebutton.server_timeout' => 2]);
+        config(['bigbluebutton.server_connect_timeout' => 2]);
+        $room = Room::factory()->create();
+        $timeout = config('bigbluebutton.server_timeout') + config('bigbluebutton.server_connect_timeout');
+
+        $server = Server::factory()->create();
+        $room->roomType->serverPool->servers()->attach($server);
+
+        $lock = \Mockery::mock(Lock::class);
+
+        Cache::shouldReceive('lock')
+            ->once()
+            ->with('startroom-'.$room->id, $timeout)
+            ->andReturn($lock);
+
+        // Simulate another request starts the room and releases the lock
+        $lock->shouldReceive('block')
+            ->once()
+            ->with($timeout)
+            ->andReturnUsing(function () use ($server, $room) {
+                $meeting = new Meeting;
+                $meeting->record_attendance = false;
+                $meeting->record = false;
+                $meeting->server()->associate($server);
+                $meeting->room()->associate($room);
+                $meeting->start = date('Y-m-d H:i:s');
+                $meeting->save();
+                $room->latestMeeting()->associate($meeting);
+                $room->save();
+
+                return true;
+            });
+
+        $lock->shouldReceive('release')
+            ->once()
+            ->andReturnTrue();
+
+        // Try to start the room
+        // At the beginning of the request no meeting is running
+        // the request waits for the lock to be released
+        // when the lock is released a meeting is now running
+        // so the request should fail with the proper status code
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
+            ->assertStatus(474);
     }
 
     /**
