@@ -10,6 +10,6 @@
 }
 
 .inline-note.p-message-enter-active,
-.p-message-leave-active {
+.inline-note.p-message-leave-active {
     animation-duration: 0s !important;
 }
