@@ -28,6 +28,8 @@ class Room extends Model
     {
         $casts = [
             'expert_mode' => 'boolean',
+            'use_system_default_presentation_in_meeting' => 'boolean',
+            'use_system_default_presentation_as_default' => 'boolean',
             'delete_inactive' => 'datetime',
         ];
 
@@ -201,7 +203,13 @@ class Room extends Model
             $currentDefault->default = false;
             $currentDefault->save();
         }
-        // If any other files are found that are used in the next meeting, select the first one to become new default
+
+        // If system has a default presentation and the system presentation is set as default, no further action needed
+        if (app(BigBlueButtonSettings::class)->default_presentation && $this->use_system_default_presentation_as_default) {
+            return;
+        }
+
+        // If no default file is explicitly set or the system default should be used,
         $newDefaultFile = $this->files()->firstWhere('use_in_meeting', true);
         if ($newDefaultFile != null) {
             $newDefaultFile->default = true;
