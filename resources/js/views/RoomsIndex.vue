@@ -304,18 +304,18 @@
             </template>
 
             <template #list="slotProps">
-              <div
+              <ul
                 v-if="!loadingRooms && !loadingRoomsError"
                 class="grid grid-cols-12 gap-4 py-1"
               >
-                <div
+                <li
                   v-for="(room, index) in slotProps.items"
                   :key="index"
                   class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
                 >
                   <RoomCard :room="room" @favorites-changed="loadRooms()" />
-                </div>
-              </div>
+                </li>
+              </ul>
             </template>
           </DataView>
         </OverlayComponent>

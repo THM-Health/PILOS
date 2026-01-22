@@ -7,6 +7,7 @@
     <div class="flex">
       <div class="room-details__icon">
         <i class="fa-solid fa-user" />
+        <span class="sr-only">Eigentümer</span>
       </div>
       <div class="room-details__text">
         <span>{{ props.room.owner.name }}</span>
@@ -19,6 +20,7 @@
     >
       <div class="room-details__icon">
         <i class="fa-solid fa-info-circle" />
+        <span class="sr-only">Kurzbeschreibung</span>
       </div>
       <div class="room-details__text">
         <span style="word-break: break-word"
@@ -67,6 +69,7 @@
     >
       <div class="room-details__icon">
         <i class="fa-solid fa-users" />
+        <span class="sr-only">Teilnehmeranzahl</span>
       </div>
       <div class="room-details__text">
         <span

@@ -20,7 +20,7 @@
         <div class="flex flex-col">
           <div class="grow">
             <div class="flex items-start justify-between">
-              <RoomTypeBadge :room-type="props.room.type" />
+              <RoomTypeBadge aria-hidden="true" :room-type="props.room.type" />
               <div class="relative z-10 flex shrink-0 gap-2">
                 <Button
                   v-if="props.room.short_description != null"
@@ -39,12 +39,12 @@
                 />
               </div>
             </div>
-            <p
+            <h2
               class="text-break mt-2 mb-4 font-bold text-color"
               style="width: 100%"
             >
               {{ props.room.name }}
-            </p>
+            </h2>
           </div>
           <RoomDetailsList :room="props.room" />
         </div>
