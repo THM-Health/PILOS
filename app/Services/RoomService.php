@@ -37,7 +37,8 @@ class RoomService
             // Block the lock for a max. of 45sec
             $lock->block($timeout);
 
-            // Get latest of the room
+            // Get latest meeting of the room
+            $this->room->refresh();
             $meeting = $this->room->latestMeeting;
 
             // Do not create a new meeting, if there is already a running meeting and it is not detached
