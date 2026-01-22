@@ -14,7 +14,7 @@ class OIDCController extends Controller
 {
     public function __construct(protected OIDCProvider $provider)
     {
-        $this->middleware('guest');
+        $this->middleware('guest:true');
     }
 
     /**

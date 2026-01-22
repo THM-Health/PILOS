@@ -12,7 +12,7 @@ class ShibbolethController extends Controller
 {
     public function __construct(protected ShibbolethProvider $provider)
     {
-        $this->middleware('guest')->except(['logout']);
+        $this->middleware('guest:true')->except(['logout']);
     }
 
     /**

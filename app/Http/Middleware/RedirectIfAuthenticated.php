@@ -12,17 +12,18 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
-     * @param  string|null  ...$guards
+     * @param  bool|null  $redirectIfAuthenticated  Redirect authenticated users to dashboard
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, ...$guards)
+    public function handle(Request $request, Closure $next, bool $redirectIfAuthenticated = false)
     {
-        $guards = empty($guards) ? [null] : $guards;
+        if (! Auth::guest()) {
 
-        foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
-                return (new Response('Guests only.'))->setStatusCode(420, 'Guests only');
+            if ($redirectIfAuthenticated && ! $request->expectsJson()) {
+                return redirect('/rooms');
             }
+
+            return (new Response('Guests only.'))->setStatusCode(420, 'Guests only');
         }
 
         return $next($request);
