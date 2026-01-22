@@ -453,6 +453,8 @@ function handleFileErrorMessages(event) {
   } else if (event.data.type === "guests_not_allowed") {
     // Guests are not allowed
     emit("guestsNotAllowed");
+  } else if (event.data.type === "guests_only") {
+    api.handleGuestsOnly();
   }
 }
 

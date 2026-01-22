@@ -141,6 +141,7 @@ return [
     'first_and_lastname' => 'First- and last name',
     'flash' => [
         'access_code_invalid' => 'The access code is invalid.',
+        'auth_token_invalid' => 'The authentication token is invalid.',
         'file_forbidden' => 'The access to the requested file was forbidden.',
         'file_gone' => 'The file has been deleted in the meantime.',
         'no_new_room' => 'You do not have the necessary permission to create a new room.',

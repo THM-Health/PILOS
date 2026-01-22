@@ -10,7 +10,8 @@ use App\Services\RoomAuthService;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Str;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class RoomAuthenticate
 {
@@ -48,17 +49,23 @@ class RoomAuthenticate
 
         // Retrieve room auth token if provided
         if ($request->has('room_auth_token')) {
-            // ToDo validate input
-            $providedRoomAuthToken = $request->get('room_auth_token');
-            $providedRoomAuthTokenType = $request->get('room_auth_token_type') == null ? null : (int) $request->get('room_auth_token_type');
+            // Validate room auth token input
+            $validator = Validator::make($request->all(), [
+                'room_auth_token' => ['required', 'uuid'],
+                'room_auth_token_type' => ['required', Rule::in([RoomAuthTokenType::CODE, RoomAuthTokenType::TOKEN])],
+            ]);
 
-            // Check if provided room auth token is a valid UUID
-            if (! Str::isUuid($providedRoomAuthToken)) {
+            if ($validator->stopOnFirstFailure()->fails()) {
                 Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
-                Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                Log::notice('Room auth token authentication failed for room {room} (Input validation failed)', ['room' => $room->getLogLabel()]);
 
-                return $this->handleError('invalid_token', 401, 'Invalid token', 'invalid_token');
+                return $this->handleError('invalid_token', 401, 'Invalid token', __('rooms.flash.auth_token_invalid'));
             }
+
+            // Retrieve the validated input
+            $validated = $validator->validated();
+            $providedRoomAuthToken = $validated['room_auth_token'];
+            $providedRoomAuthTokenType = RoomAuthTokenType::from($validated['room_auth_token_type']);
 
             // Room Auth Token was provided and is a UUID
             $roomAuthToken = RoomAuthToken::where('id', $providedRoomAuthToken)
@@ -67,27 +74,42 @@ class RoomAuthenticate
                 ->first();
 
             if ($roomAuthToken == null) {
-                // No room auth token matching the provided room auth token found (Invalid room auth token was provided)
-                if ($providedRoomAuthTokenType === RoomAuthTokenType::TOKEN->value || $room->access_code != null) {
-                    // Invalid room auth token provided and room requires an access code
+                // No room auth token matching the provided room auth token found
+                // (Invalid room auth token was provided)
+                if ($providedRoomAuthTokenType === RoomAuthTokenType::TOKEN || $room->access_code != null) {
+                    // Provided invalid room auth token was of type TOKEN or room has an access code set
+
                     // Metrics and logging
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
-                    Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                    Log::notice('Room auth token authentication failed for room {room} (Room auth token was invalid)', ['room' => $room->getLogLabel()]);
 
-                    return $this->handleError('invalid_token', 401, 'Invalid token', 'invalid_token');
+                    return $this->handleError(
+                        'invalid_token',
+                        401,
+                        'Invalid token',
+                        $providedRoomAuthTokenType == RoomAuthTokenType::TOKEN
+                            ? __('rooms.flash.token_invalid')
+                            : __('rooms.flash.access_code_invalid')
+                    );
                 }
             } else {
                 // Room auth token was found - check if provided type matches the found token type
-                if ($roomAuthToken->type->value !== $providedRoomAuthTokenType) {
+                if ($roomAuthToken->type !== $providedRoomAuthTokenType) {
                     // Provided room auth token type does not match the type of the found room auth token
                     // Metrics and logging
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
-                    Log::notice('Room auth token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                    Log::notice('Room auth token authentication failed for room {room} (Room auth token types do not match)', ['room' => $room->getLogLabel()]);
 
-                    return $this->handleError('invalid_token', 401, 'Invalid token', 'invalid_token');
+                    return $this->handleError('invalid_token', 401, 'Invalid token', __('rooms.flash.auth_token_invalid'));
                 }
 
-                // ToDo Check if authenticated and token of type TOKEN was provided -> reject
+                if (! Auth::guest() && $roomAuthToken->type === RoomAuthTokenType::TOKEN) {
+                    // Authenticated user provided a room auth token of type TOKEN
+                    Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
+                    Log::notice('Room auth token authentication failed for room {room} (Authenticated with token type token)', ['room' => $room->getLogLabel()]);
+
+                    return $this->handleError('guests_only', 420, 'Guests only', __('app.flash.guests_only'));
+                }
             }
         }
 
@@ -103,7 +125,7 @@ class RoomAuthenticate
 
             Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-            return $this->handleError('guests_not_allowed', 403, 'Forbidden', 'guests_not_allowed');
+            return $this->handleError('guests_not_allowed', 403, 'Forbidden', __('rooms.only_used_by_authenticated_users'));
         }
 
         // if room has no access code
@@ -117,7 +139,7 @@ class RoomAuthenticate
 
         // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
-            return $this->handleError('require_code', 403, 'Forbidden', 'require_code');
+            return $this->handleError('require_code', 403, 'Forbidden', __('rooms.require_access_code'));
         }
 
         // make authentication status and token available to other parts of the application

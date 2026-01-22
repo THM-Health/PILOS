@@ -147,6 +147,15 @@ class RecordingTest extends TestCase
         ]))
             ->assertUnauthorized();
 
+        $invalidUuid = $this->faker()->uuid();
+
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $invalidUuid,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized();
+
         $currentSession = $this->startNewSession();
 
         $roomAuthToken = RoomAuthToken::factory()->create([
@@ -454,6 +463,17 @@ class RecordingTest extends TestCase
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => 'invalidToken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized();
+
+        $invalidUuid = $this->faker()->uuid();
+
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $invalidUuid,
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertUnauthorized();

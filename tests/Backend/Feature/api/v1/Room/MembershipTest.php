@@ -65,6 +65,15 @@ class MembershipTest extends TestCase
         ]))
             ->assertUnauthorized();
 
+        $invalidUuid = $this->faker()->uuid();
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $invalidUuid,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized();
+
         $currentSession = $this->startNewSession();
 
         $roomAuthToken = RoomAuthToken::factory()->create([

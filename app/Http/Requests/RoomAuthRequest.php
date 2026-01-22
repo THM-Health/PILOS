@@ -19,9 +19,8 @@ class RoomAuthRequest extends FormRequest
 
     public function messages()
     {
-        // ToDo Adjust error message
         return [
-            'access_code.required_if' => __('validation.custom.streaming_pause_image_file.dimensions'),
+            'access_code.required_if' => __('validation.required', ['attribute' => __('validation.attributes.access_code')]),
         ];
     }
 }

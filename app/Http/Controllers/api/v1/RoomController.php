@@ -491,7 +491,7 @@ class RoomController extends Controller
         } elseif ($request->type === RoomAuthTokenType::TOKEN->value) {
             if (! Auth::guest()) {
                 // current user is authenticated
-                abort(420, 'guests only');
+                abort(420, 'guests_only');
             }
 
             $accessToken = RoomToken::where('token', $request->access_token)

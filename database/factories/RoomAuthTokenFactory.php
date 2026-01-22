@@ -46,7 +46,6 @@ class RoomAuthTokenFactory extends Factory
                 $roomToken = RoomToken::factory()->create([
                     'room_id' => $roomAuthToken->room_id,
                 ]);
-                // ToDo improve / change to room_token_id?
                 $roomAuthToken->accessToken()->associate($roomToken);
                 $roomAuthToken->save();
             }

@@ -528,6 +528,54 @@ describe("Rooms view recordings recording actions", function () {
     cy.checkToastMessage("rooms.flash.token_invalid");
 
     cy.contains("rooms.invalid_personal_link").should("be.visible");
+
+    // Check with guests only error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.intercept(
+      "GET",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3*",
+      {
+        statusCode: 420,
+        body: {
+          message: "guests_only",
+        },
+      },
+    ).as("viewRecordingRequest");
+
+    cy.reload();
+
+    cy.wait("@roomAuthRequest");
+    cy.wait("@roomRequest");
+    cy.wait("@roomRecordingsRequest");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-view-button"]')
+      .click();
+
+    cy.get('[data-test="room-recordings-view-dialog"]')
+      .should("be.visible")
+      .find('[data-test="presentation-button"]')
+      .click();
+
+    cy.wait("@viewRecordingRequest");
+
+    // Check that the error message is shown
+    cy.checkToastMessage("app.flash.guests_only");
+
+    // Check that redirected to home page
+    cy.url()
+      .should("not.include", "/rooms/abc-def-123")
+      .and("not.include", "/rooms");
   });
 
   it("view recording with errors", function () {

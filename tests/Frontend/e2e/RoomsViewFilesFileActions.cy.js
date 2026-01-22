@@ -726,42 +726,7 @@ describe("Rooms view files file actions", function () {
     );
   });
 
-  it("download file", function () {
-    cy.fixture("roomFiles.json").then((roomFiles) => {
-      for (const roomFile in roomFiles.data) {
-        roomFiles.data[roomFile].url =
-          `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`;
-      }
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", roomFiles).as(
-        "roomFilesRequest",
-      );
-    });
-
-    cy.visit("/rooms/abc-def-123#tab=files");
-
-    cy.wait("@roomFilesRequest");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .should(
-        "have.attr",
-        "href",
-        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
-      )
-      .and("have.attr", "rel", "opener")
-      .and("have.attr", "target", "_blank")
-      .invoke("removeAttr", "target");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.url().should("eq", `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`);
-
-    // Reload as guest and with terms of use
+  it("download file with terms of use", function () {
     cy.fixture("config.json").then((config) => {
       config.data.room.file_terms_of_use = "Test terms of use";
 
@@ -791,7 +756,7 @@ describe("Rooms view files file actions", function () {
       .should(
         "not.have.attr",
         "href",
-        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
+        "https://example.com/files/File1.pdf?signature=abc123",
       )
       .click();
 
@@ -810,94 +775,10 @@ describe("Rooms view files file actions", function () {
       .should(
         "have.attr",
         "href",
-        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`,
+        "https://example.com/files/File1.pdf?signature=abc123",
       )
       .and("have.attr", "rel", "opener")
-      .and("have.attr", "target", "_blank")
-      .invoke("removeAttr", "target");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.url().should("eq", `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`);
-  });
-
-  it("download file with access code", function () {
-    cy.fixture("roomFilesNoDetails.json").then((roomFiles) => {
-      for (const roomFile in roomFiles.data) {
-        roomFiles.data[roomFile].url =
-          `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`;
-      }
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", roomFiles).as(
-        "roomFilesRequest",
-      );
-    });
-
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.visit("/rooms/abc-def-123");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
-    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
-      statusCode: 201,
-      body: {
-        data: {
-          id: "roomAuthToken",
-          type: 0,
-        },
-      },
-    }).as("roomAuthRequest");
-
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.get('[data-test="room-login-button"]').click();
-
-    cy.wait("@roomAuthRequest");
-    cy.wait("@roomRequest");
-    cy.wait("@roomFilesRequest");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .should(
-        "have.attr",
-        "href",
-        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b&room_auth_token=roomAuthToken&room_auth_token_type=0`,
-      )
-      .and("have.attr", "target", "_blank")
-      .and("have.attr", "rel", "opener")
-      .invoke("removeAttr", "target");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.url().should(
-      "eq",
-      `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b&room_auth_token=roomAuthToken&room_auth_token_type=0`,
-    );
+      .and("have.attr", "target", "_blank");
   });
 
   it("download file with access code errors", function () {
@@ -1018,73 +899,6 @@ describe("Rooms view files file actions", function () {
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
   });
 
-  // ToDo remove and add general url check in view file tests
-  it("download file with token", function () {
-    cy.fixture("roomFilesNoDetails.json").then((roomFiles) => {
-      for (const roomFile in roomFiles.data) {
-        roomFiles.data[roomFile].url =
-          `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b`;
-      }
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", roomFiles).as(
-        "roomFilesRequest",
-      );
-    });
-
-    cy.intercept("GET", "api/v1/currentUser", {});
-    cy.fixture("room.json").then((room) => {
-      room.data.username = "Max Doe";
-      room.data.current_user = null;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
-      statusCode: 201,
-      body: {
-        data: {
-          id: "roomAuthToken",
-          type: 1,
-        },
-      },
-    }).as("roomAuthRequest");
-
-    // Visit room with token
-    cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-    );
-
-    cy.wait("@roomAuthRequest");
-    cy.wait("@roomRequest");
-
-    cy.wait("@roomFilesRequest");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .should(
-        "have.attr",
-        "href",
-        `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b&room_auth_token=roomAuthToken&room_auth_token_type=1`,
-      )
-      .and("have.attr", "rel", "opener")
-      .and("have.attr", "target", "_blank")
-      .invoke("removeAttr", "target");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.url().should(
-      "eq",
-      `${Cypress.env("redirectBaseUrl")}/file?foo=a&bar=b&room_auth_token=roomAuthToken&room_auth_token_type=1`,
-    );
-  });
-
   it("download file with token errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
@@ -1137,6 +951,39 @@ describe("Rooms view files file actions", function () {
     cy.checkToastMessage("rooms.flash.token_invalid");
 
     cy.contains("rooms.invalid_personal_link").should("be.visible");
+
+    // Check with guests only error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.reload();
+
+    cy.wait("@roomAuthRequest");
+    cy.wait("@roomRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check guests only error
+    cy.window().then(($window) => {
+      const message = {
+        type: "guests_only",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that the error message is shown
+    cy.checkToastMessage("app.flash.guests_only");
+
+    // Check that redirected to home page
+    cy.url()
+      .should("not.include", "/rooms/abc-def-123")
+      .and("not.include", "/rooms");
   });
 
   it("download file errors", function () {

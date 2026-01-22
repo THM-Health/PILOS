@@ -79,42 +79,48 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "File1.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "File1.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("include.text", "rooms.files.download_visible")
+      .and("include.text", "rooms.files.use_in_next_meeting_disabled")
+      .find('[data-test="room-files-view-button"]')
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
 
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "File2.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "rooms.files.use_in_next_meeting");
+      .should("include.text", "File2.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("include.text", "rooms.files.download_visible")
+      .and("include.text", "rooms.files.use_in_next_meeting")
+      .find('[data-test="room-files-view-button"]')
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File2.pdf?signature=def456",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
 
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .should("include.text", "File3.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(2)
-      .should("include.text", "Sep 21, 2020, 09:09");
-    cy.get('[data-test="room-file-item"]')
-      .eq(2)
-      .should("include.text", "rooms.files.download_hidden");
-    cy.get('[data-test="room-file-item"]')
-      .eq(2)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "File3.pdf")
+      .and("include.text", "Sep 21, 2020, 09:09")
+      .and("include.text", "rooms.files.download_hidden")
+      .and("include.text", "rooms.files.use_in_next_meeting_disabled")
+      .find('[data-test="room-files-view-button"]')
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File3.pdf?signature=ghi789",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
   });
 
   it("load files with access code", function () {
@@ -176,20 +182,19 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "File1.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
+      .should("include.text", "File1.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting_disabled")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123&room_auth_token=roomAuthToken&room_auth_token_type=0",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-edit-button"]')
@@ -201,20 +206,19 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "File2.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
+      .should("include.text", "File2.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File2.pdf?signature=def456&room_auth_token=roomAuthToken&room_auth_token_type=0",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-edit-button"]')
@@ -420,20 +424,19 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "File1.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "Sep 21, 2020, 03:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
+      .should("include.text", "File1.pdf")
+      .and("include.text", "Sep 21, 2020, 03:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting_disabled")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123&room_auth_token=roomAuthToken&room_auth_token_type=1",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-edit-button"]')
@@ -445,20 +448,19 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "File2.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "Sep 21, 2020, 03:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
+      .should("include.text", "File2.pdf")
+      .and("include.text", "Sep 21, 2020, 03:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File2.pdf?signature=def456&room_auth_token=roomAuthToken&room_auth_token_type=1",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-edit-button"]')
@@ -526,6 +528,38 @@ describe("Rooms View Files", function () {
     cy.checkToastMessage("rooms.flash.token_invalid");
 
     cy.contains("rooms.invalid_personal_link").should("be.visible");
+
+    // Check with guests only error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      statusCode: 420,
+      body: {
+        message: "guests_only",
+      },
+    }).as("roomFilesRequest");
+
+    cy.reload();
+
+    cy.wait("@roomAuthRequest");
+    cy.wait("@roomRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check that the error message is shown
+    cy.checkToastMessage("app.flash.guests_only");
+
+    // Check that redirected to home page
+    cy.url()
+      .should("not.include", "/rooms/abc-def-123")
+      .and("not.include", "/rooms");
   });
 
   it("load files errors", function () {
