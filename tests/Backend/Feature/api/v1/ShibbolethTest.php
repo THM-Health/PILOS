@@ -140,7 +140,7 @@ class ShibbolethTest extends TestCase
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get(route('auth.shibboleth.callback'));
-        $response->assertStatus(420);
+        $response->assertRedirect('http://localhost/rooms');
     }
 
     /**
