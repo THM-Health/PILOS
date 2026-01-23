@@ -7,10 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Changed
 
-- External authentication routes behavior for authenticated users ([#2751], [#2752])
-
+- External authentication routes behavior for authenticated users ([`#2751`], [`#2752`])
 ### Fixed
 
 - Icon alignment inside room files tab ([#2660], [#2728])
