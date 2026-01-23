@@ -12,18 +12,20 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
-     * @param  bool|null  $redirectIfAuthenticated  Redirect authenticated users to dashboard
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, bool $redirectIfAuthenticated = false)
+    public function handle(Request $request, Closure $next)
     {
-        if (! Auth::guest()) {
+        // Check if the user is authenticated
+        if (Auth::check()) {
 
-            if ($redirectIfAuthenticated && ! $request->expectsJson()) {
-                return redirect('/rooms');
+            // API requests cannot be redirected, must be handled in the frontend
+            if ($request->expectsJson()) {
+                return new Response('Guests only.')->setStatusCode(420, 'Guests only');
             }
 
-            return (new Response('Guests only.'))->setStatusCode(420, 'Guests only');
+            // Redirect authenticated users to the rooms page
+            return redirect('/rooms');
         }
 
         return $next($request);
