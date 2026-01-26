@@ -671,7 +671,7 @@ class ServerServiceTest extends TestCase
         $serverService->getMeetings();
 
         $request = $bbbfaker->getRequest(0);
-        $hash = hash('sha256','getMeetings'.$server->secret);
+        $hash = hash('sha256', 'getMeetings'.$server->secret);
         $this->assertEquals($hash, $request->data()['checksum']);
     }
 
@@ -689,7 +689,7 @@ class ServerServiceTest extends TestCase
         $serverService->getMeetings();
 
         $request = $bbbfaker->getRequest(0);
-        $hash = hash('sha384','getMeetings'.$server->secret);
+        $hash = hash('sha384', 'getMeetings'.$server->secret);
         $this->assertEquals($hash, $request->data()['checksum']);
     }
 
@@ -707,7 +707,7 @@ class ServerServiceTest extends TestCase
         $serverService->getMeetings();
 
         $request = $bbbfaker->getRequest(0);
-        $hash = hash('sha512','getMeetings'.$server->secret);
+        $hash = hash('sha512', 'getMeetings'.$server->secret);
         $this->assertEquals($hash, $request->data()['checksum']);
     }
 }
