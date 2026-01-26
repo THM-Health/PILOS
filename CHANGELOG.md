@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Configurable hashing algorithm for BBB API signatures ([#2765], [#2766])
+
 ### Changed
 
 - External authentication routes behavior for authenticated users ([#2751], [#2752])
@@ -645,6 +649,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2742]: https://github.com/THM-Health/PILOS/pull/2742
 [#2751]: https://github.com/THM-Health/PILOS/issues/2751
 [#2752]: https://github.com/THM-Health/PILOS/pull/2752
+[#2765]: https://github.com/THM-Health/PILOS/issues/2765
+[#2766]: https://github.com/THM-Health/PILOS/pull/2766
 [#2767]: https://github.com/THM-Health/PILOS/pull/2767
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.10.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
