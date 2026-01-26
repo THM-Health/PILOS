@@ -24,10 +24,10 @@ return [
 
     'allowed_name_characters' => env('BBB_ALLOWED_NAME_CHARACTERS', "\w ,.'\-+\/&()"),
 
-    'hashing_algorithm' => match (env('BBB_HASHING_ALGORITHM')) {
-        'sha256' => HashingAlgorithm::SHA_256,
-        'sha384' => HashingAlgorithm::SHA_384,
-        'sha512' => HashingAlgorithm::SHA_512,
+    'server_hashing_algorithm' => match (env('BBB_SERVER_HASHING_ALGORITHM')) {
+        'SHA256' => HashingAlgorithm::SHA_256,
+        'SHA384' => HashingAlgorithm::SHA_384,
+        'SHA512' => HashingAlgorithm::SHA_512,
         default => HashingAlgorithm::SHA_1,
-    }
+    },
 ];

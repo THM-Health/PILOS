@@ -30,7 +30,7 @@ class ServerService
     public function __construct(Server $server)
     {
         $this->server = $server;
-        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient, config('bigbluebutton.hashing_algorithm'));
+        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient, config('bigbluebutton.server_hashing_algorithm'));
         $this->loadCalculationPlugin = app(ServerLoadCalculationPluginContract::class);
     }
 
