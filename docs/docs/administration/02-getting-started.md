@@ -105,7 +105,7 @@ db:
     container_name: postgres
     restart: unless-stopped
     volumes:
-        - ./db:/var/lib/postgresql/data
+        - ./db:/var/lib/postgresql
     environment:
         POSTGRES_USER: "${DB_USERNAME}"
         POSTGRES_PASSWORD: "${DB_PASSWORD}"

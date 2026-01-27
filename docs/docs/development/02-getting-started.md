@@ -114,7 +114,7 @@ db:
     container_name: postgres
     restart: unless-stopped
     volumes:
-        - postgres:/var/lib/postgresql/data
+        - postgres:/var/lib/postgresql
         - "./tests/Utils/create-postgres-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql"
     environment:
         PGPASSWORD: "${DB_PASSWORD}"
