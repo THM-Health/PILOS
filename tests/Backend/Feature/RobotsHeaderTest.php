@@ -39,7 +39,7 @@ class RobotsHeaderTest extends TestCase
         config(['greenlight.compatibility' => true]);
         config(['greenlight.base' => 'b']);
 
-        $response = $this->getJson('/b/default_room');
+        $response = $this->get('/b/default_room');
         $response->assertRedirect('/rooms');
 
         $this->assertTrue($response->headers->has('X-Robots-Tag'));
@@ -50,7 +50,7 @@ class RobotsHeaderTest extends TestCase
      */
     public function test_frontend_routes_no_robots_header()
     {
-        $response = $this->getJson('/login');
+        $response = $this->get('/login');
         $response->assertOk();
 
         $this->assertTrue($response->headers->has('X-Robots-Tag'));
