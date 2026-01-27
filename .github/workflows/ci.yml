@@ -41,7 +41,7 @@ jobs:
           - 5432
 
       mariadb:
-        image: mariadb:11
+        image: mariadb:12
         ports:
           - 3306
         env:
