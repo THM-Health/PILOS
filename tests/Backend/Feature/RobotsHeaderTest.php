@@ -40,5 +40,6 @@ class RobotsHeaderTest extends TestCase
         $response->assertOk();
 
         $this->assertTrue($response->headers->has('X-Robots-Tag'));
+        $this->assertEquals('noindex', $response->headers->get('X-Robots-Tag'));
     }
 }
