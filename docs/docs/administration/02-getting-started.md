@@ -101,7 +101,7 @@ To run a local PostgreSQL using docker compose, you have to adjust the `docker-c
 
 ```yml
 db:
-    image: postgres:14.6-alpine3.17
+    image: postgres:18-alpine
     container_name: postgres
     restart: unless-stopped
     volumes:
