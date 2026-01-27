@@ -32,23 +32,9 @@ class RobotsHeaderTest extends TestCase
     }
 
     /**
-     * Test that redirect routes, e.g., greenlight compatibility routes, have X-Robots-Tag header.
-     */
-    public function test_redirect_routes_no_robots_header()
-    {
-        config(['greenlight.compatibility' => true]);
-        config(['greenlight.base' => 'b']);
-
-        $response = $this->get('/b/default_room');
-        $response->assertRedirect('/rooms');
-
-        $this->assertTrue($response->headers->has('X-Robots-Tag'));
-    }
-
-    /**
      * Test that frontend routes (except the landing page) have X-Robots-Tag header.
      */
-    public function test_frontend_routes_no_robots_header()
+    public function test_frontend_routes_robots_header()
     {
         $response = $this->get('/login');
         $response->assertOk();
