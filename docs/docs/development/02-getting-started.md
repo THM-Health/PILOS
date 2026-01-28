@@ -110,11 +110,11 @@ To run a local PostgreSQL using docker you have to adjust the `docker-compose-de
 
 ```yml
 db:
-    image: postgres:14.6-alpine3.17
+    image: postgres:18-alpine
     container_name: postgres
     restart: unless-stopped
     volumes:
-        - postgres:/var/lib/postgresql/data
+        - postgres:/var/lib/postgresql
         - "./tests/Utils/create-postgres-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql"
     environment:
         PGPASSWORD: "${DB_PASSWORD}"
