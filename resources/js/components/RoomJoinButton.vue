@@ -365,7 +365,8 @@ function getJoinUrl() {
     method: "post",
     data: {
       name:
-        props.roomAuthToken && props.roomAuthToken.type === 1
+        props.roomAuthToken &&
+        props.roomAuthToken.type === ROOM_AUTH_TOKEN_TYPE_TOKEN
           ? null
           : name.value,
       consent_record_attendance: recordAttendanceAgreement.value,
