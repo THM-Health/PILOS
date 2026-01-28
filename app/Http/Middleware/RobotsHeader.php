@@ -15,7 +15,9 @@ class RobotsHeader
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $directives = [];
+        // Do not follow any links on the page
+        // e.g. links in the footer, menu, etc.
+        $directives = ['nofollow'];
 
         // Add noindex to all requests except for the landing page "/"
         if ($request->path() !== '/') {
@@ -26,7 +28,7 @@ class RobotsHeader
 
         // If any directives were added, set the X-Robots-Tag header
         if ($directives) {
-            $response->headers->set('X-Robots-Tag', implode(',', $directives));
+            $response->headers->set('X-Robots-Tag', implode(', ', $directives));
         }
 
         return $response;

@@ -12,12 +12,13 @@ class RobotsHeaderTest extends TestCase
     /**
      * Test that the landing page does not have X-Robots-Tag header.
      */
-    public function test_landing_page_no_robots_header()
+    public function test_landing_page_robots_header()
     {
         $response = $this->get('/');
         $response->assertOk();
 
-        $this->assertFalse($response->headers->has('X-Robots-Tag'));
+        $this->assertTrue($response->headers->has('X-Robots-Tag'));
+        $this->assertEquals('nofollow', $response->headers->get('X-Robots-Tag'));
     }
 
     /**
@@ -40,6 +41,6 @@ class RobotsHeaderTest extends TestCase
         $response->assertOk();
 
         $this->assertTrue($response->headers->has('X-Robots-Tag'));
-        $this->assertEquals('noindex', $response->headers->get('X-Robots-Tag'));
+        $this->assertEquals('nofollow, noindex', $response->headers->get('X-Robots-Tag'));
     }
 }
