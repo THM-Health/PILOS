@@ -10,7 +10,7 @@ class RobotsHeaderTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Test that the landing page does not have X-Robots-Tag header.
+     * Test that the landing page only has the nofollow X-Robots-Tag.
      */
     public function test_landing_page_robots_header()
     {
@@ -33,7 +33,8 @@ class RobotsHeaderTest extends TestCase
     }
 
     /**
-     * Test that frontend routes (except the landing page) have X-Robots-Tag header.
+     * Test that frontend routes (except the landing page) have X-Robots-Tag header
+     * with nofollow and noindex directives.
      */
     public function test_frontend_routes_robots_header()
     {

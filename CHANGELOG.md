@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Configurable hashing algorithm for BBB API signatures ([#2765], [#2766])
-- `X-Robots-Tag: noindex` header for all routes, excluding the landing page ([#2770])
-- `X-Robots-Tag: nofollow` header for all routes ([#2772])
+- `X-Robots-Tag: noindex` header for all web routes, excluding the landing page ([#2770])
+- `X-Robots-Tag: nofollow` header for all web routes ([#2772])
 
 ### Changed
 
