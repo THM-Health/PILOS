@@ -176,12 +176,12 @@ class FileTest extends TestCase
         $this->room->access_code = $this->createAccessCode();
         $this->room->save();
 
-        // Testing guests without access code
+        // Testing guests without room auth token
         $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertForbidden()
             ->assertJsonFragment(['message' => 'require_code']);
 
-        // Testing users without access code
+        // Testing users without room auth token
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertForbidden()
             ->assertJsonFragment(['message' => 'require_code']);
@@ -446,7 +446,11 @@ class FileTest extends TestCase
             ]);
 
         // Testing user without room auth token (type access code)
-        $this->actingAs($this->user)->get($download_link)
+        $this->actingAs($this->user)
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link)
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -513,14 +517,11 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.auth_token_invalid'),
             ]);
 
-        // Testing with invalid uuid
-        $invalidUuid = $this->faker()->uuid();
-
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$invalidUuid.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -530,7 +531,21 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.access_code_invalid'),
             ]);
 
-        // Testing user with room auth token but wrong token type
+        // Testing with valid room auth token but invalid token type
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'invalid_token',
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
@@ -545,7 +560,6 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.auth_token_invalid'),
             ]);
 
-        // Testing user with room auth token but invalid token type
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
@@ -587,7 +601,7 @@ class FileTest extends TestCase
         $this->room->allow_guests = true;
         $this->room->save();
 
-        // Access as guest, with guest access and without access code
+        // Access as guest, with guest access and without room auth token
         $this->get($download_link)
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
@@ -653,14 +667,11 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.auth_token_invalid'),
             ]);
 
-        // Download as guest with invalid uuid
-        $invalidUuid = $this->faker()->uuid();
-
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$invalidUuid.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -670,7 +681,21 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.access_code_invalid'),
             ]);
 
-        // Download as guest with token but wrong token type
+        // Download as guest with valid token but invalid token type
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'invalid_token',
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
@@ -685,7 +710,6 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.auth_token_invalid'),
             ]);
 
-        // Download as guest with token but invalid token type
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
@@ -768,14 +792,11 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.auth_token_invalid'),
             ]);
 
-        // Download as guest with invalid uuid
-        $invalidUuid = $this->faker()->uuid();
-
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$invalidUuid.'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -785,7 +806,21 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.token_invalid'),
             ]);
 
-        // Download as guest with token but wrong token type
+        // Download as guest with token but invalid token type
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => 'invalid_token',
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
@@ -800,7 +835,6 @@ class FileTest extends TestCase
                 'message' => __('rooms.flash.auth_token_invalid'),
             ]);
 
-        // Download as guest with token but invalid token type
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
@@ -839,8 +873,6 @@ class FileTest extends TestCase
             ->assertSuccessful();
         $this->room->allow_guests = true;
         $this->room->save();
-
-        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
         // Retrieve download link
         $response = $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))

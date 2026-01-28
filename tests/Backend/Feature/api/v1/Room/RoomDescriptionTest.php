@@ -52,7 +52,7 @@ class RoomDescriptionTest extends TestCase
 
         $room = Room::factory()->create(['description' => $description, 'allow_guests' => true]);
 
-        // Test anoymous user
+        // Test anonymous user
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJson([

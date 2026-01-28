@@ -137,7 +137,8 @@ class RecordingTest extends TestCase
 
         // Access as guest without room auth token
         $this->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'require_code']);
 
         // Access as guest invalid room auth token
         $this->getJson(route('api.v1.rooms.recordings.index', [
@@ -145,16 +146,16 @@ class RecordingTest extends TestCase
             'room_auth_token' => 'invalidToken',
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
-            ->assertUnauthorized();
-
-        $invalidUuid = $this->faker()->uuid();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
         $this->getJson(route('api.v1.rooms.recordings.index', [
             'room' => $room->id,
-            'room_auth_token' => $invalidUuid,
+            'room_auth_token' => $this->faker->uuid(),
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
         $currentSession = $this->startNewSession();
 
@@ -173,10 +174,35 @@ class RecordingTest extends TestCase
             ->assertOk()
             ->assertJsonCount(2, 'data');
 
+        // Access with valid room auth token but invalid room_auth_token_type
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $roomAuthToken->id,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        $this->getJson(route('api.v1.rooms.recordings.index', [
+            'room' => $room->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => 'invalidType',
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
         // Access as authenticated user, without room auth token
         $this->actingAs($this->user)
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'require_code']);
 
         // Access as authenticated user, with invalid room auth token
         $this->actingAs($this->user)
@@ -185,7 +211,17 @@ class RecordingTest extends TestCase
                 'room_auth_token' => 'invalidToken',
                 'room_auth_token_type' => RoomAuthTokenType::CODE->value,
             ]))
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => $this->faker->uuid(),
+                'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+            ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
         // Access as authenticated user, with correct access code but only show public recordings
         $currentSession = $this->startNewSession($this->user);
@@ -204,6 +240,33 @@ class RecordingTest extends TestCase
             ]))
             ->assertOk()
             ->assertJsonCount(2, 'data');
+
+        // Access with valid room auth token but invalid room_auth_token_type
+        $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => $roomAuthToken->id,
+            ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+            ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => 'invalidType',
+            ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
         // Access as member, show public recordings + participant recordings
         $room->members()->attach($this->user->id, ['role' => RoomUserRole::USER]);
@@ -268,13 +331,14 @@ class RecordingTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
-            ->assertForbidden();
-        $this->flushHeaders();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'guests_not_allowed']);
 
         // Access as authenticated user, without room auth token
         $this->actingAs($this->user)
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'require_code']);
 
         // Access as authenticated user, with correct access
         $currentSession = $this->startNewSession($this->user);
@@ -293,7 +357,6 @@ class RecordingTest extends TestCase
             ]))
             ->assertOk()
             ->assertJsonCount(2, 'data');
-        $this->flushHeaders();
     }
 
     public function test_index_pagination()
@@ -420,6 +483,15 @@ class RecordingTest extends TestCase
         ]))
             ->assertSuccessful()
             ->assertJsonCount(11, 'data');
+
+        // Access as user with token
+        $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.index', [
+                'room' => $room->id,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            ]))
+            ->assertStatus(420);
     }
 
     public function test_show_no_access_code_guests_allowed()
@@ -455,7 +527,8 @@ class RecordingTest extends TestCase
 
         // Access as guest without room auth token
         $this->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'require_code']);
 
         // Access as guest with invalid room auth token
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
@@ -465,18 +538,18 @@ class RecordingTest extends TestCase
             'room_auth_token' => 'invalidToken',
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
-            ->assertUnauthorized();
-
-        $invalidUuid = $this->faker()->uuid();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
             'room' => $recording->room->id,
             'recording' => $recording->id,
             'format' => $format->id,
-            'room_auth_token' => $invalidUuid,
+            'room_auth_token' => $this->faker->uuid(),
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
 
         // Access as guest with correct access code
         $currentSession = $this->startNewSession();
@@ -495,6 +568,36 @@ class RecordingTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertOk();
+
+        // Access with valid room auth token but invalid room_auth_token_type
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
+
+        $this->getJson(route('api.v1.rooms.recordings.formats.show', [
+            'room' => $recording->room->id,
+            'recording' => $recording->id,
+            'format' => $format->id,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => 'invalidType',
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'invalid_token']);
     }
 
     public function test_show_access_code_guests_not_allowed()
@@ -518,7 +621,7 @@ class RecordingTest extends TestCase
             'type' => RoomAuthTokenType::CODE,
         ]);
 
-        // Access as guest with correct access code
+        // Access as guest with valid room auth token
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
             'room' => $recording->room->id,
             'recording' => $recording->id,
@@ -526,7 +629,8 @@ class RecordingTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'guests_not_allowed']);
     }
 
     public function test_show_room_token()
@@ -579,6 +683,19 @@ class RecordingTest extends TestCase
         ]))
             ->assertSuccessful();
 
+        // Access as user with token
+        $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.formats.show', [
+                'room' => $recording->room->id,
+                'recording' => $recording->id,
+                'format' => $format->id,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            ]))
+            ->assertStatus(420);
+
+        Auth::logout();
+
         // Increase recording access to moderator
         $recording->access = RecordingAccess::MODERATOR;
         $recording->save();
@@ -591,7 +708,8 @@ class RecordingTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
         ]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'This action is unauthorized.']);
 
         // Increase token role to moderator
         $token->role = RoomUserRole::MODERATOR;
@@ -619,7 +737,8 @@ class RecordingTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
         ]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => 'This action is unauthorized.']);
     }
 
     public function test_show_disabled_format()

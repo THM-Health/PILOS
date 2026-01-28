@@ -55,7 +55,8 @@ class RoomTokenTest extends TestCase
 
         // Guest
         $this->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Moderator through token
         $currentSession = $this->startNewSession();
@@ -72,7 +73,8 @@ class RoomTokenTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::TOKEN,
         ]))
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
@@ -217,7 +219,8 @@ class RoomTokenTest extends TestCase
 
         // Create as guest
         $this->postJson(route('api.v1.rooms.tokens.add', ['room' => $this->room]), $payload)
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Create as guest with moderator token
         $currentSession = $this->startNewSession();
@@ -234,7 +237,8 @@ class RoomTokenTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::TOKEN,
         ]), $payload)
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Create as moderator
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
@@ -308,7 +312,8 @@ class RoomTokenTest extends TestCase
 
         // Update as guest
         $this->putJson(route('api.v1.rooms.tokens.update', ['room' => $this->room, 'token' => $token]), $payload)
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Update as guest with moderator token
         $currentSession = $this->startNewSession();
@@ -326,7 +331,8 @@ class RoomTokenTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::TOKEN,
         ]), $payload)
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Update as moderator
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
@@ -409,7 +415,8 @@ class RoomTokenTest extends TestCase
 
         // Delete as guest
         $this->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Delete as guest with moderator token
         $currentSession = $this->startNewSession();
@@ -427,7 +434,8 @@ class RoomTokenTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::TOKEN,
         ]))
-            ->assertUnauthorized();
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
         // Delete as moderator
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);

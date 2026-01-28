@@ -45,7 +45,7 @@ class RoomFileController extends Controller
      *
      * @return StreamedResponse
      */
-    public function showPresentation(Room $room, RoomFile $roomFile)
+    public function showPresentation(RoomFile $roomFile)
     {
         $roomFileService = new RoomFileService($roomFile);
 

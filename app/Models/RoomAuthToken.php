@@ -18,7 +18,6 @@ class RoomAuthToken extends Model
 
     protected $fillable = [
         'type',
-        'code',
         'room_id',
         'room_token_id',
         'session_id',
