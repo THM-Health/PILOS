@@ -6,7 +6,7 @@ use App\Models\Room;
 use App\Models\RoomFile;
 use App\Services\RoomFileService;
 use Illuminate\Auth\Access\AuthorizationException;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Http\Response;
 
 /**
  * Class RoomFileController
@@ -17,7 +17,7 @@ class RoomFileController extends Controller
     /**
      * Display/Download a file
      *
-     * @return StreamedResponse
+     * @return Response
      */
     public function show(Room $room, RoomFile $file)
     {
@@ -43,7 +43,7 @@ class RoomFileController extends Controller
      * Display/Download a file without authorization check
      * (Needed to allow bbb server to access the presentation files)
      *
-     * @return StreamedResponse
+     * @return Response
      */
     public function showPresentation(RoomFile $roomFile)
     {
