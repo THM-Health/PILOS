@@ -42,7 +42,6 @@ final class LaravelHTTPClient implements TransportInterface
                     ->post($request->getUrl());
             } else {
                 $httpResponse = $this->httpClient
-                    ->contentType($request->getContentType())
                     ->get($request->getUrl());
             }
         } catch (ConnectionException $e) {
