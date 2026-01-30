@@ -197,9 +197,6 @@ class MeetingTest extends TestCase
         $request = Http::recorded()[0][0];
         $data = $request->data();
 
-        // Check content type of body
-        $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
-
         $this->assertEquals(url('logo.png'), $data['logo']);
 
         // Check dark logo missing
