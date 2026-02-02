@@ -42,7 +42,7 @@
     "barryvdh/laravel-ide-helper": "^3.0",
     "brianium/paratest": "^7.9",
     "fakerphp/faker": "^1.9.1",
-    "laravel/boost": "^1.8",
+    "laravel/boost": "^2.0",
     "laravel/pint": "^1.14",
     "m6web/redis-mock": "^5.6",
     "mockery/mockery": "^1.4.2",
