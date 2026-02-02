@@ -191,7 +191,7 @@ function save() {
         // token not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
           toast.error(t("rooms.flash.personalized_link_gone"));
-          showModal.value = false;
+          modalVisible.value = false;
           emit("notFound");
           return;
         }
