@@ -77,7 +77,7 @@ class RoomAuthenticate
                 // No room auth token matching the provided room auth token found
                 // (Invalid room auth token was provided)
                 if ($providedRoomAuthTokenType === RoomAuthTokenType::PERSONALIZED_LINK || $room->access_code != null) {
-                    // Provided invalid room auth token was of type TOKEN or room has an access code set
+                    // Provided invalid room auth token was of type PERSONALIZED_LINK or room has an access code set
 
                     // Metrics and logging
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
