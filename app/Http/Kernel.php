@@ -30,6 +30,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         RequestMetricsMiddleware::class,
+        RobotsHeader::class,
     ];
 
     /**
@@ -50,7 +51,6 @@ class Kernel extends HttpKernel
             'loggedin:ldap,users',
             StoreSessionData::class,
             LogContext::class,
-            RobotsHeader::class,
         ],
 
         'api' => [
