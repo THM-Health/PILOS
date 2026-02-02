@@ -22,14 +22,16 @@ class RobotsHeaderTest extends TestCase
     }
 
     /**
-     * Test that API routes do not have X-Robots-Tag header (middleware not in 'api' group).
+     * Test that API routes have X-Robots-Tag header
+     * with nofollow and noindex directives
      */
-    public function test_api_routes_no_robots_header()
+    public function test_api_routes_robots_header()
     {
         $response = $this->getJson('/api/v1/config');
         $response->assertOk();
 
-        $this->assertFalse($response->headers->has('X-Robots-Tag'));
+        $this->assertTrue($response->headers->has('X-Robots-Tag'));
+        $this->assertEquals('nofollow, noindex', $response->headers->get('X-Robots-Tag'));
     }
 
     /**

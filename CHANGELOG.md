@@ -10,14 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Configurable hashing algorithm for BBB API signatures ([#2765], [#2766])
-- `X-Robots-Tag: noindex` header for all web routes, excluding the landing page ([#2770])
-- `X-Robots-Tag: nofollow` header for all web routes ([#2772])
+- `X-Robots-Tag: noindex` header for all routes, excluding the landing page ([#2770], [#2789])
+- `X-Robots-Tag: nofollow` header for all routes ([#2772], [#2789])
 
 ### Changed
 
 - External authentication routes behavior for authenticated users ([#2751], [#2752])
 - Bump redis version in docker compose files to redis 8 ([#2767])
 - Docs: Bumped the recommended PostgreSQL version to v18 ([#2769])
+
+### Removed
+
+- robots.txt file ([#2789])
 
 ### Fixed
 
@@ -658,6 +662,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2769]: https://github.com/THM-Health/PILOS/pull/2769
 [#2770]: https://github.com/THM-Health/PILOS/pull/2770
 [#2772]: https://github.com/THM-Health/PILOS/pull/2772
+[#2789]: https://github.com/THM-Health/PILOS/pull/2789
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.10.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
