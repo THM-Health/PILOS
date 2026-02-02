@@ -41,7 +41,7 @@
     "vue-eslint-parser": "^10.2.0"
   },
   "dependencies": {
-    "@floating-ui/vue": "^1.1.9",
+    "@floating-ui/vue": "^1.1.10",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@noble/hashes": "^2.0.1",
     "@primevue/auto-import-resolver": "^4.5.4",
