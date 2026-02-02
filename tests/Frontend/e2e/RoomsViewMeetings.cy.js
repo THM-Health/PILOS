@@ -72,7 +72,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: false,
         consent_record_video: false,
@@ -158,7 +158,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: true,
         consent_record: false,
         consent_record_video: false,
@@ -244,7 +244,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: false,
         consent_record_video: false,
@@ -333,7 +333,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: true,
         consent_record_video: true,
@@ -402,7 +402,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: true,
         consent_record_video: false,
@@ -698,7 +698,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
@@ -1040,7 +1040,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 
@@ -1466,7 +1466,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 
@@ -1535,7 +1535,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent, dark mode is enabled
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: false,
         consent_record_video: false,
@@ -1603,7 +1603,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: false,
         consent_record_video: false,
@@ -1680,7 +1680,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: true,
         consent_record: false,
         consent_record_video: false,
@@ -1757,7 +1757,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: false,
         consent_record_video: false,
@@ -1837,7 +1837,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: true,
         consent_record_video: true,
@@ -1893,7 +1893,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: true,
         consent_record_video: false,
@@ -2160,7 +2160,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
@@ -2473,7 +2473,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 
@@ -2970,7 +2970,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 
@@ -3046,7 +3046,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: "",
+        name: null,
         consent_record_attendance: false,
         consent_record: false,
         consent_record_video: false,

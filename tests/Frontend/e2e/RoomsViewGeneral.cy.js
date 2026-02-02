@@ -386,8 +386,8 @@ describe("Room View general", function () {
     });
 
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.query.roomAuthToken).to.be.undefined;
-      expect(interception.request.query.roomAuthTokenType).to.be.undefined;
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
@@ -1109,7 +1109,7 @@ describe("Room View general", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 
@@ -1216,7 +1216,7 @@ describe("Room View general", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 
@@ -1333,7 +1333,7 @@ describe("Room View general", function () {
       cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_personalized_link",
         },
       }).as("roomAuthRequest");
 
@@ -2706,7 +2706,7 @@ describe("Room View general", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 

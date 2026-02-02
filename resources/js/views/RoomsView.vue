@@ -403,9 +403,9 @@ function handleInvalidCode() {
 }
 
 /**
- * Reset room due to token error
+ * Reset room due to personalized link error
  */
-function handleInvalidToken() {
+function handleInvalidPersonalizedLink() {
   // Show error message
   tokenInvalid.value = true;
   toast.error(t("rooms.flash.personalized_link_invalid"));
@@ -627,7 +627,7 @@ function authenticate(type, codeOrToken) {
           // Validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
-              handleInvalidToken();
+              handleInvalidPersonalizedLink();
             } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
               formErrors.set(error.response.data.errors);
             }
@@ -643,9 +643,9 @@ function authenticate(type, codeOrToken) {
           // Room token is invalid
           if (
             error.response.status === env.HTTP_UNAUTHORIZED &&
-            error.response.data.message === "invalid_token"
+            error.response.data.message === "invalid_personalized_link"
           ) {
-            handleInvalidToken();
+            handleInvalidPersonalizedLink();
             return;
           }
           // Access code is invalid

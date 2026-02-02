@@ -1035,7 +1035,7 @@ class RoomTest extends TestCase
             ->assertJsonPath('data.current_user.id', $this->user->id);
     }
 
-    public function test_auth_with_token()
+    public function test_auth_with_personalized_link()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -1044,25 +1044,25 @@ class RoomTest extends TestCase
 
         $currentSession = $this->startNewSession();
 
-        // Try without token
+        // Try without personalized link token
         $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['type']);
 
-        // Try with type but missing token
+        // Try with type but missing personalized link token
         $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::PERSONALIZED_LINK->value])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['personalized_link_token']);
 
-        // Try with invalid token
+        // Try with invalid personalized link token
         $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
             'type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             'personalized_link_token' => 'invalidToken',
         ])
             ->assertUnauthorized()
-            ->assertJsonFragment(['message' => 'invalid_token']);
+            ->assertJsonFragment(['message' => 'invalid_personalized_link']);
 
-        // Try with valid personalized link
+        // Try with valid personalized link token
         $link = RoomPersonalizedLink::factory()->create([
             'room_id' => $room->id,
             'role' => RoomUserRole::USER,
@@ -1095,7 +1095,7 @@ class RoomTest extends TestCase
         // Check that only one room auth token exists
         $this->assertDatabaseCount('room_auth_tokens', 1);
 
-        // Check with valid moderator token
+        // Check with valid moderator personalized link
         $currentSession = $this->startNewSession();
 
         $link = RoomPersonalizedLink::factory()->create([
@@ -1128,13 +1128,13 @@ class RoomTest extends TestCase
             ->assertStatus(420);
     }
 
-    public function test_auth_token_with_token()
+    public function test_room_auth_token_with_personalized_link()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
             'access_code' => $this->createAccessCode(),
         ]);
-        // Try without token
+        // Try without room auth token
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false])

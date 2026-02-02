@@ -934,7 +934,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
     }).as("roomAuthRequest");
 
