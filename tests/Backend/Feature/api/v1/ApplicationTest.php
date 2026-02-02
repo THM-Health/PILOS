@@ -114,7 +114,7 @@ class ApplicationTest extends TestCase
                     'room' => [
                         'file_terms_of_use' => null,
                         'limit' => -1,
-                        'token_expiration' => -1,
+                        'personalized_link_expiration' => -1,
                         'refresh_rate' => 20,
                     ],
                     'banner' => [
@@ -208,7 +208,7 @@ class ApplicationTest extends TestCase
                     'room' => [
                         'file_terms_of_use' => 'Test',
                         'limit' => -1,
-                        'token_expiration' => 90,
+                        'personalized_link_expiration' => 90,
                         'refresh_rate' => 5,
                     ],
                     'banner' => [

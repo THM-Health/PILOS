@@ -59,7 +59,7 @@ class Config extends JsonResource
             ],
             'room' => [
                 'limit' => $roomSettings->limit,
-                'token_expiration' => $roomSettings->personalized_link_expiration,
+                'personalized_link_expiration' => $roomSettings->personalized_link_expiration,
                 'refresh_rate' => config('bigbluebutton.room_refresh_rate'),
                 'file_terms_of_use' => $roomSettings->file_terms_of_use,
             ],
