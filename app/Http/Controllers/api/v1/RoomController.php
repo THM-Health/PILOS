@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomErrorMessages;
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomSortingType;
@@ -449,7 +450,7 @@ class RoomController extends Controller
 
                 Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-                abort(403, 'guests_not_allowed');
+                abort(403, CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value);
             }
 
             if ($room->access_code == null) {
@@ -486,12 +487,12 @@ class RoomController extends Controller
                 // Increment rate limit counter for failed access code attempts
                 RateLimiter::increment($rateLimitKey);
 
-                abort(401, 'invalid_code');
+                abort(401, CustomErrorMessages::ROOM_INVALID_CODE->value);
             }
         } elseif ($request->type === RoomAuthTokenType::PERSONALIZED_LINK->value) {
             if (! Auth::guest()) {
                 // current user is authenticated
-                abort(420, 'guests_only');
+                abort(420, CustomErrorMessages::ROOM_GUESTS_ONLY->value);
             }
 
             $personalizedLink = RoomPersonalizedLink::where('token', $request->personalized_link_token)
@@ -505,7 +506,7 @@ class RoomController extends Controller
                 Counter::get('room_authentication_errors_total')->inc('token');
 
                 Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
-                abort(401, 'invalid_personalized_link');
+                abort(401, CustomErrorMessages::ROOM_INVALID_PERSONALIZED_LINK->value);
             }
 
             $personalizedLink->last_usage = now();

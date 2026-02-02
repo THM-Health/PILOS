@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\CustomErrorMessages;
 use App\Enums\RoomAuthTokenType;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
@@ -59,7 +60,7 @@ class RoomAuthenticate
                 Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                 Log::notice('Room auth token authentication failed for room {room} (Input validation failed)', ['room' => $room->getLogLabel()]);
 
-                return $this->handleError('invalid_token', 401, 'Invalid token', __('rooms.flash.auth_token_invalid'));
+                return $this->handleError(CustomErrorMessages::ROOM_INVALID_TOKEN->value, 401, 'Invalid token', __('rooms.flash.auth_token_invalid'));
             }
 
             // Retrieve the validated input
@@ -84,7 +85,7 @@ class RoomAuthenticate
                     Log::notice('Room auth token authentication failed for room {room} (Room auth token was invalid)', ['room' => $room->getLogLabel()]);
 
                     return $this->handleError(
-                        'invalid_token',
+                        CustomErrorMessages::ROOM_INVALID_TOKEN->value,
                         401,
                         'Invalid token',
                         $providedRoomAuthTokenType == RoomAuthTokenType::PERSONALIZED_LINK
@@ -100,7 +101,7 @@ class RoomAuthenticate
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                     Log::notice('Room auth token authentication failed for room {room} (Room auth token types do not match)', ['room' => $room->getLogLabel()]);
 
-                    return $this->handleError('invalid_token', 401, 'Invalid token', __('rooms.flash.auth_token_invalid'));
+                    return $this->handleError(CustomErrorMessages::ROOM_INVALID_TOKEN->value, 401, 'Invalid token', __('rooms.flash.auth_token_invalid'));
                 }
 
                 if (! Auth::guest() && $roomAuthToken->type === RoomAuthTokenType::PERSONALIZED_LINK) {
@@ -108,7 +109,7 @@ class RoomAuthenticate
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                     Log::notice('Room auth token authentication failed for room {room} (Authenticated with token type token)', ['room' => $room->getLogLabel()]);
 
-                    return $this->handleError('guests_only', 420, 'Guests only', __('app.flash.guests_only'));
+                    return $this->handleError(CustomErrorMessages::ROOM_GUESTS_ONLY->value, 420, 'Guests only', __('app.flash.guests_only'));
                 }
             }
         }
@@ -125,7 +126,7 @@ class RoomAuthenticate
 
             Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-            return $this->handleError('guests_not_allowed', 403, 'Forbidden', __('rooms.only_used_by_authenticated_users'));
+            return $this->handleError(CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value, 403, 'Forbidden', __('rooms.only_used_by_authenticated_users'));
         }
 
         // if room has no access code
@@ -139,7 +140,7 @@ class RoomAuthenticate
 
         // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
-            return $this->handleError('require_code', 403, 'Forbidden', __('rooms.require_access_code'));
+            return $this->handleError(CustomErrorMessages::ROOM_REQUIRE_CODE->value, 403, 'Forbidden', __('rooms.require_access_code'));
         }
 
         // make authentication status and personalized link available to other parts of the application

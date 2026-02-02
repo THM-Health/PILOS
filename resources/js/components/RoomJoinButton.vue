@@ -180,6 +180,11 @@ import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import { useDark } from "@vueuse/core";
 import { ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK } from "../constants/roomAuthTokenTypes.js";
+import {
+  HTTP_ROOM_GUESTS_NOT_ALLOWED,
+  HTTP_ROOM_INVALID_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   roomId: {
@@ -439,7 +444,7 @@ function handleError(error) {
   // Access code is required
   if (
     error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "require_code"
+    error.response.data.message === HTTP_ROOM_REQUIRE_CODE
   ) {
     emit("invalidRoomAuthToken");
     modalVisible.value = false;
@@ -449,7 +454,7 @@ function handleError(error) {
   // Room auth token is invalid
   if (
     error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === "invalid_token"
+    error.response.data.message === HTTP_ROOM_INVALID_TOKEN
   ) {
     emit("invalidRoomAuthToken");
     modalVisible.value = false;
@@ -459,7 +464,7 @@ function handleError(error) {
   // Forbidden, guests not allowed
   if (
     error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "guests_not_allowed"
+    error.response.data.message === HTTP_ROOM_GUESTS_NOT_ALLOWED
   ) {
     emit("guestsNotAllowed");
     modalVisible.value = false;

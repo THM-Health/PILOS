@@ -251,6 +251,12 @@ import {
   ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK,
 } from "../constants/roomAuthTokenTypes.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
+import {
+  HTTP_ROOM_GUESTS_NOT_ALLOWED,
+  HTTP_ROOM_INVALID_CODE,
+  HTTP_ROOM_INVALID_PERSONALIZED_LINK,
+  HTTP_ROOM_INVALID_TOKEN,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   id: {
@@ -453,7 +459,7 @@ function load() {
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
+          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
         ) {
           return handleInvalidRoomAuthToken();
         }
@@ -461,7 +467,7 @@ function load() {
         // Forbidden, guests not allowed
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "guests_not_allowed"
+          error.response.data.message === HTTP_ROOM_GUESTS_NOT_ALLOWED
         ) {
           guestsNotAllowed.value = true;
           return;
@@ -529,7 +535,7 @@ function reload() {
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
+          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
         ) {
           return handleInvalidRoomAuthToken();
         }
@@ -537,7 +543,7 @@ function reload() {
         // Forbidden, guests not allowed
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "guests_not_allowed"
+          error.response.data.message === HTTP_ROOM_GUESTS_NOT_ALLOWED
         ) {
           return handleGuestsNotAllowed();
         }
@@ -643,7 +649,7 @@ function authenticate(type, codeOrToken) {
           // Room token is invalid
           if (
             error.response.status === env.HTTP_UNAUTHORIZED &&
-            error.response.data.message === "invalid_personalized_link"
+            error.response.data.message === HTTP_ROOM_INVALID_PERSONALIZED_LINK
           ) {
             handleInvalidPersonalizedLink();
             return;
@@ -651,7 +657,7 @@ function authenticate(type, codeOrToken) {
           // Access code is invalid
           if (
             error.response.status === env.HTTP_UNAUTHORIZED &&
-            error.response.data.message === "invalid_code"
+            error.response.data.message === HTTP_ROOM_INVALID_CODE
           ) {
             handleInvalidCode();
             return;
@@ -659,7 +665,7 @@ function authenticate(type, codeOrToken) {
           // Forbidden, guests not allowed
           if (
             error.response.status === env.HTTP_FORBIDDEN &&
-            error.response.data.message === "guests_not_allowed"
+            error.response.data.message === HTTP_ROOM_GUESTS_NOT_ALLOWED
           ) {
             handleGuestsNotAllowed();
             return;

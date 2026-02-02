@@ -314,6 +314,10 @@ import { useDateDiff } from "../composables/useDateDiff.js";
 import { useI18n } from "vue-i18n";
 import env from "../env.js";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
+import {
+  HTTP_ROOM_INVALID_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   room: {
@@ -412,7 +416,7 @@ function loadData(page = null) {
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
+          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
         ) {
           return emit("invalidRoomAuthToken");
         }
@@ -420,7 +424,7 @@ function loadData(page = null) {
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
         ) {
           return emit("invalidRoomAuthToken");
         }

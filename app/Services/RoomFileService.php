@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\CustomErrorMessages;
 use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -38,7 +39,7 @@ class RoomFileService
 
         if (! $this->checkFileExists()) {
             return response(view('new-tab-error', [
-                'type' => 'file_not_found',
+                'type' => CustomErrorMessages::ROOM_FILE_NOT_FOUND->value,
                 'code' => 404,
                 'title' => 'File not found',
                 'message' => __('rooms.flash.file_gone'),

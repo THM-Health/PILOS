@@ -305,6 +305,14 @@ import { useSettingsStore } from "../stores/settings.js";
 import { useToast } from "../composables/useToast.js";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
+import {
+  HTTP_ROOM_FILE_FORBIDDEN,
+  HTTP_ROOM_FILE_NOT_FOUND,
+  HTTP_ROOM_GUESTS_NOT_ALLOWED,
+  HTTP_ROOM_GUESTS_ONLY,
+  HTTP_ROOM_INVALID_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   room: {
@@ -403,7 +411,7 @@ function loadData(page = null) {
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
+          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
         ) {
           return emit("invalidRoomAuthToken");
         }
@@ -411,7 +419,7 @@ function loadData(page = null) {
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
         ) {
           return emit("invalidRoomAuthToken");
         }
@@ -435,24 +443,24 @@ function onPage(event) {
 function handleFileErrorMessages(event) {
   // Check origin
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
-  if (event.data.type === "file_not_found") {
+  if (event.data.type === HTTP_ROOM_FILE_NOT_FOUND) {
     // File not found
     toast.error(t("rooms.flash.file_gone"));
     loadData();
-  } else if (event.data.type === "invalid_token") {
+  } else if (event.data.type === HTTP_ROOM_INVALID_TOKEN) {
     // Room auth token is invalid
     emit("invalidRoomAuthToken");
-  } else if (event.data.type === "require_code") {
+  } else if (event.data.type === HTTP_ROOM_REQUIRE_CODE) {
     // Forbidden, require access code
     emit("invalidRoomAuthToken");
-  } else if (event.data.type === "forbidden") {
+  } else if (event.data.type === HTTP_ROOM_FILE_FORBIDDEN) {
     // Forbidden, not allowed to view file
     toast.error(t("rooms.flash.file_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
-  } else if (event.data.type === "guests_not_allowed") {
+  } else if (event.data.type === HTTP_ROOM_GUESTS_NOT_ALLOWED) {
     // Guests are not allowed
     emit("guestsNotAllowed");
-  } else if (event.data.type === "guests_only") {
+  } else if (event.data.type === HTTP_ROOM_GUESTS_ONLY) {
     api.handleGuestsOnly();
   }
 }

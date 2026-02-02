@@ -73,6 +73,10 @@ import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import EventBus from "../services/EventBus.js";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
+import {
+  HTTP_ROOM_INVALID_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   roomAuthToken: {
@@ -159,7 +163,7 @@ function downloadFormat(format) {
         // Room Auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
+          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
         ) {
           return emit("invalidRoomAuthToken");
         }
@@ -167,7 +171,7 @@ function downloadFormat(format) {
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
         ) {
           return emit("invalidRoomAuthToken");
         }

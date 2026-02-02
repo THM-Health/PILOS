@@ -62,6 +62,7 @@ import env from "../env";
 import { ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
+import { HTTP_ROOM_INVALID_TOKEN } from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   room: {
@@ -120,7 +121,7 @@ function joinMembership() {
       // Access code invalid
       if (
         error.response.status === env.HTTP_UNAUTHORIZED &&
-        error.response.data.message === "invalid_token"
+        error.response.data.message === HTTP_ROOM_INVALID_TOKEN
       ) {
         return emit("invalidRoomAuthToken");
       }
