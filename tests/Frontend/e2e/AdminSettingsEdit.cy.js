@@ -3137,7 +3137,7 @@ describe("Admin settings with edit permission", function () {
           ],
           room_limit: ["The room limit field is required."],
           room_personalized_link_expiration: [
-            "The selected room token expiration is invalid.",
+            "The selected room personalized room links expiration is invalid.",
           ],
           room_auto_delete_deadline_period: [
             "The selected room auto delete deadline period is invalid.",
@@ -3295,7 +3295,7 @@ describe("Admin settings with edit permission", function () {
     );
     cy.get('[data-test="room-personalized-link-expiration-field"]').should(
       "include.text",
-      "The selected room token expiration is invalid.",
+      "The selected room personalized room links expiration is invalid.",
     );
     cy.get('[data-test="room-auto-delete-deadline-period-field"]').should(
       "include.text",
@@ -3482,7 +3482,7 @@ describe("Admin settings with edit permission", function () {
     );
     cy.get('[data-test="room-personalized-link-expiration-field"]').should(
       "not.include.text",
-      "The selected room token expiration is invalid.",
+      "The selected room personalized room links expiration is invalid.",
     );
     cy.get('[data-test="room-auto-delete-deadline-period-field"]').should(
       "not.include.text",
