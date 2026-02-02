@@ -37,7 +37,7 @@ class RoomPersonalizedLinkTest extends TestCase
 
     public function test_index()
     {
-        $this->roomSettings->token_expiration = TimePeriod::THREE_MONTHS;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::THREE_MONTHS;
         $this->roomSettings->save();
 
         $page_size = 5;
@@ -138,7 +138,7 @@ class RoomPersonalizedLinkTest extends TestCase
         $link = RoomPersonalizedLink::find($results[0]['id']);
         self::assertEquals($link->created_at->addDays(90)->toISOString(), $results[0]['expires']);
 
-        $this->roomSettings->token_expiration = TimePeriod::UNLIMITED;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::UNLIMITED;
         $this->roomSettings->save();
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room]))->json('data');
         self::assertNull($results[0]['expires']);

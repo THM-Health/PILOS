@@ -48,7 +48,7 @@ class RoomPersonalizedLink extends Model
      */
     public function getExpiresAttribute()
     {
-        $linkExpiration = app(RoomSettings::class)->token_expiration;
+        $linkExpiration = app(RoomSettings::class)->personalized_link_expiration;
 
         return $linkExpiration != TimePeriod::UNLIMITED ? ($this->last_usage != null ? $this->last_usage->addDays($linkExpiration->value) : $this->created_at->addDays($linkExpiration->value)) : null;
     }

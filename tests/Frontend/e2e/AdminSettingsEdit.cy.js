@@ -1794,64 +1794,89 @@ describe("Admin settings with edit permission", function () {
       });
 
     // Room token expiration
-    cy.get('[data-test="room-token-expiration-dropdown-items"]').should(
-      "not.exist",
-    );
-    cy.get('[data-test="room-token-expiration-field"]')
+    cy.get(
+      '[data-test="room-personalized-link-expiration-dropdown-items"]',
+    ).should("not.exist");
+    cy.get('[data-test="room-personalized-link-expiration-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.room_token_expiration.title")
-      .and("include.text", "admin.settings.room_token_expiration.description")
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.title",
+      )
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.description",
+      )
       .within(() => {
-        cy.get('[data-test="room-token-expiration-dropdown"]')
+        cy.get('[data-test="room-personalized-link-expiration-dropdown"]')
           .should("have.text", "app.unlimited")
           .click();
       });
 
-    cy.get('[data-test="room-token-expiration-dropdown-items"]')
+    cy.get('[data-test="room-personalized-link-expiration-dropdown-items"]')
       .should("be.visible")
       .within(() => {
-        cy.get('[data-test="room-token-expiration-dropdown-option"]').should(
-          "have.length",
-          8,
-        );
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        ).should("have.length", 8);
 
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(0)
           .should("have.text", "admin.settings.one_week");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(1)
           .should("have.text", "admin.settings.two_weeks");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(2)
           .should("have.text", "admin.settings.one_month");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(3)
           .should("have.text", "admin.settings.three_month");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(4)
           .should("have.text", "admin.settings.six_month");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(5)
           .should("have.text", "admin.settings.one_year");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(6)
           .should("have.text", "admin.settings.two_years");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(7)
           .should("have.text", "app.unlimited");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(7)
           .should("have.attr", "aria-selected", "true");
 
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(1)
           .click();
       });
 
-    cy.get('[data-test="room-token-expiration-dropdown-items"]').should(
-      "not.exist",
-    );
-    cy.get('[data-test="room-token-expiration-dropdown"]').should(
+    cy.get(
+      '[data-test="room-personalized-link-expiration-dropdown-items"]',
+    ).should("not.exist");
+    cy.get('[data-test="room-personalized-link-expiration-dropdown"]').should(
       "have.text",
       "admin.settings.two_weeks",
     );
@@ -2060,7 +2085,7 @@ describe("Admin settings with edit permission", function () {
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = 10;
-      settings.data.room_token_expiration = 14;
+      settings.data.room_personalized_link_expiration = 14;
       settings.data.room_auto_delete_deadline_period = 7;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
@@ -2096,7 +2121,7 @@ describe("Admin settings with edit permission", function () {
       );
 
       expect(formData.get("room_limit")).to.equal("10");
-      expect(formData.get("room_token_expiration")).to.equal("14");
+      expect(formData.get("room_personalized_link_expiration")).to.equal("14");
       expect(formData.get("room_auto_delete_deadline_period")).to.equal("7");
       expect(formData.get("room_auto_delete_inactive_period")).to.equal("30");
       expect(formData.get("room_auto_delete_never_used_period")).to.equal(
@@ -2122,7 +2147,7 @@ describe("Admin settings with edit permission", function () {
       .should("be.checked")
       .and("not.be.disabled");
     cy.get("#room-limit-custom").should("have.value", "10");
-    cy.get('[data-test="room-token-expiration-dropdown"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-dropdown"]').should(
       "have.text",
       "admin.settings.two_weeks",
     );
@@ -2152,7 +2177,7 @@ describe("Admin settings with edit permission", function () {
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = -1;
-      settings.data.room_token_expiration = 14;
+      settings.data.room_personalized_link_expiration = 14;
       settings.data.room_auto_delete_deadline_period = 7;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
@@ -2175,7 +2200,7 @@ describe("Admin settings with edit permission", function () {
       );
 
       expect(formData.get("room_limit")).to.equal("-1");
-      expect(formData.get("room_token_expiration")).to.equal("14");
+      expect(formData.get("room_personalized_link_expiration")).to.equal("14");
       expect(formData.get("room_auto_delete_deadline_period")).to.equal("7");
       expect(formData.get("room_auto_delete_inactive_period")).to.equal("30");
       expect(formData.get("room_auto_delete_never_used_period")).to.equal(
@@ -2196,7 +2221,7 @@ describe("Admin settings with edit permission", function () {
       .and("not.be.disabled");
 
     cy.get("#room-limit-custom").should("not.exist");
-    cy.get('[data-test="room-token-expiration-dropdown"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-dropdown"]').should(
       "have.text",
       "admin.settings.two_weeks",
     );
@@ -3111,7 +3136,7 @@ describe("Admin settings with edit permission", function () {
             "The selected banner background color is invalid.",
           ],
           room_limit: ["The room limit field is required."],
-          room_token_expiration: [
+          room_personalized_link_expiration: [
             "The selected room token expiration is invalid.",
           ],
           room_auto_delete_deadline_period: [
@@ -3268,7 +3293,7 @@ describe("Admin settings with edit permission", function () {
       "include.text",
       "The room limit field is required.",
     );
-    cy.get('[data-test="room-token-expiration-field"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-field"]').should(
       "include.text",
       "The selected room token expiration is invalid.",
     );
@@ -3455,7 +3480,7 @@ describe("Admin settings with edit permission", function () {
       "not.include.text",
       "The room limit field is required.",
     );
-    cy.get('[data-test="room-token-expiration-field"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-field"]').should(
       "not.include.text",
       "The selected room token expiration is invalid.",
     );

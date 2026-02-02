@@ -182,7 +182,7 @@ class UpgradeDatabaseTest extends TestCase
         // Check room settings
         $roomSettings = app(RoomSettings::class);
         $this->assertEquals(5, $roomSettings->limit);
-        $this->assertEquals(TimePeriod::UNLIMITED, $roomSettings->token_expiration);
+        $this->assertEquals(TimePeriod::UNLIMITED, $roomSettings->personalized_link_expiration);
         $this->assertEquals(TimePeriod::ONE_YEAR, $roomSettings->auto_delete_inactive_period);
         $this->assertEquals(TimePeriod::THREE_MONTHS, $roomSettings->auto_delete_never_used_period);
         $this->assertEquals(TimePeriod::ONE_WEEK, $roomSettings->auto_delete_deadline_period);

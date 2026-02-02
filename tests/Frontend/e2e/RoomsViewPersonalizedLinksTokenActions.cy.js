@@ -18,7 +18,7 @@ describe("Rooms view personalized links actions", function () {
     cy.get('[data-test="room-personalized-links-add-button"]').click();
     cy.get('[data-test="room-personalized-links-add-dialog"]')
       .should("be.visible")
-      .and("include.text", "rooms.tokens.add")
+      .and("include.text", "rooms.personalized_links.add")
       .within(() => {
         cy.get('[data-test="firstname-field"]')
           .should("include.text", "app.firstname")
@@ -135,8 +135,8 @@ describe("Rooms view personalized links actions", function () {
       .eq(3)
       .should("include.text", "Laura Walter")
       .and("include.text", "rooms.roles.participant")
-      .and("not.include.text", "rooms.tokens.last_used_at")
-      .and("not.include.text", "rooms.tokens.expires_at");
+      .and("not.include.text", "rooms.personalized_links.last_used_at")
+      .and("not.include.text", "rooms.personalized_links.expires_at");
   });
 
   it("add new personalized link errors", function () {
@@ -258,7 +258,7 @@ describe("Rooms view personalized links actions", function () {
 
     cy.get('[data-test="room-personalized-links-edit-dialog"]')
       .should("be.visible")
-      .and("include.text", "rooms.tokens.edit")
+      .and("include.text", "rooms.personalized_links.edit")
       .within(() => {
         cy.get('[data-test="firstname-field"]')
           .should("include.text", "app.firstname")
@@ -368,11 +368,11 @@ describe("Rooms view personalized links actions", function () {
       .should("include.text", "rooms.roles.moderator")
       .should(
         "include.text",
-        'rooms.tokens.last_used_at_{"date":"09/17/2021, 16:36"}',
+        'rooms.personalized_links.last_used_at_{"date":"09/17/2021, 16:36"}',
       )
       .should(
         "include.text",
-        'rooms.tokens.expires_at_{"date":"10/17/2021, 14:21"}',
+        'rooms.personalized_links.expires_at_{"date":"10/17/2021, 14:21"}',
       );
   });
 
@@ -426,7 +426,7 @@ describe("Rooms view personalized links actions", function () {
     );
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_gone");
+    cy.checkToastMessage("rooms.flash.personalized_link_gone");
 
     // Open edit dialog again
     cy.get('[data-test="room-personalized-link-item"]')
@@ -546,10 +546,10 @@ describe("Rooms view personalized links actions", function () {
       .click();
     cy.get('[data-test="room-personalized-links-delete-dialog"]')
       .should("be.visible")
-      .and("include.text", "rooms.tokens.delete")
+      .and("include.text", "rooms.personalized_links.delete")
       .should(
         "include.text",
-        'rooms.tokens.confirm_delete_{"firstname":"John","lastname":"Doe"}',
+        'rooms.personalized_links.confirm_delete_{"firstname":"John","lastname":"Doe"}',
       );
 
     // Confirm delete of personalized link
@@ -660,7 +660,7 @@ describe("Rooms view personalized links actions", function () {
     );
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_gone");
+    cy.checkToastMessage("rooms.flash.personalized_link_gone");
 
     // Open delete dialog again
     cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
@@ -740,7 +740,7 @@ describe("Rooms view personalized links actions", function () {
     });
 
     cy.checkToastMessage(
-      'rooms.tokens.room_link_copied_{"firstname":"John","lastname":"Doe"}',
+      'rooms.personalized_links.room_link_copied_{"firstname":"John","lastname":"Doe"}',
     );
   });
 });

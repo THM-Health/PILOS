@@ -147,8 +147,8 @@ return [
         'recording_forbidden' => 'Der Zugriff auf die Aufzeichnung wurde verweigert.',
         'recording_gone' => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden' => 'Der Raum kann von Ihnen nicht gestartet werden.',
-        'token_gone' => 'Der personalisierte Raumlink wurde in der Zwischenzeit gelöscht.',
-        'token_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
+        'personalized_link_gone' => 'Der personalisierte Raumlink wurde in der Zwischenzeit gelöscht.',
+        'personalized_link_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
         'filter' => 'Filter',
@@ -467,7 +467,7 @@ return [
     'streaming_accept' => 'Ich bin mit dem Streaming einverstanden.',
     'streaming_hint' => 'Wenn Sie nicht möchten, dass Ihre Stimme oder Ihr Video gestreamt wird, stellen Sie sicher, dass Ihr Mikrofon stumm und Ihre Kamera ausgeschaltet ist.',
     'streaming_info' => 'Dieser Raum wird möglicherweise gestreamt.',
-    'tokens' => [
+    'personalized_links' => [
         'add' => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete' => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',
         'copy' => 'Personalisierten Raumlink in Zwischenablage kopieren',

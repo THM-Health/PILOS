@@ -21,9 +21,9 @@ class DeleteObsoletePersonalizedLinksTest extends TestCase
         parent::setUp();
     }
 
-    public function test_no_room_token_expiration()
+    public function test_no_room_personalized_link_expiration()
     {
-        $this->roomSettings->token_expiration = TimePeriod::UNLIMITED;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::UNLIMITED;
         $this->roomSettings->save();
         RoomPersonalizedLink::factory()->count(2)->create();
         $this->assertDatabaseCount('room_personalized_links', 2);
@@ -34,7 +34,7 @@ class DeleteObsoletePersonalizedLinksTest extends TestCase
 
     public function test_deletion_of_expired_room_tokens()
     {
-        $this->roomSettings->token_expiration = TimePeriod::ONE_WEEK;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::ONE_WEEK;
         $this->roomSettings->save();
         RoomPersonalizedLink::factory()->count(2)->create();
 

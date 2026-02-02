@@ -1,10 +1,10 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.tokens.copy')"
+    v-tooltip="$t('rooms.personalized_links.copy')"
     :disabled="disabled"
     icon="fa-solid fa-link"
-    :aria-label="$t('rooms.tokens.copy')"
+    :aria-label="$t('rooms.personalized_links.copy')"
     data-test="room-personalized-links-copy-button"
     @click="copyLink"
   />
@@ -56,7 +56,7 @@ function copyLink() {
     }).href;
   navigator.clipboard.writeText(link);
   toast.info(
-    t("rooms.tokens.room_link_copied", {
+    t("rooms.personalized_links.room_link_copied", {
       firstname: props.firstname,
       lastname: props.lastname,
     }),

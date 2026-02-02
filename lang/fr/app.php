@@ -57,7 +57,7 @@ return [
         'streaming_error' => 'Erreur de connection au serveur de streaming. Merci de retenter plus tard.',
         'streaming_meeting_not_running' => 'La conférence n\'est pas démarrée.',
         'streaming_not_enabled_for_current_meeting_error' => 'Le streaming n\'est pas activité pour cette conférence.',
-        'token_not_found' => 'Le lien de la salle personnalisée est introuvable.',
+        'personalized_link_not_found' => 'Le lien de la salle personnalisée est introuvable.',
     ],
     'filter_no_results' => 'Aucun résultat trouvé',
     'firstname' => 'Prénom',

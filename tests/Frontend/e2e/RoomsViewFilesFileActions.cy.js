@@ -948,7 +948,7 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomAuthRequest");
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
 
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 

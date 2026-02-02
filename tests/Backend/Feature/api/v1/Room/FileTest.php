@@ -803,7 +803,7 @@ class FileTest extends TestCase
                 'type' => 'invalid_token',
                 'code' => 401,
                 'title' => 'Invalid token',
-                'message' => __('rooms.flash.token_invalid'),
+                'message' => __('rooms.flash.personalized_link_invalid'),
             ]);
 
         // Download as guest with token but invalid token type

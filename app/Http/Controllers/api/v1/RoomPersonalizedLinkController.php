@@ -104,7 +104,7 @@ class RoomPersonalizedLinkController extends Controller
     public function update(Room $room, RoomPersonalizedLink $link, RoomPersonalizedLinkRequest $request)
     {
         if (! $link->room->is($room)) {
-            abort(404, __('app.errors.token_not_found'));
+            abort(404, __('app.errors.personalized_link_not_found'));
         }
 
         $link->firstname = $request->firstname;
@@ -127,7 +127,7 @@ class RoomPersonalizedLinkController extends Controller
     public function destroy(Room $room, RoomPersonalizedLink $link)
     {
         if (! $link->room->is($room)) {
-            abort(404, __('app.errors.token_not_found'));
+            abort(404, __('app.errors.personalized_link_not_found'));
         }
 
         $link->delete();

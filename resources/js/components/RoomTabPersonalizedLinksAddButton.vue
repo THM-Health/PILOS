@@ -1,10 +1,10 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.tokens.add')"
+    v-tooltip="$t('rooms.personalized_links.add')"
     :disabled="disabled"
     icon="fa-solid fa-plus"
-    :aria-label="$t('rooms.tokens.add')"
+    :aria-label="$t('rooms.personalized_links.add')"
     data-test="room-personalized-links-add-button"
     @click="showModal"
   />
@@ -13,7 +13,7 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="$t('rooms.tokens.add')"
+    :header="$t('rooms.personalized_links.add')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"

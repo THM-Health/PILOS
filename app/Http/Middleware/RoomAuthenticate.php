@@ -88,7 +88,7 @@ class RoomAuthenticate
                         401,
                         'Invalid token',
                         $providedRoomAuthTokenType == RoomAuthTokenType::PERSONALIZED_LINK
-                            ? __('rooms.flash.token_invalid')
+                            ? __('rooms.flash.personalized_link_invalid')
                             : __('rooms.flash.access_code_invalid')
                     );
                 }

@@ -235,7 +235,7 @@ const availableTabs = computed(() => {
     });
     tabs.push({
       key: "tokens",
-      label: t("rooms.tokens.title"),
+      label: t("rooms.personalized_links.title"),
       icon: "fa-solid fa-link",
       component: RoomTabPersonalizedLinks,
     });

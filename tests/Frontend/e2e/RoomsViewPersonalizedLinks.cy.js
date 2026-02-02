@@ -100,19 +100,19 @@ describe("Rooms view personalized links", function () {
       .should("include.text", "John Doe")
       .should(
         "include.text",
-        'rooms.tokens.last_used_at_{"date":"09/17/2021, 16:36"}',
+        'rooms.personalized_links.last_used_at_{"date":"09/17/2021, 16:36"}',
       )
       .should(
         "include.text",
-        'rooms.tokens.expires_at_{"date":"10/17/2021, 14:21"}',
+        'rooms.personalized_links.expires_at_{"date":"10/17/2021, 14:21"}',
       )
       .should("include.text", "rooms.roles.participant");
 
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(1)
       .should("include.text", "Max Doe")
-      .should("not.include.text", "rooms.tokens.last_used_at")
-      .should("not.include.text", "rooms.tokens.expires_at")
+      .should("not.include.text", "rooms.personalized_links.last_used_at")
+      .should("not.include.text", "rooms.personalized_links.expires_at")
       .should("include.text", "rooms.roles.moderator");
 
     cy.get('[data-test="room-personalized-link-item"]')
@@ -120,11 +120,11 @@ describe("Rooms view personalized links", function () {
       .should("include.text", "Tammy Law")
       .should(
         "include.text",
-        'rooms.tokens.last_used_at_{"date":"10/03/2021, 19:24"}',
+        'rooms.personalized_links.last_used_at_{"date":"10/03/2021, 19:24"}',
       )
       .should(
         "include.text",
-        'rooms.tokens.expires_at_{"date":"10/20/2021, 11:17"}',
+        'rooms.personalized_links.expires_at_{"date":"10/20/2021, 11:17"}',
       )
       .should("include.text", "rooms.roles.moderator");
   });
@@ -868,7 +868,7 @@ describe("Rooms view personalized links", function () {
       "have.length",
       0,
     );
-    cy.contains("rooms.tokens.nodata").should("be.visible");
+    cy.contains("rooms.personalized_links.nodata").should("be.visible");
 
     // Check with 2 personalized links on 2 pages
     cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
@@ -1005,7 +1005,7 @@ describe("Rooms view personalized links", function () {
 
     // Check that correct filter is displayed
     cy.get('[data-test="filter-dropdown"]')
-      .should("have.text", "rooms.tokens.filter.all")
+      .should("have.text", "rooms.personalized_links.filter.all")
       .click();
 
     cy.get('[data-test="filter-dropdown-items"]')
@@ -1017,16 +1017,22 @@ describe("Rooms view personalized links", function () {
 
         cy.get("[data-test=filter-dropdown-option]")
           .eq(0)
-          .should("have.text", "rooms.tokens.filter.all");
+          .should("have.text", "rooms.personalized_links.filter.all");
         cy.get("[data-test=filter-dropdown-option]")
           .eq(0)
           .should("have.attr", "aria-selected", "true");
         cy.get("[data-test=filter-dropdown-option]")
           .eq(1)
-          .should("have.text", "rooms.tokens.filter.participant_role");
+          .should(
+            "have.text",
+            "rooms.personalized_links.filter.participant_role",
+          );
         cy.get("[data-test=filter-dropdown-option]")
           .eq(2)
-          .should("have.text", "rooms.tokens.filter.moderator_role");
+          .should(
+            "have.text",
+            "rooms.personalized_links.filter.moderator_role",
+          );
       });
 
     // Change filter and respond with no personalized links found for this filter
@@ -1054,7 +1060,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.participant_role",
+      "rooms.personalized_links.filter.participant_role",
     );
 
     // Check if correct message is shown and no personalized links are displayed
@@ -1092,11 +1098,11 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.moderator_role",
+      "rooms.personalized_links.filter.moderator_role",
     );
 
     // Check if correct message is shown and no personalized links are displayed
-    cy.contains("rooms.tokens.nodata").should("be.visible");
+    cy.contains("rooms.personalized_links.nodata").should("be.visible");
     cy.get('[data-test="room-personalized-link-item"]').should(
       "have.length",
       0,
@@ -1130,7 +1136,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.participant_role",
+      "rooms.personalized_links.filter.participant_role",
     );
 
     // Check that correct personalized link is shown
@@ -1181,7 +1187,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.participant_role",
+      "rooms.personalized_links.filter.participant_role",
     );
 
     // Check that correct pagination is active
@@ -1230,7 +1236,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.all",
+      "rooms.personalized_links.filter.all",
     );
   });
 
@@ -1270,7 +1276,7 @@ describe("Rooms view personalized links", function () {
           .should("have.attr", "aria-selected", "true");
         cy.get("[data-test=sorting-type-dropdown-option]")
           .eq(2)
-          .should("have.text", "rooms.tokens.last_usage");
+          .should("have.text", "rooms.personalized_links.last_usage");
 
         // Change sorting type and respond with 3 personalized links on 3 different pages
         cy.fixture("roomPersonalizedLinks.json").then(
@@ -1455,7 +1461,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=sorting-type-dropdown]").should(
       "have.text",
-      "rooms.tokens.last_usage",
+      "rooms.personalized_links.last_usage",
     );
 
     // Check that correct pagination is active

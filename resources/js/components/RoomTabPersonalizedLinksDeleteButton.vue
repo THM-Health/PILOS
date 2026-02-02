@@ -1,11 +1,11 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.tokens.delete')"
+    v-tooltip="$t('rooms.personalized_links.delete')"
     severity="danger"
     :disabled="disabled"
     icon="fa-solid fa-trash"
-    :aria-label="$t('rooms.tokens.delete')"
+    :aria-label="$t('rooms.personalized_links.delete')"
     data-test="room-personalized-links-delete-button"
     @click="showModal"
   />
@@ -14,7 +14,7 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="$t('rooms.tokens.delete')"
+    :header="$t('rooms.personalized_links.delete')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -44,7 +44,7 @@
 
     <span>
       {{
-        $t("rooms.tokens.confirm_delete", {
+        $t("rooms.personalized_links.confirm_delete", {
           firstname: props.firstname,
           lastname: props.lastname,
         })
@@ -121,7 +121,7 @@ function deleteLink() {
       if (error.response) {
         // personalized link not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
-          toast.error(t("rooms.flash.token_gone"));
+          toast.error(t("rooms.flash.personalized_link_gone"));
           showModal.value = false;
           emit("notFound");
           return;

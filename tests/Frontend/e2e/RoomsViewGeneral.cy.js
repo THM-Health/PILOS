@@ -1123,7 +1123,7 @@ describe("Room View general", function () {
     cy.get('[data-test="reload-room-button"]').click();
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
   });
 
@@ -1234,7 +1234,7 @@ describe("Room View general", function () {
     });
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Reload and check with 422 error
@@ -1262,7 +1262,7 @@ describe("Room View general", function () {
     });
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Check with guests only error
@@ -1356,7 +1356,7 @@ describe("Room View general", function () {
     });
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Check with guests only error
@@ -2722,7 +2722,7 @@ describe("Room View general", function () {
     cy.wait("@roomAuthRequest");
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Check with guests only error

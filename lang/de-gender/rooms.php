@@ -138,7 +138,7 @@ return [
         'recording_forbidden' => 'Der Zugriff auf die Aufzeichnung wurde verweigert.',
         'recording_gone' => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden' => 'Der Raum kann von Ihnen nicht gestartet werden.',
-        'token_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
+        'personalized_link_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
         'filter' => 'Filter',
@@ -410,7 +410,7 @@ return [
     ],
     'start' => 'Starten',
     'start_room' => 'Raum starten',
-    'tokens' => [
+    'personalized_links' => [
         'add' => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete' => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',
         'copy' => 'Personalisierten Raumlink in Zwischenablage kopieren',

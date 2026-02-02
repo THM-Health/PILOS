@@ -384,7 +384,7 @@ return [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
         ],
-        'room_token_expiration' => [
+        'room_personalized_link_expiration' => [
             'description' => 'Time period since last usage, after which personalized room links gets automatically removed.',
             'title' => 'Expiration time for personalized room links',
         ],

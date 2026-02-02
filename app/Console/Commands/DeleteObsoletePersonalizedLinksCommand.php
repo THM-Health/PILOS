@@ -32,7 +32,7 @@ class DeleteObsoletePersonalizedLinksCommand extends Command
      */
     public function handle()
     {
-        $expireDuration = app(RoomSettings::class)->token_expiration;
+        $expireDuration = app(RoomSettings::class)->personalized_link_expiration;
 
         if ($expireDuration != TimePeriod::UNLIMITED) {
             $expiredLinks = RoomPersonalizedLink::query()

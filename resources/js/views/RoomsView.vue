@@ -408,7 +408,7 @@ function handleInvalidCode() {
 function handleInvalidToken() {
   // Show error message
   tokenInvalid.value = true;
-  toast.error(t("rooms.flash.token_invalid"));
+  toast.error(t("rooms.flash.personalized_link_invalid"));
   // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
   stopAutoRefresh();
 }

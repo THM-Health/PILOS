@@ -1,11 +1,11 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.tokens.edit')"
+    v-tooltip="$t('rooms.personalized_links.edit')"
     severity="info"
     :disabled="disabled"
     icon="fa-solid fa-edit"
-    :aria-label="$t('rooms.tokens.edit')"
+    :aria-label="$t('rooms.personalized_links.edit')"
     data-test="room-personalized-links-edit-button"
     @click="showModal"
   />
@@ -14,7 +14,7 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="$t('rooms.tokens.edit')"
+    :header="$t('rooms.personalized_links.edit')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -190,7 +190,7 @@ function save() {
       if (error.response) {
         // token not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
-          toast.error(t("rooms.flash.token_gone"));
+          toast.error(t("rooms.flash.personalized_link_gone"));
           showModal.value = false;
           emit("notFound");
           return;

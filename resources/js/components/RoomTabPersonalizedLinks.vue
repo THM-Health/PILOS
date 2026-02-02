@@ -139,7 +139,7 @@
           <div>
             <div v-if="!isBusy && !loadingError" class="px-2">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
-                $t("rooms.tokens.nodata")
+                $t("rooms.personalized_links.nodata")
               }}</InlineNote>
               <InlineNote v-else>{{ $t("app.filter_no_results") }}</InlineNote>
             </div>
@@ -162,10 +162,10 @@
                       <i class="fa-solid fa-clock" />
                       <p class="m-0 text-sm">
                         <span v-if="item.last_usage == null">{{
-                          $t("rooms.tokens.last_used_never")
+                          $t("rooms.personalized_links.last_used_never")
                         }}</span>
                         <span v-else>{{
-                          $t("rooms.tokens.last_used_at", {
+                          $t("rooms.personalized_links.last_used_at", {
                             date: $d(
                               new Date(item.last_usage),
                               "datetimeShort",
@@ -181,7 +181,7 @@
                       <i class="fa-regular fa-calendar-xmark"></i>
                       <p class="m-0 text-sm">
                         {{
-                          $t("rooms.tokens.expires_at", {
+                          $t("rooms.personalized_links.expires_at", {
                             date: $d(new Date(item.expires), "datetimeShort"),
                           })
                         }}
@@ -268,16 +268,19 @@ const filter = ref("all");
 const sortFields = computed(() => [
   { name: t("app.firstname"), value: "firstname" },
   { name: t("app.lastname"), value: "lastname" },
-  { name: t("rooms.tokens.last_usage"), value: "last_usage" },
+  { name: t("rooms.personalized_links.last_usage"), value: "last_usage" },
 ]);
 
 const filterOptions = computed(() => [
-  { name: t("rooms.tokens.filter.all"), value: "all" },
+  { name: t("rooms.personalized_links.filter.all"), value: "all" },
   {
-    name: t("rooms.tokens.filter.participant_role"),
+    name: t("rooms.personalized_links.filter.participant_role"),
     value: "participant_role",
   },
-  { name: t("rooms.tokens.filter.moderator_role"), value: "moderator_role" },
+  {
+    name: t("rooms.personalized_links.filter.moderator_role"),
+    value: "moderator_role",
+  },
 ]);
 
 const toggleSortOrder = () => {
