@@ -54,7 +54,7 @@
             v-if="
               !authStore.isAuthenticated &&
               (roomAuthToken === null ||
-                roomAuthToken.type !== ROOM_AUTH_TOKEN_TYPE_TOKEN)
+                roomAuthToken.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK)
             "
             class="mb-4 flex flex-col gap-2"
           >
@@ -186,7 +186,7 @@ import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import { useDark } from "@vueuse/core";
-import { ROOM_AUTH_TOKEN_TYPE_TOKEN } from "../constants/roomAuthTokenTypes.js";
+import { ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK } from "../constants/roomAuthTokenTypes.js";
 
 const props = defineProps({
   roomId: {
@@ -307,7 +307,7 @@ const autoJoin = computed(() => {
   if (
     !authStore.isAuthenticated &&
     (props.roomAuthToken === null ||
-      props.roomAuthToken.type !== ROOM_AUTH_TOKEN_TYPE_TOKEN)
+      props.roomAuthToken.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK)
   ) {
     return false;
   }
@@ -366,7 +366,7 @@ function getJoinUrl() {
     data: {
       name:
         props.roomAuthToken &&
-        props.roomAuthToken.type === ROOM_AUTH_TOKEN_TYPE_TOKEN
+        props.roomAuthToken.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
           ? null
           : name.value,
       consent_record_attendance: recordAttendanceAgreement.value,

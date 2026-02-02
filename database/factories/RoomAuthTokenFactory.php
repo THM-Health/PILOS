@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Enums\RoomAuthTokenType;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\Session;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -29,10 +29,10 @@ class RoomAuthTokenFactory extends Factory
             'session_id' => Session::factory(),
             'type' => $this->faker->randomElement([
                 RoomAuthTokenType::CODE,
-                RoomAuthTokenType::TOKEN,
+                RoomAuthTokenType::PERSONALIZED_LINK,
             ]),
             'room_id' => Room::factory(),
-            'room_token_id' => null,
+            'room_personalized_link_id' => null,
         ];
     }
 
@@ -42,11 +42,11 @@ class RoomAuthTokenFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (RoomAuthToken $roomAuthToken) {
-            if ($roomAuthToken->type === RoomAuthTokenType::TOKEN && $roomAuthToken->room_token_id === null) {
-                $roomToken = RoomToken::factory()->create([
+            if ($roomAuthToken->type === RoomAuthTokenType::PERSONALIZED_LINK && $roomAuthToken->room_personalized_link_id === null) {
+                $link = RoomPersonalizedLink::factory()->create([
                     'room_id' => $roomAuthToken->room_id,
                 ]);
-                $roomAuthToken->accessToken()->associate($roomToken);
+                $roomAuthToken->personalizedLink()->associate($link);
                 $roomAuthToken->save();
             }
         });

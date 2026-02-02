@@ -176,7 +176,7 @@ return [
             'select_sorting' => '-- Select sorting --',
         ],
     ],
-    'invalid_personal_link' => 'This personalised room link is invalid.',
+    'invalid_personalized_link' => 'This personalised room link is invalid.',
     'invitation' => [
         'code' => 'Access code',
         'copied_code' => 'Copied access code to clipboard',

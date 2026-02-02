@@ -309,7 +309,7 @@ namespace App\Models{
  * @property-read int|null $recordings_count
  * @property-read \App\Models\RoomType $roomType
  * @property-read \App\Models\RoomStreaming $streaming
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RoomToken> $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RoomPersonalizedLink> $tokens
  * @property-read int|null $tokens_count
  * @method static \Database\Factories\RoomFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Room newModelQuery()
@@ -426,17 +426,17 @@ namespace App\Models{
  * @property-read string $fullname
  * @property-read \App\Models\Room $room
  * @method static \Database\Factories\RoomTokenFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereFirstname($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereLastUsage($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereLastname($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereRole($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereRoomId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomToken whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereFirstname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereLastUsage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereLastname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereRoomId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPersonalizedLink whereUpdatedAt($value)
  */
 	class RoomToken extends \Eloquent {}
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\User as UserResource;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Services\RoomAuthService;
 use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,8 +29,8 @@ class Room extends JsonResource
         return $this;
     }
 
-    // The token used to authenticate the user
-    private ?RoomToken $token;
+    // The personalized link used to authenticate the user
+    private ?RoomPersonalizedLink $personalizedLink;
 
     /**
      * Create a new resource instance.
@@ -42,7 +42,7 @@ class Room extends JsonResource
         parent::__construct($resource);
 
         $roomAuthService = app()->make(RoomAuthService::class);
-        $this->token = $roomAuthService->getRoomToken($resource);
+        $this->personalizedLink = $roomAuthService->getRoomPersonalizedLink($resource);
         $this->authenticated = $roomAuthService->isAuthenticated($resource);
     }
 
@@ -53,15 +53,15 @@ class Room extends JsonResource
         }
 
         return [
-            'username' => $this->when(! empty($this->token), ! empty($this->token) ? $this->token->fullname : null),
+            'username' => $this->when(! empty($this->personalizedLink), ! empty($this->personalizedLink) ? $this->personalizedLink->fullname : null),
             'authenticated' => $this->authenticated,
             'legacy_code' => $this->access_code && strlen($this->access_code) == 6,
             'description' => $this->when($this->authenticated, $this->description),
             'allow_membership' => $this->getRoomSetting('allow_membership'),
             'is_member' => $this->resource->isMember(Auth::user()),
-            'is_moderator' => $this->resource->isModerator(Auth::user(), $this->token),
+            'is_moderator' => $this->resource->isModerator(Auth::user(), $this->personalizedLink),
             'is_co_owner' => $this->resource->isCoOwner(Auth::user()),
-            'can_start' => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
+            'can_start' => Gate::inspect('start', [$this->resource, $this->personalizedLink])->allowed(),
             'access_code' => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
             'current_user' => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles(),

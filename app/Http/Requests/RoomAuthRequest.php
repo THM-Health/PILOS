@@ -13,7 +13,7 @@ class RoomAuthRequest extends FormRequest
         return [
             'type' => ['required', Rule::enum(RoomAuthTokenType::class)],
             'access_code' => ['required_if:type,'.RoomAuthTokenType::CODE->value],
-            'access_token' => ['required_if:type,'.RoomAuthTokenType::TOKEN->value],
+            'personalized_link_token' => ['required_if:type,'.RoomAuthTokenType::PERSONALIZED_LINK->value],
         ];
     }
 

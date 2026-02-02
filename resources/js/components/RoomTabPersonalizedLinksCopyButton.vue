@@ -45,7 +45,7 @@ const router = useRouter();
 const settingsStore = useSettingsStore();
 
 /**
- * Copies the room link for the personalized token to the users' clipboard.
+ * Copies the room link for the personalized link to the users' clipboard.
  */
 function copyLink() {
   const link =

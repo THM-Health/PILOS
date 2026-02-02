@@ -1016,7 +1016,7 @@ describe("Room View general", function () {
     cy.get("#invitationCode").should("have.value", "508-307-005");
   });
 
-  it("room view with token (participant)", function () {
+  it("room view with personalized link (participant)", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -1048,7 +1048,7 @@ describe("Room View general", function () {
       }).as("roomRequest");
     });
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
@@ -1063,7 +1063,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -1124,10 +1124,10 @@ describe("Room View general", function () {
 
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
   });
 
-  it("room view with token (moderator)", function () {
+  it("room view with personalized link (moderator)", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -1155,7 +1155,7 @@ describe("Room View general", function () {
       }).as("roomRequest");
     });
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
@@ -1164,7 +1164,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -1207,7 +1207,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-share-button"]').should("not.exist");
   });
 
-  it("room auth with token errors", function () {
+  it("room auth with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -1220,14 +1220,14 @@ describe("Room View general", function () {
       },
     }).as("roomAuthRequest");
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -1235,7 +1235,7 @@ describe("Room View general", function () {
 
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Reload and check with 422 error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -1243,19 +1243,19 @@ describe("Room View general", function () {
       body: {
         message: "The given data was invalid.",
         errors: {
-          access_token: ["The Access token field is required."],
+          personalized_link_token: ["The Access token field is required."],
         },
       },
     }).as("roomAuthRequest");
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -1263,7 +1263,7 @@ describe("Room View general", function () {
 
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -1273,14 +1273,14 @@ describe("Room View general", function () {
       },
     }).as("roomAuthRequest");
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -1292,7 +1292,7 @@ describe("Room View general", function () {
       .and("not.include", "rooms/abc-def-123");
   });
 
-  it("room view with token errors", function () {
+  it("room view with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -1325,7 +1325,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -1349,7 +1349,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -1357,7 +1357,7 @@ describe("Room View general", function () {
 
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -1377,14 +1377,14 @@ describe("Room View general", function () {
       },
     }).as("roomRequest");
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        access_token:
+        personalized_link_token:
           "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
@@ -2352,7 +2352,7 @@ describe("Room View general", function () {
     cy.contains("Meeting One").should("be.visible");
   });
 
-  it("visit with token as authenticated user", function () {
+  it("visit with personalized link as authenticated user", function () {
     cy.fixture("room.json").then((room) => {
       room.data.owner = {
         id: 2,
@@ -2368,7 +2368,7 @@ describe("Room View general", function () {
       }).as("roomRequest");
     });
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
@@ -2661,7 +2661,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
   });
 
-  it("reload with token errors", function () {
+  it("reload with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -2723,7 +2723,7 @@ describe("Room View general", function () {
 
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {

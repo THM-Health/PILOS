@@ -20,7 +20,7 @@ use App\Http\Resources\RoomAuthTokenResource;
 use App\Http\Resources\RoomSettings;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\RoomType;
 use App\Models\User;
 use App\Prometheus\Counter;
@@ -433,7 +433,7 @@ class RoomController extends Controller
 
     /**
      * Authenticate a user based on a provided access code or
-     * room token and return a room auth token for further requests
+     * personalized room link and return a room auth token for further requests
      */
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
@@ -488,18 +488,18 @@ class RoomController extends Controller
 
                 abort(401, 'invalid_code');
             }
-        } elseif ($request->type === RoomAuthTokenType::TOKEN->value) {
+        } elseif ($request->type === RoomAuthTokenType::PERSONALIZED_LINK->value) {
             if (! Auth::guest()) {
                 // current user is authenticated
                 abort(420, 'guests_only');
             }
 
-            $accessToken = RoomToken::where('token', $request->access_token)
+            $personalizedLink = RoomPersonalizedLink::where('token', $request->personalized_link_token)
                 ->where('room_id', $room->id)
                 ->first();
 
-            if ($accessToken == null) {
-                // Access token is invalid
+            if ($personalizedLink == null) {
+                // Personal link is invalid
 
                 // Metrics and logging
                 Counter::get('room_authentication_errors_total')->inc('token');
@@ -508,15 +508,15 @@ class RoomController extends Controller
                 abort(401, 'invalid_token');
             }
 
-            $accessToken->last_usage = now();
-            $accessToken->save();
+            $personalizedLink->last_usage = now();
+            $personalizedLink->save();
 
             // Generate new room auth token
             $roomAuthToken = RoomAuthToken::firstOrCreate([
                 'room_id' => $room->id,
-                'room_token_id' => $accessToken->token,
+                'room_personalized_link_id' => $personalizedLink->id,
                 'session_id' => session()->getId(),
-                'type' => RoomAuthTokenType::TOKEN,
+                'type' => RoomAuthTokenType::PERSONALIZED_LINK,
             ]);
 
             return new RoomAuthTokenResource($roomAuthToken);

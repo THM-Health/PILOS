@@ -19,7 +19,7 @@ class RoomAuthToken extends Model
     protected $fillable = [
         'type',
         'room_id',
-        'room_token_id',
+        'room_personalized_link_id',
         'session_id',
     ];
 
@@ -28,9 +28,9 @@ class RoomAuthToken extends Model
         return $this->belongsTo(Room::class);
     }
 
-    public function accessToken()
+    public function personalizedLink()
     {
-        return $this->belongsTo(RoomToken::class, 'room_token_id', 'token');
+        return $this->belongsTo(RoomPersonalizedLink::class, 'room_personalized_link_id');
     }
 
     public function session()

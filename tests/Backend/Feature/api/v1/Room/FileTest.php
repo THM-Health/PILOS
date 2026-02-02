@@ -9,7 +9,7 @@ use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
 use App\Models\RoomFile;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\RoomFileService;
@@ -550,7 +550,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -700,7 +700,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -743,18 +743,18 @@ class FileTest extends TestCase
 
         \Auth::logout();
 
-        // Create token
-        $token = RoomToken::factory()->create(['room_id' => $this->room->id]);
-        $token->role = RoomUserRole::USER;
-        $token->save();
+        // Create personalized link
+        $link = RoomPersonalizedLink::factory()->create(['room_id' => $this->room->id]);
+        $link->role = RoomUserRole::USER;
+        $link->save();
 
         $currentSession = $this->startNewSession();
 
         $roomAuthToken = RoomAuthToken::factory()->create([
             'session_id' => $currentSession->id,
             'room_id' => $this->room->id,
-            'type' => RoomAuthTokenType::TOKEN,
-            'room_token_id' => $token->token,
+            'type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_personalized_link_id' => $link->id,
         ]);
 
         // Download as guest with token with room participant role
@@ -762,19 +762,19 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertSuccessful();
 
-        // Increase token role to moderator
-        $token->role = RoomUserRole::MODERATOR;
-        $token->save();
+        // Increase personalized link role to moderator
+        $link->role = RoomUserRole::MODERATOR;
+        $link->save();
 
-        // Download as guest with token with room moderator role
+        // Download as guest with personalized link with room moderator role
         $this
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertSuccessful();
 
         // Download as guest with invalid token
@@ -782,7 +782,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token=InvalidToken&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token=InvalidToken&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -796,7 +796,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
@@ -854,7 +854,7 @@ class FileTest extends TestCase
             ->withCookies([
                 session()->getName() => $currentSession->id,
             ])
-            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::TOKEN->value)
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertStatus(420)
             ->assertViewHasAll([
                 'type' => 'guests_only',

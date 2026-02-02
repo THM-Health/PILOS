@@ -142,7 +142,7 @@ function showModal() {
 }
 
 /**
- * Sends a request to the server to create a new token or edit a existing.
+ * Sends a request to the server to create a new personalized link.
  */
 function save() {
   isLoadingAction.value = true;
@@ -158,7 +158,7 @@ function save() {
   };
 
   api
-    .call(`rooms/${props.roomId}/tokens/`, config)
+    .call(`rooms/${props.roomId}/personalizedLinks/`, config)
     .then(() => {
       // operation successful, close modal and reload list
       modalVisible.value = false;

@@ -175,7 +175,7 @@ return [
             'select_sorting' => 'Sortierung',
         ],
     ],
-    'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
+    'invalid_personalized_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation' => [
         'code' => 'Zugangscode',
         'copied_code' => 'Zugangscode in Zwischenablage kopiert',

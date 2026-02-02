@@ -39,7 +39,7 @@ class RoomAuthenticate
     {
         $authenticated = false;
         $room = $request->route('room');
-        $token = null;
+        $personalizedLink = null;
         $roomAuthToken = null;
 
         // requested user is the owner or a member of the room
@@ -52,7 +52,7 @@ class RoomAuthenticate
             // Validate room auth token input
             $validator = Validator::make($request->all(), [
                 'room_auth_token' => ['required', 'uuid'],
-                'room_auth_token_type' => ['required', Rule::in([RoomAuthTokenType::CODE, RoomAuthTokenType::TOKEN])],
+                'room_auth_token_type' => ['required', Rule::in([RoomAuthTokenType::CODE, RoomAuthTokenType::PERSONALIZED_LINK])],
             ]);
 
             if ($validator->stopOnFirstFailure()->fails()) {
@@ -76,7 +76,7 @@ class RoomAuthenticate
             if ($roomAuthToken == null) {
                 // No room auth token matching the provided room auth token found
                 // (Invalid room auth token was provided)
-                if ($providedRoomAuthTokenType === RoomAuthTokenType::TOKEN || $room->access_code != null) {
+                if ($providedRoomAuthTokenType === RoomAuthTokenType::PERSONALIZED_LINK || $room->access_code != null) {
                     // Provided invalid room auth token was of type TOKEN or room has an access code set
 
                     // Metrics and logging
@@ -87,7 +87,7 @@ class RoomAuthenticate
                         'invalid_token',
                         401,
                         'Invalid token',
-                        $providedRoomAuthTokenType == RoomAuthTokenType::TOKEN
+                        $providedRoomAuthTokenType == RoomAuthTokenType::PERSONALIZED_LINK
                             ? __('rooms.flash.token_invalid')
                             : __('rooms.flash.access_code_invalid')
                     );
@@ -103,7 +103,7 @@ class RoomAuthenticate
                     return $this->handleError('invalid_token', 401, 'Invalid token', __('rooms.flash.auth_token_invalid'));
                 }
 
-                if (! Auth::guest() && $roomAuthToken->type === RoomAuthTokenType::TOKEN) {
+                if (! Auth::guest() && $roomAuthToken->type === RoomAuthTokenType::PERSONALIZED_LINK) {
                     // Authenticated user provided a room auth token of type TOKEN
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                     Log::notice('Room auth token authentication failed for room {room} (Authenticated with token type token)', ['room' => $room->getLogLabel()]);
@@ -113,10 +113,10 @@ class RoomAuthenticate
             }
         }
 
-        // Valid room auth token with type TOKEN was provided
-        if (! Auth::user() && $roomAuthToken && $roomAuthToken->type === RoomAuthTokenType::TOKEN) {
+        // Valid room auth token with type PERSONALIZED_LINK was provided
+        if (! Auth::user() && $roomAuthToken && $roomAuthToken->type === RoomAuthTokenType::PERSONALIZED_LINK) {
             $authenticated = true;
-            $token = $roomAuthToken->accessToken;
+            $personalizedLink = $roomAuthToken->personalizedLink;
         }
 
         // user is not authenticated and room is not allowed for guests
@@ -142,9 +142,9 @@ class RoomAuthenticate
             return $this->handleError('require_code', 403, 'Forbidden', __('rooms.require_access_code'));
         }
 
-        // make authentication status and token available to other parts of the application
+        // make authentication status and personalized link available to other parts of the application
         $this->roomAuthService->setAuthenticated($room, $authenticated);
-        $this->roomAuthService->setRoomToken($room, $token);
+        $this->roomAuthService->setRoomPersonalizedLink($room, $personalizedLink);
 
         return $next($request);
     }

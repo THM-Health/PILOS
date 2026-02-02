@@ -23,9 +23,9 @@ return new class extends Migration
             $table->foreign('room_id')
                 ->references('id')->on('rooms')
                 ->onDelete('cascade');
-            $table->string('room_token_id')->nullable();
-            $table->foreign('room_token_id')
-                ->references('token')->on('room_tokens')
+            $table->foreignId('room_personalized_link_id')
+                ->nullable()
+                ->constrained()
                 ->onDelete('cascade');
             $table->timestamps();
         });

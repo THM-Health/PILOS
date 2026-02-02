@@ -7,7 +7,7 @@ use App\Rules\ValidName;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class RoomTokenRequest extends FormRequest
+class RoomPersonalizedLinkRequest extends FormRequest
 {
     public function rules()
     {

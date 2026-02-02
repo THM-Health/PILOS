@@ -5,7 +5,7 @@ namespace Tests\Backend\Feature\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\ServerPool;
@@ -40,7 +40,7 @@ class ServerPoolTest extends TestCase
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;
         $this->generalSettings->save();
-        RoomToken::query()->delete();
+        RoomPersonalizedLink::query()->delete();
         RoomType::query()->delete();
         Server::query()->delete();
         ServerPool::query()->delete();

@@ -95,7 +95,7 @@ class MembershipTest extends TestCase
         $this->getJson(route('api.v1.rooms.show', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'invalid_token']);

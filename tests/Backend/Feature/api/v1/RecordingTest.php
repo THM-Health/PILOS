@@ -11,7 +11,7 @@ use App\Models\RecordingFormat;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -185,7 +185,7 @@ class RecordingTest extends TestCase
         $this->getJson(route('api.v1.rooms.recordings.index', [
             'room' => $room->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'invalid_token']);
@@ -254,7 +254,7 @@ class RecordingTest extends TestCase
             ->getJson(route('api.v1.rooms.recordings.index', [
                 'room' => $room->id,
                 'room_auth_token' => $roomAuthToken->id,
-                'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+                'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
             ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'invalid_token']);
@@ -427,7 +427,7 @@ class RecordingTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    public function test_index_room_token()
+    public function test_index_room_personalized_link()
     {
         $page_size = 20;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -448,48 +448,48 @@ class RecordingTest extends TestCase
             RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
-        // Create token
-        $token = RoomToken::factory()->create(['room_id' => $room->id]);
-        $token->role = RoomUserRole::USER;
-        $token->save();
+        // Create personalized room link
+        $link = RoomPersonalizedLink::factory()->create(['room_id' => $room->id]);
+        $link->role = RoomUserRole::USER;
+        $link->save();
 
         $currentSession = $this->startNewSession();
 
         $roomAuthToken = RoomAuthToken::factory()->create([
             'session_id' => $currentSession->id,
             'room_id' => $room->id,
-            'type' => RoomAuthTokenType::TOKEN,
-            'room_token_id' => $token->token,
+            'type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_personalized_link_id' => $link->id,
         ]);
 
-        // Access as guest with token with room participant role
+        // Access as guest with personalized link with room participant role
         $this->getJson(route('api.v1.rooms.recordings.index', [
             'room' => $room->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertSuccessful()
             ->assertJsonCount(5, 'data');
 
-        // Increase token role to moderator
-        $token->role = RoomUserRole::MODERATOR;
-        $token->save();
+        // Increase personalized link role to moderator
+        $link->role = RoomUserRole::MODERATOR;
+        $link->save();
 
-        // Access as guest with token with room moderator role
+        // Access as guest with personalized link with room moderator role
         $this->getJson(route('api.v1.rooms.recordings.index', [
             'room' => $room->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertSuccessful()
             ->assertJsonCount(11, 'data');
 
-        // Access as user with token
+        // Access as user with personalized link
         $this->actingAs($this->user)
             ->getJson(route('api.v1.rooms.recordings.index', [
                 'room' => $room->id,
                 'room_auth_token' => $roomAuthToken->id,
-                'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+                'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             ]))
             ->assertStatus(420);
     }
@@ -584,7 +584,7 @@ class RecordingTest extends TestCase
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'invalid_token']);
@@ -633,7 +633,7 @@ class RecordingTest extends TestCase
             ->assertJsonFragment(['message' => 'guests_not_allowed']);
     }
 
-    public function test_show_room_token()
+    public function test_show_personalized_link()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
@@ -646,26 +646,26 @@ class RecordingTest extends TestCase
         $room->access_code = $this->createAccessCode();
         $room->save();
 
-        // Create token
-        $token = RoomToken::factory()->create(['room_id' => $room->id]);
-        $token->role = RoomUserRole::USER;
-        $token->save();
+        // Create a personalized link
+        $link = RoomPersonalizedLink::factory()->create(['room_id' => $room->id]);
+        $link->role = RoomUserRole::USER;
+        $link->save();
 
         $currentSession = $this->startNewSession();
         $roomAuthToken = RoomAuthToken::factory()->create([
             'session_id' => $currentSession->id,
             'room_id' => $room->id,
-            'type' => RoomAuthTokenType::TOKEN,
-            'room_token_id' => $token->token,
+            'type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_personalized_link_id' => $link->id,
         ]);
 
-        // Access as guest with token with room participant role
+        // Access as guest with personalized link with room participant role
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
             'room' => $recording->room->id,
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertSuccessful();
 
@@ -673,24 +673,24 @@ class RecordingTest extends TestCase
         $recording->access = RecordingAccess::PARTICIPANT;
         $recording->save();
 
-        // Access as guest with token with room participant role
+        // Access as guest with personalized link with room participant role
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
             'room' => $recording->room->id,
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertSuccessful();
 
-        // Access as user with token
+        // Access as user with personalized link
         $this->actingAs($this->user)
             ->getJson(route('api.v1.rooms.recordings.formats.show', [
                 'room' => $recording->room->id,
                 'recording' => $recording->id,
                 'format' => $format->id,
                 'room_auth_token' => $roomAuthToken->id,
-                'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+                'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             ]))
             ->assertStatus(420);
 
@@ -700,28 +700,28 @@ class RecordingTest extends TestCase
         $recording->access = RecordingAccess::MODERATOR;
         $recording->save();
 
-        // Access as guest with token with room participant role
+        // Access as guest with personalized link with room participant role
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
             'room' => $recording->room->id,
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertForbidden()
             ->assertJsonFragment(['message' => 'This action is unauthorized.']);
 
-        // Increase token role to moderator
-        $token->role = RoomUserRole::MODERATOR;
-        $token->save();
+        // Increase personalized link role to moderator
+        $link->role = RoomUserRole::MODERATOR;
+        $link->save();
 
-        // Access as guest with token with room moderator role
+        // Access as guest with personalized link with room moderator role
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
             'room' => $recording->room->id,
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertSuccessful();
 
@@ -729,13 +729,13 @@ class RecordingTest extends TestCase
         $recording->access = RecordingAccess::OWNER;
         $recording->save();
 
-        // Access as guest with token with room moderator role
+        // Access as guest with personalized link with room moderator role
         $this->getJson(route('api.v1.rooms.recordings.formats.show', [
             'room' => $recording->room->id,
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::TOKEN->value,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertForbidden()
             ->assertJsonFragment(['message' => 'This action is unauthorized.']);

@@ -175,7 +175,7 @@ return [
             'select_sorting' => '-- Choisir le tri --',
         ],
     ],
-    'invalid_personal_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
+    'invalid_personalized_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
     'invitation' => [
         'code' => 'Code d\'accès',
         'copied_code' => 'Code de la salle copié',

@@ -626,11 +626,11 @@ class MeetingService
     public function getJoinUrl(JoinMeeting|StartMeeting $request): string
     {
         $roomAuthService = app()->make(RoomAuthService::class);
-        $token = $roomAuthService->getRoomToken($this->meeting->room);
+        $personalizedLink = $roomAuthService->getRoomPersonalizedLink($this->meeting->room);
 
         if (Auth::guest()) {
-            if ($token) {
-                $name = $token->fullname;
+            if ($personalizedLink) {
+                $name = $personalizedLink->fullname;
             } else {
                 $name = $request->name;
             }
@@ -639,7 +639,7 @@ class MeetingService
         }
 
         $userId = Auth::guest() ? 's'.session()->getId() : 'u'.Auth::user()->id;
-        $roomUserRole = $this->meeting->room->getRole(Auth::user(), $token);
+        $roomUserRole = $this->meeting->room->getRole(Auth::user(), $personalizedLink);
 
         $bbbRole = match ($roomUserRole) {
             RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER, RoomUserRole::OWNER => Role::MODERATOR,

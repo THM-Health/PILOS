@@ -17,7 +17,7 @@
         </template>
         <template #content>
           <span class="font-bold">
-            {{ $t("rooms.invalid_personal_link") }}
+            {{ $t("rooms.invalid_personalized_link") }}
           </span>
         </template>
       </Card>
@@ -248,7 +248,7 @@ import EventBus from "../services/EventBus.js";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
 import {
   ROOM_AUTH_TOKEN_TYPE_CODE,
-  ROOM_AUTH_TOKEN_TYPE_TOKEN,
+  ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK,
 } from "../constants/roomAuthTokenTypes.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 
@@ -304,11 +304,13 @@ onMounted(() => {
 
   if (props.token) {
     roomLoading.value = true;
-    authenticate(ROOM_AUTH_TOKEN_TYPE_TOKEN, props.token).then((success) => {
-      if (success) {
-        load();
-      }
-    });
+    authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
+      (success) => {
+        if (success) {
+          load();
+        }
+      },
+    );
   } else {
     load();
   }
@@ -382,7 +384,7 @@ function handleInvalidRoomAuthToken() {
   if (!tokenType || tokenType === ROOM_AUTH_TOKEN_TYPE_CODE) {
     // Access code is invalid or missing
     return handleInvalidCode();
-  } else if (tokenType === ROOM_AUTH_TOKEN_TYPE_TOKEN) {
+  } else if (tokenType === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
     // Personal link token is invalid or session expired
     window.location.reload();
   }
@@ -588,10 +590,10 @@ function authenticate(type, codeOrToken) {
   return new Promise((resolve) => {
     let data;
 
-    if (type === ROOM_AUTH_TOKEN_TYPE_TOKEN) {
+    if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
       data = {
-        type: ROOM_AUTH_TOKEN_TYPE_TOKEN,
-        access_token: codeOrToken,
+        type: ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK,
+        personalized_link_token: codeOrToken,
       };
     } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
       data = {
@@ -624,7 +626,7 @@ function authenticate(type, codeOrToken) {
         if (error.response) {
           // Validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-            if (type === ROOM_AUTH_TOKEN_TYPE_TOKEN) {
+            if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
               handleInvalidToken();
             } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
               formErrors.set(error.response.data.errors);

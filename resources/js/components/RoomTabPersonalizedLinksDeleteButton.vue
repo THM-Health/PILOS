@@ -37,7 +37,7 @@
           severity="danger"
           :loading="isLoadingAction"
           data-test="dialog-continue-button"
-          @click="deleteToken"
+          @click="deleteLink"
         />
       </div>
     </template>
@@ -65,8 +65,8 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  token: {
-    type: String,
+  id: {
+    type: Number,
     required: true,
   },
   firstname: {
@@ -100,9 +100,9 @@ function showModal() {
 }
 
 /**
- * Sends a request to the server to create a new token or edit a existing.
+ * Sends a request to the server to delete the personalized link.
  */
-function deleteToken() {
+function deleteLink() {
   isLoadingAction.value = true;
 
   const config = {
@@ -110,7 +110,7 @@ function deleteToken() {
   };
 
   api
-    .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
+    .call(`rooms/${props.roomId}/personalizedLinks/${props.id}`, config)
     .then(() => {
       // operation successful, close modal and reload list
       modalVisible.value = false;
@@ -119,7 +119,7 @@ function deleteToken() {
     .catch((error) => {
       // deleting failed
       if (error.response) {
-        // token not found
+        // personalized link not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
           toast.error(t("rooms.flash.token_gone"));
           showModal.value = false;

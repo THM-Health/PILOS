@@ -3,27 +3,27 @@
 namespace App\Console\Commands;
 
 use App\Enums\TimePeriod;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Settings\RoomSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Log;
 
-class DeleteObsoleteTokensCommand extends Command
+class DeleteObsoletePersonalizedLinksCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'room:tokens:delete';
+    protected $signature = 'room:personal-links:delete';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Deletes all personalized room tokens that are expired.';
+    protected $description = 'Deletes all personalized room links that are expired.';
 
     /**
      * Execute the console command.
@@ -35,7 +35,7 @@ class DeleteObsoleteTokensCommand extends Command
         $expireDuration = app(RoomSettings::class)->token_expiration;
 
         if ($expireDuration != TimePeriod::UNLIMITED) {
-            $expiredTokens = RoomToken::query()
+            $expiredLinks = RoomPersonalizedLink::query()
                 ->where(function ($query) use ($expireDuration) {
                     $query->whereNull('last_usage')
                         ->where('created_at', '<', Carbon::now()->subDays($expireDuration->value));
@@ -44,11 +44,11 @@ class DeleteObsoleteTokensCommand extends Command
                     $query->whereNotNull('last_usage')
                         ->where('last_usage', '<', Carbon::now()->subDays($expireDuration->value));
                 })
-                ->pluck('token');
+                ->pluck('id');
 
-            Log::info('Deleting '.count($expiredTokens).' expired room tokens');
+            Log::info('Deleting '.count($expiredLinks).' expired personalized room links');
 
-            RoomToken::destroy($expiredTokens);
+            RoomPersonalizedLink::destroy($expiredLinks);
         }
 
         return 0;

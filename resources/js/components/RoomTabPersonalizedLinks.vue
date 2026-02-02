@@ -113,7 +113,7 @@
         :total-records="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
-        :value="tokens"
+        :value="personalizedLinks"
         lazy
         data-key="id"
         paginator
@@ -208,11 +208,11 @@
                   <!-- edit -->
                   <RoomTabPersonalizedLinksEditButton
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    :id="item.id"
                     :room-id="props.room.id"
                     :firstname="item.firstname"
                     :lastname="item.lastname"
                     :role="item.role"
-                    :token="item.token"
                     :disabled="isBusy"
                     @edited="loadData()"
                     @not-found="loadData()"
@@ -220,10 +220,10 @@
                   <!-- delete -->
                   <RoomTabPersonalizedLinksDeleteButton
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    :id="item.id"
                     :room-id="props.room.id"
                     :firstname="item.firstname"
                     :lastname="item.lastname"
-                    :token="item.token"
                     :disabled="isBusy"
                     @deleted="loadData()"
                     @not-found="loadData()"
@@ -257,7 +257,7 @@ const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 const { t } = useI18n();
 
-const tokens = ref([]);
+const personalizedLinks = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
 const sortField = ref("lastname");
@@ -286,7 +286,7 @@ const toggleSortOrder = () => {
 };
 
 /**
- * (Re)loads list of tokens from api
+ * (Re)loads list of personalized links from api
  */
 function loadData(page = null) {
   isBusy.value = true;
@@ -303,9 +303,9 @@ function loadData(page = null) {
   };
 
   api
-    .call("rooms/" + props.room.id + "/tokens", config)
+    .call("rooms/" + props.room.id + "/personalizedLinks", config)
     .then((response) => {
-      tokens.value = response.data.data;
+      personalizedLinks.value = response.data.data;
       paginator.updateMeta(response.data.meta).then(() => {
         if (paginator.isOutOfRange()) {
           loadData(paginator.getLastPage());

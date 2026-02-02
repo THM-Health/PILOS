@@ -35,8 +35,8 @@
             />
             <InputGroupAddon class="border-none">
               <Button
-                data-test="room-invitation-copy-link-button"
                 v-tooltip="$t('rooms.invitation.copy_url')"
+                data-test="room-invitation-copy-link-button"
                 :aria-label="$t('rooms.invitation.copy_url')"
                 icon="fa-solid fa-copy"
                 severity="secondary"
@@ -45,7 +45,7 @@
             </InputGroupAddon>
           </InputGroup>
 
-          <InputGroup class="mt-2" v-if="room.access_code">
+          <InputGroup v-if="room.access_code" class="mt-2">
             <InputGroupAddon class="min-w-5 border-none px-0">
               <i
                 v-tooltip="$t('rooms.invitation.code')"
@@ -63,8 +63,8 @@
             />
             <InputGroupAddon class="border-none">
               <Button
-                data-test="room-invitation-copy-code-button"
                 v-tooltip="$t('rooms.invitation.copy_code')"
+                data-test="room-invitation-copy-code-button"
                 :aria-label="$t('rooms.invitation.copy_code')"
                 icon="fa-solid fa-copy"
                 severity="secondary"

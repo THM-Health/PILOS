@@ -169,7 +169,7 @@ return [
             'select_sorting' => '-- انتخاب ترتیب --',
         ],
     ],
-    'invalid_personal_link' => 'این لینک شخصی‌سازی شده اتاق نامعتبر است.',
+    'invalid_personalized_link' => 'این لینک شخصی‌سازی شده اتاق نامعتبر است.',
     'invitation' => [
         'code' => 'کد دسترسی',
         'link' => 'لینک',

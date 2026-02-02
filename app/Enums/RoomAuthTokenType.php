@@ -9,5 +9,5 @@ enum RoomAuthTokenType: int
 {
     case CODE = 0;
 
-    case TOKEN = 1;
+    case PERSONALIZED_LINK = 1;
 }

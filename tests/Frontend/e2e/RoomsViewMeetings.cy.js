@@ -895,7 +895,7 @@ describe("Rooms view meetings", function () {
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
   });
 
-  it("join running meeting token", function () {
+  it("join running meeting with personalized link", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.last_meeting = {
@@ -942,7 +942,7 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
@@ -992,7 +992,7 @@ describe("Rooms view meetings", function () {
     );
   });
 
-  it("join running meeting token errors", function () {
+  it("join running meeting with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
     cy.fixture("room.json").then((room) => {
@@ -1030,7 +1030,7 @@ describe("Rooms view meetings", function () {
       },
     }).as("preJoinRequest");
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
@@ -1061,7 +1061,7 @@ describe("Rooms view meetings", function () {
     // Check if error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");
 
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
   });
 
   it("join meeting errors", function () {
@@ -2333,7 +2333,7 @@ describe("Rooms view meetings", function () {
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
   });
 
-  it("start meeting token", function () {
+  it("start meeting with personalized link", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
@@ -2377,7 +2377,7 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
@@ -2419,7 +2419,7 @@ describe("Rooms view meetings", function () {
     );
   });
 
-  it("start meeting token errors", function () {
+  it("start meeting with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
       statusCode: 200,
@@ -2463,7 +2463,7 @@ describe("Rooms view meetings", function () {
       },
     });
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
@@ -2492,7 +2492,7 @@ describe("Rooms view meetings", function () {
     // Check if error message is shown
     cy.checkToastMessage("rooms.flash.token_invalid");
 
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
   });
 
   it("start meeting errors", function () {
