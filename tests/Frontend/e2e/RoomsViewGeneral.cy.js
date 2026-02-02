@@ -1211,7 +1211,7 @@ describe("Room View general", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
-    // 401 invalid token
+    // 401 invalid personalize link
     // Intercept room auth request
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
@@ -1290,6 +1290,56 @@ describe("Room View general", function () {
     cy.url()
       .should("not.include", "/rooms")
       .and("not.include", "rooms/abc-def-123");
+
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("roomAuthRequest");
+
+    // Visit room with personalized link
+    cy.visit(
+      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+    );
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that reload button is shown
+    cy.get('[data-test="reload-button"]').should("be.visible");
+
+    // Click reload button and make sure auth request is sent again
+    cy.get('[data-test="reload-button"]').click();
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that reload button is shown
+    cy.get('[data-test="reload-button"]').should("be.visible");
   });
 
   it("room view with personalized link errors", function () {

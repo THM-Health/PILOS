@@ -73,7 +73,7 @@
             :label="$t('app.reload')"
             :aria-label="$t('app.reload')"
             data-test="reload-button"
-            @click="load()"
+            @click="reloadRoomView()"
           />
         </div>
       </div>
@@ -314,6 +314,8 @@ onMounted(() => {
       (success) => {
         if (success) {
           load();
+        } else {
+          roomLoading.value = false;
         }
       },
     );
@@ -554,6 +556,26 @@ function reload() {
       // Disable loading indicator
       loading.value = false;
     });
+}
+
+/**
+ * Reload room view, authenticate if token is provided
+ */
+function reloadRoomView() {
+  if (props.token && !roomAuthToken.value) {
+    roomLoading.value = true;
+    authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
+      (success) => {
+        if (success) {
+          load();
+        } else {
+          roomLoading.value = false;
+        }
+      },
+    );
+  } else {
+    load();
+  }
 }
 
 /**
