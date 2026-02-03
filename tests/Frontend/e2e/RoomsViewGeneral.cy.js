@@ -1390,6 +1390,29 @@ describe("Room View general", function () {
     cy.get('[data-test="reload-button"]').should("be.visible");
 
     // Click reload button and make sure auth request is sent again
+    // Reload with valid auth request and room request
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.fixture("room.json").then((room) => {
+      room.data.username = "Max Doe";
+      room.data.allow_membership = true;
+      room.data.is_member = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     cy.get('[data-test="reload-button"]').click();
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -1400,14 +1423,19 @@ describe("Room View general", function () {
       });
     });
 
-    // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "1",
+      });
+    });
 
-    // Check that reload button is shown
-    cy.get('[data-test="reload-button"]').should("be.visible");
+    // Check that room is shown correctly
+    cy.contains("Meeting One").should("be.visible");
+    cy.contains("John Doe").should("be.visible");
+    cy.contains("rooms.index.room_component.never_started").should(
+      "be.visible",
+    );
   });
 
   it("room view with personalized link errors", function () {
@@ -1569,6 +1597,19 @@ describe("Room View general", function () {
     }).as("differentRoomAuthRequest");
 
     // Click reload button and make sure room request is sent again with same auth token
+    // Reload with valid room request
+    cy.fixture("room.json").then((room) => {
+      room.data.username = "Max Doe";
+      room.data.allow_membership = true;
+      room.data.is_member = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     cy.get('[data-test="reload-button"]').click();
 
     cy.wait("@roomRequest").then((interception) => {
@@ -1578,14 +1619,15 @@ describe("Room View general", function () {
       });
     });
 
+    //  Check that room is shown correctly
+    cy.contains("Meeting One").should("be.visible");
+    cy.contains("John Doe").should("be.visible");
+    cy.contains("rooms.index.room_component.never_started").should(
+      "be.visible",
+    );
+
     // Check that room auth request was not sent again
     cy.get("@differentRoomAuthRequest").should("be.null");
-
-    // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
   });
 
   it("room view with rooms.viewAll permission", function () {
