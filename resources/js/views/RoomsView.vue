@@ -63,7 +63,7 @@
       <div v-if="!room">
         <div class="my-2 text-center" data-test="no-room-overlay">
           <i
-            v-if="roomLoading"
+            v-if="roomLoading || authLoading"
             class="fa-solid fa-circle-notch fa-spin text-3xl"
             data-test="room-loading-spinner"
           />
@@ -73,7 +73,7 @@
             :label="$t('app.reload')"
             :aria-label="$t('app.reload')"
             data-test="reload-button"
-            @click="reloadRoomView()"
+            @click="reloadRoomsView()"
           />
         </div>
       </div>
@@ -95,7 +95,7 @@
             <template #content>
               <RoomHeader
                 :room="room"
-                :loading="loading"
+                :loading="loading || authLoading"
                 :details-inline="false"
                 :hide-favorites="true"
                 :hide-membership="true"
@@ -131,11 +131,11 @@
                     @keydown.enter="login"
                   />
                   <Button
-                    :loading="loading"
+                    :loading="loading || authLoading"
                     icon="fa-solid fa-lock"
                     :label="$t('rooms.login')"
                     data-test="room-login-button"
-                    :disabled="authThrottledFor > 0 || loading"
+                    :disabled="authThrottledFor > 0 || loading || authLoading"
                     @click="login"
                   />
                 </InputGroup>
@@ -281,6 +281,7 @@ const reloadInterval = ref(null);
 const loading = ref(false); // Room settings/details loading
 const room = ref(null); // Room object
 const roomAuthToken = ref(null); // Room authentication token
+const authLoading = ref(false); // Room authentication loading
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const roomLoading = ref(false); // Room loading indicator for initial load
@@ -309,13 +310,10 @@ onMounted(() => {
   EventBus.on(EVENT_UNAUTHORIZED, reload);
 
   if (props.token) {
-    roomLoading.value = true;
     authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
       (success) => {
         if (success) {
           load();
-        } else {
-          roomLoading.value = false;
         }
       },
     );
@@ -561,15 +559,12 @@ function reload() {
 /**
  * Reload room view, authenticate if token is provided
  */
-function reloadRoomView() {
+function reloadRoomsView() {
   if (props.token && !roomAuthToken.value) {
-    roomLoading.value = true;
     authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
       (success) => {
         if (success) {
           load();
-        } else {
-          roomLoading.value = false;
         }
       },
     );
@@ -590,21 +585,16 @@ function setPageTitle(roomName) {
  * Handle login with access code
  */
 function login() {
-  loading.value = true;
   // Remove dashes from the access code
   const accessCode = accessCodeInput.value.replace(/[-]/g, "");
 
   // Retrieve room auth token
-  authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode)
-    .then((success) => {
-      if (success) {
-        // Reload room details after authentication
-        reload();
-      }
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
+    if (success) {
+      // Reload room details after authentication
+      reload();
+    }
+  });
 }
 
 /**
@@ -616,6 +606,7 @@ function login() {
  */
 function authenticate(type, codeOrToken) {
   return new Promise((resolve) => {
+    authLoading.value = true;
     let data;
 
     if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
@@ -694,6 +685,9 @@ function authenticate(type, codeOrToken) {
           }
         }
         api.error(error, { redirectOnUnauthenticated: false });
+      })
+      .finally(() => {
+        authLoading.value = false;
       });
   });
 }
