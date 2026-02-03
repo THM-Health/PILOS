@@ -186,7 +186,7 @@ class RecordingTest extends TestCase
         $this->getJson(route('api.v1.rooms.recordings.index', [
             'room' => $room->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -255,7 +255,7 @@ class RecordingTest extends TestCase
             ->getJson(route('api.v1.rooms.recordings.index', [
                 'room' => $room->id,
                 'room_auth_token' => $roomAuthToken->id,
-                'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+                'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -585,7 +585,7 @@ class RecordingTest extends TestCase
             'recording' => $recording->id,
             'format' => $format->id,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);

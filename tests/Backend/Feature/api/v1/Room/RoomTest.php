@@ -704,7 +704,7 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.show', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -939,7 +939,7 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.show', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -1193,7 +1193,7 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.show', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3274,7 +3274,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => 'invalidToken',
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3282,7 +3282,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $this->faker->uuid,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3291,7 +3291,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name');
 
@@ -3299,7 +3299,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['name' => '<script>alert("HI");</script>', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
@@ -3314,7 +3314,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['name' => '§´`', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
@@ -3328,7 +3328,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['name' => $this->faker->name, 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
@@ -3351,7 +3351,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3365,7 +3365,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => 'invalidToken',
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3373,7 +3373,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $this->faker->uuid,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3382,7 +3382,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
@@ -3398,7 +3398,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3528,7 +3528,7 @@ class RoomTest extends TestCase
         $response = $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
 
         $url_components = parse_url($response['url']);
@@ -3547,7 +3547,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => 'invalidToken',
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3555,7 +3555,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $this->faker->uuid,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['name' => 'Max Mustermann', 'consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -3580,7 +3580,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden()
             ->assertJsonFragment(['message' => 'This action is unauthorized.']);
@@ -3591,7 +3591,7 @@ class RoomTest extends TestCase
         $response = $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false]);
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
@@ -3614,7 +3614,7 @@ class RoomTest extends TestCase
             ->postJson(route('api.v1.rooms.start', [
                 'room' => $room,
                 'room_auth_token' => $roomAuthToken->id,
-                'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+                'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(420);
 
@@ -4075,7 +4075,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name');
 
@@ -4083,7 +4083,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['name' => '<script>alert("HI");</script>', 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
@@ -4098,7 +4098,7 @@ class RoomTest extends TestCase
         $response = $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['name' => $this->faker->name, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
@@ -4110,7 +4110,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => 'invalidToken',
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['name' => $this->faker->name, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -4118,7 +4118,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $this->faker->uuid(),
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['name' => $this->faker->name, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -4142,7 +4142,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['name' => $this->faker->name, 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -4169,7 +4169,7 @@ class RoomTest extends TestCase
         $response = $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['name' => 'Max Mustermann', 'consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
@@ -4197,7 +4197,7 @@ class RoomTest extends TestCase
         $response = $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
@@ -4220,7 +4220,7 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(420);
 
@@ -4245,7 +4245,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => 'invalidToken',
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -4253,7 +4253,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $this->faker->uuid(),
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
@@ -4262,7 +4262,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::CODE,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertSuccessful();
 
@@ -4292,7 +4292,7 @@ class RoomTest extends TestCase
         $this->postJson(route('api.v1.rooms.join', [
             'room' => $room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);

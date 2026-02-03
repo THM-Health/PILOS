@@ -71,7 +71,7 @@ class RoomPersonalizedLinkTest extends TestCase
         $this->getJson(route('api.v1.rooms.personalizedLinks.get', [
             'room' => $this->room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'Unauthenticated.']);
@@ -238,7 +238,7 @@ class RoomPersonalizedLinkTest extends TestCase
         $this->postJson(route('api.v1.rooms.personalizedLinks.add', [
             'room' => $this->room,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), $payload)
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'Unauthenticated.']);
@@ -332,7 +332,7 @@ class RoomPersonalizedLinkTest extends TestCase
             'room' => $this->room,
             'link' => $link,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), $payload)
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'Unauthenticated.']);
@@ -435,7 +435,7 @@ class RoomPersonalizedLinkTest extends TestCase
             'room' => $this->room,
             'link' => $link,
             'room_auth_token' => $roomAuthToken->id,
-            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'Unauthenticated.']);
