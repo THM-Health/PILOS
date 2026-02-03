@@ -53,7 +53,7 @@ class RoomAuthenticate
             // Validate room auth token input
             $validator = Validator::make($request->all(), [
                 'room_auth_token' => ['required', 'uuid'],
-                'room_auth_token_type' => ['required', Rule::in([RoomAuthTokenType::CODE, RoomAuthTokenType::PERSONALIZED_LINK])],
+                'room_auth_token_type' => ['required', Rule::enum(RoomAuthTokenType::class)],
             ]);
 
             if ($validator->stopOnFirstFailure()->fails()) {

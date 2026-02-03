@@ -471,7 +471,7 @@ class RoomPersonalizedLinkTest extends TestCase
         ]);
 
         // Check trying to delete with wrong room id
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $otherRoom, 'link' => $link]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $otherRoom, 'link' => $link]))
             ->assertNotFound();
 
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))

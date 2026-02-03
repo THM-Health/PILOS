@@ -443,6 +443,7 @@ function onPage(event) {
 function handleFileErrorMessages(event) {
   // Check origin
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
+  if (event.data?.type === null || event.data?.type === undefined) return;
   if (event.data.type === HTTP_ROOM_FILE_NOT_FOUND) {
     // File not found
     toast.error(t("rooms.flash.file_gone"));
