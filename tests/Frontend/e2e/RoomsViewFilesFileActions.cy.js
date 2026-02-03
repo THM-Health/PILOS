@@ -753,11 +753,11 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
-      .should(
-        "not.have.attr",
-        "href",
-        "https://example.com/files/File1.pdf?signature=abc123",
-      )
+      .should("not.have.attr", "href");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-view-button"]')
       .click();
 
     // Check that require terms of use info is shown
@@ -1095,6 +1095,62 @@ describe("Rooms view files file actions", function () {
 
     // Check that reload button is shown
     cy.get('[data-test="reload-room-button"]').should("be.visible");
+
+    cy.reload();
+
+    cy.wait("@roomFilesRequest");
+
+    // Check with no message
+    // Intercept room files request again to check that it is not reloaded
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      fixture: "roomFiles.json",
+    }).as("reloadRoomFilesRequest");
+
+    cy.window().then(($window) => {
+      $window.postMessage(null, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    cy.window().then(($window) => {
+      $window.postMessage(undefined, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    // Check with missing type
+    cy.window().then(($window) => {
+      const message = {};
+
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    cy.window().then(($window) => {
+      const message = {
+        type: null,
+      };
+
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    // Check that files were not reloaded
+    cy.get("@reloadRoomFilesRequest").should("be.null");
 
     // Check with different base_url
     cy.fixture("config.json").then((config) => {
