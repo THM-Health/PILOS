@@ -16,7 +16,7 @@ describe("Room Join with lobby settings", function () {
     // Find start button and click it, join as owner
     cy.get('[data-test="room-start-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -34,7 +34,7 @@ describe("Room Join with lobby settings", function () {
     // Find join button and click it, join as user
     cy.get('[data-test="room-join-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -52,7 +52,7 @@ describe("Room Join with lobby settings", function () {
     // Find join button and click it, join as moderator
     cy.get('[data-test="room-join-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -70,7 +70,7 @@ describe("Room Join with lobby settings", function () {
     cy.get("#guest-name").type("John Doe");
     cy.get('[data-test="dialog-continue-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -90,7 +90,7 @@ describe("Room Join with lobby settings", function () {
     // Find start button and click it, join as owner
     cy.get('[data-test="room-start-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -108,7 +108,7 @@ describe("Room Join with lobby settings", function () {
     // Find join button and click it, join as user
     cy.get('[data-test="room-join-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -126,7 +126,7 @@ describe("Room Join with lobby settings", function () {
     // Find join button and click it, join as moderator
     cy.get('[data-test="room-join-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -144,7 +144,7 @@ describe("Room Join with lobby settings", function () {
     cy.get("#guest-name").type("John Doe");
     cy.get('[data-test="dialog-continue-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -164,7 +164,7 @@ describe("Room Join with lobby settings", function () {
     // Find start button and click it, join as owner
     cy.get('[data-test="room-start-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -182,7 +182,7 @@ describe("Room Join with lobby settings", function () {
     // Find join button and click it, join as user
     cy.get('[data-test="room-join-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -200,7 +200,7 @@ describe("Room Join with lobby settings", function () {
     // Find join button and click it, join as moderator
     cy.get('[data-test="room-join-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
         "be.visible",
       );
@@ -218,7 +218,7 @@ describe("Room Join with lobby settings", function () {
     cy.get("#guest-name").type("John Doe");
     cy.get('[data-test="dialog-continue-button"]').click();
 
-    cy.origin(`${Cypress.env("BBB_TEST_SERVER_HOST")}`, () => {
+    cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
         "be.visible",
       );
