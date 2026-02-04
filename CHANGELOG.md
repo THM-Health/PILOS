@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Icon alignment inside room files tab ([#2660], [#2728])
 - Race condition during room start ([#2742])
+- Remove unnecessary `Content-Type` header from GET requests to the BigBlueButton API ([#2774], [#2775])
 
 ## [v4.10.0] - 2026-01-12
 
@@ -662,6 +663,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2769]: https://github.com/THM-Health/PILOS/pull/2769
 [#2770]: https://github.com/THM-Health/PILOS/pull/2770
 [#2772]: https://github.com/THM-Health/PILOS/pull/2772
+[#2774]: https://github.com/THM-Health/PILOS/issues/2774
+[#2775]: https://github.com/THM-Health/PILOS/pull/2775
 [#2789]: https://github.com/THM-Health/PILOS/pull/2789
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.10.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
