@@ -18,7 +18,7 @@ export default defineConfig({
     specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
   },
 
-  env: {
+  expose: {
     BBB_TEST_SERVER_HOST: bbbTestServerHost,
   },
 
