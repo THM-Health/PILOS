@@ -39,7 +39,7 @@ describe("Logout", function () {
     cy.intercept("POST", "api/v1/logout", {
       statusCode: 200,
       body: {
-        redirect: `${Cypress.env("redirectBaseUrl")}/idp?foo=a&bar=b`,
+        redirect: `${Cypress.expose("redirectBaseUrl")}/idp?foo=a&bar=b`,
       },
     }).as("logoutRequest");
     cy.visit("/rooms");
@@ -55,7 +55,10 @@ describe("Logout", function () {
       });
     cy.wait("@logoutRequest");
     // Check if redirect worked
-    cy.url().should("eq", `${Cypress.env("redirectBaseUrl")}/idp?foo=a&bar=b`);
+    cy.url().should(
+      "eq",
+      `${Cypress.expose("redirectBaseUrl")}/idp?foo=a&bar=b`,
+    );
   });
 
   it("failed logout", function () {

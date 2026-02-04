@@ -5,6 +5,7 @@ namespace App\Http;
 use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RequestMetricsMiddleware;
+use App\Http\Middleware\RobotsHeader;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIfConfig;
 use App\Http\Middleware\StoreSessionData;
@@ -29,6 +30,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         RequestMetricsMiddleware::class,
+        RobotsHeader::class,
     ];
 
     /**
