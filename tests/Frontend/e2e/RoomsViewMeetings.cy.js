@@ -38,7 +38,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -84,7 +84,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked{
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -120,7 +120,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -170,7 +170,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -206,7 +206,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -256,7 +256,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -292,7 +292,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "joinRequest",
@@ -345,7 +345,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -379,7 +379,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 200,
       body: {
-        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+        url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("joinRequest");
 
@@ -414,7 +414,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -468,7 +468,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
           statusCode: 200,
           body: {
-            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+            url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("joinRequest");
 
@@ -490,7 +490,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -688,7 +688,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
           statusCode: 200,
           body: {
-            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+            url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("joinRequest");
 
@@ -715,7 +715,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -936,7 +936,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 200,
       body: {
-        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+        url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("joinRequest");
 
@@ -988,7 +988,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -1518,7 +1518,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 200,
       body: {
-        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+        url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("joinRequest");
 
@@ -1547,7 +1547,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -1558,7 +1558,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1615,7 +1615,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -1630,7 +1630,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1692,7 +1692,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -1707,7 +1707,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1769,7 +1769,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -1784,7 +1784,7 @@ describe("Rooms view meetings", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
         },
       },
       "startRequest",
@@ -1849,7 +1849,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -1874,7 +1874,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 200,
       body: {
-        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+        url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("startRequest");
 
@@ -1905,7 +1905,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -1952,7 +1952,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
           statusCode: 200,
           body: {
-            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+            url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("startRequest");
 
@@ -1974,7 +1974,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -2150,7 +2150,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
           statusCode: 200,
           body: {
-            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+            url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("startRequest");
 
@@ -2177,7 +2177,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -2371,7 +2371,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 200,
       body: {
-        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+        url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("startRequest");
 
@@ -2415,7 +2415,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -2835,7 +2835,7 @@ describe("Rooms view meetings", function () {
         cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
           statusCode: 200,
           body: {
-            url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+            url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
           },
         }).as("joinRequest");
 
@@ -2846,7 +2846,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 
@@ -3018,7 +3018,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 200,
       body: {
-        url: `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+        url: `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
       },
     }).as("startRequest");
 
@@ -3058,7 +3058,7 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked
     cy.url().should(
       "eq",
-      `${Cypress.env("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
+      `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
   });
 });

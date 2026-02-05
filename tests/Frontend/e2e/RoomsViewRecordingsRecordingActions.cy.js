@@ -30,7 +30,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
       "viewRecordingRequest",
@@ -72,7 +72,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 
@@ -151,7 +151,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -179,7 +179,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 
@@ -415,7 +415,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -443,7 +443,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
   });
@@ -594,7 +594,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -616,7 +616,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 

@@ -63,6 +63,11 @@ class MeetingTest extends TestCase
         $request = Http::recorded()[0][0];
         $data = $request->data();
 
+        // Check request is GET and has no content type and body
+        $this->assertEquals('GET', $request->method());
+        $this->assertFalse($request->hasHeader('Content-Type'));
+        $this->assertEmpty($request->body());
+
         $this->assertEquals($meeting->id, $data['meetingID']);
         $this->assertEquals($meeting->room->name, $data['name']);
         $this->assertEquals(url('rooms/'.$meeting->room->id), $data['logoutURL']);
@@ -197,9 +202,6 @@ class MeetingTest extends TestCase
         $request = Http::recorded()[0][0];
         $data = $request->data();
 
-        // Check content type of body
-        $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
-
         $this->assertEquals(url('logo.png'), $data['logo']);
 
         // Check dark logo missing
@@ -276,7 +278,8 @@ class MeetingTest extends TestCase
 
         $this->assertCount(3, $docs);
 
-        // Check content type of body
+        // Check request is POST and has content type and body
+        $this->assertEquals('POST', $request->method());
         $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
 
         // check order based on default and missing file 4 because use_in_meeting disabled
