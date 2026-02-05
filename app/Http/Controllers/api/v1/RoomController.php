@@ -505,7 +505,7 @@ class RoomController extends Controller
                 // Metrics and logging
                 Counter::get('room_authentication_errors_total')->inc('token');
 
-                Log::notice('Room token authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                Log::notice('Room personalized link authentication failed for room {room}', ['room' => $room->getLogLabel()]);
                 abort(401, CustomErrorMessages::ROOM_INVALID_PERSONALIZED_LINK->value);
             }
 
