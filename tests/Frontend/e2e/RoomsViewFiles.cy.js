@@ -243,7 +243,7 @@ describe("Rooms View Files", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("roomFilesRequest");
 
@@ -499,7 +499,7 @@ describe("Rooms View Files", function () {
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
       "roomFilesRequest",

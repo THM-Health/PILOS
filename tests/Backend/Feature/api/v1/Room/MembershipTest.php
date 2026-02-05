@@ -58,7 +58,7 @@ class MembershipTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertUnauthorized()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
 
         $this->getJson(route('api.v1.rooms.show', [
             'room' => $room,
@@ -66,7 +66,7 @@ class MembershipTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertUnauthorized()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
 
         // Try with valid room auth token
         $currentSession = $this->startNewSession();
@@ -91,7 +91,7 @@ class MembershipTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
         ]))
             ->assertUnauthorized()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
 
         $this->getJson(route('api.v1.rooms.show', [
             'room' => $room,
@@ -99,7 +99,7 @@ class MembershipTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
             ->assertUnauthorized()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
 
         $this->getJson(route('api.v1.rooms.show', [
             'room' => $room,
@@ -107,7 +107,7 @@ class MembershipTest extends TestCase
             'room_auth_token_type' => 'invalid_type',
         ]))
             ->assertUnauthorized()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_TOKEN->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
     }
 
     public function test_join_membership()

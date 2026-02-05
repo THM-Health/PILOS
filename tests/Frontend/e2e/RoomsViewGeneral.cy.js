@@ -299,7 +299,7 @@ describe("Room View general", function () {
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
       "roomRequest",
@@ -740,7 +740,7 @@ describe("Room View general", function () {
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
       "roomRequest",
@@ -1184,7 +1184,7 @@ describe("Room View general", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("roomRequest");
 
@@ -1459,7 +1459,7 @@ describe("Room View general", function () {
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
       "roomRequest",
@@ -2065,7 +2065,7 @@ describe("Room View general", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/membership*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("membershipRequest");
 
@@ -2841,7 +2841,7 @@ describe("Room View general", function () {
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
       "roomRequest",
@@ -2926,7 +2926,7 @@ describe("Room View general", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("roomRequest");
 

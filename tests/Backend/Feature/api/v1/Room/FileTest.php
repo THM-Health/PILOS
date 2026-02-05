@@ -512,7 +512,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -526,7 +526,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.access_code_invalid'),
@@ -541,7 +541,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -555,7 +555,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -569,7 +569,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -662,7 +662,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -676,7 +676,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.access_code_invalid'),
@@ -691,7 +691,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -705,7 +705,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -719,7 +719,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -787,7 +787,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -801,7 +801,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.personalized_link_invalid'),
@@ -816,7 +816,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -830,7 +830,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),
@@ -844,7 +844,7 @@ class FileTest extends TestCase
             ->assertUnauthorized()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_INVALID_TOKEN->value,
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
                 'code' => 401,
                 'title' => 'Invalid token',
                 'message' => __('rooms.flash.auth_token_invalid'),

@@ -1,4 +1,4 @@
-export const HTTP_ROOM_INVALID_TOKEN = "invalid_token";
+export const HTTP_ROOM_INVALID_AUTH_TOKEN = "invalid_auth_token";
 export const HTTP_ROOM_INVALID_CODE = "invalid_code";
 export const HTTP_ROOM_REQUIRE_CODE = "require_code";
 export const HTTP_ROOM_INVALID_PERSONALIZED_LINK = "invalid_personalized_link";

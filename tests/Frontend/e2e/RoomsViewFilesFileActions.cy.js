@@ -825,7 +825,7 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
-    // Check with invalid_token error
+    // Check with invalid_auth_token error
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
       room.data.authenticated = false;
@@ -838,7 +838,7 @@ describe("Rooms view files file actions", function () {
 
     cy.window().then(($window) => {
       const message = {
-        type: "invalid_token",
+        type: "invalid_auth_token",
       };
       $window.postMessage(message, Cypress.config("baseUrl"));
     });
@@ -930,7 +930,7 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
-    // Check with invalid_token error
+    // Check with invalid_auth_token error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
@@ -940,7 +940,7 @@ describe("Rooms view files file actions", function () {
 
     cy.window().then(($window) => {
       const message = {
-        type: "invalid_token",
+        type: "invalid_auth_token",
       };
       $window.postMessage(message, Cypress.config("baseUrl"));
     });

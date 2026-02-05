@@ -255,7 +255,7 @@ import {
   HTTP_ROOM_GUESTS_NOT_ALLOWED,
   HTTP_ROOM_INVALID_CODE,
   HTTP_ROOM_INVALID_PERSONALIZED_LINK,
-  HTTP_ROOM_INVALID_TOKEN,
+  HTTP_ROOM_INVALID_AUTH_TOKEN,
 } from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
@@ -459,7 +459,7 @@ function load() {
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
+          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
         ) {
           return handleInvalidRoomAuthToken();
         }
@@ -535,7 +535,7 @@ function reload() {
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
+          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
         ) {
           return handleInvalidRoomAuthToken();
         }

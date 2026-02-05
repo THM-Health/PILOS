@@ -241,14 +241,14 @@ describe("Rooms view recordings recording actions", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    // Check with invalid_token error
+    // Check with invalid_auth_token error
     cy.intercept(
       "GET",
       "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2*",
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
     ).as("viewRecordingRequest");
@@ -491,7 +491,7 @@ describe("Rooms view recordings recording actions", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    // Check with invalid_token error
+    // Check with invalid_auth_token error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
@@ -505,7 +505,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
     ).as("viewRecordingRequest");

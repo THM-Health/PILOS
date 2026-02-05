@@ -310,7 +310,7 @@ import {
   HTTP_ROOM_FILE_NOT_FOUND,
   HTTP_ROOM_GUESTS_NOT_ALLOWED,
   HTTP_ROOM_GUESTS_ONLY,
-  HTTP_ROOM_INVALID_TOKEN,
+  HTTP_ROOM_INVALID_AUTH_TOKEN,
   HTTP_ROOM_REQUIRE_CODE,
 } from "../constants/httpCustomErrorMessages.js";
 
@@ -411,7 +411,7 @@ function loadData(page = null) {
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ROOM_INVALID_TOKEN
+          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
         ) {
           return emit("invalidRoomAuthToken");
         }
@@ -448,7 +448,7 @@ function handleFileErrorMessages(event) {
     // File not found
     toast.error(t("rooms.flash.file_gone"));
     loadData();
-  } else if (event.data.type === HTTP_ROOM_INVALID_TOKEN) {
+  } else if (event.data.type === HTTP_ROOM_INVALID_AUTH_TOKEN) {
     // Room auth token is invalid
     emit("invalidRoomAuthToken");
   } else if (event.data.type === HTTP_ROOM_REQUIRE_CODE) {

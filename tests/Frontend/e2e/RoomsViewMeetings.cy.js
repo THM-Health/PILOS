@@ -788,7 +788,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("joinRequest");
 
@@ -1047,7 +1047,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("joinRequest");
 
@@ -1409,7 +1409,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("preJoinRequest");
 
@@ -1462,7 +1462,7 @@ describe("Rooms view meetings", function () {
 
     cy.wait("@roomAuthRequest");
 
-    // Test invalid_token
+    // Test invalid_auth_token
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
@@ -1473,7 +1473,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("preJoinRequest");
 
@@ -2238,12 +2238,12 @@ describe("Rooms view meetings", function () {
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
-    // Test invalid_token
+    // Test invalid_auth_token
     // Intercept start request with error response and room request for reload (not authenticated anymore)
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("startRequest");
 
@@ -2480,7 +2480,7 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("startRequest");
 
@@ -2909,11 +2909,11 @@ describe("Rooms view meetings", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Test invalid_token
+    // Test invalid_auth_token
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("preStartRequest");
 
@@ -2966,7 +2966,7 @@ describe("Rooms view meetings", function () {
 
     cy.wait("@roomAuthRequest");
 
-    // Test invalid_token
+    // Test invalid_auth_token
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
@@ -2974,11 +2974,10 @@ describe("Rooms view meetings", function () {
       },
     }).as("roomAuthRequest");
 
-    // Test invalid_token
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("preStartRequest");
 

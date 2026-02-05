@@ -182,7 +182,7 @@ import { useDark } from "@vueuse/core";
 import { ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK } from "../constants/roomAuthTokenTypes.js";
 import {
   HTTP_ROOM_GUESTS_NOT_ALLOWED,
-  HTTP_ROOM_INVALID_TOKEN,
+  HTTP_ROOM_INVALID_AUTH_TOKEN,
   HTTP_ROOM_REQUIRE_CODE,
 } from "../constants/httpCustomErrorMessages.js";
 
@@ -454,7 +454,7 @@ function handleError(error) {
   // Room auth token is invalid
   if (
     error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === HTTP_ROOM_INVALID_TOKEN
+    error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
   ) {
     emit("invalidRoomAuthToken");
     modalVisible.value = false;

@@ -299,7 +299,7 @@ describe("Rooms view recordings", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_auth_token",
       },
     }).as("roomRecordingsRequest");
 
@@ -533,7 +533,7 @@ describe("Rooms view recordings", function () {
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
       "roomRecordingsRequest",

@@ -7,7 +7,7 @@ namespace App\Enums;
  */
 enum CustomErrorMessages: string
 {
-    case ROOM_INVALID_TOKEN = 'invalid_token';
+    case ROOM_INVALID_AUTH_TOKEN = 'invalid_auth_token';
     case ROOM_INVALID_CODE = 'invalid_code';
     case ROOM_REQUIRE_CODE = 'require_code';
     case ROOM_INVALID_PERSONALIZED_LINK = 'invalid_personalized_link';
