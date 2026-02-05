@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Internal improvements to room authentication flow ([#1409], [#2726])
+
+### Fixed
+
+- File downloads blocked in some browsers due to restrictions on opening new windows without user interaction ([#1409], [#2726])
+
 ## [v4.11.0] - 2026-02-04
 
 ### Added
@@ -529,6 +537,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
 [#1399]: https://github.com/THM-Health/PILOS/pull/1399
+[#1409]: https://github.com/THM-Health/PILOS/issues/1409
 [#1419]: https://github.com/THM-Health/PILOS/issues/1419
 [#1420]: https://github.com/THM-Health/PILOS/issues/1420
 [#1435]: https://github.com/THM-Health/PILOS/issues/1435
@@ -655,6 +664,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616
 [#2660]: https://github.com/THM-Health/PILOS/issues/2660
 [#2686]: https://github.com/THM-Health/PILOS/pull/2686
+[#2726]: https://github.com/THM-Health/PILOS/pull/2726
 [#2728]: https://github.com/THM-Health/PILOS/pull/2728
 [#2742]: https://github.com/THM-Health/PILOS/pull/2742
 [#2751]: https://github.com/THM-Health/PILOS/issues/2751
