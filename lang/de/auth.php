@@ -43,7 +43,7 @@ return [
         'logout_incomplete' => 'Sie sind weiterhin beim OpenID Connect Anbieter angemeldet.',
         'redirect' => 'Anmelden',
         'tab_title' => 'OpenID Connect',
-        'title' => 'Mit OpenID Connect anmelde',
+        'title' => 'Mit OpenID Connect anmelden',
     ],
     'password' => 'Passwort',
     'reset_password' => 'Passwort zurücksetzen',
