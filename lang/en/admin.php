@@ -385,7 +385,7 @@ return [
             'title' => 'Number of rooms per user',
         ],
         'room_personalized_link_expiration' => [
-            'description' => 'Time period since last usage, after which personalized room links gets automatically removed.',
+            'description' => 'Time period since last usage, after which personalized room links get automatically removed.',
             'title' => 'Expiration time for personalized room links',
         ],
         'six_month' => '6 Months (180 Days)',
