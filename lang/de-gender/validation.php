@@ -208,6 +208,7 @@ return [
         ],
         'room' => [
             'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.',
+            'role_already_member' => 'Diese Rolle ist bereits Mitglied des Raums.',
             'not_member' => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
             'self_delete' => 'Sie dürfen sich nicht selbst löschen.',
             'self_edit' => 'Sie dürfen sich nicht selbst bearbeiten.',

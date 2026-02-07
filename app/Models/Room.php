@@ -230,6 +230,16 @@ class Room extends Model
     }
 
     /**
+     * Roles that have membership in the room
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function roleMembers()
+    {
+        return $this->belongsToMany(Role::class, 'room_role')->using(RoomRole::class)->withPivot('role');
+    }
+
+    /**
      * Meetings
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -282,7 +292,17 @@ class Room extends Model
             return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
         }
 
-        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
+        if ($user == null) {
+            return false;
+        }
+
+        // Check individual membership
+        if ($this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user)) {
+            return true;
+        }
+
+        // Check role-based membership
+        return $this->getRoleMembershipRole($user) === RoomUserRole::MODERATOR;
     }
 
     /** Check if user is co owner of this room
@@ -290,7 +310,17 @@ class Room extends Model
      */
     public function isCoOwner(?User $user)
     {
-        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
+        if ($user == null) {
+            return false;
+        }
+
+        // Check individual membership
+        if ($this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user)) {
+            return true;
+        }
+
+        // Check role-based membership
+        return $this->getRoleMembershipRole($user) === RoomUserRole::CO_OWNER;
     }
 
     /**
@@ -307,7 +337,17 @@ class Room extends Model
             return $token->room->is($this) && ($token->role == RoomUserRole::USER || $token->role == RoomUserRole::MODERATOR);
         }
 
-        return $user == null ? false : $this->members->contains($user);
+        if ($user == null) {
+            return false;
+        }
+
+        // Check individual membership
+        if ($this->members->contains($user)) {
+            return true;
+        }
+
+        // Check role-based membership
+        return $this->getRoleMembershipRole($user) !== null;
     }
 
     /**
@@ -327,12 +367,60 @@ class Room extends Model
             return RoomUserRole::OWNER;
         }
 
+        $individualRole = null;
         $member = $this->members()->find($user);
         if ($member) {
-            return $member->pivot->role;
+            $individualRole = $member->pivot->role;
+        }
+
+        $roleBasedRole = $this->getRoleMembershipRole($user);
+
+        // If both exist, take the higher value (higher = more privileges)
+        if ($individualRole !== null && $roleBasedRole !== null) {
+            return $individualRole->value >= $roleBasedRole->value ? $individualRole : $roleBasedRole;
+        }
+
+        if ($individualRole !== null) {
+            return $individualRole;
+        }
+
+        if ($roleBasedRole !== null) {
+            return $roleBasedRole;
         }
 
         return $this->getRoomSetting('default_role');
+    }
+
+    /**
+     * Get the highest room role granted to the user via role-based membership.
+     * Returns null if the user has no role-based membership.
+     */
+    protected function getRoleMembershipRole(?User $user): ?RoomUserRole
+    {
+        if ($user === null) {
+            return null;
+        }
+
+        $userRoleIds = $user->roles()->pluck('roles.id');
+
+        if ($userRoleIds->isEmpty()) {
+            return null;
+        }
+
+        $highestRoleMember = $this->roleMembers()
+            ->whereIn('role_id', $userRoleIds)
+            ->orderByDesc('room_role.role')
+            ->first();
+
+        return $highestRoleMember?->pivot->role;
+    }
+
+    /**
+     * Check if user is a member of this room via role-based membership only
+     */
+    public function isRoleMember(?User $user): bool
+    {
+        return $user !== null && $this->getRoleMembershipRole($user) !== null;
     }
 
     /**

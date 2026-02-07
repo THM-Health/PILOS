@@ -246,6 +246,28 @@ return [
         ],
         'nodata' => 'Keine Mitglieder vorhanden',
         'remove_user' => 'Mitglied löschen',
+        'role_members' => [
+            'add' => 'Rolle hinzufügen',
+            'edit' => 'Rolle bearbeiten',
+            'modals' => [
+                'add' => [
+                    'add' => 'Hinzufügen',
+                    'placeholder' => 'Rolle auswählen',
+                    'title' => 'Rolle als Mitglied hinzufügen',
+                ],
+                'edit' => [
+                    'title' => ':name bearbeiten',
+                ],
+                'remove' => [
+                    'confirm' => 'Möchten Sie die Rolle :name aus diesem Raum entfernen?',
+                    'title' => 'Rolle aus dem Raum entfernen',
+                ],
+            ],
+            'nodata' => 'Keine Rollen mit diesem Raum geteilt',
+            'remove' => 'Rolle entfernen',
+            'title' => 'Rollenmitglieder',
+            'user_count' => ':count Benutzer',
+        ],
         'title' => 'Mitglieder',
     ],
     'modals' => [

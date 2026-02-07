@@ -59,6 +59,7 @@ class Room extends JsonResource
             'description' => $this->when($this->authenticated, $this->description),
             'allow_membership' => $this->getRoomSetting('allow_membership'),
             'is_member' => $this->resource->isMember(Auth::user()),
+            'is_role_member' => $this->resource->isRoleMember(Auth::user()),
             'is_moderator' => $this->resource->isModerator(Auth::user(), $this->token),
             'is_co_owner' => $this->resource->isCoOwner(Auth::user()),
             'can_start' => Gate::inspect('start', [$this->resource, $this->token])->allowed(),

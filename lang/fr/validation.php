@@ -227,6 +227,7 @@ return [
         ],
         'room' => [
             'already_member' => 'L\'utilisateur est déjà membre de la salle.',
+            'role_already_member' => 'Ce rôle est déjà membre de la salle.',
             'not_member' => 'L\'utilisateur ":firstname :lastname" n\'est pas membre.',
             'self_delete' => 'L\'utilisateur n\'est pas autorisé à s\'auto-enlever.',
             'self_edit' => 'L\'utilisateur n\'est pas autorisé à s\'auto-modifier.',

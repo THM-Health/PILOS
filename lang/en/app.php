@@ -42,6 +42,7 @@ return [
         'no_room_access' => 'You does not have the necessary permissions, to edit this room.',
         'no_server_available' => 'Currently there are no servers available.',
         'not_member_of_room' => 'The person is not a member of this room (anymore).',
+        'role_not_member_of_room' => 'This role is not a member of this room (anymore).',
         'not_running' => 'Joining the room has failed as it is currently closed.',
         'record_agreement_missing' => 'Consent to the recording is required.',
         'role_delete_linked_users' => 'The role is linked to users and therefore it can\'t be deleted!',

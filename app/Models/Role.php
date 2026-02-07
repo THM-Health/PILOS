@@ -94,6 +94,16 @@ class Role extends Model
     }
 
     /**
+     * Rooms that are shared with this role.
+     *
+     * @return BelongsToMany
+     */
+    public function rooms()
+    {
+        return $this->belongsToMany(Room::class, 'room_role')->using(RoomRole::class)->withPivot('role');
+    }
+
+    /**
      * Scope a query to only get roles that have a name like the passed one.
      *
      * @param  Builder  $query  Query that should be scoped

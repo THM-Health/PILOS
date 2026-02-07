@@ -60,11 +60,21 @@ class RoomController extends Controller
                         $query->orWhere('user_id', '=', Auth::user()->id);
                     }
 
-                    // rooms where the user is member
+                    // rooms where the user is member (individually or via role)
                     if ($request->filter_shared) {
-                        // list of room ids where the user is member
+                        // list of room ids where the user is a direct member
                         $roomMemberships = Auth::user()->sharedRooms->modelKeys();
                         $query->orWhereIn('rooms.id', $roomMemberships);
+
+                        // list of room ids where the user is a member via role
+                        $userRoleIds = Auth::user()->roles()->pluck('roles.id');
+                        if ($userRoleIds->isNotEmpty()) {
+                            $query->orWhereIn('rooms.id', function ($subQuery) use ($userRoleIds) {
+                                $subQuery->select('room_id')
+                                    ->from('room_role')
+                                    ->whereIn('role_id', $userRoleIds);
+                            });
+                        }
                     }
 
                     // all rooms that are public

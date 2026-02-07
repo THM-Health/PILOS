@@ -246,6 +246,28 @@ return [
         ],
         'nodata' => 'Aucun membre disponible',
         'remove_user' => 'Enlever le membre',
+        'role_members' => [
+            'add' => 'Ajouter un rôle',
+            'edit' => 'Modifier le rôle',
+            'modals' => [
+                'add' => [
+                    'add' => 'Ajouter',
+                    'placeholder' => 'Sélectionner un rôle',
+                    'title' => 'Ajouter un rôle en tant que membre',
+                ],
+                'edit' => [
+                    'title' => 'Modifier :name',
+                ],
+                'remove' => [
+                    'confirm' => 'Voulez-vous retirer le rôle :name de cette salle ?',
+                    'title' => 'Retirer le rôle de cette salle',
+                ],
+            ],
+            'nodata' => 'Aucun rôle partagé avec cette salle',
+            'remove' => 'Retirer le rôle',
+            'title' => 'Membres par rôle',
+            'user_count' => ':count utilisateurs',
+        ],
         'title' => 'Membres',
     ],
     'modals' => [

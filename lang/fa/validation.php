@@ -222,6 +222,7 @@ return [
         ],
         'room' => [
             'already_member' => 'کاربر قبلاً عضو اتاق است.',
+            'role_already_member' => 'این نقش قبلاً عضو اتاق است.',
             'not_member' => 'کاربر ":firstname :lastname" عضو نیست.',
             'self_delete' => 'کاربر مجاز به حذف خود نیست.',
             'self_edit' => 'کاربر مجاز به ویرایش خود نیست.',

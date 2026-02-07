@@ -246,6 +246,28 @@ return [
         ],
         'nodata' => 'No members available',
         'remove_user' => 'Remove member',
+        'role_members' => [
+            'add' => 'Add role',
+            'edit' => 'Edit role',
+            'modals' => [
+                'add' => [
+                    'add' => 'Add',
+                    'placeholder' => 'Select a role',
+                    'title' => 'Add role as member',
+                ],
+                'edit' => [
+                    'title' => 'Edit :name',
+                ],
+                'remove' => [
+                    'confirm' => 'Do you want to remove the role :name from this room?',
+                    'title' => 'Remove role from this room',
+                ],
+            ],
+            'nodata' => 'No roles shared with this room',
+            'remove' => 'Remove role',
+            'title' => 'Role members',
+            'user_count' => ':count users',
+        ],
         'title' => 'Members',
     ],
     'modals' => [

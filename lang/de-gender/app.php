@@ -39,6 +39,7 @@ return [
         'no_room_access' => 'Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.',
         'no_server_available' => 'Zur Zeit sind keine Server verfügbar.',
         'not_member_of_room' => 'Die Person ist nicht (mehr) Mitglied dieses Raums.',
+        'role_not_member_of_room' => 'Diese Rolle ist nicht (mehr) Mitglied dieses Raums.',
         'not_running' => 'Der Beitritt zum Raum ist fehlgeschlagen, da er derzeit geschlossen ist.',
         'record_agreement_missing' => 'Die Zustimmung zur Aufzeichnung ist erforderlich.',
         'role_delete_linked_users' => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',

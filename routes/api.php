@@ -15,6 +15,7 @@ use App\Http\Controllers\api\v1\RoleController;
 use App\Http\Controllers\api\v1\RoomController;
 use App\Http\Controllers\api\v1\RoomFileController;
 use App\Http\Controllers\api\v1\RoomMemberController;
+use App\Http\Controllers\api\v1\RoomRoleMemberController;
 use App\Http\Controllers\api\v1\RoomStreamingController;
 use App\Http\Controllers\api\v1\RoomTokenController;
 use App\Http\Controllers\api\v1\RoomTypeController;
@@ -98,6 +99,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('rooms/{room}/member', [RoomMemberController::class, 'store'])->name('rooms.member.add')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/{user}', [RoomMemberController::class, 'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class, 'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
+
+        // Role-based membership operations
+        Route::get('rooms/{room}/role-member', [RoomRoleMemberController::class, 'index'])->name('rooms.role-member.get')->middleware('can:viewMembers,room');
+        Route::post('rooms/{room}/role-member', [RoomRoleMemberController::class, 'store'])->name('rooms.role-member.add')->middleware('can:manageMembers,room');
+        Route::put('rooms/{room}/role-member/{role}', [RoomRoleMemberController::class, 'update'])->name('rooms.role-member.update')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/role-member/{role}', [RoomRoleMemberController::class, 'destroy'])->name('rooms.role-member.destroy')->middleware('can:manageMembers,room');
 
         // Recording operations
         Route::middleware('can:manageRecordings,room')->scopeBindings()->group(function () {

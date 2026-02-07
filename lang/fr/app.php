@@ -42,6 +42,7 @@ return [
         'no_room_access' => 'Vous ne disposez pas des autorisations nécessaires pour modifier cette salle.',
         'no_server_available' => 'Actuellement, il n\'y a pas de serveurs disponibles.',
         'not_member_of_room' => 'Cette personne n\'est pas (plus) membre de cette salle.',
+        'role_not_member_of_room' => 'Ce rôle n\'est pas (plus) membre de cette salle.',
         'not_running' => 'Accès échoué ! La salle est actuellement fermée.',
         'record_agreement_missing' => 'Le consentement à l\'enregistrement est requis.',
         'role_delete_linked_users' => 'Ce rôle est associé à certains utilisateurs et ne peut donc pas être supprimé !',
