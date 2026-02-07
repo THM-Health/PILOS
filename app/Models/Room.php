@@ -401,7 +401,7 @@ class Room extends Model
             return null;
         }
 
-        $userRoleIds = $user->roles()->pluck('roles.id');
+        $userRoleIds = $user->roles->pluck('id');
 
         if ($userRoleIds->isEmpty()) {
             return null;

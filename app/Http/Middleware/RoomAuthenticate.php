@@ -40,7 +40,7 @@ class RoomAuthenticate
         $token = null;
 
         // requested user is the owner or a member of the room
-        if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
+        if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || $room->roleMembers()->whereIn('role_id', Auth::user()->roles->pluck('id'))->exists() || Auth::user()->can('viewAll', Room::class))) {
             $authenticated = true;
         }
 
