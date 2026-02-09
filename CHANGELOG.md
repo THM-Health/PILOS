@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.12.0] - 2026-02-09
+
+### Added
+
+- Arabic locale ([#2798])
+
+### Fixed
+
+- Pulse Dashboard not loading ([#2809])
+
+## [v4.11.0] - 2026-02-04
+
 ### Added
 
 - Configurable hashing algorithm for BBB API signatures ([#2765], [#2766])
@@ -666,7 +678,9 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2774]: https://github.com/THM-Health/PILOS/issues/2774
 [#2775]: https://github.com/THM-Health/PILOS/pull/2775
 [#2789]: https://github.com/THM-Health/PILOS/pull/2789
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.10.0...develop
+[#2798]: https://github.com/THM-Health/PILOS/pull/2798
+[#2809]: https://github.com/THM-Health/PILOS/pull/2809
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.12.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -687,3 +701,5 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.8.0
 [v4.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.9.0
 [v4.10.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.10.0
+[v4.11.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.11.0
+[v4.12.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.12.0
