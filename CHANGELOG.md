@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Arabic locale ([#2798])
+
 ## [v4.11.0] - 2026-02-04
 
 ### Added
@@ -668,6 +672,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2774]: https://github.com/THM-Health/PILOS/issues/2774
 [#2775]: https://github.com/THM-Health/PILOS/pull/2775
 [#2789]: https://github.com/THM-Health/PILOS/pull/2789
+[#2798]: https://github.com/THM-Health/PILOS/pull/2798
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.11.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
