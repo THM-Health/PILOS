@@ -27,7 +27,7 @@ RUN apk --no-cache add \
     supervisor \
     nginx \
     mysql-client postgresql-client \
-    nodejs npm
+    nodejs pnpm
 
 # Add PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
@@ -96,12 +96,12 @@ RUN su-exec www-data git config --global --add safe.directory /var/www/html
 
 # Build frontend
 RUN if [ "$VITE_COVERAGE" != "true" ] ; then \
-    su-exec www-data npm install --omit=dev && \
-    su-exec www-data npm run build; \
+    su-exec www-data pnpm install -P && \
+    su-exec www-data pnpm run build; \
   else \
     echo "Build frontend for coverage (instrumented and with sourcemap)" && \
-    su-exec www-data npm install && \
-    su-exec www-data npm run build -- --config vite.config.coverage.js; \
+    su-exec www-data pnpm install && \
+    su-exec www-data pnpm run build -- --config vite.config.coverage.js; \
   fi
 
 # Run and optimize composer for production

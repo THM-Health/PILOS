@@ -60,14 +60,10 @@ function display_help {
     echo "  ${GREEN}sail node ...${NC}         Run a Node command"
     echo "  ${GREEN}sail node --version${NC}"
     echo
-    echo "${YELLOW}NPM Commands:${NC}"
-    echo "  ${GREEN}sail npm ...${NC}        Run a npm command"
-    echo "  ${GREEN}sail npx${NC}            Run a npx command"
-    echo "  ${GREEN}sail npm run prod${NC}"
-    echo
-    echo "${YELLOW}Yarn Commands:${NC}"
-    echo "  ${GREEN}sail yarn ...${NC}        Run a Yarn command"
-    echo "  ${GREEN}sail yarn run prod${NC}"
+    echo "${YELLOW}PNPM Commands:${NC}"
+    echo "  ${GREEN}sail pnpm ...${NC}        Run a pnpm command"
+    echo "  ${GREEN}sail pnpx${NC}            Run a pnpx command"
+    echo "  ${GREEN}sail pnpm run prod${NC}"
     echo
     echo "${YELLOW}Database Commands:${NC}"
     echo "  ${GREEN}sail mariadb${NC}   Start a MySQL CLI session within the 'db' container"
@@ -339,14 +335,14 @@ elif [ "$1" == "node" ]; then
         sail_is_not_running
     fi
 
-# Proxy NPM commands to the "npm" binary on the application container...
-elif [ "$1" == "npm" ]; then
+# Proxy PNPM commands to the "pnpm" binary on the application container...
+elif [ "$1" == "pnpm" ]; then
     shift 1
 
     if [ "$EXEC" == "yes" ]; then
         ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" npm)
+        ARGS+=("$APP_SERVICE" pnpm)
     else
         sail_is_not_running
     fi
@@ -359,18 +355,6 @@ elif [ "$1" == "npx" ]; then
         ARGS+=(exec -u "$APP_USER")
         [ ! -t 0 ] && ARGS+=(-T)
         ARGS+=("$APP_SERVICE" npx)
-    else
-        sail_is_not_running
-    fi
-
-# Proxy Yarn commands to the "yarn" binary on the application container...
-elif [ "$1" == "yarn" ]; then
-    shift 1
-
-    if [ "$EXEC" == "yes" ]; then
-        ARGS+=(exec -u "$APP_USER")
-        [ ! -t 0 ] && ARGS+=(-T)
-        ARGS+=("$APP_SERVICE" yarn)
     else
         sail_is_not_running
     fi

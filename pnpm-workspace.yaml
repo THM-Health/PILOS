@@ -1,0 +1,11 @@
+ignoredBuiltDependencies:
+  - esbuild
+  - vue-demi
+
+onlyBuiltDependencies:
+  - cypress
+
+sideEffectsCache: false
+
+packages:
+ - 'docs'

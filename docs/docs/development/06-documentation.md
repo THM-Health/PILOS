@@ -17,10 +17,10 @@ To run the documentation locally, follow these steps:
 1. **Install Dependencies:**
 
     ```bash
-    ./sail npm run docs:install
+    ./sail pnpm run docs:install
     ```
 
 2. **Start the Development Server:**
     ```bash
-    ./sail npm run docs:dev
+    ./sail pnpm run docs:dev
     ```
