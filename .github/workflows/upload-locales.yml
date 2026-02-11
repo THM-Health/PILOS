@@ -12,7 +12,7 @@ on:
       - "develop"
 
 env:
-  PHP_VERSION: 8.4
+  PHP_VERSION: 8.5
 
 jobs:
   pull-locales:
