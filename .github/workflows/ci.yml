@@ -358,7 +358,7 @@ jobs:
       - name: Run cypress
         uses: cypress-io/github-action@v6
         with:
-          command-prefix: happo-e2e -- npx
+          command-prefix: happo -- npx
           group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}

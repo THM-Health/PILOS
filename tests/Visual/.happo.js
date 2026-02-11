@@ -1,12 +1,13 @@
-import { RemoteBrowserTarget } from "happo.io";
+import { defineConfig } from "happo";
 
-export default {
+export default defineConfig({
   apiKey: process.env.HAPPO_API_KEY,
   apiSecret: process.env.HAPPO_API_SECRET,
 
   targets: {
-    "chrome-desktop": new RemoteBrowserTarget("chrome", {
+    "chrome-desktop": {
+      type: "chrome",
       viewport: "1280x800",
-    }),
+    },
   },
-};
+});
