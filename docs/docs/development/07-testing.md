@@ -70,23 +70,23 @@ Please make sure your OS is supported and all required packages are installed.
 If the system requirements are met, you can install Cypress on your local machine:
 
 ```bash
-npx cypress install
+pnpm cypress install
 ```
 
 ### Running Cypress Tests
 
-First you need to have the frontend either running compiled (`./sail npm run build`) or in development mode (`./sail npm run dev`).
+First you need to have the frontend either running compiled (`./sail pnpm run build`) or in development mode (`./sail pnpm run dev`).
 
 You can then run the tests in the interactive mode with:
 
 ```bash
-npm run cypress:open
+pnpm run cypress:open
 ```
 
 Or you can run the tests headless with:
 
 ```bash
-npm run cypress:run
+pnpm run cypress:run
 ```
 
 ### Coverage
@@ -95,19 +95,19 @@ To generate a code coverage report, the frontend must first be instrumented so t
 This command can be used to build the frontend with coverage instrumentation:
 
 ```bash
-./sail npm run build -- --config vite.config.coverage.js
+./sail pnpm run build -- --config vite.config.coverage.js
 ```
 
 After that you can run the tests with the coverage report:
 
 ```bash
-npm run cypress:run
+pnpm run cypress:run
 ```
 
 To generate a code coverage report in HTML format you can use the following command:
 
 ```bash
-./sail npm run create-coverage-report
+./sail pnpm run create-coverage-report
 ```
 
 ## System Testing with Cypress
@@ -127,13 +127,13 @@ Before running the tests make sure you have correctly installed cypress as descr
 You can then run the tests in the interactive mode with:
 
 ```bash
-npm run cypress:open -- -P ./tests/System
+pnpm run cypress:open -- -P ./tests/System
 ```
 
 Or you can run the tests headless with:
 
 ```bash
-npm run cypress:run -- -P ./tests/System
+pnpm run cypress:run -- -P ./tests/System
 ```
 
 ## Visual Regression Testing with Happo.io
@@ -169,7 +169,7 @@ Although visual regression tests run exclusively in the GitHub Action runner, yo
 Before running the tests make sure you have correctly installed cypress as described in the [Installing cypress](#installing-cypress) section.
 
 ```bash
-npm run cypress:open -- -P ./tests/Visual --config experimentalInteractiveRunEvents=true
+pnpm run cypress:open -- -P ./tests/Visual --config experimentalInteractiveRunEvents=true
 ```
 
 This setup allows you to ensure your tests are functioning correctly before committing changes.
