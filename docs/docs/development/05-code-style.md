@@ -7,8 +7,8 @@ The backend uses the php framework Laravel and therefore it follows the
 implemented code you can run the command `sail composer run fix-cs`.
 
 The frontend style gets checked by prettier and the code is linted using eslint.
-The style can be fixed by running the command `sail npm run prettier:fix`.
-Lint fixes can a applied by running the command `sail npm run lint:fix`.
+The style can be fixed by running the command `sail pnpm run prettier:fix`.
+Lint fixes can a applied by running the command `sail pnpm run lint:fix`.
 For best practices checkout the [vue style guide](https://vuejs.org/v2/style-guide/).
 
 Additionally, to the style guides the following things should apply to the changes:

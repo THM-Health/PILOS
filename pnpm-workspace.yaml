@@ -1,0 +1,17 @@
+ignoredBuiltDependencies:
+  - esbuild
+  - vue-demi
+
+onlyBuiltDependencies:
+  - cypress
+
+sideEffectsCache: false
+
+packages:
+  - "docs"
+
+allowBuilds:
+  '@swc/core': false
+  '@thm-health/vue-profile-image-cropper': false
+  core-js: false
+  cypress: false

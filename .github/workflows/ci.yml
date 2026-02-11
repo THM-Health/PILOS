@@ -176,17 +176,22 @@ jobs:
           persist-credentials: false
       - name: Copy .env
         run: php -r "copy('.env.example', '.env');"
+      - name: Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: 10
+          cache: true
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-          cache: "npm"
-          cache-dependency-path: ./package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: ./pnpm-lock.yaml
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install
       - name: Check code formatting
-        run: npm run prettier
+        run: pnpm run prettier
       - name: Linting
-        run: npm run lint
+        run: pnpm run lint
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest

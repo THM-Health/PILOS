@@ -45,7 +45,7 @@ for tag in "${TAGS[@]}"; do
     cp -r temp_versioned_docs/docs/docs .
     cp -r temp_versioned_docs/docs/sidebars.js .
 
-    npm run docusaurus docs:version "${version}"
+    pnpm run docusaurus docs:version "${version}"
   else
     echo "Warning: branch/tag ${version} does not contain a docusaurus.config.js!"
   fi
@@ -70,7 +70,7 @@ for branch in "${BRANCHES[@]}"; do
     cp -r temp_versioned_docs/docs/docs .
     cp -r temp_versioned_docs/docs/sidebars.js .
 
-    npm run docusaurus docs:version "${version}"
+    pnpm run docusaurus docs:version "${version}"
   else
     echo "Warning: branch ${branch} does not contain a docusaurus.config.js!"
   fi
