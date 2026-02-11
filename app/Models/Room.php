@@ -6,13 +6,13 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Observers\RoomObserver;
-use App\Services\RoomAuthService;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Validation\Rule;
 
 #[ObservedBy([RoomObserver::class])]
@@ -273,8 +273,7 @@ class Room extends Model
      */
     public function isModerator(?User $user): bool
     {
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $personalizedLink = $roomAuthService->getRoomPersonalizedLink($this);
+        $personalizedLink = Context::getHidden("room.{$this->id}.personalized_link");
 
         if ($user == null && $personalizedLink != null) {
             return $personalizedLink->room->is($this) && $personalizedLink->role == RoomUserRole::MODERATOR;
@@ -295,8 +294,7 @@ class Room extends Model
      */
     public function isMember(?User $user): bool
     {
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $personalizedLink = $roomAuthService->getRoomPersonalizedLink($this);
+        $personalizedLink = Context::getHidden("room.{$this->id}.personalized_link");
 
         if ($user == null && $personalizedLink != null) {
             return $personalizedLink->room->is($this) && ($personalizedLink->role == RoomUserRole::USER || $personalizedLink->role == RoomUserRole::MODERATOR);

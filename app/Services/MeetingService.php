@@ -633,8 +633,7 @@ class MeetingService
      */
     public function getJoinUrl(JoinMeeting|StartMeeting $request): string
     {
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $personalizedLink = $roomAuthService->getRoomPersonalizedLink($this->meeting->room);
+        $personalizedLink = \Illuminate\Support\Facades\Context::getHidden("room.{$this->meeting->room->id}.personalized_link");
 
         if (Auth::guest()) {
             if ($personalizedLink) {

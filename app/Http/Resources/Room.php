@@ -4,9 +4,9 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\User as UserResource;
 use App\Models\RoomPersonalizedLink;
-use App\Services\RoomAuthService;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Gate;
 
 class Room extends JsonResource
@@ -41,9 +41,8 @@ class Room extends JsonResource
     {
         parent::__construct($resource);
 
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $this->personalizedLink = $roomAuthService->getRoomPersonalizedLink($resource);
-        $this->authenticated = $roomAuthService->isAuthenticated($resource);
+        $this->personalizedLink = Context::getHidden("room.{$resource->id}.personalized_link");
+        $this->authenticated = Context::getHidden("room.{$resource->id}.authenticated") === true;
     }
 
     public function getDetails($latestMeeting)

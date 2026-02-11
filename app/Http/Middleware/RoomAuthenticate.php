@@ -8,22 +8,15 @@ use App\Enums\RoomAuthTokenType;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
 use App\Prometheus\Counter;
-use App\Services\RoomAuthService;
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class RoomAuthenticate
 {
-    protected RoomAuthService $roomAuthService;
-
-    public function __construct(RoomAuthService $roomAuthService)
-    {
-        $this->roomAuthService = $roomAuthService;
-    }
-
     /**
      * Handle requests to room routes and determine room unauthenticated status
      *
@@ -144,9 +137,9 @@ class RoomAuthenticate
             return $this->handleError(CustomErrorMessages::ROOM_REQUIRE_CODE->value, 403, 'Forbidden', __('rooms.require_access_code'));
         }
 
-        // make authentication status and personalized link available to other parts of the application
-        $this->roomAuthService->setAuthenticated($room, $authenticated);
-        $this->roomAuthService->setRoomPersonalizedLink($room, $personalizedLink);
+        // make authentication status and token available to other parts of the application
+        Context::addHidden("room.{$room->id}.authenticated", $authenticated);
+        Context::addHidden("room.{$room->id}.personalized_link", $personalizedLink);
 
         return $next($request);
     }

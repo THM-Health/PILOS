@@ -25,7 +25,6 @@ use App\Models\RoomPersonalizedLink;
 use App\Models\RoomType;
 use App\Models\User;
 use App\Prometheus\Counter;
-use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use App\Settings\GeneralSettings;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -201,7 +200,7 @@ class RoomController extends Controller
      *
      * @return \App\Http\Resources\Room
      */
-    public function show(Room $room, RoomAuthService $roomAuthService)
+    public function show(Room $room)
     {
         return (new \App\Http\Resources\Room($room))->withDetails();
     }
