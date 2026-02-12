@@ -252,6 +252,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -282,7 +286,7 @@ jobs:
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
       - name: Cypress run frontend tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.frontend_group }}
@@ -318,6 +322,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Fetch develop branch
         if: github.ref != 'refs/heads/develop'
         run: git fetch origin develop:develop
@@ -350,9 +358,9 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Run cypress
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
-          command-prefix: happo-e2e -- npx
+          command-prefix: npx happo -- npx
           group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
@@ -362,6 +370,7 @@ jobs:
           HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
           HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
           HAPPO_DELETE_OLD_COMMENTS: true
+          HAPPO_CONFIG_FILE: "./tests/Visual/happo.config.js"
           BASE_BRANCH: origin/develop
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -382,6 +391,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -414,7 +427,7 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Cypress run system tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.system_group }}
