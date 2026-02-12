@@ -360,7 +360,7 @@ jobs:
       - name: Run cypress
         uses: cypress-io/github-action@v7
         with:
-          command-prefix: happo -- npx
+          command-prefix: npx happo -- npx
           group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
