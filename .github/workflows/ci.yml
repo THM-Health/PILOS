@@ -282,7 +282,7 @@ jobs:
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
       - name: Cypress run frontend tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.frontend_group }}
@@ -350,7 +350,7 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Run cypress
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           command-prefix: happo -- npx
           group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
@@ -414,7 +414,7 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Cypress run system tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.system_group }}
