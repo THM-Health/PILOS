@@ -370,6 +370,7 @@ jobs:
           HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
           HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
           HAPPO_DELETE_OLD_COMMENTS: true
+          HAPPO_CONFIG_FILE: "./tests/Visual/happo.config.js"
           BASE_BRANCH: origin/develop
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
