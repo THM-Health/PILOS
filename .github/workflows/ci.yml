@@ -255,7 +255,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -325,7 +325,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Fetch develop branch
         if: github.ref != 'refs/heads/develop'
         run: git fetch origin develop:develop
@@ -393,7 +393,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
