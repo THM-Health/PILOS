@@ -12,6 +12,8 @@ class RoomAuthToken extends Model
     use HasFactory;
     use HasUuids;
 
+    public $timestamps = false;
+
     protected $casts = [
         'type' => RoomAuthTokenType::class,
     ];
