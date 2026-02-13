@@ -73,7 +73,7 @@
             :label="$t('app.reload')"
             :aria-label="$t('app.reload')"
             data-test="reload-button"
-            @click="reloadRoomsView()"
+            @click="initializeRoomView"
           />
         </div>
       </div>
@@ -309,17 +309,7 @@ onMounted(() => {
   EventBus.on(EVENT_FORBIDDEN, reload);
   EventBus.on(EVENT_UNAUTHORIZED, reload);
 
-  if (props.token) {
-    authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
-      (success) => {
-        if (success) {
-          load();
-        }
-      },
-    );
-  } else {
-    load();
-  }
+  initializeRoomView();
 });
 
 onUnmounted(() => {
@@ -557,9 +547,10 @@ function reload() {
 }
 
 /**
- * Reload room view, authenticate if token is provided
+ * Initialize room view, authenticate if personalized link is provided and initial
+ * loading of the room
  */
-function reloadRoomsView() {
+function initializeRoomView() {
   if (props.token && !roomAuthToken.value) {
     authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
       (success) => {

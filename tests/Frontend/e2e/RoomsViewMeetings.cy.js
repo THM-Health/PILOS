@@ -2268,7 +2268,7 @@ describe("Rooms view meetings", function () {
       });
     });
 
-    // Check thet room auth token is reset
+    // Check that room auth token is reset
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query.room_auth_token).to.be.undefined;
       expect(interception.request.query.room_auth_token_type).to.be.undefined;
