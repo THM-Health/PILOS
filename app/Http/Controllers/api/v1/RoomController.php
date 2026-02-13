@@ -492,7 +492,7 @@ class RoomController extends Controller
         } elseif ($request->type === RoomAuthTokenType::PERSONALIZED_LINK->value) {
             if (Auth::user()) {
                 // current user is authenticated
-                abort(420, CustomErrorMessages::ROOM_GUESTS_ONLY->value);
+                abort(CustomStatusCodes::GUESTS_ONLY->value, CustomErrorMessages::ROOM_GUESTS_ONLY->value);
             }
 
             $personalizedLink = RoomPersonalizedLink::where('token', $request->personalized_link_token)

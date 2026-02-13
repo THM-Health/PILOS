@@ -1126,7 +1126,7 @@ class RoomTest extends TestCase
             'type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             'personalized_link_token' => $link->token,
         ])
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
     }
 
     public function test_room_auth_token_with_personalized_link()
@@ -1240,7 +1240,7 @@ class RoomTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
     }
 
     /**
@@ -3616,7 +3616,7 @@ class RoomTest extends TestCase
                 'room_auth_token' => $roomAuthToken->id,
                 'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
 
         // Clear
         $room->refresh();
@@ -4222,7 +4222,7 @@ class RoomTest extends TestCase
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
 
         Auth::logout();
 

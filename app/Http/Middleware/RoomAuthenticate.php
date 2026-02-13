@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\CustomErrorMessages;
+use App\Enums\CustomStatusCodes;
 use App\Enums\RoomAuthTokenType;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
@@ -109,7 +110,7 @@ class RoomAuthenticate
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                     Log::notice('Room auth token authentication failed for room {room} (Authenticated with token type token)', ['room' => $room->getLogLabel()]);
 
-                    return $this->handleError(CustomErrorMessages::ROOM_GUESTS_ONLY->value, 420, 'Guests only', __('app.flash.guests_only'));
+                    return $this->handleError(CustomErrorMessages::ROOM_GUESTS_ONLY->value, CustomStatusCodes::GUESTS_ONLY->value, 'Guests only', __('app.flash.guests_only'));
                 }
             }
         }

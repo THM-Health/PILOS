@@ -3,6 +3,7 @@
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomErrorMessages;
+use App\Enums\CustomStatusCodes;
 use App\Enums\RecordingAccess;
 use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomUserRole;
@@ -492,7 +493,7 @@ class RecordingTest extends TestCase
                 'room_auth_token' => $roomAuthToken->id,
                 'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             ]))
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
     }
 
     public function test_show_no_access_code_guests_allowed()
@@ -693,7 +694,7 @@ class RecordingTest extends TestCase
                 'room_auth_token' => $roomAuthToken->id,
                 'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
             ]))
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
 
         Auth::logout();
 

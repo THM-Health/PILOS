@@ -3,6 +3,7 @@
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\CustomErrorMessages;
+use App\Enums\CustomStatusCodes;
 use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomUserRole;
 use App\Models\Permission;
@@ -856,10 +857,10 @@ class FileTest extends TestCase
                 session()->getName() => $currentSession->id,
             ])
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
-            ->assertStatus(420)
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value)
             ->assertViewHasAll([
                 'type' => CustomErrorMessages::ROOM_GUESTS_ONLY->value,
-                'code' => 420,
+                'code' => CustomStatusCodes::GUESTS_ONLY->value,
                 'title' => 'Guests only',
                 'message' => __('app.flash.guests_only'),
             ]);

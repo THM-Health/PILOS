@@ -2,6 +2,7 @@
 
 namespace Tests\Backend\Feature\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Models\Session;
 use App\Models\User;
 use App\Notifications\PasswordReset;
@@ -36,7 +37,7 @@ class ResetPasswordTest extends TestCase
         $newUserToken = Password::createToken($newUser);
 
         $this->actingAs($user)->postJson(route('api.v1.password.reset'))
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
 
         Auth::logout();
         Notification::fake();
