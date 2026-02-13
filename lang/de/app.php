@@ -88,6 +88,7 @@ return [
         'self' => 'Im aktuellen Tab öffnen',
     ],
     'locales' => [
+        'ar' => 'Arabisch',
         'de' => 'Deutsch',
         'en' => 'Englisch',
         'fa' => 'Persisch',

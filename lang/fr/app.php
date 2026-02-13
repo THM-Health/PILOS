@@ -88,6 +88,7 @@ return [
         'self' => 'Ouvrir dans l\'onglet actuel',
     ],
     'locales' => [
+        'ar' => 'Arabe',
         'de' => 'Allemand',
         'en' => 'Anglais',
         'fa' => 'Persan',

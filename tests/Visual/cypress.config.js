@@ -1,6 +1,6 @@
 import { defineConfig } from "cypress";
 import "dotenv/config";
-import happoTask from "happo-cypress/task.js";
+import happoTask from "happo/cypress/task";
 
 const baseUrl = process.env.APP_URL || "http://localhost";
 export default defineConfig({
