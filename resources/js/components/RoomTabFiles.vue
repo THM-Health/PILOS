@@ -458,6 +458,9 @@ function handleFileErrorMessages(event) {
     // Forbidden, not allowed to view file
     toast.error(t("rooms.flash.file_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
+    // Reload file to reflect changes to file visibility (e.g. download no longer allowed)
+    // This can result in multiple reloads in some cases, but ensures the file list stays up to date
+    loadData();
   } else if (event.data.type === HTTP_ROOM_GUESTS_NOT_ALLOWED) {
     // Guests are not allowed
     emit("guestsNotAllowed");

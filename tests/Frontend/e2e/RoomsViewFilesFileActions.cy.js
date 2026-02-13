@@ -1029,58 +1029,84 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
 
     // Check forbidden error
-    cy.interceptRoomFilesRequest();
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      statusCode: 200,
+      fixture: "roomFilesNoDetails.json",
+    }).as("roomFilesRequest");
 
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("reloadRoomRequest");
+      const reloadRoomRequest = interceptIndefinitely(
+        "GET",
+        "api/v1/rooms/abc-def-123",
+        {
+          statusCode: 200,
+          body: room,
+        },
+        "reloadRoomRequest",
+      );
+
+      cy.window().then(($window) => {
+        const message = {
+          type: "forbidden",
+        };
+        $window.postMessage(message, Cypress.config("baseUrl"));
+      });
+
+      // Check that files are reloaded (because of error handling)
+      cy.wait("@roomFilesRequest");
+
+      // Check that error message is shown and file list is updated
+      cy.checkToastMessage("rooms.flash.file_forbidden");
+
+      cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+      // Check that rest of the page is not yet updated
+      cy.contains("auth.login").should("not.exist");
+
+      cy.fixture("roomFilesNoDetails.json").then((roomFiles) => {
+        roomFiles.data = roomFiles.data.slice(0, 1);
+        roomFiles.meta.to = 1;
+        roomFiles.meta.total = 1;
+        roomFiles.meta.total_no_filter = 1;
+
+        cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+          statusCode: 200,
+          body: roomFiles,
+        })
+          .as("roomFilesRequest")
+          .then(() => {
+            reloadRoomRequest.sendResponse();
+          });
+      });
+
+      // Check that room and files are reloaded (because of changes in the room (current_user))
+      cy.wait("@reloadRoomRequest");
+      cy.wait("@roomFilesRequest");
+
+      // Check that file list was updated again
+      cy.get('[data-test="room-file-item"]').should("have.length", 1);
+
+      // Check that action buttons are hidden and download agreement message is shown
+      cy.get('[data-test="room-files-upload-button"]').should("not.exist");
+      cy.get('[data-test="terms-of-use-message"]').should("be.visible");
+      cy.get('[data-test="room-file-item"]')
+        .eq(0)
+        .find('[data-test="room-files-view-button"]')
+        .should("not.be.disabled");
+      cy.get('[data-test="room-file-item"]')
+        .eq(0)
+        .find('[data-test="room-files-edit-button"]')
+        .should("not.exist");
+      cy.get('[data-test="room-file-item"]')
+        .eq(0)
+        .find('[data-test="room-files-delete-button"]')
+        .should("not.exist");
+
+      // Check that rest of the page is updated
+      cy.contains("auth.login").should("be.visible");
     });
-
-    cy.window().then(($window) => {
-      const message = {
-        type: "forbidden",
-      };
-      $window.postMessage(message, Cypress.config("baseUrl"));
-    });
-
-    cy.wait("@reloadRoomRequest");
-    cy.wait("@roomFilesRequest");
-
-    cy.checkToastMessage("rooms.flash.file_forbidden");
-    cy.contains("auth.login").should("be.visible");
-
-    // Check that action buttons are hidden and download agreement message is shown
-    cy.get('[data-test="room-files-upload-button"]').should("not.exist");
-    cy.get('[data-test="terms-of-use-message"]').should("be.visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-edit-button"]')
-      .should("not.exist");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-delete-button"]')
-      .should("not.exist");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-edit-button"]')
-      .should("not.exist");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-delete-button"]')
-      .should("not.exist");
 
     // Check guests not allowed error
     cy.window().then(($window) => {
@@ -1095,6 +1121,9 @@ describe("Rooms view files file actions", function () {
 
     // Check that reload button is shown
     cy.get('[data-test="reload-room-button"]').should("be.visible");
+
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
 
     cy.reload();
 
@@ -1111,7 +1140,7 @@ describe("Rooms view files file actions", function () {
     });
 
     // Check that files are still there and toast message is not shown
-    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
 
     cy.get(".p-toast-message").should("not.exist");
 
@@ -1120,7 +1149,7 @@ describe("Rooms view files file actions", function () {
     });
 
     // Check that files are still there and toast message is not shown
-    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
 
     cy.get(".p-toast-message").should("not.exist");
 
@@ -1132,7 +1161,7 @@ describe("Rooms view files file actions", function () {
     });
 
     // Check that files are still there and toast message is not shown
-    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
 
     cy.get(".p-toast-message").should("not.exist");
 
@@ -1145,7 +1174,7 @@ describe("Rooms view files file actions", function () {
     });
 
     // Check that files are still there and toast message is not shown
-    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
 
     cy.get(".p-toast-message").should("not.exist");
 
@@ -1162,10 +1191,6 @@ describe("Rooms view files file actions", function () {
         body: config,
       });
     });
-
-    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-      fixture: "room.json",
-    }).as("roomRequest");
 
     cy.interceptRoomFilesRequest(true);
 
