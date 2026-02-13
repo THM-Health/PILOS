@@ -261,7 +261,7 @@ function loadStartJoinRequirements() {
     isLoadingAction.value = true;
     loadingError.value = false;
 
-    // Build url, add accessCode and token if needed
+    // Build url, add room auth token if needed
     const url = "rooms/" + props.roomId + "/" + action.value;
     const config = {
       method: "options",

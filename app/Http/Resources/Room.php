@@ -53,7 +53,7 @@ class Room extends JsonResource
         }
 
         return [
-            'username' => $this->when(! empty($this->personalizedLink), ! empty($this->personalizedLink) ? $this->personalizedLink->fullname : null),
+            'username' => $this->when(! empty($this->personalizedLink), $this->personalizedLink?->fullname),
             'authenticated' => $this->authenticated,
             'legacy_code' => $this->access_code && strlen($this->access_code) == 6,
             'description' => $this->when($this->authenticated, $this->description),

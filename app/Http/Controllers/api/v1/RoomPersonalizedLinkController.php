@@ -91,7 +91,7 @@ class RoomPersonalizedLinkController extends Controller
         $link->role = $request->role;
         $room->personalizedLinks()->save($link);
 
-        Log::info('Created new personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->firstname.' '.$link->lastname]);
+        Log::info('Created new personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
 
         return new RoomPersonalizedLinkResource($link);
     }
@@ -112,7 +112,7 @@ class RoomPersonalizedLinkController extends Controller
         $link->role = $request->role;
         $link->save();
 
-        Log::info('Updated personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->firstname.' '.$link->lastname]);
+        Log::info('Updated personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
 
         return new RoomPersonalizedLinkResource($link);
     }
@@ -132,7 +132,7 @@ class RoomPersonalizedLinkController extends Controller
 
         $link->delete();
 
-        Log::info('Removed personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->firstname.' '.$link->lastname]);
+        Log::info('Removed personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
 
         return response()->noContent();
     }

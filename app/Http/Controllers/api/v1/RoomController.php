@@ -444,7 +444,7 @@ class RoomController extends Controller
         }
 
         if ($request->type === RoomAuthTokenType::CODE->value) {
-            if (! $room->getRoomSetting('allow_guests') && ! Auth::user()) {
+            if (! $room->getRoomSetting('allow_guests') && Auth::guest()) {
                 // user is not authenticated and room is not allowed for guests
                 Counter::get('room_authentication_errors_total')->inc('guest_access');
 
@@ -490,7 +490,7 @@ class RoomController extends Controller
                 abort(401, CustomErrorMessages::ROOM_INVALID_CODE->value);
             }
         } elseif ($request->type === RoomAuthTokenType::PERSONALIZED_LINK->value) {
-            if (! Auth::guest()) {
+            if (Auth::user()) {
                 // current user is authenticated
                 abort(420, CustomErrorMessages::ROOM_GUESTS_ONLY->value);
             }

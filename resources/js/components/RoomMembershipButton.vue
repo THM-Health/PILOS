@@ -100,7 +100,7 @@ function joinMembership() {
   // Enable loading indicator
   isLoadingAction.value = true;
 
-  // Join room as member, send access code if needed
+  // Join room as member, send room auth token if needed
   const config = {
     method: "post",
   };
