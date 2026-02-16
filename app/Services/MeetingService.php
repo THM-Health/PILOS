@@ -21,6 +21,7 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Log;
 use ReflectionProperty;
@@ -106,7 +107,14 @@ class MeetingService
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
-            $meetingParams->addPresentation((new RoomFileService($file))->url(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
+            // Create file download url
+            $fileUrl = URL::signedRoute('rooms.files.download.bbb', [
+                'roomFile' => $file->id,
+                'filename' => $file->filename,
+            ]);
+
+            // Add download url to meeting params
+            $meetingParams->addPresentation($fileUrl, null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
         if (empty($meetingParams->getPresentations()) && app(BigBlueButtonSettings::class)->default_presentation) {

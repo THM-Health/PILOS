@@ -14,7 +14,6 @@ use App\Models\RoomFile;
 use App\Models\RoomPersonalizedLink;
 use App\Models\Server;
 use App\Models\User;
-use App\Services\RoomFileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -22,7 +21,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
 use Tests\Backend\Utils\SessionHelpers;
@@ -967,7 +965,12 @@ class FileTest extends TestCase
 
         \Auth::logout();
 
-        $this->get((new RoomFileService($room_file))->url())
+        $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
+            'roomFile' => $room_file->id,
+            'filename' => $room_file->filename,
+        ]);
+
+        $this->get($downloadLink)
             ->assertSuccessful();
     }
 
@@ -987,9 +990,20 @@ class FileTest extends TestCase
 
         \Auth::logout();
 
-        $this->expectException(NotFoundHttpException::class);
+        $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
+            'roomFile' => $room_file->id,
+            'filename' => $room_file->filename,
+        ]);
 
-        $this->get((new RoomFileService($room_file))->url());
+        $this->get($downloadLink)
+            ->assertNotFound()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_FILE_NOT_FOUND->value,
+                'code' => 404,
+                'title' => 'File not found',
+                'message' => __('rooms.flash.file_gone'),
+            ]);
     }
 
     /**

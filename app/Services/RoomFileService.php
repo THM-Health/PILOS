@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\CustomErrorMessages;
 use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 use Log;
 
 class RoomFileService
@@ -57,21 +56,5 @@ class RoomFileService
             ->header('Content-Disposition', 'inline; filename="'.$fileName.'"')
             ->header('Content-Transfer-Encoding', 'binary')
             ->header('X-Accel-Redirect', $fileAlias);
-    }
-
-    /**
-     * Create download link
-     */
-    public function url(): string
-    {
-        Log::info('Create download url for room file {file}', ['file' => $this->file->getLogLabel()]);
-        $params = ['roomFile' => $this->file->id, 'filename' => $this->file->filename];
-        $routeName = 'rooms.files.download.bbb';
-
-        if (! $this->checkFileExists()) {
-            abort(404);
-        }
-
-        return URL::signedRoute($routeName, $params);
     }
 }
