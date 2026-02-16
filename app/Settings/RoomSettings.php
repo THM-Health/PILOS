@@ -19,6 +19,8 @@ class RoomSettings extends Settings
 
     public ?string $file_terms_of_use;
 
+    public bool $hide_owner_for_guests;
+
     public static function group(): string
     {
         return 'room';

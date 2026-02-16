@@ -392,6 +392,7 @@ return [
             'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierten Raumlinks automatisch gelöscht werden.',
             'title' => 'Ablaufzeit für personalisierte Raumlinks',
         ],
+        'room_hide_owner_for_guests' => 'Eigentümer eines Raumes für Gäste verstecken',
         'six_month' => '6 Monate (180 Tage)',
         'statistics' => [
             'meetings' => [

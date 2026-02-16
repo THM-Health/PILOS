@@ -392,6 +392,7 @@ return [
             'description' => 'Période depuis la dernière utilisation, après laquelle les liens de salle personnalisés sont automatiquement supprimés.',
             'title' => 'Délai d\'expiration des liens de salle personnalisés',
         ],
+        'room_hide_owner_for_guests' => 'Masquer le propriétaire de la salle pour les utilisateurs non authentifiés',
         'six_month' => '6 mois (180 jours)',
         'statistics' => [
             'meetings' => [

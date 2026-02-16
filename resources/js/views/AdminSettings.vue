@@ -1063,6 +1063,35 @@
                 />
               </div>
             </div>
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="room-hide-owner-field"
+            >
+              <legend class="col-span-12 md:col-span-4 md:mb-0">
+                {{ $t("admin.settings.room_hide_owner_for_guests") }}
+              </legend>
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <div class="flex items-center gap-2">
+                  <ToggleSwitch
+                    v-model="settings.room_hide_owner_for_guests"
+                    input-id="room-hide-owner"
+                    binary
+                    :disabled="disabled"
+                    :invalid="
+                      formErrors.fieldInvalid('room_hide_owner_for_guests')
+                    "
+                  />
+                  <label for="room-hide-owner">{{
+                    $t("app.enable")
+                  }}</label>
+                </div>
+                <FormError
+                  :errors="
+                    formErrors.fieldError('room_hide_owner_for_guests')
+                  "
+                />
+              </div>
+            </fieldset>
           </AdminPanel>
 
           <AdminPanel :title="$t('app.users')">

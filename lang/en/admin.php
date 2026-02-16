@@ -392,6 +392,7 @@ return [
             'description' => 'Time period since last usage, after which personalized room links get automatically removed.',
             'title' => 'Expiration time for personalized room links',
         ],
+        'room_hide_owner_for_guests' => 'Hide the room owner from unauthenticated users',
         'six_month' => '6 Months (180 Days)',
         'statistics' => [
             'meetings' => [

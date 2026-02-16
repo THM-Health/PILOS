@@ -390,6 +390,7 @@ return [
             'description' => 'مدت زمان از آخرین استفاده، پس از آن لینک‌های شخصی‌سازی‌شده اتاق به‌طور خودکار حذف می‌شوند.',
             'title' => 'زمان انقضا برای لینک‌های شخصی‌سازی‌شده اتاق',
         ],
+        'room_hide_owner_for_guests' => 'Hide the room owner from unauthenticated users',
         'six_month' => '6 ماه (180 روز)',
         'statistics' => [
             'meetings' => [
