@@ -52,7 +52,7 @@
     "@tiptap/starter-kit": "^3.19.0",
     "@tiptap/vue-3": "^3.19.0",
     "@vitejs/plugin-vue": "^6.0.4",
-    "@vueuse/components": "^14.2.0",
+    "@vueuse/components": "^14.2.1",
     "@vueuse/core": "^14.2.0",
     "axe-core": "^4.11.1",
     "axios": "^1.13.5",
