@@ -392,7 +392,6 @@ return [
             'description' => 'الفترة منذ آخر استخدام التي يتم بعدها حذف روابط الغرف المخصصة تلقائيًا.',
             'title' => 'مدة صلاحية روابط الغرف المخصصة',
         ],
-        'room_hide_owner_for_guests' => 'Hide the room owner from unauthenticated users',
         'six_month' => '6 أشهر (180 يومًا)',
         'statistics' => [
             'meetings' => [
