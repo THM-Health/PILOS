@@ -14,7 +14,6 @@
           :room="props.room"
           :show-description="true"
           :inline="detailsInline"
-          :show-room-owner="showRoomOwner"
         />
       </div>
       <div class="flex shrink-0 items-start justify-end">
@@ -70,12 +69,9 @@
   </div>
 </template>
 <script setup>
-import { computed } from "vue";
 import { useAuthStore } from "../stores/auth.js";
-import { useSettingsStore } from "../stores/settings";
 
 const authStore = useAuthStore();
-const settingsStore = useSettingsStore();
 
 const props = defineProps({
   room: {
@@ -121,12 +117,5 @@ const emit = defineEmits([
   "reload",
   "invalidRoomAuthToken",
 ]);
-
-const showRoomOwner = computed(() => {
-  if (authStore.isAuthenticated) {
-    return true;
-  }
-  return !settingsStore.getSetting("room.hide_owner_for_guests");
-});
 
 </script>

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\User as UserResource;
 use App\Models\RoomPersonalizedLink;
+use App\Settings\RoomSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
@@ -81,13 +82,18 @@ class Room extends JsonResource
             $latestMeeting->setRelation('room', $this->resource);
         }
 
+        $roomSettings = app(RoomSettings::class);
+
+        // Check if user is authenticated or room owner should be shown to everyone
+        $showOwner = Auth::check() || !$roomSettings->hide_owner_for_guests;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'owner' => [
+            'owner' => $this->when($showOwner, [
                 'id' => $this->owner->id,
                 'name' => $this->owner->fullname,
-            ],
+            ]),
             'last_meeting' => new LastMeeting($latestMeeting),
             'type' => new RoomType($this->roomType)->withFeatures(),
             'model_name' => $this->model_name,

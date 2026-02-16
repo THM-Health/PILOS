@@ -4,7 +4,7 @@
     :class="{ 'md:flex-row': props.inline }"
   >
     <!--owner name-->
-    <div v-if="props.showRoomOwner" class="flex">
+    <div v-if="props.room.owner" class="flex">
       <div class="room-details__icon">
         <i class="fa-solid fa-user" />
       </div>
@@ -90,10 +90,6 @@ const props = defineProps({
   showDescription: {
     type: Boolean,
     default: false,
-  },
-  showRoomOwner: {
-    type: Boolean,
-    default: true,
   },
 });
 </script>

@@ -63,7 +63,6 @@ class Config extends JsonResource
                 'personalized_link_expiration' => $roomSettings->personalized_link_expiration,
                 'refresh_rate' => config('bigbluebutton.room_refresh_rate'),
                 'file_terms_of_use' => $roomSettings->file_terms_of_use,
-                'hide_owner_for_guests' => $roomSettings->hide_owner_for_guests,
             ],
             'user' => [
                 'password_change_allowed' => $userSettings->password_change_allowed,
