@@ -31,7 +31,7 @@
     "eslint-plugin-mocha": "^11.2.0",
     "eslint-plugin-vue": "^10.7.0",
     "globals": "^17.3.0",
-    "happo": "^6.3.1",
+    "happo": "^6.3.2",
     "nyc": "^17.1.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
