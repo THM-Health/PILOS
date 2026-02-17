@@ -137,7 +137,7 @@ class RoomAuthenticate
             return $this->handleError(CustomErrorMessages::ROOM_REQUIRE_CODE->value, 403, 'Forbidden', __('rooms.require_access_code'));
         }
 
-        // make authentication status and token available to other parts of the application
+        // make authentication status and personalized link available to other parts of the application
         Context::addHidden("room.{$room->id}.authenticated", $authenticated);
         Context::addHidden("room.{$room->id}.personalized_link", $personalizedLink);
 
