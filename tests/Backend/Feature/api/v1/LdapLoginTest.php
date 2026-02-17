@@ -551,11 +551,11 @@ class LdapLoginTest extends TestCase
         $this->assertEquals('346f8f4d7df6d16aac328afb8d2714189c1c70ceaba165dfde005b56846382e9', $user->external_image_hash);
 
         // Check image is cropped
-        $cropped = Image::load(\Storage::disk('public')->path($user->image));
-        $croppedContent = \Storage::disk('public')->get($user->image);
+        $cropped = Image::load(Storage::disk('public')->path($user->image));
+        $croppedContent = Storage::disk('public')->get($user->image);
         $this->assertEquals(100, $cropped->getWidth());
         $this->assertEquals(100, $cropped->getHeight());
-        $croppedHash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $croppedHash = hash_file('sha256', Storage::disk('public')->path($user->image));
 
         // 2. Test login again, with new image, check if it is updated as the image has changed
         $pathProfileImage2 = __DIR__.'/../../../Fixtures/profileImage-2.jpg';
@@ -576,15 +576,15 @@ class LdapLoginTest extends TestCase
         // Check external image hash and image have changed
         $this->assertEquals('7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f', $user->external_image_hash);
         // Check image is cropped
-        $cropped2 = Image::load(\Storage::disk('public')->path($user->image));
+        $cropped2 = Image::load(Storage::disk('public')->path($user->image));
         $this->assertEquals(100, $cropped2->getWidth());
         $this->assertEquals(100, $cropped2->getHeight());
-        $cropped2Hash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $cropped2Hash = hash_file('sha256', Storage::disk('public')->path($user->image));
         $this->assertNotEquals($croppedHash, $cropped2Hash);
 
         // 3. Test image is not updated if image hash is the same
         // To tests this, we manually replace the stored image to see if it is not overwritten
-        \Storage::disk('public')->put($user->image, $croppedContent);
+        Storage::disk('public')->put($user->image, $croppedContent);
 
         $this->postJson(route('api.v1.logout'));
         $this->assertFalse($this->isAuthenticated($this->guard));
@@ -600,7 +600,7 @@ class LdapLoginTest extends TestCase
 
         // Check external image hash and image are not updated
         $this->assertEquals('7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f', $user->external_image_hash);
-        $cropped3Hash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $cropped3Hash = hash_file('sha256', Storage::disk('public')->path($user->image));
         $this->assertEquals($croppedHash, $cropped3Hash);
 
         // 4. Test image removed if no image is stored in ldap
@@ -617,7 +617,7 @@ class LdapLoginTest extends TestCase
         $this->postJson(route('api.v1.logout'));
 
         // Check image removed from storage
-        $this->assertFalse(\Storage::disk('public')->exists($user->image));
+        $this->assertFalse(Storage::disk('public')->exists($user->image));
 
         // Check if fields are set to null in the database
         $user->refresh();

@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -147,7 +148,7 @@ class FileTest extends TestCase
         $presentation = RoomFile::factory()->create(['filename' => 'presentation.pptx', 'created_at' => '2024-04-01 09:00:00', 'download' => false, 'default' => false, 'use_in_meeting' => true, 'room_id' => $this->room->id]);
         $notes = RoomFile::factory()->create(['filename' => 'notes.pdf', 'created_at' => '2024-04-01 10:00:00', 'download' => true, 'default' => false, 'use_in_meeting' => false, 'room_id' => $this->room->id]);
 
-        \Auth::logout();
+        Auth::logout();
         // Testing access for room owners only file list
 
         // Testing guests without guest access
@@ -171,7 +172,7 @@ class FileTest extends TestCase
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
             ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
-        \Auth::logout();
+        Auth::logout();
 
         $this->room->access_code = $this->createAccessCode();
         $this->room->save();
@@ -185,7 +186,7 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertForbidden()
             ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_REQUIRE_CODE->value]);
-        \Auth::logout();
+        Auth::logout();
 
         // Create RoomAuthToken with token type code
         $currentSession = $this->startNewSession();
@@ -363,7 +364,7 @@ class FileTest extends TestCase
         $download_link = $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()->json('data.0.url');
 
-        \Auth::logout();
+        Auth::logout();
 
         // Access as guest, without guest access
         $this->get($download_link)
@@ -380,7 +381,7 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
-        \Auth::logout();
+        Auth::logout();
 
         // Allow guest access
         $this->room->allow_guests = true;
@@ -406,7 +407,7 @@ class FileTest extends TestCase
         $download_link = $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()->json('data.0.url');
 
-        \Auth::logout();
+        Auth::logout();
 
         // Access as guest, without guest access and without access code
         $this->get($download_link)
@@ -595,7 +596,7 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
-        \Auth::logout();
+        Auth::logout();
 
         // Allow guest access
         $this->room->allow_guests = true;
@@ -741,7 +742,7 @@ class FileTest extends TestCase
 
         $download_link = $response->json('data.0.url');
 
-        \Auth::logout();
+        Auth::logout();
 
         // Create personalized link
         $link = RoomPersonalizedLink::factory()->create(['room_id' => $this->room->id]);
@@ -879,7 +880,7 @@ class FileTest extends TestCase
             ->assertSuccessful();
 
         $download_link = $response->json('data.0.url');
-        \Auth::logout();
+        Auth::logout();
 
         // Access as guest
         $this->get($download_link)
@@ -963,7 +964,7 @@ class FileTest extends TestCase
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
-        \Auth::logout();
+        Auth::logout();
 
         $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
             'roomFile' => $room_file->id,
@@ -988,7 +989,7 @@ class FileTest extends TestCase
         // delete file on the drive
         Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
 
-        \Auth::logout();
+        Auth::logout();
 
         $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
             'roomFile' => $room_file->id,
@@ -1017,7 +1018,7 @@ class FileTest extends TestCase
 
         Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
 
-        \Auth::logout();
+        Auth::logout();
 
         // Testing guest
         $this->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $this->room->id, 'file' => $room_file]))
@@ -1147,7 +1148,7 @@ class FileTest extends TestCase
 
         Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
 
-        \Auth::logout();
+        Auth::logout();
 
         $route = route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file]);
         $params = [

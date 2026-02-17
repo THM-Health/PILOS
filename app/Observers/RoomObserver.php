@@ -7,6 +7,7 @@ use App\Exceptions\RoomIdGenerationFailed;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RoomObserver
@@ -58,6 +59,6 @@ class RoomObserver
     {
         $room->files->each->delete();
         $room->recordings->each->delete();
-        \Storage::deleteDirectory($room->id);
+        Storage::deleteDirectory($room->id);
     }
 }

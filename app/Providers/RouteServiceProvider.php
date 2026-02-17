@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
@@ -62,7 +63,7 @@ class RouteServiceProvider extends ServiceProvider
         // Rate limit for changes to the current user profile, requiring to current password of the user if the user is editing himself
         // Prevent brute force attacks on the password
         RateLimiter::for('current_password', function (Request $request) {
-            if (\Auth::user()->is(User::find($request->route('user')))) {
+            if (Auth::user()->is(User::find($request->route('user')))) {
                 // Limit to 5 attempts per minute and user+ip, not blocking the real user
                 return Limit::perMinute(5)->by($request->user()->id.'|'.$request->ip());
             }

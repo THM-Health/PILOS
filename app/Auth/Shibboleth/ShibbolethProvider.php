@@ -28,8 +28,8 @@ class ShibbolethProvider
     {
         // Only destroy application cookie via front channel and destroy the application session via back channel
 
-        if (\Auth::user()?->authenticator == 'shibboleth') {
-            \Auth::logout();
+        if (Auth::user()?->authenticator == 'shibboleth') {
+            Auth::logout();
         }
 
         // Send user to the return URL

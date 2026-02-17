@@ -544,7 +544,7 @@ class MeetingService
                         array_push($newAndExistingAttendees, $meetingAttendee->id);
                     } else {
                         // user was not found in database
-                        \Illuminate\Support\Facades\Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
+                        Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
                     }
 
                     break;

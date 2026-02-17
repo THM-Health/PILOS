@@ -11,6 +11,8 @@ use App\Models\Room;
 use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class RecordingController extends Controller
@@ -44,13 +46,13 @@ class RecordingController extends Controller
         $resource = $room->recordings()->with('formats')->has('formats')->orderByRaw($sortBy.' '.$sortOrder)->orderBy('recordings.id');
 
         // If user is not allowed to view all recordings, only query recordings that should be visible to the user
-        if (! \Gate::allows('viewAllRecordings', $room)) {
+        if (! Gate::allows('viewAllRecordings', $room)) {
             $allowedAccess = [RecordingAccess::EVERYONE];
 
-            if ($room->isModerator(\Auth::user())) {
+            if ($room->isModerator(Auth::user())) {
                 $allowedAccess[] = RecordingAccess::MODERATOR;
                 $allowedAccess[] = RecordingAccess::PARTICIPANT;
-            } elseif ($room->isMember(\Auth::user())) {
+            } elseif ($room->isMember(Auth::user())) {
                 $allowedAccess[] = RecordingAccess::PARTICIPANT;
             }
 

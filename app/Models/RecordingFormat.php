@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Date;
 use SimpleXMLElement;
 
 class RecordingFormat extends Model
@@ -32,9 +33,9 @@ class RecordingFormat extends Model
         // Get start and end time of the recording from the XML
         // The timestamps are in milliseconds, so we need to divide by 1000 to get seconds
         $startTimestamp = (int) $xml->start_time;
-        $start = \Date::createFromTimestampUTC($startTimestamp / 1000);
+        $start = Date::createFromTimestampUTC($startTimestamp / 1000);
         $endTimestamp = (int) $xml->end_time;
-        $end = \Date::createFromTimestampUTC($endTimestamp / 1000);
+        $end = Date::createFromTimestampUTC($endTimestamp / 1000);
 
         // Get the external meeting ID and name of the meeting from the XML
         $meetingId = (string) $xml->meta->meetingId;

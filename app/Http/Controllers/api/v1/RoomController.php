@@ -439,7 +439,7 @@ class RoomController extends Controller
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
         // Check if user tries to authenticate even though it is not necessary
-        if (\Illuminate\Support\Facades\Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
+        if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
             return response()->noContent();
         }
 

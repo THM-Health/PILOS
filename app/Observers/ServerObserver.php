@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
 use App\Models\Server;
+use Illuminate\Support\Facades\Log;
 
 class ServerObserver
 {
@@ -35,7 +36,7 @@ class ServerObserver
     {
         // Check if server is failing (error count increased or recover count decreased)
         if ($server->error_count > $server->getOriginal('error_count') || $server->recover_count < $server->getOriginal('recover_count')) {
-            \Log::error('Server {server} failing', [
+            Log::error('Server {server} failing', [
                 'server' => $server->getLogLabel(),
                 'error_count' => $server->error_count,
                 'old_error_count' => $server->getOriginal('error_count'),
@@ -44,7 +45,7 @@ class ServerObserver
 
         // Check if server is recovering (recover count increased)
         if ($server->recover_count > $server->getOriginal('recover_count')) {
-            \Log::notice('Server {server} recovering', [
+            Log::notice('Server {server} recovering', [
                 'server' => $server->getLogLabel(),
                 'recover_count' => $server->recover_count,
                 'old_recover_count' => $server->getOriginal('recover_count'),
@@ -56,21 +57,21 @@ class ServerObserver
         $previousHealth = Server::calcHealth($server->getOriginal('recover_count'), $server->getOriginal('error_count'));
         if ($newHealth != $previousHealth) {
             if ($newHealth == ServerHealth::OFFLINE) {
-                \Log::error('Server {server} health changed to offline', [
+                Log::error('Server {server} health changed to offline', [
                     'server' => $server->getLogLabel(),
                     'old_health' => $previousHealth->name,
                 ]);
             }
 
             if ($newHealth == ServerHealth::UNHEALTHY) {
-                \Log::warning('Server {server} health changed to unhealthy', [
+                Log::warning('Server {server} health changed to unhealthy', [
                     'server' => $server->getLogLabel(),
                     'old_health' => $previousHealth->name,
                 ]);
             }
 
             if ($newHealth == ServerHealth::ONLINE) {
-                \Log::notice('Server {server} health changed to healthy', [
+                Log::notice('Server {server} health changed to healthy', [
                     'server' => $server->getLogLabel(),
                     'old_health' => $previousHealth->name,
                 ]);

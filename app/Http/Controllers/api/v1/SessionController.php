@@ -11,7 +11,7 @@ class SessionController extends Controller
 {
     public function index()
     {
-        return SessionResource::collection(\Auth::user()->sessions()->orderByDesc('last_activity')->get());
+        return SessionResource::collection(Auth::user()->sessions()->orderByDesc('last_activity')->get());
     }
 
     public function destroy()

@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 
 class UserTest extends TestCase
@@ -1049,7 +1050,7 @@ class UserTest extends TestCase
         $currentSession->save();
 
         $otherSession = new Session;
-        $otherSession->id = \Str::random(40);
+        $otherSession->id = Str::random(40);
         $otherSession->user_agent = $this->faker->userAgent;
         $otherSession->ip_address = $this->faker->ipv4;
         $otherSession->payload = '';
@@ -1058,7 +1059,7 @@ class UserTest extends TestCase
         $otherSession->save();
 
         $otherUserSession = new Session;
-        $otherUserSession->id = \Str::random(40);
+        $otherUserSession->id = Str::random(40);
         $otherUserSession->user_agent = $this->faker->userAgent;
         $otherUserSession->ip_address = $this->faker->ipv4;
         $otherUserSession->payload = '';
@@ -1159,7 +1160,7 @@ class UserTest extends TestCase
         $adminSession->save();
 
         $otherAdminSession = new Session;
-        $otherAdminSession->id = \Str::random(40);
+        $otherAdminSession->id = Str::random(40);
         $otherAdminSession->user_agent = $this->faker->userAgent;
         $otherAdminSession->ip_address = $this->faker->ipv4;
         $otherAdminSession->payload = '';
@@ -1168,7 +1169,7 @@ class UserTest extends TestCase
         $otherAdminSession->save();
 
         $userSession = new Session;
-        $userSession->id = \Str::random(40);
+        $userSession->id = Str::random(40);
         $userSession->user_agent = $this->faker->userAgent;
         $userSession->ip_address = $this->faker->ipv4;
         $userSession->payload = '';
@@ -1177,7 +1178,7 @@ class UserTest extends TestCase
         $userSession->save();
 
         $otherUserSession = new Session;
-        $otherUserSession->id = \Str::random(40);
+        $otherUserSession->id = Str::random(40);
         $otherUserSession->user_agent = $this->faker->userAgent;
         $otherUserSession->ip_address = $this->faker->ipv4;
         $otherUserSession->payload = '';

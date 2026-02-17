@@ -4052,7 +4052,7 @@ class RoomTest extends TestCase
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
-        \Auth::logout();
+        Auth::logout();
 
         // Check if room is running
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -4428,7 +4428,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $runningMeeting = $room->latestMeeting;
 
-        \Auth::logout();
+        Auth::logout();
 
         // Join as guest
         $guestName = $this->faker->name;

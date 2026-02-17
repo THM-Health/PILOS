@@ -16,6 +16,7 @@ use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
 use App\Settings\UserSettings;
 use Illuminate\Database\RecordsNotFoundException;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -259,7 +260,7 @@ class UserProvisioner extends AbstractProvisioner
             $user->firstname = $properties->firstname;
             $user->lastname = $properties->lastname;
             $user->email = $properties->email;
-            $user->password = \Hash::make($properties->password);
+            $user->password = Hash::make($properties->password);
             $user->authenticator = $properties->authenticator;
             $user->locale = $properties->locale;
             $user->timezone = $properties->timezone;

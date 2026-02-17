@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use PharData;
 use Throwable;
@@ -104,7 +105,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
     {
         // If the file is not found, delete the job, as it is not needed anymore
         if (! Storage::disk('recordings-spool')->exists($this->file) && ! Storage::disk('recordings-spool')->exists('failed/'.$this->file)) {
-            \Log::error('Recording file '.$this->file.' not found');
+            Log::error('Recording file '.$this->file.' not found');
             $this->delete();
 
             return;
@@ -146,7 +147,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
                 } else {
                     // No room found for the recording format, fail whole file
                     // Admins should check where the error is coming from, each recording file should only contain data of one meeting
-                    \Log::error('Associating recording file '.$this->file.' to a room failed');
+                    Log::error('Associating recording file '.$this->file.' to a room failed');
                     $this->fail('Associating recording file '.$this->file.' to a room failed');
 
                     return;
@@ -154,7 +155,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             }
         } catch (Exception $e) {
             // Extraction failed, retry the job later (.tar file might be incomplete yet)
-            \Log::error('Extracting recording file '.$this->file.' failed');
+            Log::error('Extracting recording file '.$this->file.' failed');
             $this->cleanup();
 
             throw new RecordingExtractionFailed($this->file, previous: $e);
@@ -163,7 +164,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
         // Remove .tar file as extraction was successful
         $delete = Storage::disk('recordings-spool')->delete($this->file);
         if (! $delete) {
-            \Log::error('Deleting recording file '.$this->file.' failed');
+            Log::error('Deleting recording file '.$this->file.' failed');
         }
 
         $this->cleanup();

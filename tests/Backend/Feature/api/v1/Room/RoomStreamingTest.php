@@ -16,6 +16,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -601,7 +602,7 @@ class RoomStreamingTest extends TestCase
         $this->room->save();
 
         // Test permissions
-        \Auth::logout();
+        Auth::logout();
 
         // Testing guests
         $this->postJson($url)

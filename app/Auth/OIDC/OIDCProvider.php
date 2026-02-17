@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
 use JsonException;
@@ -35,7 +36,7 @@ class OIDCProvider
             // Expected exception when the logout URL is not available / OP does not support logout
             return false;
         } catch (\Throwable $e) {
-            \Log::error('OIDC logout failed: '.$e->getMessage());
+            Log::error('OIDC logout failed: '.$e->getMessage());
 
             return false;
         }
@@ -48,7 +49,7 @@ class OIDCProvider
     public function redirect($redirect = null)
     {
         if ($redirect) {
-            \Session::put('redirect_url', $redirect);
+            Session::put('redirect_url', $redirect);
         }
 
         return redirect($this->openIDConnectClient->getAuthenticationRequestUrl());
