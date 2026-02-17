@@ -9,7 +9,6 @@ use App\Http\Requests\JoinMeeting;
 use App\Http\Requests\StartMeeting;
 use App\Models\Meeting;
 use App\Models\MeetingAttendee;
-use App\Models\Room;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
 use BigBlueButton\Enum\Feature;
@@ -20,6 +19,7 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
@@ -633,7 +633,7 @@ class MeetingService
      */
     public function getJoinUrl(JoinMeeting|StartMeeting $request): string
     {
-        $personalizedLink = \Illuminate\Support\Facades\Context::getHidden("room.{$this->meeting->room->id}.personalized_link");
+        $personalizedLink = Context::getHidden("room.{$this->meeting->room->id}.personalized_link");
 
         if (Auth::guest()) {
             if ($personalizedLink) {

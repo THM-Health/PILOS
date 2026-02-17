@@ -4,8 +4,8 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\User as UserResource;
 use App\Models\RoomPersonalizedLink;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Gate;
 
