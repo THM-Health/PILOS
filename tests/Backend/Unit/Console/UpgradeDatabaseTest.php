@@ -14,7 +14,7 @@ use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
-use ILLUMINATE\SUPPORT\FACADES\DB;
+use Illuminate\Support\Facades\DB;
 use Tests\Backend\TestCase;
 
 class UpgradeDatabaseTest extends TestCase

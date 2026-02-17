@@ -15,7 +15,7 @@ use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use ILLUMINATE\SUPPORT\FACADES\DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class UpgradeDatabaseCommand extends Command
