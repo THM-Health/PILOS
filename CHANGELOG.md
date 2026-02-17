@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - File downloads blocked in some browsers due to restrictions on opening new windows without user interaction ([#1409], [#2726])
+- Room start failed with a 404 error when an uploaded file was missing from storage ([#2726])
 
 ## [v4.12.0] - 2026-02-09
 
