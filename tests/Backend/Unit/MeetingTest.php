@@ -11,12 +11,12 @@ use App\Models\RoomPersonalizedLink;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\MeetingService;
-use App\Services\RoomAuthService;
 use App\Services\ServerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -337,11 +337,10 @@ class MeetingTest extends TestCase
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, true);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", true);
         Auth::login($user);
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 
@@ -413,10 +412,9 @@ class MeetingTest extends TestCase
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, false);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", false);
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $request->replace([
             'name' => 'John Doe',
         ]);
@@ -460,11 +458,10 @@ class MeetingTest extends TestCase
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, false);
-        $roomAuthService->setRoomPersonalizedLink($meeting->room, $link);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", false);
+        Context::addHidden("room.{$meeting->room->id}.personalized_link", $link);
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
 
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
@@ -506,8 +503,7 @@ class MeetingTest extends TestCase
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, false);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", false);
 
         Auth::login($meeting->room->owner);
 
@@ -515,7 +511,7 @@ class MeetingTest extends TestCase
         $roomType = $this->meeting->room->roomType;
         $roomType->join_parameters = "enforceLayout=PRESENTATION_ONLY\nwebcamBackgroundURL=https://example.com/background.png\nexcludeFromDashboard=true\nredirect=false\nuserdata-bbb_hide_presentation_on_join=true";
         $roomType->save();
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 
@@ -535,7 +531,7 @@ class MeetingTest extends TestCase
         $roomType->join_parameters = "enforceLayout=INVALID_LAYOUT\nexcludeFromDashboard=invalid\nuserdata-bbb_hide_presentation_on_join=true";
         $roomType->save();
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 
