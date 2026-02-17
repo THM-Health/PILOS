@@ -5,8 +5,8 @@ namespace App\Http\Resources;
 use App\Http\Resources\User as UserResource;
 use App\Models\RoomPersonalizedLink;
 use App\Services\RoomAuthService;
-use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class Room extends JsonResource
@@ -64,7 +64,7 @@ class Room extends JsonResource
             'can_start' => Gate::inspect('start', [$this->resource])->allowed(),
             'access_code' => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
-            'current_user' => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles(),
+            'current_user' => new UserResource(Auth::user())->withPermissions()->withoutRoles(),
         ];
     }
 

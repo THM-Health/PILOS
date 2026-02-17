@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Role;
 use App\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class NewUserRequest extends FormRequest
@@ -16,7 +17,7 @@ class NewUserRequest extends FormRequest
      */
     public function rules()
     {
-        $prohibitedRoles = \Auth::user()->superuser ? [] : Role::where(['superuser' => true])->pluck('id')->toArray();
+        $prohibitedRoles = Auth::user()->superuser ? [] : Role::where(['superuser' => true])->pluck('id')->toArray();
 
         return [
             'firstname' => ['required', 'string', 'max:255'],

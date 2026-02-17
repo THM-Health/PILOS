@@ -28,14 +28,14 @@ use App\Prometheus\Counter;
 use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use App\Settings\GeneralSettings;
-use Auth;
-use DB;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
-use Log;
 
 class RoomController extends Controller
 {
@@ -439,7 +439,7 @@ class RoomController extends Controller
     public function authenticate(Room $room, RoomAuthRequest $request)
     {
         // Check if user tries to authenticate even though it is not necessary
-        if (\Illuminate\Support\Facades\Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
+        if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
             return response()->noContent();
         }
 

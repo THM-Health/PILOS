@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Prometheus\Counter;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
@@ -75,7 +76,7 @@ class LoginController extends Controller
         $message = null;
 
         // Logout from external authentication provider
-        switch (\Auth::user()->authenticator) {
+        switch (Auth::user()->authenticator) {
             case 'shibboleth':
                 $redirect = app(ShibbolethProvider::class)->logout(url('/logout'));
                 break;

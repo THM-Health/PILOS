@@ -13,13 +13,14 @@ use App\Models\User;
 use App\Services\MeetingService;
 use App\Services\RoomAuthService;
 use App\Services\ServerService;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Str;
+use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -338,7 +339,7 @@ class MeetingTest extends TestCase
         $meetingService = new MeetingService($meeting);
         $roomAuthService = app()->make(RoomAuthService::class);
         $roomAuthService->setAuthenticated($meeting->room, true);
-        \Auth::login($user);
+        Auth::login($user);
 
         $request = new JoinMeeting($roomAuthService);
         $parameters = [];
@@ -393,7 +394,7 @@ class MeetingTest extends TestCase
         $this->assertEquals('MODERATOR', $parameters['role']);
 
         // Test owner
-        \Auth::login($meeting->room->owner);
+        Auth::login($meeting->room->owner);
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
         $this->assertEquals('MODERATOR', $parameters['role']);
@@ -508,7 +509,7 @@ class MeetingTest extends TestCase
         $roomAuthService = app()->make(RoomAuthService::class);
         $roomAuthService->setAuthenticated($meeting->room, false);
 
-        \Auth::login($meeting->room->owner);
+        Auth::login($meeting->room->owner);
 
         // Check with valid join parameters
         $roomType = $this->meeting->room->roomType;

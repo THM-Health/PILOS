@@ -2,10 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use Auth;
 use Closure;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

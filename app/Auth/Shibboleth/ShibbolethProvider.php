@@ -4,10 +4,10 @@ namespace App\Auth\Shibboleth;
 
 use App\Auth\MissingAttributeException;
 use App\Models\SessionData;
-use Auth;
-use Cache;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use SoapServer;
 
@@ -28,8 +28,8 @@ class ShibbolethProvider
     {
         // Only destroy application cookie via front channel and destroy the application session via back channel
 
-        if (\Auth::user()?->authenticator == 'shibboleth') {
-            \Auth::logout();
+        if (Auth::user()?->authenticator == 'shibboleth') {
+            Auth::logout();
         }
 
         // Send user to the return URL

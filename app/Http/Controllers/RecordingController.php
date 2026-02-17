@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Recording;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipStream\ZipStream;
@@ -39,7 +40,7 @@ class RecordingController extends Controller
         // Check if resolved requested file path is in allowed directory
         if (! str_contains($absFilePath, realpath(Storage::disk('recordings')->path($allowedDir)))) {
             // prevent path transversal
-            \Log::notice('Attempted to access recording file outside of allowed directory', ['requestedFile' => $requestedFile]);
+            Log::notice('Attempted to access recording file outside of allowed directory', ['requestedFile' => $requestedFile]);
             abort(404);
         }
 

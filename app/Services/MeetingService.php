@@ -12,7 +12,6 @@ use App\Models\MeetingAttendee;
 use App\Models\Room;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
-use Auth;
 use BigBlueButton\Enum\Feature;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
@@ -20,10 +19,11 @@ use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
-use Log;
 use ReflectionProperty;
 
 class MeetingService
@@ -544,7 +544,7 @@ class MeetingService
                         array_push($newAndExistingAttendees, $meetingAttendee->id);
                     } else {
                         // user was not found in database
-                        \Illuminate\Support\Facades\Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
+                        Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
                     }
 
                     break;

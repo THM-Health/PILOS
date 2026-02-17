@@ -20,7 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\FileHelper;
 use Tests\Backend\Utils\SessionHelpers;

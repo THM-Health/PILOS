@@ -24,7 +24,6 @@ use App\Services\MeetingService;
 use App\Services\ServerService;
 use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Http;
 use Illuminate\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,6 +32,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
 use Tests\Backend\Utils\SessionHelpers;
@@ -4052,7 +4052,7 @@ class RoomTest extends TestCase
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
-        \Auth::logout();
+        Auth::logout();
 
         // Check if room is running
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -4428,7 +4428,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $runningMeeting = $room->latestMeeting;
 
-        \Auth::logout();
+        Auth::logout();
 
         // Join as guest
         $guestName = $this->faker->name;

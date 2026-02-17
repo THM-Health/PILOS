@@ -12,7 +12,7 @@ use App\Services\MeetingService;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class MeetingController

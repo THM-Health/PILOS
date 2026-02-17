@@ -12,7 +12,7 @@ use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class RoomPersonalizedLinkController extends Controller
 {

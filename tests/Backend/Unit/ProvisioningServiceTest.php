@@ -13,6 +13,7 @@ use App\Settings\GeneralSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\Backend\TestCase;
 use UnexpectedValueException;
 
@@ -137,7 +138,7 @@ class ProvisioningServiceTest extends TestCase
             $user->firstname = "{$this->testUser->firstname} $i";
             $user->lastname = $this->testUser->lastname;
             $user->email = $this->testUser->email;
-            $user->password = \Hash::make($this->testUser->password);
+            $user->password = Hash::make($this->testUser->password);
             $user->authenticator = $this->testUser->authenticator;
             $user->locale = $this->testUser->locale;
             $user->timezone = $this->testUser->timezone;

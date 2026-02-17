@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Arr;
 
 /**
  * This class provides the notification for newly created users with generated passwords.
@@ -57,7 +58,7 @@ class UserWelcome extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = url('/reset_password?').\Arr::query([
+        $url = url('/reset_password?').Arr::query([
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
             'welcome' => true,

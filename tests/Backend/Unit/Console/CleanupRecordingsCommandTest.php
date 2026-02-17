@@ -8,7 +8,7 @@ use App\Models\RecordingFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 
 class CleanupRecordingsCommandTest extends TestCase

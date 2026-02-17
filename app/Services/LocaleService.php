@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use Cache;
 use Illuminate\Filesystem\Filesystem;
-use Storage;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class LocaleService
 {

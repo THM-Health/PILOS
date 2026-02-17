@@ -8,7 +8,8 @@ use App\Prometheus\Counter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Uri;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Uri;
 
 class OIDCController extends Controller
 {
@@ -26,12 +27,12 @@ class OIDCController extends Controller
             return $this->provider->redirect($request->query('redirect'));
         } catch (OpenIDConnectNetworkException $e) {
             Counter::get('login_failed_total')->inc('oidc');
-            \Log::error('OIDC login redirection failed: '.$e->getMessage());
+            Log::error('OIDC login redirection failed: '.$e->getMessage());
 
             return redirect('/external_login?error=openid_connect_network_exception');
         } catch (\Throwable $e) {
             Counter::get('login_failed_total')->inc('oidc');
-            \Log::error('OIDC login redirection failed: '.$e->getMessage());
+            Log::error('OIDC login redirection failed: '.$e->getMessage());
 
             return redirect('/external_login?error=openid_connect_exception');
         }
@@ -46,7 +47,7 @@ class OIDCController extends Controller
             $user = $this->provider->login($request);
         } catch (OpenIDConnectCodeMissingException $e) {
             Counter::get('login_failed_total')->inc('oidc');
-            \Log::warning('OIDC login failed: '.$e->getMessage());
+            Log::warning('OIDC login failed: '.$e->getMessage());
 
             return redirect()->route('auth.oidc.redirect');
         } catch (MissingAttributeException $e) {
@@ -55,19 +56,19 @@ class OIDCController extends Controller
             return redirect('/external_login?error=missing_attributes');
         } catch (OpenIDConnectNetworkException $e) {
             Counter::get('login_failed_total')->inc('oidc');
-            \Log::error('OIDC login failed: '.$e->getMessage());
+            Log::error('OIDC login failed: '.$e->getMessage());
 
             return redirect('/external_login?error=openid_connect_network_exception');
         } catch (\Throwable $e) {
             Counter::get('login_failed_total')->inc('oidc');
-            \Log::error('OIDC login failed: '.$e->getMessage());
+            Log::error('OIDC login failed: '.$e->getMessage());
 
             // Any other error that occurs during the login process
             return redirect('/external_login?error=openid_connect_exception');
         }
 
         Counter::get('login_total')->inc('oidc');
-        \Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
+        Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
 
         // Update the last login timestamp
         $user->last_login = now();

@@ -3,13 +3,14 @@
 namespace Tests\Backend\Utils;
 
 use App\Models\Session;
+use Illuminate\Support\Str;
 
 trait SessionHelpers
 {
     public function startNewSession($user = null): Session
     {
         $newSession = new Session;
-        $newSession->id = \Str::random(40);
+        $newSession->id = Str::random(40);
         $newSession->user_agent = 'Agent 1';
         $newSession->ip_address = $this->faker->ipv4;
         $newSession->payload = '';

@@ -7,10 +7,10 @@ use BigBlueButton\Exceptions\RuntimeException;
 use BigBlueButton\Http\Transport\TransportInterface;
 use BigBlueButton\Http\Transport\TransportRequest;
 use BigBlueButton\Http\Transport\TransportResponse;
-use Http;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
-use Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Allows to send requests to the BBB server with a Laravel HTTP Client contract implementation.

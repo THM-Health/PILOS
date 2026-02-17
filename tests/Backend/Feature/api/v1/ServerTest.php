@@ -11,9 +11,9 @@ use App\Models\Role;
 use App\Models\Server;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
 
