@@ -10,7 +10,7 @@ use App\Models\Room;
 use App\Models\RoomFile;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class RoomFileController extends Controller
 {

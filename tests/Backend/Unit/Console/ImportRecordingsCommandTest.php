@@ -4,7 +4,7 @@ namespace Tests\Backend\Unit\Console;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Queue;
+use Illuminate\Support\Facades\Queue;
 use Tests\Backend\TestCase;
 
 class ImportRecordingsCommandTest extends TestCase

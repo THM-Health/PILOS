@@ -8,7 +8,7 @@ use App\Notifications\RoomExpires;
 use App\Settings\RoomSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class CleanupRoomsCommand extends Command
 {

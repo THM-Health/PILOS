@@ -13,10 +13,10 @@ use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
-use Artisan;
-use DB;
 use Illuminate\Console\Command;
-use Schema;
+use Illuminate\Support\Facades\Artisan;
+use ILLUMINATE\SUPPORT\FACADES\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UpgradeDatabaseCommand extends Command
 {

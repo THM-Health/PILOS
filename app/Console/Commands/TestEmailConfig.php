@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Notifications\TestEmail;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
-use Notification;
+use Illuminate\Support\Facades\Notification;
 
 use function Laravel\Prompts\text;
 

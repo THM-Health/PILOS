@@ -5,8 +5,8 @@ namespace App\Http\Resources;
 use App\Http\Resources\User as UserResource;
 use App\Models\RoomPersonalizedLink;
 use App\Services\RoomAuthService;
-use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class Room extends JsonResource

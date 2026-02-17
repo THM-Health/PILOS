@@ -12,9 +12,9 @@ use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
-use DB;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
+use ILLUMINATE\SUPPORT\FACADES\DB;
 use Tests\Backend\TestCase;
 
 class UpgradeDatabaseTest extends TestCase

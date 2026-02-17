@@ -7,7 +7,7 @@ use App\Models\RoomPersonalizedLink;
 use App\Settings\RoomSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class DeleteObsoletePersonalizedLinksCommand extends Command
 {

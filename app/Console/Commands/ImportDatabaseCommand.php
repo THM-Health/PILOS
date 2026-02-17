@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use DB;
 use Illuminate\Console\Command;
+use ILLUMINATE\SUPPORT\FACADES\DB;
 use Illuminate\Support\Facades\Process;
-use Str;
+use Illuminate\Support\Str;
 
 class ImportDatabaseCommand extends Command
 {

@@ -6,8 +6,8 @@ use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\Server;
 use App\Services\StreamingService;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
 
 class StreamingServiceTest extends TestCase

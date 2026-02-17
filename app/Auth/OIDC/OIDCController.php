@@ -8,7 +8,7 @@ use App\Prometheus\Counter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Uri;
+use \Illuminate\Support\Uri;
 
 class OIDCController extends Controller
 {

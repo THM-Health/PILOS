@@ -11,7 +11,7 @@ use App\Models\Room;
 use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class RecordingController extends Controller
 {

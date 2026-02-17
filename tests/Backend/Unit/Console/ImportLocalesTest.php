@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 
 class ImportLocalesTest extends TestCase

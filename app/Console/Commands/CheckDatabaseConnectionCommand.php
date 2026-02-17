@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use DB;
 use Exception;
 use Illuminate\Console\Command;
+use ILLUMINATE\SUPPORT\FACADES\DB;
 
 class CheckDatabaseConnectionCommand extends Command
 {

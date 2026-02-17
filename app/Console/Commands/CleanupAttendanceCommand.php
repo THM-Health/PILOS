@@ -6,7 +6,7 @@ use App\Enums\TimePeriod;
 use App\Models\MeetingAttendee;
 use App\Settings\RecordingSettings;
 use Illuminate\Console\Command;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class CleanupAttendanceCommand extends Command
 {

@@ -9,12 +9,12 @@ use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
 use App\Settings\GeneralSettings;
-use Config;
-use DB;
-use Hash;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Str;
+use Illuminate\Support\Facades\Config;
+use ILLUMINATE\SUPPORT\FACADES\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\progress;

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SessionResource;
 use App\Services\AuthenticationService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class SessionController extends Controller
 {

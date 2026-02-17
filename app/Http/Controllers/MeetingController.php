@@ -6,7 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Exports\AttendanceExport;
 use App\Models\Meeting;
 use Illuminate\Auth\Access\AuthorizationException;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
