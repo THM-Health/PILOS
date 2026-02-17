@@ -120,7 +120,6 @@ return [
         'room_auto_delete_inactive_period' => 'Zeitraum bis inaktive Räume gelöscht werden',
         'room_auto_delete_never_used_period' => 'Zeitraum bis nie genutzte Räume gelöscht werden',
         'room_limit' => 'Maximale Anzahl an Räumen',
-        'room_personalized_link_expiration' => 'Ablaufzeit für personalisierte Raumlinks',
         'room_type' => 'Raumart',
         'search' => 'Suche',
         'second' => 'Sekunde',
