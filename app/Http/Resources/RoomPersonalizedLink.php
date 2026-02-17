@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoomToken extends JsonResource
+class RoomPersonalizedLink extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,6 +15,7 @@ class RoomToken extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'token' => $this->token,
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,

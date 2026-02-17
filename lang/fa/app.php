@@ -57,7 +57,7 @@ return [
         'streaming_error' => 'خطا در برقراری ارتباط با سرور استریم.لطفا بعدا مجدد تلاش کنید.',
         'streaming_meeting_not_running' => 'جلسه در حال برگزاری نیست.',
         'streaming_not_enabled_for_current_meeting_error' => 'پخش زنده برای جلسه جاری فعال نیست.',
-        'token_not_found' => 'لینک شخصی‌سازی‌شده اتاق یافت نشد.',
+        'personalized_link_not_found' => 'لینک شخصی‌سازی‌شده اتاق یافت نشد.',
     ],
     'filter_no_results' => 'نتیجه‌ای یافت نشد',
     'firstname' => 'نام',

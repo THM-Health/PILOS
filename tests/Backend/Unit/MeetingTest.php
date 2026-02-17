@@ -7,7 +7,7 @@ use App\Http\Requests\JoinMeeting;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomFile;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\MeetingService;
@@ -438,7 +438,7 @@ class MeetingTest extends TestCase
         $this->assertEquals('VIEWER', $parameters['role']);
     }
 
-    public function test_join_parameters_guest_with_token()
+    public function test_join_parameters_guest_with_personalized_link()
     {
         $meeting = $this->meeting;
 
@@ -449,19 +449,19 @@ class MeetingTest extends TestCase
         $server = Server::factory()->create();
         $meeting->server()->associate($server);
 
-        $token = new RoomToken;
-        $token->room()->associate($meeting->room);
-        $token->firstname = 'John';
-        $token->lastname = 'Doe';
-        $token->role = RoomUserRole::USER;
-        $token->token = Str::random(10);
-        $token->save();
+        $link = new RoomPersonalizedLink;
+        $link->room()->associate($meeting->room);
+        $link->firstname = 'John';
+        $link->lastname = 'Doe';
+        $link->role = RoomUserRole::USER;
+        $link->token = Str::random(10);
+        $link->save();
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
         $roomAuthService = app()->make(RoomAuthService::class);
         $roomAuthService->setAuthenticated($meeting->room, false);
-        $roomAuthService->setRoomToken($meeting->room, $token);
+        $roomAuthService->setRoomPersonalizedLink($meeting->room, $link);
 
         $request = new JoinMeeting($roomAuthService);
 
@@ -473,7 +473,7 @@ class MeetingTest extends TestCase
         $this->assertArrayNotHasKey('guest', $parameters);
         $this->assertEquals('VIEWER', $parameters['role']);
 
-        // Change default role of the room, moderator role should not be set as the role of the token has priority
+        // Change default role of the room, moderator role should not be set as the role of the personalized link has priority
         $room = $this->meeting->room;
         $room->expert_mode = true;
         $room->default_role = RoomUserRole::MODERATOR;
@@ -482,9 +482,9 @@ class MeetingTest extends TestCase
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
         $this->assertEquals('VIEWER', $parameters['role']);
 
-        // Change role of the token to moderator
-        $token->role = RoomUserRole::MODERATOR;
-        $token->save();
+        // Change role of the personalized link to moderator
+        $link->role = RoomUserRole::MODERATOR;
+        $link->save();
 
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);

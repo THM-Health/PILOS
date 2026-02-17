@@ -2,8 +2,10 @@
 
 namespace App\Observers;
 
+use App\Enums\RoomAuthTokenType;
 use App\Exceptions\RoomIdGenerationFailed;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -32,6 +34,20 @@ class RoomObserver
                 }
             }
             $room->id = $newId;
+        }
+    }
+
+    /**
+     * Handle the Room "updated" event.
+     */
+    public function updated(Room $room): void
+    {
+        if ($room->access_code !== $room->getOriginal('access_code')) {
+            // Access code has changed
+            // Delete all room auth tokens with type CODE linked to this room
+            RoomAuthToken::where('room_id', $room->id)
+                ->where('type', RoomAuthTokenType::CODE)
+                ->delete();
         }
     }
 

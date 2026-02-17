@@ -126,7 +126,7 @@ return [
         'room_auto_delete_never_used_period' => 'مدت تا حذف اتاق‌های استفاده‌نشده',
         'room_file_terms_of_use' => 'شرایط استفاده برای دانلود فایل',
         'room_limit' => 'محدودیت اتاق',
-        'room_token_expiration' => 'زمان انقضای لینک‌های شخصی‌سازی شده اتاق',
+        'room_personalized_link_expiration' => 'زمان انقضای لینک‌های شخصی‌سازی شده اتاق',
         'room_type' => 'نوع اتاق',
         'search' => 'جستجو',
         'second' => 'ثانیه',

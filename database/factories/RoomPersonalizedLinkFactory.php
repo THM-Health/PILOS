@@ -4,17 +4,17 @@ namespace Database\Factories;
 
 use App\Enums\RoomUserRole;
 use App\Models\Room;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class RoomTokenFactory extends Factory
+class RoomPersonalizedLinkFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = RoomToken::class;
+    protected $model = RoomPersonalizedLink::class;
 
     /**
      * Define the model's default state.

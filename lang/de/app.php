@@ -57,7 +57,7 @@ return [
         'streaming_error' => 'Fehler beim Verbinden mit dem Streaming-Server. Bitte versuchen Sie es später noch einmal.',
         'streaming_meeting_not_running' => 'Das Meeting läuft gerade nicht.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming ist für das aktuelle Meeting nicht aktiviert.',
-        'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
+        'personalized_link_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
     'filter_no_results' => 'Keine Ergebnisse gefunden',
     'firstname' => 'Vorname',

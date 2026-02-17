@@ -80,7 +80,7 @@ class SettingsTest extends TestCase
         $this->roomSettings->auto_delete_inactive_period = TimePeriod::ONE_WEEK;
         $this->roomSettings->auto_delete_never_used_period = TimePeriod::TWO_WEEKS;
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
-        $this->roomSettings->token_expiration = TimePeriod::ONE_WEEK;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::ONE_WEEK;
         $this->roomSettings->file_terms_of_use = 'test';
         $this->roomSettings->save();
 
@@ -153,7 +153,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_inactive_period' => 7,
                     'room_auto_delete_never_used_period' => 14,
                     'room_auto_delete_deadline_period' => 30,
-                    'room_token_expiration' => 7,
+                    'room_personalized_link_expiration' => 7,
                     'room_file_terms_of_use' => 'test',
 
                     'user_password_change_allowed' => true,
@@ -211,7 +211,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -272,7 +272,7 @@ class SettingsTest extends TestCase
                     'banner_icon' => 'fas fa-door-open',
 
                     'room_limit' => -1,
-                    'room_token_expiration' => -1,
+                    'room_personalized_link_expiration' => -1,
                     'room_auto_delete_inactive_period' => 14,
                     'room_auto_delete_never_used_period' => 30,
                     'room_auto_delete_deadline_period' => 7,
@@ -346,7 +346,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -423,7 +423,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -504,7 +504,7 @@ class SettingsTest extends TestCase
             'banner_background' => 'test',
 
             'room_limit' => 'notnumber',
-            'room_token_expiration' => 'notnumber',
+            'room_personalized_link_expiration' => 'notnumber',
             'room_auto_delete_inactive_period' => 'notnumber',
             'room_auto_delete_never_used_period' => 'notnumber',
             'room_auto_delete_deadline_period' => 'notnumber',
@@ -556,7 +556,7 @@ class SettingsTest extends TestCase
                 'banner_background',
 
                 'room_limit',
-                'room_token_expiration',
+                'room_personalized_link_expiration',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
                 'room_auto_delete_deadline_period',
@@ -638,7 +638,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -742,7 +742,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -2,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 1,
             'room_auto_delete_never_used_period' => 1,
             'room_auto_delete_deadline_period' => 1,
@@ -794,7 +794,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => 101,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 1000,
             'room_auto_delete_never_used_period' => 1000,
             'room_auto_delete_deadline_period' => 366,
@@ -872,7 +872,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -982,7 +982,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -1077,7 +1077,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -1159,7 +1159,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -1245,7 +1245,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,

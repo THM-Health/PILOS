@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Room;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 
 /**
  * Service class to make the results of the RoomAuthenticate middleware available in all parts of the application.
@@ -76,24 +76,24 @@ class RoomAuthService
     }
 
     /**
-     * Set the room token for a room.
+     * Set the room personalized link for a room.
      *
      * @param  Room  $room  The room object.
-     * @param  RoomToken|null  $roomToken  The RoomToken object or null to unset the token.
+     * @param  RoomPersonalizedLink|null  $personalizedLink  The RoomPersonalizedLink object or null to unset the personalized link.
      */
-    public function setRoomToken(Room $room, ?RoomToken $roomToken): void
+    public function setRoomPersonalizedLink(Room $room, ?RoomPersonalizedLink $personalizedLink): void
     {
-        $this->setRoomAttributes($room, 'token', $roomToken);
+        $this->setRoomAttributes($room, 'personalizedLink', $personalizedLink);
     }
 
     /**
-     * Get the room token of the current request for a room.
+     * Get the room personalized link of the current request for a room.
      *
      * @param  Room  $room  The room object.
-     * @return RoomToken|null Returns the RoomToken object or null if the token is not set.
+     * @return RoomPersonalizedLink|null Returns the RoomPersonalizedLink object or null if the personalized link is not set.
      */
-    public function getRoomToken(Room $room): ?RoomToken
+    public function getRoomPersonalizedLink(Room $room): ?RoomPersonalizedLink
     {
-        return $this->getRoomAttributes($room, 'token');
+        return $this->getRoomAttributes($room, 'personalizedLink');
     }
 }

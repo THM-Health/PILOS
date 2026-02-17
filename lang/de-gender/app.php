@@ -51,7 +51,7 @@ return [
         'server_pool_delete_failed' => 'Der Serverpool konnte nicht gelöscht werden. Um den Serverpool zu löschen, darf dieser von keiner Raumart verwendet werden.',
         'stale_error' => 'Änderungskonflikt',
         'stale_model' => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
-        'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
+        'personalized_link_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
     'filter_no_results' => 'Keine Ergebnisse gefunden',
     'firstname' => 'Vorname',

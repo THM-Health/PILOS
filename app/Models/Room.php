@@ -260,51 +260,46 @@ class Room extends Model
     }
 
     /**
-     * Personalized tokens.
+     * Personalized links.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function tokens()
+    public function personalizedLinks()
     {
-        return $this->hasMany(RoomToken::class);
+        return $this->hasMany(RoomPersonalizedLink::class);
     }
 
     /** Check if user is moderator of this room
-     * @param  RoomToken|null  $token
-     * @return bool
      */
-    public function isModerator(?User $user)
+    public function isModerator(?User $user): bool
     {
         $roomAuthService = app()->make(RoomAuthService::class);
-        $token = $roomAuthService->getRoomToken($this);
+        $personalizedLink = $roomAuthService->getRoomPersonalizedLink($this);
 
-        if ($user == null && $token != null) {
-            return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
+        if ($user == null && $personalizedLink != null) {
+            return $personalizedLink->room->is($this) && $personalizedLink->role == RoomUserRole::MODERATOR;
         }
 
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
     }
 
     /** Check if user is co owner of this room
-     * @return bool
      */
-    public function isCoOwner(?User $user)
+    public function isCoOwner(?User $user): bool
     {
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
     }
 
     /**
      * Check if user is member of this room
-     *
-     * @return bool
      */
-    public function isMember(?User $user)
+    public function isMember(?User $user): bool
     {
         $roomAuthService = app()->make(RoomAuthService::class);
-        $token = $roomAuthService->getRoomToken($this);
+        $personalizedLink = $roomAuthService->getRoomPersonalizedLink($this);
 
-        if ($user == null && $token != null) {
-            return $token->room->is($this) && ($token->role == RoomUserRole::USER || $token->role == RoomUserRole::MODERATOR);
+        if ($user == null && $personalizedLink != null) {
+            return $personalizedLink->room->is($this) && ($personalizedLink->role == RoomUserRole::USER || $personalizedLink->role == RoomUserRole::MODERATOR);
         }
 
         return $user == null ? false : $this->members->contains($user);
@@ -313,11 +308,11 @@ class Room extends Model
     /**
      * Get role of the user
      */
-    public function getRole(?User $user, ?RoomToken $token): RoomUserRole
+    public function getRole(?User $user, ?RoomPersonalizedLink $personalizedLink): RoomUserRole
     {
         if ($user == null) {
-            if ($token) {
-                return $token->role;
+            if ($personalizedLink) {
+                return $personalizedLink->role;
             }
 
             return RoomUserRole::GUEST;
@@ -337,8 +332,6 @@ class Room extends Model
 
     /**
      * Generate message for moderators inside the meeting
-     *
-     * @return string
      */
     public function getModeratorOnlyMessage()
     {

@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateRoomFile;
 use App\Http\Resources\PrivateRoomFile;
 use App\Models\Room;
 use App\Models\RoomFile;
-use App\Services\RoomFileService;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Log;
@@ -93,20 +92,6 @@ class RoomFileController extends Controller
         Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
         return response()->noContent();
-    }
-
-    /**
-     * Get url to download the specified file
-     *
-     * @param  UpdateRoomFile  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show(Room $room, RoomFile $file)
-    {
-        $roomFileService = new RoomFileService($file);
-        $url = $roomFileService->setTimeLimit(1)->url();
-
-        return response()->json(['url' => $url]);
     }
 
     /**

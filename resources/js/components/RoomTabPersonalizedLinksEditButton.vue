@@ -1,11 +1,11 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.tokens.edit')"
+    v-tooltip="$t('rooms.personalized_links.edit')"
     severity="info"
     :disabled="disabled"
     icon="fa-solid fa-edit"
-    :aria-label="$t('rooms.tokens.edit')"
+    :aria-label="$t('rooms.personalized_links.edit')"
     data-test="room-personalized-links-edit-button"
     @click="showModal"
   />
@@ -14,7 +14,7 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="$t('rooms.tokens.edit')"
+    :header="$t('rooms.personalized_links.edit')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -116,8 +116,8 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  token: {
-    type: String,
+  id: {
+    type: Number,
     required: true,
   },
   firstname: {
@@ -163,7 +163,7 @@ function showModal() {
 }
 
 /**
- * Sends a request to the server to create a new token or edit a existing.
+ * Sends a request to the server to edit a personalized link.
  */
 function save() {
   isLoadingAction.value = true;
@@ -179,7 +179,7 @@ function save() {
   };
 
   api
-    .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
+    .call(`rooms/${props.roomId}/personalizedLinks/${props.id}`, config)
     .then(() => {
       // operation successful, close modal and reload list
       modalVisible.value = false;
@@ -190,8 +190,8 @@ function save() {
       if (error.response) {
         // token not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
-          toast.error(t("rooms.flash.token_gone"));
-          showModal.value = false;
+          toast.error(t("rooms.flash.personalized_link_gone"));
+          modalVisible.value = false;
           emit("notFound");
           return;
         }

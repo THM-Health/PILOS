@@ -384,7 +384,7 @@ return [
             'description' => 'Limiter le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre est écraser par les limites spécifiques d\'un groupe.',
             'title' => 'Nombre de salles par utilisateur',
         ],
-        'room_token_expiration' => [
+        'room_personalized_link_expiration' => [
             'description' => 'Période depuis la dernière utilisation, après laquelle les liens de salle personnalisés sont automatiquement supprimés.',
             'title' => 'Délai d\'expiration des liens de salle personnalisés',
         ],

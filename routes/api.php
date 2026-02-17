@@ -15,8 +15,8 @@ use App\Http\Controllers\api\v1\RoleController;
 use App\Http\Controllers\api\v1\RoomController;
 use App\Http\Controllers\api\v1\RoomFileController;
 use App\Http\Controllers\api\v1\RoomMemberController;
+use App\Http\Controllers\api\v1\RoomPersonalizedLinkController;
 use App\Http\Controllers\api\v1\RoomStreamingController;
-use App\Http\Controllers\api\v1\RoomTokenController;
 use App\Http\Controllers\api\v1\RoomTypeController;
 use App\Http\Controllers\api\v1\RoomTypeStreamingController;
 use App\Http\Controllers\api\v1\ServerController;
@@ -119,11 +119,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('rooms/{room}/streaming/resume', [RoomStreamingController::class, 'resume'])->name('rooms.streaming.resume');
         });
 
-        // Personalized room tokens
-        Route::get('rooms/{room}/tokens', [RoomTokenController::class, 'index'])->name('rooms.tokens.get')->middleware('can:viewTokens,room');
-        Route::post('rooms/{room}/tokens', [RoomTokenController::class, 'store'])->name('rooms.tokens.add')->middleware('can:manageTokens,room');
-        Route::put('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'update'])->name('rooms.tokens.update')->middleware('can:manageTokens,room');
-        Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.destroy')->middleware('can:manageTokens,room');
+        // Personalized room links
+        Route::get('rooms/{room}/personalizedLinks', [RoomPersonalizedLinkController::class, 'index'])->name('rooms.personalizedLinks.get')->middleware('can:viewPersonalizedLinks,room');
+        Route::post('rooms/{room}/personalizedLinks', [RoomPersonalizedLinkController::class, 'store'])->name('rooms.personalizedLinks.add')->middleware('can:managePersonalizedLinks,room');
+        Route::put('rooms/{room}/personalizedLinks/{link}', [RoomPersonalizedLinkController::class, 'update'])->name('rooms.personalizedLinks.update')->middleware('can:managePersonalizedLinks,room');
+        Route::delete('rooms/{room}/personalizedLinks/{link}', [RoomPersonalizedLinkController::class, 'destroy'])->name('rooms.personalizedLinks.destroy')->middleware('can:managePersonalizedLinks,room');
 
         // File operations
         Route::middleware('can:manageFiles,room')->scopeBindings()->group(function () {
@@ -164,6 +164,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
+    Route::post('rooms/{room}/auth', [RoomController::class, 'authenticate'])->name('rooms.authenticate');
 
     Route::middleware('room.authenticate')->scopeBindings()->group(function () {
         Route::options('rooms/{room}/start', [RoomController::class, 'getStartRequirements'])->name('rooms.start-requirements')->middleware('can:start,room');
@@ -172,7 +173,6 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
         Route::post('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
         Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get');
-        Route::get('rooms/{room}/files/{file}', [RoomFileController::class, 'show'])->name('rooms.files.show')->middleware('can:downloadFile,room,file');
         Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index');
         Route::get('rooms/{room}/recordings/{recording}/formats/{format}', [RecordingFormatController::class, 'show'])->name('rooms.recordings.formats.show')->middleware('can:viewRecordingFormat,room,format');
 

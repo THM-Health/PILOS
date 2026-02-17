@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\CustomStatusCodes;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,7 +22,7 @@ class RedirectIfAuthenticated
 
             // API requests cannot be redirected, must be handled in the frontend
             if ($request->expectsJson()) {
-                return new Response('Guests only.')->setStatusCode(420, 'Guests only');
+                return new Response('Guests only.')->setStatusCode(CustomStatusCodes::GUESTS_ONLY->value, 'Guests only');
             }
 
             // Redirect authenticated users to the rooms page

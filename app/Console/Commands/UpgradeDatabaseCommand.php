@@ -175,7 +175,7 @@ class UpgradeDatabaseCommand extends Command
             $roomSettings->limit = (int) $oldSettings['room_limit'];
         }
         if (isset($oldSettings['room_token_expiration'])) {
-            $roomSettings->token_expiration = TimePeriod::tryFrom($oldSettings['room_token_expiration']) ?: TimePeriod::THREE_MONTHS;
+            $roomSettings->personalized_link_expiration = TimePeriod::tryFrom($oldSettings['room_token_expiration']) ?: TimePeriod::THREE_MONTHS;
         }
         if (isset($oldSettings['room_auto_delete.inactive_period'])) {
             $roomSettings->auto_delete_inactive_period = TimePeriod::tryFrom($oldSettings['room_auto_delete.inactive_period']) ?: TimePeriod::UNLIMITED;

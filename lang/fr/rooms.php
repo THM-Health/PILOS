@@ -147,8 +147,8 @@ return [
         'recording_forbidden' => 'L\'accès à l\'enregistrement demandé a été refusé.',
         'recording_gone' => 'L\'enregistrement a été supprimé entre-temps.',
         'start_forbidden' => 'Vous n\'avez pas l\'autorisation nécessaire pour démarrer la salle.',
-        'token_gone' => 'Le lien de salle personnalisé a été supprimé entre-temps.',
-        'token_invalid' => 'Le lien personnalisé d\'accès à la salle a expiré.',
+        'personalized_link_gone' => 'Le lien de salle personnalisé a été supprimé entre-temps.',
+        'personalized_link_invalid' => 'Le lien personnalisé d\'accès à la salle a expiré.',
     ],
     'index' => [
         'filter' => 'Filtre',
@@ -175,7 +175,7 @@ return [
             'select_sorting' => '-- Choisir le tri --',
         ],
     ],
-    'invalid_personal_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
+    'invalid_personalized_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
     'invitation' => [
         'code' => 'Code d\'accès',
         'copied_code' => 'Code de la salle copié',
@@ -467,7 +467,7 @@ return [
     'streaming_accept' => 'Je consens à la diffusion en streaming.',
     'streaming_hint' => 'Si vous préférez que votre voix ou vidéo ne soient pas diffusées en streaming, merci de mettre votre microphone en muet et de désactiver votre caméra.',
     'streaming_info' => 'Cette salle peut-être streamée.',
-    'tokens' => [
+    'personalized_links' => [
         'add' => 'Ajouter un lien de salle personnalisé',
         'confirm_delete' => 'Voulez-vous vraiment supprimer le lien de salle personnalisé pour :firstname :lastname?',
         'copy' => 'Copier le lien de la salle personnalisé dans le presse-papiers',

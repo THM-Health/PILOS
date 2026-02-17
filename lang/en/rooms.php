@@ -141,14 +141,15 @@ return [
     'first_and_lastname' => 'First- and last name',
     'flash' => [
         'access_code_invalid' => 'The access code is invalid.',
+        'auth_token_invalid' => 'The authentication token is invalid.',
         'file_forbidden' => 'The access to the requested file was forbidden.',
         'file_gone' => 'The file has been deleted in the meantime.',
         'no_new_room' => 'You do not have the necessary permission to create a new room.',
         'recording_forbidden' => 'The access to the requested recording has been denied.',
         'recording_gone' => 'The recording has been deleted in the meantime.',
         'start_forbidden' => 'The room could not be started by you.',
-        'token_gone' => 'The personalised room link has been deleted in the meantime.',
-        'token_invalid' => 'The personalised room link is no longer valid.',
+        'personalized_link_gone' => 'The personalised room link has been deleted in the meantime.',
+        'personalized_link_invalid' => 'The personalised room link is no longer valid.',
     ],
     'index' => [
         'filter' => 'Filter',
@@ -175,7 +176,7 @@ return [
             'select_sorting' => '-- Select sorting --',
         ],
     ],
-    'invalid_personal_link' => 'This personalised room link is invalid.',
+    'invalid_personalized_link' => 'This personalised room link is invalid.',
     'invitation' => [
         'code' => 'Access code',
         'copied_code' => 'Copied access code to clipboard',
@@ -467,7 +468,7 @@ return [
     'streaming_accept' => 'I consent to the streaming.',
     'streaming_hint' => 'If you prefer not to have your voice or video streamed, please keep your microphone muted and your camera off.',
     'streaming_info' => 'This room may be streamed.',
-    'tokens' => [
+    'personalized_links' => [
         'add' => 'Add personalized room link',
         'confirm_delete' => 'Do you really want to delete the personalized room link for :firstname :lastname?',
         'copy' => 'Copy personalized room link to clipboard',

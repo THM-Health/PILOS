@@ -57,7 +57,7 @@ return [
         'streaming_error' => 'Error connecting to the streaming server. Please try again later.',
         'streaming_meeting_not_running' => 'The meeting is not running.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming is not enabled for the current meeting.',
-        'token_not_found' => 'The personalized room link could not be found.',
+        'personalized_link_not_found' => 'The personalized room link could not be found.',
     ],
     'filter_no_results' => 'No results found',
     'firstname' => 'Firstname',
