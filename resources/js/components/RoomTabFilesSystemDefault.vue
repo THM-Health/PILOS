@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-6 px-2">
+  <div class="mb-6 px-2">
     <div
       data-test="room-file-item"
       class="flex flex-col justify-between gap-4 rounded p-4 shadow outline-3 outline-surface-200 md:flex-row dark:outline-surface-700"
@@ -63,7 +63,6 @@
         <Button
           v-tooltip="$t('rooms.files.configure_system_default')"
           :aria-label="$t('rooms.files.configure_system_default')"
-          :disabled="disabled"
           severity="info"
           icon="fa-solid fa-edit"
           data-test="room-files-configure-system-default-button"
@@ -72,6 +71,8 @@
       </div>
     </div>
   </div>
+
+  <Divider />
 
   <!-- modal -->
   <Dialog
@@ -94,6 +95,7 @@
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
           @click="modalVisible = false"
+          autofocus
         />
         <Button
           :label="$t('app.save')"

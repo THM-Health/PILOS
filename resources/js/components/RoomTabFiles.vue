@@ -43,6 +43,20 @@
       </Accordion>
     </Message>
 
+    <RoomTabFilesSystemDefault
+      v-if="
+        userPermissions.can('manageSettings', props.room) &&
+        systemDefault.file != null
+      "
+      :room-id="props.room.id"
+      :file="systemDefault.file"
+      :use-in-meeting="systemDefault.use_in_meeting"
+      :use-as-default="systemDefault.use_as_default"
+      :default-file="defaultFile"
+      :disabled="isBusy"
+      @edited="loadData()"
+    />
+
     <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
@@ -145,20 +159,6 @@
         />
       </div>
     </div>
-
-    <RoomTabFilesSystemDefault
-      v-if="
-        userPermissions.can('manageSettings', props.room) &&
-        systemDefault.file != null
-      "
-      :room-id="props.room.id"
-      :file="systemDefault.file"
-      :use-in-meeting="systemDefault.use_in_meeting"
-      :use-as-default="systemDefault.use_as_default"
-      :default-file="defaultFile"
-      :disabled="isBusy"
-      @edited="loadData()"
-    />
 
     <!-- Display files -->
     <OverlayComponent :show="isBusy || loadingError" :z-index="1">
