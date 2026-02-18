@@ -203,11 +203,11 @@ describe("Admin room types view", function () {
         );
       });
 
-    cy.contains("rooms.settings.video_conference.title").should("be.visible");
+    cy.contains("rooms.settings.meeting.title").should("be.visible");
 
     cy.get('[data-test="everyone-can-start-field"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.video_conference.everyone_can_start")
+      .and("include.text", "rooms.settings.meeting.everyone_can_start")
       .within(() => {
         cy.roomTypeCheckDefaultRoomSettingCheckboxField(
           "everyone-can-start",
@@ -219,7 +219,7 @@ describe("Admin room types view", function () {
 
     cy.get('[data-test="mute-on-start-field"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.video_conference.mute_on_start")
+      .and("include.text", "rooms.settings.meeting.mute_on_start")
       .within(() => {
         cy.roomTypeCheckDefaultRoomSettingCheckboxField(
           "mute-on-start",
@@ -231,7 +231,7 @@ describe("Admin room types view", function () {
 
     cy.get('[data-test="lobby-field"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.video_conference.lobby.title")
+      .and("include.text", "rooms.settings.meeting.lobby.title")
       .within(() => {
         cy.get('[data-test="lobby-disabled-field"]')
           .should("be.visible")
@@ -255,7 +255,7 @@ describe("Admin room types view", function () {
           .should("be.visible")
           .and(
             "include.text",
-            "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+            "rooms.settings.meeting.lobby.only_for_guests_enabled",
           )
           .within(() => {
             cy.get("#lobby-only-for-guests")
@@ -287,7 +287,7 @@ describe("Admin room types view", function () {
 
     cy.get('[data-test="record-field"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.recordings.record_video_conference")
+      .and("include.text", "rooms.settings.recordings.record_meeting")
       .within(() => {
         cy.roomTypeCheckDefaultRoomSettingCheckboxField(
           "record",
@@ -299,7 +299,7 @@ describe("Admin room types view", function () {
 
     cy.get('[data-test="record-field"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.recordings.record_video_conference")
+      .and("include.text", "rooms.settings.recordings.record_meeting")
       .within(() => {
         cy.roomTypeCheckDefaultRoomSettingCheckboxField(
           "record",

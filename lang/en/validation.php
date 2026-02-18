@@ -46,7 +46,7 @@ return [
         'bbb_style' => 'CSS style file',
         'city' => 'City',
         'color' => 'Color',
-        'consent_record' => 'Consent to the recording of the video conference',
+        'consent_record' => 'Consent to the recording of the meeting',
         'consent_record_attendance' => 'Consent to attendance logging',
         'consent_record_video' => 'Consent to record own video',
         'content' => 'Content',
@@ -198,13 +198,13 @@ return [
             'required' => 'The message banner settings are missing!',
         ],
         'consent_record' => [
-            'accepted' => 'Consent to the recording of the video conference must be given.',
+            'accepted' => 'Consent to the recording of the meeting must be given.',
         ],
         'consent_record_attendance' => [
             'accepted' => 'Consent to the logging of attendance must be given.',
         ],
         'consent_streaming' => [
-            'accepted' => 'Consent to the streaming of the video conference must be given.',
+            'accepted' => 'Consent to the streaming of the meeting must be given.',
         ],
         'default_pause_image' => [
             'dimensions' => 'The :attribute must have a resolution of 1920x1080 pixels.',

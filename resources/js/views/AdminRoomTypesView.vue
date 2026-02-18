@@ -430,7 +430,7 @@
           -->
           <!-- Everyone can start a new meeting, not only the moderator -->
           <h4 class="text-lg font-medium">
-            {{ $t("rooms.settings.video_conference.title") }}
+            {{ $t("rooms.settings.meeting.title") }}
           </h4>
 
           <div
@@ -440,9 +440,7 @@
             <label
               for="everyone-can-start-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
-              >{{
-                $t("rooms.settings.video_conference.everyone_can_start")
-              }}</label
+              >{{ $t("rooms.settings.meeting.everyone_can_start") }}</label
             >
             <div class="col-span-12 md:col-span-8">
               <div class="flex items-center justify-between">
@@ -492,7 +490,7 @@
             <label
               for="mute-on-start-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
-              >{{ $t("rooms.settings.video_conference.mute_on_start") }}</label
+              >{{ $t("rooms.settings.meeting.mute_on_start") }}</label
             >
             <div class="col-span-12 md:col-span-8">
               <div class="flex items-center justify-between">
@@ -533,7 +531,7 @@
           <!-- Usage of the waiting room/guest lobby -->
           <div class="field grid grid-cols-12 gap-4" data-test="lobby-field">
             <label class="col-span-12 items-center md:col-span-4 md:mb-0">{{
-              $t("rooms.settings.video_conference.lobby.title")
+              $t("rooms.settings.meeting.lobby.title")
             }}</label>
             <div class="col-span-12 mb-2 md:col-span-8">
               <div class="flex flex-row items-center justify-between">
@@ -576,9 +574,7 @@
                       input-id="lobby-only-for-guests"
                     />
                     <label for="lobby-only-for-guests">{{
-                      $t(
-                        "rooms.settings.video_conference.lobby.only_for_guests_enabled",
-                      )
+                      $t("rooms.settings.meeting.lobby.only_for_guests_enabled")
                     }}</label>
                   </div>
                 </div>
@@ -609,7 +605,7 @@
             <div class="col-span-12">
               <!-- Alert shown when default role is moderator and waiting room is active -->
               <InlineNote v-if="showLobbyAlert" class="w-full" severity="warn">
-                {{ $t("rooms.settings.video_conference.lobby.alert") }}
+                {{ $t("rooms.settings.meeting.lobby.alert") }}
               </InlineNote>
             </div>
           </div>
@@ -674,9 +670,7 @@
             <label
               for="record-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
-              >{{
-                $t("rooms.settings.recordings.record_video_conference")
-              }}</label
+              >{{ $t("rooms.settings.recordings.record_meeting") }}</label
             >
             <div class="col-span-12 md:col-span-8">
               <div class="flex items-center justify-between">

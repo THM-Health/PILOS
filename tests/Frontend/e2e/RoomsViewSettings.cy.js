@@ -102,8 +102,8 @@ describe("Rooms view settings", function () {
       .should("have.value", "Short description");
 
     // Check other settings hidden
-    // Video conference settings
-    cy.contains("rooms.settings.video_conference.title").should("not.exist");
+    // Meeting settings
+    cy.contains("rooms.settings.meeting.title").should("not.exist");
 
     // Recording settings
     cy.contains("rooms.settings.recordings.title").should("not.exist");
@@ -133,12 +133,12 @@ describe("Rooms view settings", function () {
     );
 
     // Check other settings visible
-    // Video conference settings
-    cy.contains("rooms.settings.video_conference.title").should("be.visible");
+    // Meeting settings
+    cy.contains("rooms.settings.meeting.title").should("be.visible");
 
     cy.get('[data-test="room-setting-everyone_can_start"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.video_conference.everyone_can_start")
+      .and("include.text", "rooms.settings.meeting.everyone_can_start")
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should("not.exist");
         cy.get("#room-setting-everyone_can_start")
@@ -148,7 +148,7 @@ describe("Rooms view settings", function () {
 
     cy.get('[data-test="room-setting-mute_on_start"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.video_conference.mute_on_start")
+      .and("include.text", "rooms.settings.meeting.mute_on_start")
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should("be.visible");
         cy.get("#room-setting-mute_on_start")
@@ -158,7 +158,7 @@ describe("Rooms view settings", function () {
 
     cy.get('[data-test="room-setting-lobby"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.video_conference.lobby.title")
+      .and("include.text", "rooms.settings.meeting.lobby.title")
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should("be.visible");
         cy.get("#room-setting-lobby-0")
@@ -172,7 +172,7 @@ describe("Rooms view settings", function () {
 
     cy.get('[data-test="room-setting-welcome"]')
       .should("be.visible")
-      .should("include.text", "rooms.settings.video_conference.welcome_message")
+      .should("include.text", "rooms.settings.meeting.welcome_message")
       .should(
         "include.text",
         'rooms.settings.general.chars_{"chars":"0 / 500"}',
@@ -195,7 +195,7 @@ describe("Rooms view settings", function () {
 
     cy.get('[data-test="room-setting-record"]')
       .should("be.visible")
-      .and("include.text", "rooms.settings.recordings.record_video_conference")
+      .and("include.text", "rooms.settings.recordings.record_meeting")
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should("not.exist");
         cy.get("#room-setting-record")
@@ -470,7 +470,7 @@ describe("Rooms view settings", function () {
       .should("be.checked")
       .and("be.disabled");
 
-    // Video conference settings
+    // Meeting settings
     cy.get("#room-setting-everyone_can_start")
       .should("not.be.checked")
       .and("not.be.disabled");
@@ -603,7 +603,7 @@ describe("Rooms view settings", function () {
       .should("be.checked")
       .and("be.disabled");
 
-    // Video conference settings
+    // Meeting settings
     cy.get("#room-setting-everyone_can_start")
       .should("not.be.checked")
       .and("be.disabled");
@@ -751,7 +751,7 @@ describe("Rooms view settings", function () {
       .should("be.checked")
       .and("be.disabled");
 
-    // Video conference settings
+    // Meeting settings
     cy.get("#room-setting-everyone_can_start")
       .should("not.be.checked")
       .and("not.be.disabled");

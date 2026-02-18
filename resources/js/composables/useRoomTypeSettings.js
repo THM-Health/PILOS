@@ -22,28 +22,26 @@ export function useRoomTypeSettings() {
         ],
       },
       {
-        title: t("rooms.settings.video_conference.title"),
+        title: t("rooms.settings.meeting.title"),
         settings: [
           {
             key: "everyone_can_start",
-            label: t("rooms.settings.video_conference.everyone_can_start"),
+            label: t("rooms.settings.meeting.everyone_can_start"),
             type: "switch",
           },
           {
             key: "mute_on_start",
-            label: t("rooms.settings.video_conference.mute_on_start"),
+            label: t("rooms.settings.meeting.mute_on_start"),
             type: "switch",
           },
           {
             key: "lobby",
-            label: t("rooms.settings.video_conference.lobby.title"),
+            label: t("rooms.settings.meeting.lobby.title"),
             type: "select",
             options: {
               0: t("app.disabled"),
               1: t("app.enabled"),
-              2: t(
-                "rooms.settings.video_conference.lobby.only_for_guests_enabled",
-              ),
+              2: t("rooms.settings.meeting.lobby.only_for_guests_enabled"),
             },
           },
         ],
@@ -58,7 +56,7 @@ export function useRoomTypeSettings() {
           },
           {
             key: "record",
-            label: t("rooms.settings.recordings.record_video_conference"),
+            label: t("rooms.settings.recordings.record_meeting"),
             type: "switch",
           },
           {

@@ -38,7 +38,7 @@ description:
       PILOS is an easy-to-use open source front-end for
       BigBlueButton servers with a built-in load balancer.
     longDescription: >-
-      All in one video conferencing platform powered by BigBlueButton™.
+      All in one meeting platform powered by BigBlueButton™.
 
       Designed with education at its core, PILOS offers a seamless, interactive,
       and secure solution for online learning, teaching, and all kinds of
@@ -46,7 +46,7 @@ description:
       video, robust collaboration tools, and an intuitive user experience.
 
 
-      **All you need for a great video conference experience:**
+      **All you need for a great meeting experience:**
 
       - **Video and Audio**
         High quality video and audio to foster a more personal and engaging experience.
@@ -55,18 +55,18 @@ description:
       - **Engagement**
         Engage your audience with interactive tools like chat, emojis, surveys and much more.
       - **Recording**
-        Record your videoconferences and make them available using fine grained permission control.
+        Record your meetings and make them available using fine grained permission control.
       - **Security**
         All communication data is securely encrypted during transmission using the WebRTC protocol.
       - **Statistics**
-        Get detailed reports on the attendance and usage of your videoconferences.
+        Get detailed reports on the attendance and usage of your meetings.
     features:
-      - Create video conference rooms
-      - Share files for  video conferences
+      - Create meeting rooms
+      - Share files for meetings
       - Manage BigBlueButton Server and Server Pools
       - Manage users and roles
       - Manage room types (room setting presets)
-      - Record video conferences
+      - Record meetings
     genericName: Videoconferencing
     screenshots:
       - .opencode/screenshots/en/home.jpg
