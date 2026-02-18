@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+import { patchMatchMedia } from "../support/utils/matchMediaHelper.js";
 
 describe("Rooms view meetings", function () {
   beforeEach(function () {
@@ -44,9 +45,24 @@ describe("Rooms view meetings", function () {
       "joinRequest",
     );
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
+
+    // ToDo remove this after fixing dark mode issue and testing across different browsers / operating systems
+    cy.window().then((win) => {
+      const reducedMotion = win.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      expect(reducedMotion).to.eq(true);
+    });
 
     // Check that room join dialog is closed and click on join button
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
@@ -126,7 +142,13 @@ describe("Rooms view meetings", function () {
       "joinRequest",
     );
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
 
@@ -212,7 +234,13 @@ describe("Rooms view meetings", function () {
       "joinRequest",
     );
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
 
@@ -298,7 +326,13 @@ describe("Rooms view meetings", function () {
       "joinRequest",
     );
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
 
@@ -383,7 +417,13 @@ describe("Rooms view meetings", function () {
       },
     }).as("joinRequest");
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
 
@@ -449,7 +489,13 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.get('[data-test="room-join-button"]').click();
 
@@ -537,7 +583,13 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     // Test with invalid name
     cy.get('[data-test="room-join-button"]').click();
@@ -633,7 +685,13 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     // Type in access code to get access to the room
     cy.wait("@roomRequest");
@@ -945,6 +1003,13 @@ describe("Rooms view meetings", function () {
     // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      {
+        onBeforeLoad(win) {
+          patchMatchMedia(win, {
+            darkMode: false,
+          });
+        },
+      },
     );
 
     cy.wait("@roomAuthRequest");
@@ -1522,12 +1587,15 @@ describe("Rooms view meetings", function () {
       },
     }).as("joinRequest");
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: true,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
-
-    // Toggle dark mode
-    cy.get('[data-test="navbar-dark-mode"]').click();
 
     cy.get('[data-test="room-join-button"]').click();
     cy.wait("@preJoinRequest");
@@ -1577,7 +1645,13 @@ describe("Rooms view meetings", function () {
       },
     }).as("preStartRequest");
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     // Check that room join dialog is closed and click on start button
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
@@ -1649,7 +1723,13 @@ describe("Rooms view meetings", function () {
       },
     });
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
 
@@ -1726,7 +1806,13 @@ describe("Rooms view meetings", function () {
       },
     });
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
 
@@ -1803,7 +1889,13 @@ describe("Rooms view meetings", function () {
       },
     });
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.wait("@roomRequest");
 
@@ -1878,7 +1970,13 @@ describe("Rooms view meetings", function () {
       },
     }).as("startRequest");
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     cy.get('[data-test="room-start-button"]').click();
 
@@ -1935,7 +2033,13 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     // Test with invalid name
     cy.get('[data-test="room-start-button"]').click();
@@ -2016,7 +2120,13 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     // Test with invalid name
     cy.get('[data-test="room-start-button"]').click();
@@ -2105,7 +2215,13 @@ describe("Rooms view meetings", function () {
 
     cy.interceptRoomFilesRequest();
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     // Type in access code to get access to the room
     cy.wait("@roomRequest");
@@ -2380,6 +2496,13 @@ describe("Rooms view meetings", function () {
     // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      {
+        onBeforeLoad(win) {
+          patchMatchMedia(win, {
+            darkMode: false,
+          });
+        },
+      },
     );
 
     cy.wait("@roomAuthRequest");
@@ -3034,9 +3157,13 @@ describe("Rooms view meetings", function () {
       },
     }).as("preStartRequest");
 
-    cy.visit("/rooms/abc-def-123");
-
-    cy.get('[data-test="navbar-dark-mode"]').click();
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: true,
+        });
+      },
+    });
 
     cy.get('[data-test="room-start-button"]').click();
 

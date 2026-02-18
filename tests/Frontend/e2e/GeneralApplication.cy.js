@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+import { patchMatchMedia } from "../support/utils/matchMediaHelper.js";
 
 describe("General", function () {
   beforeEach(function () {
@@ -240,7 +241,13 @@ describe("General", function () {
   });
 
   it("toggle dark mode", function () {
-    cy.visit("/");
+    cy.visit("/", {
+      onBeforeLoad(win) {
+        patchMatchMedia(win, {
+          darkMode: false,
+        });
+      },
+    });
 
     // Check if light mode is enabled by default
     cy.get("html").should("not.have.class", "dark");
