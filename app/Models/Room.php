@@ -205,12 +205,17 @@ class Room extends Model
             $currentDefault->save();
         }
 
-        // If system has a default presentation and the system presentation is set as default, no further action needed
-        if (app(BigBlueButtonSettings::class)->default_presentation && $this->use_system_default_presentation_as_default) {
+        // If system has a default presentation and the system presentation is always available
+        // use system default presentation as default presentation for the next meeting
+        if (app(BigBlueButtonSettings::class)->default_presentation && $this->use_system_default_presentation_in_meeting) {
+            $this->use_system_default_presentation_as_default = true;
+            $this->save();
+
             return;
         }
 
-        // If no default file is explicitly set or the system default should be used,
+        // If no default file is explicitly set or the system default is not enabled
+        // look for the first file that is set to be used in the meeting and set it as default
         $newDefaultFile = $this->files()->firstWhere('use_in_meeting', true);
         if ($newDefaultFile != null) {
             $newDefaultFile->default = true;

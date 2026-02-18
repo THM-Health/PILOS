@@ -110,22 +110,26 @@ class RoomFileController extends Controller
     public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
     {
         if ($request->has('use_in_meeting')) {
-            $file->use_in_meeting = $request->use_in_meeting;
+            $file->use_in_meeting = $request->boolean('use_in_meeting');
         }
 
         if ($request->has('download')) {
-            $file->download = $request->download;
+            $file->download = $request->boolean('download');
         }
 
-        if ($request->has('default') && $request->default === true) {
-            // Make other files not the default
-            $room->files()->whereNot('id', $file->id)->update(['default' => false]);
-            // Set this file as default
-            $file->default = true;
+        if ($request->has('default')) {
+            if ($request->boolean('default') === false) {
+                $file->default = false;
+            } else {
+                // Make other files not the default
+                $room->files()->whereNot('id', $file->id)->update(['default' => false]);
+                // Set this file as default
+                $file->default = true;
 
-            // If a file is set as default, the system default presentation must not be used as default
-            $room->use_system_default_presentation_as_default = false;
-            $room->save();
+                // If a file is set as default, the system default presentation must not be used as default
+                $room->use_system_default_presentation_as_default = false;
+                $room->save();
+            }
         }
 
         $file->save();

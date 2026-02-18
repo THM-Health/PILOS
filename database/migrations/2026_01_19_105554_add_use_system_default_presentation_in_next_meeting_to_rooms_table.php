@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\RoomFile;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,9 +13,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->boolean('use_system_default_presentation_in_meeting')->default(false);
-            $table->boolean('use_system_default_presentation_as_default')->default(false);
+            $table->boolean('use_system_default_presentation_in_meeting')->default(true);
+            $table->boolean('use_system_default_presentation_as_default')->default(true);
         });
+
+        RoomFile::where('default', true)
+            ->where('use_in_meeting', true)
+            ->each(function (RoomFile $file) {
+                $file->room->use_system_default_presentation_as_default = false;
+                $file->room->save();
+            });
+
     }
 
     /**

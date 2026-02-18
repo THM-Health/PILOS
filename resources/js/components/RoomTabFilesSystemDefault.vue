@@ -1,74 +1,72 @@
 <template>
-  <div class="mb-6 px-2">
-    <div
-      data-test="room-file-item"
-      class="flex flex-col justify-between gap-4 rounded p-4 shadow outline-3 outline-surface-200 md:flex-row dark:outline-surface-700"
-    >
-      <div class="flex flex-col gap-2">
-        <p class="text-word-break m-0 text-lg font-semibold">
-          {{ $t("rooms.files.system_default") }}
+  <div
+    data-test="room-file-item"
+    class="flex flex-col justify-between gap-4 rounded p-4 shadow outline-3 outline-surface-200 md:flex-row dark:outline-surface-700"
+  >
+    <div class="flex flex-col gap-2">
+      <p class="text-word-break m-0 text-lg font-semibold">
+        {{ $t("rooms.files.system_default") }}
+      </p>
+      <div>
+        <Tag
+          v-if="defaultFile === null"
+          severity="info"
+          icon="fa-solid fa-star"
+          :value="$t('rooms.files.default')"
+        />
+      </div>
+      <div class="flex flex-row items-center gap-2">
+        <i class="fa-solid fa-circle-info"></i>
+        <p class="m-0 text-sm">
+          {{ $t("rooms.files.system_default_description") }}
         </p>
-        <div>
-          <Tag
-            v-if="defaultFile === null"
-            severity="info"
-            icon="fa-solid fa-star"
-            :value="$t('rooms.files.default')"
-          />
-        </div>
+      </div>
+
+      <div class="flex flex-col items-start gap-2">
         <div class="flex flex-row items-center gap-2">
-          <i class="fa-solid fa-circle-info"></i>
-          <p class="m-0 text-sm">
-            {{ $t("rooms.files.system_default_description") }}
+          <i class="fa-solid fa-chalkboard-user"></i>
+          <p class="m-0 flex flex-col gap-2 text-sm">
+            <Tag
+              v-if="useInMeeting"
+              severity="success"
+              :value="$t('rooms.files.always_available_in_meeting')"
+            />
+            <Tag
+              v-else-if="defaultFile === null"
+              severity="success"
+              :value="$t('rooms.files.available_in_next_meeting')"
+            />
+            <Tag
+              v-else
+              severity="secondary"
+              :value="$t('rooms.files.not_available_in_next_meeting')"
+            />
           </p>
         </div>
-
-        <div class="flex flex-col items-start gap-2">
-          <div class="flex flex-row items-center gap-2">
-            <i class="fa-solid fa-chalkboard-user"></i>
-            <p class="m-0 flex flex-col gap-2 text-sm">
-              <Tag
-                v-if="useInMeeting"
-                severity="success"
-                :value="$t('rooms.files.always_available_in_meeting')"
-              />
-              <Tag
-                v-else-if="defaultFile === null"
-                severity="success"
-                :value="$t('rooms.files.available_in_next_meeting')"
-              />
-              <Tag
-                v-else
-                severity="secondary"
-                :value="$t('rooms.files.not_available_in_next_meeting')"
-              />
-            </p>
-          </div>
-        </div>
       </div>
+    </div>
 
-      <div class="flex shrink-0 flex-row items-start justify-end gap-1">
-        <!-- view -->
-        <Button
-          v-tooltip="$t('rooms.files.view')"
-          :aria-label="$t('rooms.files.view')"
-          target="_blank"
-          icon="fa-solid fa-eye"
-          data-test="room-files-view-button"
-          as="a"
-          :href="file"
-        />
+    <div class="flex shrink-0 flex-row items-start justify-end gap-1">
+      <!-- view -->
+      <Button
+        v-tooltip="$t('rooms.files.view')"
+        :aria-label="$t('rooms.files.view')"
+        target="_blank"
+        icon="fa-solid fa-eye"
+        data-test="room-files-view-button"
+        as="a"
+        :href="file"
+      />
 
-        <!-- edit -->
-        <Button
-          v-tooltip="$t('rooms.files.configure_system_default')"
-          :aria-label="$t('rooms.files.configure_system_default')"
-          severity="info"
-          icon="fa-solid fa-edit"
-          data-test="room-files-configure-system-default-button"
-          @click="showModal"
-        />
-      </div>
+      <!-- edit -->
+      <Button
+        v-tooltip="$t('rooms.files.configure_system_default')"
+        :aria-label="$t('rooms.files.configure_system_default')"
+        severity="info"
+        icon="fa-solid fa-edit"
+        data-test="room-files-configure-system-default-button"
+        @click="showModal"
+      />
     </div>
   </div>
 
