@@ -27,7 +27,7 @@ jobs:
         ports:
           - 6379
       postgres:
-        image: postgres
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
@@ -45,14 +45,14 @@ jobs:
         ports:
           - 3306
         env:
-          MYSQL_USER: user
-          MYSQL_PASSWORD: password
-          MYSQL_DATABASE: test
-          MYSQL_ROOT_PASSWORD: password
+          MARIADB_USER: user
+          MARIADB_PASSWORD: password
+          MARIADB_DATABASE: test
+          MARIADB_ROOT_PASSWORD: password
         options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
       - name: Verify MariaDB connection
@@ -134,9 +134,7 @@ jobs:
           LOG_CHANNEL: stack
           BBB_TEST_SERVER_HOST: ${{ secrets.BBB_TEST_SERVER_HOST }}
           BBB_TEST_SERVER_SECRET: ${{ secrets.BBB_TEST_SERVER_SECRET }}
-
-        run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
-
+        run: php artisan test --parallel --coverage-clover=coverage.xml
       - name: Execute tests (Unit and Feature tests) via PHPUnit using Postgres
         env:
           DB_CONNECTION: pgsql
@@ -157,27 +155,21 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: laravel.log
+          name: laravel-backend-tests.log
           path: storage/logs/laravel.log
   frontend-code-style-check:
     name: Frontend Code Style Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Copy .env
         run: php -r "copy('.env.example', '.env');"
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-      - uses: actions/cache@v4
-        id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+      - uses: actions/setup-node@v6
         with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          node-version: 24
+          cache: "npm"
+          cache-dependency-path: ./package-lock.json
       - name: Install dependencies
         run: npm ci
       - name: Check code formatting
@@ -189,7 +181,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -259,7 +251,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -290,7 +286,7 @@ jobs:
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
       - name: Cypress run frontend tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.frontend_group }}
@@ -305,7 +301,7 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
+          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: always()
@@ -325,7 +321,11 @@ jobs:
       - generate-frontend-matrix
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Fetch develop branch
         if: github.ref != 'refs/heads/develop'
         run: git fetch origin develop:develop
@@ -358,9 +358,9 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Run cypress
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
-          command-prefix: happo-e2e -- npx
+          command-prefix: npx happo -- npx
           group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
@@ -370,6 +370,7 @@ jobs:
           HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
           HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
           HAPPO_DELETE_OLD_COMMENTS: true
+          HAPPO_CONFIG_FILE: "./tests/Visual/happo.config.js"
           BASE_BRANCH: origin/develop
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -378,7 +379,7 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
+          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
   system-tests:
     name: System Tests
     runs-on: ubuntu-latest
@@ -389,7 +390,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -422,7 +427,7 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Cypress run system tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.system_group }}
@@ -437,10 +442,16 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en"
+          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cypress-screenshots
           path: tests/System/screenshots
+      - name: Upload laravel logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: laravel-system-tests.log
+          path: storage/logs/laravel.log

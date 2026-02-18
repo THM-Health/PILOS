@@ -49,7 +49,7 @@
           <label
             for="authenticator"
             class="col-span-12 mb-2 md:col-span-3 md:mb-0"
-            >{{ $t("auth.authenticator") }}</label
+            >{{ $t("admin.users.authenticator.title") }}</label
           >
           <div class="col-span-12 md:col-span-9">
             <InputText
@@ -65,16 +65,16 @@
         <div
           v-if="model.authenticator !== 'local'"
           class="field grid grid-cols-12 gap-4"
-          data-test="authenticator-id-field"
+          data-test="external-user-id-field"
         >
           <label
-            for="authenticator_id"
+            for="external-user-id"
             class="col-span-12 mb-2 md:col-span-3 md:mb-0"
-            >{{ $t("auth.authenticator_id") }}</label
+            >{{ $t("auth.external_user_id") }}</label
           >
           <div class="col-span-12 md:col-span-9">
             <InputText
-              id="authenticator_id"
+              id="external-user-id"
               v-model="model.external_id"
               type="text"
               disabled
@@ -165,7 +165,7 @@
 
 <script setup>
 import env from "../env";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useAuthStore } from "../stores/auth";
 import { ref, computed, watch, onBeforeMount } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";

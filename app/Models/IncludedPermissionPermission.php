@@ -2,18 +2,12 @@
 
 namespace App\Models;
 
+use App\Observers\IncludedPermissionPermissionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+#[ObservedBy([IncludedPermissionPermissionObserver::class])]
 class IncludedPermissionPermission extends Pivot
 {
-    protected static function booted(): void
-    {
-        static::created(function () {
-            User::$clearPermissionCache = true;
-        });
-
-        static::deleted(function () {
-            User::$clearPermissionCache = true;
-        });
-    }
+    protected $table = 'included_permissions';
 }

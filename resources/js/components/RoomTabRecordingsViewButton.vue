@@ -73,14 +73,14 @@ import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import EventBus from "../services/EventBus.js";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
+import {
+  HTTP_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
-  accessCode: {
-    type: String,
-    default: null,
-  },
-  token: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
   roomId: {
@@ -117,7 +117,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidCode", "invalidToken", "notFound"]);
+const emit = defineEmits(["invalidRoomAuthToken", "notFound"]);
 
 const isLoadingAction = ref(false);
 const modalVisible = ref(false);
@@ -132,10 +132,11 @@ function downloadFormat(format) {
   // Update value for the setting and the effected file
   const config = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+  if (props.roomAuthToken) {
+    config.params = {
+      room_auth_token: props.roomAuthToken.id,
+      room_auth_token_type: props.roomAuthToken.type,
+    };
   }
 
   const url =
@@ -159,28 +160,20 @@ function downloadFormat(format) {
     })
     .catch((error) => {
       if (error.response) {
-        // Access code invalid
+        // Room Auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
+          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
         ) {
-          return emit("invalidCode");
-        }
-
-        // Room token is invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
-        ) {
-          return emit("invalidToken");
+          return emit("invalidRoomAuthToken");
         }
 
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
         ) {
-          return emit("invalidCode");
+          return emit("invalidRoomAuthToken");
         }
 
         // Forbidden, not allowed to view recording format

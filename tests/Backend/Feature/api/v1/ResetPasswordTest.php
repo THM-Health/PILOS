@@ -2,6 +2,7 @@
 
 namespace Tests\Backend\Feature\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Models\Session;
 use App\Models\User;
 use App\Notifications\PasswordReset;
@@ -10,6 +11,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 
 class ResetPasswordTest extends TestCase
@@ -36,7 +38,7 @@ class ResetPasswordTest extends TestCase
         $newUserToken = Password::createToken($newUser);
 
         $this->actingAs($user)->postJson(route('api.v1.password.reset'))
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
 
         Auth::logout();
         Notification::fake();
@@ -113,7 +115,7 @@ class ResetPasswordTest extends TestCase
 
         // Create sessions in database
         $this->session = new Session;
-        $this->session->id = \Str::random(40);
+        $this->session->id = Str::random(40);
         $this->session->user_agent = 'Agent 1';
         $this->session->ip_address = $this->faker->ipv4;
         $this->session->payload = '';
@@ -122,7 +124,7 @@ class ResetPasswordTest extends TestCase
         $this->session->save();
 
         $this->otherSession = new Session;
-        $this->otherSession->id = \Str::random(40);
+        $this->otherSession->id = Str::random(40);
         $this->otherSession->user_agent = 'Agent 2';
         $this->otherSession->ip_address = $this->faker->ipv4;
         $this->otherSession->payload = '';
@@ -131,7 +133,7 @@ class ResetPasswordTest extends TestCase
         $this->otherSession->save();
 
         $this->otherUserSession = new Session;
-        $this->otherUserSession->id = \Str::random(40);
+        $this->otherUserSession->id = Str::random(40);
         $this->otherUserSession->user_agent = 'Agent 3';
         $this->otherUserSession->ip_address = $this->faker->ipv4;
         $this->otherUserSession->payload = '';

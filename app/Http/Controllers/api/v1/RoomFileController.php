@@ -8,10 +8,10 @@ use App\Http\Requests\UpdateRoomFile;
 use App\Http\Resources\PrivateRoomFile;
 use App\Models\Room;
 use App\Models\RoomFile;
-use App\Services\RoomFileService;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class RoomFileController extends Controller
 {
@@ -47,7 +47,7 @@ class RoomFileController extends Controller
         $resource = $room->files()->orderBy($sortBy, $sortOrder)->orderBy('room_files.id');
 
         // If user is not allowed to view all files, only query files that are downloadable
-        if (! \Gate::allows('viewAllFiles', $room)) {
+        if (! Gate::allows('viewAllFiles', $room)) {
             $resource = $resource->where('download', true);
         }
 
@@ -65,7 +65,7 @@ class RoomFileController extends Controller
         }
 
         // If user is allowed to view all files, return PrivateRoomFile resource to show additional information
-        if (\Gate::allows('viewAllFiles', $room)) {
+        if (Gate::allows('viewAllFiles', $room)) {
             $additional['default'] = $room->files()->where('default', true)->first();
 
             return PrivateRoomFile::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
@@ -93,20 +93,6 @@ class RoomFileController extends Controller
         Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
         return response()->noContent();
-    }
-
-    /**
-     * Get url to download the specified file
-     *
-     * @param  UpdateRoomFile  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show(Room $room, RoomFile $file)
-    {
-        $roomFileService = new RoomFileService($file);
-        $url = $roomFileService->setTimeLimit(1)->url();
-
-        return response()->json(['url' => $url]);
     }
 
     /**

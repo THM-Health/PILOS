@@ -26,7 +26,7 @@
 
 Cypress.Commands.add("seed", () => {
   cy.exec(
-    "docker compose -f ../../compose.test.yml exec app pilos-cli demo:create --force",
+    "docker compose -f ../../compose.test.yml exec app pilos-cli demo:create --force --disable-bbb-session-check",
   );
 });
 
@@ -64,13 +64,11 @@ Cypress.Commands.add("loginAs", (name) => {
 
   cy.visit("/login");
 
-  // Check if ldap login tab is shown correctly and click on login button
-  cy.get('[data-test="login-tab-local"]').within(() => {
-    cy.get("#local-email").type(user.email);
-    cy.get("#local-password").type(user.password);
-
-    cy.get('[data-test="login-button"]').should("have.text", "Login").click();
-  });
+  // Login using the provided credentials
+  cy.get('[data-test="login-tab-button-local"]').click();
+  cy.get("#local-email").type(user.email);
+  cy.get("#local-password").type(user.password);
+  cy.get('[data-test="login-button"]').should("have.text", "Login").click();
 
   // Check toast message
   cy.get(".p-toast")

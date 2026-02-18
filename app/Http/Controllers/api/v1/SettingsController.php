@@ -17,6 +17,7 @@ use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SettingsController extends Controller
 {
@@ -89,6 +90,29 @@ class SettingsController extends Controller
             $faviconDark = $request->input('theme_favicon_dark');
         }
 
+        // Custom CSS file
+        if ($request->has('theme_custom_css')) {
+            // Remove current file if existing
+            if ($themeSettings->custom_css !== null) {
+
+                $file_path = substr($themeSettings->custom_css, strlen('/storage/'));
+                Storage::disk('public')->delete($file_path);
+
+            }
+
+            if (! empty($request->file('theme_custom_css'))) {
+                // New file uploaded, create random file name and store file
+                $fileName = Str::random(40).'.css';
+                $path = $request->file('theme_custom_css')->storeAs('styles', $fileName, 'public');
+                $url = Storage::url($path);
+
+                $themeSettings->custom_css = $url;
+            } else {
+                // No file uploaded, set to null
+                $themeSettings->custom_css = null;
+            }
+        }
+
         // Default presentation for BBB
         if ($request->has('bbb_default_presentation')) {
             if ($bigBlueButtonSettings->default_presentation != null) {
@@ -154,7 +178,7 @@ class SettingsController extends Controller
         $themeSettings->rounded = $request->boolean('theme_rounded');
 
         $roomSettings->limit = $request->integer('room_limit');
-        $roomSettings->token_expiration = $request->enum('room_token_expiration', TimePeriod::class);
+        $roomSettings->personalized_link_expiration = $request->enum('room_personalized_link_expiration', TimePeriod::class);
         $roomSettings->auto_delete_inactive_period = $request->enum('room_auto_delete_inactive_period', TimePeriod::class);
         $roomSettings->auto_delete_never_used_period = $request->enum('room_auto_delete_never_used_period', TimePeriod::class);
         $roomSettings->auto_delete_deadline_period = $request->enum('room_auto_delete_deadline_period', TimePeriod::class);

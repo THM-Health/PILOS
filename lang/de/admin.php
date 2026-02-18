@@ -384,7 +384,7 @@ return [
             'description' => 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.',
             'title' => 'Anzahl der Räume pro Benutzer',
         ],
-        'room_token_expiration' => [
+        'room_personalized_link_expiration' => [
             'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierten Raumlinks automatisch gelöscht werden.',
             'title' => 'Ablaufzeit für personalisierte Raumlinks',
         ],
@@ -401,6 +401,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Eigene Farbe',
+            'custom_css' => 'Eigene CSS Style Datei',
             'primary_color' => 'Primärfarbe',
             'rounded' => 'Abgerundete Ecken',
             'title' => 'Design',
@@ -441,8 +442,9 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Lokal',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Anmeldeart',
+            'title' => 'Login-Methode',
         ],
         'base_data' => 'Stammdaten',
         'bbb' => 'BigBlueButton',

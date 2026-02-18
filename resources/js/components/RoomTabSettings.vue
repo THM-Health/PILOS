@@ -112,7 +112,7 @@
 
 <script setup>
 import env from "../env.js";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { useSettingsStore } from "../stores/settings";
 import { useApi } from "../composables/useApi.js";
 import { resetSetting } from "../composables/useRoomHelpers.js";

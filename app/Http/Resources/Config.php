@@ -59,7 +59,7 @@ class Config extends JsonResource
             ],
             'room' => [
                 'limit' => $roomSettings->limit,
-                'token_expiration' => $roomSettings->token_expiration,
+                'personalized_link_expiration' => $roomSettings->personalized_link_expiration,
                 'refresh_rate' => config('bigbluebutton.room_refresh_rate'),
                 'file_terms_of_use' => $roomSettings->file_terms_of_use,
             ],
@@ -107,6 +107,7 @@ class Config extends JsonResource
                 'local' => config('auth.local.enabled'),
                 'ldap' => config('ldap.enabled'),
                 'shibboleth' => config('services.shibboleth.enabled'),
+                'oidc' => config('services.oidc.enabled'),
             ],
         ];
     }

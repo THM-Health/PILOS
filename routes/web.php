@@ -1,10 +1,11 @@
 <?php
 
+use App\Auth\OIDC\OIDCController;
 use App\Auth\Shibboleth\ShibbolethController;
 use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\FileController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\RecordingController;
+use App\Http\Controllers\RoomFileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,17 +18,25 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('download/file/{roomFile}/{filename?}', [FileController::class, 'show'])->name('download.file')->middleware('signed');
+Route::get('download/file/{roomFile}/{filename?}', [RoomFileController::class, 'showPresentation'])->name('rooms.files.download.bbb')->middleware('signed');
+Route::get('room/{room}/file/{file}/{filename?}', [RoomFileController::class, 'show'])->name('rooms.files.download')->middleware(['signed:room_auth_token,room_auth_token_type', 'room.authenticate', 'throttle:room-enumeration'])->scopeBindings();
 Route::get('download/attendance/{meeting}', [MeetingController::class, 'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 Route::get('download/recording/{recording}', [RecordingController::class, 'download'])->middleware('auth:users,ldap')->name('recording.download');
 
-// Do not change this url format! Needs to be in this format in order to be compatible with the BBB recording player
 Route::get('recording/{formatName}/{recording}/{resource?}', [RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
+// Do not change this url! Needs to be in this format to be compatible with the BBB recording player
+Route::get('presentation/{recording}/{resource}', [RecordingController::class, 'presentationResource'])->where('resource', '.*')->name('recording.presentation');
 
 Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');
     Route::get('auth/shibboleth/callback', [ShibbolethController::class, 'callback'])->name('auth.shibboleth.callback');
     Route::match(['get', 'post'], 'auth/shibboleth/logout', [ShibbolethController::class, 'logout'])->name('auth.shibboleth.logout');
+});
+
+Route::middleware('enable_if_config:services.oidc.enabled')->group(function () {
+    Route::get('auth/oidc/redirect', [OIDCController::class, 'redirect'])->name('auth.oidc.redirect');
+    Route::get('auth/oidc/callback', [OIDCController::class, 'callback'])->name('auth.oidc.callback');
+    Route::post('auth/oidc/logout', [OIDCController::class, 'logout'])->name('auth.oidc.logout');
 });
 
 if (config('greenlight.compatibility')) {

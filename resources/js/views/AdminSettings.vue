@@ -436,6 +436,31 @@
                 <FormError :errors="formErrors.fieldError('theme_rounded')" />
               </div>
             </fieldset>
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="theme-custom-css-field"
+            >
+              <legend
+                id="theme-custom-css-label"
+                class="col-span-12 md:col-span-4 md:mb-0"
+              >
+                {{ $t("admin.settings.theme.custom_css") }}
+              </legend>
+              <div class="col-span-12 md:col-span-8">
+                <SettingsFileSelector
+                  v-model:file-url="settings.theme_custom_css"
+                  v-model:file="themeCustomCss"
+                  v-model:file-deleted="themeCustomCssDeleted"
+                  :disabled="disabled"
+                  :readonly="viewOnly"
+                  :max-file-size="500000"
+                  show-delete
+                  :allowed-extensions="['css']"
+                  :file-invalid="formErrors.fieldInvalid('theme_custom_css')"
+                  :file-error="formErrors.fieldError('theme_custom_css')"
+                />
+              </div>
+            </fieldset>
           </AdminPanel>
 
           <AdminPanel :title="$t('admin.settings.banner.title')">
@@ -782,40 +807,51 @@
             </fieldset>
             <div
               class="grid grid-cols-12 gap-4"
-              data-test="room-token-expiration-field"
+              data-test="room-personalized-link-expiration-field"
             >
               <label
-                id="room-token-expiration-label"
+                id="room-personalized-link-expiration-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
-                >{{ $t("admin.settings.room_token_expiration.title") }}</label
+                >{{
+                  $t("admin.settings.room_personalized_link_expiration.title")
+                }}</label
               >
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
-                  v-model="settings.room_token_expiration"
-                  data-test="room-token-expiration-dropdown"
+                  v-model="settings.room_personalized_link_expiration"
+                  data-test="room-personalized-link-expiration-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
-                  :invalid="formErrors.fieldInvalid('room_token_expiration')"
+                  :invalid="
+                    formErrors.fieldInvalid('room_personalized_link_expiration')
+                  "
                   :disabled="disabled"
-                  aria-labelledby="room-token-expiration-label"
+                  aria-labelledby="room-personalized-link-expiration-label"
                   :pt="{
                     input: {
-                      'aria-describedby': 'room-token-expiration-help',
+                      'aria-describedby':
+                        'room-personalized-link-expiration-help',
                     },
                     listContainer: {
-                      'data-test': 'room-token-expiration-dropdown-items',
+                      'data-test':
+                        'room-personalized-link-expiration-dropdown-items',
                     },
                     option: {
-                      'data-test': 'room-token-expiration-dropdown-option',
+                      'data-test':
+                        'room-personalized-link-expiration-dropdown-option',
                     },
                   }"
                 />
-                <small id="room-token-expiration-help">{{
-                  $t("admin.settings.room_token_expiration.description")
+                <small id="room-personalized-link-expiration-help">{{
+                  $t(
+                    "admin.settings.room_personalized_link_expiration.description",
+                  )
                 }}</small>
                 <FormError
-                  :errors="formErrors.fieldError('room_token_expiration')"
+                  :errors="
+                    formErrors.fieldError('room_personalized_link_expiration')
+                  "
                 />
               </div>
             </div>
@@ -1437,6 +1473,8 @@ const defaultPresentation = ref(null);
 const defaultPresentationDeleted = ref(false);
 const bbbStyle = ref(null);
 const bbbStyleDeleted = ref(false);
+const themeCustomCss = ref(null);
+const themeCustomCssDeleted = ref(false);
 
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
@@ -1525,6 +1563,12 @@ function updateSettings() {
     formData.append("theme_logo_dark", settings.value.theme_logo_dark);
   }
 
+  if (themeCustomCss.value !== null) {
+    formData.append("theme_custom_css", themeCustomCss.value);
+  } else if (themeCustomCssDeleted.value) {
+    formData.append("theme_custom_css", "");
+  }
+
   if (uploadBBBLogoFile.value) {
     formData.append("bbb_logo_file", uploadBBBLogoFile.value);
   } else if (bbbLogoDeleted.value) {
@@ -1558,6 +1602,7 @@ function updateSettings() {
     "theme_logo_dark",
     "theme_favicon",
     "theme_favicon_dark",
+    "theme_custom_css",
     "bbb_logo",
     "bbb_logo_dark",
     "bbb_style",
@@ -1591,11 +1636,33 @@ function updateSettings() {
       },
     })
     .then((response) => {
+      // Reload the page if any settings were changed
+      // that are explicitly set in the HTML head
+      if (
+        // Favicon file uploaded
+        formData.has("theme_favicon_file") ||
+        // Favicon url changed
+        formData.get("theme_favicon") !==
+          settingsStore.getSetting("theme.favicon") ||
+        // Favicon dark file uploaded
+        formData.has("theme_favicon_dark_file") ||
+        // Favicon dark url changed
+        formData.get("theme_favicon_dark") !==
+          settingsStore.getSetting("theme.favicon_dark") ||
+        // Custom css file changed (uploaded or deleted)
+        formData.has("theme_custom_css")
+      ) {
+        window.location.reload();
+        return;
+      }
+
       settingsStore.getSettings();
       uploadLogoFile.value = null;
       uploadLogoDarkFile.value = null;
       uploadFaviconFile.value = null;
       uploadFaviconDarkFile.value = null;
+      themeCustomCss.value = null;
+      themeCustomCssDeleted.value = false;
       defaultPresentation.value = null;
       defaultPresentationDeleted.value = false;
       uploadBBBLogoFile.value = null;
@@ -1672,7 +1739,7 @@ function toastLifetimeModeChanged(value) {
 }
 
 /**
- * Options for time period selects (room token expiration, room auto delete, etc.)
+ * Options for time period selects (room personalized link expiration, room auto delete, etc.)
  */
 const timePeriods = computed(() => {
   return [

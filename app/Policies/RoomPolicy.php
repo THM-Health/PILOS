@@ -173,9 +173,9 @@ class RoomPolicy
      *
      * @return bool
      */
-    public function viewTokens(User $user, Room $room)
+    public function viewPersonalizedLinks(User $user, Room $room)
     {
-        return $user->can('manageTokens', $room) || $user->can('rooms.viewAll');
+        return $user->can('managePersonalizedLinks', $room) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -183,7 +183,7 @@ class RoomPolicy
      *
      * @return bool
      */
-    public function manageTokens(User $user, Room $room)
+    public function managePersonalizedLinks(User $user, Room $room)
     {
         return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }

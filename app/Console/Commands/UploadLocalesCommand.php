@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Services\LocaleService;
-use Http;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class UploadLocalesCommand extends Command
 {

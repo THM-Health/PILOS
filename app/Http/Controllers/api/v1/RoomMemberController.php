@@ -13,9 +13,9 @@ use App\Http\Resources\RoomUser;
 use App\Models\Room;
 use App\Models\User;
 use App\Settings\GeneralSettings;
-use Auth;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RoomMemberController extends Controller
 {

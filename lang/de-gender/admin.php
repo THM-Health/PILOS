@@ -364,10 +364,6 @@ return [
             'description' => 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.',
             'title' => 'Anzahl der Räume pro Benutzer',
         ],
-        'room_token_expiration' => [
-            'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierten Raumlinks automatisch gelöscht werden.',
-            'title' => 'Ablaufzeit für personalisierte Raumlinks',
-        ],
         'six_month' => '6 Monate (180 Tage)',
         'statistics' => [
             'meetings' => [

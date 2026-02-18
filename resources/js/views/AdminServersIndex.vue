@@ -125,27 +125,24 @@
             :aria-label="$t('admin.servers.disabled')"
             class="p-2"
             severity="danger"
-          >
-            <i class="fa-solid fa-stop" />
-          </Tag>
+            icon="fa-solid fa-stop"
+          />
           <Tag
             v-else-if="slotProps.data.status === 0"
             v-tooltip="$t('admin.servers.draining')"
             :aria-label="$t('admin.servers.draining')"
             class="p-2"
             severity="info"
-          >
-            <i class="fa-solid fa-pause" />
-          </Tag>
+            icon="fa-solid fa-pause"
+          />
           <Tag
             v-else
             v-tooltip="$t('admin.servers.enabled')"
             :aria-label="$t('admin.servers.enabled')"
             class="p-2"
             severity="success"
-          >
-            <i class="fa-solid fa-play" />
-          </Tag>
+            icon="fa-solid fa-play"
+          />
         </template>
       </Column>
       <Column :header="$t('admin.servers.connection')" field="health">
@@ -156,27 +153,24 @@
             :aria-label="$t('admin.servers.offline')"
             class="p-2"
             severity="danger"
-          >
-            <i class="fa-solid fa-xmark" />
-          </Tag>
+            icon="fa-solid fa-xmark"
+          />
           <Tag
             v-else-if="slotProps.data.health === 0"
             v-tooltip="$t('admin.servers.unhealthy')"
             :aria-label="$t('admin.servers.unhealthy')"
             class="p-2"
             severity="warning"
-          >
-            <i class="fa-solid fa-triangle-exclamation" />
-          </Tag>
+            icon="fa-solid fa-triangle-exclamation"
+          />
           <Tag
             v-else-if="slotProps.data.health === 1"
             v-tooltip="$t('admin.servers.online')"
             :aria-label="$t('admin.servers.online')"
             class="p-2"
             severity="success"
-          >
-            <i class="fa-solid fa-check" />
-          </Tag>
+            icon="fa-solid fa-check"
+          />
           <raw-text v-else> --- </raw-text>
         </template>
       </Column>

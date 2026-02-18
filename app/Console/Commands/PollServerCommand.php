@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\PollServerJob;
 use App\Models\Server;
 use Illuminate\Console\Command;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class PollServerCommand extends Command
 {

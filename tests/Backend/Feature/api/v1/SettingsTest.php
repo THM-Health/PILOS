@@ -11,11 +11,12 @@ use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RoomSettings;
-use Config;
+use App\Settings\ThemeSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
@@ -60,6 +61,7 @@ class SettingsTest extends TestCase
         $this->themeSettings->favicon_dark = 'testfavicon-dark.ico';
         $this->themeSettings->primary_color = '#4a5c66';
         $this->themeSettings->rounded = true;
+        $this->themeSettings->custom_css = '/storage/styles/theme-custom-css.css';
         $this->themeSettings->save();
 
         $this->bannerSettings->enabled = true;
@@ -78,7 +80,7 @@ class SettingsTest extends TestCase
         $this->roomSettings->auto_delete_inactive_period = TimePeriod::ONE_WEEK;
         $this->roomSettings->auto_delete_never_used_period = TimePeriod::TWO_WEEKS;
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
-        $this->roomSettings->token_expiration = TimePeriod::ONE_WEEK;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::ONE_WEEK;
         $this->roomSettings->file_terms_of_use = 'test';
         $this->roomSettings->save();
 
@@ -134,6 +136,7 @@ class SettingsTest extends TestCase
                     'theme_favicon_dark' => 'testfavicon-dark.ico',
                     'theme_primary_color' => '#4a5c66',
                     'theme_rounded' => true,
+                    'theme_custom_css' => '/storage/styles/theme-custom-css.css',
 
                     'banner_enabled' => true,
                     'banner_message' => 'Welcome to Test!',
@@ -150,7 +153,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_inactive_period' => 7,
                     'room_auto_delete_never_used_period' => 14,
                     'room_auto_delete_deadline_period' => 30,
-                    'room_token_expiration' => 7,
+                    'room_personalized_link_expiration' => 7,
                     'room_file_terms_of_use' => 'test',
 
                     'user_password_change_allowed' => true,
@@ -208,7 +211,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -269,7 +272,7 @@ class SettingsTest extends TestCase
                     'banner_icon' => 'fas fa-door-open',
 
                     'room_limit' => -1,
-                    'room_token_expiration' => -1,
+                    'room_personalized_link_expiration' => -1,
                     'room_auto_delete_inactive_period' => 14,
                     'room_auto_delete_never_used_period' => 30,
                     'room_auto_delete_deadline_period' => 7,
@@ -343,7 +346,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -420,7 +423,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -501,7 +504,7 @@ class SettingsTest extends TestCase
             'banner_background' => 'test',
 
             'room_limit' => 'notnumber',
-            'room_token_expiration' => 'notnumber',
+            'room_personalized_link_expiration' => 'notnumber',
             'room_auto_delete_inactive_period' => 'notnumber',
             'room_auto_delete_never_used_period' => 'notnumber',
             'room_auto_delete_deadline_period' => 'notnumber',
@@ -553,7 +556,7 @@ class SettingsTest extends TestCase
                 'banner_background',
 
                 'room_limit',
-                'room_token_expiration',
+                'room_personalized_link_expiration',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
                 'room_auto_delete_deadline_period',
@@ -593,6 +596,117 @@ class SettingsTest extends TestCase
     }
 
     /**
+     * Test to update the custom css file
+     *
+     * @return void
+     */
+    public function test_update_theme_custom_css()
+    {
+        $role = Role::factory()->create();
+        $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
+        $this->user->roles()->attach($role);
+
+        $style = UploadedFile::fake()->create('style.css');
+        file_put_contents($style->getRealPath(), 'body { background-color: #273035; }');
+
+        $payload = [
+            'general_name' => 'test',
+            'general_pagination_page_size' => 10,
+            'general_toast_lifetime' => 10,
+            'general_default_timezone' => 'Europe/Berlin',
+            'general_help_url' => 'http://localhost',
+            'general_legal_notice_url' => 'http://localhost',
+            'general_privacy_policy_url' => 'http://localhost',
+            'general_no_welcome_page' => false,
+
+            'theme_logo' => 'testlogo.svg',
+            'theme_logo_dark' => 'testlogo-dark.svg',
+            'theme_favicon' => 'favicon.ico',
+            'theme_favicon_dark' => 'favicon_dark.ico',
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
+            'theme_custom_css' => $style,
+
+            'banner_enabled' => 0,
+            'banner_message' => 'Welcome to Test!',
+            'banner_title' => 'Welcome',
+            'banner_color' => '#fff',
+            'banner_background' => '#4a5c66',
+            'banner_link' => 'http://localhost',
+            'banner_link_target' => 'self',
+            'banner_link_style' => 'primary',
+            'banner_icon' => 'fas fa-door-open',
+
+            'room_limit' => -1,
+            'room_personalized_link_expiration' => -1,
+            'room_auto_delete_inactive_period' => 14,
+            'room_auto_delete_never_used_period' => 30,
+            'room_auto_delete_deadline_period' => 7,
+
+            'user_password_change_allowed' => 1,
+
+            'recording_server_usage_enabled' => 0,
+            'recording_server_usage_retention_period' => 7,
+            'recording_meeting_usage_enabled' => 1,
+            'recording_meeting_usage_retention_period' => 90,
+            'recording_attendance_retention_period' => 14,
+            'recording_recording_retention_period' => 7,
+
+            'bbb_logo' => 'bbblogo.png',
+        ];
+
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
+        $response->assertStatus(200);
+        $this->assertNotNull($response->json('data.theme_custom_css'));
+
+        $rel_path = substr($response->json('data.theme_custom_css'), strlen('/storage/'));
+        Storage::disk('public')->assertExists($rel_path);
+
+        $this->assertEquals('body { background-color: #273035; }', Storage::disk('public')->get($rel_path));
+
+        // Update again and check that old file gets deleted
+        $style2 = UploadedFile::fake()->create('style.css');
+        file_put_contents($style2->getRealPath(), 'body { background-color: #000; }');
+
+        $payload['theme_custom_css'] = $style2;
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
+        $response->assertStatus(200);
+        $this->assertNotNull($response->json('data.theme_custom_css'));
+
+        $rel_path2 = substr($response->json('data.theme_custom_css'), strlen('/storage/'));
+        Storage::disk('public')->assertExists($rel_path2);
+
+        $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get($rel_path2));
+
+        Storage::disk('public')->assertMissing($rel_path);
+
+        // Send request without changes, should keep the style unchanged
+        unset($payload['theme_custom_css']);
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
+
+        $response->assertStatus(200);
+        $this->assertNotNull($response->json('data.theme_custom_css'));
+
+        $rel_path3 = substr($response->json('data.theme_custom_css'), strlen('/storage/'));
+        $this->assertEquals($rel_path2, $rel_path3);
+
+        Storage::disk('public')->assertExists($rel_path2);
+
+        $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get($rel_path2));
+
+        // Clear css file, file should be deleted and setting should be set to null
+        $payload['theme_custom_css'] = '';
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
+
+        $response->assertStatus(200);
+
+        $this->assertNull($response->json('data.theme_custom_css'));
+
+        $this->assertNull(app(ThemeSettings::class)->custom_css);
+        Storage::disk('public')->assertMissing($rel_path2);
+    }
+
+    /**
      * Tests that updates application settings with invalid inputs for numeric input
      *
      * @return void
@@ -628,7 +742,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -2,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 1,
             'room_auto_delete_never_used_period' => 1,
             'room_auto_delete_deadline_period' => 1,
@@ -680,7 +794,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => 101,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 1000,
             'room_auto_delete_never_used_period' => 1000,
             'room_auto_delete_deadline_period' => 366,
@@ -758,7 +872,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -868,7 +982,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -963,7 +1077,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -1045,7 +1159,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -1096,6 +1210,7 @@ class SettingsTest extends TestCase
 
         $logo = UploadedFile::fake()->create('logo.png');
         $favicon = UploadedFile::fake()->create('favicon.ico');
+        $themeCustomCss = UploadedFile::fake()->create('theme-custom-css.css');
         $style = UploadedFile::fake()->create('style.css');
         $presentation = UploadedFile::fake()->create('presentation.pdf');
 
@@ -1117,6 +1232,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark_file' => $favicon,
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_custom_css' => $themeCustomCss,
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -1129,7 +1245,7 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
@@ -1155,12 +1271,13 @@ class SettingsTest extends TestCase
                 'theme_logo_dark_file',
                 'theme_favicon_file',
                 'theme_favicon_dark_file',
+                'theme_custom_css',
                 'bbb_logo_file',
                 'bbb_logo_dark_file',
                 'bbb_style',
                 'bbb_default_presentation',
             ]);
 
-        Http::assertSentCount(8);
+        Http::assertSentCount(9);
     }
 }

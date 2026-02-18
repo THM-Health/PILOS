@@ -7,6 +7,7 @@ use App\Models\Role;
 use Carbon\Carbon;
 use DateInterval;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\Backend\TestCase;
 
 class EnsureModelNotStaleTest extends TestCase
@@ -19,7 +20,7 @@ class EnsureModelNotStaleTest extends TestCase
 
         parent::setUp();
 
-        \Route::post('api/test/{role}', [
+        Route::post('api/test/{role}', [
             'middleware' => ['api', 'check.stale:role,\App\Http\Resources\Role,withPermissions'],
             'as' => 'test.stale.check',
             function (Role $role) {

@@ -6,10 +6,10 @@ use App\Models\Role;
 use App\Models\Session;
 use App\Models\User;
 use Carbon\Carbon;
-use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
@@ -140,7 +140,7 @@ class ShibbolethTest extends TestCase
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get(route('auth.shibboleth.callback'));
-        $response->assertStatus(420);
+        $response->assertRedirect('http://localhost/rooms');
     }
 
     /**

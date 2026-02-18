@@ -7,7 +7,7 @@
     class="shrink-0"
     @click="toggle"
   />
-  <Popover ref="op" aria-labelledby="room-invitation-title">
+  <Popover ref="op" aria-labelledby="room-invitation-title" aria-modal="false">
     <div class="flex min-w-min flex-col items-start gap-4 p-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend
@@ -17,14 +17,14 @@
           {{ $t("rooms.invitation.title") }}
         </legend>
         <div class="grow">
-          <IconField icon-position="left">
-            <InputIcon>
+          <InputGroup>
+            <InputGroupAddon class="min-w-5 border-none px-0">
               <i
                 v-tooltip="$t('rooms.invitation.link')"
                 class="fa-solid fa-link"
                 :aria-label="$t('rooms.invitation.link')"
               />
-            </InputIcon>
+            </InputGroupAddon>
             <InputText
               id="invitationLink"
               class="w-full border-surface-0 text-ellipsis shadow-none dark:border-surface-900"
@@ -33,16 +33,26 @@
               :value="roomUrl"
               @focus="$event.target.select()"
             />
-          </IconField>
+            <InputGroupAddon class="border-none">
+              <Button
+                v-tooltip="$t('rooms.invitation.copy_url')"
+                data-test="room-invitation-copy-link-button"
+                :aria-label="$t('rooms.invitation.copy_url')"
+                icon="fa-solid fa-copy"
+                severity="secondary"
+                @click="copyUrl"
+              />
+            </InputGroupAddon>
+          </InputGroup>
 
-          <IconField v-if="room.access_code" icon-position="left">
-            <InputIcon>
+          <InputGroup v-if="room.access_code" class="mt-2">
+            <InputGroupAddon class="min-w-5 border-none px-0">
               <i
                 v-tooltip="$t('rooms.invitation.code')"
                 class="fa-solid fa-key"
                 :aria-label="$t('rooms.invitation.code')"
               />
-            </InputIcon>
+            </InputGroupAddon>
             <InputText
               id="invitationCode"
               class="w-full border-surface-0 shadow-none dark:border-surface-900"
@@ -51,15 +61,27 @@
               :value="formattedAccessCode"
               @focus="$event.target.select()"
             />
-          </IconField>
+            <InputGroupAddon class="border-none">
+              <Button
+                v-tooltip="$t('rooms.invitation.copy_code')"
+                data-test="room-invitation-copy-code-button"
+                :aria-label="$t('rooms.invitation.copy_code')"
+                icon="fa-solid fa-copy"
+                severity="secondary"
+                @click="copyCode"
+              />
+            </InputGroupAddon>
+          </InputGroup>
         </div>
       </fieldset>
+      <divider class="m-0" />
       <Button
         data-test="room-copy-invitation-button"
-        :label="$t('rooms.invitation.copy')"
+        :label="$t('rooms.invitation.copy_message')"
+        class="w-full"
         icon="fa-solid fa-copy"
         autofocus
-        @click="copyInvitationText"
+        @click="copyInvitationMessage"
       />
     </div>
   </Popover>
@@ -88,7 +110,7 @@ const props = defineProps({
   },
 });
 
-function copyInvitationText() {
+function copyInvitationMessage() {
   let message =
     t("rooms.invitation.room", {
       roomname: props.room.name,
@@ -101,7 +123,17 @@ function copyInvitationText() {
       "\n" + t("rooms.invitation.code") + ": " + formattedAccessCode.value;
   }
   navigator.clipboard.writeText(message);
-  toast.success(t("rooms.invitation.copied"));
+  toast.success(t("rooms.invitation.copied_message"));
+}
+
+function copyUrl() {
+  navigator.clipboard.writeText(roomUrl.value);
+  toast.success(t("rooms.invitation.copied_url"));
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(formattedAccessCode.value);
+  toast.success(t("rooms.invitation.copied_code"));
 }
 
 const roomUrl = computed(() => {

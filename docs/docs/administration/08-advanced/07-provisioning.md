@@ -173,7 +173,7 @@ All fields are required and do not have default values.
 | Field                           | Type      | Description                                 |
 | ------------------------------- | --------- | ------------------------------------------- |
 | `limit`                         | `integer` | Room limit                                  |
-| `token_expiration`              | `integer` | Expiration time for personalized room links |
+| `personalized_link_expiration`  | `integer` | Expiration time for personalized room links |
 | `auto_delete_inactive_period`   | `integer` | Period until inactive rooms are deleted     |
 | `auto_delete_never_used_period` | `integer` | Period until never used rooms are deleted   |
 | `auto_delete_deadline_period`   | `integer` | Deadline for deletion                       |

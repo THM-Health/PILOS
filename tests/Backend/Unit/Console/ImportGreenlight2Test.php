@@ -8,12 +8,12 @@ use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
-use Artisan;
-use DB;
-use Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Mockery;
 use Tests\Backend\TestCase;
 use Tests\Backend\Unit\Console\helper\GreenlightRoom;
@@ -160,14 +160,14 @@ class ImportGreenlight2Test extends TestCase
         $existingLdapUser->save();
 
         // create shibboleth user that exists before import
-        $existingLdapUser = new User;
-        $existingLdapUser->authenticator = 'shibboleth';
-        $existingLdapUser->external_id = 'djohn';
-        $existingLdapUser->firstname = 'John';
-        $existingLdapUser->lastname = 'Doe';
-        $existingLdapUser->email = 'john.doe@domain.tld';
-        $existingLdapUser->password = $password;
-        $existingLdapUser->save();
+        $existingShibbolethUser = new User;
+        $existingShibbolethUser->authenticator = 'shibboleth';
+        $existingShibbolethUser->external_id = 'djohn';
+        $existingShibbolethUser->firstname = 'John';
+        $existingShibbolethUser->lastname = 'Doe';
+        $existingShibbolethUser->email = 'john.doe@domain.tld';
+        $existingShibbolethUser->password = $password;
+        $existingShibbolethUser->save();
 
         // create room that exists before import
         $existingRoom = new Room;
@@ -217,7 +217,7 @@ class ImportGreenlight2Test extends TestCase
         // run artisan command and text questions and outputs
         $this->artisan('import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678')
             ->expectsQuestion('Please select the authenticator for the social provider: shibboleth', 'shibboleth')
-            ->expectsQuestion('Please select the authenticator for the social provider: google', 'shibboleth')
+            ->expectsQuestion('Please select the authenticator for the social provider: google', 'oidc')
             ->expectsQuestion('What room type should the rooms be assigned to?', $roomType->id)
             ->expectsQuestion('Prefix for room names', $prefix)
             ->expectsQuestion('Please select the default role for new imported non-ldap users', $role->id)
@@ -240,7 +240,8 @@ class ImportGreenlight2Test extends TestCase
         $this->assertCount(9, Room::all());
         $this->assertCount(2, User::where('authenticator', 'local')->get());
         $this->assertCount(2, User::where('authenticator', 'ldap')->get());
-        $this->assertCount(2, User::where('authenticator', 'shibboleth')->get());
+        $this->assertCount(1, User::where('authenticator', 'shibboleth')->get());
+        $this->assertCount(1, User::where('authenticator', 'oidc')->get());
 
         // check if all rooms are created
         $this->assertEqualsCanonicalizing(
@@ -287,13 +288,13 @@ class ImportGreenlight2Test extends TestCase
         $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'ldap')->where('external_id', 'djohn')->first(), Room::find('abc-def-xyz-345')->owner);
         $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->where('external_id', 'doejohn')->first(), Room::find('abc-def-xyz-456')->owner);
         $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'shibboleth')->where('external_id', 'djohn')->first(), Room::find('abc-def-xyz-567')->owner);
-        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'shibboleth')->where('external_id', '4696234782348234734')->first(), Room::find('abc-def-xyz-678')->owner);
+        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'oidc')->where('external_id', '4696234782348234734')->first(), Room::find('abc-def-xyz-678')->owner);
 
         // Testing users
         $this->assertNotNull(User::where([['authenticator', 'ldap'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first());
         $this->assertNotNull(User::where([['authenticator', 'ldap'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', 'doejohn']])->first());
         $this->assertNotNull(User::where([['authenticator', 'shibboleth'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first());
-        $this->assertNotNull(User::where([['authenticator', 'shibboleth'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', '4696234782348234734']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'oidc'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', '4696234782348234734']])->first());
         $this->assertNotNull(User::where([['authenticator', 'local'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', null], ['password', $password]])->first());
         $this->assertNotNull(User::where([['authenticator', 'local'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', null], ['password', $password]])->first());
 
@@ -304,7 +305,7 @@ class ImportGreenlight2Test extends TestCase
         $this->assertCount(0, User::where([['authenticator', 'ldap'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', 'doejohn']])->first()->roles);
         $this->assertCount(0, User::where([['authenticator', 'ldap'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first()->roles);
         $this->assertCount(0, User::where([['authenticator', 'shibboleth'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first()->roles);
-        $this->assertCount(0, User::where([['authenticator', 'shibboleth'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', '4696234782348234734']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'oidc'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', '4696234782348234734']])->first()->roles);
         $this->assertCount(0, User::where([['authenticator', 'local'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', null], ['password', $password]])->first()->roles);
 
         // Testing room memberships (should be moderator, as that is the greenlight equivalent)

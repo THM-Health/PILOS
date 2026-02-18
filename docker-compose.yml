@@ -45,10 +45,10 @@ services:
     image: "mariadb:11"
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: "${DB_DATABASE}"
-      MYSQL_USER: "${DB_USERNAME}"
-      MYSQL_PASSWORD: "${DB_PASSWORD}"
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_DATABASE: "${DB_DATABASE}"
+      MARIADB_USER: "${DB_USERNAME}"
+      MARIADB_PASSWORD: "${DB_PASSWORD}"
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "true"
     volumes:
       - "./db:/var/lib/mysql"
     healthcheck:
@@ -57,7 +57,7 @@ services:
       retries: 12
       timeout: 5s
   redis:
-    image: redis:7.2-alpine3.18
+    image: redis:8-alpine
     restart: unless-stopped
     volumes:
       - ./redis/data:/data

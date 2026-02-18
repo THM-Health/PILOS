@@ -16,6 +16,7 @@ use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
 use App\Settings\UserSettings;
 use Illuminate\Database\RecordsNotFoundException;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -259,7 +260,7 @@ class UserProvisioner extends AbstractProvisioner
             $user->firstname = $properties->firstname;
             $user->lastname = $properties->lastname;
             $user->email = $properties->email;
-            $user->password = \Hash::make($properties->password);
+            $user->password = Hash::make($properties->password);
             $user->authenticator = $properties->authenticator;
             $user->locale = $properties->locale;
             $user->timezone = $properties->timezone;
@@ -286,7 +287,7 @@ class SettingsProvisioner
         ];
         $this->expectedProperties = [
             'general' => 'array:name,pagination_page_size,default_timezone,help_url,legal_notice_url,privacy_policy_url,toast_lifetime,no_welcome_page',
-            'room' => 'array:limit,token_expiration,auto_delete_inactive_period,auto_delete_never_used_period,auto_delete_deadline_period,file_terms_of_use',
+            'room' => 'array:limit,personalized_link_expiration,auto_delete_inactive_period,auto_delete_never_used_period,auto_delete_deadline_period,file_terms_of_use',
             'user' => 'array:password_change_allowed',
             'recording' => 'array:server_usage_enabled,server_usage_retention_period,meeting_usage_enabled,meeting_usage_retention_period,attendance_retention_period,recording_retention_period',
         ];

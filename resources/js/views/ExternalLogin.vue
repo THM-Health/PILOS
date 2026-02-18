@@ -11,15 +11,29 @@
               v-if="props.error === 'missing_attributes'"
               severity="error"
               :closable="false"
-              >{{ $t("auth.error.missing_attributes") }}</Message
+              >{{ $t("auth.error.missing_attributes") }}
+              {{ $t("auth.error.try_again") }}</Message
             >
             <Message
               v-if="props.error === 'shibboleth_session_duplicate_exception'"
               severity="error"
               :closable="false"
-              >{{
-                $t("auth.error.shibboleth_session_duplicate_exception")
-              }}</Message
+              >{{ $t("auth.error.shibboleth_session_duplicate_exception") }}
+              {{ $t("auth.error.try_again") }}</Message
+            >
+            <Message
+              v-if="props.error === 'openid_connect_network_exception'"
+              severity="error"
+              :closable="false"
+              >{{ $t("auth.error.openid_connect_network_exception") }}
+              {{ $t("auth.error.try_again") }}</Message
+            >
+            <Message
+              v-if="props.error === 'openid_connect_exception'"
+              severity="error"
+              :closable="false"
+              >{{ $t("auth.error.openid_connect_exception") }}
+              {{ $t("auth.error.try_again") }}</Message
             >
           </template>
           <template #footer>

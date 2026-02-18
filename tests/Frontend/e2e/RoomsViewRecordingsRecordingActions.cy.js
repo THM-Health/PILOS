@@ -30,7 +30,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
       "viewRecordingRequest",
@@ -72,7 +72,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 
@@ -115,10 +115,20 @@ describe("Rooms view recordings recording actions", function () {
     cy.wait("@roomRequest");
     cy.get("#access-code").type("123456789");
 
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 0,
+        },
+      },
+    }).as("roomAuthRequest");
+
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -126,6 +136,7 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
@@ -136,11 +147,11 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
+      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2*",
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -157,15 +168,18 @@ describe("Rooms view recordings recording actions", function () {
       .click();
 
     cy.wait("@viewRecordingRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+      // Check that room auth token is set
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "0",
+      });
     });
 
     cy.get("@recordingView")
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 
@@ -202,10 +216,20 @@ describe("Rooms view recordings recording actions", function () {
     cy.wait("@roomRequest");
     cy.get("#access-code").type("123456789");
 
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 0,
+        },
+      },
+    }).as("roomAuthRequest");
+
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -213,17 +237,18 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    // Check with invalid_code error
+    // Check with invalid_auth_token error
     cy.intercept(
       "GET",
-      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2*",
       {
         statusCode: 401,
         body: {
-          message: "invalid_code",
+          message: "invalid_auth_token",
         },
       },
     ).as("viewRecordingRequest");
@@ -232,7 +257,7 @@ describe("Rooms view recordings recording actions", function () {
       room.data.owner = { id: 2, name: "Max Doe" };
       room.data.authenticated = false;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -250,13 +275,17 @@ describe("Rooms view recordings recording actions", function () {
       .click();
 
     cy.wait("@viewRecordingRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+      // Check that room auth token is set
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "0",
+      });
     });
 
     // Check that access code header is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.headers["access-code"]).to.be.undefined;
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -267,7 +296,7 @@ describe("Rooms view recordings recording actions", function () {
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -275,13 +304,14 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
     // Check require_code error
     cy.intercept(
       "GET",
-      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2*",
       {
         statusCode: 403,
         body: {
@@ -294,7 +324,7 @@ describe("Rooms view recordings recording actions", function () {
       room.data.owner = { id: 2, name: "Max Doe" };
       room.data.authenticated = false;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -312,13 +342,17 @@ describe("Rooms view recordings recording actions", function () {
       .click();
 
     cy.wait("@viewRecordingRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+      // Check that room auth token is set
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "0",
+      });
     });
 
     // Check that access code header is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.headers["access-code"]).to.be.undefined;
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -327,17 +361,27 @@ describe("Rooms view recordings recording actions", function () {
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
   });
 
-  it("view recording with token", function () {
+  it("view recording with personalized link", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
 
     cy.fixture("roomRecordings.json").then((roomRecordings) => {
       roomRecordings.data = roomRecordings.data.slice(0, 1);
@@ -351,11 +395,12 @@ describe("Rooms view recordings recording actions", function () {
       }).as("roomRecordingsRequest");
     });
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR#tab=recordings",
     );
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
@@ -366,11 +411,11 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3",
+      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3*",
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -387,32 +432,43 @@ describe("Rooms view recordings recording actions", function () {
       .click();
 
     cy.wait("@viewRecordingRequest").then((interception) => {
-      // Check that header for token is set
-      expect(interception.request.headers.token).to.eq(
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
+      // Check that room auth token is set
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "1",
+      });
     });
 
     cy.get("@recordingView")
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
   });
 
-  it("view recording with token errors", function () {
+  it("view recording with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
 
     cy.fixture("roomRecordings.json").then((roomRecordings) => {
       roomRecordings.data = roomRecordings.data.slice(0, 1);
@@ -426,22 +482,30 @@ describe("Rooms view recordings recording actions", function () {
       }).as("roomRecordingsRequest");
     });
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR#tab=recordings",
     );
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    // Check with invalid_code error
+    // Check with invalid_auth_token error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 401,
+      body: {
+        message: "invalid_personalized_link",
+      },
+    }).as("roomAuthRequest");
+
     cy.intercept(
       "GET",
-      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3*",
       {
         statusCode: 401,
         body: {
-          message: "invalid_token",
+          message: "invalid_auth_token",
         },
       },
     ).as("viewRecordingRequest");
@@ -458,11 +522,60 @@ describe("Rooms view recordings recording actions", function () {
       .click();
 
     cy.wait("@viewRecordingRequest");
+    cy.wait("@roomAuthRequest");
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
 
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    // Check with guests only error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.intercept(
+      "GET",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3*",
+      {
+        statusCode: 420,
+        body: {
+          message: "guests_only",
+        },
+      },
+    ).as("viewRecordingRequest");
+
+    cy.reload();
+
+    cy.wait("@roomAuthRequest");
+    cy.wait("@roomRequest");
+    cy.wait("@roomRecordingsRequest");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-view-button"]')
+      .click();
+
+    cy.get('[data-test="room-recordings-view-dialog"]')
+      .should("be.visible")
+      .find('[data-test="presentation-button"]')
+      .click();
+
+    cy.wait("@viewRecordingRequest");
+
+    // Check that the error message is shown
+    cy.checkToastMessage("app.flash.guests_only");
+
+    // Check that redirected to home page
+    cy.url()
+      .should("not.include", "/rooms/abc-def-123")
+      .and("not.include", "/rooms");
   });
 
   it("view recording with errors", function () {
@@ -481,7 +594,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 200,
         body: {
-          url: `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+          url: `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         },
       },
     ).as("viewRecordingRequest");
@@ -503,7 +616,7 @@ describe("Rooms view recordings recording actions", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/recording?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/recording?foo=a&bar=b`,
         "_blank",
       );
 

@@ -9,10 +9,8 @@ use App\Http\Requests\JoinMeeting;
 use App\Http\Requests\StartMeeting;
 use App\Models\Meeting;
 use App\Models\MeetingAttendee;
-use App\Models\Room;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
-use Auth;
 use BigBlueButton\Enum\Feature;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
@@ -20,9 +18,12 @@ use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
-use Log;
 use ReflectionProperty;
 
 class MeetingService
@@ -106,7 +107,14 @@ class MeetingService
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
-            $meetingParams->addPresentation((new RoomFileService($file))->url(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
+            // Create file download url
+            $fileUrl = URL::signedRoute('rooms.files.download.bbb', [
+                'roomFile' => $file->id,
+                'filename' => $file->filename,
+            ]);
+
+            // Add download url to meeting params
+            $meetingParams->addPresentation($fileUrl, null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
         if (empty($meetingParams->getPresentations()) && app(BigBlueButtonSettings::class)->default_presentation) {
@@ -536,7 +544,7 @@ class MeetingService
                         array_push($newAndExistingAttendees, $meetingAttendee->id);
                     } else {
                         // user was not found in database
-                        \Illuminate\Support\Facades\Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
+                        Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
                     }
 
                     break;
@@ -625,12 +633,11 @@ class MeetingService
      */
     public function getJoinUrl(JoinMeeting|StartMeeting $request): string
     {
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $token = $roomAuthService->getRoomToken($this->meeting->room);
+        $personalizedLink = Context::getHidden("room.{$this->meeting->room->id}.personalized_link");
 
         if (Auth::guest()) {
-            if ($token) {
-                $name = $token->fullname;
+            if ($personalizedLink) {
+                $name = $personalizedLink->fullname;
             } else {
                 $name = $request->name;
             }
@@ -639,7 +646,7 @@ class MeetingService
         }
 
         $userId = Auth::guest() ? 's'.session()->getId() : 'u'.Auth::user()->id;
-        $roomUserRole = $this->meeting->room->getRole(Auth::user(), $token);
+        $roomUserRole = $this->meeting->room->getRole(Auth::user(), $personalizedLink);
 
         $bbbRole = match ($roomUserRole) {
             RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER, RoomUserRole::OWNER => Role::MODERATOR,

@@ -8,9 +8,9 @@ use App\Models\Room;
 use App\Models\Server;
 use App\Models\User;
 use Carbon\Carbon;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
 

@@ -107,6 +107,7 @@
           </router-link>
           <a
             v-else
+            v-tooltip.bottom="item.tooltip"
             :href="item.url"
             :target="item.target"
             v-bind="props.action"
@@ -278,8 +279,9 @@ const userMenuItems = computed(() => {
 
   if (settingsStore.getSetting("general.help_url")) {
     items.push({
-      icon: "fa-solid fa-circle-question text-xl",
+      icon: "fa-solid fa-circle-question text-2xl",
       label: t("app.help"),
+      tooltip: t("app.help"),
       target: "_blank",
       dataTest: "navbar-help",
       url: settingsStore.getSetting("general.help_url"),
@@ -298,8 +300,9 @@ const userMenuItems = computed(() => {
   // Only show the locale menu if more than one locale is enabled
   if (locales.value.length > 1) {
     const localeItem = {
-      icon: "fa-solid fa-language text-xl",
+      icon: "fa-solid fa-language text-2xl",
       label: t("app.change_locale"),
+      tooltip: t("app.change_locale"),
       dataTest: "navbar-locale",
       items: [],
     };
@@ -366,7 +369,8 @@ async function logout() {
     return;
   }
 
-  await router.push({ name: "logout" });
+  const message = response.data.message || null;
+  await router.push({ name: "logout", query: { message } });
 
   loadingStore.setLoadingFinished();
 }

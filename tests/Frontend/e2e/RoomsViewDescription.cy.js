@@ -547,7 +547,7 @@ describe("Rooms view description", function () {
 
   it("open external link", function () {
     cy.fixture("room.json").then((room) => {
-      room.data.description = `<a href="${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b">Test Link</a>`;
+      room.data.description = `<a href="${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b">Test Link</a>`;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -573,7 +573,7 @@ describe("Rooms view description", function () {
       .should("include.text", "rooms.description.external_link_warning.title")
       .should(
         "include.text",
-        `rooms.description.external_link_warning.description_{"link":"${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b"}`,
+        `rooms.description.external_link_warning.description_{"link":"${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b"}`,
       )
       .within(() => {
         // Cancel opening link
@@ -602,7 +602,7 @@ describe("Rooms view description", function () {
       .should("include.text", "rooms.description.external_link_warning.title")
       .should(
         "include.text",
-        `rooms.description.external_link_warning.description_{"link":"${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b"}`,
+        `rooms.description.external_link_warning.description_{"link":"${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b"}`,
       )
       .within(() => {
         cy.get('[data-test="confirm-dialog-accept-button"]')
@@ -614,7 +614,7 @@ describe("Rooms view description", function () {
       .should("be.calledOnce")
       .and(
         "be.calledWith",
-        `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
+        `${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b`,
         "_blank",
       );
   });
@@ -624,7 +624,7 @@ describe("Rooms view description", function () {
       room.data.description =
         "" +
         '<script>alert("XSS Code")</script>' +
-        `<a href="${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b">Test Link</a>` +
+        `<a href="${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b">Test Link</a>` +
         '<p style="text-align: center; color: rgb(255, 0, 0); background-color: rgb(0, 255, 0);" >Content with valid style</p>' +
         '<p style="text-align: justify; color: rgba(255, 0, 0, 0); background-color: rgba(0, 255, 0, 0);">Content with invalid style values</p>' +
         '<p style="text-align: center; color: rgb(0, 0, 255); background-color: rgb(255, 255, 0); position: absolute" >Content with invalid style attributes</p>' +
@@ -686,7 +686,7 @@ describe("Rooms view description", function () {
           .should(
             "have.attr",
             "href",
-            `${Cypress.env("redirectBaseUrl")}/?foo=a&bar=b`,
+            `${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b`,
           );
       });
   });

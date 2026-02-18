@@ -18,7 +18,7 @@ return new class extends Migration
         });
 
         Room::whereRaw('LENGTH(access_code) < 6')
-            ->update(['access_code' => \DB::raw("LPAD(access_code, 6, '0')")]);
+            ->update(['access_code' => DB::raw("LPAD(access_code, 6, '0')")]);
     }
 
     /**

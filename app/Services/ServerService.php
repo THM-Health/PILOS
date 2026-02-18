@@ -12,7 +12,7 @@ use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Support\Collection;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ServerService
 {
@@ -30,7 +30,7 @@ class ServerService
     public function __construct(Server $server)
     {
         $this->server = $server;
-        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient);
+        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient, config('bigbluebutton.server_hashing_algorithm'));
         $this->loadCalculationPlugin = app(ServerLoadCalculationPluginContract::class);
     }
 

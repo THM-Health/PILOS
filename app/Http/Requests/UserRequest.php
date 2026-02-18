@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Role;
 use App\Rules\Antivirus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
@@ -16,7 +17,7 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        $prohibitedRoles = \Auth::user()->superuser ? [] : Role::where(['superuser' => true])->pluck('id')->toArray();
+        $prohibitedRoles = Auth::user()->superuser ? [] : Role::where(['superuser' => true])->pluck('id')->toArray();
 
         $rules = [
             'user_locale' => ['sometimes', 'required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],

@@ -2,8 +2,8 @@
 
 namespace Tests\Backend\Utils;
 
-use Http;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Fake BigBlueButton server responses

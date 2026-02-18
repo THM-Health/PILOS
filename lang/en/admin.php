@@ -384,8 +384,8 @@ return [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
         ],
-        'room_token_expiration' => [
-            'description' => 'Time period since last usage, after which personalized room links gets automatically removed.',
+        'room_personalized_link_expiration' => [
+            'description' => 'Time period since last usage, after which personalized room links get automatically removed.',
             'title' => 'Expiration time for personalized room links',
         ],
         'six_month' => '6 Months (180 Days)',
@@ -401,6 +401,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Custom color',
+            'custom_css' => 'Custom CSS style file',
             'primary_color' => 'Primary color',
             'rounded' => 'Rounded corners',
             'title' => 'Theme',
@@ -441,8 +442,9 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Local',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Authentication Type',
+            'title' => 'Login method',
         ],
         'base_data' => 'Base data',
         'bbb' => 'BigBlueButton',

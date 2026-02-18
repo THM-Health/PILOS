@@ -9,12 +9,12 @@ use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
 use App\Settings\GeneralSettings;
-use Config;
-use DB;
-use Hash;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Str;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\progress;
@@ -53,7 +53,7 @@ class ImportGreenlight2Command extends Command
         $rooms = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
-        $availableAuthenticators = ['shibboleth'];
+        $availableAuthenticators = ['shibboleth', 'oidc'];
         $socialProviders = DB::connection('greenlight')->table('users')->select('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->distinct()->get();
         $providerAuthenticatorMap = [];
 

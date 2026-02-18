@@ -50,6 +50,7 @@ class UpdateSettings extends FormRequest
             'theme_favicon_dark_file' => ['bail', 'required_without:theme_favicon_dark', 'mimes:ico', 'max:500', new Antivirus], // 500 KB, larger files are bad for loading times
             'theme_primary_color' => ['required', 'string', 'hex_color'],
             'theme_rounded' => ['required', 'boolean'],
+            'theme_custom_css' => ['bail', 'nullable', 'file', 'max:500', 'extensions:css', new Antivirus],
 
             'banner_enabled' => ['required', 'boolean'],
             'banner_title' => ['nullable', 'string', 'max:255'],
@@ -63,7 +64,7 @@ class UpdateSettings extends FormRequest
             'banner_background' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'hex_color'],
 
             'room_limit' => ['required', 'numeric', 'min:-1', 'max:100'],
-            'room_token_expiration' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
+            'room_personalized_link_expiration' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_deadline_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)->only([TimePeriod::ONE_WEEK, TimePeriod::TWO_WEEKS, TimePeriod::ONE_MONTH])],

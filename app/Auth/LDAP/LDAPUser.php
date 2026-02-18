@@ -3,7 +3,7 @@
 namespace App\Auth\LDAP;
 
 use App\Auth\ExternalUser;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class LDAPUser extends ExternalUser
 {
