@@ -6,6 +6,7 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Observers\RoomObserver;
+use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;

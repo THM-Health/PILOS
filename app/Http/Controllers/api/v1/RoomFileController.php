@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateRoomSystemDefaultPresentation;
 use App\Http\Resources\PrivateRoomFile;
 use App\Models\Room;
 use App\Models\RoomFile;
+use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
