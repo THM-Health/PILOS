@@ -6,7 +6,12 @@ describe("General", function () {
   it("all locales get rendered", function () {
     cy.loginAs("john");
 
-    cy.visit("/rooms");
+    cy.visit("/rooms", {
+      onBeforeLoad() {
+        // ToDo remove this part after fixing dark mode issue and testing across different browsers / operating systems
+        Cypress.expose("darkMode", true);
+      },
+    });
 
     // Open menu to check if the correct locales are shown
     cy.get('[data-test="navbar-locale"]').click();
