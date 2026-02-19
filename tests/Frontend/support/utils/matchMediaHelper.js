@@ -1,16 +1,16 @@
-export function patchMatchMedia(win, config = {}) {
+export function patchMatchMedia(win) {
   const originalMatchMedia = win.matchMedia.bind(win);
 
   win.matchMedia = (query) => {
     const mql = originalMatchMedia(query);
 
-    // Override the matches property for dark mode queries based on the provided config
-    if (
-      query === "(prefers-color-scheme: dark)" &&
-      config.darkMode !== undefined
-    ) {
+    // Get the dark mode setting from Cypress exposed variables
+    const darkMode = Cypress.expose("darkMode");
+
+    // Override the matches property for dark mode queries based on the provided darkMode value
+    if (query === "(prefers-color-scheme: dark)" && darkMode !== undefined) {
       Object.defineProperty(mql, "matches", {
-        value: config.darkMode,
+        value: darkMode,
       });
     }
 

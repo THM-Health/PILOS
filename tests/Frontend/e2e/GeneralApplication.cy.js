@@ -1,5 +1,4 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-import { patchMatchMedia } from "../support/utils/matchMediaHelper.js";
 
 describe("General", function () {
   beforeEach(function () {
@@ -241,12 +240,15 @@ describe("General", function () {
   });
 
   it("toggle dark mode", function () {
-    cy.visit("/", {
-      onBeforeLoad(win) {
-        patchMatchMedia(win, {
-          darkMode: false,
-        });
-      },
+    cy.visit("/");
+
+    // ToDo remove this part after fixing dark mode issue and testing across different browsers / operating systems
+    cy.window().then((win) => {
+      const reducedMotion = win.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      expect(reducedMotion).to.eq(true);
     });
 
     // Check if light mode is enabled by default
@@ -272,5 +274,46 @@ describe("General", function () {
     cy.get('[data-test="navbar-dark-mode"]')
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
+  });
+
+  it("toggle light mode", function () {
+    cy.visit("/", {
+      onBeforeLoad() {
+        Cypress.expose("darkMode", true);
+      },
+    });
+
+    // ToDo remove this part after fixing dark mode issue and testing across different browsers / operating systems
+    cy.window().then((win) => {
+      const reducedMotion = win.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      expect(reducedMotion).to.eq(true);
+    });
+
+    // Check if dark mode is enabled by default
+    cy.get("html").should("have.class", "dark");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
+
+    // Toggle light mode
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    // Check if light mode is enabled
+    cy.get("html").should("not.have.class", "dark");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
+
+    // Toggle dark mode
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    // Check if dark mode is enabled
+    cy.get("html").should("have.class", "dark");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
   });
 });
