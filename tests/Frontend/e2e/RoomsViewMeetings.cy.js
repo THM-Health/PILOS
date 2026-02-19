@@ -1522,12 +1522,13 @@ describe("Rooms view meetings", function () {
       },
     }).as("joinRequest");
 
-    cy.visit("/rooms/abc-def-123");
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad() {
+        Cypress.expose("darkMode", true);
+      },
+    });
 
     cy.wait("@roomRequest");
-
-    // Toggle dark mode
-    cy.get('[data-test="navbar-dark-mode"]').click();
 
     cy.get('[data-test="room-join-button"]').click();
     cy.wait("@preJoinRequest");
@@ -3034,9 +3035,11 @@ describe("Rooms view meetings", function () {
       },
     }).as("preStartRequest");
 
-    cy.visit("/rooms/abc-def-123");
-
-    cy.get('[data-test="navbar-dark-mode"]').click();
+    cy.visit("/rooms/abc-def-123", {
+      onBeforeLoad() {
+        Cypress.expose("darkMode", true);
+      },
+    });
 
     cy.get('[data-test="room-start-button"]').click();
 
