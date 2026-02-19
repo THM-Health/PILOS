@@ -266,10 +266,10 @@ describe("General", function () {
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
 
-    // Toggle dark mode again
+    // Toggle light mode
     cy.get('[data-test="navbar-dark-mode"]').click();
 
-    // Check if light mode is enabled again
+    // Check if light mode is enabled
     cy.get("html").should("not.have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
       .find("svg")
