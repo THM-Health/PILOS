@@ -15,6 +15,15 @@
 
 // Import commands.js using ES2015 syntax:
 import "./commands.js";
+import { patchMatchMedia } from "../../Utils/cypress/matchMediaHelper.js";
+
+Cypress.on("window:before:load", (win) => {
+  // Set default value for dark mode to false, can be overridden in tests using Cypress.expose("darkMode", true/false)
+  Cypress.expose("darkMode", false);
+
+  // Patch the matchMedia function to allow simulating dark mode in tests
+  patchMatchMedia(win);
+});
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
