@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Rate limiting to prevent Room-ID enumeration attacks ([#2518])
+
 ### Changed
 
 - Internal improvements to room authentication flow ([#1409], [#2726])
@@ -663,6 +667,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2496]: https://github.com/THM-Health/PILOS/issues/2496
 [#2497]: https://github.com/THM-Health/PILOS/pull/2497
 [#2517]: https://github.com/THM-Health/PILOS/pull/2517
+[#2518]: https://github.com/THM-Health/PILOS/pull/2518
 [#2519]: https://github.com/THM-Health/PILOS/pull/2519
 [#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
