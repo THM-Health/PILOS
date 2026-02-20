@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - File downloads blocked in some browsers due to restrictions on opening new windows without user interaction ([#1409], [#2726])
 - Room start failed with a 404 error when an uploaded file was missing from storage ([#2726])
 - Low color contrast in room utilization statistic chart ([#2854], [#2855])
+- Missing localized aria-labels for some UI components ([#2856], [#2857])
 
 ## [v4.12.0] - 2026-02-09
 
@@ -699,6 +700,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2809]: https://github.com/THM-Health/PILOS/pull/2809
 [#2854]: https://github.com/THM-Health/PILOS/issues/2854
 [#2855]: https://github.com/THM-Health/PILOS/pull/2855
+[#2856]: https://github.com/THM-Health/PILOS/issues/2856
+[#2857]: https://github.com/THM-Health/PILOS/pull/2857
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.12.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
