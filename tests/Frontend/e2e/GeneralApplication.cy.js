@@ -231,7 +231,10 @@ describe("General", function () {
       .eq(1)
       .should("be.visible")
       .within(() => {
-        cy.get('[data-test="navbar-locale-de-xx"]').click();
+        cy.get('[data-test="navbar-locale-de-xx"]')
+          .should("exist")
+          .should("have.text", "Deutsch")
+          .click();
       });
 
     cy.wait("@localeChange");
