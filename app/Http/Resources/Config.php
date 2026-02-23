@@ -8,6 +8,7 @@ use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class Config extends JsonResource
@@ -18,10 +19,11 @@ class Config extends JsonResource
     }
 
     /**
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         $generalSettings = app(GeneralSettings::class);
         $bannerSettings = app(BannerSettings::class);

@@ -2,16 +2,19 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Recording;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Recording */
 class RecordingResource extends JsonResource
 {
     /**
-     * @param  Request  $request
-     * @return array
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,

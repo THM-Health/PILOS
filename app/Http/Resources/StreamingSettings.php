@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\RoomType;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class StreamingSettings extends JsonResource
@@ -13,10 +14,11 @@ class StreamingSettings extends JsonResource
     }
 
     /**
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         $settings = app(\App\Settings\StreamingSettings::class);
 

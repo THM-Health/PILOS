@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\RoomAuthToken;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin RoomAuthToken */
 class RoomAuthTokenResource extends JsonResource
 {
     /**

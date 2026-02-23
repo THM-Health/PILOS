@@ -4,11 +4,13 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\User as UserResource;
 use App\Models\RoomPersonalizedLink;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Gate;
 
+/** @mixin \App\Models\Room */
 class Room extends JsonResource
 {
     // Is user authenticated (has valid access code, member or owner)
@@ -70,10 +72,9 @@ class Room extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         $latestMeeting = $this->resource->latestMeeting;
         // Set the room relation for the latest meeting, to prevent lookup in the  LastMeeting resource

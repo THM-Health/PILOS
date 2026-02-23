@@ -2,17 +2,19 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Session;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\Session */
+/** @mixin Session */
 class SessionResource extends JsonResource
 {
     /**
-     * @param  Request  $request
-     * @return array
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return [
             'last_activity' => $this->last_activity,

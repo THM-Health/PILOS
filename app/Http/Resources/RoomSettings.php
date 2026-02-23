@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin \App\Models\Room */
 class RoomSettings extends JsonResource
 {
     public function getRoomSettings()
@@ -20,10 +22,9 @@ class RoomSettings extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return [
             'name' => $this->name,
@@ -31,7 +32,7 @@ class RoomSettings extends JsonResource
             'welcome' => $this->expert_mode ? $this->welcome : '',
             'short_description' => $this->short_description,
             'access_code' => $this->access_code,
-            'room_type' => (new RoomType($this->roomType))->withDefaultRoomSettings()->withFeatures(),
+            'room_type' => new RoomType($this->roomType)->withDefaultRoomSettings()->withFeatures(),
             $this->merge($this->getRoomSettings()),
         ];
     }

@@ -8,12 +8,11 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class RoleCollection extends ResourceCollection
 {
     /**
-     * Transform the resource collection into an array.
+     * Transform the resource into an array.
      *
-     * @param  Request  $request
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return $this->collection->map(function (Role $role) {
             return [

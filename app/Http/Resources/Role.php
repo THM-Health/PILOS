@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin \App\Models\Role */
 class Role extends JsonResource
 {
     /**
@@ -26,10 +28,9 @@ class Role extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
@@ -42,7 +43,7 @@ class Role extends JsonResource
             'model_name' => $this->model_name,
             'room_limit' => $this->room_limit,
             'automatic' => $this->whenPivotLoaded('role_user', function () {
-                return $this->pivot->automatic;
+                return $this->resource->pivot->automatic;
             }),
         ];
     }
