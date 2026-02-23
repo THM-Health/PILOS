@@ -387,11 +387,11 @@ class Room extends Model
      * with the passed room type.
      *
      * @param  $owner  User
-     * @param  $roomType  RoomType
+     * @param  RoomType|null  $roomType  RoomType
      */
     public static function roomTypePermitted(User $owner, ?RoomType $roomType): bool
     {
-        if (empty($owner) || empty($roomType)) {
+        if (empty($roomType)) {
             return false;
         }
 

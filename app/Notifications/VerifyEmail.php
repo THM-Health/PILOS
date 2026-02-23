@@ -49,7 +49,7 @@ class VerifyEmail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable): MailMessage
     {
-        $this->expireDateTime = $this->token->getVerifyEmail()->created_at
+        $expireDateTime = $this->token->getVerifyEmail()->created_at
             ->addMinutes(config('auth.email_change.expire'))
             ->timezone($this->timezone)
             ->isoFormat('LLLL');
@@ -58,7 +58,7 @@ class VerifyEmail extends Notification implements ShouldQueue
             ->subject(__('mail.verify_email.subject'))
             ->line(__('mail.verify_email.description'))
             ->action(__('mail.verify_email.action'), $this->getActionUrl())
-            ->line(__('mail.verify_email.expire', ['expireDateTime' => $this->expireDateTime]))
+            ->line(__('mail.verify_email.expire', ['expireDateTime' => $expireDateTime]))
             ->markdown('vendor.notifications.email', ['name' => $this->token->getVerifyEmail()->user->fullname]);
     }
 }
