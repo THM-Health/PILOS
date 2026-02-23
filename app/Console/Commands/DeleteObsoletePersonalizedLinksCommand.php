@@ -27,10 +27,8 @@ class DeleteObsoletePersonalizedLinksCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $expireDuration = app(RoomSettings::class)->personalized_link_expiration;
 
@@ -51,6 +49,6 @@ class DeleteObsoletePersonalizedLinksCommand extends Command
             RoomPersonalizedLink::destroy($expiredLinks);
         }
 
-        return 0;
+        return static::SUCCESS;
     }
 }

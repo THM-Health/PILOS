@@ -27,15 +27,15 @@ class PollServerCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): int
     {
         $servers = Server::all();
         Log::info('Building history for servers');
         foreach ($servers as $server) {
             PollServerJob::dispatch($server);
         }
+
+        return static::SUCCESS;
     }
 }

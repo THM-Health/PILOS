@@ -31,11 +31,11 @@ class CheckDatabaseConnectionCommand extends Command
             DB::connection()->getPDO();
             $this->info('Successfully connected to the database.');
 
-            return 0;
+            return static::SUCCESS;
         } catch (Exception $e) {
             $this->error('Connecting to the database failed.');
 
-            return 1;
+            return static::FAILURE;
         }
     }
 }

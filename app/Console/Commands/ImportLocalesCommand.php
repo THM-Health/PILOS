@@ -27,7 +27,7 @@ class ImportLocalesCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(): int
     {
         $disk = Storage::build([
             'driver' => 'local',
@@ -46,7 +46,7 @@ class ImportLocalesCommand extends Command
             $this->error('Failed to fetch languages list');
             $this->error('Error code: '.$apiResponse['code'].', message: '.$apiResponse['message']);
 
-            return;
+            return static::FAILURE;
         }
 
         foreach ($response->json('result.languages') as $lang) {
@@ -66,7 +66,7 @@ class ImportLocalesCommand extends Command
                 $this->error('Failed to fetch translation for '.$lang['code']);
                 $this->error('Error code: '.$apiResponse['code'].', message: '.$apiResponse['message']);
 
-                return;
+                return static::FAILURE;
             }
 
             $url = $response->json('result.url');
@@ -81,7 +81,7 @@ class ImportLocalesCommand extends Command
                     $this->error('Failed to download translation for '.$lang['code']);
                     $this->error('Error code: '.$response['response']['code'].', message: '.$response['response']['message']);
 
-                    return;
+                    return static::FAILURE;
                 }
             }
 
@@ -111,6 +111,8 @@ class ImportLocalesCommand extends Command
 
         $this->info('Apply coding standards');
         Process::run('composer run fix-cs '.config('app.default_locale_dir'));
+
+        return static::SUCCESS;
     }
 
     /**

@@ -25,7 +25,7 @@ class ExportLocalesCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(LocaleService $localeService): void
+    public function handle(LocaleService $localeService): int
     {
         $disk = Storage::build([
             'driver' => 'local',
@@ -41,5 +41,7 @@ class ExportLocalesCommand extends Command
 
             $disk->put($locale.'.json', $localeJson);
         }
+
+        return static::SUCCESS;
     }
 }

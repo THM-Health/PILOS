@@ -15,7 +15,10 @@ class ImportRecordingsCommand extends Command
 
     protected $description = 'Detect and import new recordings from the recordings spool directory.';
 
-    public function handle()
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
     {
         $hook_script_path = Config::get('recording.import_before_hook');
         if ($hook_script_path) {
@@ -24,7 +27,7 @@ class ImportRecordingsCommand extends Command
             if ($result->failed()) {
                 $this->error(trim($result->errorOutput()));
 
-                return 1;
+                return static::FAILURE;
             }
         }
 
@@ -36,5 +39,7 @@ class ImportRecordingsCommand extends Command
 
             ProcessRecording::dispatch($file);
         }
+
+        return static::SUCCESS;
     }
 }

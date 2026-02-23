@@ -24,21 +24,24 @@ class UpgradeDatabaseCommand extends Command
 
     protected $description = 'Upgrade PILOS database from v2/v3 to v4.';
 
-    public function handle()
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
     {
         // Check for clear database by checking migration tables doesn't exist or no migration run yet
         if (! Schema::hasTable('migrations') || DB::table('migrations')->count() == 0) {
             $this->error('Database is missing');
             $this->info('Please run: php artisan migrate');
 
-            return;
+            return static::FAILURE;
         }
 
         // Check v4 database exists by checking migration that doesn't exist in v2/v3
         if (DB::table('migrations')->where(['migration' => '2023_04_14_103858_create_big_blue_button_settings'])->exists()) {
             $this->info('Database is already upgraded');
 
-            return;
+            return static::SUCCESS;
         }
 
         // Run migration of old db to have db to latest v2/v3 version before upgrade
@@ -233,5 +236,7 @@ class UpgradeDatabaseCommand extends Command
         Artisan::call('db:seed --force');
 
         $this->alert('Upgrade to v4 completed.');
+
+        return static::SUCCESS;
     }
 }

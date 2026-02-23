@@ -34,7 +34,7 @@ class ProvisionCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $data = json_decode(file_get_contents($this->argument('path')));
 
@@ -98,11 +98,13 @@ class ProvisionCommand extends Command
             $this->provision->settings->set($data->settings);
 
             DB::commit();
+
+            return static::SUCCESS;
         } catch (Exception $err) {
             error("Provisioning failed, aborting transaction: {$err->getMessage()}");
             DB::rollBack();
 
-            return 1;
+            return static::FAILURE;
         }
     }
 }

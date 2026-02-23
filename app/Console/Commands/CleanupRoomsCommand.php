@@ -16,7 +16,10 @@ class CleanupRoomsCommand extends Command
 
     protected $description = 'Send delete warning email to owners of unused rooms and delete rooms after a grace period';
 
-    public function handle()
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
     {
         $inactivePeriod = app(RoomSettings::class)->auto_delete_inactive_period;
         $neverUsedPeriod = app(RoomSettings::class)->auto_delete_never_used_period;
@@ -67,5 +70,7 @@ class CleanupRoomsCommand extends Command
         foreach ($deleteRooms as $deleteRoom) {
             $deleteRoom->delete();
         }
+
+        return static::SUCCESS;
     }
 }

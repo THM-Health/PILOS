@@ -30,10 +30,8 @@ class DeleteUnverifiedNewUsersCommand extends Command
 
     /**
      * Deletes all new users with expired password resets.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $broker = Password::broker('new_users');
         $unverified_users = User::join('password_resets', 'password_resets.email', '=', 'users.email')
@@ -49,6 +47,6 @@ class DeleteUnverifiedNewUsersCommand extends Command
 
         Log::info('Deleting '.count($unverified_users).' unverified new users');
 
-        return 0;
+        return static::SUCCESS;
     }
 }

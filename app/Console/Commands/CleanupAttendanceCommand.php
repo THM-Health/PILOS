@@ -26,10 +26,8 @@ class CleanupAttendanceCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): int
     {
         $retentionPeriod = app(RecordingSettings::class)->attendance_retention_period;
 
@@ -39,5 +37,7 @@ class CleanupAttendanceCommand extends Command
             Log::info('Removing attendance data older than '.$day);
             MeetingAttendee::where('join', '<', $day)->delete();
         }
+
+        return static::SUCCESS;
     }
 }

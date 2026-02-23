@@ -26,10 +26,8 @@ class CleanupRecordingsCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $retentionPeriod = app(RecordingSettings::class)->recording_retention_period;
 
@@ -41,5 +39,7 @@ class CleanupRecordingsCommand extends Command
                 $recording->delete();
             });
         }
+
+        return static::SUCCESS;
     }
 }

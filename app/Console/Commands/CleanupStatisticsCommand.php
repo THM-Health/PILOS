@@ -27,12 +27,9 @@ class CleanupStatisticsCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-
         // Remove all server statistics data older than the retention period
         $serverRetentionPeriod = app(RecordingSettings::class)->server_usage_retention_period;
         if ($serverRetentionPeriod != TimePeriod::UNLIMITED) {
@@ -48,5 +45,7 @@ class CleanupStatisticsCommand extends Command
             Log::info('Removing meeting statistics data older than '.$meetingDay);
             MeetingStat::where('created_at', '<', $meetingDay)->delete();
         }
+
+        return static::SUCCESS;
     }
 }

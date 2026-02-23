@@ -11,9 +11,14 @@ class ClearMetricsCommand extends Command
 
     protected $description = 'Clear metric data';
 
-    public function handle(CollectorRegistry $registry): void
+    /**
+     * Execute the console command.
+     */
+    public function handle(CollectorRegistry $registry): int
     {
         $registry->wipeStorage();
         $this->info('Metrics cleared successfully.');
+
+        return static::SUCCESS;
     }
 }

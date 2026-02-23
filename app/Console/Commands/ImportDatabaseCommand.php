@@ -22,7 +22,10 @@ class ImportDatabaseCommand extends Command
         $this->error = $error;
     }
 
-    public function handle()
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
     {
         // Get path of sql file
         $file = realpath($this->argument('file'));
@@ -30,7 +33,7 @@ class ImportDatabaseCommand extends Command
         if (! $file) {
             $this->error('File not found');
 
-            return 1;
+            return static::FAILURE;
         }
 
         $this->line('Importing database, this may take a while');
@@ -53,7 +56,7 @@ class ImportDatabaseCommand extends Command
             default:
                 $this->error('Database driver not supported');
 
-                return 1;
+                return static::FAILURE;
         }
 
         $this->bar = $this->output->createProgressBar(100);
@@ -80,12 +83,12 @@ class ImportDatabaseCommand extends Command
             // Show success message
             $this->error('Import failed');
 
-            return 1;
+            return static::FAILURE;
         } else {
             // Show success message
             $this->info('Import complete');
 
-            return 0;
+            return static::SUCCESS;
         }
     }
 }

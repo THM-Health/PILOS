@@ -32,7 +32,10 @@ class ImportGreenlight2Command extends Command
 
     protected $description = 'Connect to greenlight PostgreSQL database to import users, rooms and shared room accesses';
 
-    public function handle()
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
     {
         Config::set('database.connections.greenlight', [
             'driver' => 'pgsql',
@@ -102,9 +105,14 @@ class ImportGreenlight2Command extends Command
                 DB::rollBack();
                 $this->warn('Import canceled; nothing was imported');
             }
+
+            return static::SUCCESS;
+
         } catch (\Exception $e) {
             DB::rollBack();
             $this->error('Import failed: '.$e->getMessage());
+
+            return static::FAILURE;
         }
     }
 

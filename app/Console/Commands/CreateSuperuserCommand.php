@@ -46,16 +46,14 @@ class CreateSuperuserCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         // Check if local login is enabled
         if (! config('auth.local.enabled')) {
             $this->error('Local login is not enabled. Please enable it in the .env with the option LOCAL_AUTH_ENABLED and then retry!');
 
-            return 1;
+            return static::FAILURE;
         }
 
         $superuserRole = Role::where(['superuser' => true])->first();
@@ -63,7 +61,7 @@ class CreateSuperuserCommand extends Command
         if ($superuserRole === null) {
             $this->error('The superuser role does not exist. Please seed the database and then retry!');
 
-            return 1;
+            return static::FAILURE;
         }
 
         $this->info('Creating an new superuser, please notify your inputs.');
@@ -89,6 +87,6 @@ class CreateSuperuserCommand extends Command
 
         $this->info('New superuser created successfully.');
 
-        return 0;
+        return static::SUCCESS;
     }
 }

@@ -25,7 +25,7 @@ class UploadLocalesCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(LocaleService $localeService): void
+    public function handle(LocaleService $localeService): int
     {
         $overwrite = $this->option('overwrite');
         if ($overwrite) {
@@ -63,10 +63,12 @@ class UploadLocalesCommand extends Command
                 } else {
                     $this->error('Error uploading locale '.$metadata['name'].' ('.$locale.')');
                     $this->error('Error code: '.$apiResponse['code'].', message: '.$apiResponse['message']);
+
+                    return static::FAILURE;
                 }
             }
 
-            return;
+            return static::SUCCESS;
         }
 
         $this->info('Sync terms and default locale');
@@ -93,7 +95,10 @@ class UploadLocalesCommand extends Command
         } else {
             $this->error('Error uploading');
             $this->error('Error code: '.$apiResponse['code'].', message: '.$apiResponse['message']);
+
+            return static::FAILURE;
         }
 
+        return static::SUCCESS;
     }
 }
