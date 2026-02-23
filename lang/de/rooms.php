@@ -141,6 +141,7 @@ return [
     'first_and_lastname' => 'Vor- und Nachname',
     'flash' => [
         'access_code_invalid' => 'Der Zugangscode ist ungültig.',
+        'auth_token_invalid' => 'Das Authentifizierungstoken ist ungültig.',
         'file_forbidden' => 'Der Zugriff auf die Datei wurde verweigert.',
         'file_gone' => 'Die Datei wurde in der Zwischenzeit gelöscht.',
         'no_new_room' => 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
