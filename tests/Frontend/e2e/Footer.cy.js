@@ -7,7 +7,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = `${Cypress.expose("redirectBaseUrl")}/legal`;
       config.data.general.privacy_policy_url = `${Cypress.expose("redirectBaseUrl")}/privacy`;
-      config.data.general.accessibility_url = `${Cypress.expose("redirectBaseUrl")}/accessibility`;
+      config.data.general.accessibility_statement_url = `${Cypress.expose("redirectBaseUrl")}/accessibility`;
       config.data.general.version = "1.0.0";
       config.data.general.whitelabel = false;
 
@@ -63,7 +63,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = `${Cypress.expose("redirectBaseUrl")}/legal`;
       config.data.general.privacy_policy_url = "";
-      config.data.general.accessibility_url = "";
+      config.data.general.accessibility_statement_url = "";
       config.data.general.version = null;
       config.data.general.whitelabel = true;
 
@@ -100,7 +100,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = "";
       config.data.general.privacy_policy_url = `${Cypress.expose("redirectBaseUrl")}/privacy`;
-      config.data.general.accessibility_url = "";
+      config.data.general.accessibility_statement_url = "";
       config.data.general.version = null;
       config.data.general.whitelabel = true;
 
@@ -136,7 +136,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = "";
       config.data.general.privacy_policy_url = "";
-      config.data.general.accessibility_url = "";
+      config.data.general.accessibility_statement_url = "";
       config.data.general.version = null;
       config.data.general.whitelabel = false;
 
@@ -168,7 +168,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = "";
       config.data.general.privacy_policy_url = "";
-      config.data.general.accessibility_url = "";
+      config.data.general.accessibility_statement_url = "";
       config.data.general.version = "1.0.0";
       config.data.general.whitelabel = true;
 
@@ -199,7 +199,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = `${Cypress.expose("redirectBaseUrl")}/legal`;
       config.data.general.privacy_policy_url = `${Cypress.expose("redirectBaseUrl")}/privacy`;
-      config.data.general.accessibility_url = `${Cypress.expose("redirectBaseUrl")}/accessibility`;
+      config.data.general.accessibility_statement_url = `${Cypress.expose("redirectBaseUrl")}/accessibility`;
       config.data.general.version = "1.0.0";
       config.data.general.whitelabel = true;
 
@@ -251,7 +251,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = `${Cypress.expose("redirectBaseUrl")}/legal`;
       config.data.general.privacy_policy_url = `${Cypress.expose("redirectBaseUrl")}/privacy`;
-      config.data.general.accessibility_url = `${Cypress.expose("redirectBaseUrl")}/accessibility`;
+      config.data.general.accessibility_statement_url = `${Cypress.expose("redirectBaseUrl")}/accessibility`;
       config.data.general.version = "";
       config.data.general.whitelabel = true;
 
@@ -301,7 +301,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = "";
       config.data.general.privacy_policy_url = "";
-      config.data.general.accessibility_url = "";
+      config.data.general.accessibility_statement_url = "";
       config.data.general.version = "";
       config.data.general.whitelabel = true;
 
@@ -318,7 +318,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = `${Cypress.expose("redirectBaseUrl")}/legal`;
       config.data.general.privacy_policy_url = "";
-      config.data.general.accessibility_url = "";
+      config.data.general.accessibility_statement_url = "";
       config.data.general.version = "1.2.0";
       config.data.general.whitelabel = true;
 
@@ -357,7 +357,7 @@ describe("Footer", function () {
     cy.fixture("config.json").then((config) => {
       config.data.general.legal_notice_url = "";
       config.data.general.privacy_policy_url = `${Cypress.expose("redirectBaseUrl")}/privacy`;
-      config.data.general.accessibility_url = "";
+      config.data.general.accessibility_statement_url = "";
       config.data.general.version = "2.1.0";
       config.data.general.whitelabel = true;
 
@@ -411,7 +411,7 @@ describe("Footer", function () {
 
   it("open accessibility link", function () {
     cy.fixture("config.json").then((config) => {
-      config.data.general.accessibility_url = `${Cypress.expose("redirectBaseUrl")}/accessibility?foo=a&bar=b`;
+      config.data.general.accessibility_statement_url = `${Cypress.expose("redirectBaseUrl")}/accessibility?foo=a&bar=b`;
 
       cy.intercept("GET", "/api/v1/config", config).as("configRequest");
     });

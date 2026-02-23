@@ -316,7 +316,7 @@ return [
             'description' => 'If not set, no help button will be displayed.',
             'title' => 'URL to the help page',
         ],
-        'accessibility_url' => [
+        'accessibility_statement_url' => [
             'description' => 'If not set, no accessibility statement link will be displayed in the footer.',
             'title' => 'URL to the accessibility statement',
         ],

@@ -57,8 +57,8 @@ describe("Admin settings with edit permission", function () {
 
     cy.get('[data-test="accessibility-url-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.accessibility_url.title")
-      .and("include.text", "admin.settings.accessibility_url.description")
+      .and("include.text", "admin.settings.accessibility_statement_url.title")
+      .and("include.text", "admin.settings.accessibility_statement_url.description")
       .within(() => {
         cy.get("#accessibility-url")
           .should("have.value", "")
