@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\RecordingAccess;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Recording extends Model
@@ -31,37 +33,31 @@ class Recording extends Model
         'access' => RecordingAccess::class,
     ];
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->description.' ['.$this->start->format('Y-m-d H:i').' - '.$this->end->format('Y-m-d H:i').'] ('.$this->id.')';
     }
 
     /**
      * Room the recording belongs to
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function room()
+    public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
 
     /**
      * Meeting the recording belongs to (if available)
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function meeting()
+    public function meeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class);
     }
 
     /**
      * Formats of the recording (screenshare, notes, etc.)
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function formats()
+    public function formats(): HasMany
     {
         return $this->hasMany(RecordingFormat::class);
     }
@@ -69,11 +65,9 @@ class Recording extends Model
     /**
      * Delete recording from database and storage
      *
-     * @return bool|null
-     *
      * @throws \Exception
      */
-    public function delete()
+    public function delete(): ?bool
     {
         $response = parent::delete();
         // if delete successfully

@@ -11,6 +11,9 @@ use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Validation\Rule;
@@ -24,7 +27,7 @@ class Room extends Model
 
     protected $keyType = 'string';
 
-    protected function casts()
+    protected function casts(): array
     {
         $casts = [
             'expert_mode' => 'boolean',
@@ -46,7 +49,7 @@ class Room extends Model
      * expert: defines if the setting is an expert setting or not (must be set)
      * only: limits the possible values for the validation to specific values of an enum (can be set when the type is an enum)
      */
-    public const ROOM_SETTINGS_DEFINITION = [
+    public const array ROOM_SETTINGS_DEFINITION = [
         'mute_on_start' => [
             'cast' => 'boolean',
             'expert' => true,
@@ -127,7 +130,7 @@ class Room extends Model
      *
      * @throws \Exception
      */
-    public static function getRoomSettingValidationRule($settingName)
+    public static function getRoomSettingValidationRule($settingName): array
     {
         $rules = ['required'];
 
@@ -162,25 +165,21 @@ class Room extends Model
 
     /**
      * Recordings
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function recordings()
+    public function recordings(): HasMany
     {
         return $this->hasMany(Recording::class);
     }
 
     /**
      * Room owner
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function owner()
+    public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->name.' ('.$this->id.')';
     }
@@ -188,7 +187,7 @@ class Room extends Model
     /**
      * Correct the default file settings after every file setting change
      */
-    public function updateDefaultFile()
+    public function updateDefaultFile(): void
     {
         // Check if a file is currently default
         $currentDefault = $this->files()->firstWhere('default', true);
@@ -211,60 +210,48 @@ class Room extends Model
 
     /**
      * Room type
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function roomType()
+    public function roomType(): BelongsTo
     {
         return $this->belongsTo(RoomType::class);
     }
 
     /**
      * Members of the room
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function members()
+    public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->using(RoomUser::class)->withPivot('role');
     }
 
     /**
      * Meetings
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function meetings()
+    public function meetings(): HasMany
     {
         return $this->hasMany(Meeting::class);
     }
 
     /**
      * Last meeting of the room
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function latestMeeting()
+    public function latestMeeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class, 'meeting_id');
     }
 
     /**
      * Files
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(RoomFile::class);
     }
 
     /**
      * Personalized links.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function personalizedLinks()
+    public function personalizedLinks(): HasMany
     {
         return $this->hasMany(RoomPersonalizedLink::class);
     }
@@ -331,7 +318,7 @@ class Room extends Model
     /**
      * Generate message for moderators inside the meeting
      */
-    public function getModeratorOnlyMessage()
+    public function getModeratorOnlyMessage(): string
     {
         $appName = app(GeneralSettings::class)->name;
 

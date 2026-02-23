@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Ramsey\Uuid\Uuid;
 
 class Meeting extends Model
@@ -50,45 +52,37 @@ class Meeting extends Model
 
     /**
      * Server the meeting is/should be running on
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function server()
+    public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     /**
      * Room this meeting belongs to
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function room()
+    public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
 
     /**
      * Statistical data of this meeting
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function stats()
+    public function stats(): HasMany
     {
         return $this->hasMany(MeetingStat::class);
     }
 
     /**
      * Attendees of this meeting
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function attendees()
+    public function attendees(): HasMany
     {
         return $this->hasMany(MeetingAttendee::class);
     }
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->id;
     }

@@ -22,20 +22,16 @@ class Permission extends Model
 
     /**
      * Roles to which the permission is assigned.
-     *
-     * @return BelongsToMany
      */
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)->using(PermissionRole::class);
     }
 
     /**
      * Permissions that are included in this permission
-     *
-     * @return BelongsToMany
      */
-    public function includedPermissions()
+    public function includedPermissions(): BelongsToMany
     {
         return $this->belongsToMany(self::class, 'included_permissions', 'permission_id', 'included_permission_id')->using(IncludedPermissionPermission::class);
     }
@@ -46,7 +42,7 @@ class Permission extends Model
      * @param  string  $permissionName  Name of the permission
      * @param  string[]  $includedPermissionNames  Names of the permissions that should be included
      */
-    public static function setIncludedPermissions($permissionName, $includedPermissionNames)
+    public static function setIncludedPermissions($permissionName, $includedPermissionNames): void
     {
         $permission = self::where('name', $permissionName)->firstOrFail();
         $includedPermissions = [];

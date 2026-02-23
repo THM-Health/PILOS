@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MeetingAttendee extends Model
 {
@@ -22,20 +23,16 @@ class MeetingAttendee extends Model
 
     /**
      * Meeting
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function meeting()
+    public function meeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class);
     }
 
     /**
      * Authenticated user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

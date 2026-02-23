@@ -29,20 +29,16 @@ class Role extends Model
 
     /**
      * Users that have the role.
-     *
-     * @return BelongsToMany
      */
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withPivot('automatic')->using(RoleUser::class);
     }
 
     /**
      * Permissions that are given to this role.
-     *
-     * @return BelongsToMany
      */
-    public function permissions()
+    public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class)->using(PermissionRole::class);
     }
@@ -85,10 +81,8 @@ class Role extends Model
 
     /**
      * Types of rooms that can be used by the user of this role.
-     *
-     * @return BelongsToMany
      */
-    public function roomTypes()
+    public function roomTypes(): BelongsToMany
     {
         return $this->belongsToMany(RoomType::class);
     }
@@ -98,14 +92,13 @@ class Role extends Model
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $name  Name to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    public function scopeWithName(Builder $query, string $name): Builder
     {
         return $query->whereLike('name', '%'.$name.'%');
     }
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->name.' ('.$this->id.')';
     }

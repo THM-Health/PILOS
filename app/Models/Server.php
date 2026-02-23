@@ -33,10 +33,8 @@ class Server extends Model
 
     /**
      * Meetings that (have) run on this server
-     *
-     * @return HasMany
      */
-    public function meetings()
+    public function meetings(): HasMany
     {
         return $this->hasMany(Meeting::class);
     }
@@ -51,10 +49,8 @@ class Server extends Model
 
     /**
      * Statistical data of this server
-     *
-     * @return HasMany
      */
-    public function stats()
+    public function stats(): HasMany
     {
         return $this->hasMany(ServerStat::class);
     }
@@ -66,12 +62,12 @@ class Server extends Model
      * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    public function scopeWithName(Builder $query, $name): Builder
     {
         return $query->whereLike('name', '%'.$name.'%');
     }
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->name.' ('.$this->id.')';
     }

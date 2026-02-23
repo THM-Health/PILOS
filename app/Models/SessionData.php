@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SessionData extends Model
 {
@@ -13,7 +14,7 @@ class SessionData extends Model
 
     protected $fillable = ['key', 'value', 'session_id'];
 
-    public function session()
+    public function session(): BelongsTo
     {
         return $this->belongsTo(Session::class);
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Date;
 use SimpleXMLElement;
 
@@ -25,7 +26,7 @@ class RecordingFormat extends Model
      * @param  SimpleXMLElement  $xml  The metadata xml of the recording format.
      * @return RecordingFormat|null The created recording format or null if the recording format could not be associated with a room.
      */
-    public static function createFromRecordingXML(SimpleXMLElement $xml)
+    public static function createFromRecordingXML(SimpleXMLElement $xml): ?RecordingFormat
     {
         // Get the ID of the recording from the XML
         $recordingId = (string) $xml->id;
@@ -90,10 +91,8 @@ class RecordingFormat extends Model
 
     /**
      * Recording the recording format belongs to
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function recording()
+    public function recording(): BelongsTo
     {
         return $this->belongsTo(Recording::class);
     }

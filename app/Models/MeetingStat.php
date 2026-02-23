@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MeetingStat extends Model
 {
@@ -22,10 +23,8 @@ class MeetingStat extends Model
 
     /**
      * Meeting the statistical data belongs to
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function meeting()
+    public function meeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class);
     }

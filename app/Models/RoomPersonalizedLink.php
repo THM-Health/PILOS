@@ -23,30 +23,24 @@ class RoomPersonalizedLink extends Model
 
     /**
      * Room the link belongs to
-     *
-     * @return BelongsTo
      */
-    public function room()
+    public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
 
     /**
      * Full name of the links owner.
-     *
-     * @return string
      */
-    public function getFullnameAttribute()
+    public function getFullnameAttribute(): string
     {
         return $this->firstname.' '.$this->lastname;
     }
 
     /**
      * Expire datetime of the link
-     *
-     * @return null
      */
-    public function getExpiresAttribute()
+    public function getExpiresAttribute(): ?\Illuminate\Support\Carbon
     {
         $linkExpiration = app(RoomSettings::class)->personalized_link_expiration;
 

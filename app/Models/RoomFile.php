@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
 class RoomFile extends Model
@@ -18,15 +19,13 @@ class RoomFile extends Model
 
     /**
      * Room file belongs to
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function room()
+    public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->filename.' ('.$this->id.')';
     }
@@ -34,11 +33,9 @@ class RoomFile extends Model
     /**
      * Delete file from database and storage
      *
-     * @return bool|null
-     *
      * @throws \Exception
      */
-    public function delete()
+    public function delete(): ?bool
     {
         $response = parent::delete();
         // if delete successfully

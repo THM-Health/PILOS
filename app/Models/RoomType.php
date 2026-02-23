@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RoomType extends Model
@@ -34,27 +36,25 @@ class RoomType extends Model
 
     protected $fillable = ['name', 'color', 'restrict'];
 
-    public function rooms()
+    public function rooms(): HasMany
     {
         return $this->hasMany(Room::class);
     }
 
     /**
      * Roles which can create and have rooms with this type.
-     *
-     * @return BelongsToMany
      */
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
     }
 
-    public function serverPool()
+    public function serverPool(): BelongsTo
     {
         return $this->belongsTo(ServerPool::class);
     }
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->name.' ('.$this->id.')';
     }

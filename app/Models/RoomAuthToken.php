@@ -6,6 +6,7 @@ use App\Enums\RoomAuthTokenType;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RoomAuthToken extends Model
 {
@@ -25,17 +26,17 @@ class RoomAuthToken extends Model
         'session_id',
     ];
 
-    public function room()
+    public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
 
-    public function personalizedLink()
+    public function personalizedLink(): BelongsTo
     {
         return $this->belongsTo(RoomPersonalizedLink::class, 'room_personalized_link_id');
     }
 
-    public function session()
+    public function session(): BelongsTo
     {
         return $this->belongsTo(Session::class);
     }

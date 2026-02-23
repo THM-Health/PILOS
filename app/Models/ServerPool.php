@@ -28,10 +28,8 @@ class ServerPool extends Model
 
     /**
      * RoomTypes that are using this server pool
-     *
-     * @return HasMany
      */
-    public function roomTypes()
+    public function roomTypes(): HasMany
     {
         return $this->hasMany(RoomType::class);
     }
@@ -41,14 +39,13 @@ class ServerPool extends Model
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $name  Name to search for
-     * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    public function scopeWithName(Builder $query, string $name): Builder
     {
         return $query->whereLike('name', '%'.$name.'%');
     }
 
-    public function getLogLabel()
+    public function getLogLabel(): string
     {
         return $this->name.' ('.$this->id.')';
     }
