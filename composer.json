@@ -41,6 +41,7 @@
   "require-dev": {
     "brianium/paratest": "^7.9",
     "fakerphp/faker": "^1.9.1",
+    "larastan/larastan": "^3.0",
     "laravel/boost": "^2.0",
     "laravel/pint": "^1.14",
     "m6web/redis-mock": "^5.6",
@@ -100,7 +101,8 @@
     "test": "php artisan test --parallel",
     "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
     "test-integration": "php artisan test --parallel --testsuite=Integration",
-    "fix-cs": "pint --parallel"
+    "fix-cs": "pint --parallel",
+    "phpstan": "phpstan analyse --memory-limit=2G"
   },
   "repositories": [
     {
