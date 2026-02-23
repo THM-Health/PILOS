@@ -266,14 +266,22 @@ class Room extends Model
             return $personalizedLink->room->is($this) && $personalizedLink->role == RoomUserRole::MODERATOR;
         }
 
-        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
+        if ($user == null) {
+            return false;
+        }
+
+        return $this->members->find($user)?->pivot->role == RoomUserRole::MODERATOR;
     }
 
     /** Check if user is co owner of this room
      */
     public function isCoOwner(?User $user): bool
     {
-        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
+        if ($user == null) {
+            return false;
+        }
+
+        return $this->members->find($user)?->pivot->role == RoomUserRole::CO_OWNER;
     }
 
     /**
