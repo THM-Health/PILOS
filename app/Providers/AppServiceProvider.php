@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Pulse\Users;
 use App\Services\LocaleService;
-use App\Services\RoomAuthService;
 use App\Services\StreamingServiceFactory;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pagination\Paginator;
@@ -30,10 +29,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ResolvesUsers::class, Users::class);
-
-        $this->app->singleton(RoomAuthService::class, function () {
-            return new RoomAuthService;
-        });
 
         $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
         $this->app->register(TelescopeServiceProvider::class);

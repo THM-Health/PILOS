@@ -5,14 +5,14 @@ namespace App\Auth;
 use App\Models\Role;
 use App\Models\User;
 use App\Settings\GeneralSettings;
-use Hash;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Log;
+use Illuminate\Support\Str;
 use Spatie\Image\Enums\Fit;
 use Spatie\Image\Image;
-use Str;
 
 /**
  * ExternalUser is an abstract class that represents an external user.

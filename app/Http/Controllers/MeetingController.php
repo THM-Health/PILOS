@@ -6,7 +6,8 @@ use App\Enums\CustomStatusCodes;
 use App\Exports\AttendanceExport;
 use App\Models\Meeting;
 use Illuminate\Auth\Access\AuthorizationException;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -40,6 +41,6 @@ class MeetingController extends Controller
             abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value, __('app.errors.meeting_attendance_not_ended'));
         }
 
-        return Excel::download(new AttendanceExport($meeting, \Auth::user()->timezone), __('meetings.attendance.filename').'.xlsx');
+        return Excel::download(new AttendanceExport($meeting, Auth::user()->timezone), __('meetings.attendance.filename').'.xlsx');
     }
 }

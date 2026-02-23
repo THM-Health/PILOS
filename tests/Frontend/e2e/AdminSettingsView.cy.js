@@ -543,12 +543,18 @@ describe("Admin settings with edit permission", function () {
           });
       });
 
-    cy.get('[data-test="room-token-expiration-field"]')
+    cy.get('[data-test="room-personalized-link-expiration-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.room_token_expiration.title")
-      .and("include.text", "admin.settings.room_token_expiration.description")
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.title",
+      )
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.description",
+      )
       .within(() => {
-        cy.get('[data-test="room-token-expiration-dropdown"]')
+        cy.get('[data-test="room-personalized-link-expiration-dropdown"]')
           .should("have.text", "app.unlimited")
           .within(() => {
             cy.get(".p-select-label").should(

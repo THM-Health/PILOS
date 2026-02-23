@@ -1,10 +1,10 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.tokens.add')"
+    v-tooltip="$t('rooms.personalized_links.add')"
     :disabled="disabled"
     icon="fa-solid fa-plus"
-    :aria-label="$t('rooms.tokens.add')"
+    :aria-label="$t('rooms.personalized_links.add')"
     data-test="room-personalized-links-add-button"
     @click="showModal"
   />
@@ -13,7 +13,7 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="$t('rooms.tokens.add')"
+    :header="$t('rooms.personalized_links.add')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -142,7 +142,7 @@ function showModal() {
 }
 
 /**
- * Sends a request to the server to create a new token or edit a existing.
+ * Sends a request to the server to create a new personalized link.
  */
 function save() {
   isLoadingAction.value = true;
@@ -158,7 +158,7 @@ function save() {
   };
 
   api
-    .call(`rooms/${props.roomId}/tokens/`, config)
+    .call(`rooms/${props.roomId}/personalizedLinks/`, config)
     .then(() => {
       // operation successful, close modal and reload list
       modalVisible.value = false;

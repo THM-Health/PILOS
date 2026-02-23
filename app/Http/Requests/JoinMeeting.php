@@ -3,23 +3,17 @@
 namespace App\Http\Requests;
 
 use App\Rules\ValidName;
-use App\Services\RoomAuthService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Context;
 
 class JoinMeeting extends FormRequest
 {
-    protected RoomAuthService $roomAuthService;
-
-    public function __construct(RoomAuthService $roomAuthService)
-    {
-        parent::__construct();
-        $this->roomAuthService = $roomAuthService;
-    }
-
     public function rules(): array
     {
+        $personalizedLink = Context::getHidden("room.{$this->room->id}.personalized_link");
+
         $rules = [
-            'name' => auth()->check() || $this->roomAuthService->getRoomToken($this->room) ? [] : ['required', 'min:2', 'max:50',  new ValidName],
+            'name' => auth()->check() || $personalizedLink ? [] : ['required', 'min:2', 'max:50',  new ValidName],
             'dark_mode' => ['sometimes', 'boolean'],
         ];
 

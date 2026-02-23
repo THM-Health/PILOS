@@ -6,7 +6,8 @@
       "download": true,
       "use_in_meeting": false,
       "default": false,
-      "uploaded": "2020-09-21T07:08:00.000000Z"
+      "uploaded": "2020-09-21T07:08:00.000000Z",
+      "url": "https://example.com/files/File1.pdf?signature=abc123"
     },
     {
       "id": 2,
@@ -14,7 +15,8 @@
       "download": true,
       "use_in_meeting": true,
       "default": true,
-      "uploaded": "2020-09-21T07:08:00.000000Z"
+      "uploaded": "2020-09-21T07:08:00.000000Z",
+      "url": "https://example.com/files/File2.pdf?signature=def456"
     },
     {
       "id": 3,
@@ -22,7 +24,8 @@
       "download": false,
       "use_in_meeting": false,
       "default": false,
-      "uploaded": "2020-09-21T07:09:00.000000Z"
+      "uploaded": "2020-09-21T07:09:00.000000Z",
+      "url": "https://example.com/files/File3.pdf?signature=ghi789"
     }
   ],
   "default": 2,

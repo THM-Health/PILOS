@@ -2,32 +2,39 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomErrorMessages;
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomSortingType;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\JoinMeeting;
+use App\Http\Requests\RoomAuthRequest;
 use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartMeeting;
 use App\Http\Requests\TransferOwnershipRequest;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
+use App\Http\Resources\RoomAuthTokenResource;
 use App\Http\Resources\RoomSettings;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\RoomType;
 use App\Models\User;
-use App\Services\RoomAuthService;
+use App\Prometheus\Counter;
 use App\Services\RoomService;
 use App\Settings\GeneralSettings;
-use Auth;
-use DB;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class RoomController extends Controller
 {
@@ -193,7 +200,7 @@ class RoomController extends Controller
      *
      * @return \App\Http\Resources\Room
      */
-    public function show(Room $room, RoomAuthService $roomAuthService)
+    public function show(Room $room)
     {
         return (new \App\Http\Resources\Room($room))->withDetails();
     }
@@ -421,6 +428,101 @@ class RoomController extends Controller
             Log::error('Failed to transfer ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
 
             return abort(500);
+        }
+    }
+
+    /**
+     * Authenticate a user based on a provided access code or
+     * personalized room link and return a room auth token for further requests
+     */
+    public function authenticate(Room $room, RoomAuthRequest $request)
+    {
+        // Check if user tries to authenticate even though it is not necessary
+        if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
+            return response()->noContent();
+        }
+
+        if ($request->type === RoomAuthTokenType::CODE->value) {
+            if (! $room->getRoomSetting('allow_guests') && Auth::guest()) {
+                // user is not authenticated and room is not allowed for guests
+                Counter::get('room_authentication_errors_total')->inc('guest_access');
+
+                Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
+
+                abort(403, CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value);
+            }
+
+            if ($room->access_code == null) {
+                // room has no access code set therefore authentication by access code is not required
+                return response()->noContent();
+            }
+
+            // Key used to rate limit access code attempts
+            $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
+
+            // Check if rate limit has been reached
+            if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
+                return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
+            }
+
+            $accessCode = $request->access_code;
+
+            if (is_numeric($accessCode) && $room->access_code == $accessCode) {
+                // Generate new room auth token or retrieve existing one
+                $roomAuthToken = RoomAuthToken::firstOrCreate([
+                    'room_id' => $room->id,
+                    'session_id' => session()->getId(),
+                    'type' => RoomAuthTokenType::CODE,
+                ]);
+
+                return new RoomAuthTokenResource($roomAuthToken);
+            } else {
+                // Access code is incorrect
+
+                // Metrics and logging
+                Counter::get('room_authentication_errors_total')->inc('access_code_invalid');
+                Log::notice('Room access code authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+
+                // Increment rate limit counter for failed access code attempts
+                RateLimiter::increment($rateLimitKey);
+
+                abort(401, CustomErrorMessages::ROOM_INVALID_CODE->value);
+            }
+        } elseif ($request->type === RoomAuthTokenType::PERSONALIZED_LINK->value) {
+            if (Auth::user()) {
+                // current user is authenticated
+                abort(CustomStatusCodes::GUESTS_ONLY->value, CustomErrorMessages::ROOM_GUESTS_ONLY->value);
+            }
+
+            $personalizedLink = RoomPersonalizedLink::where('token', $request->personalized_link_token)
+                ->where('room_id', $room->id)
+                ->first();
+
+            if ($personalizedLink == null) {
+                // Personal link is invalid
+
+                // Metrics and logging
+                Counter::get('room_authentication_errors_total')->inc('token');
+
+                Log::notice('Room personalized link authentication failed for room {room}', ['room' => $room->getLogLabel()]);
+                abort(401, CustomErrorMessages::ROOM_INVALID_PERSONALIZED_LINK->value);
+            }
+
+            $personalizedLink->last_usage = now();
+            $personalizedLink->save();
+
+            // Generate new room auth token
+            $roomAuthToken = RoomAuthToken::firstOrCreate([
+                'room_id' => $room->id,
+                'room_personalized_link_id' => $personalizedLink->id,
+                'session_id' => session()->getId(),
+                'type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            ]);
+
+            return new RoomAuthTokenResource($roomAuthToken);
+        } else {
+            // Unknown authentication type
+            abort(500);
         }
     }
 }

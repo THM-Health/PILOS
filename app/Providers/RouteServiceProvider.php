@@ -2,12 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Response;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -62,13 +65,28 @@ class RouteServiceProvider extends ServiceProvider
         // Rate limit for changes to the current user profile, requiring to current password of the user if the user is editing himself
         // Prevent brute force attacks on the password
         RateLimiter::for('current_password', function (Request $request) {
-            if (\Auth::user()->is(User::find($request->route('user')))) {
+            if (Auth::user()->is(User::find($request->route('user')))) {
                 // Limit to 5 attempts per minute and user+ip, not blocking the real user
                 return Limit::perMinute(5)->by($request->user()->id.'|'.$request->ip());
             }
 
             // If the user is not editing himself, no rate limit (use the default rate limit, see api rate limit)
             return Limit::none();
+        });
+
+        RateLimiter::for('room-enumeration', function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->user()?->id ?: $request->ip())
+                ->after(function (\Symfony\Component\HttpFoundation\Response $response) use ($request) {
+                    // If the response is not a 404, do not count this request
+                    if ($response->getStatusCode() !== 404) {
+                        return false;
+                    }
+
+                    // Only count the request if the route parameter 'room' was not resolved to a Room model
+                    // Prevent counting requests that are valid and return a 404 for other reasons
+                    return ! ($request->route('room') instanceof Room);
+                });
         });
     }
 }

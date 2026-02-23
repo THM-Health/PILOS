@@ -7,19 +7,20 @@ use App\Http\Requests\JoinMeeting;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomFile;
-use App\Models\RoomToken;
+use App\Models\RoomPersonalizedLink;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\MeetingService;
-use App\Services\RoomAuthService;
 use App\Services\ServerService;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Str;
+use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -336,11 +337,10 @@ class MeetingTest extends TestCase
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, true);
-        \Auth::login($user);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", true);
+        Auth::login($user);
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 
@@ -393,7 +393,7 @@ class MeetingTest extends TestCase
         $this->assertEquals('MODERATOR', $parameters['role']);
 
         // Test owner
-        \Auth::login($meeting->room->owner);
+        Auth::login($meeting->room->owner);
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
         $this->assertEquals('MODERATOR', $parameters['role']);
@@ -412,10 +412,9 @@ class MeetingTest extends TestCase
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, false);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", false);
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $request->replace([
             'name' => 'John Doe',
         ]);
@@ -438,7 +437,7 @@ class MeetingTest extends TestCase
         $this->assertEquals('VIEWER', $parameters['role']);
     }
 
-    public function test_join_parameters_guest_with_token()
+    public function test_join_parameters_guest_with_personalized_link()
     {
         $meeting = $this->meeting;
 
@@ -449,21 +448,20 @@ class MeetingTest extends TestCase
         $server = Server::factory()->create();
         $meeting->server()->associate($server);
 
-        $token = new RoomToken;
-        $token->room()->associate($meeting->room);
-        $token->firstname = 'John';
-        $token->lastname = 'Doe';
-        $token->role = RoomUserRole::USER;
-        $token->token = Str::random(10);
-        $token->save();
+        $link = new RoomPersonalizedLink;
+        $link->room()->associate($meeting->room);
+        $link->firstname = 'John';
+        $link->lastname = 'Doe';
+        $link->role = RoomUserRole::USER;
+        $link->token = Str::random(10);
+        $link->save();
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, false);
-        $roomAuthService->setRoomToken($meeting->room, $token);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", false);
+        Context::addHidden("room.{$meeting->room->id}.personalized_link", $link);
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
 
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
@@ -473,7 +471,7 @@ class MeetingTest extends TestCase
         $this->assertArrayNotHasKey('guest', $parameters);
         $this->assertEquals('VIEWER', $parameters['role']);
 
-        // Change default role of the room, moderator role should not be set as the role of the token has priority
+        // Change default role of the room, moderator role should not be set as the role of the personalized link has priority
         $room = $this->meeting->room;
         $room->expert_mode = true;
         $room->default_role = RoomUserRole::MODERATOR;
@@ -482,9 +480,9 @@ class MeetingTest extends TestCase
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
         $this->assertEquals('VIEWER', $parameters['role']);
 
-        // Change role of the token to moderator
-        $token->role = RoomUserRole::MODERATOR;
-        $token->save();
+        // Change role of the personalized link to moderator
+        $link->role = RoomUserRole::MODERATOR;
+        $link->save();
 
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
@@ -505,16 +503,15 @@ class MeetingTest extends TestCase
 
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $roomAuthService->setAuthenticated($meeting->room, false);
+        Context::addHidden("room.{$meeting->room->id}.authenticated", false);
 
-        \Auth::login($meeting->room->owner);
+        Auth::login($meeting->room->owner);
 
         // Check with valid join parameters
         $roomType = $this->meeting->room->roomType;
         $roomType->join_parameters = "enforceLayout=PRESENTATION_ONLY\nwebcamBackgroundURL=https://example.com/background.png\nexcludeFromDashboard=true\nredirect=false\nuserdata-bbb_hide_presentation_on_join=true";
         $roomType->save();
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 
@@ -534,7 +531,7 @@ class MeetingTest extends TestCase
         $roomType->join_parameters = "enforceLayout=INVALID_LAYOUT\nexcludeFromDashboard=invalid\nuserdata-bbb_hide_presentation_on_join=true";
         $roomType->save();
 
-        $request = new JoinMeeting($roomAuthService);
+        $request = new JoinMeeting;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 

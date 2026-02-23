@@ -726,39 +726,7 @@ describe("Rooms view files file actions", function () {
     );
   });
 
-  it("download file", function () {
-    cy.visit("/rooms/abc-def-123#tab=files");
-
-    cy.wait("@roomFilesRequest");
-
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
-      statusCode: 200,
-      body: {
-        url: `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-      },
-    }).as("downloadFileRequest");
-
-    // Stub window.open to check if correct url is opened
-    cy.window().then((win) => {
-      cy.stub(win, "open").as("fileDownload").returns(true);
-    });
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest");
-
-    cy.get("@fileDownload")
-      .should("be.calledOnce")
-      .and(
-        "be.calledWith",
-        `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-        "_blank",
-      );
-
-    // Reload as guest and with terms of use
+  it("download file with terms of use", function () {
     cy.fixture("config.json").then((config) => {
       config.data.room.file_terms_of_use = "Test terms of use";
 
@@ -778,9 +746,14 @@ describe("Rooms view files file actions", function () {
       }).as("roomRequest");
     });
 
-    cy.reload();
+    cy.visit("/rooms/abc-def-123#tab=files");
 
     cy.wait("@roomFilesRequest");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-view-button"]')
+      .should("not.have.attr", "href");
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -792,11 +765,6 @@ describe("Rooms view files file actions", function () {
       .should("be.visible")
       .and("have.text", "rooms.files.terms_of_use.required");
 
-    // Stub window.open to check if correct url is opened
-    cy.window().then((win) => {
-      cy.stub(win, "open").as("secondFileDownload").returns(true);
-    });
-
     cy.get('[data-test="terms-of-use-message"]').find("#terms_of_use").click();
 
     cy.get('[data-test="terms-of-use-required-info"]').should("not.exist");
@@ -804,82 +772,13 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest");
-
-    cy.get("@secondFileDownload")
-      .should("be.calledOnce")
-      .and(
-        "be.calledWith",
-        `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-        "_blank",
-      );
-
-    cy.get('[data-test="terms-of-use-required-info"]').should("not.exist");
-  });
-
-  it("download file with access code", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.interceptRoomFilesRequest();
-
-    cy.visit("/rooms/abc-def-123");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.get('[data-test="room-login-button"]').click();
-
-    cy.wait("@roomRequest");
-    cy.wait("@roomFilesRequest");
-
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
-      statusCode: 200,
-      body: {
-        url: `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-      },
-    }).as("downloadFileRequest");
-
-    // Stub window.open to check if correct url is opened
-    cy.window().then((win) => {
-      cy.stub(win, "open").as("fileDownload").returns(true);
-    });
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
-    });
-    cy.get("@fileDownload")
-      .should("be.calledOnce")
-      .and(
-        "be.calledWith",
-        `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-        "_blank",
-      );
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
   });
 
   it("download file with access code errors", function () {
@@ -901,10 +800,20 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomRequest");
     cy.get("#access-code").type("123456789");
 
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 0,
+        },
+      },
+    }).as("roomAuthRequest");
+
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -912,40 +821,32 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
-    // Check with invalid_code error
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
-      statusCode: 401,
-      body: {
-        message: "invalid_code",
-      },
-    }).as("downloadFileRequest");
-
+    // Check with invalid_auth_token error
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
       room.data.authenticated = false;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+    cy.window().then(($window) => {
+      const message = {
+        type: "invalid_auth_token",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
     });
 
-    // Check that access code header is reset
+    // Check that room auth token is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.headers["access-code"]).to.be.undefined;
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -956,7 +857,7 @@ describe("Rooms view files file actions", function () {
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -964,40 +865,32 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
     // Check require_code error
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
-      statusCode: 403,
-      body: {
-        message: "require_code",
-      },
-    }).as("downloadFileRequest");
-
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
       room.data.authenticated = false;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+    cy.window().then(($window) => {
+      const message = {
+        type: "require_code",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
     });
 
-    // Check that access code header is reset
+    // Check that room auth token is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.headers["access-code"]).to.be.undefined;
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -1006,105 +899,97 @@ describe("Rooms view files file actions", function () {
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
   });
 
-  it("download file with token", function () {
+  it("download file with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
 
-    cy.interceptRoomFilesRequest();
-
-    // Visit room with token
-    cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-    );
-
-    cy.wait("@roomRequest");
-
-    cy.wait("@roomFilesRequest");
-
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
-      statusCode: 200,
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
       body: {
-        url: `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
       },
-    }).as("downloadFileRequest");
+    }).as("roomAuthRequest");
 
-    // Stub window.open to check if correct url is opened
-    cy.window().then((win) => {
-      cy.stub(win, "open").as("fileDownload").returns(true);
-    });
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest").then((interception) => {
-      // Check that header for token is set
-      expect(interception.request.headers.token).to.eq(
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
-    });
-
-    cy.get("@fileDownload")
-      .should("be.calledOnce")
-      .and(
-        "be.calledWith",
-        `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-        "_blank",
-      );
-  });
-
-  it("download file with token errors", function () {
-    cy.intercept("GET", "api/v1/currentUser", {});
-    cy.fixture("room.json").then((room) => {
-      room.data.username = "Max Doe";
-      room.data.current_user = null;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
+    // Check with invalid_auth_token error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
       body: {
-        message: "invalid_token",
+        message: "invalid_personalized_link",
       },
-    }).as("downloadFileRequest");
+    }).as("roomAuthRequest");
 
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
+    cy.window().then(($window) => {
+      const message = {
+        type: "invalid_auth_token",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
 
-    cy.wait("@downloadFileRequest");
+    cy.wait("@roomAuthRequest");
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
 
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    // Check with guests only error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.reload();
+
+    cy.wait("@roomAuthRequest");
+    cy.wait("@roomRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check guests only error
+    cy.window().then(($window) => {
+      const message = {
+        type: "guests_only",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that the error message is shown
+    cy.checkToastMessage("app.flash.guests_only");
+
+    // Check that redirected to home page
+    cy.url()
+      .should("not.include", "/rooms/abc-def-123")
+      .and("not.include", "/rooms");
   });
 
   it("download file errors", function () {
     cy.fixture("config.json").then((config) => {
       config.data.room.file_terms_of_use = "Test terms of use";
+      config.data.general.base_url = Cypress.config("baseUrl");
 
       cy.intercept("GET", "api/v1/config", {
         statusCode: 200,
@@ -1116,45 +1001,7 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@roomFilesRequest");
 
-    // Check with browser blocking download
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
-      statusCode: 200,
-      body: {
-        url: `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-      },
-    }).as("downloadFileRequest");
-
-    // Stub window open to simulate browser blocking download
-    cy.window().then((win) => {
-      cy.stub(win, "open").as("fileDownload").returns(false);
-    });
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest");
-
-    cy.get("@fileDownload")
-      .should("be.calledOnce")
-      .and(
-        "be.calledWith",
-        `${Cypress.expose("redirectBaseUrl")}/file?foo=a&bar=b`,
-        "_blank",
-      );
-
-    // Check toast message is shown (browser is blocking download)
-    cy.checkToastMessage("app.flash.popup_blocked");
-
-    // Check with 404 error (file not found / already deleted)
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/1", {
-      statusCode: 404,
-      body: {
-        message: "No query results for model",
-      },
-    }).as("downloadFileRequest");
-
+    // Check file not found error (file not found / already deleted)
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data = roomFiles.data.slice(1, 3);
       roomFiles.meta.to = 2;
@@ -1167,96 +1014,208 @@ describe("Rooms view files file actions", function () {
       }).as("roomFilesRequest");
     });
 
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .click();
+    cy.window().then(($window) => {
+      const message = {
+        type: "file_not_found",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
 
-    cy.wait("@downloadFileRequest");
+    // Check that files are reloaded
     cy.wait("@roomFilesRequest");
 
     // Check that error message is shown and that file is not shown anymore
     cy.checkToastMessage("rooms.flash.file_gone");
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
 
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/3", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("downloadFileRequest");
-
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-view-button"]')
-      .click();
-
-    cy.wait("@downloadFileRequest");
-
-    // Check that error message gets shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
-
-    // Check 403 error
-    cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/3", {
-      statusCode: 403,
-      body: {
-        message: "This action is unauthorized.",
-      },
-    }).as("downloadFileRequest");
-
-    cy.interceptRoomFilesRequest();
+    // Check forbidden error
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      statusCode: 200,
+      fixture: "roomFilesNoDetails.json",
+    }).as("roomFilesRequest");
 
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("reloadRoomRequest");
+      const reloadRoomRequest = interceptIndefinitely(
+        "GET",
+        "api/v1/rooms/abc-def-123",
+        {
+          statusCode: 200,
+          body: room,
+        },
+        "reloadRoomRequest",
+      );
+
+      cy.window().then(($window) => {
+        const message = {
+          type: "forbidden",
+        };
+        $window.postMessage(message, Cypress.config("baseUrl"));
+      });
+
+      // Check that files are reloaded (because of error handling)
+      cy.wait("@roomFilesRequest");
+
+      // Check that error message is shown and file list is updated
+      cy.checkToastMessage("rooms.flash.file_forbidden");
+
+      cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+      // Check that rest of the page is not yet updated
+      cy.contains("auth.login").should("not.exist");
+
+      cy.fixture("roomFilesNoDetails.json").then((roomFiles) => {
+        roomFiles.data = roomFiles.data.slice(0, 1);
+        roomFiles.meta.to = 1;
+        roomFiles.meta.total = 1;
+        roomFiles.meta.total_no_filter = 1;
+
+        cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+          statusCode: 200,
+          body: roomFiles,
+        })
+          .as("roomFilesRequest")
+          .then(() => {
+            reloadRoomRequest.sendResponse();
+          });
+      });
+
+      // Check that room and files are reloaded (because of changes in the room (current_user))
+      cy.wait("@reloadRoomRequest");
+      cy.wait("@roomFilesRequest");
+
+      // Check that file list was updated again
+      cy.get('[data-test="room-file-item"]').should("have.length", 1);
+
+      // Check that action buttons are hidden and download agreement message is shown
+      cy.get('[data-test="room-files-upload-button"]').should("not.exist");
+      cy.get('[data-test="terms-of-use-message"]').should("be.visible");
+      cy.get('[data-test="room-file-item"]')
+        .eq(0)
+        .find('[data-test="room-files-view-button"]')
+        .should("not.be.disabled");
+      cy.get('[data-test="room-file-item"]')
+        .eq(0)
+        .find('[data-test="room-files-edit-button"]')
+        .should("not.exist");
+      cy.get('[data-test="room-file-item"]')
+        .eq(0)
+        .find('[data-test="room-files-delete-button"]')
+        .should("not.exist");
+
+      // Check that rest of the page is updated
+      cy.contains("auth.login").should("be.visible");
     });
 
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-view-button"]')
-      .click();
+    // Check guests not allowed error
+    cy.window().then(($window) => {
+      const message = {
+        type: "guests_not_allowed",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
 
-    cy.wait("@downloadFileRequest");
-    cy.wait("@reloadRoomRequest");
+    // Check that the error message is shown
+    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
+
+    // Check that reload button is shown
+    cy.get('[data-test="reload-room-button"]').should("be.visible");
+
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
+
+    cy.reload();
+
     cy.wait("@roomFilesRequest");
 
-    cy.checkToastMessage("rooms.flash.file_forbidden");
-    cy.contains("auth.login").should("be.visible");
+    // Check with no message
+    // Intercept room files request again to check that it is not reloaded
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      fixture: "roomFiles.json",
+    }).as("reloadRoomFilesRequest");
 
-    // Check that action buttons are hidden and download agreement message is shown
-    cy.get('[data-test="room-files-upload-button"]').should("not.exist");
-    cy.get('[data-test="terms-of-use-message"]').should("be.visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-edit-button"]')
-      .should("not.exist");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .find('[data-test="room-files-delete-button"]')
-      .should("not.exist");
+    cy.window().then(($window) => {
+      $window.postMessage(null, Cypress.config("baseUrl"));
+    });
 
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-edit-button"]')
-      .should("not.exist");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .find('[data-test="room-files-delete-button"]')
-      .should("not.exist");
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    cy.window().then(($window) => {
+      $window.postMessage(undefined, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    // Check with missing type
+    cy.window().then(($window) => {
+      const message = {};
+
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    cy.window().then(($window) => {
+      const message = {
+        type: null,
+      };
+
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    // Check that files were not reloaded
+    cy.get("@reloadRoomFilesRequest").should("be.null");
+
+    // Check with different base_url
+    cy.fixture("config.json").then((config) => {
+      config.data.room.file_terms_of_use = "Test terms of use";
+      config.data.general.base_url = "";
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.interceptRoomFilesRequest(true);
+
+    cy.reload();
+
+    cy.wait("@roomFilesRequest");
+
+    // Intercept room files request again to check that it is not reloaded
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      fixture: "roomFiles.json",
+    }).as("reloadRoomFilesRequest");
+
+    cy.window().then(($window) => {
+      const message = {
+        type: "file_not_found",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are still there and toast message is not shown
+    cy.get('[data-test="room-file-item"]').should("have.length", 3);
+
+    cy.get(".p-toast-message").should("not.exist");
+
+    // Check that files were not reloaded
+    cy.get("@reloadRoomFilesRequest").should("be.null");
   });
 });

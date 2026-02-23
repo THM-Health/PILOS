@@ -4,9 +4,9 @@ namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\User;
 use App\Services\LocaleService;
-use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;

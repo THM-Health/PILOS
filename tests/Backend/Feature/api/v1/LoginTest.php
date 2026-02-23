@@ -2,6 +2,7 @@
 
 namespace Tests\Backend\Feature\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -67,7 +68,7 @@ class LoginTest extends TestCase
             'email' => $user->email,
             'password' => $password,
         ]);
-        $response->assertStatus(420);
+        $response->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
     }
 
     /**

@@ -14,6 +14,7 @@ use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\File;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\AttendanceExcelImport;
 
@@ -625,7 +626,7 @@ class RoomStatisticTest extends TestCase
         );
 
         // Remove temp. file
-        \File::delete($file->getPathname());
+        File::delete($file->getPathname());
 
         // make meeting still running
         $meeting->end = null;

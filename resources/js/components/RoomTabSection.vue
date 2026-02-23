@@ -82,11 +82,9 @@
         <component
           :is="tab.component"
           v-if="tab.active && !tab.disabled"
+          :room-auth-token="roomAuthToken"
           :room="props.room"
-          :access-code="props.accessCode"
-          :token="props.token"
-          @invalid-code="$emit('invalidCode')"
-          @invalid-token="$emit('invalidToken')"
+          @invalid-room-auth-token="$emit('invalidRoomAuthToken')"
           @guests-not-allowed="$emit('guestsNotAllowed')"
           @settings-changed="$emit('settingsChanged')"
         />
@@ -148,24 +146,15 @@ import { useUrlSearchParams } from "@vueuse/core";
 import { useSettingsStore } from "../stores/settings.js";
 import RoomTabStreaming from "./RoomTabStreaming.vue";
 
-defineEmits([
-  "invalidCode",
-  "invalidToken",
-  "guestsNotAllowed",
-  "settingsChanged",
-]);
+defineEmits(["invalidRoomAuthToken", "guestsNotAllowed", "settingsChanged"]);
 
 const props = defineProps({
   room: {
     type: Object,
     required: true,
   },
-  accessCode: {
-    type: String,
-    default: null,
-  },
-  token: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
 });
@@ -246,7 +235,7 @@ const availableTabs = computed(() => {
     });
     tabs.push({
       key: "tokens",
-      label: t("rooms.tokens.title"),
+      label: t("rooms.personalized_links.title"),
       icon: "fa-solid fa-link",
       component: RoomTabPersonalizedLinks,
     });

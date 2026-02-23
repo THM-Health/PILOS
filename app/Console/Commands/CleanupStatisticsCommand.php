@@ -7,7 +7,7 @@ use App\Models\MeetingStat;
 use App\Models\ServerStat;
 use App\Settings\RecordingSettings;
 use Illuminate\Console\Command;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class CleanupStatisticsCommand extends Command
 {

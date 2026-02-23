@@ -215,14 +215,12 @@
                     :hide-disabled-formats="
                       !userPermissions.can('manageSettings', room)
                     "
-                    :token="props.token"
+                    :room-auth-token="props.roomAuthToken"
                     :start="item.start"
                     :end="item.end"
                     :description="item.description"
-                    :access-code="props.accessCode"
                     :disabled="isBusy"
-                    @invalid-code="$emit('invalidCode')"
-                    @invalid-token="$emit('invalidToken')"
+                    @invalid-room-auth-token="$emit('invalidRoomAuthToken')"
                     @not-found="loadData()"
                   />
 
@@ -316,23 +314,23 @@ import { useDateDiff } from "../composables/useDateDiff.js";
 import { useI18n } from "vue-i18n";
 import env from "../env.js";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
+import {
+  HTTP_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   room: {
     type: Object,
     required: true,
   },
-  accessCode: {
-    type: String,
-    default: null,
-  },
-  token: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
 });
 
-const emit = defineEmits(["invalidCode", "invalidToken"]);
+const emit = defineEmits(["invalidRoomAuthToken"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -397,10 +395,9 @@ function loadData(page = null) {
     },
   };
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+  if (props.roomAuthToken) {
+    config.params.room_auth_token = props.roomAuthToken.id;
+    config.params.room_auth_token_type = props.roomAuthToken.type;
   }
 
   api
@@ -416,28 +413,20 @@ function loadData(page = null) {
     })
     .catch((error) => {
       if (error.response) {
-        // Access code invalid
+        // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
+          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
         ) {
-          return emit("invalidCode");
-        }
-
-        // Room token is invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
-        ) {
-          return emit("invalidToken");
+          return emit("invalidRoomAuthToken");
         }
 
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
         ) {
-          return emit("invalidCode");
+          return emit("invalidRoomAuthToken");
         }
       }
       loadingError.value = true;

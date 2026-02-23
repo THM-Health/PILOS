@@ -4,17 +4,17 @@ namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\Role;
 use App\Models\User;
-use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Jose\Component\KeyManagement\JWKFactory;
 use Spatie\Image\Image;
-use Storage;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\JWTTestHelpers;
 use TiMacDonald\Log\LogEntry;
@@ -659,12 +659,12 @@ class OIDCTest extends TestCase
         $this->assertEquals('346f8f4d7df6d16aac328afb8d2714189c1c70ceaba165dfde005b56846382e9', $user->external_image_hash);
 
         // Check image is cropped
-        $cropped = Image::load(\Storage::disk('public')->path($user->image));
-        $croppedContent = \Storage::disk('public')->get($user->image);
+        $cropped = Image::load(Storage::disk('public')->path($user->image));
+        $croppedContent = Storage::disk('public')->get($user->image);
         $filePath = $user->image;
         $this->assertEquals(100, $cropped->getWidth());
         $this->assertEquals(100, $cropped->getHeight());
-        $croppedHash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $croppedHash = hash_file('sha256', Storage::disk('public')->path($user->image));
 
         // Logout
         Auth::logout();
@@ -683,20 +683,20 @@ class OIDCTest extends TestCase
         // Check external image hash and image have changed
         $this->assertEquals('7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f', $user->external_image_hash);
         // Check old image is deleted
-        $this->assertFalse(\Storage::disk('public')->exists($filePath));
+        $this->assertFalse(Storage::disk('public')->exists($filePath));
 
         // Check image is cropped
-        $cropped2 = Image::load(\Storage::disk('public')->path($user->image));
+        $cropped2 = Image::load(Storage::disk('public')->path($user->image));
         $this->assertEquals(100, $cropped2->getWidth());
         $this->assertEquals(100, $cropped2->getHeight());
-        $cropped2Hash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $cropped2Hash = hash_file('sha256', Storage::disk('public')->path($user->image));
         $this->assertNotEquals($croppedHash, $cropped2Hash);
 
         // Logout
         Auth::logout();
 
         // To tests this, we manually replace the stored image to see if it is not overwritten
-        \Storage::disk('public')->put($user->image, $croppedContent);
+        Storage::disk('public')->put($user->image, $croppedContent);
 
         // Simulate the state and nonce have been set in the session
         Session::put('openid_connect_state', $state);
@@ -711,7 +711,7 @@ class OIDCTest extends TestCase
 
         // Check external image hash and image are not updated
         $this->assertEquals('7bcca0ca9be5eee6e71cac33697835384b6b76d3cfc3298e63f42b5289e6788f', $user->external_image_hash);
-        $cropped3Hash = hash_file('sha256', \Storage::disk('public')->path($user->image));
+        $cropped3Hash = hash_file('sha256', Storage::disk('public')->path($user->image));
         $this->assertEquals($croppedHash, $cropped3Hash);
     }
 

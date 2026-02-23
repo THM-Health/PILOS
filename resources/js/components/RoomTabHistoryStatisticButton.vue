@@ -46,7 +46,7 @@
       </div>
     </template>
 
-    <InlineNote class="w-full">
+    <InlineNote class="mt-2 w-full">
       {{ $t("meetings.stats.no_breakout_support") }}
     </InlineNote>
 
@@ -230,6 +230,7 @@ const chartOptions = computed(() => {
         title: {
           display: true,
           text: t("meetings.stats.time"),
+          color: textColor.value,
           font: {
             family: chartFontFamily,
           },
@@ -268,6 +269,7 @@ const chartOptions = computed(() => {
           font: {
             family: chartFontFamily,
           },
+          color: textColor.value,
         },
         grid: {
           color: surfaceBorderColor.value,
@@ -276,6 +278,7 @@ const chartOptions = computed(() => {
           font: {
             family: chartFontFamily,
           },
+          color: textColor.value,
         },
       },
     },
@@ -285,6 +288,7 @@ const chartOptions = computed(() => {
           font: {
             family: chartFontFamily,
           },
+          color: textColor.value,
         },
       },
       tooltip: {

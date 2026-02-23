@@ -6,11 +6,11 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoomType;
 use App\Models\User;
-use Config;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
 

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Http;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\VarExporter\VarExporter;
 
 class ImportLocalesCommand extends Command

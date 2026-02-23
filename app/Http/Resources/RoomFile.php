@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\URL;
 
 class RoomFile extends JsonResource
 {
@@ -18,6 +19,7 @@ class RoomFile extends JsonResource
             'id' => $this->id,
             'filename' => $this->filename,
             'uploaded' => $this->created_at,
+            'url' => URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $this->id, 'filename' => $this->filename]),
         ];
     }
 }

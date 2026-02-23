@@ -9,7 +9,7 @@ class RoomSettings extends Settings
 {
     public int $limit;
 
-    public TimePeriod $token_expiration;
+    public TimePeriod $personalized_link_expiration;
 
     public TimePeriod $auto_delete_inactive_period;
 

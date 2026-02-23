@@ -130,7 +130,7 @@ return [
         'room_auto_delete_never_used_period' => 'Période minimum avant suppression de la salle si elle n\'a jamais été démarrée',
         'room_file_terms_of_use' => 'Conditions d\'utilisation pour le téléchargement de fichier',
         'room_limit' => 'Limites de salle',
-        'room_token_expiration' => 'Délai d\'expiration des liens de salle personnalisés',
+        'room_personalized_link_expiration' => 'Délai d\'expiration des liens de salle personnalisés',
         'room_type' => 'Type de salle',
         'search' => 'Rechercher',
         'second' => 'Secondes',

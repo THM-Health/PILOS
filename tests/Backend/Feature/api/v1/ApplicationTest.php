@@ -61,7 +61,7 @@ class ApplicationTest extends TestCase
         $this->bannerSettings->save();
 
         $this->roomSettings->limit = -1;
-        $this->roomSettings->token_expiration = TimePeriod::UNLIMITED;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::UNLIMITED;
         $this->roomSettings->save();
 
         $this->recordingSettings->meeting_usage_enabled = true;
@@ -114,7 +114,7 @@ class ApplicationTest extends TestCase
                     'room' => [
                         'file_terms_of_use' => null,
                         'limit' => -1,
-                        'token_expiration' => -1,
+                        'personalized_link_expiration' => -1,
                         'refresh_rate' => 20,
                     ],
                     'banner' => [
@@ -165,7 +165,7 @@ class ApplicationTest extends TestCase
         $this->bannerSettings->enabled = false;
         $this->bannerSettings->save();
 
-        $this->roomSettings->token_expiration = TimePeriod::THREE_MONTHS;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::THREE_MONTHS;
         $this->roomSettings->file_terms_of_use = 'Test';
         $this->roomSettings->save();
 
@@ -208,7 +208,7 @@ class ApplicationTest extends TestCase
                     'room' => [
                         'file_terms_of_use' => 'Test',
                         'limit' => -1,
-                        'token_expiration' => 90,
+                        'personalized_link_expiration' => 90,
                         'refresh_rate' => 5,
                     ],
                     'banner' => [

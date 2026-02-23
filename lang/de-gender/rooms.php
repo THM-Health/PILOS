@@ -138,7 +138,6 @@ return [
         'recording_forbidden' => 'Der Zugriff auf die Aufzeichnung wurde verweigert.',
         'recording_gone' => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden' => 'Der Raum kann von Ihnen nicht gestartet werden.',
-        'token_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
         'filter' => 'Filter',
@@ -164,7 +163,6 @@ return [
             'select_sorting' => 'Sortierung',
         ],
     ],
-    'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation' => [
         'code' => 'Zugangscode',
         'link' => 'Link',
@@ -410,25 +408,5 @@ return [
     ],
     'start' => 'Starten',
     'start_room' => 'Raum starten',
-    'tokens' => [
-        'add' => 'Personalisierten Raumlink hinzufügen',
-        'confirm_delete' => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',
-        'copy' => 'Personalisierten Raumlink in Zwischenablage kopieren',
-        'delete' => 'Personalisierten Raumlink löschen',
-        'edit' => 'Personalisierten Raumlink bearbeiten',
-        'expires' => 'Verfallsdatum',
-        'expires_at' => 'Läuft ab am :date',
-        'filter' => [
-            'all' => 'Alle',
-            'moderator_role' => 'Nur Moderatoren',
-            'participant_role' => 'Nur Teilnehmer',
-        ],
-        'last_usage' => 'Zuletzt verwendet',
-        'last_used_at' => 'Zuletzt verwendet am :date',
-        'last_used_never' => 'Noch nie verwendet',
-        'nodata' => 'Keine personalisierten Raumlinks vorhanden!',
-        'room_link_copied' => 'Der persionalisierte Raumlink für :firstname :lastname wurde in Ihre Zwischenablage kopiert.',
-        'title' => 'Personalisierte Raumlinks',
-    ],
     'try_again' => 'Erneut versuchen',
 ];

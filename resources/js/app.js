@@ -1,4 +1,4 @@
-import { createApp, h, Fragment } from "vue";
+import { createApp, h, Fragment, markRaw } from "vue";
 import { createPinia } from "pinia";
 import App from "./components/App.vue";
 import createRouter from "./router";
@@ -51,6 +51,10 @@ const setupApp = (app) => {
 
   app.provide("$router", app.config.globalProperties.$router);
   app.provide("$route", app.config.globalProperties.$route);
+
+  pinia.use(({ store }) => {
+    store.primevue = markRaw(app.config.globalProperties.$primevue);
+  });
 
   app.mount("#app");
 };

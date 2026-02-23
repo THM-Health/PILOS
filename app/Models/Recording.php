@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Enums\RecordingAccess;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 
 class Recording extends Model
 {

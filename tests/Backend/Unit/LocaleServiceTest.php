@@ -3,9 +3,9 @@
 namespace Tests\Backend\Unit;
 
 use App\Services\LocaleService;
-use Cache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Cache;
 use Mockery\MockInterface;
 use Tests\Backend\TestCase;
 
