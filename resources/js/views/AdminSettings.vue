@@ -120,14 +120,20 @@
               <label
                 for="accessibility-url"
                 class="col-span-12 md:col-span-4 md:mb-0"
-                >{{ $t("admin.settings.accessibility_statement_url.title") }}</label
+                >{{
+                  $t("admin.settings.accessibility_statement_url.title")
+                }}</label
               >
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="accessibility-url"
                   v-model="settings.general_accessibility_statement_url"
                   type="text"
-                  :invalid="formErrors.fieldInvalid('general_accessibility_statement_url')"
+                  :invalid="
+                    formErrors.fieldInvalid(
+                      'general_accessibility_statement_url',
+                    )
+                  "
                   :disabled="disabled"
                   aria-describedby="accessibility-url-help"
                 />
@@ -135,7 +141,9 @@
                   $t("admin.settings.accessibility_statement_url.description")
                 }}</small>
                 <FormError
-                  :errors="formErrors.fieldError('general_accessibility_statement_url')"
+                  :errors="
+                    formErrors.fieldError('general_accessibility_statement_url')
+                  "
                 />
               </div>
             </div>

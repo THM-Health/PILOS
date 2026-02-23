@@ -146,17 +146,17 @@ All fields are required and do not have default values.
 
 #### Subsection `general`
 
-| Field                          | Type      | Description                         |
-| ------------------------------ | --------- | ----------------------------------- |
-| `name`                         | `string`  | Name of the application             |
-| `pagination_page_size`         | `integer` | Pagination page size                |
-| `default_timezone`             | `string`  | Default timezone                    |
-| `help_url`                     | `string`  | URL to the help page                |
-| `legal_notice_url`             | `string`  | URL to the legal notice             |
-| `privacy_policy_url`           | `string`  | URL to the privacy policy           |
-| `accessibility_statement_url`  | `string`  | URL to the accessibility statement  |
-| `toast_lifetime`               | `integer` | Display duration of pop-up messages |
-| `no_welcome_page`              | `boolean` | Hide welcome page                   |
+| Field                         | Type      | Description                         |
+| ----------------------------- | --------- | ----------------------------------- |
+| `name`                        | `string`  | Name of the application             |
+| `pagination_page_size`        | `integer` | Pagination page size                |
+| `default_timezone`            | `string`  | Default timezone                    |
+| `help_url`                    | `string`  | URL to the help page                |
+| `legal_notice_url`            | `string`  | URL to the legal notice             |
+| `privacy_policy_url`          | `string`  | URL to the privacy policy           |
+| `accessibility_statement_url` | `string`  | URL to the accessibility statement  |
+| `toast_lifetime`              | `integer` | Display duration of pop-up messages |
+| `no_welcome_page`             | `boolean` | Hide welcome page                   |
 
 #### Subsection `recording`
 

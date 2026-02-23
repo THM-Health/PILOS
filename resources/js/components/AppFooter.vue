@@ -60,10 +60,14 @@
               <raw-text>|</raw-text>
             </div>
             <Button
-              v-if="settingsStore.getSetting('general.accessibility_statement_url')"
+              v-if="
+                settingsStore.getSetting('general.accessibility_statement_url')
+              "
               as="a"
               link
-              :href="settingsStore.getSetting('general.accessibility_statement_url')"
+              :href="
+                settingsStore.getSetting('general.accessibility_statement_url')
+              "
               class="p-0 text-sm"
               data-test="accessibility-button"
             >
