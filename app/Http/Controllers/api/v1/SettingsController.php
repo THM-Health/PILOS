@@ -167,6 +167,7 @@ class SettingsController extends Controller
         $generalSettings->help_url = $request->input('general_help_url');
         $generalSettings->legal_notice_url = $request->input('general_legal_notice_url');
         $generalSettings->privacy_policy_url = $request->input('general_privacy_policy_url');
+        $generalSettings->accessibility_url = $request->input('general_accessibility_url');
         $generalSettings->toast_lifetime = $request->integer('general_toast_lifetime');
         $generalSettings->no_welcome_page = $request->boolean('general_no_welcome_page');
 

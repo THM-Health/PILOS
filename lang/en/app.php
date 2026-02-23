@@ -78,6 +78,7 @@ return [
     'footer' => [
         'legal_notice' => 'Legal notice',
         'privacy_policy' => 'Privacy policy',
+        'accessibility' => 'Accessibility statement',
     ],
     'help' => 'Do you need help?',
     'home' => 'Home',

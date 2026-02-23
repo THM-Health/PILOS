@@ -81,6 +81,16 @@ describe("Admin settings with edit permission", function () {
           .type("http://www.pilos.com/privacy_policy");
       });
 
+    cy.get('[data-test="accessibility-url-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.accessibility_url.title")
+      .and("include.text", "admin.settings.accessibility_url.description")
+      .within(() => {
+        cy.get("#accessibility-url")
+          .should("have.value", "")
+          .type("http://www.pilos.com/accessibility");
+      });
+
     cy.get('[data-test="pagination-page-size-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.pagination_page_size.title")
@@ -182,6 +192,8 @@ describe("Admin settings with edit permission", function () {
         "http://www.pilos.com/legal_notice";
       settings.data.general_privacy_policy_url =
         "http://www.pilos.com/privacy_policy";
+      settings.data.general_accessibility_url =
+        "http://www.pilos.com/accessibility";
       settings.data.general_pagination_page_size = 3;
       settings.data.general_toast_lifetime = 10;
       settings.data.general_default_timezone = "Europe/Berlin";
@@ -226,6 +238,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_privacy_policy_url")).to.equal(
         "http://www.pilos.com/privacy_policy",
       );
+      expect(formData.get("general_accessibility_url")).to.equal(
+        "http://www.pilos.com/accessibility",
+      );
       expect(formData.get("general_pagination_page_size")).to.equal("3");
       expect(formData.get("general_toast_lifetime")).to.equal("10");
       expect(formData.get("general_default_timezone")).to.equal(
@@ -251,6 +266,10 @@ describe("Admin settings with edit permission", function () {
     cy.get("#privacy-policy-url").should(
       "have.value",
       "http://www.pilos.com/privacy_policy",
+    );
+    cy.get("#accessibility-url").should(
+      "have.value",
+      "http://www.pilos.com/accessibility",
     );
     cy.get("#pagination-page-size").should("have.value", "3");
     cy.get("#toast-lifetime-mode-unlimited")
@@ -305,6 +324,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_help_url")).to.equal("");
       expect(formData.get("general_legal_notice_url")).to.equal("");
       expect(formData.get("general_privacy_policy_url")).to.equal("");
+      expect(formData.get("general_accessibility_url")).to.equal("");
       expect(formData.get("general_pagination_page_size")).to.equal("3");
       expect(formData.get("general_toast_lifetime")).to.equal("0");
       expect(formData.get("general_default_timezone")).to.equal(
@@ -321,6 +341,7 @@ describe("Admin settings with edit permission", function () {
     cy.get("#help-url").should("have.value", "");
     cy.get("#legal-notice-url").should("have.value", "");
     cy.get("#privacy-policy-url").should("have.value", "");
+    cy.get("#accessibility-url").should("have.value", "");
     cy.get("#pagination-page-size").should("have.value", "3");
     cy.get("#toast-lifetime-mode-unlimited")
       .should("be.checked")
@@ -3098,6 +3119,9 @@ describe("Admin settings with edit permission", function () {
           general_privacy_policy_url: [
             "The selected general privacy policy url is invalid.",
           ],
+          general_accessibility_url: [
+            "The selected general accessibility url is invalid.",
+          ],
           general_pagination_page_size: [
             "The general pagination page size field is required.",
           ],
@@ -3204,6 +3228,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="privacy-policy-url-field"]').should(
       "include.text",
       "The selected general privacy policy url is invalid.",
+    );
+    cy.get('[data-test="accessibility-url-field"]').should(
+      "include.text",
+      "The selected general accessibility url is invalid.",
     );
     cy.get('[data-test="pagination-page-size-field"]').should(
       "include.text",

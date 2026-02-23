@@ -52,6 +52,7 @@ class SettingsTest extends TestCase
         $this->generalSettings->help_url = 'http://localhost/help';
         $this->generalSettings->legal_notice_url = 'http://localhost/legal';
         $this->generalSettings->privacy_policy_url = 'http://localhost/privacy';
+        $this->generalSettings->accessibility_url = 'http://localhost/accessibility';
         $this->generalSettings->no_welcome_page = false;
         $this->generalSettings->save();
 
@@ -128,6 +129,7 @@ class SettingsTest extends TestCase
                     'general_help_url' => 'http://localhost/help',
                     'general_legal_notice_url' => 'http://localhost/legal',
                     'general_privacy_policy_url' => 'http://localhost/privacy',
+                    'general_accessibility_url' => 'http://localhost/accessibility',
                     'general_no_welcome_page' => false,
 
                     'theme_logo' => 'testlogo.svg',
@@ -191,6 +193,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => true,
 
             'theme_logo' => 'testlogo.svg',
@@ -254,6 +257,7 @@ class SettingsTest extends TestCase
                     'general_help_url' => 'http://localhost',
                     'general_legal_notice_url' => 'http://localhost',
                     'general_privacy_policy_url' => 'http://localhost',
+                    'general_accessibility_url' => 'http://localhost',
                     'general_no_welcome_page' => true,
 
                     'theme_logo' => 'testlogo.svg',
@@ -294,10 +298,12 @@ class SettingsTest extends TestCase
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->help_url);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->legal_notice_url);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->privacy_policy_url);
+        $this->assertEquals('http://localhost', app(GeneralSettings::class)->accessibility_url);
 
         $payload['general_help_url'] = '';
         $payload['general_legal_notice_url'] = '';
         $payload['general_privacy_policy_url'] = '';
+        $payload['general_accessibility_url'] = '';
         $payload['room_file_terms_of_use'] = '';
 
         $this->putJson(route('api.v1.settings.update'), $payload)
@@ -306,6 +312,7 @@ class SettingsTest extends TestCase
         $this->assertNull(app(GeneralSettings::class)->help_url);
         $this->assertNull(app(GeneralSettings::class)->legal_notice_url);
         $this->assertNull(app(GeneralSettings::class)->privacy_policy_url);
+        $this->assertNull(app(GeneralSettings::class)->accessibility_url);
         $this->assertNull(app(RoomSettings::class)->file_terms_of_use);
     }
 
@@ -326,6 +333,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo_file' => UploadedFile::fake()->image('logo.svg'),
@@ -399,6 +407,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => '/storage/image/logo.svg',
@@ -481,6 +490,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 111,
             'general_legal_notice_url' => 222,
             'general_privacy_policy_url' => 333,
+            'general_accessibility_url' => 444,
             'general_no_welcome_page' => 'notbool',
 
             'theme_logo' => '',
@@ -532,6 +542,7 @@ class SettingsTest extends TestCase
                 'general_help_url',
                 'general_legal_notice_url',
                 'general_privacy_policy_url',
+                'general_accessibility_url',
                 'general_no_welcome_page',
 
                 'theme_logo',
@@ -617,6 +628,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -731,6 +743,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'banner_enabled' => 0,
@@ -783,6 +796,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'banner_enabled' => 0,
@@ -852,6 +866,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -962,6 +977,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -1057,6 +1073,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -1139,6 +1156,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -1224,6 +1242,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo_file' => $logo,

@@ -55,6 +55,16 @@ describe("Admin settings with edit permission", function () {
           .and("be.disabled");
       });
 
+    cy.get('[data-test="accessibility-url-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.accessibility_url.title")
+      .and("include.text", "admin.settings.accessibility_url.description")
+      .within(() => {
+        cy.get("#accessibility-url")
+          .should("have.value", "")
+          .and("be.disabled");
+      });
+
     cy.get('[data-test="pagination-page-size-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.pagination_page_size.title")

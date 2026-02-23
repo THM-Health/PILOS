@@ -320,6 +320,10 @@ return [
             'description' => 'Wenn nicht gesetzt, wird kein Link zum Impressum in der Fußzeile angezeigt.',
             'title' => 'URL zum Impressum',
         ],
+        'accessibility_url' => [
+            'description' => 'Wenn nicht gesetzt, wird kein Link zur Barrierefreiheitserklärung in der Fußzeile angezeigt.',
+            'title' => 'URL zur Barrierefreiheitserklärung',
+        ],
         'logo' => [
             'alt' => 'Logo Vorschau',
             'hint' => 'https://domain.tld/path/logo.svg',
