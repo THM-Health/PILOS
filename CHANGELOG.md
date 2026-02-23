@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.13.0] - 2026-02-23
+
 ### Added
 
 - Rate limiting to prevent Room-ID enumeration attacks ([#2518])
@@ -702,7 +704,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2855]: https://github.com/THM-Health/PILOS/pull/2855
 [#2856]: https://github.com/THM-Health/PILOS/issues/2856
 [#2857]: https://github.com/THM-Health/PILOS/pull/2857
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.12.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.13.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -725,3 +727,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.10.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.10.0
 [v4.11.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.11.0
 [v4.12.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.12.0
+[v4.13.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.13.0
