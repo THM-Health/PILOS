@@ -78,6 +78,7 @@ return [
     'footer' => [
         'legal_notice' => 'الإشعار القانوني',
         'privacy_policy' => 'سياسة الخصوصية',
+        'accessibility' => 'بيان إمكانية الوصول',
     ],
     'help' => 'هل تحتاج مساعدة؟',
     'home' => 'الرئيسية',

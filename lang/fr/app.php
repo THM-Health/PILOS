@@ -78,6 +78,7 @@ return [
     'footer' => [
         'legal_notice' => 'Mentions légales',
         'privacy_policy' => 'Politique de confidentialité',
+        'accessibility' => 'Déclaration d\'accessibilité',
     ],
     'help' => 'Vous avez besoin d\'aide ?',
     'home' => 'Accueil',

@@ -78,6 +78,7 @@ return [
     'footer' => [
         'legal_notice' => 'اطلاعیه قانونی',
         'privacy_policy' => 'سیاست حفظ حریم خصوصی',
+        'accessibility' => 'بیانیه دسترسی‌پذیری',
     ],
     'help' => 'نیاز به کمک دارید؟',
     'home' => 'خانه',
