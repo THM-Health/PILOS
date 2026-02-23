@@ -115,10 +115,10 @@
             </div>
             <div
               class="grid grid-cols-12 gap-4"
-              data-test="accessibility-url-field"
+              data-test="accessibility-statement-url-field"
             >
               <label
-                for="accessibility-url"
+                for="accessibility-statement-url"
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{
                   $t("admin.settings.accessibility_statement_url.title")
@@ -126,7 +126,7 @@
               >
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
-                  id="accessibility-url"
+                  id="accessibility-statement-url"
                   v-model="settings.general_accessibility_statement_url"
                   type="text"
                   :invalid="
@@ -135,9 +135,9 @@
                     )
                   "
                   :disabled="disabled"
-                  aria-describedby="accessibility-url-help"
+                  aria-describedby="accessibility-statement-url-help"
                 />
-                <small id="accessibility-url-help">{{
+                <small id="accessibility-statement-url-help">{{
                   $t("admin.settings.accessibility_statement_url.description")
                 }}</small>
                 <FormError

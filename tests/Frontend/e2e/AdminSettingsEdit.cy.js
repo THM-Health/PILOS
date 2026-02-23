@@ -81,7 +81,7 @@ describe("Admin settings with edit permission", function () {
           .type("http://www.pilos.com/privacy_policy");
       });
 
-    cy.get('[data-test="accessibility-url-field"]')
+    cy.get('[data-test="accessibility-statement-url-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.accessibility_statement_url.title")
       .and(
@@ -89,7 +89,7 @@ describe("Admin settings with edit permission", function () {
         "admin.settings.accessibility_statement_url.description",
       )
       .within(() => {
-        cy.get("#accessibility-url")
+        cy.get("#accessibility-statement-url")
           .should("have.value", "")
           .type("http://www.pilos.com/accessibility");
       });
@@ -270,7 +270,7 @@ describe("Admin settings with edit permission", function () {
       "have.value",
       "http://www.pilos.com/privacy_policy",
     );
-    cy.get("#accessibility-url").should(
+    cy.get("#accessibility-statement-url").should(
       "have.value",
       "http://www.pilos.com/accessibility",
     );
@@ -295,6 +295,7 @@ describe("Admin settings with edit permission", function () {
     cy.get("#help-url").clear();
     cy.get("#legal-notice-url").clear();
     cy.get("#privacy-policy-url").clear();
+    cy.get("#accessibility-statement-url").clear();
 
     cy.get("#toast-lifetime-mode-unlimited").click();
     cy.get('[data-test="toast-lifetime-custom-input"]').should("not.exist");
@@ -344,7 +345,7 @@ describe("Admin settings with edit permission", function () {
     cy.get("#help-url").should("have.value", "");
     cy.get("#legal-notice-url").should("have.value", "");
     cy.get("#privacy-policy-url").should("have.value", "");
-    cy.get("#accessibility-url").should("have.value", "");
+    cy.get("#accessibility-statement-url").should("have.value", "");
     cy.get("#pagination-page-size").should("have.value", "3");
     cy.get("#toast-lifetime-mode-unlimited")
       .should("be.checked")
@@ -3232,7 +3233,7 @@ describe("Admin settings with edit permission", function () {
       "include.text",
       "The selected general privacy policy url is invalid.",
     );
-    cy.get('[data-test="accessibility-url-field"]').should(
+    cy.get('[data-test="accessibility-statement-url-field"]').should(
       "include.text",
       "The selected general accessibility url is invalid.",
     );
