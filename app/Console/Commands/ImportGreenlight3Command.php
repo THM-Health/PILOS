@@ -354,14 +354,13 @@ class ImportGreenlight3Command extends Command
                     $presentation = new UploadedFile(Storage::path($path), $blob->filename);
 
                     // Construct RoomFile
+                    $room = Room::find($pilosRoomId);
                     $file = new RoomFile;
-                    $file->path = $path;
+                    $file->path = $presentation->store($room->id);
                     $file->filename = $blob->filename;
                     $file->use_in_meeting = true;
-                    $room = Room::find($pilosRoomId);
 
                     // Save file and room, delete source file
-                    $presentation->store($room->id);
                     $room->files()->save($file);
                     $room->updateDefaultFile();
                     $this->importedPresentationFiles[$path] = $room->id.'/'.$presentation->hashName();
