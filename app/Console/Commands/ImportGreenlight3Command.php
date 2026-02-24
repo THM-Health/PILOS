@@ -363,7 +363,7 @@ class ImportGreenlight3Command extends Command
                     // Save file and room, delete source file
                     $room->files()->save($file);
                     $room->updateDefaultFile();
-                    $this->importedPresentationFiles[$path] = $room->id.'/'.$presentation->hashName();
+                    $this->importedPresentationFiles[$path] = $file->path;
                     Storage::delete($path);
 
                     $created++;
