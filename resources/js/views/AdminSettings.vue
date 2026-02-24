@@ -1081,14 +1081,10 @@
                       formErrors.fieldInvalid('room_hide_owner_for_guests')
                     "
                   />
-                  <label for="room-hide-owner">{{
-                    $t("app.enable")
-                  }}</label>
+                  <label for="room-hide-owner">{{ $t("app.enable") }}</label>
                 </div>
                 <FormError
-                  :errors="
-                    formErrors.fieldError('room_hide_owner_for_guests')
-                  "
+                  :errors="formErrors.fieldError('room_hide_owner_for_guests')"
                 />
               </div>
             </fieldset>

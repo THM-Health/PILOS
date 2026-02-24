@@ -85,7 +85,7 @@ class Room extends JsonResource
         $roomSettings = app(RoomSettings::class);
 
         // Check if user is authenticated or room owner should be shown to everyone
-        $showOwner = Auth::check() || !$roomSettings->hide_owner_for_guests;
+        $showOwner = Auth::check() || ! $roomSettings->hide_owner_for_guests;
 
         return [
             'id' => $this->id,
