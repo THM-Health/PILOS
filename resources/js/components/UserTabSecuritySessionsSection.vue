@@ -107,14 +107,14 @@ function getSessions() {
   api
     .call("sessions")
     .then((response) => {
-      isBusy.value = false;
+      loadingError.value = false;
       sessions.value = response.data.data.map((session) => {
         session.user_agent = parseAgent(session.user_agent);
         return session;
       });
     })
     .catch((error) => {
-      isBusy.value = true;
+      loadingError.value = true;
       api.error(error);
     })
     .finally(() => {
