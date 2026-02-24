@@ -115,6 +115,7 @@
           <AdminStreamingRoomTypeTable
             v-if="settings.room_types"
             :room-types="settings.room_types"
+            :isBusy="isBusy"
             @edited="getSettings"
           />
         </AdminPanel>
