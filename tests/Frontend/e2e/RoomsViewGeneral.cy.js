@@ -941,6 +941,29 @@ describe("Room View general", function () {
     cy.contains("rooms.files.title").should("be.visible");
 
     // Check if share button is shown correctly
+    cy.get('[data-test="room-share-button"]').should("exist");
+  });
+
+  it("share room", function () {
+    cy.interceptRoomFilesRequest();
+
+    cy.fixture("room.json").then((room) => {
+      room.data.short_description = "Room short description";
+      room.data.allow_membership = true;
+      room.data.legacy_code = false;
+      room.data.access_code = "508307005";
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.title().should("eq", "Meeting One - PILOS Test");
+
+    // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').click();
     cy.get("#invitationLink").should(
       "have.value",
@@ -980,6 +1003,143 @@ describe("Room View general", function () {
         expect(text).to.eq("508-307-005");
       });
     });
+
+    // Reload with legacy numeric access code
+    cy.fixture("room.json").then((room) => {
+      room.data.short_description = "Room short description";
+      room.data.allow_membership = true;
+      room.data.legacy_code = true;
+      room.data.access_code = "012345";
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.get('[data-test="reload-room-button"]').click();
+
+    cy.wait("@roomRequest");
+
+    // Check if share button is shown correctly
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get("#invitationLink").should(
+      "have.value",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123",
+    );
+    cy.get("#invitationCode").should("have.value", "012345");
+
+    // Copy invitation message
+    cy.get('[data-test="room-copy-invitation-button"]').click();
+    cy.checkToastMessage("rooms.invitation.copied_message");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq(
+          'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
+            Cypress.config("baseUrl") +
+            "/rooms/abc-def-123\nrooms.invitation.code: 012345",
+        );
+      });
+    });
+
+    // Copy room access code
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get('[data-test="room-invitation-copy-code-button"]').click();
+    cy.checkToastMessage("rooms.invitation.copied_code");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq("012345");
+      });
+    });
+
+    // Reload with legacy alphanumeric access code
+    cy.fixture("room.json").then((room) => {
+      room.data.short_description = "Room short description";
+      room.data.allow_membership = true;
+      room.data.legacy_code = true;
+      room.data.access_code = "012abc";
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.get('[data-test="reload-room-button"]').click();
+
+    cy.wait("@roomRequest");
+
+    // Check if share button is shown correctly
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get("#invitationLink").should(
+      "have.value",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123",
+    );
+    cy.get("#invitationCode").should("have.value", "012abc");
+
+    // Copy invitation message
+    cy.get('[data-test="room-copy-invitation-button"]').click();
+    cy.checkToastMessage("rooms.invitation.copied_message");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq(
+          'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
+            Cypress.config("baseUrl") +
+            "/rooms/abc-def-123\nrooms.invitation.code: 012abc",
+        );
+      });
+    });
+
+    // Copy room access code
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get('[data-test="room-invitation-copy-code-button"]').click();
+    cy.checkToastMessage("rooms.invitation.copied_code");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq("012abc");
+      });
+    });
+
+    // Reload without access code
+    cy.fixture("room.json").then((room) => {
+      room.data.short_description = "Room short description";
+      room.data.allow_membership = true;
+      room.data.legacy_code = false;
+      room.data.access_code = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.get('[data-test="reload-room-button"]').click();
+
+    cy.wait("@roomRequest");
+
+    // Check if share button is shown correctly
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get("#invitationLink").should(
+      "have.value",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123",
+    );
+    cy.get("#invitationCode").should("not.exist");
+
+    // Copy invitation message
+    cy.get('[data-test="room-copy-invitation-button"]').click();
+    cy.checkToastMessage("rooms.invitation.copied_message");
+    cy.window().then((win) => {
+      win.navigator.clipboard.readText().then((text) => {
+        expect(text).to.eq(
+          'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
+            Cypress.config("baseUrl") +
+            "/rooms/abc-def-123",
+        );
+      });
+    });
+
+    // Copy room access code should be missing
+    cy.get('[data-test="room-share-button"]').click();
+    cy.get('[data-test="room-invitation-copy-code-button"]').should(
+      "not.exist",
+    );
   });
 
   it("room view as co-owner", function () {
@@ -1032,9 +1192,7 @@ describe("Room View general", function () {
     cy.contains("rooms.description.title").should("be.visible");
 
     // Check if share button is shown correctly
-    cy.get('[data-test="room-share-button"]').click();
-    cy.get("#invitationLink").should("include.value", "/rooms/abc-def-123");
-    cy.get("#invitationCode").should("have.value", "508-307-005");
+    cy.get('[data-test="room-share-button"]').should("exist");
   });
 
   it("room view as owner", function () {
@@ -1079,9 +1237,7 @@ describe("Room View general", function () {
     cy.contains("rooms.description.title").should("be.visible");
 
     // Check if share button is shown correctly
-    cy.get('[data-test="room-share-button"]').click();
-    cy.get("#invitationLink").should("include.value", "/rooms/abc-def-123");
-    cy.get("#invitationCode").should("have.value", "508-307-005");
+    cy.get('[data-test="room-share-button"]').should("exist");
   });
 
   it("room view with personalized link (participant)", function () {
@@ -1684,9 +1840,7 @@ describe("Room View general", function () {
     cy.contains("rooms.description.title").should("be.visible");
 
     // Check if share button is shown correctly
-    cy.get('[data-test="room-share-button"]').click();
-    cy.get("#invitationLink").should("include.value", "/rooms/abc-def-123");
-    cy.get("#invitationCode").should("have.value", "508-307-005");
+    cy.get('[data-test="room-share-button"]').should("exist");
   });
 
   it("room view streaming enabled", function () {
