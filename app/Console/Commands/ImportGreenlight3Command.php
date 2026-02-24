@@ -64,11 +64,11 @@ class ImportGreenlight3Command extends Command
                     hint: '(Optional).'
                 );
 
-            // Ask user what room type the imported rooms should get
+            // Ask user what role to assign to imported local users
             $defaultRole = ! is_null($this->option('default-role'))
                 ? Role::whereLike('name', $this->option('default-role'))->firstOrFail()->id
                 : select(
-                    'Please select the default role for new imported non-ldap users',
+                    'Please select the default role for new imported local users',
                     options: Role::pluck('name', 'id'),
                     scroll: 10
                 );
@@ -151,7 +151,7 @@ class ImportGreenlight3Command extends Command
      * Process greenlight user collection and try to import users
      *
      * @param  Collection  $users  Collection with all users found in the greenlight database
-     * @param  int  $defaultRole  IDs of the role that should be assigned to new non-ldap users
+     * @param  int  $defaultRole  IDs of the role that should be assigned to new local users
      * @return array Array map of greenlight user ids as key and id of the found/created user as value
      */
     protected function importUsers(Collection $users, int $defaultRole): array

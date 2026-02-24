@@ -66,7 +66,7 @@ Arguments:
 
 Options:
       --no-confirm                             do not ask if the import should be committed
-      --default-role[=DEFAULT-ROLE]            name of the default role for imported external users (case-insensitive)
+      --default-role[=DEFAULT-ROLE]            name of the default role for imported local users (case-insensitive)
       --room-type[=ROOM-TYPE]                  name of the room type for imported rooms (case-insensitive)
       --presentation-path[=PRESENTATION-PATH]  path to room presentations, relative to /storage/app
 ```
