@@ -54,7 +54,7 @@ class Room extends JsonResource
         return [
             'username' => $this->when(! empty($this->personalizedLink), $this->personalizedLink?->fullname),
             'authenticated' => $this->authenticated,
-            'legacy_code' => $this->access_code && strlen($this->access_code) == 6,
+            'legacy_code' => $this->hasLegacyCode,
             'description' => $this->when($this->authenticated, $this->description),
             'allow_membership' => $this->getRoomSetting('allow_membership'),
             'is_member' => $this->resource->isMember(Auth::user()),
