@@ -60,9 +60,9 @@ Usage:
 Arguments:
   host                                         ip or hostname of postgres database server
   port                                         port of postgres database server
-  database                                     greenlight database name, see greenlight .env variable DB_NAME
-  username                                     greenlight database username, see greenlight .env variable DB_USERNAME
-  password                                     greenlight database password, see greenlight .env variable DB_PASSWORD
+  database                                     greenlight database name
+  username                                     greenlight database username
+  password                                     greenlight database password
 
 Options:
       --no-confirm                             do not ask if the import should be committed
