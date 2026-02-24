@@ -590,6 +590,51 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test visibility of room owner for guests based on settings.
+     */
+    public function test_hide_owner_for_guests()
+    {
+        // Create a room allowing guests
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+        ]);
+
+        // Case 1: The setting is enabled.
+        // Guests should NOT see the owner information.
+        $this->roomSettings->hide_owner_for_guests = true;
+        $this->roomSettings->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonMissingPath('data.owner');
+
+        // Case 2: The setting is enabled, but the user is authenticated.
+        // Authenticated users should always see the owner information.
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonStructure(['data' => [
+                'owner' => [
+                    'id',
+                    'name',
+                ],
+            ]]);
+
+        // Case 3: The setting is disabled.
+        // Guests should see the owner information.
+        $this->roomSettings->hide_owner_for_guests = false;
+        $this->roomSettings->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonStructure(['data' => [
+                'owner' => [
+                    'id',
+                    'name',
+                ],
+            ]]);
+    }
+
+    /**
      * Test how guests can log into room with or without valid access code
      */
     public function test_auth_with_access_code_guests()

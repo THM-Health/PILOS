@@ -2107,6 +2107,13 @@ describe("Admin settings with edit permission", function () {
         cy.get("#room-file-terms-of-use").type("New room file terms of use");
       });
 
+    cy.get('[data-test="room-hide-owner-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.room_hide_owner_for_guests")
+      .within(() => {
+        cy.get("#room-hide-owner").should("be.checked").click();
+      });
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = 10;
@@ -2115,6 +2122,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = "New room file terms of use";
+      settings.data.room_hide_owner_for_guests = false;
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -2155,6 +2163,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("room_file_terms_of_use")).to.equal(
         "New room file terms of use",
       );
+      expect(formData.get("room_hide_owner_for_guests")).to.equal("0");
     });
 
     // Check that config is loaded
@@ -2192,12 +2201,15 @@ describe("Admin settings with edit permission", function () {
       "have.value",
       "New room file terms of use",
     );
+    cy.get("#room-hide-owner").should("not.be.checked");
 
     // Change settings again (Clear inputs and change room limit to unlimited)
     cy.get("#room-limit-mode-unlimited").click();
     cy.get("#room-limit-custom").should("not.exist");
 
     cy.get("#room-file-terms-of-use").clear();
+
+    cy.get("#room-hide-owner").click();
 
     // Save changes
     cy.fixture("settings.json").then((settings) => {
@@ -2207,6 +2219,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = null;
+      settings.data.room_hide_owner_for_guests = true;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -2232,6 +2245,7 @@ describe("Admin settings with edit permission", function () {
         "730",
       );
       expect(formData.get("room_file_terms_of_use")).to.equal("");
+      expect(formData.get("room_hide_owner_for_guests")).to.equal("1");
     });
 
     // Check that config is loaded
@@ -2263,6 +2277,7 @@ describe("Admin settings with edit permission", function () {
       "admin.settings.two_years",
     );
     cy.get("#room-file-terms-of-use").should("have.value", "");
+    cy.get("#room-hide-owner").should("be.checked");
   });
 
   it("change user settings", function () {

@@ -83,6 +83,7 @@ class SettingsTest extends TestCase
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
         $this->roomSettings->personalized_link_expiration = TimePeriod::ONE_WEEK;
         $this->roomSettings->file_terms_of_use = 'test';
+        $this->roomSettings->hide_owner_for_guests = false;
         $this->roomSettings->save();
 
         $this->userSettings->password_change_allowed = true;
@@ -157,6 +158,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_deadline_period' => 30,
                     'room_personalized_link_expiration' => 7,
                     'room_file_terms_of_use' => 'test',
+                    'room_hide_owner_for_guests' => false,
 
                     'user_password_change_allowed' => true,
 
@@ -219,6 +221,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
             'room_file_terms_of_use' => 'test',
+            'room_hide_owner_for_guests' => true,
 
             'user_password_change_allowed' => 1,
 
@@ -281,6 +284,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_never_used_period' => 30,
                     'room_auto_delete_deadline_period' => 7,
                     'room_file_terms_of_use' => 'test',
+                    'room_hide_owner_for_guests' => true,
 
                     'user_password_change_allowed' => 1,
 
@@ -358,6 +362,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -436,6 +441,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -518,6 +524,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 'notnumber',
             'room_auto_delete_never_used_period' => 'notnumber',
             'room_auto_delete_deadline_period' => 'notnumber',
+            'room_hide_owner_for_guests' => 'notbool',
 
             'user_password_change_allowed' => 'foo',
 
@@ -571,6 +578,7 @@ class SettingsTest extends TestCase
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
                 'room_auto_delete_deadline_period',
+                'room_hide_owner_for_guests',
 
                 'user_password_change_allowed',
 
@@ -654,6 +662,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -759,6 +768,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 1,
             'room_auto_delete_never_used_period' => 1,
             'room_auto_delete_deadline_period' => 1,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -813,6 +823,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_never_used_period' => 1000,
             'room_auto_delete_deadline_period' => 366,
             'room_file_terms_of_use' => str_repeat('a', 65001),
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -891,6 +902,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1002,6 +1014,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1098,6 +1111,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1181,6 +1195,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1268,6 +1283,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_for_guests' => false,
 
             'user_password_change_allowed' => 1,
 
