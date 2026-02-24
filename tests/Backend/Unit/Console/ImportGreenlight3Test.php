@@ -361,7 +361,7 @@ class ImportGreenlight3Test extends TestCase
         $expectations = function ($command) use ($roomTypeId, $userRoleId) {
             $command->expectsQuestion('What room type should the rooms be assigned to?', $roomTypeId)
                 ->expectsQuestion('Prefix for room names', 'GL3 ::')
-                ->expectsQuestion('Please select the default role for new imported non-ldap users', $userRoleId)
+                ->expectsQuestion('Please select the default role for new imported local users', $userRoleId)
                 ->expectsQuestion('Path to GL3 room presentations', 'migration/presentations')
                 ->expectsOutput('Importing users')
                 ->expectsOutput('2 created, 2 skipped (already existed)')

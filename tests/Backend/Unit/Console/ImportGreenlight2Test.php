@@ -220,7 +220,7 @@ class ImportGreenlight2Test extends TestCase
             ->expectsQuestion('Please select the authenticator for the social provider: google', 'oidc')
             ->expectsQuestion('What room type should the rooms be assigned to?', $roomType->id)
             ->expectsQuestion('Prefix for room names', $prefix)
-            ->expectsQuestion('Please select the default role for new imported non-ldap users', $role->id)
+            ->expectsQuestion('Please select the default role for new imported local users', $role->id)
             ->expectsOutput('Importing users')
             ->expectsOutput('3 created, 3 skipped (already existed)')
             ->expectsOutput('Importing rooms')
