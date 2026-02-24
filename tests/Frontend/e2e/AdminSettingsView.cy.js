@@ -419,10 +419,8 @@ describe("Admin settings with edit permission", function () {
             .should("be.visible")
             .and("have.attr", "href", "/rooms")
             .and("have.attr", "target", "_self")
-            .and("have.text", "Rooms");
-          cy.get('[data-test="banner-link-button"]')
-            .find("button")
-            .should("have.attr", "data-p-severity", "link")
+            .and("have.text", "Rooms")
+            .and("have.attr", "data-p-severity", "link")
             .and("have.class", "p-0 underline")
             .and("have.attr", "style")
             .and("include", "color: rgb(255, 255, 255)");

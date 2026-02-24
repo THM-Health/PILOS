@@ -45,10 +45,8 @@ describe("Banner", function () {
           `${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b`,
         )
         .and("have.attr", "target", "_blank")
-        .and("have.text", "Example link");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "link")
+        .and("have.text", "Example link")
+        .and("have.attr", "data-p-severity", "link")
         .and("have.class", "p-0 underline")
         .and("have.attr", "style")
         .and("include", "color: rgb(255, 255, 255)");
@@ -119,10 +117,8 @@ describe("Banner", function () {
         .should("be.visible")
         .and("have.attr", "href", Cypress.config("baseUrl") + "/rooms")
         .and("have.attr", "target", "_self")
-        .and("have.text", "Room link");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "danger")
+        .and("have.text", "Room link")
+        .and("have.attr", "data-p-severity", "danger")
         .and("not.have.class", "p-0 underline");
 
       cy.get('[data-test="banner-link-button"]').click();
@@ -148,10 +144,8 @@ describe("Banner", function () {
         .should("be.visible")
         .and("have.attr", "href", Cypress.config("baseUrl") + "/rooms")
         .and("have.attr", "target", "_self")
-        .and("have.text", "Room link");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "danger")
+        .and("have.text", "Room link")
+        .and("have.attr", "data-p-severity", "danger")
         .and("not.have.class", "p-0 underline");
     });
   });

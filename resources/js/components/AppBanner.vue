@@ -32,6 +32,7 @@
         <Button
           v-if="link"
           as="a"
+          data-test="banner-link-button"
           :href="link"
           :target="`_${linkTarget}`"
           :link="linkStyle === 'link'"
