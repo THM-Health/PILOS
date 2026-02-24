@@ -48,7 +48,7 @@ class ImportGreenlight3Command extends Command
         try {
             // Ask user what room type the imported rooms should get
             $roomType = ! is_null($this->option('room-type'))
-                ? RoomType::where('name', $this->option('room-type'))->firstOrFail()->id
+                ? RoomType::whereLike('name', $this->option('room-type'))->firstOrFail()->id
                 : select(
                     label: 'What room type should the rooms be assigned to?',
                     options: RoomType::pluck('name', 'id'),
@@ -66,7 +66,7 @@ class ImportGreenlight3Command extends Command
 
             // Ask user what room type the imported rooms should get
             $defaultRole = ! is_null($this->option('default-role'))
-                ? Role::where('name', $this->option('default-role'))->firstOrFail()->id
+                ? Role::whereLike('name', $this->option('default-role'))->firstOrFail()->id
                 : select(
                     'Please select the default role for new imported non-ldap users',
                     options: Role::pluck('name', 'id'),
