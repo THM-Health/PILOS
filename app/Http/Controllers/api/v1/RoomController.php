@@ -465,9 +465,9 @@ class RoomController extends Controller
                 return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
             }
 
-            $accessCode = $request->access_code;
+            $accessCode = $request->string('access_code')->value();
 
-            if ($room->access_code == $accessCode) {
+            if ($room->access_code === $accessCode) {
                 // Generate new room auth token or retrieve existing one
                 $roomAuthToken = RoomAuthToken::firstOrCreate([
                     'room_id' => $room->id,
