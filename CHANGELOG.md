@@ -10,13 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Accessibility statement URL setting for the admin UI and footer ([#2873], [#2874])
+- Greenlight v3 import command ([#2664], [#2665])
+
+### Fixed
+
+- Greenlight v2 imported room settings not applied due to disabled expert mode ([#2665])
 
 ## [v4.13.0] - 2026-02-23
 
 ### Added
 
 - Rate limiting to prevent Room-ID enumeration attacks ([#2518])
-- Greenlight3 import command ([#2664])
 
 ### Changed
 
@@ -688,6 +692,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2613]: https://github.com/THM-Health/PILOS/pull/2613
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616
 [#2660]: https://github.com/THM-Health/PILOS/issues/2660
+[#2664]: https://github.com/THM-Health/PILOS/issues/2664
 [#2665]: https://github.com/THM-Health/PILOS/pull/2665
 [#2686]: https://github.com/THM-Health/PILOS/pull/2686
 [#2726]: https://github.com/THM-Health/PILOS/pull/2726

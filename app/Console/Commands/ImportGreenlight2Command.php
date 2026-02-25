@@ -285,6 +285,7 @@ class ImportGreenlight2Command extends Command
 
             // create room with same id, same name, access code
             $dbRoom = new Room;
+            $dbRoom->expert_mode = true; // set expert mode to true for imported rooms, as many settings are considered expert mode settings and have not effect is expert mode is disabled
             $dbRoom->id = $room->uid;
             $dbRoom->name = Str::limit(($prefix != null ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
             $dbRoom->access_code = $room->access_code == '' ? null : $room->access_code;

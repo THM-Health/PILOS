@@ -308,6 +308,11 @@ class ImportGreenlight3Test extends TestCase
         $this->assertEquals('012345abcd', Room::find('hij-klm-xyz-123')->access_code);
         $this->assertNull(Room::find('hij-klm-xyz-234')->access_code);
 
+        // check expert mode is enabled for all rooms
+        foreach (Room::where('id', '!=', $existingRoom->id)->get() as $room) {
+            $this->assertTrue($room->expert_mode);
+        }
+
         // check room settings
         $this->assertFalse(Room::find('abc-def-xyz-234')->record);
         $this->assertFalse(Room::find('abc-def-xyz-234')->allow_guests);
