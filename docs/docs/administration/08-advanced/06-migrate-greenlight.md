@@ -34,12 +34,16 @@ The command will output the process of the import and informs about failed user,
 
 ### Greenlight 2
 
-```bash
-docker compose exec app pilos-cli import:greenlight-v2   {host : ip or hostname of postgres database server}
-                                {port : port of postgres database server}
-                                {database : greenlight database name, see greenlight .env variable DB_NAME}
-                                {username : greenlight database username, see greenlight .env variable DB_USERNAME}
-                                {password : greenlight database password, see greenlight .env variable DB_PASSWORD}
+```text
+Usage:
+  import:greenlight-v2 <host> <port> <database> <username> <password>
+
+Arguments:
+  host                  ip or hostname of postgres database server
+  port                  port of postgres database server
+  database              greenlight database name, see greenlight .env variable DB_NAME
+  username              greenlight database username, see greenlight .env variable DB_USERNAME
+  password              greenlight database password, see greenlight .env variable DB_PASSWORD
 ```
 
 **Example**
@@ -53,7 +57,7 @@ docker compose exec app pilos-cli import:greenlight-v2 localhost 5432 greenlight
 If you want to import Room presentations, copy Greenlight's active storage directory to the PILOS app storage at `/storage/app/migration/presentations` and specify `--presentation-path=migration/presentations` at the command line.
 Successfully imported presentation files will be moved to a different location.
 
-```
+```text
 Usage:
   import:greenlight-v3 [options] [--] <host> <port> <database> <username> <password>
 
@@ -79,11 +83,11 @@ docker compose exec app pilos-cli import:greenlight-v3 \
     --default-role=User \
     --room-type=Meeting \
     --presentation-path=migration/presentations \
-    pg-cluster.svc.cluster.local
-    5432
-    greenlight-db
-    greenlight-user
-    d4t4basePa$$Word
+    localhost \
+    5432 \
+    greenlight-v3-production \
+    postgres \
+    12345678
 ```
 
 ## Adjust nginx to redirect to PILOS (other host)
