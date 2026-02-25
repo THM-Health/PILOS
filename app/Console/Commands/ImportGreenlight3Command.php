@@ -10,14 +10,14 @@ use App\Models\RoomFile;
 use App\Models\RoomType;
 use App\Models\User;
 use App\Settings\GeneralSettings;
-use Config;
-use DB;
-use Hash;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Str;
+use Illuminate\Support\Str;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\progress;
