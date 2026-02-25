@@ -88,7 +88,7 @@ class MeetingTest extends TestCase
     public function test_start_parameters_with_legacy_access_code()
     {
         $this->meeting->room->access_code = 'abc123';
-        $this->meeting->save();
+        $this->meeting->room->save();
         $meeting = $this->meeting;
 
         Http::fake([
@@ -118,7 +118,7 @@ class MeetingTest extends TestCase
     public function test_start_parameters_without_access_code()
     {
         $this->meeting->room->access_code = null;
-        $this->meeting->save();
+        $this->meeting->room->save();
         $meeting = $this->meeting;
 
         Http::fake([
