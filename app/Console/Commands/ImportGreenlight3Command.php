@@ -326,7 +326,7 @@ class ImportGreenlight3Command extends Command
      *  Process room mapping and import the rooms' presentations
      *
      * @param  array  $roomMap  Array map of greenlight room ids as key and id of the created room as value
-     * @param  array  $presentationPath  Path to GL3 presentation files in default storage
+     * @param  string  $presentationPath  Path to GL3 presentation files in default storage
      */
     protected function importPresentations(array $roomMap, string $presentationPath)
     {
