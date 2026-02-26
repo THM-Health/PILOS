@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Mockery;
 use Tests\Backend\TestCase;
-use Tests\Backend\Unit\Console\helper\GreenlightRoom;
+use Tests\Backend\Unit\Console\helper\Greenlight2Room;
+use Tests\Backend\Unit\Console\helper\Greenlight2User;
 use Tests\Backend\Unit\Console\helper\GreenlightSharedAccess;
-use Tests\Backend\Unit\Console\helper\GreenlightUser;
 
 class ImportGreenlight2Test extends TestCase
 {
@@ -177,26 +177,26 @@ class ImportGreenlight2Test extends TestCase
 
         // Create fake users, ldap users and social users
         $users = [];
-        $users[] = new GreenlightUser(1, 'greenlight', 'John Doe', null, null, 'john.doe@domain.tld', $password);
-        $users[] = new GreenlightUser(2, 'greenlight', 'John Doe', null, null, 'john@domain.tld', $password);
-        $users[] = new GreenlightUser(3, 'ldap', 'John Doe', 'djohn', 'uid=djohn,ou=People,dc=university,dc=org', 'john.doe@domain.tld', null);
-        $users[] = new GreenlightUser(4, 'ldap', 'John Doe', 'doejohn', 'uid=doejohn,ou=People,dc=university,dc=org', 'john@domain.tld', null);
-        $users[] = new GreenlightUser(5, 'shibboleth', 'John Doe', null, 'djohn', 'john@domain.tld', null);
-        $users[] = new GreenlightUser(6, 'google', 'John Doe', null, '4696234782348234734', 'john@domain.tld', null);
+        $users[] = new Greenlight2User(1, 'greenlight', 'John Doe', null, null, 'john.doe@domain.tld', $password);
+        $users[] = new Greenlight2User(2, 'greenlight', 'John Doe', null, null, 'john@domain.tld', $password);
+        $users[] = new Greenlight2User(3, 'ldap', 'John Doe', 'djohn', 'uid=djohn,ou=People,dc=university,dc=org', 'john.doe@domain.tld', null);
+        $users[] = new Greenlight2User(4, 'ldap', 'John Doe', 'doejohn', 'uid=doejohn,ou=People,dc=university,dc=org', 'john@domain.tld', null);
+        $users[] = new Greenlight2User(5, 'shibboleth', 'John Doe', null, 'djohn', 'john@domain.tld', null);
+        $users[] = new Greenlight2User(6, 'google', 'John Doe', null, '4696234782348234734', 'john@domain.tld', null);
 
         // Create fake rooms
         $rooms = [];
-        $rooms[] = new GreenlightRoom(1, $users[0]->id, 'Test Room 1', 'abc-def-xyz-123');
-        $rooms[] = new GreenlightRoom(2, $users[1]->id, 'Test Room 2', 'abc-def-xyz-234');
-        $rooms[] = new GreenlightRoom(3, $users[2]->id, 'Test Room 3', 'abc-def-xyz-345');
-        $rooms[] = new GreenlightRoom(4, $users[3]->id, 'Test Room 4', 'abc-def-xyz-456');
-        $rooms[] = new GreenlightRoom(5, $users[4]->id, 'Test Room 5', 'abc-def-xyz-567');
-        $rooms[] = new GreenlightRoom(6, $users[5]->id, 'Test Room 6', 'abc-def-xyz-678');
+        $rooms[] = new Greenlight2Room(1, $users[0]->id, 'Test Room 1', 'abc-def-xyz-123');
+        $rooms[] = new Greenlight2Room(2, $users[1]->id, 'Test Room 2', 'abc-def-xyz-234');
+        $rooms[] = new Greenlight2Room(3, $users[2]->id, 'Test Room 3', 'abc-def-xyz-345');
+        $rooms[] = new Greenlight2Room(4, $users[3]->id, 'Test Room 4', 'abc-def-xyz-456');
+        $rooms[] = new Greenlight2Room(5, $users[4]->id, 'Test Room 5', 'abc-def-xyz-567');
+        $rooms[] = new Greenlight2Room(6, $users[5]->id, 'Test Room 6', 'abc-def-xyz-678');
 
-        $rooms[] = new GreenlightRoom(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', '012345', ['muteOnStart' => false, 'requireModeratorApproval' => true, 'anyoneCanStart' => false, 'joinModerator' => true]);
-        $rooms[] = new GreenlightRoom(8, $users[0]->id, 'Test Room 8', 'hij-klm-xyz-234', null, ['muteOnStart' => true, 'requireModeratorApproval' => false, 'anyoneCanStart' => true, 'joinModerator' => false]);
-        $rooms[] = new GreenlightRoom(9, 99, 'Test Room 9', 'hij-klm-xyz-456', '012345');
-        $rooms[] = new GreenlightRoom(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
+        $rooms[] = new Greenlight2Room(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', '012345', ['muteOnStart' => false, 'requireModeratorApproval' => true, 'anyoneCanStart' => false, 'joinModerator' => true]);
+        $rooms[] = new Greenlight2Room(8, $users[0]->id, 'Test Room 8', 'hij-klm-xyz-234', null, ['muteOnStart' => true, 'requireModeratorApproval' => false, 'anyoneCanStart' => true, 'joinModerator' => false]);
+        $rooms[] = new Greenlight2Room(9, 99, 'Test Room 9', 'hij-klm-xyz-456', '012345');
+        $rooms[] = new Greenlight2Room(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
 
         // Create fake shared accesses
         $sharedAccesses = [];

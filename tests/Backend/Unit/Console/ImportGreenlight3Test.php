@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\Backend\TestCase;
-use Tests\Backend\Unit\Console\helper\Greenlight3Attachment;
 use Tests\Backend\Unit\Console\helper\Greenlight3Room;
 use Tests\Backend\Unit\Console\helper\Greenlight3User;
+use Tests\Backend\Unit\Console\helper\GreenlightPresentation;
 use Tests\Backend\Unit\Console\helper\GreenlightSharedAccess;
 
 class ImportGreenlight3Test extends TestCase
@@ -241,10 +241,11 @@ class ImportGreenlight3Test extends TestCase
         $rooms[] = new Greenlight3Room(7, 'hij-klm-xyz-456', 99, 'Test Room 9', true);
         $rooms[] = new Greenlight3Room(8, $existingRoom->id, $users[0]->id, 'Test Room 10');
 
+        // Create fake presentations
         $presentations = [];
-        $presentations[] = new Greenlight3Attachment('1', 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
-        $presentations[] = new Greenlight3Attachment('2', 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
-        $presentations[] = new Greenlight3Attachment('3', 'xivei7mi0cohtoecacahyaich8ohzaed', '3testvongpresiher.pdf');
+        $presentations[] = new GreenlightPresentation('1', 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
+        $presentations[] = new GreenlightPresentation('2', 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
+        $presentations[] = new GreenlightPresentation('3', 'xivei7mi0cohtoecacahyaich8ohzaed', '3testvongpresiher.pdf');
 
         // Create fake shared accesses
         $sharedAccesses = [];
@@ -262,6 +263,7 @@ class ImportGreenlight3Test extends TestCase
         $roomType = RoomType::where('name', 'Lecture')->first();
         $role = Role::where('name', 'student')->first();
 
+        // Mock presentation files
         $storageMock = Storage::fake();
         $storageMock->put('migration/presentations/fe/en/feen6movahheegheeg0ovahche8bu3mo', 'Foobar test 123');
         $storageMock->put('migration/presentations/xi/ve/xivei7mi0cohtoecacahyaich8ohzaed', 'Foobar test 456');

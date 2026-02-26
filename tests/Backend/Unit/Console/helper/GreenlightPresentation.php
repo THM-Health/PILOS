@@ -2,7 +2,7 @@
 
 namespace Tests\Backend\Unit\Console\helper;
 
-class Greenlight3Attachment
+class GreenlightPresentation
 {
     public $room_id;
 
@@ -11,7 +11,7 @@ class Greenlight3Attachment
     public $filename;
 
     /**
-     * Greenlight3Attachment constructor.
+     * Greenlight3Presentation constructor.
      */
     public function __construct(string $room_id, string $key, string $filename)
     {
