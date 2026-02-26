@@ -306,10 +306,10 @@ import { useToast } from "../composables/useToast.js";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import {
-  HTTP_ROOM_FILE_FORBIDDEN,
-  HTTP_ROOM_FILE_NOT_FOUND,
-  HTTP_ROOM_GUESTS_NOT_ALLOWED,
-  HTTP_ROOM_GUESTS_ONLY,
+  HTTP_FORBIDDEN,
+  HTTP_FILE_NOT_FOUND,
+  HTTP_GUESTS_NOT_ALLOWED,
+  HTTP_GUESTS_ONLY,
   HTTP_ROOM_INVALID_AUTH_TOKEN,
   HTTP_ROOM_REQUIRE_CODE,
 } from "../constants/httpCustomErrorMessages.js";
@@ -444,7 +444,7 @@ function handleFileErrorMessages(event) {
   // Check origin
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
   if (event.data?.type === null || event.data?.type === undefined) return;
-  if (event.data.type === HTTP_ROOM_FILE_NOT_FOUND) {
+  if (event.data.type === HTTP_FILE_NOT_FOUND) {
     // File not found
     toast.error(t("rooms.flash.file_gone"));
     loadData();
@@ -454,17 +454,17 @@ function handleFileErrorMessages(event) {
   } else if (event.data.type === HTTP_ROOM_REQUIRE_CODE) {
     // Forbidden, require access code
     emit("invalidRoomAuthToken");
-  } else if (event.data.type === HTTP_ROOM_FILE_FORBIDDEN) {
+  } else if (event.data.type === HTTP_FORBIDDEN) {
     // Forbidden, not allowed to view file
     toast.error(t("rooms.flash.file_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
     // Reload file to reflect changes to file visibility (e.g. download no longer allowed)
     // This can result in multiple reloads in some cases, but ensures the file list stays up to date
     loadData();
-  } else if (event.data.type === HTTP_ROOM_GUESTS_NOT_ALLOWED) {
+  } else if (event.data.type === HTTP_GUESTS_NOT_ALLOWED) {
     // Guests are not allowed
     emit("guestsNotAllowed");
-  } else if (event.data.type === HTTP_ROOM_GUESTS_ONLY) {
+  } else if (event.data.type === HTTP_GUESTS_ONLY) {
     api.handleGuestsOnly();
   }
 }

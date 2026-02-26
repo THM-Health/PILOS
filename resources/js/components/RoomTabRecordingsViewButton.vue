@@ -59,7 +59,10 @@
           :disabled="isLoadingAction"
           :label="$t('rooms.recordings.format_types.' + format.format)"
           :data-test="format.format + '-button'"
-          @click="downloadFormat(format)"
+          target="_blank"
+          rel="opener"
+          :href="viewFormatUrl(format)"
+          as="a"
         />
       </div>
     </OverlayComponent>
@@ -125,6 +128,21 @@ const modalVisible = ref(false);
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
+
+function viewFormatUrl(format) {
+  let url =
+    props.roomId + "/recordings/" + props.recordingId + "/formats/" + format.id;
+
+  if (props.roomAuthToken) {
+    url +=
+      "?room_auth_token=" +
+      props.roomAuthToken.id +
+      "&room_auth_token_type=" +
+      props.roomAuthToken.type;
+  }
+
+  return url;
+}
 
 function downloadFormat(format) {
   isLoadingAction.value = true;

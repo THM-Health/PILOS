@@ -334,7 +334,7 @@ class RecordingTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         // Access as authenticated user, without room auth token
         $this->actingAs($this->user)
@@ -632,7 +632,7 @@ class RecordingTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
     }
 
     public function test_show_personalized_link()
