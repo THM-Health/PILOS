@@ -24,16 +24,70 @@ use function Laravel\Prompts\text;
 class ImportGreenlight2Command extends Command
 {
     protected $signature = 'import:greenlight-v2
-                             {host : ip or hostname of postgres database server}
-                             {port : port of postgres database server}
-                             {database : greenlight database name, see greenlight .env variable DB_NAME}
-                             {username : greenlight database username, see greenlight .env variable DB_USERNAME}
-                             {password : greenlight database password, see greenlight .env variable DB_PASSWORD}';
+                            {host : ip or hostname of postgres database server}
+                            {port : port of postgres database server}
+                            {database : greenlight database name, see greenlight .env variable DB_NAME}
+                            {username : greenlight database username, see greenlight .env variable DB_USERNAME}
+                            {password : greenlight database password, see greenlight .env variable DB_PASSWORD}
+                            {--no-confirm : do not ask if the import should be committed}
+                            {--default-role= : name of the default role for imported local users}
+                            {--room-prefix= : prefix for imported room names (empty string is allowed)}
+                            {--room-type= : name of the room type for imported rooms}
+                            {--auth-provider-map= : JSON mapping of user authentication providers (Greenlight => PILOS)}
+                            ';
 
     protected $description = 'Connect to greenlight PostgreSQL database to import users, rooms and shared room accesses';
 
+    protected const AVAILABLE_AUTHENTICATORS = ['shibboleth', 'oidc'];
+
     public function handle()
     {
+        try {
+            // Ask user what room type the imported rooms should get
+            $roomType = ! is_null($this->option('room-type'))
+                ? RoomType::whereLike('name', $this->option('room-type'))->firstOrFail()->id
+                : select(
+                    label: 'What room type should the rooms be assigned to?',
+                    options: RoomType::pluck('name', 'id'),
+                    scroll: 10
+                );
+
+            // Ask user to add prefix to room names
+            $prefix = ! is_null($this->option('room-prefix'))
+                ? $this->option('room-prefix')
+                : text(
+                    label: 'Prefix for room names',
+                    placeholder: 'E.g. (Imported)',
+                    hint: '(Optional).'
+                );
+
+            // Ask user what role to assign to imported local users
+            $defaultRole = ! is_null($this->option('default-role'))
+                ? Role::whereLike('name', $this->option('default-role'))->firstOrFail()->id
+                : select(
+                    'Please select the default role for new imported local users',
+                    options: Role::pluck('name', 'id'),
+                    scroll: 10
+                );
+
+            // Parse user auth provider map if specified
+            $providerAuthenticatorMap = ! is_null($this->option('auth-provider-map'))
+                ? json_decode($this->option('auth-provider-map'), true)
+                : [];
+            if (! is_array($providerAuthenticatorMap)) {
+                throw new \InvalidArgumentException('Cannot parse --auth-provider-map JSON');
+            }
+            foreach ($providerAuthenticatorMap as $provider => $authenticator) {
+                if (! in_array($authenticator, self::AVAILABLE_AUTHENTICATORS, true)) {
+                    throw new \InvalidArgumentException('Unsupported authenticator "'.$authenticator.'"');
+                }
+            }
+        } catch (\Exception $e) {
+            $this->error('Import failed: '.$e->getMessage());
+
+            return 2;
+        }
+
         Config::set('database.connections.greenlight', [
             'driver' => 'pgsql',
             'host' => $this->argument('host'),
@@ -53,39 +107,18 @@ class ImportGreenlight2Command extends Command
         $rooms = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
-        $availableAuthenticators = ['shibboleth', 'oidc'];
         $socialProviders = DB::connection('greenlight')->table('users')->select('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->distinct()->get();
-        $providerAuthenticatorMap = [];
-
         foreach ($socialProviders as $socialProvider) {
+            if (array_key_exists($socialProvider->provider, $providerAuthenticatorMap)) {
+                continue;
+            }
             $authenticator = select(
                 label: 'Please select the authenticator for the social provider: '.$socialProvider->provider,
-                options: $availableAuthenticators,
+                options: self::AVAILABLE_AUTHENTICATORS,
                 scroll: 10
             );
             $providerAuthenticatorMap[$socialProvider->provider] = $authenticator;
         }
-
-        // ask user what room type the imported rooms should get
-        $roomType = select(
-            label: 'What room type should the rooms be assigned to?',
-            options: RoomType::pluck('name', 'id'),
-            scroll: 10
-        );
-
-        // ask user to add prefix to room names
-        $prefix = text(
-            label: 'Prefix for room names',
-            placeholder: 'E.g. (Imported)',
-            hint: '(Optional).'
-        );
-
-        // ask user what role to assign to imported local users
-        $defaultRole = select(
-            'Please select the default role for new imported local users',
-            options: Role::pluck('name', 'id'),
-            scroll: 10
-        );
 
         // Start transaction to rollback if import fails or user cancels
         DB::beginTransaction();
@@ -95,7 +128,7 @@ class ImportGreenlight2Command extends Command
             $roomMap = $this->importRooms($rooms, $roomType, $userMap, ! $requireAuth, $prefix);
             $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
 
-            if (confirm('Do you wish to commit the import?')) {
+            if ($this->option('no-confirm') || confirm('Do you wish to commit the import?')) {
                 DB::commit();
                 $this->info('Import completed');
             } else {
@@ -105,6 +138,8 @@ class ImportGreenlight2Command extends Command
         } catch (\Exception $e) {
             DB::rollBack();
             $this->error('Import failed: '.$e->getMessage());
+
+            return 1;
         }
     }
 
