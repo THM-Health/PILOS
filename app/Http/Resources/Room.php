@@ -90,7 +90,7 @@ class Room extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'owner' => $this->when($showOwner, [
+            'owner' => $this->when($showOwner, fn () => [
                 'id' => $this->owner->id,
                 'name' => $this->owner->fullname,
             ]),

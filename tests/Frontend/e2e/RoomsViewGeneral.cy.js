@@ -3326,9 +3326,8 @@ describe("Room View general", function () {
   });
 
   it("hide room owner if not provided", function () {
+    cy.interceptRoomFilesRequest();
     cy.fixture("room.json").then((room) => {
-      cy.interceptRoomFilesRequest();
-
       delete room.data.owner;
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,

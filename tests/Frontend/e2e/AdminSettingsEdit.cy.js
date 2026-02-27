@@ -3194,6 +3194,9 @@ describe("Admin settings with edit permission", function () {
           room_file_terms_of_use: [
             "The selected room file terms of use is invalid.",
           ],
+          room_hide_owner_for_guests: [
+            "The selected room hide owner for guests field is invalid.",
+          ],
           user_password_change_allowed: [
             "The user password change allowed field is required.",
           ],
@@ -3359,6 +3362,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="room-file-terms-of-use-field"]').should(
       "include.text",
       "The selected room file terms of use is invalid.",
+    );
+    cy.get('[data-test="room-hide-owner-field"]').should(
+      "include.text",
+      "The selected room hide owner for guests field is invalid.",
     );
 
     cy.get('[data-test="password-change-allowed-field"]').should(
@@ -3546,6 +3553,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="room-file-terms-of-use-field"]').should(
       "not.include.text",
       "The selected room file terms of use is invalid.",
+    );
+    cy.get('[data-test="room-hide-owner-field"]').should(
+      "not.include.text",
+      "The selected room hide owner for guests field is invalid.",
     );
 
     cy.get('[data-test="password-change-allowed-field"]').should(
