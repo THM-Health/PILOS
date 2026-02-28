@@ -200,7 +200,7 @@ class ImportGreenlight3Test extends TestCase
      *
      * @param  array  $cmdOptions  Command line options
      * @param  callable  $expectHook  Hook with expectations to check
-     * @param  string|null  $expectHook  Room prefix
+     * @param  string|null  $prefix  Room prefix
      */
     protected function test_helper_full(array $cmdOptions, callable $expectHook, ?string $prefix = null)
     {
@@ -259,9 +259,6 @@ class ImportGreenlight3Test extends TestCase
 
         // Mock database connections with fake data
         $this->fakeDatabase(new Collection($users), new Collection($rooms), new Collection($sharedAccesses), new Collection($presentations));
-
-        $roomType = RoomType::where('name', 'Lecture')->first();
-        $role = Role::where('name', 'student')->first();
 
         // Mock presentation files
         $storageMock = Storage::fake();
@@ -363,10 +360,10 @@ class ImportGreenlight3Test extends TestCase
     {
         $roomTypeId = RoomType::where('name', 'Lecture')->first()->id;
         $userRoleId = Role::where('name', 'student')->first()->id;
-        $cmd_options = [];
-        $expectations = function ($command) use ($roomTypeId, $userRoleId) {
+        $prefix = 'GL3 ::';
+        $expectations = function ($command) use ($roomTypeId, $userRoleId, $prefix) {
             $command->expectsQuestion('What room type should the rooms be assigned to?', $roomTypeId)
-                ->expectsQuestion('Prefix for room names', 'GL3 ::')
+                ->expectsQuestion('Prefix for room names', $prefix)
                 ->expectsQuestion('Please select the default role for new imported local users', $userRoleId)
                 ->expectsQuestion('Path to GL3 room presentations', 'migration/presentations')
                 ->expectsOutput('Importing users')
@@ -383,7 +380,7 @@ class ImportGreenlight3Test extends TestCase
                 ->expectsOutput('Import completed')
                 ->assertSuccessful();
         };
-        $this->test_helper_full($cmd_options, $expectations, 'GL3 ::');
+        $this->test_helper_full([], $expectations, $prefix);
     }
 
     public function test_non_interactive()
@@ -453,7 +450,7 @@ class ImportGreenlight3Test extends TestCase
             $command->expectsOutput('Import failed: Cannot read presentation directory at NXDIR')
                 ->assertFailed();
         };
-        $this->test_helper_command($cmd_options, $expectations, '', false);
+        $this->test_helper_command($cmd_options, $expectations);
     }
 
     public function test_invalid_default_role()
@@ -469,7 +466,7 @@ class ImportGreenlight3Test extends TestCase
             $command->expectsOutput('Import failed: No query results for model [App\Models\Role].')
                 ->assertFailed();
         };
-        $this->test_helper_command($cmd_options, $expectations, '', false);
+        $this->test_helper_command($cmd_options, $expectations);
     }
 
     public function test_invalid_room_type()
@@ -485,6 +482,6 @@ class ImportGreenlight3Test extends TestCase
             $command->expectsOutput('Import failed: No query results for model [App\Models\RoomType].')
                 ->assertFailed();
         };
-        $this->test_helper_command($cmd_options, $expectations, '', false);
+        $this->test_helper_command($cmd_options, $expectations);
     }
 }
