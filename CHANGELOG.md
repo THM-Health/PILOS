@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Accessibility statement URL setting for the admin UI and footer ([#2873], [#2874])
 - Greenlight v3 import command ([#2664], [#2665])
+- Greenlight v2 import command now supports importing room presentations ([#2879], [#2880])
 
 ### Fixed
 
