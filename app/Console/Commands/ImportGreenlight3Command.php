@@ -33,7 +33,7 @@ class ImportGreenlight3Command extends Command
                             {username : greenlight database username, see greenlight .env variable DB_USERNAME}
                             {password : greenlight database password, see greenlight .env variable DB_PASSWORD}
                             {--no-confirm : do not ask if the import should be committed}
-                            {--default-role= : name of the default role for imported external users}
+                            {--default-role= : name of the default role for imported local users}
                             {--room-prefix= : prefix for imported room names (empty string is allowed)}
                             {--room-type= : name of the room type for imported rooms}
                             {--presentation-path= : path to room presentations, relative to /storage/app}
