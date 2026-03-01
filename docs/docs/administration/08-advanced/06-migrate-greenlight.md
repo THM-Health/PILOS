@@ -26,6 +26,9 @@ ports:
 
 Also make sure the internal firewall of the OS and no external firewall is not blocking access to the port and from the host PILOS is running on.
 
+If you want to import Room presentations, copy Greenlight's active storage directory to the PILOS app storage at `/storage/app/migration/presentations` and specify `--presentation-path=migration/presentations` at the command line.
+Successfully imported presentation files will be moved to a different location.
+
 ## Running migration command
 
 The command will output the process of the import and informs about failed user, room and shared access import.
@@ -44,6 +47,14 @@ Arguments:
   database              greenlight database name, see greenlight .env variable DB_NAME
   username              greenlight database username, see greenlight .env variable DB_USERNAME
   password              greenlight database password, see greenlight .env variable DB_PASSWORD
+
+Options:
+      --no-confirm                             do not ask if the import should be committed
+      --default-role[=DEFAULT-ROLE]            name of the default role for imported external users
+      --room-prefix[=ROOM-PREFIX]              prefix for imported room names (empty string is allowed)
+      --room-type[=ROOM-TYPE]                  name of the room type for imported rooms
+      --presentation-path[=PRESENTATION-PATH]  path to room presentations, relative to /storage/app
+      --auth-provider-map[=AUTH-PROVIDER-MAP]  JSON mapping of user authentication providers (Greenlight => PILOS)
 ```
 
 **Example**
@@ -53,9 +64,6 @@ docker compose exec app pilos-cli import:greenlight-v2 localhost 5432 greenlight
 ```
 
 ### Greenlight 3
-
-If you want to import Room presentations, copy Greenlight's active storage directory to the PILOS app storage at `/storage/app/migration/presentations` and specify `--presentation-path=migration/presentations` at the command line.
-Successfully imported presentation files will be moved to a different location.
 
 ```text
 Usage:
