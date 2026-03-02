@@ -9,7 +9,7 @@
         if (window.opener) {
             window.opener.postMessage(
                 {
-                    type: @json("file_not_found"),
+                    type: "file_not_found",
                 },
                 "{{config('app.url')}}"
             );
