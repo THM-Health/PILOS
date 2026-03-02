@@ -158,7 +158,11 @@ class ImportGreenlight3Test extends TestCase
                             ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($presentations) {
                                 foreach ($presentations as $pres) {
                                     $mock->shouldReceive('where')
-                                        ->with('active_storage_attachments.record_id', $pres->room_id)
+                                        ->with([
+                                            'active_storage_attachments.name' => 'presentation',
+                                            'active_storage_attachments.record_type' => 'Room',
+                                            'active_storage_attachments.record_id' => $pres->room_id,
+                                        ])
                                         ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($pres) {
                                             $mock->shouldReceive('get')
                                                 ->with(['filename', 'key'])

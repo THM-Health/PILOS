@@ -344,7 +344,11 @@ class ImportGreenlight3Command extends Command
         foreach ($roomMap as $gl3RoomId => $pilosRoomId) {
             $blobs = DB::connection('greenlight')->table('active_storage_blobs')
                 ->join('active_storage_attachments', 'active_storage_blobs.id', '=', 'active_storage_attachments.blob_id')
-                ->where('active_storage_attachments.record_id', $gl3RoomId)
+                ->where([
+                    'active_storage_attachments.name' => 'presentation',
+                    'active_storage_attachments.record_type' => 'Room',
+                    'active_storage_attachments.record_id' => $gl3RoomId,
+                ])
                 ->get(['filename', 'key']);
             foreach ($blobs as $blob) {
                 // Read file path from GL3 database
