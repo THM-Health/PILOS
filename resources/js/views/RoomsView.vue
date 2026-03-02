@@ -120,8 +120,8 @@
                     id="access-code"
                     v-model="accessCodeInput"
                     autofocus
-                    :mask="room.legacy_code ? '999-999' : '999-999-999'"
-                    :placeholder="room.legacy_code ? '123-456' : '123-456-789'"
+                    :mask="room.legacy_code ? '******' : '999-999-999'"
+                    :placeholder="room.legacy_code ? '123abc' : '123-456-789'"
                     :invalid="
                       accessCodeInvalid ||
                       formErrors.fieldInvalid('access_code')

@@ -2,7 +2,7 @@
 
 namespace Tests\Backend\Unit\Console\helper;
 
-class GreenlightUser
+class Greenlight2User
 {
     public $id;
 

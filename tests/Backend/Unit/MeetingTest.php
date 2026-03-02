@@ -74,12 +74,72 @@ class MeetingTest extends TestCase
         $this->assertEquals(url('rooms/'.$meeting->room->id), $data['logoutURL']);
 
         $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);
-        $this->assertStringContainsString('http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
-        $this->assertStringContainsString('123-456-789', $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Link: http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Access code: 123-456-789', $data['moderatorOnlyMessage']);
 
         $salt = urldecode(explode('?salt=', $data['meta_endCallbackUrl'])[1]);
         $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
         $this->assertArrayNotHasKey('logo', $data);
+    }
+
+    /**
+     * Test start parameters for a room with a legacy access code
+     */
+    public function test_start_parameters_with_legacy_access_code()
+    {
+        $this->meeting->room->access_code = 'abc123';
+        $this->meeting->room->save();
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        // Check moderator only message contains access code but is not split into groups of three digits
+        $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Link: http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Access code: abc123', $data['moderatorOnlyMessage']);
+    }
+
+    /**
+     * Test start parameters for a room without an access code
+     */
+    public function test_start_parameters_without_access_code()
+    {
+        $this->meeting->room->access_code = null;
+        $this->meeting->room->save();
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        // Check moderator only message does not contain access code but still contains room name and link
+        $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Link: http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
+        $this->assertStringNotContainsString('Access code:', $data['moderatorOnlyMessage']);
     }
 
     /**
