@@ -6,14 +6,17 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomFile;
 use App\Models\RoomType;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use Illuminate\Console\Command;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 use function Laravel\Prompts\confirm;
@@ -33,12 +36,15 @@ class ImportGreenlight2Command extends Command
                             {--default-role= : name of the default role for imported local users}
                             {--room-prefix= : prefix for imported room names (empty string is allowed)}
                             {--room-type= : name of the room type for imported rooms}
+                            {--presentation-path= : path to room presentations, relative to /storage/app}
                             {--auth-provider-map= : JSON mapping of user authentication providers (Greenlight => PILOS)}
                             ';
 
     protected $description = 'Connect to greenlight PostgreSQL database to import users, rooms and shared room accesses';
 
     protected const AVAILABLE_AUTHENTICATORS = ['shibboleth', 'oidc'];
+
+    protected $importedPresentationFiles = [];
 
     public function handle()
     {
@@ -81,6 +87,19 @@ class ImportGreenlight2Command extends Command
                 if (! in_array($authenticator, self::AVAILABLE_AUTHENTICATORS, true)) {
                     throw new \InvalidArgumentException('Unsupported authenticator "'.$authenticator.'"');
                 }
+            }
+
+            // Ask user for presentation path and validate it is a directory
+            $presentationPath = ! is_null($this->option('presentation-path'))
+                ? $this->option('presentation-path')
+                : text(
+                    label: 'Path to GL2 room presentations',
+                    placeholder: 'E.g. migration/presentations',
+                );
+
+            // Check if provided presentation directory exists
+            if (! Storage::directoryExists($presentationPath)) {
+                throw new \Exception('Cannot read presentation directory at '.$presentationPath);
             }
         } catch (\Exception $e) {
             $this->error('Import failed: '.$e->getMessage());
@@ -126,21 +145,37 @@ class ImportGreenlight2Command extends Command
         try {
             $userMap = $this->importUsers($users, $defaultRole, $providerAuthenticatorMap);
             $roomMap = $this->importRooms($rooms, $roomType, $userMap, ! $requireAuth, $prefix);
+            $this->importPresentations($roomMap, $presentationPath);
             $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
 
             if ($this->option('no-confirm') || confirm('Do you wish to commit the import?')) {
                 DB::commit();
                 $this->info('Import completed');
             } else {
-                DB::rollBack();
+                $this->rollback();
                 $this->warn('Import canceled; nothing was imported');
             }
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->rollback();
             $this->error('Import failed: '.$e->getMessage());
 
             return 1;
         }
+    }
+
+    /**
+     * Rollback an import
+     */
+    protected function rollback()
+    {
+        foreach ($this->importedPresentationFiles as $src => $dest) {
+            try {
+                Storage::move($dest, $src);
+            } catch (\Exception $e) {
+                $this->error('Moving '.$dest.' back to '.$src.' failed: '.$e->getMessage());
+            }
+        }
+        DB::rollBack();
     }
 
     /**
@@ -372,6 +407,65 @@ class ImportGreenlight2Command extends Command
         $this->line('');
 
         return $roomMap;
+    }
+
+    /**
+     *  Process room mapping and import the rooms' presentations
+     *
+     * @param  array  $roomMap  Array map of greenlight room ids as key and id of the created room as value
+     * @param  string  $presentationPath  Path to GL2 presentation files in default storage
+     */
+    protected function importPresentations(array $roomMap, string $presentationPath)
+    {
+        $this->line('Importing presentations for rooms');
+
+        $bar = $this->output->createProgressBar(count($roomMap));
+        $bar->start();
+
+        // counter of successfully imported presentations
+        $created = 0;
+        // counter of failed imports
+        $failed = 0;
+
+        foreach ($roomMap as $gl2RoomId => $pilosRoomId) {
+            $blobs = DB::connection('greenlight')->table('active_storage_blobs')
+                ->join('active_storage_attachments', 'active_storage_blobs.id', '=', 'active_storage_attachments.blob_id')
+                ->where('active_storage_attachments.record_id', $gl2RoomId)
+                ->get(['filename', 'key']);
+            foreach ($blobs as $blob) {
+                // Read file path from GL2 database
+                $path = $presentationPath.'/'.substr($blob->key, 0, 2).'/'.substr($blob->key, 2, 2).'/'.$blob->key;
+
+                try {
+                    // Prepare uploaded file
+                    $presentation = new UploadedFile(Storage::path($path), $blob->filename);
+
+                    // Construct RoomFile
+                    $room = Room::find($pilosRoomId);
+                    $file = new RoomFile;
+                    $file->path = $presentation->store($room->id);
+                    $file->filename = $blob->filename;
+                    $file->use_in_meeting = true;
+
+                    // Save file and room, delete source file
+                    $room->files()->save($file);
+                    $room->updateDefaultFile();
+                    $this->importedPresentationFiles[$path] = $file->path;
+                    Storage::delete($path);
+
+                    $created++;
+                } catch (\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException $e) {
+                    $failed++;
+
+                    continue;
+                }
+            }
+            $bar->advance();
+        }
+
+        $this->line('');
+        $this->info($created.' created, '.$failed.' skipped (file not found)');
+        $this->line('');
     }
 
     /**
