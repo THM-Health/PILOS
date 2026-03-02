@@ -30,7 +30,7 @@
     "eslint-plugin-jsonc": "^3.0.1",
     "eslint-plugin-mocha": "^11.2.0",
     "eslint-plugin-vue": "^10.8.0",
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     "happo": "^6.3.4",
     "nyc": "^18.0.0",
     "prettier": "^3.8.1",
