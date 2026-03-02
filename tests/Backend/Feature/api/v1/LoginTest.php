@@ -62,7 +62,8 @@ class LoginTest extends TestCase
             'email' => $user->email,
             'password' => $password,
         ]);
-        $response->assertNoContent();
+        $response->assertStatus(200);
+        $response->assertJson(['two_factor' => false]);
         $this->assertAuthenticated();
 
         // Authenticated user tries to login again

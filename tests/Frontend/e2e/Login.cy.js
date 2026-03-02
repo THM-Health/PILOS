@@ -415,10 +415,11 @@ describe("Login", function () {
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 429,
+      headers: {
+        "Retry-After": "59",
+      },
       body: {
-        errors: {
-          email: ["Too many logins. Please try again later!"],
-        },
+        message: "Too Many Attempts.",
       },
     }).as("loginRequest");
 
@@ -427,9 +428,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check if error gets displayed
-    cy.contains("Too many logins. Please try again later!").should(
-      "be.visible",
-    );
+    cy.contains('auth.throttle_{"seconds":"59"}').should("be.visible");
     // Check that 422 error messages are hidden
     cy.contains("Password or Email wrong!").should("not.exist");
     cy.contains("The Password field is required.").should("not.exist");
@@ -447,7 +446,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check that other error messages are hidden
-    cy.contains("Too many logins. Please try again later!").should("not.exist");
+    cy.contains('auth.throttle_{"seconds":"59"}').should("not.exist");
 
     // Check that error message is shown
     cy.checkToastMessage([
@@ -546,10 +545,11 @@ describe("Login", function () {
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/ldap", {
       statusCode: 429,
+      headers: {
+        "Retry-After": "59",
+      },
       body: {
-        errors: {
-          username: ["Too many logins. Please try again later!"],
-        },
+        message: "Too Many Attempts.",
       },
     }).as("loginRequest");
 
@@ -558,9 +558,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check if error gets displayed
-    cy.contains("Too many logins. Please try again later!").should(
-      "be.visible",
-    );
+    cy.contains('auth.throttle_{"seconds":"59"}').should("be.visible");
     // Check that 422 error messages are hidden
     cy.contains("These credentials do not match our records.").should(
       "not.exist",
@@ -580,7 +578,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check that other error messages are hidden
-    cy.contains("Too many logins. Please try again later!").should("not.exist");
+    cy.contains('auth.throttle_{"seconds":"59"}').should("not.exist");
 
     // Check that error message is shown
     cy.checkToastMessage([

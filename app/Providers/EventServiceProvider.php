@@ -9,7 +9,9 @@ use App\Events\RoomStarted;
 use App\Listeners\ConfigureStreamingOnRoomStart;
 use App\Listeners\FailedLoginAttempt;
 use App\Listeners\ResetStreamingOnRoomStop;
+use App\Listeners\SuccessfulLogin;
 use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -33,6 +35,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         RoomEnded::class => [
             ResetStreamingOnRoomStop::class,
+        ],
+        Login::class => [
+            SuccessfulLogin::class,
         ],
     ];
 
