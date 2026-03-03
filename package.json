@@ -36,6 +36,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "vite-plugin-istanbul": "^7.2.1",
+    "vite-plugin-vue-devtools": "^8.0.7",
     "vue-eslint-parser": "^10.4.0"
   },
   "dependencies": {
