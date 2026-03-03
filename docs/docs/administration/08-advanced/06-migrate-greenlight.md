@@ -63,6 +63,24 @@ Options:
 docker compose exec app pilos-cli import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678
 ```
 
+**Example (non-interactive)**
+
+```bash
+docker compose exec app \
+    pilos-cli import:greenlight-v2 \
+    --no-confirm \
+    --default-role=User \
+    --room-prefix='' \
+    --room-type=Meeting \
+    --presentation-path=migration/presentations \
+    --auth-provider-map='{"shibboleth":"shibboleth","google":"oidc"}' \
+    localhost \
+    5432 \
+    greenlight_production \
+    postgres \
+    12345678
+```
+
 ### Greenlight 3
 
 ```text
@@ -90,6 +108,7 @@ Options:
 docker compose exec app pilos-cli import:greenlight-v3 \
     --no-confirm \
     --default-role=User \
+    --room-prefix='' \
     --room-type=Meeting \
     --presentation-path=migration/presentations \
     localhost \
