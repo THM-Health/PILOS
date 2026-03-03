@@ -218,13 +218,13 @@ This will redirect all traffic to PILOS. Replace **DOMAIN.TLD** with the hostnam
 
 To enable support for the most common Greenlight URLs set the following .env variable
 
-```
+```dotenv
 GREENLIGHT_COMPATIBILITY=true
 ```
 
 If your Greenlight was running in a subdirectory (Greeenlight 2 is running in `/b` by default) adjust the .env variable. Do not include the slash `/`.
 
-```
+```dotenv
 GREENLIGHT_PATH=b
 ```
 
