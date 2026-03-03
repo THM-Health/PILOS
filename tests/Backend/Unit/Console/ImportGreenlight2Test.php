@@ -319,7 +319,7 @@ class ImportGreenlight2Test extends TestCase
         $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-xyz-234')->default_role);
 
         // Test room name prefix
-        if ($prefix != null) {
+        if (! is_null($prefix)) {
             $this->assertEquals($prefix.' Test Room 1', Room::find('abc-def-xyz-123')->name);
         } else {
             $this->assertEquals('Test Room 1', Room::find('abc-def-xyz-123')->name);

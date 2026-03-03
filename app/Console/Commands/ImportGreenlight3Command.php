@@ -63,6 +63,7 @@ class ImportGreenlight3Command extends Command
                     placeholder: 'E.g. (Imported)',
                     hint: '(Optional).'
                 );
+            $prefix = $prefix !== '' ? $prefix : null;
 
             // Ask user what role to assign to imported local users
             $defaultRole = ! is_null($this->option('default-role'))
@@ -262,7 +263,7 @@ class ImportGreenlight3Command extends Command
             $dbRoom = new Room;
             $dbRoom->expert_mode = true; // set expert mode to true for imported rooms, as many settings are considered expert mode settings and have not effect is expert mode is disabled
             $dbRoom->id = $room->friendly_id;
-            $dbRoom->name = Str::limit(($prefix != null ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
+            $dbRoom->name = Str::limit((! is_null($prefix) ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
             $roomOptions = DB::connection('greenlight')->table('room_meeting_options')->join('meeting_options', 'meeting_option_id', '=', 'meeting_options.id')->where('room_id', $room->id)->get(['name', 'value']);
 
             // set room settings
