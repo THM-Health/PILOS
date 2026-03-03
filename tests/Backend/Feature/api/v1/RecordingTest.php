@@ -1321,7 +1321,6 @@ class RecordingTest extends TestCase
             ->assertNotFound();
     }
 
-    /** Non-API Routes */
     public function test_access_recording_resource()
     {
         Storage::fake('recordings');
@@ -1356,11 +1355,21 @@ class RecordingTest extends TestCase
 
         // Try to path traversal
         $response = $this->actingAs($room->owner)->get(route('recording.resource', ['formatName' => 'notes', 'recording' => $recording->id, 'resource' => '../podcast/audio.ogg']));
-        $response->assertNotFound();
+        $response->assertNotFound()->assertViewIs('new-tab-error')->assertViewHasAll([
+            'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
+            'code' => 404,
+            'title' => 'File not found',
+            'message' => __('rooms.flash.recording_gone'),
+        ]);
 
         // Try invalid file
         $response = $this->actingAs($room->owner)->get(route('recording.resource', ['formatName' => 'notes', 'recording' => $recording->id, 'resource' => 'audio.ogg']));
-        $response->assertNotFound();
+        $response->assertNotFound()->assertViewIs('new-tab-error')->assertViewHasAll([
+            'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
+            'code' => 404,
+            'title' => 'File not found',
+            'message' => __('rooms.flash.recording_gone'),
+        ]);
 
         // Try to access other format
         $this->actingAs($room->owner)->get(route('recording.resource', ['formatName' => 'podcast', 'recording' => $recording->id, 'resource' => 'audio.ogg']))
@@ -1369,7 +1378,12 @@ class RecordingTest extends TestCase
         // Check if permission to access the resource are bound to the session
         $this->flushSession();
         $response = $this->actingAs($room->owner)->get($url);
-        $response->assertForbidden();
+        $response->assertForbidden()->assertViewIs('new-tab-error')->assertViewHasAll([
+            'type' => CustomErrorMessages::FORBIDDEN->value,
+            'code' => 403,
+            'title' => 'Forbidden',
+            'message' => __('rooms.flash.recording_forbidden'),
+        ]);
     }
 
     public function test_download_recording()
