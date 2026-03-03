@@ -252,7 +252,7 @@ class ImportGreenlight2Test extends TestCase
         $presentations = [];
         $presentations[] = new GreenlightPresentation('1', 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
         $presentations[] = new GreenlightPresentation('2', 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
-        $presentations[] = new GreenlightPresentation('3', 'xivei7mi0cohtoecacahyaich8ohzaed', '3testvongpresiher.pdf');
+        $presentations[] = new GreenlightPresentation('3', '20yeie1yac7uy8pnjbpr44oaxbir424i', '3testvongpresiher.pdf');
 
         // Create fake shared accesses
         $sharedAccesses = [];
@@ -273,6 +273,14 @@ class ImportGreenlight2Test extends TestCase
 
         // Run artisan command and validate expectation hook
         $rollback = $this->test_helper_command($cmdOptions, $expectHook);
+
+        if ($rollback) {
+            // Check imported files are removed
+            $this->assertEmpty($storageMock->files('abc-def-xyz-123'));
+            $this->assertEmpty($storageMock->files('abc-def-xyz-234'));
+
+            return;
+        }
 
         // check amount of rooms and users
         $this->assertCount(9, Room::all());
@@ -324,6 +332,16 @@ class ImportGreenlight2Test extends TestCase
         } else {
             $this->assertEquals('Test Room 1', Room::find('abc-def-xyz-123')->name);
         }
+
+        // Test presentations
+        $this->assertTrue($storageMock->fileExists('migration/presentations/fe/en/feen6movahheegheeg0ovahche8bu3mo'));
+        $this->assertTrue($storageMock->fileExists('migration/presentations/xi/ve/xivei7mi0cohtoecacahyaich8ohzaed'));
+        $this->assertNotEmpty($storageMock->files('abc-def-xyz-123'));
+        $this->assertNotEmpty($storageMock->files('abc-def-xyz-234'));
+        $this->assertEquals('1testvongpresiher.pdf', Room::find('abc-def-xyz-123')->files()->first()->filename);
+        $this->assertEquals('2testvongpresiher.pdf', Room::find('abc-def-xyz-234')->files()->first()->filename);
+        $this->assertEmpty(Room::find('abc-def-xyz-345')->files()->get());
+        $this->assertEmpty(Room::find('hij-klm-xyz-123')->files()->get());
 
         // Testing room ownership
         $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'local')->first(), Room::find('abc-def-xyz-123')->owner);

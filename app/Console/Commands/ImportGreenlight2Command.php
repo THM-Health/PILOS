@@ -169,11 +169,11 @@ class ImportGreenlight2Command extends Command
      */
     protected function rollback()
     {
-        foreach ($this->importedPresentationFiles as $src => $dest) {
+        foreach ($this->importedPresentationFiles as $file) {
             try {
-                Storage::move($dest, $src);
+                Storage::delete($file);
             } catch (\Exception $e) {
-                $this->error('Moving '.$dest.' back to '.$src.' failed: '.$e->getMessage());
+                $this->error('Deleting imported presentation '.$file.' failed: '.$e->getMessage());
             }
         }
         DB::rollBack();
@@ -448,11 +448,10 @@ class ImportGreenlight2Command extends Command
                     $file->filename = $blob->filename;
                     $file->use_in_meeting = true;
 
-                    // Save file and room, delete source file
+                    // Save file and room
                     $room->files()->save($file);
                     $room->updateDefaultFile();
-                    $this->importedPresentationFiles[$path] = $file->path;
-                    Storage::delete($path);
+                    $this->importedPresentationFiles[] = $file->path;
 
                     $created++;
                 } catch (\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException $e) {
