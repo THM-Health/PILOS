@@ -95,28 +95,35 @@ describe("Meetings index", function () {
       .within(() => {
         cy.get(".fa-users")
           .should("be.visible")
-          .and("have.attr", "aria-label", "meetings.participant_count");
+          .and("have.attr", "aria-hidden", "true");
+        cy.get(".sr-only").should("have.text", "meetings.participant_count");
       });
     cy.get('[data-test="meeting-header-cell"]')
       .eq(5)
       .within(() => {
         cy.get(".fa-headphones")
           .should("be.visible")
-          .and("have.attr", "aria-label", "meetings.listener_count");
+          .and("have.attr", "aria-hidden", "true");
+        cy.get(".sr-only").should("have.text", "meetings.listener_count");
       });
     cy.get('[data-test="meeting-header-cell"]')
       .eq(6)
       .within(() => {
         cy.get(".fa-microphone")
           .should("be.visible")
-          .and("have.attr", "aria-label", "meetings.voice_participant_count");
+          .and("have.attr", "aria-hidden", "true");
+        cy.get(".sr-only").should(
+          "have.text",
+          "meetings.voice_participant_count",
+        );
       });
     cy.get('[data-test="meeting-header-cell"]')
       .eq(7)
       .within(() => {
         cy.get(".fa-video")
           .should("be.visible")
-          .and("have.attr", "aria-label", "meetings.video_count");
+          .and("have.attr", "aria-hidden", "true");
+        cy.get(".sr-only").should("have.text", "meetings.video_count");
       });
     cy.get('[data-test="meeting-header-cell"]')
       .eq(8)
