@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Missing aria-label for recording edit button ([#2906], [#2911])
 - Greenlight v2 imported room settings not applied due to disabled expert mode ([#2665])
 
 ## [v4.13.0] - 2026-02-23
@@ -717,6 +718,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2857]: https://github.com/THM-Health/PILOS/pull/2857
 [#2873]: https://github.com/THM-Health/PILOS/issues/2873
 [#2874]: https://github.com/THM-Health/PILOS/pull/2874
+[#2906]: https://github.com/THM-Health/PILOS/issues/2906
+[#2911]: https://github.com/THM-Health/PILOS/pull/2911
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.13.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
