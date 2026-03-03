@@ -47,7 +47,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('currentUser', [ApplicationController::class, 'currentUser'])->name('currentUser');
 
     Route::post('login/local', [LoginController::class, 'login'])->name('login.local')->middleware(['guest', 'enable_if_config:auth.local.enabled', 'throttle:login']);
-    Route::post('login/ldap', [LDAPController::class, 'login'])->name('login.ldap')->middleware(['enable_if_config:ldap.enabled', 'throttle:login']);
+    Route::post('login/ldap', [LDAPController::class, 'login'])->name('login.ldap')->middleware(['guest', 'enable_if_config:ldap.enabled', 'throttle:login']);
 
     Route::post('logout', [LoginController::class, 'logout'])->name('logout')->middleware(['auth:users,ldap']);
     Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset')->middleware(['enable_if_config:auth.local.enabled', 'guest', 'throttle:password_reset']);
