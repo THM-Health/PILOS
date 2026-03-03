@@ -150,6 +150,7 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.participant_count')"
+                :aria-label="$t('meetings.participant_count')"
                 class="fa-solid fa-users"
               />
             </template>
@@ -168,6 +169,7 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.listener_count')"
+                :aria-label="$t('meetings.listener_count')"
                 class="fa-solid fa-headphones"
               />
             </template>
@@ -187,6 +189,7 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.voice_participant_count')"
+                :aria-label="$t('meetings.voice_participant_count')"
                 class="fa-solid fa-microphone"
               />
             </template>
@@ -207,6 +210,7 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.video_count')"
+                :aria-label="$t('meetings.video_count')"
                 class="fa-solid fa-video"
               />
             </template>
