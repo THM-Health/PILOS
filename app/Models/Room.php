@@ -338,7 +338,8 @@ class Room extends Model
         $message = __('rooms.invitation.room', ['roomname' => $this->name, 'platform' => $appName]).'<br>';
         $message .= __('rooms.invitation.link').': '.config('app.url').'/rooms/'.$this->id;
         if ($this->access_code != null) {
-            $message .= '<br>'.__('rooms.invitation.code').': '.implode('-', str_split($this->access_code, 3));
+            $message .= '<br>'.__('rooms.invitation.code').': ';
+            $message .= $this->hasLegacyCode ? $this->access_code : implode('-', str_split($this->access_code, 3));
         }
 
         return $message;
@@ -351,6 +352,14 @@ class Room extends Model
     public function getRoomTypeInvalidAttribute(): bool
     {
         return ! self::roomTypePermitted($this->owner, $this->roomType);
+    }
+
+    /**
+     * Does the room has a legacy access code (6 characters, alphanumeric)
+     */
+    public function getHasLegacyCodeAttribute(): bool
+    {
+        return $this->access_code && strlen($this->access_code) == 6;
     }
 
     /**

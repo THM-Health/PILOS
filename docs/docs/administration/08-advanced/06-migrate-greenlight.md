@@ -1,6 +1,6 @@
 ---
-title: Migrate from Greenlight v2
-description: Step by step guide to migrate from Greenlight v2 to PILOS
+title: Migrate from Greenlight
+description: Step by step guide to migrate from Greenlight to PILOS
 ---
 
 PILOS provides an easy to use command to import all greenlight users (incl. ldap), rooms and shared accesses.
@@ -28,12 +28,22 @@ Also make sure the internal firewall of the OS and no external firewall is not b
 
 ## Running migration command
 
-```bash
-docker compose exec app pilos-cli import:greenlight-v2   {host : ip or hostname of postgres database server}
-                                {port : port of postgres database server}
-                                {database : greenlight database name, see greenlight .env variable DB_NAME}
-                                {username : greenlight database username, see greenlight .env variable DB_USERNAME}
-                                {password : greenlight database password, see greenlight .env variable DB_PASSWORD}
+The command will output the process of the import and informs about failed user, room and shared access import.
+
+**Note** If a room with the same room id already exists in PILOS it will NOT be imported and the shared accesses are ignored.
+
+### Greenlight 2
+
+```text
+Usage:
+  import:greenlight-v2 <host> <port> <database> <username> <password>
+
+Arguments:
+  host                  ip or hostname of postgres database server
+  port                  port of postgres database server
+  database              greenlight database name, see greenlight .env variable DB_NAME
+  username              greenlight database username, see greenlight .env variable DB_USERNAME
+  password              greenlight database password, see greenlight .env variable DB_PASSWORD
 ```
 
 **Example**
@@ -42,9 +52,44 @@ docker compose exec app pilos-cli import:greenlight-v2   {host : ip or hostname 
 docker compose exec app pilos-cli import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678
 ```
 
-The command will output the process of the import and imforms about failed user, room and shared access import.
+### Greenlight 3
 
-**Note** If a room with the same room id already exists in PILOS it will NOT be imported and the shared accesses are ignored.
+If you want to import Room presentations, copy Greenlight's active storage directory to the PILOS app storage at `/storage/app/migration/presentations` and specify `--presentation-path=migration/presentations` at the command line.
+Successfully imported presentation files will be moved to a different location.
+
+```text
+Usage:
+  import:greenlight-v3 [options] [--] <host> <port> <database> <username> <password>
+
+Arguments:
+  host                                         ip or hostname of postgres database server
+  port                                         port of postgres database server
+  database                                     greenlight database name
+  username                                     greenlight database username
+  password                                     greenlight database password
+
+Options:
+      --no-confirm                             do not ask if the import should be committed
+      --default-role[=DEFAULT-ROLE]            name of the default role for imported local users (case-insensitive)
+      --room-prefix[=ROOM-PREFIX]              prefix for imported room names (empty string is allowed)
+      --room-type[=ROOM-TYPE]                  name of the room type for imported rooms (case-insensitive)
+      --presentation-path[=PRESENTATION-PATH]  path to room presentations, relative to /storage/app
+```
+
+**Example**
+
+```bash
+docker compose exec app pilos-cli import:greenlight-v3 \
+    --no-confirm \
+    --default-role=User \
+    --room-type=Meeting \
+    --presentation-path=migration/presentations \
+    localhost \
+    5432 \
+    greenlight-v3-production \
+    postgres \
+    12345678
+```
 
 ## Adjust nginx to redirect to PILOS (other host)
 

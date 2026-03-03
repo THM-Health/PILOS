@@ -80,9 +80,9 @@ class ImportGreenlight2Command extends Command
             hint: '(Optional).'
         );
 
-        // ask user what room type the imported rooms should get
+        // ask user what role to assign to imported local users
         $defaultRole = select(
-            'Please select the default role for new imported non-ldap users',
+            'Please select the default role for new imported local users',
             options: Role::pluck('name', 'id'),
             scroll: 10
         );
@@ -112,7 +112,7 @@ class ImportGreenlight2Command extends Command
      * Process greenlight user collection and try to import users
      *
      * @param  Collection  $users  Collection with all users found in the greenlight database
-     * @param  int  $defaultRole  IDs of the role that should be assigned to new non-ldap users
+     * @param  int  $defaultRole  IDs of the role that should be assigned to local users
      * @return array Array map of greenlight user ids as key and id of the found/created user as value
      */
     protected function importUsers(Collection $users, int $defaultRole, array $providerAuthenticatorMap): array
@@ -285,6 +285,7 @@ class ImportGreenlight2Command extends Command
 
             // create room with same id, same name, access code
             $dbRoom = new Room;
+            $dbRoom->expert_mode = true; // set expert mode to true for imported rooms, as many settings are considered expert mode settings and have not effect is expert mode is disabled
             $dbRoom->id = $room->uid;
             $dbRoom->name = Str::limit(($prefix != null ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
             $dbRoom->access_code = $room->access_code == '' ? null : $room->access_code;

@@ -75,6 +75,7 @@ return [
         'firstname' => 'Firstname',
         'formats' => 'Formats',
         'gender' => 'Gender',
+        'general_accessibility_statement_url' => 'URL to the accessibility statement',
         'general_default_timezone' => 'Default timezone',
         'general_help_url' => 'URL to the help page',
         'general_legal_notice_url' => 'URL to the legal notice',

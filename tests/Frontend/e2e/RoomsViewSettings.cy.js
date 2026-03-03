@@ -1236,6 +1236,73 @@ describe("Rooms view settings", function () {
     );
   });
 
+  it("change settings with GL3 access code", function () {
+    cy.fixture("roomSettings.json").then((roomSettings) => {
+      roomSettings.data.access_code = "012abc";
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
+        statusCode: 200,
+        body: roomSettings,
+      }).as("roomSettingsRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("#room-setting-access_code")
+      .should("have.value", "012abc")
+      .and("not.be.disabled");
+
+    // Change settings
+    cy.get("#room-setting-name").clear();
+    cy.get("#room-setting-name").type("Meeting Two");
+
+    // Save settings
+    cy.fixture("roomTypesWithSettings.json").then(() => {
+      cy.fixture("roomSettings.json").then((roomSettings) => {
+        roomSettings.data.name = "Meeting Two";
+        roomSettings.data.access_code = "012abc";
+
+        cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
+          statusCode: 200,
+          body: roomSettings,
+        }).as("roomSettingsSaveRequest");
+
+        cy.get('[data-test="room-settings-save-button"]').click();
+      });
+    });
+
+    cy.wait("@roomSettingsSaveRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Meeting Two",
+        expert_mode: true,
+        welcome: "Welcome message",
+        short_description: "Short description",
+        access_code: "012abc",
+        room_type: 2,
+        mute_on_start: true,
+        lock_settings_disable_cam: false,
+        webcams_only_for_moderator: true,
+        lock_settings_disable_mic: false,
+        lock_settings_disable_private_chat: false,
+        lock_settings_disable_public_chat: true,
+        lock_settings_disable_note: true,
+        lock_settings_hide_user_list: true,
+        everyone_can_start: false,
+        allow_membership: false,
+        allow_guests: true,
+        default_role: 1,
+        lobby: 2,
+        visibility: 1,
+        record_attendance: false,
+        record: false,
+        auto_start_recording: false,
+      });
+    });
+
+    // Check that settings are shown correctly
+    cy.get("#room-setting-name").should("have.value", "Meeting Two");
+  });
+
   it("change settings errors", function () {
     cy.fixture("roomTypesWithSettings.json").then((roomTypes) => {
       cy.fixture("roomSettings.json").then((roomSettings) => {

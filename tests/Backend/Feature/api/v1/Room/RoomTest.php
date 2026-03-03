@@ -675,6 +675,12 @@ class RoomTest extends TestCase
             'session_id' => $currentSession->id,
             'type' => RoomAuthTokenType::CODE->value,
         ]);
+
+        // Try with legacy alphanumeric access code
+        $room->access_code = '012abc';
+        $room->save();
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(201);
     }
 
     /**

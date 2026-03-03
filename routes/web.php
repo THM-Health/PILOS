@@ -44,10 +44,19 @@ Route::middleware('enable_if_config:services.oidc.enabled')->group(function () {
 
 if (config('greenlight.compatibility')) {
     Route::prefix(config('greenlight.base'))->group(function () {
-        // room urls
+        // Greenlight v2 room urls
         Route::get('/{id}', function ($id) {
             return redirect('/rooms/'.$id);
         })->where('id', '([A-Za-z0-9-]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(-[A-Za-z0-9]{3})?)');
+
+        // Greenlight v3 room urls (only used if GL 3 was running in a subdirectory, otherwise frontend routing will handle this)
+        Route::get('/rooms/{id}', function ($id) {
+            return redirect('/rooms/'.$id);
+        })->where('id', '([A-Za-z0-9-]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(-[A-Za-z0-9]{3})?)');
+        Route::get('/rooms/{id}/join', function ($id) {
+            return redirect('/rooms/'.$id);
+        })->where('id', '([A-Za-z0-9-]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(-[A-Za-z0-9]{3})?)');
+
         // login
         Route::redirect('/ldap_signin', '/login');
         Route::redirect('/signin', '/login');

@@ -320,6 +320,10 @@ return [
             'description' => 'Le lien des mentions légales ne s\'affichera que si une URL y est associée.',
             'title' => 'URL des mentions légales',
         ],
+        'accessibility_statement_url' => [
+            'description' => 'Si non défini, aucun lien vers la déclaration d\'accessibilité ne sera affiché dans le pied de page.',
+            'title' => 'URL de la déclaration d\'accessibilité',
+        ],
         'logo' => [
             'alt' => 'Aperçu du logo',
             'hint' => 'https://domaine.fr/chemin/logo.svg',

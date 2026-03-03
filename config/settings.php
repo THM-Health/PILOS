@@ -8,6 +8,7 @@ return [
             'help_url' => env('DEFAULT_HELP_URL'),
             'legal_notice_url' => env('DEFAULT_LEGAL_NOTICE_URL'),
             'privacy_policy_url' => env('DEFAULT_PRIVACY_POLICY_URL'),
+            'accessibility_statement_url' => env('DEFAULT_ACCESSIBILITY_STATEMENT_URL'),
             'default_timezone' => env('DEFAULT_TIMEZONE', 'UTC'),
         ],
         'theme' => [

@@ -14,6 +14,8 @@ class GeneralSettings extends Settings
 
     public ?string $privacy_policy_url;
 
+    public ?string $accessibility_statement_url;
+
     public int $pagination_page_size;
 
     public string $default_timezone;

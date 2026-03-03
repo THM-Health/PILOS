@@ -141,6 +141,7 @@ return [
     'first_and_lastname' => 'Prénom et nom',
     'flash' => [
         'access_code_invalid' => 'Le code d\'accès est invalide.',
+        'auth_token_invalid' => 'Le jeton d\'authentification n\'est pas valide.',
         'file_forbidden' => 'L\'accès au fichier demandé a été interdit.',
         'file_gone' => 'Ce fichier a été supprimé entre temps.',
         'no_new_room' => 'Vous n\'avez pas l\'autorisation nécessaire pour créer une nouvelle salle.',

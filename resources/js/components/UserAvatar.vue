@@ -37,9 +37,17 @@ const props = defineProps({
 });
 
 const avatarLabel = computed(() => {
+  // Imported users only have a firstname
+  if (props.firstname && !props.lastname) {
+    return _.split(props.firstname?.toUpperCase(), "", 2).join("");
+  }
+
+  // If there is no firstname or lastname, return an empty string to avoid errors
   if (!props.firstname || !props.lastname) {
     return "";
   }
+
+  // Avatar label consists of the first letter of the firstname and the first letter of the lastname, both in uppercase
   return (
     _.split(props.firstname?.toUpperCase(), "", 1)[0] +
     _.split(props.lastname?.toUpperCase(), "", 1)[0]

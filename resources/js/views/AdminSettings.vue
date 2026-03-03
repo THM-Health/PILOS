@@ -115,6 +115,40 @@
             </div>
             <div
               class="grid grid-cols-12 gap-4"
+              data-test="accessibility-statement-url-field"
+            >
+              <label
+                for="accessibility-statement-url"
+                class="col-span-12 md:col-span-4 md:mb-0"
+                >{{
+                  $t("admin.settings.accessibility_statement_url.title")
+                }}</label
+              >
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <InputText
+                  id="accessibility-statement-url"
+                  v-model="settings.general_accessibility_statement_url"
+                  type="text"
+                  :invalid="
+                    formErrors.fieldInvalid(
+                      'general_accessibility_statement_url',
+                    )
+                  "
+                  :disabled="disabled"
+                  aria-describedby="accessibility-statement-url-help"
+                />
+                <small id="accessibility-statement-url-help">{{
+                  $t("admin.settings.accessibility_statement_url.description")
+                }}</small>
+                <FormError
+                  :errors="
+                    formErrors.fieldError('general_accessibility_statement_url')
+                  "
+                />
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-12 gap-4"
               data-test="pagination-page-size-field"
             >
               <label
