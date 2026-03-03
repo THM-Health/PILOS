@@ -27,7 +27,7 @@ ports:
 Also make sure the internal firewall of the OS and no external firewall is not blocking access to the port and from the host PILOS is running on.
 
 If you want to import Room presentations, copy Greenlight's active storage directory to the PILOS app storage at `/storage/app/migration/presentations` and specify `--presentation-path=migration/presentations` at the command line.
-Successfully imported presentation files will be moved to a different location.
+Successfully imported presentation files will be copied to a different location.
 
 ## Running migration command
 
