@@ -29,9 +29,9 @@ class ImportGreenlight3Command extends Command
     protected $signature = 'import:greenlight-v3
                             {host : ip or hostname of postgres database server}
                             {port : port of postgres database server}
-                            {database : greenlight database name, see greenlight .env variable DB_NAME}
-                            {username : greenlight database username, see greenlight .env variable DB_USERNAME}
-                            {password : greenlight database password, see greenlight .env variable DB_PASSWORD}
+                            {database : Greenlight database name, see Greenlight .env variable DB_NAME}
+                            {username : Greenlight database username, see Greenlight .env variable DB_USERNAME}
+                            {password : Greenlight database password, see Greenlight .env variable DB_PASSWORD}
                             {--no-confirm : do not ask if the import should be committed}
                             {--default-role= : name of the default role for imported local users}
                             {--room-prefix= : prefix for imported room names (empty string is allowed)}
@@ -39,7 +39,7 @@ class ImportGreenlight3Command extends Command
                             {--presentation-path= : path to room presentations, relative to /storage/app}
                             ';
 
-    protected $description = 'Connect to greenlight PostgreSQL database to import users, rooms and shared room accesses';
+    protected $description = 'Connect to Greenlight PostgreSQL database to import users, rooms and shared room accesses';
 
     protected $importedPresentationFiles = [];
 
