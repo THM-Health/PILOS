@@ -259,6 +259,10 @@ return [
         'view' => 'Detailed information for the server :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'If not set, no accessibility statement link will be displayed in the footer.',
+            'title' => 'URL to the accessibility statement',
+        ],
         'application' => 'Application',
         'attendance' => [
             'retention_period_title' => 'Retention period of the attendance logging in days',
@@ -315,10 +319,6 @@ return [
         'help_url' => [
             'description' => 'If not set, no help button will be displayed.',
             'title' => 'URL to the help page',
-        ],
-        'accessibility_statement_url' => [
-            'description' => 'If not set, no accessibility statement link will be displayed in the footer.',
-            'title' => 'URL to the accessibility statement',
         ],
         'legal_notice_url' => [
             'description' => 'If not set, no legal notice link will be displayed in the footer.',

@@ -76,9 +76,9 @@ return [
         'unauthorized' => 'You don\'t have the necessary rights to access the called route!',
     ],
     'footer' => [
+        'accessibility' => 'Accessibility statement',
         'legal_notice' => 'Legal notice',
         'privacy_policy' => 'Privacy policy',
-        'accessibility' => 'Accessibility statement',
     ],
     'help' => 'Do you need help?',
     'home' => 'Home',

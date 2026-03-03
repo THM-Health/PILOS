@@ -1,6 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('rooms.recordings.edit_recording')"
+    :aria-label="$t('rooms.recordings.edit_recording')"
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"

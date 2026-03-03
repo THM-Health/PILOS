@@ -71,7 +71,6 @@ return [
     'footer' => [
         'legal_notice' => 'Impressum',
         'privacy_policy' => 'Datenschutzerklärung',
-        'accessibility' => 'Barrierefreiheitserklärung',
     ],
     'help' => 'Benötigen Sie Hilfe?',
     'home' => 'Startseite',
