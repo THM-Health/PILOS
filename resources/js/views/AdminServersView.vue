@@ -357,6 +357,7 @@
       </div>
       <ConfirmDialog
         data-test="stale-server-dialog"
+        :draggable="false"
         :pt="{
           pcAcceptButton: {
             root: {
