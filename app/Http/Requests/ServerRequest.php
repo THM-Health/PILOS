@@ -8,6 +8,13 @@ use Illuminate\Validation\Rule;
 
 class ServerRequest extends FormRequest
 {
+    protected function prepareForValidation()
+    {
+        if ($this->base_url && ! str_ends_with($this->base_url, '/')) {
+            $this->merge(['base_url' => $this->base_url.'/']);
+        }
+    }
+
     public function rules()
     {
         $rules = [
