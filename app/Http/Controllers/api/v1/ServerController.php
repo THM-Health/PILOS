@@ -15,6 +15,7 @@ use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class ServerController extends Controller
 {
@@ -98,7 +99,7 @@ class ServerController extends Controller
     {
         $server->name = $request->name;
         $server->description = $request->description;
-        $server->base_url = $request->base_url;
+        $server->base_url = Str::finish($request->base_url, '/');
         $server->secret = $request->secret;
         $server->strength = $request->strength;
         $server->status = $request->status;
@@ -125,7 +126,7 @@ class ServerController extends Controller
         $server = new Server;
         $server->name = $request->name;
         $server->description = $request->description;
-        $server->base_url = $request->base_url;
+        $server->base_url = Str::finish($request->base_url, '/');
         $server->secret = $request->secret;
         $server->strength = $request->strength;
         $server->status = $request->status;
@@ -187,7 +188,7 @@ class ServerController extends Controller
         $secretOk = false;
 
         try {
-            $bbb = new BigBlueButton($request->base_url, $request->secret, new LaravelHTTPClient);
+            $bbb = new BigBlueButton(Str::finish($request->base_url, '/'), $request->secret, new LaravelHTTPClient);
             $response = $bbb->getMeetings();
 
             if ($response->success()) {

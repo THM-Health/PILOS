@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Greenlight v3 import command ([#2664], [#2665])
 - Greenlight v2 import command now supports importing room presentations ([#2879], [#2880])
 
+### Changed
+
+- BBB API URL is now automatically normalized to include a trailing `/` when adding or editing a server ([#2912], [#2913])
+
 ### Fixed
 
 - Missing aria-label for recording edit button ([#2906], [#2911])
@@ -726,6 +730,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2906]: https://github.com/THM-Health/PILOS/issues/2906
 [#2910]: https://github.com/THM-Health/PILOS/pull/2910
 [#2911]: https://github.com/THM-Health/PILOS/pull/2911
+[#2912]: https://github.com/THM-Health/PILOS/issues/2912
+[#2913]: https://github.com/THM-Health/PILOS/pull/2913
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.13.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
