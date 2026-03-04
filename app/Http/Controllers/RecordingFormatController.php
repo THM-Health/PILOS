@@ -17,7 +17,7 @@ class RecordingFormatController extends Controller
             $this->authorize('viewRecordingFormat', [$room, $format]);
 
         } catch (AuthorizationException $e) {
-            // User is not authorized to download the file
+            // User is not authorized to view the recording format
             return response(view('new-tab-error', [
                 'type' => CustomErrorMessages::FORBIDDEN->value,
                 'code' => 403,

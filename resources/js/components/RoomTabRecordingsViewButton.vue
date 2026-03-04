@@ -112,23 +112,21 @@ const settingsStore = useSettingsStore();
 const router = useRouter();
 
 function viewFormatUrl(format) {
-  let url =
-    settingsStore.getSetting("general.base_url") +
-    router.resolve({
-      name: "rooms.view",
-      params: { id: props.roomId },
-    }).href +
-    "/recordings/" +
-    props.recordingId +
-    "/formats/" +
-    format.id;
+  const baseUrl = settingsStore.getSetting("general.base_url");
+
+  const roomHref = router.resolve({
+    name: "rooms.view",
+    params: { id: props.roomId },
+  }).href;
+
+  const url = new URL(
+    `${roomHref}/recordings/${props.recordingId}/formats/${format.id}`,
+    baseUrl,
+  );
 
   if (props.roomAuthToken) {
-    url +=
-      "?room_auth_token=" +
-      props.roomAuthToken.id +
-      "&room_auth_token_type=" +
-      props.roomAuthToken.type;
+    url.searchParams.set("room_auth_token", props.roomAuthToken.id);
+    url.searchParams.set("room_auth_token_type", props.roomAuthToken.type);
   }
 
   return url;
