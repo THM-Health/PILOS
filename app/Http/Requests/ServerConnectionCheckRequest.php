@@ -3,13 +3,14 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class ServerConnectionCheckRequest extends FormRequest
 {
     protected function prepareForValidation()
     {
-        if ($this->base_url && ! str_ends_with($this->base_url, '/')) {
-            $this->merge(['base_url' => $this->base_url.'/']);
+        if ($this->base_url) {
+            $this->merge(['base_url' => Str::finish($this->base_url, '/')]);
         }
     }
 
