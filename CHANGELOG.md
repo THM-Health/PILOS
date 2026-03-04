@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing aria-label for recording edit button ([#2906], [#2911])
 - Greenlight v2 imported room settings not applied due to disabled expert mode ([#2665])
 - Missing aria-labels for running meetings table header icons ([#2905], [#2910])
+- Recording access blocked in some browsers due to restrictions on opening new windows without user interaction ([#2851], [#2901])
 
 ## [v4.13.0] - 2026-02-23
 
@@ -718,6 +719,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2789]: https://github.com/THM-Health/PILOS/pull/2789
 [#2798]: https://github.com/THM-Health/PILOS/pull/2798
 [#2809]: https://github.com/THM-Health/PILOS/pull/2809
+[#2851]: https://github.com/THM-Health/PILOS/issues/2851
 [#2854]: https://github.com/THM-Health/PILOS/issues/2854
 [#2855]: https://github.com/THM-Health/PILOS/pull/2855
 [#2856]: https://github.com/THM-Health/PILOS/issues/2856
@@ -726,6 +728,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2874]: https://github.com/THM-Health/PILOS/pull/2874
 [#2879]: https://github.com/THM-Health/PILOS/issues/2879
 [#2880]: https://github.com/THM-Health/PILOS/pull/2880
+[#2901]: https://github.com/THM-Health/PILOS/pull/2901
 [#2905]: https://github.com/THM-Health/PILOS/issues/2905
 [#2906]: https://github.com/THM-Health/PILOS/issues/2906
 [#2910]: https://github.com/THM-Health/PILOS/pull/2910
