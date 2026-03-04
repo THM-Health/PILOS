@@ -139,7 +139,7 @@ export const routes = [
   {
     path: "/rooms/:id/join",
     redirect: (to) => {
-      return { name: "rooms.view", props: { id: to.params.id } };
+      return { name: "rooms.view", params: { id: to.params.id } };
     },
   },
   {

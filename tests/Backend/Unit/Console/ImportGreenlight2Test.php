@@ -13,10 +13,12 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\Backend\TestCase;
 use Tests\Backend\Unit\Console\helper\Greenlight2Room;
 use Tests\Backend\Unit\Console\helper\Greenlight2User;
+use Tests\Backend\Unit\Console\helper\GreenlightPresentation;
 use Tests\Backend\Unit\Console\helper\GreenlightSharedAccess;
 
 class ImportGreenlight2Test extends TestCase
@@ -46,8 +48,9 @@ class ImportGreenlight2Test extends TestCase
      * @param  Collection  $users  Collection of Users
      * @param  Collection  $rooms  Collection Collection of Rooms
      * @param  Collection  $sharedAccesses  Collection Collection of SharedAccesses
+     * @param  Collection  $presentations  Collection Collection of presentations
      */
-    private function fakeDatabase(bool $roomAuth, Collection $users, Collection $rooms, Collection $sharedAccesses)
+    private function fakeDatabase(bool $roomAuth, Collection $users, Collection $rooms, Collection $sharedAccesses, Collection $presentations)
     {
         // preserve DB default
         $connection = DB::connection();
@@ -59,7 +62,7 @@ class ImportGreenlight2Test extends TestCase
         // mock connection to greenlight postgres database and queries
         DB::shouldReceive('connection')
             ->with('greenlight')
-            ->andReturn(Mockery::mock('Illuminate\Database\Connection', function ($mock) use ($sharedAccesses, $rooms, $users, $roomAuth) {
+            ->andReturn(Mockery::mock('Illuminate\Database\Connection', function ($mock) use ($sharedAccesses, $rooms, $users, $roomAuth, $presentations) {
                 $mock->shouldReceive('table')
                     ->with('features')
                     ->once()
@@ -128,19 +131,66 @@ class ImportGreenlight2Test extends TestCase
                                     }));
                             }));
                     }));
+
+                $mock->shouldReceive('table')
+                    ->with('active_storage_blobs')
+                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($presentations) {
+                        $mock->shouldReceive('join')
+                            ->with('active_storage_attachments', 'active_storage_blobs.id', '=', 'active_storage_attachments.blob_id')
+                            ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($presentations) {
+                                foreach ($presentations as $pres) {
+                                    $mock->shouldReceive('where')
+                                        ->with('active_storage_attachments.record_id', $pres->room_id)
+                                        ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($pres) {
+                                            $mock->shouldReceive('get')
+                                                ->with(['filename', 'key'])
+                                                ->andReturn([$pres]);
+                                        }));
+                                }
+                                $mock->shouldReceive('where')
+                                    ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) {
+                                        $mock->shouldReceive('get')
+                                            ->with(['filename', 'key'])
+                                            ->andReturn([]);
+                                    }));
+                            }));
+                    }));
             }));
 
         DB::shouldReceive('beginTransaction')->once();
-        DB::shouldReceive('rollBack')->never();
-        DB::shouldReceive('commit')->once();
+        DB::shouldReceive('rollBack');
+        DB::shouldReceive('commit');
     }
 
-    protected function test_command($roomAuth, ?string $prefix = null)
+    /**
+     * Helper function for running the command without setting up a fake database
+     *
+     * @param  array  $cmdOptions  Command line options
+     * @param  callable  $expectHook  Hook with expectations to check
+     * @return int|null Return value of the hook function
+     */
+    protected function test_helper_command(array $cmdOptions, callable $expectHook): ?int
     {
-        // password for all users
+        $cmdArgs = 'localhost 5432 greenlight_production postgres 12345678';
+        $command = 'import:greenlight-v2 '.implode(' ', $cmdOptions).' '.$cmdArgs;
+
+        return $expectHook($this->artisan($command));
+    }
+
+    /**
+     * Helper function for running the command with a fake database
+     *
+     * @param  array  $cmdOptions  Command line options
+     * @param  callable  $expectHook  Hook with expectations to check
+     * @param  bool  $roomAuth  Room authentication
+     * @param  string|null  $prefix  Room prefix
+     */
+    protected function test_helper_full(array $cmdOptions, callable $expectHook, bool $roomAuth, ?string $prefix = null)
+    {
+        // Password for all users
         $password = Hash::make('secret');
 
-        // create user that exists before import
+        // Create user that exists before import
         $existingUser = new User;
         $existingUser->firstname = 'John';
         $existingUser->lastname = 'Doe';
@@ -148,7 +198,7 @@ class ImportGreenlight2Test extends TestCase
         $existingUser->password = $password;
         $existingUser->save();
 
-        // create ldap user that exists before import
+        // Create ldap user that exists before import
         $existingLdapUser = new User;
         $existingLdapUser->authenticator = 'ldap';
         $existingLdapUser->external_id = 'djohn';
@@ -158,7 +208,7 @@ class ImportGreenlight2Test extends TestCase
         $existingLdapUser->password = $password;
         $existingLdapUser->save();
 
-        // create shibboleth user that exists before import
+        // Create shibboleth user that exists before import
         $existingShibbolethUser = new User;
         $existingShibbolethUser->authenticator = 'shibboleth';
         $existingShibbolethUser->external_id = 'djohn';
@@ -168,7 +218,7 @@ class ImportGreenlight2Test extends TestCase
         $existingShibbolethUser->password = $password;
         $existingShibbolethUser->save();
 
-        // create room that exists before import
+        // Create room that exists before import
         $existingRoom = new Room;
         $existingRoom->name = 'Existing room 1';
         $existingRoom->roomType()->associate(RoomType::all()->first());
@@ -198,6 +248,12 @@ class ImportGreenlight2Test extends TestCase
         $rooms[] = new Greenlight2Room(9, 99, 'Test Room 9', 'hij-klm-xyz-456', '012345');
         $rooms[] = new Greenlight2Room(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
 
+        // Create fake presentations
+        $presentations = [];
+        $presentations[] = new GreenlightPresentation('1', 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
+        $presentations[] = new GreenlightPresentation('2', 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
+        $presentations[] = new GreenlightPresentation('3', '20yeie1yac7uy8pnjbpr44oaxbir424i', '3testvongpresiher.pdf');
+
         // Create fake shared accesses
         $sharedAccesses = [];
         $sharedAccesses[] = new GreenlightSharedAccess(1, 1, 2);
@@ -207,33 +263,24 @@ class ImportGreenlight2Test extends TestCase
         $sharedAccesses[] = new GreenlightSharedAccess(6, 9, 1);  // room that has an invalid owner
         $sharedAccesses[] = new GreenlightSharedAccess(7, 10, 1);  // room that already exists should not be modified
 
-        // mock database connections with fake data
-        $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses));
+        // Mock database connections with fake data
+        $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses), new Collection($presentations));
 
-        $roomType = RoomType::where('name', 'Lecture')->first();
-        $role = Role::where('name', 'student')->first();
+        // Mock presentation files
+        $storageMock = Storage::fake();
+        $storageMock->put('migration/presentations/fe/en/feen6movahheegheeg0ovahche8bu3mo', 'Foobar test 123');
+        $storageMock->put('migration/presentations/xi/ve/xivei7mi0cohtoecacahyaich8ohzaed', 'Foobar test 456');
 
-        // run artisan command and text questions and outputs
-        $this->artisan('import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678')
-            ->expectsQuestion('Please select the authenticator for the social provider: shibboleth', 'shibboleth')
-            ->expectsQuestion('Please select the authenticator for the social provider: google', 'oidc')
-            ->expectsQuestion('What room type should the rooms be assigned to?', $roomType->id)
-            ->expectsQuestion('Prefix for room names', $prefix)
-            ->expectsQuestion('Please select the default role for new imported local users', $role->id)
-            ->expectsOutput('Importing users')
-            ->expectsOutput('3 created, 3 skipped (already existed)')
-            ->expectsOutput('Importing rooms')
-            ->expectsOutput('8 created, 1 skipped (already existed)')
-            ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
-            ->expectsOutput('+-------------+-----------------+-------------+')
-            ->expectsOutput('| Name        | ID              | Access code |')
-            ->expectsOutput('+-------------+-----------------+-------------+')
-            ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |') // user was not found in greenlight DB
-            ->expectsOutput('+-------------+-----------------+-------------+')
-            ->expectsOutput('Importing shared room accesses')
-            ->expectsOutput('3 created, 3 skipped (user or room not found)')
-            ->expectsQuestion('Do you wish to commit the import?', 'yes')
-            ->expectsOutput('Import completed');
+        // Run artisan command and validate expectation hook
+        $rollback = $this->test_helper_command($cmdOptions, $expectHook);
+
+        if ($rollback) {
+            // Check imported files are removed
+            $this->assertEmpty($storageMock->files('abc-def-xyz-123'));
+            $this->assertEmpty($storageMock->files('abc-def-xyz-234'));
+
+            return;
+        }
 
         // check amount of rooms and users
         $this->assertCount(9, Room::all());
@@ -280,11 +327,21 @@ class ImportGreenlight2Test extends TestCase
         $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-xyz-234')->default_role);
 
         // Test room name prefix
-        if ($prefix != null) {
+        if (! is_null($prefix)) {
             $this->assertEquals($prefix.' Test Room 1', Room::find('abc-def-xyz-123')->name);
         } else {
             $this->assertEquals('Test Room 1', Room::find('abc-def-xyz-123')->name);
         }
+
+        // Test presentations
+        $this->assertTrue($storageMock->fileExists('migration/presentations/fe/en/feen6movahheegheeg0ovahche8bu3mo'));
+        $this->assertTrue($storageMock->fileExists('migration/presentations/xi/ve/xivei7mi0cohtoecacahyaich8ohzaed'));
+        $this->assertNotEmpty($storageMock->files('abc-def-xyz-123'));
+        $this->assertNotEmpty($storageMock->files('abc-def-xyz-234'));
+        $this->assertEquals('1testvongpresiher.pdf', Room::find('abc-def-xyz-123')->files()->first()->filename);
+        $this->assertEquals('2testvongpresiher.pdf', Room::find('abc-def-xyz-234')->files()->first()->filename);
+        $this->assertEmpty(Room::find('abc-def-xyz-345')->files()->get());
+        $this->assertEmpty(Room::find('hij-klm-xyz-123')->files()->get());
 
         // Testing room ownership
         $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'local')->first(), Room::find('abc-def-xyz-123')->owner);
@@ -322,18 +379,203 @@ class ImportGreenlight2Test extends TestCase
         $this->assertTrue(Room::find('abc-def-xyz-123')->members->contains(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'ldap')->where('external_id', 'djohn')->first()));
     }
 
-    public function test()
+    public function test_interactive()
     {
-        $this->test_command(false);
+        $roomTypeId = RoomType::where('name', 'Lecture')->first()->id;
+        $userRoleId = Role::where('name', 'student')->first()->id;
+        $prefix = 'GL2 ::';
+        $expectations = function ($command) use ($roomTypeId, $userRoleId, $prefix) {
+            $command->expectsQuestion('What room type should the rooms be assigned to?', $roomTypeId)
+                ->expectsQuestion('Prefix for room names', $prefix)
+                ->expectsQuestion('Please select the default role for new imported local users', $userRoleId)
+                ->expectsQuestion('Path to GL2 room presentations', 'migration/presentations')
+                ->expectsQuestion('Please select the authenticator for the social provider: shibboleth', 'shibboleth')
+                ->expectsQuestion('Please select the authenticator for the social provider: google', 'oidc')
+                ->expectsOutput('Importing users')
+                ->expectsOutput('3 created, 3 skipped (already existed)')
+                ->expectsOutput('Importing rooms')
+                ->expectsOutput('8 created, 1 skipped (already existed)')
+                ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('| Name        | ID              | Access code |')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('Importing presentations for rooms')
+                ->expectsOutput('2 created, 1 skipped (file not found)')
+                ->expectsOutput('Importing shared room accesses')
+                ->expectsOutput('3 created, 3 skipped (user or room not found)')
+                ->expectsQuestion('Do you wish to commit the import?', 'yes')
+                ->expectsOutput('Import completed')
+                ->assertSuccessful();
+        };
+        $this->test_helper_full([], $expectations, false, $prefix);
     }
 
-    public function test_with_prefix()
+    public function test_non_interactive()
     {
-        $this->test_command(false, 'Migration:');
+        $cmd_options = [
+            '--no-confirm',
+            '--default-role=student',
+            '--room-prefix=""',
+            '--room-type=Lecture',
+            "--auth-provider-map='{\"shibboleth\":\"shibboleth\",\"google\":\"oidc\"}'",
+            '--presentation-path=migration/presentations',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Importing users')
+                ->expectsOutput('3 created, 3 skipped (already existed)')
+                ->expectsOutput('Importing rooms')
+                ->expectsOutput('8 created, 1 skipped (already existed)')
+                ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('| Name        | ID              | Access code |')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('Importing presentations for rooms')
+                ->expectsOutput('2 created, 1 skipped (file not found)')
+                ->expectsOutput('Importing shared room accesses')
+                ->expectsOutput('3 created, 3 skipped (user or room not found)')
+                ->assertSuccessful();
+        };
+        $this->test_helper_full($cmd_options, $expectations, false);
     }
 
-    public function test_with_room_auth()
+    public function test_non_interactive_with_room_auth()
     {
-        $this->test_command(true);
+        $cmd_options = [
+            '--no-confirm',
+            '--default-role=student',
+            '--room-prefix=""',
+            '--room-type=Lecture',
+            "--auth-provider-map='{\"shibboleth\":\"shibboleth\",\"google\":\"oidc\"}'",
+            '--presentation-path=migration/presentations',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Importing users')
+                ->expectsOutput('Importing shared room accesses')
+                ->expectsOutput('3 created, 3 skipped (user or room not found)')
+                ->assertSuccessful();
+        };
+        $this->test_helper_full($cmd_options, $expectations, true);
+    }
+
+    public function test_rollback()
+    {
+        $cmd_options = [
+            '--default-role=student',
+            '--room-prefix=""',
+            '--room-type=Lecture',
+            "--auth-provider-map='{\"shibboleth\":\"shibboleth\",\"google\":\"oidc\"}'",
+            '--presentation-path=migration/presentations',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Importing users')
+                ->expectsOutput('3 created, 3 skipped (already existed)')
+                ->expectsOutput('Importing rooms')
+                ->expectsOutput('8 created, 1 skipped (already existed)')
+                ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('| Name        | ID              | Access code |')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |')
+                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsOutput('Importing presentations for rooms')
+                ->expectsOutput('2 created, 1 skipped (file not found)')
+                ->expectsOutput('Importing shared room accesses')
+                ->expectsOutput('3 created, 3 skipped (user or room not found)')
+                ->expectsConfirmation('Do you wish to commit the import?', 'no')
+                ->expectsOutput('Import canceled; nothing was imported')
+                ->assertSuccessful();
+
+            return 1;
+        };
+        $this->test_helper_full($cmd_options, $expectations, false);
+    }
+
+    public function test_invalid_auth_provider_map()
+    {
+        $cmd_options = [
+            '--no-confirm',
+            '--default-role=student',
+            '--room-prefix=""',
+            '--room-type=Lecture',
+            '--auth-provider-map={"shibboleth":"shibboleth","google":"oidc"}',
+            '--presentation-path=migration/presentations',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Import failed: Cannot parse --auth-provider-map JSON')
+                ->assertFailed();
+        };
+        $this->test_helper_command($cmd_options, $expectations);
+    }
+
+    public function test_invalid_authenticator()
+    {
+        $cmd_options = [
+            '--no-confirm',
+            '--default-role=student',
+            '--room-prefix=""',
+            '--room-type=Lecture',
+            "--auth-provider-map='{\"shibboleth\":\"shibboleth\",\"google\":\"invalid\"}'",
+            '--presentation-path=migration/presentations',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Import failed: Unsupported authenticator "invalid"')
+                ->assertFailed();
+        };
+        $this->test_helper_command($cmd_options, $expectations);
+    }
+
+    public function test_invalid_default_role()
+    {
+        $cmd_options = [
+            '--no-confirm',
+            '--default-role=NXROLE',
+            '--room-prefix=""',
+            '--room-type=Lecture',
+            "--auth-provider-map='{\"shibboleth\":\"shibboleth\",\"google\":\"oidc\"}'",
+            '--presentation-path=migration/presentations',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Import failed: No query results for model [App\Models\Role].')
+                ->assertFailed();
+        };
+        $this->test_helper_command($cmd_options, $expectations);
+    }
+
+    public function test_invalid_room_type()
+    {
+        $cmd_options = [
+            '--no-confirm',
+            '--default-role=student',
+            '--room-prefix=""',
+            '--room-type=NXROOMTYPE',
+            "--auth-provider-map='{\"shibboleth\":\"shibboleth\",\"google\":\"oidc\"}'",
+            '--presentation-path=migration/presentations',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Import failed: No query results for model [App\Models\RoomType].')
+                ->assertFailed();
+        };
+        $this->test_helper_command($cmd_options, $expectations);
+    }
+
+    public function test_non_existing_presentation_dir()
+    {
+        $cmd_options = [
+            '--no-confirm',
+            '--default-role=student',
+            '--room-prefix=""',
+            '--room-type=Lecture',
+            "--auth-provider-map='{\"shibboleth\":\"shibboleth\",\"google\":\"oidc\"}'",
+            '--presentation-path=NXDIR',
+        ];
+        $expectations = function ($command) {
+            $command->expectsOutput('Import failed: Cannot read presentation directory at NXDIR')
+                ->assertFailed();
+        };
+        $this->test_helper_command($cmd_options, $expectations);
     }
 }

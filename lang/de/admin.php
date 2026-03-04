@@ -259,6 +259,10 @@ return [
         'view' => 'Detaillierte Informationen über Server :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'Wenn nicht gesetzt, wird kein Link zur Barrierefreiheitserklärung in der Fußzeile angezeigt.',
+            'title' => 'URL zur Barrierefreiheitserklärung',
+        ],
         'application' => 'Anwendung',
         'attendance' => [
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
@@ -319,10 +323,6 @@ return [
         'legal_notice_url' => [
             'description' => 'Wenn nicht gesetzt, wird kein Link zum Impressum in der Fußzeile angezeigt.',
             'title' => 'URL zum Impressum',
-        ],
-        'accessibility_statement_url' => [
-            'description' => 'Wenn nicht gesetzt, wird kein Link zur Barrierefreiheitserklärung in der Fußzeile angezeigt.',
-            'title' => 'URL zur Barrierefreiheitserklärung',
         ],
         'logo' => [
             'alt' => 'Logo Vorschau',
