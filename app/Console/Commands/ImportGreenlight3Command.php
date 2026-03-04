@@ -29,9 +29,9 @@ class ImportGreenlight3Command extends Command
     protected $signature = 'import:greenlight-v3
                             {host : ip or hostname of postgres database server}
                             {port : port of postgres database server}
-                            {database : greenlight database name, see greenlight .env variable DB_NAME}
-                            {username : greenlight database username, see greenlight .env variable DB_USERNAME}
-                            {password : greenlight database password, see greenlight .env variable DB_PASSWORD}
+                            {database : Greenlight database name, see Greenlight .env variable DB_NAME}
+                            {username : Greenlight database username, see Greenlight .env variable DB_USERNAME}
+                            {password : Greenlight database password, see Greenlight .env variable DB_PASSWORD}
                             {--no-confirm : do not ask if the import should be committed}
                             {--default-role= : name of the default role for imported local users}
                             {--room-prefix= : prefix for imported room names (empty string is allowed)}
@@ -39,7 +39,7 @@ class ImportGreenlight3Command extends Command
                             {--presentation-path= : path to room presentations, relative to /storage/app}
                             ';
 
-    protected $description = 'Connect to greenlight PostgreSQL database to import users, rooms and shared room accesses';
+    protected $description = 'Connect to Greenlight PostgreSQL database to import users, rooms and shared room accesses';
 
     protected $importedPresentationFiles = [];
 
@@ -63,6 +63,7 @@ class ImportGreenlight3Command extends Command
                     placeholder: 'E.g. (Imported)',
                     hint: '(Optional).'
                 );
+            $prefix = $prefix !== '' ? $prefix : null;
 
             // Ask user what role to assign to imported local users
             $defaultRole = ! is_null($this->option('default-role'))
@@ -137,11 +138,11 @@ class ImportGreenlight3Command extends Command
      */
     protected function rollback()
     {
-        foreach ($this->importedPresentationFiles as $src => $dest) {
+        foreach ($this->importedPresentationFiles as $file) {
             try {
-                Storage::move($dest, $src);
+                Storage::delete($file);
             } catch (\Exception $e) {
-                $this->error('Moving '.$dest.' back to '.$src.' failed: '.$e->getMessage());
+                $this->error('Deleting imported presentation '.$file.' failed: '.$e->getMessage());
             }
         }
         DB::rollBack();
@@ -262,7 +263,7 @@ class ImportGreenlight3Command extends Command
             $dbRoom = new Room;
             $dbRoom->expert_mode = true; // set expert mode to true for imported rooms, as many settings are considered expert mode settings and have not effect is expert mode is disabled
             $dbRoom->id = $room->friendly_id;
-            $dbRoom->name = Str::limit(($prefix != null ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
+            $dbRoom->name = Str::limit((! is_null($prefix) ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
             $roomOptions = DB::connection('greenlight')->table('room_meeting_options')->join('meeting_options', 'meeting_option_id', '=', 'meeting_options.id')->where('room_id', $room->id)->get(['name', 'value']);
 
             // set room settings
@@ -365,11 +366,10 @@ class ImportGreenlight3Command extends Command
                     $file->filename = $blob->filename;
                     $file->use_in_meeting = true;
 
-                    // Save file and room, delete source file
+                    // Save file and room
                     $room->files()->save($file);
                     $room->updateDefaultFile();
-                    $this->importedPresentationFiles[$path] = $file->path;
-                    Storage::delete($path);
+                    $this->importedPresentationFiles[] = $file->path;
 
                     $created++;
                 } catch (\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException $e) {

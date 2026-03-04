@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Accessibility statement URL setting for the admin UI and footer ([#2873], [#2874])
 - Greenlight v3 import command ([#2664], [#2665])
+- Greenlight v2 import command now supports importing room presentations ([#2879], [#2880])
 
 ### Fixed
 
@@ -719,6 +720,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2857]: https://github.com/THM-Health/PILOS/pull/2857
 [#2873]: https://github.com/THM-Health/PILOS/issues/2873
 [#2874]: https://github.com/THM-Health/PILOS/pull/2874
+[#2879]: https://github.com/THM-Health/PILOS/issues/2879
+[#2880]: https://github.com/THM-Health/PILOS/pull/2880
 [#2905]: https://github.com/THM-Health/PILOS/issues/2905
 [#2906]: https://github.com/THM-Health/PILOS/issues/2906
 [#2910]: https://github.com/THM-Health/PILOS/pull/2910

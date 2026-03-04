@@ -84,9 +84,9 @@ For information on installing PILOS have a look at our [documentation](https://t
 
 If you have proviously used PILOS v2/v3, follow our [upgrade instructions](https://thm-health.github.io/PILOS/docs/administration/upgrade) .
 
-## Migrate from Greenlight 2
+## Migrate from Greenlight
 
-If you have proviously used Greenlight 2, follow our [migration guide](https://thm-health.github.io/PILOS/docs/administration/advanced/migrate-greenlight).
+If you have previously used Greenlight, follow our [migration guide](https://thm-health.github.io/PILOS/docs/administration/advanced/migrate-greenlight).
 
 ## Stacks
 

@@ -44,7 +44,7 @@ class UpdateRoomSettings extends FormRequest
     {
         // Support keeping 6-digit alphanumeric codes (Greenlight v2 + v3)
         $current = $this->room->access_code ?? '';
-        $incoming = $this->str('access_code') ?? '';
+        $incoming = $this->string('access_code')->value() ?? '';
         $legacy = $this->room->hasLegacyCode && $current == $incoming;
 
         $rules = $legacy
