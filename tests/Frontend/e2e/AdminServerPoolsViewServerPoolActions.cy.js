@@ -162,6 +162,35 @@ describe("Admin server pools view", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
+    // Check with 404 error
+    cy.intercept("DELETE", "api/v1/serverPools/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "ServerPool",
+        ids: [1],
+      },
+    }).as("deleteServerPoolRequest");
+
+    cy.interceptAdminServerPoolsIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteServerPoolRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/server_pools").and("not.include", "/1");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"ServerPool","ids":"(1)"}',
+    );
+
+    // Reload view and open delete dialog again
+    cy.visit("/admin/server_pools/1");
+    cy.wait("@serverPoolRequest");
+
+    cy.get('[data-test="server-pools-delete-button"]').click();
+    cy.get('[data-test="server-pools-delete-dialog"]').should("be.visible");
+
     // Check with 401 error
     cy.intercept("DELETE", "api/v1/serverPools/1", {
       statusCode: 401,

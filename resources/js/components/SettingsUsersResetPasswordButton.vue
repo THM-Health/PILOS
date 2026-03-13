@@ -64,6 +64,7 @@ import { ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import env from "../env.js";
 
 const api = useApi();
 const toast = useToast();
@@ -88,6 +89,7 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["notFound"]);
 const modalVisible = ref(false);
 const isBusy = ref(false);
 
@@ -114,6 +116,10 @@ function resetPassword() {
       );
     })
     .catch((error) => {
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        modalVisible.value = false;
+        emit("notFound");
+      }
       api.error(error);
     })
     .finally(() => {

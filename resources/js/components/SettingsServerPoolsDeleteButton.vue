@@ -84,7 +84,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 const modalVisible = ref(false);
 const isBusy = ref(false);
 const deleteFailedRoomTypes = ref(null);
@@ -115,9 +115,15 @@ function deleteServerPool() {
     .catch((error) => {
       if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
         deleteFailedRoomTypes.value = error.response.data.room_types;
-      } else {
-        api.error(error);
+        return;
+      } else if (
+        error.response &&
+        error.response.status === env.HTTP_NOT_FOUND
+      ) {
+        modalVisible.value = false;
+        emit("notFound");
       }
+      api.error(error);
     })
     .finally(() => {
       isBusy.value = false;

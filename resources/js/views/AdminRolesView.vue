@@ -30,6 +30,7 @@
           :id="model.id"
           :name="name"
           @deleted="$router.push({ name: 'admin.roles' })"
+          @not-found="$router.push({ name: 'admin.roles' })"
         />
       </div>
     </div>

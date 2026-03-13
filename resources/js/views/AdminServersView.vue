@@ -27,6 +27,7 @@
           :id="model.id"
           :name="name"
           @deleted="$router.push({ name: 'admin.servers' })"
+          @not-found="$router.push({ name: 'admin.servers' })"
         ></SettingsServersDeleteButton>
       </div>
     </div>
@@ -475,6 +476,9 @@ function panic() {
       }
     })
     .catch((error) => {
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        router.push({ name: "admin.servers" });
+      }
       api.error(error);
     })
     .finally(() => {
@@ -516,6 +520,11 @@ function testConnection() {
     .catch((error) => {
       health.value = null;
       offlineReason.value = null;
+
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        router.push({ name: "admin.servers" });
+      }
+
       api.error(error);
     })
     .finally(() => {

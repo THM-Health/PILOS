@@ -300,6 +300,7 @@
               :firstname="slotProps.data.firstname"
               :lastname="slotProps.data.lastname"
               :email="slotProps.data.email"
+              @not-found="loadData()"
             />
             <SettingsUsersDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"
@@ -307,6 +308,7 @@
               :firstname="slotProps.data.firstname"
               :lastname="slotProps.data.lastname"
               @deleted="loadData()"
+              @not-found="loadData()"
             />
           </div>
         </template>

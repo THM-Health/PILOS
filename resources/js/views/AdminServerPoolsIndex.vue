@@ -145,6 +145,7 @@
               :id="slotProps.data.id"
               :name="slotProps.data.name"
               @deleted="loadData()"
+              @not-found="loadData()"
             >
             </SettingsServerPoolsDeleteButton>
           </div>

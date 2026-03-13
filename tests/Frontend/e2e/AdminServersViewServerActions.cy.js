@@ -135,6 +135,37 @@ describe("Admin servers view server actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
+    // Check with 404 error
+    cy.intercept("DELETE", "api/v1/servers/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Server",
+        ids: [1],
+      },
+    }).as("deleteServerRequest");
+
+    cy.interceptAdminServersIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteServerRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/servers").and("not.include", "/1");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Server","ids":"(1)"}',
+    );
+
+    // Reload view and open delete dialog again
+    cy.visit("/admin/servers/1");
+
+    cy.wait("@serverRequest");
+
+    cy.get('[data-test="servers-delete-button"]').click();
+    cy.get('[data-test="servers-delete-dialog"]').should("be.visible");
+
     // Check with 401 error
     cy.intercept("DELETE", "api/v1/servers/1", {
       statusCode: 401,

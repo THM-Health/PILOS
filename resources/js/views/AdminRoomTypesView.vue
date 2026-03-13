@@ -27,6 +27,7 @@
           :id="model.id"
           :name="name"
           @deleted="$router.push({ name: 'admin.room_types' })"
+          @not-found="$router.push({ name: 'admin.room_types' })"
         />
       </div>
     </div>

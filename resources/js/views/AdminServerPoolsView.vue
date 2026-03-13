@@ -27,6 +27,7 @@
           :id="model.id"
           :name="name"
           @deleted="$router.push({ name: 'admin.server_pools' })"
+          @not-found="$router.push({ name: 'admin.server_pools' })"
         >
         </SettingsServerPoolsDeleteButton>
       </div>

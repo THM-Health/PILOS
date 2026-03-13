@@ -153,8 +153,54 @@ describe("Admin users index user actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check with 401 error
+    // Check with 404 error
+    cy.fixture("users.json").then((users) => {
+      users.data = users.data.filter((user) => user.id !== 3);
+      users.meta.to = 3;
+      users.meta.total = 3;
+      users.meta.total_no_filter = 3;
+
+      cy.intercept("GET", "api/v1/users*", {
+        statusCode: 200,
+        body: users,
+      }).as("usersRequest");
+    });
+
     cy.intercept("DELETE", "api/v1/users/3", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "User",
+        ids: [3],
+      },
+    }).as("deleteUserRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteUserRequest");
+
+    // Check that user list was refreshed
+    cy.wait("@usersRequest");
+
+    // Check that dialog is closed and error message is shown
+    cy.get('[data-test="users-delete-dialog"]').should("not.exist");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"User","ids":"(3)"}',
+    );
+
+    // Check that user is not in list anymore
+    cy.get('[data-test="user-item"]').should("have.length", 3);
+
+    // Reopen dialog for different user
+    cy.get('[data-test="user-item"]')
+      .eq(1)
+      .find('[data-test="users-delete-button"]')
+      .click();
+
+    cy.get('[data-test="users-delete-dialog"]').should("be.visible");
+
+    // Check with 401 error
+    cy.intercept("DELETE", "api/v1/users/2", {
       statusCode: 401,
     }).as("deleteUserRequest");
 

@@ -127,6 +127,37 @@ describe("Admin users view user actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
+    // Check with 404 error
+    cy.intercept("DELETE", "api/v1/users/2", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "User",
+        ids: [2],
+      },
+    }).as("deleteUserRequest");
+
+    cy.interceptAdminUsersIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteUserRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/users").and("not.include", "/2");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"User","ids":"(2)"}',
+    );
+
+    // Reload view and open delete dialog again
+    cy.visit("/admin/users/2");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-delete-button"]').click();
+    cy.get('[data-test="users-delete-dialog"]').should("be.visible");
+
     // Check with 401 error
     cy.intercept("DELETE", "api/v1/users/2", {
       statusCode: 401,
@@ -222,6 +253,37 @@ describe("Admin users view user actions", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+
+    // Check with 404 error
+    cy.intercept("POST", "api/v1/users/2/resetPassword", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "User",
+        ids: [2],
+      },
+    }).as("resetPasswordRequest");
+
+    cy.interceptAdminUsersIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@resetPasswordRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/users").and("not.include", "/2");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"User","ids":"(2)"}',
+    );
+
+    // Reload view and open reset password dialog again
+    cy.visit("/admin/users/2");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-reset-password-button"]').click();
+    cy.get('[data-test="users-reset-password-dialog"]').should("be.visible");
 
     // Check with 401 error
     cy.intercept("POST", "api/v1/users/2/resetPassword", {

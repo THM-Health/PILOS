@@ -61,6 +61,13 @@ export class Api {
     ) {
       // 403 => unauthorized, show error messages as flash!
       this.handleForbidden(error, options);
+    } else if (statusCode === env.HTTP_NOT_FOUND) {
+      // 404 => not found, show error messages as flash!
+      if (message === "model_not_found") {
+        this.handleModelNotFound(error, options);
+      } else {
+        this.handleOtherServerError(error, options);
+      }
     } else if (statusCode === env.HTTP_GUESTS_ONLY) {
       // 420 => only for guests, redirect to home route
       this.handleGuestsOnly(error, options);
@@ -110,6 +117,25 @@ export class Api {
   handleForbidden() {
     EventBus.emit(EVENT_FORBIDDEN);
     this.toast.error(this.t("app.flash.unauthorized"));
+  }
+
+  handleModelNotFound(error) {
+    const model =
+      error.response && error.response.data
+        ? error.response.data.model
+        : undefined;
+
+    const ids =
+      error.response && error.response.data
+        ? error.response.data.ids
+        : undefined;
+
+    this.toast.error(
+      this.t("app.flash.model_not_found", {
+        model: model,
+        ids: ids ? `${ids.join(", ")}` : "",
+      }),
+    );
   }
 
   handleGuestsOnly() {

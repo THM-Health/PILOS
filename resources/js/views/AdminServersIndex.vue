@@ -268,6 +268,7 @@
               :id="slotProps.data.id"
               :name="slotProps.data.name"
               @deleted="loadData(null, false)"
+              @not-found="loadData(null, false)"
             ></SettingsServersDeleteButton>
           </div>
         </template>
