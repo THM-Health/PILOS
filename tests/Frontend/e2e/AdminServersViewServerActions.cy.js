@@ -155,7 +155,7 @@ describe("Admin servers view server actions", function () {
     cy.url().should("include", "/admin/servers").and("not.include", "/1");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Server","ids":"(1)"}',
+      'app.flash.model_not_found_{"model":"Server","ids":"1"}',
     );
 
     // Reload view and open delete dialog again

@@ -358,7 +358,7 @@ describe("Admin room types index room type actions", function () {
 
     // Check that error message is shown
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"RoomType","ids":"(3)"}',
+      'app.flash.model_not_found_{"model":"RoomType","ids":"3"}',
     );
 
     // Check that room type is not there anymore

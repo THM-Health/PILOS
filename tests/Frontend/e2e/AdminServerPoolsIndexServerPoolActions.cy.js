@@ -231,7 +231,7 @@ describe("Admin server pools index server pool actions", function () {
     // Check that dialog is closed and error message is shown
     cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"ServerPool","ids":"(1)"}',
+      'app.flash.model_not_found_{"model":"ServerPool","ids":"1"}',
     );
 
     // Check that server pool is not in list anymore

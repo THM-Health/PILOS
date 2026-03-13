@@ -156,7 +156,7 @@ describe("Admin roles view role actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/roles").and("not.include", "/2");
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Role","ids":"(2)"}',
+      'app.flash.model_not_found_{"model":"Role","ids":"2"}',
     );
 
     // Reload view and open delete dialog again

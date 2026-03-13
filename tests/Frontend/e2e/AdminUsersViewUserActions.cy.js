@@ -147,7 +147,7 @@ describe("Admin users view user actions", function () {
     cy.url().should("include", "/admin/users").and("not.include", "/2");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"User","ids":"(2)"}',
+      'app.flash.model_not_found_{"model":"User","ids":"2"}',
     );
 
     // Reload view and open delete dialog again
@@ -274,7 +274,7 @@ describe("Admin users view user actions", function () {
     cy.url().should("include", "/admin/users").and("not.include", "/2");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"User","ids":"(2)"}',
+      'app.flash.model_not_found_{"model":"User","ids":"2"}',
     );
 
     // Reload view and open reset password dialog again

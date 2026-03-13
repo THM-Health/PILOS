@@ -181,7 +181,7 @@ describe("Admin server pools view", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/server_pools").and("not.include", "/1");
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"ServerPool","ids":"(1)"}',
+      'app.flash.model_not_found_{"model":"ServerPool","ids":"1"}',
     );
 
     // Reload view and open delete dialog again

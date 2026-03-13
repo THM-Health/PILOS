@@ -307,7 +307,7 @@ describe("Admin room types view room type actions", function () {
     cy.url().should("include", "/admin/room_types").and("not.include", "/3");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"RoomType","ids":"(3)"}',
+      'app.flash.model_not_found_{"model":"RoomType","ids":"3"}',
     );
 
     // Reload view and open delete dialog again
