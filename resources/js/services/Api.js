@@ -119,16 +119,14 @@ export class Api {
     this.toast.error(this.t("app.flash.unauthorized"));
   }
 
-  handleModelNotFound(error) {
-    const model =
-      error.response && error.response.data
-        ? error.response.data.model
-        : undefined;
+  handleModelNotFound(error, options) {
+    const data = error.response?.data;
+    const model = data?.model;
+    const ids = data?.ids;
 
-    const ids =
-      error.response && error.response.data
-        ? error.response.data.ids
-        : undefined;
+    if (model === "Room" && options.redirectOnRoomModelNotFound === true) {
+      this.router.push({ name: "404" });
+    }
 
     this.toast.error(
       this.t("app.flash.model_not_found", {

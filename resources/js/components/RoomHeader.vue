@@ -33,6 +33,7 @@
             v-if="!hideFavorites && authStore.isAuthenticated"
             :room="props.room"
             :redirect-on-unauthenticated="false"
+            :redirect-on-room-model-not-found="true"
             @favorites-changed="emit('reload')"
           />
           <RoomMembershipButton

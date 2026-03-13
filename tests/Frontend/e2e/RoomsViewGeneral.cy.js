@@ -2795,6 +2795,11 @@ describe("Room View general", function () {
     cy.url()
       .should("include", "/404")
       .should("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
   });
 
   it("auto-reload", function () {
@@ -2930,6 +2935,11 @@ describe("Room View general", function () {
     cy.url()
       .should("include", "/404")
       .should("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
   });
 
   it("reload with access code errors", function () {

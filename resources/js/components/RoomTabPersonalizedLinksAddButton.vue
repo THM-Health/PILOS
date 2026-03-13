@@ -171,7 +171,10 @@ function save() {
       ) {
         formErrors.set(error.response.data.errors);
       } else {
-        api.error(error, { redirectOnUnauthenticated: false });
+        api.error(error, {
+          redirectOnUnauthenticated: false,
+          redirectOnRoomModelNotFound: true,
+        });
       }
     })
     .finally(() => {

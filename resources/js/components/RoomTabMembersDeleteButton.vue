@@ -111,7 +111,10 @@ function deleteMember() {
           modalVisible.value = false;
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
     })
     .finally(() => {
       isLoadingAction.value = false;

@@ -272,7 +272,7 @@ function save() {
       ) {
         formErrors.set(error.response.data.errors);
       } else {
-        api.error(error);
+        api.error(error, { redirectOnRoomModelNotFound: true });
       }
     })
     .finally(() => {

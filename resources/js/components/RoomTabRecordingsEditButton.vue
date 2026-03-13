@@ -236,7 +236,10 @@ function save() {
       // editing failed
       if (error.response) {
         // recording not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.data?.model !== "Room"
+        ) {
           toast.error(t("rooms.flash.recording_gone"));
           modalVisible.value = false;
           emit("notFound");
@@ -248,7 +251,10 @@ function save() {
           return;
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
     })
     .finally(() => {
       isLoadingAction.value = false;

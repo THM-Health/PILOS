@@ -377,7 +377,10 @@ function loadData(page = null) {
     })
     .catch((error) => {
       paginator.revertFirst();
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
       loadingError.value = true;
     })
     .finally(() => {

@@ -101,14 +101,20 @@ function deleteFile() {
       // deleting failed
       if (error.response) {
         // file not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.data?.model !== "Room"
+        ) {
           toast.error(t("rooms.flash.file_gone"));
           emit("notFound");
           modalVisible.value = false;
           return;
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
     })
     .finally(() => {
       isLoadingAction.value = false;

@@ -192,7 +192,10 @@ function asyncFind(query) {
     })
     .catch((error) => {
       tooManyResults.value = false;
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
     })
     .finally(() => {
       isLoadingSearch.value = false;

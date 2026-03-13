@@ -425,7 +425,10 @@ function loadData(page = null) {
           return emit("invalidRoomAuthToken");
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
       paginator.revertFirst();
       loadingError.value = true;
     })

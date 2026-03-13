@@ -170,7 +170,7 @@ async function streamingCommand(command) {
       if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
         emit("settingsChanged");
       }
-      api.error(error);
+      api.error(error, { redirectOnRoomModelNotFound: true });
     })
     .finally(() => {
       autoReload();

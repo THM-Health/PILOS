@@ -189,7 +189,10 @@ function save() {
       // editing failed
       if (error.response) {
         // token not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.data?.model !== "Room"
+        ) {
           toast.error(t("rooms.flash.personalized_link_gone"));
           modalVisible.value = false;
           emit("notFound");
@@ -200,7 +203,10 @@ function save() {
           formErrors.set(error.response.data.errors);
           return;
         }
-        api.error(error, { redirectOnUnauthenticated: false });
+        api.error(error, {
+          redirectOnUnauthenticated: false,
+          redirectOnRoomModelNotFound: true,
+        });
       }
     })
     .finally(() => {

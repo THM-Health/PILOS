@@ -439,10 +439,9 @@ function load() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
+        // Room not found (Always redirect to 404 view)
         if (error.response.status === env.HTTP_NOT_FOUND) {
           router.push({ name: "404" });
-          return;
         }
 
         // Room auth token is invalid
@@ -515,10 +514,9 @@ function reload() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
+        // Room not found (Always redirect to 404 view)
         if (error.response.status === env.HTTP_NOT_FOUND) {
           router.push({ name: "404" });
-          return;
         }
 
         // Room auth token is invalid
@@ -674,7 +672,10 @@ function authenticate(type, codeOrToken) {
             return;
           }
         }
-        api.error(error, { redirectOnUnauthenticated: false });
+        api.error(error, {
+          redirectOnUnauthenticated: false,
+          redirectOnRoomModelNotFound: true,
+        });
       })
       .finally(() => {
         authLoading.value = false;
