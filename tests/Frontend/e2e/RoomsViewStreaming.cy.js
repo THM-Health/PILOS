@@ -786,5 +786,25 @@ describe("Rooms view streaming", function () {
       "contain",
       "rooms.streaming.no_running_meeting",
     );
+
+    // Check 404 error on reload (room not found)
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/status", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomStreamingStatus");
+
+    cy.get('[data-test="streaming-reload-button"]').click();
+    cy.wait("@roomStreamingStatus");
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 });

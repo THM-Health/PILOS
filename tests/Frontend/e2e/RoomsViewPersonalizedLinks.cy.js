@@ -496,6 +496,38 @@ describe("Rooms view personalized links", function () {
       "api/v1/rooms/abc-def-123/personalizedLinks*",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    // Check with 404 error (room not found)
+    cy.intercept(
+      {
+        method: "GET",
+        url: "api/v1/rooms/abc-def-123/personalizedLinks*",
+      },
+      {
+        statusCode: 404,
+        body: {
+          message: "model_not_found",
+          model: "Room",
+          ids: ["abc-def-123"],
+        },
+      },
+    ).as("roomPersonalizedLinksRequest");
+
+    cy.get("#tab-tokens").click();
+
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("load personalized links page out of range", function () {

@@ -277,6 +277,27 @@ describe("Rooms view streaming config actions", function () {
         // Close dialog
         cy.get('[data-test="dialog-cancel-button"]').click();
       });
+
+    // Check with 404 error (room not found)
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/config", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomStreamingConfig");
+
+    cy.get('[data-test="streaming-config-button"]').should("be.visible");
+    cy.get('[data-test="streaming-config-button"]').click();
+
+    cy.wait("@roomStreamingConfig");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("edit settings", function () {
@@ -598,6 +619,33 @@ describe("Rooms view streaming config actions", function () {
         // Close dialog
         cy.get('[data-test="dialog-cancel-button"]').click();
       });
+
+    // Check with 404 error (room not found)
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/config", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("saveConfigRequest");
+
+    cy.get('[data-test="streaming-config-button"]').click();
+    cy.get('[data-test="room-streaming-config-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="dialog-save-button"]')
+          .should("include.text", "app.save")
+          .click();
+      });
+
+    cy.wait("@saveConfigRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("view/edit settings with different permissions", function () {

@@ -408,6 +408,43 @@ describe("Rooms view members bulk actions", function () {
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").should("be.visible").click();
+
+    // Select all users
+    cy.get('[data-test="room-members-select-all-checkbox"]').click();
+
+    // Test bulk edit with 404 error (room not found)
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/member/bulk", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("bulkEditRequest");
+
+    cy.get('[data-test="room-members-bulk-edit-button"]')
+      .should("be.visible")
+      .click();
+
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').should("be.visible");
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@bulkEditRequest");
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("bulk delete members", function () {
@@ -681,6 +718,45 @@ describe("Rooms view members bulk actions", function () {
       "DELETE",
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
+    );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").should("be.visible").click();
+
+    // Select all users
+    cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
+
+    // Test bulk delete with 404 error (room not found)
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/member/bulk", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("bulkDeleteRequest");
+
+    cy.get('[data-test="room-members-bulk-delete-button"]')
+      .should("be.visible")
+      .click();
+
+    cy.get('[data-test="room-members-bulk-delete-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@bulkDeleteRequest");
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
     );
   });
 
@@ -1385,6 +1461,44 @@ describe("Rooms view members bulk actions", function () {
       "POST",
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
+    );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").should("be.visible").click();
+
+    // Test bulk import with 404 error (room not found)
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/member/bulk", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("bulkImportRequest");
+
+    cy.get('[data-test="room-members-add-button"]').click();
+    cy.get("#overlay_menu_1")
+      .should("have.text", "rooms.members.bulk_import_users")
+      .click();
+
+    cy.get('[data-test="room-members-bulk-import-dialog"]').should(
+      "be.visible",
+    );
+    cy.get("#user-emails").type("\n");
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@bulkImportRequest");
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
     );
   });
 });

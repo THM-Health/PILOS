@@ -139,8 +139,9 @@ describe("Rooms view history meeting actions", function () {
       {
         statusCode: 404,
         body: {
-          message:
-            "No query results for model [App\\Models\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761",
+          message: "model_not_found",
+          model: "Meeting",
+          ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
         },
       },
     ).as("statsRequest");
@@ -153,10 +154,9 @@ describe("Rooms view history meeting actions", function () {
     cy.wait("@statsRequest");
 
     // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Models\\\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
-    ]);
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Meeting","ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+    );
 
     // Check if dialog is closed
     cy.get('[data-test="room-history-statistic-dialog"]').should("not.exist");
@@ -477,8 +477,9 @@ describe("Rooms view history meeting actions", function () {
       {
         statusCode: 404,
         body: {
-          message:
-            "No query results for model [App\\Models\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761",
+          message: "model_not_found",
+          model: "Meeting",
+          ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
         },
       },
     ).as("attendanceRequest");
@@ -491,10 +492,9 @@ describe("Rooms view history meeting actions", function () {
     cy.wait("@attendanceRequest");
 
     // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Models\\\\Meeting] 3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
-    ]);
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Meeting","ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+    );
 
     // Check if dialog is closed
     cy.get('[data-test="room-history-attendance-dialog"]').should("not.exist");

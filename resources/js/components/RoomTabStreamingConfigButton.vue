@@ -228,7 +228,7 @@ function loadConfig() {
         response.data.data.system_default_pause_image;
     })
     .catch((error) => {
-      api.error(error);
+      api.error(error, { redirectOnRoomModelNotFound: true });
       modelLoadingError.value = true;
     })
     .finally(() => {

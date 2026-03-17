@@ -760,6 +760,28 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+
+    // Check with 404 error (room not found)
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomRecordingsRequest");
+
+    // Reload page
+    cy.reload();
+
+    cy.wait("@roomRecordingsRequest");
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("load recordings page out of range", function () {

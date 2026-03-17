@@ -432,6 +432,44 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomMembersRequest();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+    cy.wait("@roomMembersRequest");
+
+    cy.get("#tab-members").click();
+
+    // Test add new member with 404 error (room not found)
+    cy.get('[data-test="room-members-add-button"]').click();
+
+    cy.get("#overlay_menu_0")
+      .should("have.text", "rooms.members.add_single_user")
+      .click();
+
+    cy.get('[data-test="room-members-add-single-dialog"]').should("be.visible");
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/member", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("addUserRequest");
+
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@addUserRequest");
+
+    // Check that user is redirected to 404 page and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("edit member", function () {
@@ -636,6 +674,43 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member/6",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomMembersRequest();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").click();
+    cy.wait("@roomMembersRequest");
+
+    // Test edit member with 404 error (room not found)
+    cy.get('[data-test="room-member-item"]')
+      .eq(0)
+      .find('[data-test="room-members-edit-button"]')
+      .click();
+
+    cy.get('[data-test="room-members-edit-dialog"]').should("be.visible");
+
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/member/5", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("editUserRequest");
+
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@editUserRequest");
+
+    // Check that user is redirected to 404 page and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("delete member", function () {
@@ -796,6 +871,43 @@ describe("Rooms view members member actions", function () {
       "DELETE",
       "/api/v1/rooms/abc-def-123/member/6",
       "members",
+    );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomMembersRequest();
+
+    cy.reload();
+
+    cy.wait("@roomRequest");
+    cy.get("#tab-members").click();
+    cy.wait("@roomMembersRequest");
+
+    // Test delete member with 404 error (room not found)
+    cy.get('[data-test="room-member-item"]')
+      .eq(0)
+      .find('[data-test="room-members-delete-button"]')
+      .click();
+
+    cy.get('[data-test="room-members-delete-dialog"]').should("be.visible");
+
+    cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/member/5", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteMemberRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteMemberRequest");
+
+    // Check that user is redirected to 404 page and error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
     );
   });
 });

@@ -192,10 +192,7 @@ function asyncFind(query) {
     })
     .catch((error) => {
       tooManyResults.value = false;
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingSearch.value = false;
@@ -242,7 +239,10 @@ function save() {
           return;
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
     })
     .finally(() => {
       isLoadingAction.value = false;

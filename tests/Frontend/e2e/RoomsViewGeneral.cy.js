@@ -2357,6 +2357,46 @@ describe("Room View general", function () {
 
     cy.contains("auth.login").should("be.visible");
 
+    // Visit room page again
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.description = "<p>Test</p>";
+      room.data.allow_membership = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Check join membership with 404 error (room not found)
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/membership*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("joinMembershipRequest");
+
+    cy.get('[data-test="room-join-membership-button"]').click();
+
+    cy.wait("@joinMembershipRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
+
     // Reload room with user being a member of the room
     cy.fixture("room.json").then((room) => {
       room.data.owner = {
@@ -2448,6 +2488,46 @@ describe("Room View general", function () {
 
     // Check that access code overlay is shown
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+
+    // Reload room with user being a member of the room
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.description = "<p>Test</p>";
+      room.data.allow_membership = true;
+      room.data.is_member = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Check end membership with 404 error (room not found)
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/membership", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("endMembershipRequest");
+
+    cy.get('[data-test="room-end-membership-button"]').click();
+
+    cy.get('[data-test="end-membership-dialog"]').should("be.visible");
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@endMembershipRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
   });
 
   it("trigger favorites button", function () {
@@ -2622,6 +2702,46 @@ describe("Room View general", function () {
 
     cy.contains("auth.login").should("be.visible");
 
+    // Visit room page again
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.description = "<p>Test</p>";
+      room.data.allow_membership = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Test add to favorites with 404 error (room not found)
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("addFavoritesRequest");
+
+    cy.get('[data-test="room-favorites-button"]').click();
+
+    cy.wait("@addFavoritesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
+
     // Reload room but room is already in favorites
     cy.fixture("room.json").then((room) => {
       room.data.owner = {
@@ -2696,6 +2816,49 @@ describe("Room View general", function () {
 
     // Check that access code overlay is shown
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+
+    // Reload room but room is already not in favorites
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.description = "<p>Test</p>";
+      room.data.allow_membership = true;
+      room.data.is_favorite = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    // Test remove from favorites with 404 error (room not found)
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteFavoritesRequest");
+
+    cy.get('[data-test="room-favorites-button"]')
+      .should("have.attr", "aria-label", "rooms.favorites.remove")
+      .click();
+
+    cy.wait("@deleteFavoritesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("visit with guest forbidden", function () {

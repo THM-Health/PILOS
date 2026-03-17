@@ -156,7 +156,10 @@ function leaveMembership() {
       modalVisible.value = false;
     })
     .catch((error) => {
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: true,
+      });
     })
     .finally(() => {
       isLoadingAction.value = false;

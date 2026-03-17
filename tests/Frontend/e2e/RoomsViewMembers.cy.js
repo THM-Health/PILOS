@@ -484,6 +484,31 @@ describe("Rooms view members", function () {
       "api/v1/rooms/abc-def-123/member*",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    // Test 404 error (room not found)
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/member*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomMembersRequest");
+
+    cy.get("#tab-members").click();
+
+    cy.wait("@roomMembersRequest");
+
+    // Check that redirect to 404 page works and error message is shown
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("load members page out of range", function () {

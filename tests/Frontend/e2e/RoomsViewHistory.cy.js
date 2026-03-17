@@ -496,6 +496,31 @@ describe("Rooms view history", function () {
       "api/v1/rooms/abc-def-123/meetings*",
       "history",
     );
+
+    // Reload page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    // Check with 404 error (room not found)
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/meetings*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "Room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomHistoryRequest");
+
+    cy.get("#tab-history").click();
+    cy.wait("@roomHistoryRequest");
+
+    // Check that redirect to 404 page works and that error message is shown
+    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    cy.checkToastMessage(
+      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+    );
   });
 
   it("load history page out of range", function () {
