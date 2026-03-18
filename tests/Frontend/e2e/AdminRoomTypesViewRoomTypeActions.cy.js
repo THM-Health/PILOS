@@ -292,7 +292,7 @@ describe("Admin room types view room type actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "RoomType",
+        model: "room_type",
         ids: [3],
       },
     }).as("deleteRoomTypeRequest");
@@ -306,9 +306,7 @@ describe("Admin room types view room type actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/room_types").and("not.include", "/3");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"RoomType","ids":"3"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.room_type_{"ids":"3"}');
 
     // Reload view and open delete dialog again
     cy.visit("/admin/room_types/3");

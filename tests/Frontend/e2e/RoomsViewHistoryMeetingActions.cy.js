@@ -140,7 +140,7 @@ describe("Rooms view history meeting actions", function () {
         statusCode: 404,
         body: {
           message: "model_not_found",
-          model: "Meeting",
+          model: "meeting",
           ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
         },
       },
@@ -155,7 +155,7 @@ describe("Rooms view history meeting actions", function () {
 
     // Check that error message is shown
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Meeting","ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+      'app.flash.model_not_found.meeting_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
     );
 
     // Check if dialog is closed
@@ -478,7 +478,7 @@ describe("Rooms view history meeting actions", function () {
         statusCode: 404,
         body: {
           message: "model_not_found",
-          model: "Meeting",
+          model: "meeting",
           ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
         },
       },
@@ -493,7 +493,7 @@ describe("Rooms view history meeting actions", function () {
 
     // Check that error message is shown
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Meeting","ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+      'app.flash.model_not_found.meeting_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
     );
 
     // Check if dialog is closed

@@ -142,7 +142,7 @@ describe("Admin roles view role actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Role",
+        model: "role",
         ids: [2],
       },
     }).as("deleteRoleRequest");
@@ -155,9 +155,7 @@ describe("Admin roles view role actions", function () {
 
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/roles").and("not.include", "/2");
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Role","ids":"2"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.role_{"ids":"2"}');
 
     // Reload view and open delete dialog again
     cy.visit("/admin/roles/2");

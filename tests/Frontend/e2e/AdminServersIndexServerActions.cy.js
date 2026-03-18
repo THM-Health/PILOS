@@ -168,7 +168,7 @@ describe("Admin servers index server actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Server",
+        model: "server",
         ids: [3],
       },
     }).as("deleteServerRequest");
@@ -182,9 +182,7 @@ describe("Admin servers index server actions", function () {
 
     // Check that dialog is closed and error message is shown
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Server","ids":"3"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.server_{"ids":"3"}');
 
     // Check that server is not in list anymore
     cy.get('[data-test="server-item"]').should("have.length", 3);

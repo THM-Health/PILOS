@@ -879,7 +879,7 @@ describe("Rooms view recordings recording actions", function () {
         statusCode: 404,
         body: {
           message: "model_not_found",
-          model: "Recording",
+          model: "recording",
           ids: ["f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775"],
         },
       },
@@ -982,7 +982,7 @@ describe("Rooms view recordings recording actions", function () {
         statusCode: 404,
         body: {
           message: "model_not_found",
-          model: "Room",
+          model: "room",
           ids: ["abc-def-123"],
         },
       },
@@ -1003,7 +1003,7 @@ describe("Rooms view recordings recording actions", function () {
     // Check that redirect to 404 page worked and error message is shown
     cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -1376,7 +1376,7 @@ describe("Rooms view recordings recording actions", function () {
         statusCode: 404,
         body: {
           message: "model_not_found",
-          model: "Room",
+          model: "room",
           ids: ["abc-def-123"],
         },
       },
@@ -1397,7 +1397,7 @@ describe("Rooms view recordings recording actions", function () {
     // Check that redirect to 404 page worked and error message is shown
     cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 });

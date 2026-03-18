@@ -140,7 +140,7 @@ describe("Admin servers view server actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Server",
+        model: "server",
         ids: [1],
       },
     }).as("deleteServerRequest");
@@ -154,9 +154,7 @@ describe("Admin servers view server actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/servers").and("not.include", "/1");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Server","ids":"1"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.server_{"ids":"1"}');
 
     // Reload view and open delete dialog again
     cy.visit("/admin/servers/1");

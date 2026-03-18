@@ -132,7 +132,7 @@ describe("Admin users view user actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "User",
+        model: "user",
         ids: [2],
       },
     }).as("deleteUserRequest");
@@ -146,9 +146,7 @@ describe("Admin users view user actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/users").and("not.include", "/2");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"User","ids":"2"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.user_{"ids":"2"}');
 
     // Reload view and open delete dialog again
     cy.visit("/admin/users/2");
@@ -259,7 +257,7 @@ describe("Admin users view user actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "User",
+        model: "user",
         ids: [2],
       },
     }).as("resetPasswordRequest");
@@ -273,9 +271,7 @@ describe("Admin users view user actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/users").and("not.include", "/2");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"User","ids":"2"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.user_{"ids":"2"}');
 
     // Reload view and open reset password dialog again
     cy.visit("/admin/users/2");

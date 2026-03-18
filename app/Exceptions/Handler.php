@@ -7,6 +7,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Foundation\ViteException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Psr\Log\LogLevel;
 use Spatie\LaravelIgnition\Exceptions\ViewException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -85,7 +86,7 @@ class Handler extends ExceptionHandler
                 if ($modelNotFoundException) {
                     $json = [
                         'message' => 'model_not_found',
-                        'model' => class_basename($modelNotFoundException->getModel()),
+                        'model' => Str::snake(class_basename($modelNotFoundException->getModel())),
                         'ids' => $modelNotFoundException->getIds(),
                     ];
 

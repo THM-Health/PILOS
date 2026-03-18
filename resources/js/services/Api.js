@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/auth";
 import { useRouter } from "vue-router";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
 import EventBus from "./EventBus.js";
+import { ROOM_MODEL } from "../constants/modelNames.js";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
@@ -16,6 +17,7 @@ export class Api {
     this.router = useRouter();
     this.toast = useToast();
     this.t = i18n.global.t;
+    this.te = i18n.global.te;
   }
 
   /**
@@ -124,15 +126,19 @@ export class Api {
     const model = data?.model;
     const ids = data?.ids;
 
-    if (model === "Room" && options.redirectOnRoomModelNotFound === true) {
+    if (model === ROOM_MODEL && options.redirectOnRoomModelNotFound === true) {
       this.router.push({ name: "404" });
     }
 
     this.toast.error(
-      this.t("app.flash.model_not_found", {
-        model: model,
-        ids: ids ? `${ids.join(", ")}` : "",
-      }),
+      this.te("app.flash.model_not_found." + model)
+        ? this.t("app.flash.model_not_found." + model, {
+            ids: ids ? `${ids.join(", ")}` : "",
+          })
+        : this.t("app.flash.model_not_found.fallback", {
+            model: model,
+            ids: ids ? `${ids.join(", ")}` : "",
+          }),
     );
   }
 

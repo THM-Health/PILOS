@@ -170,7 +170,7 @@ describe("Admin users index user actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "User",
+        model: "user",
         ids: [3],
       },
     }).as("deleteUserRequest");
@@ -184,9 +184,7 @@ describe("Admin users index user actions", function () {
 
     // Check that dialog is closed and error message is shown
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"User","ids":"3"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.user_{"ids":"3"}');
 
     // Check that user is not in list anymore
     cy.get('[data-test="user-item"]').should("have.length", 3);

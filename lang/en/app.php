@@ -64,7 +64,16 @@ return [
     'flash' => [
         'client_error' => 'An unknown error occurred in the application!',
         'guests_only' => 'The request can only be made by guests!',
-        'model_not_found' => ':model with id :ids was not found!',
+        'model_not_found' => [
+            'fallback' => 'The :model with the id :ids was not found!',
+            'meeting' => 'The meeting with the id :ids was not found!',
+            'role' => 'The role with the id :ids was not found!',
+            'room' => 'The room with the id :ids was not found!',
+            'room_type' => 'The room type with the id :ids was not found!',
+            'server' => 'The server with the id :ids was not found!',
+            'server_pool' => 'The server pool with the id :ids was not found!',
+            'user' => 'The user with the id :ids was not found!',
+        ],
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
             'error_code' => 'Error code: :statusCode',

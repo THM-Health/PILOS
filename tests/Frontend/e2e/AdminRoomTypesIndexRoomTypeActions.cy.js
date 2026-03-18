@@ -341,7 +341,7 @@ describe("Admin room types index room type actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "RoomType",
+        model: "room_type",
         ids: [3],
       },
     }).as("deleteRoomTypeRequest");
@@ -357,9 +357,7 @@ describe("Admin room types index room type actions", function () {
     cy.get('[data-test="room-types-delete-dialog"]').should("not.exist");
 
     // Check that error message is shown
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"RoomType","ids":"3"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.room_type_{"ids":"3"}');
 
     // Check that room type is not there anymore
     cy.get('[data-test="room-type-item"]').should("have.length", 2);

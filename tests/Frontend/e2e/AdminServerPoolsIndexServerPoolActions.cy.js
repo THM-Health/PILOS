@@ -216,7 +216,7 @@ describe("Admin server pools index server pool actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "ServerPool",
+        model: "server_pool",
         ids: [1],
       },
     }).as("deleteServerPoolRequest");
@@ -230,9 +230,7 @@ describe("Admin server pools index server pool actions", function () {
 
     // Check that dialog is closed and error message is shown
     cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"ServerPool","ids":"1"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.server_pool_{"ids":"1"}');
 
     // Check that server pool is not in list anymore
     cy.get('[data-test="server-pool-item"]').should("have.length", 1);

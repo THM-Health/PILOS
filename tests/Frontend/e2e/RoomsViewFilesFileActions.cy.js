@@ -343,7 +343,7 @@ describe("Rooms view files file actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("uploadFileRequest");
@@ -363,7 +363,7 @@ describe("Rooms view files file actions", function () {
 
     // Check that error message is shown
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -451,7 +451,7 @@ describe("Rooms view files file actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "RoomFile",
+        model: "room_file",
         ids: [3],
       },
     }).as("deleteFileRequest");
@@ -550,7 +550,7 @@ describe("Rooms view files file actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("deleteFileRequest");
@@ -572,7 +572,7 @@ describe("Rooms view files file actions", function () {
 
     // Check that error message is shown
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -684,7 +684,7 @@ describe("Rooms view files file actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "RoomFile",
+        model: "room_file",
         ids: [3],
       },
     }).as("editFileRequest");
@@ -807,7 +807,7 @@ describe("Rooms view files file actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("editFileRequest");
@@ -829,7 +829,7 @@ describe("Rooms view files file actions", function () {
 
     // Check that error message is shown
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 

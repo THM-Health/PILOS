@@ -1366,7 +1366,7 @@ describe("Rooms view meetings", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("joinRequest");
@@ -1388,7 +1388,7 @@ describe("Rooms view meetings", function () {
     // Check that redirect to 404 page worked and error message is shown
     cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -1557,7 +1557,7 @@ describe("Rooms view meetings", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("preJoinRequest");
@@ -1569,7 +1569,7 @@ describe("Rooms view meetings", function () {
     // Check that redirect to 404 page worked and error message is shown
     cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -2953,7 +2953,7 @@ describe("Rooms view meetings", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("startRequest");
@@ -2974,7 +2974,7 @@ describe("Rooms view meetings", function () {
     cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -3145,7 +3145,7 @@ describe("Rooms view meetings", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("preStartRequest");
@@ -3158,7 +3158,7 @@ describe("Rooms view meetings", function () {
     cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 

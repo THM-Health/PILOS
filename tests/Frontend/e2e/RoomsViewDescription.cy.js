@@ -472,7 +472,7 @@ describe("Rooms view description", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("saveDescriptionRequest");
@@ -488,7 +488,7 @@ describe("Rooms view description", function () {
 
     // Check that error message gets shown
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 

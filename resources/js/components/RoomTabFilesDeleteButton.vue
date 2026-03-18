@@ -53,6 +53,7 @@ import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { ROOM_MODEL } from "../constants/modelNames.js";
 
 const props = defineProps({
   roomId: {
@@ -103,7 +104,7 @@ function deleteFile() {
         // file not found
         if (
           error.response.status === env.HTTP_NOT_FOUND &&
-          error.response.data?.model !== "Room"
+          error.response.data?.model !== ROOM_MODEL
         ) {
           toast.error(t("rooms.flash.file_gone"));
           emit("notFound");

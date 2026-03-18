@@ -179,7 +179,7 @@ describe("Admin roles index role actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Role",
+        model: "role",
         ids: [3],
       },
     }).as("deleteRoleRequest");
@@ -193,9 +193,7 @@ describe("Admin roles index role actions", function () {
 
     // Check that dialog is closed and that error message is shown
     cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
-    cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Role","ids":"3"}',
-    );
+    cy.checkToastMessage('app.flash.model_not_found.role_{"ids":"3"}');
 
     // Check that role is not in the list anymore
     cy.get('[data-test="role-item"]').should("have.length", 2);

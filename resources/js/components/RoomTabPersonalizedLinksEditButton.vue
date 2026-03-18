@@ -110,6 +110,7 @@ import { ref } from "vue";
 import env from "../env.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { ROOM_MODEL } from "../constants/modelNames.js";
 
 const props = defineProps({
   roomId: {
@@ -191,7 +192,7 @@ function save() {
         // token not found
         if (
           error.response.status === env.HTTP_NOT_FOUND &&
-          error.response.data?.model !== "Room"
+          error.response.data?.model !== ROOM_MODEL
         ) {
           toast.error(t("rooms.flash.personalized_link_gone"));
           modalVisible.value = false;

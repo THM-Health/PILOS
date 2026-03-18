@@ -2381,7 +2381,7 @@ describe("Room View general", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("joinMembershipRequest");
@@ -2394,7 +2394,7 @@ describe("Room View general", function () {
     cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
 
     // Reload room with user being a member of the room
@@ -2514,7 +2514,7 @@ describe("Room View general", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("endMembershipRequest");
@@ -2528,6 +2528,11 @@ describe("Room View general", function () {
 
     // Check that redirect worked and error message is shown
     cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+
+    // Check that error message is shown
+    cy.checkToastMessage(
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
+    );
   });
 
   it("trigger favorites button", function () {
@@ -2726,7 +2731,7 @@ describe("Room View general", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("addFavoritesRequest");
@@ -2739,7 +2744,7 @@ describe("Room View general", function () {
     cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
 
     // Reload room but room is already in favorites
@@ -2842,7 +2847,7 @@ describe("Room View general", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("deleteFavoritesRequest");
@@ -2857,7 +2862,7 @@ describe("Room View general", function () {
     cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 

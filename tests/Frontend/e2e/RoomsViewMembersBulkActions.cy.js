@@ -425,7 +425,7 @@ describe("Rooms view members bulk actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("bulkEditRequest");
@@ -443,7 +443,7 @@ describe("Rooms view members bulk actions", function () {
     cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -736,7 +736,7 @@ describe("Rooms view members bulk actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("bulkDeleteRequest");
@@ -756,7 +756,7 @@ describe("Rooms view members bulk actions", function () {
     cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 
@@ -1476,7 +1476,7 @@ describe("Rooms view members bulk actions", function () {
       statusCode: 404,
       body: {
         message: "model_not_found",
-        model: "Room",
+        model: "room",
         ids: ["abc-def-123"],
       },
     }).as("bulkImportRequest");
@@ -1498,7 +1498,7 @@ describe("Rooms view members bulk actions", function () {
     cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
 
     cy.checkToastMessage(
-      'app.flash.model_not_found_{"model":"Room","ids":"abc-def-123"}',
+      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
     );
   });
 });
