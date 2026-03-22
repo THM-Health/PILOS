@@ -169,7 +169,14 @@ class ServerPoolTest extends TestCase
         // Test deleted
         $serverPool->delete();
         $this->actingAs($this->user)->getJson(route('api.v1.serverPools.show', ['serverPool' => $serverPool->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server_pool',
+                'ids' => [
+                    $serverPool->id,
+                ],
+            ]);
     }
 
     /**
@@ -335,7 +342,14 @@ class ServerPoolTest extends TestCase
         // Test deleted
         $serverPool->delete();
         $this->actingAs($this->user)->putJson(route('api.v1.serverPools.update', ['serverPool' => $serverPool->id]), $data)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server_pool',
+                'ids' => [
+                    $serverPool->id,
+                ],
+            ]);
     }
 
     /**
@@ -374,7 +388,14 @@ class ServerPoolTest extends TestCase
 
         // Test delete again
         $this->actingAs($this->user)->deleteJson(route('api.v1.serverPools.destroy', ['serverPool' => $serverPool->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server_pool',
+                'ids' => [
+                    $serverPool->id,
+                ],
+            ]);
 
         $this->assertDatabaseMissing('servers', ['id' => $serverPool->id]);
     }

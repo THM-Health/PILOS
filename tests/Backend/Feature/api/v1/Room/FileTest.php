@@ -1077,7 +1077,14 @@ class FileTest extends TestCase
 
         // Testing delete again
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $this->room->id, 'file' => $room_file]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Check if file was deleted as well
         Storage::disk('local')->assertMissing($this->room->id.'/'.$this->file_valid->hashName());
@@ -1128,13 +1135,27 @@ class FileTest extends TestCase
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
     }
 
     /**
@@ -1212,13 +1233,27 @@ class FileTest extends TestCase
         $other_room = Room::factory()->create();
         // Testing for room without permission
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Testing missing properties
         $params = [];
@@ -1234,6 +1269,18 @@ class FileTest extends TestCase
 
         $this->actingAs($this->room->owner)->putJson($route, $params)
             ->assertJsonValidationErrors(['use_in_meeting', 'download', 'default']);
+
+        // Test deleted
+        $room_file->delete();
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
     }
 
     /**

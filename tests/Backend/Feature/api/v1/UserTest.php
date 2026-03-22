@@ -537,7 +537,13 @@ class UserTest extends TestCase
 
         // Not existing user
         $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => self::INVALID_ID]), $changes)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]
+            );
 
         // Check as admin
         $changes['updated_at'] = Carbon::now();
@@ -1417,7 +1423,12 @@ class UserTest extends TestCase
         $role->users()->attach([$externalUser->id, $user->id]);
 
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => self::INVALID_ID]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         // Existing user
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $externalUser]))
@@ -1481,7 +1492,12 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Not existing model
-        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => self::INVALID_ID]))->assertNotFound();
+        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => self::INVALID_ID]))->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         // User own model
         $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => $user]))
@@ -1560,7 +1576,12 @@ class UserTest extends TestCase
         $role->users()->attach([$user->id]);
 
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => self::INVALID_ID]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $user]))
             ->assertForbidden();

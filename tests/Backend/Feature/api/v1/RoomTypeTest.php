@@ -325,7 +325,14 @@ class RoomTypeTest extends TestCase
         // Test deleted
         $roomType->delete();
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.show', ['roomType' => $roomType->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_type',
+                'ids' => [
+                    $roomType->id,
+                ],
+            ]);
     }
 
     /**
@@ -895,7 +902,14 @@ class RoomTypeTest extends TestCase
         // Test deleted
         $roomType->delete();
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType' => $roomType->id]), $data)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_type',
+                'ids' => [
+                    $roomType->id,
+                ],
+            ]);
     }
 
     /**
@@ -925,7 +939,14 @@ class RoomTypeTest extends TestCase
 
         // Test delete again
         $this->actingAs($this->user)->deleteJson(route('api.v1.roomTypes.destroy', ['roomType' => $roomType->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_type',
+                'ids' => [
+                    $roomType->id,
+                ],
+            ]);
 
         $this->assertDatabaseMissing('room_types', ['id' => $roomType->id]);
 

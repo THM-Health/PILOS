@@ -781,7 +781,12 @@ class MembershipTest extends TestCase
 
         // Remove member with invalid user
         $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => 0]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [0],
+            ]);
 
         // Remove member as moderator
         $this->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
