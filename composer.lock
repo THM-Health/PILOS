@@ -9692,25 +9692,25 @@
         },
         {
             "name": "laravel/boost",
-            "version": "v2.2.1",
+            "version": "v2.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/boost.git",
-                "reference": "e27f1616177377fef95296620530c44a7dda4df9"
+                "reference": "9e3dd5f05b59394e463e78853067dc36c63a0394"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/boost/zipball/e27f1616177377fef95296620530c44a7dda4df9",
-                "reference": "e27f1616177377fef95296620530c44a7dda4df9",
+                "url": "https://api.github.com/repos/laravel/boost/zipball/9e3dd5f05b59394e463e78853067dc36c63a0394",
+                "reference": "9e3dd5f05b59394e463e78853067dc36c63a0394",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.9",
-                "illuminate/console": "^11.45.3|^12.41.1",
-                "illuminate/contracts": "^11.45.3|^12.41.1",
-                "illuminate/routing": "^11.45.3|^12.41.1",
-                "illuminate/support": "^11.45.3|^12.41.1",
-                "laravel/mcp": "^0.5.1",
+                "illuminate/console": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/contracts": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/routing": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/support": "^11.45.3|^12.41.1|^13.0",
+                "laravel/mcp": "^0.5.1|^0.6.0",
                 "laravel/prompts": "^0.3.10",
                 "laravel/roster": "^0.5.0",
                 "php": "^8.2"
@@ -9718,7 +9718,7 @@
             "require-dev": {
                 "laravel/pint": "^1.27.0",
                 "mockery/mockery": "^1.6.12",
-                "orchestra/testbench": "^9.15.0|^10.6",
+                "orchestra/testbench": "^9.15.0|^10.6|^11.0",
                 "pestphp/pest": "^2.36.0|^3.8.4|^4.1.5",
                 "phpstan/phpstan": "^2.1.27",
                 "rector/rector": "^2.1"
@@ -9754,20 +9754,20 @@
                 "issues": "https://github.com/laravel/boost/issues",
                 "source": "https://github.com/laravel/boost"
             },
-            "time": "2026-02-25T16:07:36+00:00"
+            "time": "2026-03-17T16:42:14+00:00"
         },
         {
             "name": "laravel/mcp",
-            "version": "v0.5.9",
+            "version": "v0.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "39e8da60eb7bce4737c5d868d35a3fe78938c129"
+                "reference": "8a2c97ec1184e16029080e3f6172a7ca73de4df9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/39e8da60eb7bce4737c5d868d35a3fe78938c129",
-                "reference": "39e8da60eb7bce4737c5d868d35a3fe78938c129",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/8a2c97ec1184e16029080e3f6172a7ca73de4df9",
+                "reference": "8a2c97ec1184e16029080e3f6172a7ca73de4df9",
                 "shasum": ""
             },
             "require": {
@@ -9827,7 +9827,7 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2026-02-17T19:05:53+00:00"
+            "time": "2026-03-12T12:46:43+00:00"
         },
         {
             "name": "laravel/pint",
@@ -9898,16 +9898,16 @@
         },
         {
             "name": "laravel/roster",
-            "version": "v0.5.0",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/roster.git",
-                "reference": "56904a78f4d7360c1c490ced7deeebf9aecb8c0e"
+                "reference": "5089de7615f72f78e831590ff9d0435fed0102bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/roster/zipball/56904a78f4d7360c1c490ced7deeebf9aecb8c0e",
-                "reference": "56904a78f4d7360c1c490ced7deeebf9aecb8c0e",
+                "url": "https://api.github.com/repos/laravel/roster/zipball/5089de7615f72f78e831590ff9d0435fed0102bb",
+                "reference": "5089de7615f72f78e831590ff9d0435fed0102bb",
                 "shasum": ""
             },
             "require": {
@@ -9955,7 +9955,7 @@
                 "issues": "https://github.com/laravel/roster/issues",
                 "source": "https://github.com/laravel/roster"
             },
-            "time": "2026-02-17T17:33:35+00:00"
+            "time": "2026-03-05T07:58:43+00:00"
         },
         {
             "name": "m6web/redis-mock",
