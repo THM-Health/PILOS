@@ -1,5 +1,6 @@
 <template>
   <Button
+    id="room-share-button"
     data-test="room-share-button"
     :label="$t('rooms.invitation.share')"
     icon="fa-solid fa-share-nodes"
@@ -8,6 +9,7 @@
     @click="toggle"
   />
   <Popover ref="op" aria-labelledby="room-invitation-title" aria-modal="false">
+    <Button class="sr-only" @click="closePopover">{{ $t("app.close") }}</Button>
     <div class="flex min-w-min flex-col items-start gap-4 p-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend
@@ -134,6 +136,11 @@ function copyUrl() {
 function copyCode() {
   navigator.clipboard.writeText(formattedAccessCode.value);
   toast.success(t("rooms.invitation.copied_code"));
+}
+
+function closePopover() {
+  op.value.hide();
+  document.getElementById("room-share-button").focus();
 }
 
 const roomUrl = computed(() => {
