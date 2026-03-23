@@ -1589,16 +1589,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.54.1",
+            "version": "v12.55.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "325497463e7599cd14224c422c6e5dd2fe832868"
+                "reference": "6d9185a248d101b07eecaf8fd60b18129545fd33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/325497463e7599cd14224c422c6e5dd2fe832868",
-                "reference": "325497463e7599cd14224c422c6e5dd2fe832868",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/6d9185a248d101b07eecaf8fd60b18129545fd33",
+                "reference": "6d9185a248d101b07eecaf8fd60b18129545fd33",
                 "shasum": ""
             },
             "require": {
@@ -1714,7 +1714,7 @@
                 "orchestra/testbench-core": "^10.9.0",
                 "pda/pheanstalk": "^5.0.6|^7.0.0",
                 "php-http/discovery": "^1.15",
-                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan": "^2.1.41",
                 "phpunit/phpunit": "^10.5.35|^11.5.3|^12.0.1",
                 "predis/predis": "^2.3|^3.0",
                 "resend/resend-php": "^0.10.0|^1.0",
@@ -1807,7 +1807,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-03-10T20:25:56+00:00"
+            "time": "2026-03-18T14:28:59+00:00"
         },
         {
             "name": "laravel/horizon",
@@ -1891,16 +1891,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.14",
+            "version": "v0.3.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "9f0e371244eedfe2ebeaa72c79c54bb5df6e0176"
+                "reference": "4bb8107ec97651fd3f17f897d6489dbc4d8fb999"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/9f0e371244eedfe2ebeaa72c79c54bb5df6e0176",
-                "reference": "9f0e371244eedfe2ebeaa72c79c54bb5df6e0176",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/4bb8107ec97651fd3f17f897d6489dbc4d8fb999",
+                "reference": "4bb8107ec97651fd3f17f897d6489dbc4d8fb999",
                 "shasum": ""
             },
             "require": {
@@ -1944,9 +1944,9 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.14"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.15"
             },
-            "time": "2026-03-01T09:02:38+00:00"
+            "time": "2026-03-17T13:45:17+00:00"
         },
         {
             "name": "laravel/pulse",
@@ -2419,16 +2419,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.8.1",
+            "version": "2.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "84b1ca48347efdbe775426f108622a42735a6579"
+                "reference": "59fb075d2101740c337c7216e3f32b36c204218b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/84b1ca48347efdbe775426f108622a42735a6579",
-                "reference": "84b1ca48347efdbe775426f108622a42735a6579",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/59fb075d2101740c337c7216e3f32b36c204218b",
+                "reference": "59fb075d2101740c337c7216e3f32b36c204218b",
                 "shasum": ""
             },
             "require": {
@@ -2522,7 +2522,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-05T21:37:03+00:00"
+            "time": "2026-03-19T13:16:38+00:00"
         },
         {
             "name": "league/config",
@@ -11938,31 +11938,31 @@
         },
         {
             "name": "timacdonald/log-fake",
-            "version": "v2.4.1",
+            "version": "v2.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/timacdonald/log-fake.git",
-                "reference": "386f9829198a65c8229ad9f358374b79908b7b9d"
+                "reference": "c2caae39dbc18d27fc4b8833412dd9eeab32f940"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/timacdonald/log-fake/zipball/386f9829198a65c8229ad9f358374b79908b7b9d",
-                "reference": "386f9829198a65c8229ad9f358374b79908b7b9d",
+                "url": "https://api.github.com/repos/timacdonald/log-fake/zipball/c2caae39dbc18d27fc4b8833412dd9eeab32f940",
+                "reference": "c2caae39dbc18d27fc4b8833412dd9eeab32f940",
                 "shasum": ""
             },
             "require": {
-                "illuminate/collections": "^11.0 || ^12.0",
-                "illuminate/contracts": "^11.0 || ^12.0",
-                "illuminate/log": "^11.0 || ^12.0",
-                "illuminate/support": "^11.0 || ^12.0",
+                "illuminate/collections": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/contracts": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/log": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/support": "^11.0 || ^12.0 || ^13.0",
                 "php": "^8.2",
                 "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0 || ^13.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/var-dumper": "^7.0"
             },
             "require-dev": {
-                "illuminate/config": "^11.0 || ^12.0",
-                "illuminate/container": "^11.0 || ^12.0",
+                "illuminate/config": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/container": "^11.0 || ^12.0 || ^13.0",
                 "timacdonald/callable-fake": "^1.0"
             },
             "type": "library",
@@ -11992,9 +11992,9 @@
             ],
             "support": {
                 "issues": "https://github.com/timacdonald/log-fake/issues",
-                "source": "https://github.com/timacdonald/log-fake/tree/v2.4.1"
+                "source": "https://github.com/timacdonald/log-fake/tree/v2.4.2"
             },
-            "time": "2026-02-17T21:58:04+00:00"
+            "time": "2026-03-19T22:05:27+00:00"
         }
     ],
     "aliases": [],
