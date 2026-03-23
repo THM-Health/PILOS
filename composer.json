@@ -22,7 +22,7 @@
     "laravel/pulse": "^1.0@beta",
     "laravel/sanctum": "^v4.0",
     "laravel/telescope": "^5.0",
-    "laravel/tinker": "^2.0",
+    "laravel/tinker": "^3.0",
     "laravel/ui": "^4.3",
     "littleredbutton/bigbluebutton-api-php": "^6.0",
     "maatwebsite/excel": "^3.1",
