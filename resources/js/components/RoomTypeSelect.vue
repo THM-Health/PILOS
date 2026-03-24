@@ -50,29 +50,41 @@
             </template>
           </Select>
 
-          <Listbox
-            v-model="roomTypeId"
-            :disabled="disabled || isLoadingAction"
-            :options="roomTypes"
-            option-label="name"
-            option-value="id"
-            :invalid="props.invalid"
-            class="hidden w-full md:block"
-            scroll-height="19rem"
+          <div
+            id="room-type-select-list"
+            role="radiogroup"
             :aria-labelledby="ariaLabelledby"
-            :pt="{
-              option: {
-                'data-test': 'room-type-select-option',
-              },
-            }"
-            @change="changeRoomType"
+            class="border-rounded hidden max-h-76 w-full flex-col gap-1 -space-y-px overflow-y-auto border border-surface p-1 md:flex"
           >
-            <template #option="slotProps">
-              <span style="word-break: normal; overflow-wrap: anywhere">{{
-                slotProps.option.name
-              }}</span>
-            </template>
-          </Listbox>
+            <label
+              v-for="roomType in roomTypes"
+              :key="roomType.id"
+              class="flex items-center gap-2 p-2"
+              :class="
+                roomType.id === roomTypeId
+                  ? 'bg-primary-400/12 text-primary-600 hover:bg-primary-400/24 hover:text-primary-700 dark:text-white dark:hover:text-white'
+                  : 'hover:bg-emphasis'
+              "
+              :id="'room-type-select-list-item-' + roomType.id"
+            >
+              <RadioButton
+                name="room-type"
+                :value="roomType.id"
+                type="radio"
+                :disabled="disabled || isLoadingAction"
+                v-model="roomTypeId"
+                @change="changeRoomType"
+                :pt="{
+                  input: {
+                    required: 'required',
+                  },
+                }"
+              />
+              <span style="word-break: normal; overflow-wrap: anywhere">
+                {{ roomType.name }}
+              </span>
+            </label>
+          </div>
         </div>
         <div
           v-if="modelValue"
@@ -89,7 +101,7 @@
 
 <script setup>
 import { useApi } from "../composables/useApi.js";
-import { onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 
 const api = useApi();
 
@@ -181,6 +193,8 @@ function reloadRoomTypes() {
         emit("update:modelValue", null);
       }
       modelLoadingError.value = false;
+
+      scrollToSelectedRoomType();
     })
     .catch((error) => {
       modelLoadingError.value = true;
@@ -198,5 +212,13 @@ function changeRoomType() {
   const newRoomType =
     roomTypes.value.find((entry) => entry.id === roomTypeId.value) ?? null;
   emit("update:modelValue", newRoomType);
+}
+
+async function scrollToSelectedRoomType() {
+  await nextTick();
+  if (roomTypeId.value) {
+    const item = "room-type-select-list-item-" + roomTypeId.value;
+    document.getElementById(item)?.scrollIntoView({ behavior: "smooth" });
+  }
 }
 </script>
