@@ -11,5 +11,9 @@ export default defineConfig({
       type: "chrome",
       viewport: "1280x800",
     },
+    accessibility: {
+      type: "accessibility",
+      viewport: "1280x800",
+    },
   },
 });
