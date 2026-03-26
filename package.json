@@ -17,7 +17,7 @@
     "happo": "happo"
   },
   "devDependencies": {
-    "@cypress/code-coverage": "^4.0.2",
+    "@cypress/code-coverage": "^4.0.3",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^1.2.0",
