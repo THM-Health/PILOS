@@ -2132,7 +2132,7 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
-    cy.get("#access-code").should("have.value", "123-456-789");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("membership button errors", function () {

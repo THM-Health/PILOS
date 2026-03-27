@@ -204,6 +204,7 @@
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
+                    @require-code="reload"
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
                   />
@@ -223,6 +224,7 @@
             :room-auth-token="roomAuthToken"
             :room="room"
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
+            @require-code="reload"
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
           />
@@ -394,7 +396,7 @@ function handleInvalidCode() {
 
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
-  reload();
+  reload(true);
 }
 
 /**
@@ -482,7 +484,7 @@ watch(authThrottledFor, (value) => {
 /**
  * Reload the room details/settings
  */
-function reload() {
+function reload(ignoreAuthChange = false) {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
@@ -501,6 +503,23 @@ function reload() {
   api
     .call(url, config)
     .then((response) => {
+      // Room was authenticated but now requires an access code
+      if (
+        room.value?.authenticated &&
+        !response.data.data.authenticated &&
+        !ignoreAuthChange
+      ) {
+        // Reset access code error states to prevent confusing error state
+        accessCodeInvalid.value = null;
+        formErrors.clear();
+
+        // Reset access code input
+        accessCodeInput.value = "";
+
+        // Show error message
+        toast.error(t("rooms.require_access_code"));
+      }
+
       room.value = response.data.data;
 
       setPageTitle(room.value.name);

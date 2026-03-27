@@ -863,9 +863,9 @@ describe("Rooms view files file actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    // Reload room (but without setting room auth token)
+    cy.get('[data-test="reload-room-button"]').click();
 
-    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
@@ -887,16 +887,17 @@ describe("Rooms view files file actions", function () {
       $window.postMessage(message, Cypress.config("baseUrl"));
     });
 
-    // Check that room auth token is reset
+    // Check that room auth token is not set
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query.room_auth_token).to.be.undefined;
       expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("download file with personalized link errors", function () {
