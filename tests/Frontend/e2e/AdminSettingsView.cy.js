@@ -659,7 +659,7 @@ describe("Admin settings with edit permission", function () {
       .should("be.visible")
       .and("include.text", "admin.settings.room_hide_owner_for_guests")
       .within(() => {
-        cy.get("#room-hide-owner").should("be.checked").and("be.disabled");
+        cy.get("#room-hide-owner").should("not.be.checked").and("be.disabled");
       });
 
     // Reload with different settings
@@ -667,7 +667,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_limit = 10;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
-      settings.data.room_hide_owner_for_guests = false;
+      settings.data.room_hide_owner_for_guests = true;
 
       cy.intercept("GET", "api/v1/settings", {
         statusCode: 200,
@@ -712,7 +712,7 @@ describe("Admin settings with edit permission", function () {
       .should("be.visible")
       .and("include.text", "admin.settings.room_hide_owner_for_guests")
       .within(() => {
-        cy.get("#room-hide-owner").should("not.be.checked").and("be.disabled");
+        cy.get("#room-hide-owner").should("be.checked").and("be.disabled");
       });
   });
 
