@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing aria-label for recording edit button ([#2906], [#2911])
 - Greenlight v2 imported room settings not applied due to disabled expert mode ([#2665])
 - Missing aria-labels for running meetings table header icons ([#2905], [#2910])
+- External ID column too small for long LDAP/AD distinguished names ([#2914])
 
 ## [v4.13.0] - 2026-02-23
 
