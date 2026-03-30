@@ -228,7 +228,7 @@ function loadConfig() {
         response.data.data.system_default_pause_image;
     })
     .catch((error) => {
-      api.error(error);
+      api.error(error, { redirectOnUnauthenticated: false });
       modelLoadingError.value = true;
     })
     .finally(() => {
@@ -272,7 +272,7 @@ function save() {
       ) {
         formErrors.set(error.response.data.errors);
       } else {
-        api.error(error);
+        api.error(error, { redirectOnUnauthenticated: false });
       }
     })
     .finally(() => {
