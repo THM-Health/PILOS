@@ -3324,4 +3324,25 @@ describe("Room View general", function () {
     // Check url is updated (no errors)
     cy.url().should("not.include", "errors");
   });
+
+  it("hide room owner if not provided", function () {
+    cy.interceptRoomFilesRequest();
+    cy.fixture("room.json").then((room) => {
+      delete room.data.owner;
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    // Visit room
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+
+    // room itself will be loaded
+    cy.contains("Meeting One").should("be.visible");
+
+    // room should not contain owner name
+    cy.contains("John Doe").should("not.exist");
+  });
 });
