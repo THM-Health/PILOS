@@ -384,6 +384,7 @@ return [
             'description' => 'Users must agree to the terms of use in order to download files. If the field is empty, no consent is required.',
             'title' => 'Terms of use for file download',
         ],
+        'room_hide_owner_from_guests' => 'Hide room owner from unauthenticated users',
         'room_limit' => [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
@@ -392,7 +393,6 @@ return [
             'description' => 'Time period since last usage, after which personalized room links get automatically removed.',
             'title' => 'Expiration time for personalized room links',
         ],
-        'room_hide_owner_from_guests' => 'Hide room owner from unauthenticated users',
         'six_month' => '6 Months (180 Days)',
         'statistics' => [
             'meetings' => [
