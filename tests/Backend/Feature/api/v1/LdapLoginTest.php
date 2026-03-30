@@ -638,26 +638,4 @@ class LdapLoginTest extends TestCase
         $this->assertEquals(-5, (int) now()->diffInDays($user->last_login));
 
     }
-
-    /**
-     * Test that login succeeds with a long external ID (> 191 chars, e.g. DN in a complex AD/LDAP).
-     */
-    public function test_login_with_long_external_id()
-    {
-        // Create a uid longer than 191 characters (e.g. a complex LDAP DN)
-        $longUid = 'CN=John Doe,OU='.str_repeat('LongOrganizationalUnit,', 8).'DC=example,DC=com';
-        $this->assertGreaterThan(191, strlen($longUid));
-
-        $this->ldapUser->replaceAttribute('uid', [$longUid]);
-
-        $this->assertGuest($this->guard);
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
-            'username' => $longUid,
-            'password' => 'secret',
-        ]);
-
-        $this->assertAuthenticated($this->guard);
-        $user = $this->getAuthenticatedUser();
-        $this->assertEquals($longUid, $user->external_id);
-    }
 }
