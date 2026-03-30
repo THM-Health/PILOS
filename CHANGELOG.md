@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Room description editor not closed after 403 error on save
 - Missing aria-label for recording edit button ([#2906], [#2911])
 - Greenlight v2 imported room settings not applied due to disabled expert mode ([#2665])
 - Missing aria-labels for running meetings table header icons ([#2905], [#2910])
