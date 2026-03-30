@@ -2109,7 +2109,7 @@ describe("Admin settings with edit permission", function () {
 
     cy.get('[data-test="room-hide-owner-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.room_hide_owner_for_guests")
+      .and("include.text", "admin.settings.room_hide_owner_from_guests")
       .within(() => {
         cy.get("#room-hide-owner").should("not.be.checked").click();
       });
@@ -2122,7 +2122,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = "New room file terms of use";
-      settings.data.room_hide_owner_for_guests = true;
+      settings.data.room_hide_owner_from_guests = true;
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -2163,7 +2163,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("room_file_terms_of_use")).to.equal(
         "New room file terms of use",
       );
-      expect(formData.get("room_hide_owner_for_guests")).to.equal("1");
+      expect(formData.get("room_hide_owner_from_guests")).to.equal("1");
     });
 
     // Check that config is loaded
@@ -2219,7 +2219,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = null;
-      settings.data.room_hide_owner_for_guests = false;
+      settings.data.room_hide_owner_from_guests = false;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -2245,7 +2245,7 @@ describe("Admin settings with edit permission", function () {
         "730",
       );
       expect(formData.get("room_file_terms_of_use")).to.equal("");
-      expect(formData.get("room_hide_owner_for_guests")).to.equal("0");
+      expect(formData.get("room_hide_owner_from_guests")).to.equal("0");
     });
 
     // Check that config is loaded
@@ -3194,7 +3194,7 @@ describe("Admin settings with edit permission", function () {
           room_file_terms_of_use: [
             "The selected room file terms of use is invalid.",
           ],
-          room_hide_owner_for_guests: [
+          room_hide_owner_from_guests: [
             "The selected room hide owner for guests field is invalid.",
           ],
           user_password_change_allowed: [

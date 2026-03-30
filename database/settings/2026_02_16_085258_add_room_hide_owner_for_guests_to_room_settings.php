@@ -6,11 +6,11 @@ return new class extends SettingsMigration
 {
     public function up(): void
     {
-        $this->migrator->add('room.hide_owner_for_guests', false);
+        $this->migrator->add('room.hide_owner_from_guests', false);
     }
 
     public function down(): void
     {
-        $this->migrator->delete('room.hide_owner_for_guests');
+        $this->migrator->delete('room.hide_owner_from_guests');
     }
 };

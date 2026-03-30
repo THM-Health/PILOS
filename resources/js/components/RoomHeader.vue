@@ -117,5 +117,4 @@ const emit = defineEmits([
   "reload",
   "invalidRoomAuthToken",
 ]);
-
 </script>

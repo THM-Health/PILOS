@@ -65,7 +65,7 @@ class Settings extends JsonResource
             'room_auto_delete_deadline_period' => $roomSettings->auto_delete_deadline_period,
             'room_personalized_link_expiration' => $roomSettings->personalized_link_expiration,
             'room_file_terms_of_use' => $roomSettings->file_terms_of_use,
-            'room_hide_owner_for_guests' => $roomSettings->hide_owner_for_guests,
+            'room_hide_owner_from_guests' => $roomSettings->hide_owner_from_guests,
             'user_password_change_allowed' => $userSettings->password_change_allowed,
             'recording_server_usage_enabled' => $recordingSettings->server_usage_enabled,
             'recording_server_usage_retention_period' => $recordingSettings->server_usage_retention_period,
