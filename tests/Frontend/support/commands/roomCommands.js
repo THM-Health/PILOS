@@ -488,7 +488,9 @@ Cypress.Commands.add(
         cy.contains("rooms.description.title");
         // Check that editor is closed after 403 error
         cy.get('[data-test="tip-tap-editor"]').should("not.exist");
-        cy.get('[data-test="room-description-save-button"]').should("not.exist");
+        cy.get('[data-test="room-description-save-button"]').should(
+          "not.exist",
+        );
         break;
       case "files":
         // Check reload of files and check that tab stayed the same
