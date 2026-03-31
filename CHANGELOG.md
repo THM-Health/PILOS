@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BBB API URL is now automatically normalized to include a trailing `/` when adding or editing a server ([#2912], [#2913])
+- Increased external ID database column length ([#2998], [#2999])
 
 ### Fixed
 
@@ -733,6 +734,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2911]: https://github.com/THM-Health/PILOS/pull/2911
 [#2912]: https://github.com/THM-Health/PILOS/issues/2912
 [#2913]: https://github.com/THM-Health/PILOS/pull/2913
+[#2998]: https://github.com/THM-Health/PILOS/issues/2998
+[#2999]: https://github.com/THM-Health/PILOS/pull/2999
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.13.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
