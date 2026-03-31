@@ -2377,6 +2377,8 @@ describe("Room View general", function () {
     cy.wait("@roomRequest");
 
     // Check join membership with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("POST", "api/v1/rooms/abc-def-123/membership*", {
       statusCode: 404,
       body: {
@@ -2391,11 +2393,14 @@ describe("Room View general", function () {
     cy.wait("@joinMembershipRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
 
     // Reload room with user being a member of the room
     cy.fixture("room.json").then((room) => {
@@ -2527,12 +2532,15 @@ describe("Room View general", function () {
     cy.wait("@endMembershipRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
     // Check that error message is shown
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("trigger favorites button", function () {
@@ -2727,6 +2735,8 @@ describe("Room View general", function () {
     cy.wait("@roomRequest");
 
     // Test add to favorites with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("POST", "api/v1/rooms/abc-def-123/favorites", {
       statusCode: 404,
       body: {
@@ -2741,11 +2751,14 @@ describe("Room View general", function () {
     cy.wait("@addFavoritesRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
 
     // Reload room but room is already in favorites
     cy.fixture("room.json").then((room) => {
@@ -2843,6 +2856,8 @@ describe("Room View general", function () {
     cy.wait("@roomRequest");
 
     // Test remove from favorites with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("DELETE", "api/v1/rooms/abc-def-123/favorites", {
       statusCode: 404,
       body: {
@@ -2859,11 +2874,14 @@ describe("Room View general", function () {
     cy.wait("@deleteFavoritesRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("visit with guest forbidden", function () {
@@ -2951,6 +2969,9 @@ describe("Room View general", function () {
   });
 
   it("visit with room not found", function () {
+    // Try with logged in user
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       statusCode: 404,
       body: {
@@ -2960,6 +2981,22 @@ describe("Room View general", function () {
 
     cy.visit("/rooms/abc-def-123");
 
+    // Check redirect to room index page
+    cy.url()
+      .should("include", "/rooms")
+      .should("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Try with guest
+    cy.intercept("GET", "api/v1/currentUser", {});
+
+    cy.visit("/rooms/abc-def-123");
+
+    // Check redirect to 404 page
     cy.url()
       .should("include", "/404")
       .should("not.include", "/rooms/abc-def-123");
@@ -3089,7 +3126,9 @@ describe("Room View general", function () {
 
     cy.wait("@roomRequest");
 
-    // Test reload with room not found
+    // Test reload with room not found and guest user
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       statusCode: 404,
       body: {
@@ -3100,8 +3139,44 @@ describe("Room View general", function () {
     cy.get('[data-test="reload-room-button"]').click();
     cy.wait("@roomRequest");
 
+    // Check redirect to 404 page worked
     cy.url()
       .should("include", "/404")
+      .should("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Test reload with room not found and logged in user
+    cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+    cy.wait("@roomRequest");
+    cy.contains("Meeting One").should("be.visible");
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      statusCode: 404,
+      body: {
+        message: "No query results for model [App\\Room] abc-def-123",
+      },
+    }).as("roomRequest");
+
+    cy.get('[data-test="reload-room-button"]').click();
+    cy.wait("@roomRequest");
+
+    // Check redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
       .should("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage([

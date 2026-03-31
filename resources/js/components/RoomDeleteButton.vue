@@ -90,10 +90,7 @@ function deleteRoom() {
     })
     .catch((error) => {
       isLoadingAction.value = false;
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
     });
 }
 </script>

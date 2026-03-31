@@ -441,7 +441,11 @@ function load() {
       if (error.response) {
         // Room not found (Always redirect to 404 view)
         if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
+          if (authStore.isAuthenticated) {
+            router.push({ name: "rooms.index" });
+          } else {
+            router.push({ name: "404" });
+          }
         }
 
         // Room auth token is invalid
@@ -462,7 +466,10 @@ function load() {
         }
       }
 
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -516,7 +523,11 @@ function reload() {
       if (error.response) {
         // Room not found (Always redirect to 404 view)
         if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
+          if (authStore.isAuthenticated) {
+            router.push({ name: "rooms.index" });
+          } else {
+            router.push({ name: "404" });
+          }
         }
 
         // Room auth token is invalid
@@ -535,7 +546,10 @@ function reload() {
           return handleGuestsNotAllowed();
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+        redirectOnRoomModelNotFound: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -674,7 +688,6 @@ function authenticate(type, codeOrToken) {
         }
         api.error(error, {
           redirectOnUnauthenticated: false,
-          redirectOnRoomModelNotFound: true,
         });
       })
       .finally(() => {

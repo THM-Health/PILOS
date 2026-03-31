@@ -17,7 +17,6 @@ export class Api {
     this.router = useRouter();
     this.toast = useToast();
     this.t = i18n.global.t;
-    this.te = i18n.global.te;
   }
 
   /**
@@ -126,19 +125,21 @@ export class Api {
     const model = data?.model;
     const ids = data?.ids;
 
-    if (model === ROOM_MODEL && options.redirectOnRoomModelNotFound === true) {
-      this.router.push({ name: "404" });
+    if (model === ROOM_MODEL && options.redirectOnRoomModelNotFound !== false) {
+      // Redirect to room index page if user is authenticated, otherwise show 404 page, because
+      // unauthenticated user is not able to visit the room index page
+      if (this.auth.isAuthenticated) {
+        this.router.push({ name: "rooms.index" });
+      } else {
+        this.router.push({ name: "404" });
+      }
     }
 
     this.toast.error(
-      this.te("app.flash.model_not_found." + model)
-        ? this.t("app.flash.model_not_found." + model, {
-            ids: ids ? `${ids.join(", ")}` : "",
-          })
-        : this.t("app.flash.model_not_found.fallback", {
-            model: model,
-            ids: ids ? `${ids.join(", ")}` : "",
-          }),
+      this.t("app.flash.model_not_found.title", {
+        model: this.t("app.model." + model),
+      }),
+      this.t("app.flash.model_not_found.details", { ids: `${ids.join(", ")}` }),
     );
   }
 

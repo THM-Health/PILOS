@@ -107,10 +107,7 @@ function deleteRecording() {
           return;
         }
       }
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

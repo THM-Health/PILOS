@@ -444,6 +444,8 @@ describe("Rooms view members member actions", function () {
     cy.get("#tab-members").click();
 
     // Test add new member with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.get('[data-test="room-members-add-button"]').click();
 
     cy.get("#overlay_menu_0")
@@ -465,11 +467,15 @@ describe("Rooms view members member actions", function () {
 
     cy.wait("@addUserRequest");
 
-    // Check that user is redirected to 404 page and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that user is redirected to room index page and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("edit member", function () {
@@ -686,6 +692,8 @@ describe("Rooms view members member actions", function () {
     cy.wait("@roomMembersRequest");
 
     // Test edit member with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.get('[data-test="room-member-item"]')
       .eq(0)
       .find('[data-test="room-members-edit-button"]')
@@ -706,11 +714,15 @@ describe("Rooms view members member actions", function () {
 
     cy.wait("@editUserRequest");
 
-    // Check that user is redirected to 404 page and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that user is redirected to room index page and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("delete member", function () {
@@ -883,7 +895,9 @@ describe("Rooms view members member actions", function () {
     cy.get("#tab-members").click();
     cy.wait("@roomMembersRequest");
 
-    // Test delete member with 404 error (room not found)
+    // Test delete member with room index error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.get('[data-test="room-member-item"]')
       .eq(0)
       .find('[data-test="room-members-delete-button"]')
@@ -904,10 +918,14 @@ describe("Rooms view members member actions", function () {
 
     cy.wait("@deleteMemberRequest");
 
-    // Check that user is redirected to 404 page and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that user is redirected to room index page and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

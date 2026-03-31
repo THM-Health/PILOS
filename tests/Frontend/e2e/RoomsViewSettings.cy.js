@@ -422,6 +422,8 @@ describe("Rooms view settings", function () {
     cy.wait("@roomRequest");
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
       statusCode: 404,
       body: {
@@ -435,11 +437,15 @@ describe("Rooms view settings", function () {
 
     cy.wait("@roomSettingsRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load settings with different permissions", function () {
@@ -1670,6 +1676,40 @@ describe("Rooms view settings", function () {
       "api/v1/rooms/abc-def-123",
       "settings",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.get("#tab-settings").click();
+
+    cy.wait("@roomSettingsRequest");
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    });
+
+    cy.get('[data-test="room-settings-save-button"]').click();
+
+    cy.wait("@roomSettingsSaveRequest");
+
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("delete room", function () {
@@ -1740,6 +1780,8 @@ describe("Rooms view settings", function () {
     cy.get("[data-test=room-delete-dialog]").should("be.visible");
 
     // Check with 404 error
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("DELETE", "api/v1/rooms/abc-def-123", {
       statusCode: 404,
       body: {
@@ -1756,9 +1798,15 @@ describe("Rooms view settings", function () {
 
     cy.wait("@roomDeleteRequest");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
 
     // Reload room page
     cy.visit("/rooms/abc-def-123#tab=settings");
@@ -2304,6 +2352,8 @@ describe("Rooms view settings", function () {
     cy.wait("@roomSettingsRequest");
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
       statusCode: 404,
       body: {
@@ -2319,10 +2369,12 @@ describe("Rooms view settings", function () {
 
     cy.wait("@transferOwnershipRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page worked and error message is shown
+    cy.url().should("include", "/rooms");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

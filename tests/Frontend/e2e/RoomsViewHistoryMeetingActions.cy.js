@@ -154,9 +154,10 @@ describe("Rooms view history meeting actions", function () {
     cy.wait("@statsRequest");
 
     // Check that error message is shown
-    cy.checkToastMessage(
-      'app.flash.model_not_found.meeting_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.meeting"}',
+      'app.flash.model_not_found.details_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+    ]);
 
     // Check if dialog is closed
     cy.get('[data-test="room-history-statistic-dialog"]').should("not.exist");
@@ -492,9 +493,10 @@ describe("Rooms view history meeting actions", function () {
     cy.wait("@attendanceRequest");
 
     // Check that error message is shown
-    cy.checkToastMessage(
-      'app.flash.model_not_found.meeting_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.meeting"}',
+      'app.flash.model_not_found.details_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+    ]);
 
     // Check if dialog is closed
     cy.get('[data-test="room-history-attendance-dialog"]').should("not.exist");

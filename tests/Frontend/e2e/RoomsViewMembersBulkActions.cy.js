@@ -421,6 +421,7 @@ describe("Rooms view members bulk actions", function () {
     cy.get('[data-test="room-members-select-all-checkbox"]').click();
 
     // Test bulk edit with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
     cy.intercept("PUT", "api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 404,
       body: {
@@ -439,12 +440,15 @@ describe("Rooms view members bulk actions", function () {
 
     cy.wait("@bulkEditRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("bulk delete members", function () {
@@ -732,6 +736,8 @@ describe("Rooms view members bulk actions", function () {
     cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
 
     // Test bulk delete with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("DELETE", "api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 404,
       body: {
@@ -752,12 +758,15 @@ describe("Rooms view members bulk actions", function () {
 
     cy.wait("@bulkDeleteRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("bulk import members", function () {
@@ -1472,6 +1481,8 @@ describe("Rooms view members bulk actions", function () {
     cy.get("#tab-members").should("be.visible").click();
 
     // Test bulk import with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("POST", "api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 404,
       body: {
@@ -1494,11 +1505,14 @@ describe("Rooms view members bulk actions", function () {
 
     cy.wait("@bulkImportRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

@@ -229,10 +229,7 @@ function save() {
         editorOpen.value = false;
       }
       // Handle other errors
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       // Disable saving indicator

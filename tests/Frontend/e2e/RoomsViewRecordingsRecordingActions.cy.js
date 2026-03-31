@@ -975,6 +975,8 @@ describe("Rooms view recordings recording actions", function () {
     cy.get("#tab-recordings").should("be.visible").click();
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept(
       "DELETE",
       "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
@@ -1000,11 +1002,15 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.wait("@deleteRecordingRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("edit recording", function () {
@@ -1369,6 +1375,8 @@ describe("Rooms view recordings recording actions", function () {
     cy.wait("@roomRecordingsRequest");
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept(
       "PUT",
       "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
@@ -1394,10 +1402,14 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.wait("@editRecordingRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

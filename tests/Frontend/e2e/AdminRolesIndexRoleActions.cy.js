@@ -193,7 +193,10 @@ describe("Admin roles index role actions", function () {
 
     // Check that dialog is closed and that error message is shown
     cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
-    cy.checkToastMessage('app.flash.model_not_found.role_{"ids":"3"}');
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.role"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
+    ]);
 
     // Check that role is not in the list anymore
     cy.get('[data-test="role-item"]').should("have.length", 2);

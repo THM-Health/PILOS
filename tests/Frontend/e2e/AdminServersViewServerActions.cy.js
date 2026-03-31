@@ -154,7 +154,10 @@ describe("Admin servers view server actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/servers").and("not.include", "/1");
 
-    cy.checkToastMessage('app.flash.model_not_found.server_{"ids":"1"}');
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.server"}',
+      'app.flash.model_not_found.details_{"ids":"1"}',
+    ]);
 
     // Reload view and open delete dialog again
     cy.visit("/admin/servers/1");
@@ -450,6 +453,34 @@ describe("Admin servers view server actions", function () {
     cy.url().should("include", "/login?redirect=/admin/servers/1");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Check with 404 error
+    cy.interceptAdminServersIndexRequests();
+
+    cy.intercept("POST", "api/v1/servers/1/panic", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "server",
+        ids: [1],
+      },
+    }).as("panicRequest");
+
+    cy.visit("/admin/servers/1");
+
+    cy.wait("@serverRequest");
+
+    cy.get('[data-test="servers-panic-button"]').click();
+
+    cy.wait("@panicRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/servers").and("not.include", "/1");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.server"}',
+      'app.flash.model_not_found.details_{"ids":"1"}',
+    ]);
   });
 
   it("switch between edit and view", function () {

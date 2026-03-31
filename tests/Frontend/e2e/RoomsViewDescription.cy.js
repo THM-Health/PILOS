@@ -468,6 +468,7 @@ describe("Rooms view description", function () {
     cy.reload();
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
     cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
       statusCode: 404,
       body: {
@@ -483,13 +484,16 @@ describe("Rooms view description", function () {
 
     cy.wait("@saveDescriptionRequest");
 
-    // Check that redirect to 404 page worked
-    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
 
     // Check that error message gets shown
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("description changes", function () {

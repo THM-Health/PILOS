@@ -243,6 +243,8 @@ describe("Rooms view personalized links actions", function () {
     cy.wait("@roomPersonalizedLinksRequest");
 
     // Test add personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
       statusCode: 404,
       body: {
@@ -260,11 +262,15 @@ describe("Rooms view personalized links actions", function () {
 
     cy.wait("@addLinkRequest");
 
-    // Check that redirect to 404 page works and error message is shown
-    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("edit personalized link", function () {
@@ -563,6 +569,8 @@ describe("Rooms view personalized links actions", function () {
     cy.wait("@roomPersonalizedLinksRequest");
 
     // Test edit personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
       statusCode: 404,
       body: {
@@ -583,11 +591,15 @@ describe("Rooms view personalized links actions", function () {
 
     cy.wait("@editLinkRequest");
 
-    // Check that redirect to 404 page works and error message is shown
-    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("delete personalized link", function () {
@@ -790,6 +802,8 @@ describe("Rooms view personalized links actions", function () {
     cy.wait("@roomPersonalizedLinksRequest");
 
     // Test delete personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
       statusCode: 404,
       body: {
@@ -810,11 +824,15 @@ describe("Rooms view personalized links actions", function () {
 
     cy.wait("@deleteLinkRequest");
 
-    // Check that redirect to 404 page works and error message is shown
-    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("copy personalized link", function () {

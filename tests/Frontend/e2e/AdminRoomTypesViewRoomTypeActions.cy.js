@@ -306,7 +306,10 @@ describe("Admin room types view room type actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/room_types").and("not.include", "/3");
 
-    cy.checkToastMessage('app.flash.model_not_found.room_type_{"ids":"3"}');
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
+    ]);
 
     // Reload view and open delete dialog again
     cy.visit("/admin/room_types/3");

@@ -146,7 +146,10 @@ describe("Admin users view user actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/users").and("not.include", "/2");
 
-    cy.checkToastMessage('app.flash.model_not_found.user_{"ids":"2"}');
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
+    ]);
 
     // Reload view and open delete dialog again
     cy.visit("/admin/users/2");
@@ -271,7 +274,10 @@ describe("Admin users view user actions", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/admin/users").and("not.include", "/2");
 
-    cy.checkToastMessage('app.flash.model_not_found.user_{"ids":"2"}');
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
+    ]);
 
     // Reload view and open reset password dialog again
     cy.visit("/admin/users/2");

@@ -296,7 +296,7 @@ function loadStartJoinRequirements() {
 
         // Other errors
         loadingError.value = true;
-        api.error(error, { redirectOnRoomModelNotFound: true });
+        api.error(error);
       });
   });
 }
@@ -431,7 +431,7 @@ function getJoinUrl() {
         }
       }
 
-      api.error(error, { redirectOnRoomModelNotFound: true });
+      api.error(error);
     });
 }
 

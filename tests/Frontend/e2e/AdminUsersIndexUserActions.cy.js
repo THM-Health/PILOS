@@ -184,7 +184,11 @@ describe("Admin users index user actions", function () {
 
     // Check that dialog is closed and error message is shown
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
-    cy.checkToastMessage('app.flash.model_not_found.user_{"ids":"3"}');
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
+    ]);
 
     // Check that user is not in list anymore
     cy.get('[data-test="user-item"]').should("have.length", 3);

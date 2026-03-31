@@ -279,6 +279,8 @@ describe("Rooms view streaming config actions", function () {
       });
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("GET", "api/v1/rooms/abc-def-123/streaming/config", {
       statusCode: 404,
       body: {
@@ -294,10 +296,14 @@ describe("Rooms view streaming config actions", function () {
     cy.wait("@roomStreamingConfig");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("edit settings", function () {
@@ -621,6 +627,8 @@ describe("Rooms view streaming config actions", function () {
       });
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("POST", "api/v1/rooms/abc-def-123/streaming/config", {
       statusCode: 404,
       body: {
@@ -642,10 +650,14 @@ describe("Rooms view streaming config actions", function () {
     cy.wait("@saveConfigRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("view/edit settings with different permissions", function () {

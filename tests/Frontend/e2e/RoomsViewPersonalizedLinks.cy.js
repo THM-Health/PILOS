@@ -504,6 +504,8 @@ describe("Rooms view personalized links", function () {
     cy.wait("@roomRequest");
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept(
       {
         method: "GET",
@@ -523,11 +525,15 @@ describe("Rooms view personalized links", function () {
 
     cy.wait("@roomPersonalizedLinksRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load personalized links page out of range", function () {

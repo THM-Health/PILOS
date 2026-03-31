@@ -357,7 +357,10 @@ describe("Admin room types index room type actions", function () {
     cy.get('[data-test="room-types-delete-dialog"]').should("not.exist");
 
     // Check that error message is shown
-    cy.checkToastMessage('app.flash.model_not_found.room_type_{"ids":"3"}');
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
+    ]);
 
     // Check that room type is not there anymore
     cy.get('[data-test="room-type-item"]').should("have.length", 2);

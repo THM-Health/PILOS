@@ -131,10 +131,7 @@ function joinMembership() {
         emit("membershipDisabled");
       }
 
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;
@@ -156,10 +153,7 @@ function leaveMembership() {
       modalVisible.value = false;
     })
     .catch((error) => {
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

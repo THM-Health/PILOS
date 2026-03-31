@@ -723,6 +723,8 @@ describe("Rooms View Files", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
       statusCode: 404,
       body: {
@@ -735,13 +737,16 @@ describe("Rooms View Files", function () {
     cy.reload();
     cy.wait("@roomFilesRequest");
 
-    // Check that redirect to 404 page worked
-    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
 
     // Check that error message gets shown
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load files page out of range", function () {

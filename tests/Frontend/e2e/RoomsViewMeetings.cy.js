@@ -1352,7 +1352,6 @@ describe("Rooms view meetings", function () {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.current_user = null;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
@@ -1362,6 +1361,8 @@ describe("Rooms view meetings", function () {
     cy.reload();
 
     // Test with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 404,
       body: {
@@ -1385,11 +1386,15 @@ describe("Rooms view meetings", function () {
 
     cy.wait("@joinRequest");
 
-    // Check that redirect to 404 page worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("join meeting load requirements errors", function () {
@@ -1568,9 +1573,11 @@ describe("Rooms view meetings", function () {
 
     // Check that redirect to 404 page worked and error message is shown
     cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("join running meeting with dark mode", function () {
@@ -2935,20 +2942,16 @@ describe("Rooms view meetings", function () {
     );
 
     // Reload room
-    cy.fixture("room.json").then((room) => {
-      room.data.current_user = null;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
 
     cy.visit("/rooms/abc-def-123");
 
     cy.wait("@roomRequest");
 
     // Try with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 404,
       body: {
@@ -2971,11 +2974,14 @@ describe("Rooms view meetings", function () {
     cy.wait("@startRequest");
 
     // Check if redirect worked and error message is shown
-    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("start meeting load requirements errors", function () {
@@ -3157,9 +3163,10 @@ describe("Rooms view meetings", function () {
     // Check if redirect worked and error message is shown
     cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
 
-    cy.checkToastMessage(
-      'app.flash.model_not_found.room_{"ids":"abc-def-123"}',
-    );
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("start meeting with dark mode", function () {

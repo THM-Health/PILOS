@@ -429,10 +429,7 @@ function load() {
       loaded.value = true;
     })
     .catch((error) => {
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
       loadingError.value = true;
     })
     .finally(() => {

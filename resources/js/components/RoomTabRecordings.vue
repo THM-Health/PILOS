@@ -440,10 +440,7 @@ function loadData(page = null) {
       }
       loadingError.value = true;
       paginator.revertFirst();
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: true,
-      });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isBusy.value = false;

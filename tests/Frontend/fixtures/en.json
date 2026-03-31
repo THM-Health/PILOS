@@ -1,19 +1,5 @@
 {
-  "data": {
-    "app": {
-      "flash": {
-        "model_not_found": {
-          "meeting": "app.flash.model_not_found.meeting_{\"ids\":\":ids\"}",
-          "role": "app.flash.model_not_found.role_{\"ids\":\":ids\"}",
-          "room": "app.flash.model_not_found.room_{\"ids\":\":ids\"}",
-          "room_type": "app.flash.model_not_found.room_type_{\"ids\":\":ids\"}",
-          "server": "app.flash.model_not_found.server_{\"ids\":\":ids\"}",
-          "server_pool": "app.flash.model_not_found.server_pool_{\"ids\":\":ids\"}",
-          "user": "app.flash.model_not_found.user_{\"ids\":\":ids\"}"
-        }
-      }
-    }
-  },
+  "data": {},
   "meta": {
     "dateTimeFormat": {
       "dateShort": {

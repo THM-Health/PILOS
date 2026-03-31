@@ -35,7 +35,7 @@ const props = defineProps({
   },
   redirectOnRoomModelNotFound: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 
@@ -60,6 +60,7 @@ function toggleFavorite() {
     .call("rooms/" + props.room.id + "/favorites", config)
     .catch((error) => {
       api.error(error, {
+        // ToDo emit notFound on not found error and handle it in index page (Reload room list)
         redirectOnUnauthenticated: props.redirectOnUnauthenticated,
         redirectOnRoomModelNotFound: props.redirectOnRoomModelNotFound,
       });
