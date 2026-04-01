@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'Edit :name',
             'index' => 'Roles',
