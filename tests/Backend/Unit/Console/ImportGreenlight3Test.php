@@ -44,7 +44,7 @@ class ImportGreenlight3Test extends TestCase
      * Mock DB with fake response of the postgres database
      *
      * @param  Collection  $users  Collection of Users
-     * @param  Collection  $rooms  Collection Collection of Rooms
+     * @param  Collection  $rooms  Collection of Rooms
      * @param  Collection  $sharedAccesses  Collection Collection of SharedAccesses
      * @param  Collection  $presentations  Collection of presentations
      */
