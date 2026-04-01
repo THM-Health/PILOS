@@ -454,7 +454,7 @@ return [
         'base_data' => 'Base data',
         'bbb' => 'BigBlueButton',
         'delete' => [
-            'confirm' => 'Are you really want to delete the user :firstname :lastname?',
+            'confirm' => 'Do you really want to delete the user :firstname :lastname?',
             'item' => 'Delete user :firstname :lastname',
             'title' => 'Delete user?',
         ],
