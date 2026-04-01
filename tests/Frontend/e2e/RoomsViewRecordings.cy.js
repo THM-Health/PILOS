@@ -761,7 +761,7 @@ describe("Rooms view recordings", function () {
       .eq(0)
       .should("have.attr", "data-p-active", "true");
 
-    // Check with 404 error (room not found)
+    // Check with 404 error (room not found) as authenticated user
     cy.interceptRoomIndexRequests();
 
     cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
@@ -782,6 +782,29 @@ describe("Rooms view recordings", function () {
     cy.url()
       .should("include", "/rooms")
       .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+
+    // Check with 404 error (room not found) as guest
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.fixture("room.json").then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+
+      cy.visit("/rooms/abc-def-123#tab=recordings");
+
+      cy.wait("@roomRecordingsRequest");
+    });
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage([
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
