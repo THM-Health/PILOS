@@ -420,7 +420,7 @@ return [
             'title' => 'Display duration of pop-up messages',
         ],
         'two_weeks' => '2 Weeks (14 Days)',
-        'two_years' => '2 Year (730 Days)',
+        'two_years' => '2 Years (730 Days)',
         'user_settings' => 'User settings',
     ],
     'streaming' => [
