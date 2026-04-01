@@ -46,7 +46,7 @@ class ImportGreenlight3Test extends TestCase
      * @param  Collection  $users  Collection of Users
      * @param  Collection  $rooms  Collection Collection of Rooms
      * @param  Collection  $sharedAccesses  Collection Collection of SharedAccesses
-     * @param  Collection  $presentations  Collection Collection of presentations
+     * @param  Collection  $presentations  Collection of presentations
      */
     private function fakeDatabase(Collection $users, Collection $rooms, Collection $sharedAccesses, Collection $presentations)
     {
