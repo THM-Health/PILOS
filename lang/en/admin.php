@@ -190,7 +190,7 @@ return [
     ],
     'server_pools' => [
         'delete' => [
-            'confirm' => 'Are you really want to delete the server pool :name?',
+            'confirm' => 'Do you really want to delete the server pool :name?',
             'failed' => 'Server pool can\'t be deleted because the following room types still use it:',
             'item' => 'Delete server pool :name',
             'title' => 'Delete server pool?',
