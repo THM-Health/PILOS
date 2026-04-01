@@ -348,7 +348,7 @@ return [
         'no_welcome_page' => 'Hide welcome page',
         'one_day' => '1 Day (24 Hours)',
         'one_month' => '1 Month (30 Days)',
-        'one_week' => '1 Week (7 Day)',
+        'one_week' => '1 Week (7 Days)',
         'one_year' => '1 Year (365 Days)',
         'pagination_page_size' => [
             'description' => 'Number of records displayed simultaneously in tables',
