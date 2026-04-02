@@ -106,10 +106,10 @@ describe("Admin server pools edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.server_pools.edit_{"name":"Test"}',
+        'admin.breadcrumbs.server_pools.edit_{"name":"Test"}',
       );
 
     // Change server pool settings
@@ -124,10 +124,10 @@ describe("Admin server pools edit", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.server_pools.edit_{"name":"Test"}',
+        'admin.breadcrumbs.server_pools.edit_{"name":"Test"}',
       );
 
     cy.get('[data-test="description-field"]')
@@ -370,10 +370,10 @@ describe("Admin server pools edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.server_pools.view_{"name":"Server Pool 1"}',
+        'admin.breadcrumbs.server_pools.view_{"name":"Server Pool 1"}',
       );
   });
 
@@ -383,10 +383,10 @@ describe("Admin server pools edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.server_pools.edit_{"name":"Test"}',
+        'admin.breadcrumbs.server_pools.edit_{"name":"Test"}',
       );
 
     // Set values
@@ -512,10 +512,10 @@ describe("Admin server pools edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.server_pools.edit_{"name":"Server Pool 1"}',
+        'admin.breadcrumbs.server_pools.edit_{"name":"Server Pool 1"}',
       );
 
     // Check that correct data is shown
@@ -596,10 +596,10 @@ describe("Admin server pools edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.server_pools.view_{"name":"Server Pool 1"}',
+        'admin.breadcrumbs.server_pools.view_{"name":"Server Pool 1"}',
       );
 
     // Reload
