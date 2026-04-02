@@ -91,8 +91,8 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", 'admin.breadcrumbs.roles.edit_{"name":"Staff"}');
 
     // Change role settings
     cy.get('[data-test="name-field"]')
@@ -106,8 +106,8 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs stays the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", 'admin.breadcrumbs.roles.edit_{"name":"Staff"}');
 
     cy.get('[data-test="roles-room-limit-help-dialog"]').should("not.exist");
     cy.get('[data-test="room-limit-field"]')
@@ -510,10 +510,10 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+        'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
       );
   });
 
@@ -1386,8 +1386,8 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", 'admin.breadcrumbs.roles.edit_{"name":"Staff"}');
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/roles/2", {
@@ -1488,10 +1488,10 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs is updated
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.roles.edit_{"name":"Standard role"}',
+        'admin.breadcrumbs.roles.edit_{"name":"Standard role"}',
       );
 
     // Check that correct data is shown
@@ -1615,10 +1615,10 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs stays the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+        'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
       );
 
     // Reload
