@@ -261,7 +261,7 @@ return [
             'select_user' => 'Merci de sélectionner le nouveau propriétaire',
             'title' => 'Transférer la propriété',
             'transfer' => 'Transférer',
-            'warning' => 'Attention: Cela peu faire perdre l\'accès à cette salle à son propriétaire actuel',
+            'warning' => 'Attention: Cela peut faire perdre l\'accès à cette salle à son propriétaire actuel',
         ],
     ],
     'name' => 'Nom de la salle',
