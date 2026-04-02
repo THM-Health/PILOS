@@ -5,6 +5,9 @@
         class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
       >
         <Card>
+          <template #title>
+            <PageTitle :title="$t('auth.login')" />
+          </template>
           <template #content>
             <Tabs :lazy="true" :value="activeTab">
               <TabList>

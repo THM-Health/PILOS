@@ -8,3 +8,22 @@
         @apply py-1;
     }
 }
+
+.horizontal-divider {
+    li:not(:first-child):before {
+        content: " | ";
+    }
+}
+
+.skip-links {
+    list-style: none;
+}
+.skip-link {
+    opacity: 0;
+}
+.skip-link:focus {
+    opacity: 1;
+    background-color: white;
+    padding: 0.5em;
+    border: 1px solid black;
+}

@@ -17,6 +17,13 @@ return [
         'success' => 'Success',
         'warn' => 'Warning',
     ],
+    'aria' => [
+        'main' => 'Main content',
+        'main_menu' => 'Main menu',
+        'user_menu' => 'User menu',
+        'footer' => 'Footer',
+        'navigated_to_page' => 'Navigated to page :page',
+    ],
     'cancel' => 'Cancel',
     'cancel_editing' => 'Cancel editing',
     'change_locale' => 'Change language',
