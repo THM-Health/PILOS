@@ -273,7 +273,7 @@ return [
     'custom_parameter_not_found' => 'Le paramètre :parameter n\'existe pas.',
     'date' => 'Le champ :attribute n\'est pas uen date valide.',
     'date_equals' => 'Le champ :attribute doit être une date égale à :date.',
-    'date_format' => 'Le champ :attribute ne correspont pas au format :format.',
+    'date_format' => 'Le champ :attribute ne correspond pas au format :format.',
     'decimal' => 'Le champ « :attribute » doit avoir :decimal décimales.',
     'declined' => '« :attribute » doit être refusé.',
     'declined_if' => '« :attribute » doit être refusé lorsque « :other » est « :value »',
