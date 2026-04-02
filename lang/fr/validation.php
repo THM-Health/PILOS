@@ -370,7 +370,7 @@ return [
     'prohibited_if' => 'Le champ :attribute est interdit quand :other est :value.',
     'prohibited_unless' => 'Le champ :attribute est interdit sauf si :other est dans :values.',
     'regex' => 'Le champ :attribute a un format invalid.',
-    'relatable' => 'Le champ « :attribute » peu ne pas être associé avec cette ressource.',
+    'relatable' => 'Le champ « :attribute » peut ne pas être associé avec cette ressource.',
     'required' => 'Le champ :attribute est requis.',
     'required_array_keys' => 'Le champ « :attribute » doit contenir les entrées pour « :values ».',
     'required_if' => 'Le champ :attribute est requis quand :other est :value.',
