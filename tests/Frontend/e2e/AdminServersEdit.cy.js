@@ -92,10 +92,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 01"}',
       );
 
     // Change server settings
@@ -110,10 +110,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 01"}',
       );
 
     cy.get('[data-test="description-field"]')
@@ -321,10 +321,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.view_{"name":"Server 02"}',
+        'admin.breadcrumbs.servers.view_{"name":"Server 02"}',
       );
   });
 
@@ -334,10 +334,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 01"}',
       );
 
     // Check with 422 error
@@ -510,10 +510,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 03"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 03"}',
       );
 
     // Check that correct data is shown
@@ -608,10 +608,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.view_{"name":"Server 03"}',
+        'admin.breadcrumbs.servers.view_{"name":"Server 03"}',
       );
 
     // Reload
