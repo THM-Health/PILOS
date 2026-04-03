@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Services\ProvisioningService;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -111,7 +110,7 @@ class ProvisionCommand extends Command
             }
 
             DB::commit();
-        } catch (Exception $err) {
+        } catch (\Throwable $err) {
             error("Provisioning failed, aborting transaction: {$err->getMessage()}");
             DB::rollBack();
 
