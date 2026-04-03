@@ -208,6 +208,7 @@ class RoleProvisioner extends AbstractProvisioner
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($role) use ($properties) {
+            $permissions = [];
             foreach ($properties->permissions as $group => $perms) {
                 foreach ($perms as $item) {
                     $permName = "$group.$item";
