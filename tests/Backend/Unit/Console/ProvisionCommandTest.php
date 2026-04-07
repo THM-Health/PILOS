@@ -35,4 +35,22 @@ class ProvisionCommandTest extends TestCase
         $this->assertEquals('Example company - PILOS', app(GeneralSettings::class)->name);
         $this->assertEquals(730, app(RecordingSettings::class)->recording_retention_period->value);
     }
+
+    public function test_provisioning_partial()
+    {
+        $data_path = __DIR__.'/../../Fixtures/provisioning_data-partial.json';
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->artisan("provision:all $data_path")->assertSuccessful();
+        $this->assertEquals(1, count(Server::all()));
+        $this->assertNotNull(Server::firstWhere('name', 'Default server'));
+        $this->assertEquals(1, count(ServerPool::all()));
+        $this->assertNotNull(ServerPool::firstWhere('name', 'default'));
+        $this->assertEquals(4, count(RoomType::all()));
+        $this->assertNotNull(RoomType::firstWhere('name', 'Meeting'));
+        $this->assertEquals(3, count(Role::all()));
+        $this->assertNotNull(Role::firstWhere('name', 'Admin'));
+        $this->assertEquals(0, count(User::all()));
+        $this->assertEquals('Example company - PILOS', app(GeneralSettings::class)->name);
+        $this->assertEquals(365, app(RecordingSettings::class)->recording_retention_period->value);
+    }
 }
