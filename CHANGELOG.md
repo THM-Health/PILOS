@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.14.0] - 2026-04-07
+
 ### Added
 
 - Accessibility statement URL setting for the admin UI and footer ([#2873], [#2874])
@@ -741,7 +743,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2999]: https://github.com/THM-Health/PILOS/pull/2999
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.13.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -765,3 +767,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.11.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.11.0
 [v4.12.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.12.0
 [v4.13.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.13.0
+[v4.14.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.0
