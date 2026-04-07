@@ -41,19 +41,19 @@ class ProvisionCommand extends Command
             DB::beginTransaction();
 
             // Wipe existing data (order is important!)
-            if ($data?->room_types?->wipe) {
+            if ($data?->room_types?->wipe ?? false) {
                 $this->provision->roomType->destroy();
             }
-            if ($data?->server_pools?->wipe) {
+            if ($data?->server_pools?->wipe ?? false) {
                 $this->provision->serverPool->destroy();
             }
-            if ($data?->servers?->wipe) {
+            if ($data?->servers?->wipe ?? false) {
                 $this->provision->server->destroy();
             }
-            if ($data?->roles?->wipe) {
+            if ($data?->roles?->wipe ?? false) {
                 $this->provision->role->destroy();
             }
-            if ($data?->users?->wipe) {
+            if ($data?->users?->wipe ?? false) {
                 $this->provision->user->destroy();
             }
 
