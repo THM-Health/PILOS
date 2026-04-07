@@ -1220,7 +1220,9 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 404,
         body: {
-          message: "No query results for model",
+          message: "model_not_found",
+          model: "recording",
+          ids: ["f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775"],
         },
       },
     ).as("editRecordingRequest");

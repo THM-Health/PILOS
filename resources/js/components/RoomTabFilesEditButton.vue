@@ -100,7 +100,7 @@ import { ref, watch } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
-import { ROOM_MODEL } from "../constants/modelNames.js";
+import { ROOM_FILE } from "../constants/modelNames.js";
 
 const props = defineProps({
   roomId: {
@@ -198,7 +198,7 @@ function save() {
         // file not found
         if (
           error.response.status === env.HTTP_NOT_FOUND &&
-          error.response.data?.model !== ROOM_MODEL
+          error.response.data?.model === ROOM_FILE
         ) {
           toast.error(t("rooms.flash.file_gone"));
           emit("notFound");

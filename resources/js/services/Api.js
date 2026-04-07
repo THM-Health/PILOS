@@ -6,7 +6,7 @@ import { useAuthStore } from "../stores/auth";
 import { useRouter } from "vue-router";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
 import EventBus from "./EventBus.js";
-import { ROOM_MODEL } from "../constants/modelNames.js";
+import { ROOM } from "../constants/modelNames.js";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
@@ -125,7 +125,7 @@ export class Api {
     const model = data?.model;
     const ids = data?.ids;
 
-    if (model === ROOM_MODEL && options.redirectOnRoomModelNotFound !== false) {
+    if (model === ROOM && options.redirectOnRoomModelNotFound !== false) {
       // Redirect to room index page if user is authenticated, otherwise show 404 page, because
       // unauthenticated user is not able to visit the room index page
       if (this.auth.isAuthenticated) {

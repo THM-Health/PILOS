@@ -53,7 +53,7 @@ import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
-import { ROOM_MODEL } from "../constants/modelNames.js";
+import { RECORDING } from "../constants/modelNames.js";
 
 const props = defineProps({
   recordingId: {
@@ -100,7 +100,7 @@ function deleteRecording() {
         // recording not found
         if (
           error.response.status === env.HTTP_NOT_FOUND &&
-          error.response.data?.model !== ROOM_MODEL
+          error.response.data?.model === RECORDING
         ) {
           toast.error(t("rooms.flash.recording_gone"));
           emit("notFound");
