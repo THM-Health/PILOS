@@ -77,9 +77,9 @@ if (
 
 // preventing iOS input auto zooming
 if (navigator.userAgent.indexOf("iPhone") > -1) {
-  const querySelector = document.querySelector("[name=viewport]");
-  querySelector.setAttribute(
+  const viewportMetaTag = document.querySelector("[name=viewport]");
+  viewportMetaTag.setAttribute(
     "content",
-    querySelector.getAttribute("content") + ", maximum-scale=1",
+    viewportMetaTag.getAttribute("content") + ", maximum-scale=1",
   );
 }
