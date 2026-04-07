@@ -76,6 +76,7 @@ return [
         'unauthorized' => 'Vous n\'avez pas les droits nécessaires pour continuer !',
     ],
     'footer' => [
+        'accessibility' => 'Déclaration d\'accessibilité',
         'legal_notice' => 'Mentions légales',
         'privacy_policy' => 'Politique de confidentialité',
     ],

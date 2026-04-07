@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'تعديل :name',
             'index' => 'الأدوار',
@@ -259,6 +259,10 @@ return [
         'view' => 'معلومات تفصيلية عن الخادم :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'إذا لم يتم تعيينه، لن يظهر رابط بيان إمكانية الوصول في التذييل.',
+            'title' => 'رابط بيان إمكانية الوصول',
+        ],
         'application' => 'التطبيق',
         'attendance' => [
             'retention_period_title' => 'فترة الاحتفاظ بسجلات الحضور بالأيام',

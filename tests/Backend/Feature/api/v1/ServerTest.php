@@ -286,6 +286,13 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertJsonValidationErrors(['base_url']);
 
+        // Test that missing trailing slash is automatically appended
+        $data['name'] = $this->faker->unique()->word;
+        $data['base_url'] = 'https://test-new.notld/bigbluebutton';
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
+            ->assertSuccessful()
+            ->assertJsonFragment(['base_url' => 'https://test-new.notld/bigbluebutton/']);
+
         // Test with invalid data
         $data['base_url'] = 'test';
         $data['name'] = '';
@@ -357,6 +364,15 @@ class ServerTest extends TestCase
         $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertJsonValidationErrors(['base_url']);
+
+        // Test that missing trailing slash is automatically appended on update
+        $server->refresh();
+        $urlWithoutSlash = rtrim($server->base_url, '/');
+        $data['base_url'] = $urlWithoutSlash;
+        $data['updated_at'] = $server->updated_at;
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
+            ->assertSuccessful()
+            ->assertJsonFragment(['base_url' => $urlWithoutSlash.'/']);
 
         // Test with invalid data
         $server->refresh();
@@ -470,6 +486,12 @@ class ServerTest extends TestCase
 
         // Test with valid api details
         $data = ['base_url' => $validHost, 'secret' => $validSecret];
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
+            ->assertJson(['connection_ok' => true, 'secret_ok' => true]);
+
+        // Test that missing trailing slash is automatically appended for check
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/GetMeetings-1.xml')));
+        $data = ['base_url' => rtrim($validHost, '/'), 'secret' => $validSecret];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
             ->assertJson(['connection_ok' => true, 'secret_ok' => true]);
 

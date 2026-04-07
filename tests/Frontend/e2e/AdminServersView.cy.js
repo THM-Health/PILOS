@@ -77,10 +77,10 @@ describe("Admin servers view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.view_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.view_{"name":"Server 01"}',
       );
 
     // Check that server data is shown correctly

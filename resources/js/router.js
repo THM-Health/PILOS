@@ -133,7 +133,15 @@ export const routes = [
     component: RoomsIndex,
     meta: { requiresAuth: true },
   },
-
+  /**
+   * Greenlight v3 compatibility
+   */
+  {
+    path: "/rooms/:id/join",
+    redirect: (to) => {
+      return { name: "rooms.view", params: { id: to.params.id } };
+    },
+  },
   {
     path: "/rooms/:id/:token?",
     name: "rooms.view",

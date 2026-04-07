@@ -89,10 +89,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam"}',
       );
 
     // Change room type settings
@@ -108,10 +108,10 @@ describe("Admin room types edit", function () {
 
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam"}',
       );
 
     cy.get('[data-test="description-field"]')
@@ -855,10 +855,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
   });
 
@@ -1196,10 +1196,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam"}',
       );
 
     // Check with 422 error
@@ -1753,10 +1753,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam 01"}',
       );
 
     // Check that correct data is shown
@@ -2053,10 +2053,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
 
     // Reload

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'ویرایش :name',
             'index' => 'نقش‌ها',
@@ -257,6 +257,10 @@ return [
         'view' => 'اطلاعات دقیق برای سرور :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'اگر تنظیم نشده باشد، لینک بیانیه دسترسی‌پذیری در فوتر نمایش داده نمی‌شود.',
+            'title' => 'URL بیانیه دسترسی‌پذیری',
+        ],
         'application' => 'برنامه',
         'attendance' => [
             'retention_period_title' => 'دوره نگهداری گزارش حضور در روز',

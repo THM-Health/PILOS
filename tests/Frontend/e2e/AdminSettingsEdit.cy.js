@@ -81,6 +81,19 @@ describe("Admin settings with edit permission", function () {
           .type("http://www.pilos.com/privacy_policy");
       });
 
+    cy.get('[data-test="accessibility-statement-url-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.accessibility_statement_url.title")
+      .and(
+        "include.text",
+        "admin.settings.accessibility_statement_url.description",
+      )
+      .within(() => {
+        cy.get("#accessibility-statement-url")
+          .should("have.value", "")
+          .type("http://www.pilos.com/accessibility");
+      });
+
     cy.get('[data-test="pagination-page-size-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.pagination_page_size.title")
@@ -182,6 +195,8 @@ describe("Admin settings with edit permission", function () {
         "http://www.pilos.com/legal_notice";
       settings.data.general_privacy_policy_url =
         "http://www.pilos.com/privacy_policy";
+      settings.data.general_accessibility_statement_url =
+        "http://www.pilos.com/accessibility";
       settings.data.general_pagination_page_size = 3;
       settings.data.general_toast_lifetime = 10;
       settings.data.general_default_timezone = "Europe/Berlin";
@@ -226,6 +241,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_privacy_policy_url")).to.equal(
         "http://www.pilos.com/privacy_policy",
       );
+      expect(formData.get("general_accessibility_statement_url")).to.equal(
+        "http://www.pilos.com/accessibility",
+      );
       expect(formData.get("general_pagination_page_size")).to.equal("3");
       expect(formData.get("general_toast_lifetime")).to.equal("10");
       expect(formData.get("general_default_timezone")).to.equal(
@@ -252,6 +270,10 @@ describe("Admin settings with edit permission", function () {
       "have.value",
       "http://www.pilos.com/privacy_policy",
     );
+    cy.get("#accessibility-statement-url").should(
+      "have.value",
+      "http://www.pilos.com/accessibility",
+    );
     cy.get("#pagination-page-size").should("have.value", "3");
     cy.get("#toast-lifetime-mode-unlimited")
       .should("not.be.checked")
@@ -273,6 +295,7 @@ describe("Admin settings with edit permission", function () {
     cy.get("#help-url").clear();
     cy.get("#legal-notice-url").clear();
     cy.get("#privacy-policy-url").clear();
+    cy.get("#accessibility-statement-url").clear();
 
     cy.get("#toast-lifetime-mode-unlimited").click();
     cy.get('[data-test="toast-lifetime-custom-input"]').should("not.exist");
@@ -305,6 +328,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_help_url")).to.equal("");
       expect(formData.get("general_legal_notice_url")).to.equal("");
       expect(formData.get("general_privacy_policy_url")).to.equal("");
+      expect(formData.get("general_accessibility_statement_url")).to.equal("");
       expect(formData.get("general_pagination_page_size")).to.equal("3");
       expect(formData.get("general_toast_lifetime")).to.equal("0");
       expect(formData.get("general_default_timezone")).to.equal(
@@ -321,6 +345,7 @@ describe("Admin settings with edit permission", function () {
     cy.get("#help-url").should("have.value", "");
     cy.get("#legal-notice-url").should("have.value", "");
     cy.get("#privacy-policy-url").should("have.value", "");
+    cy.get("#accessibility-statement-url").should("have.value", "");
     cy.get("#pagination-page-size").should("have.value", "3");
     cy.get("#toast-lifetime-mode-unlimited")
       .should("be.checked")
@@ -2082,6 +2107,13 @@ describe("Admin settings with edit permission", function () {
         cy.get("#room-file-terms-of-use").type("New room file terms of use");
       });
 
+    cy.get('[data-test="room-hide-owner-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.room_hide_owner_from_guests")
+      .within(() => {
+        cy.get("#room-hide-owner").should("not.be.checked").click();
+      });
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = 10;
@@ -2090,6 +2122,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = "New room file terms of use";
+      settings.data.room_hide_owner_from_guests = true;
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -2130,6 +2163,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("room_file_terms_of_use")).to.equal(
         "New room file terms of use",
       );
+      expect(formData.get("room_hide_owner_from_guests")).to.equal("1");
     });
 
     // Check that config is loaded
@@ -2167,12 +2201,15 @@ describe("Admin settings with edit permission", function () {
       "have.value",
       "New room file terms of use",
     );
+    cy.get("#room-hide-owner").should("be.checked");
 
     // Change settings again (Clear inputs and change room limit to unlimited)
     cy.get("#room-limit-mode-unlimited").click();
     cy.get("#room-limit-custom").should("not.exist");
 
     cy.get("#room-file-terms-of-use").clear();
+
+    cy.get("#room-hide-owner").click();
 
     // Save changes
     cy.fixture("settings.json").then((settings) => {
@@ -2182,6 +2219,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = null;
+      settings.data.room_hide_owner_from_guests = false;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -2207,6 +2245,7 @@ describe("Admin settings with edit permission", function () {
         "730",
       );
       expect(formData.get("room_file_terms_of_use")).to.equal("");
+      expect(formData.get("room_hide_owner_from_guests")).to.equal("0");
     });
 
     // Check that config is loaded
@@ -2238,6 +2277,7 @@ describe("Admin settings with edit permission", function () {
       "admin.settings.two_years",
     );
     cy.get("#room-file-terms-of-use").should("have.value", "");
+    cy.get("#room-hide-owner").should("not.be.checked");
   });
 
   it("change user settings", function () {
@@ -3098,6 +3138,9 @@ describe("Admin settings with edit permission", function () {
           general_privacy_policy_url: [
             "The selected general privacy policy url is invalid.",
           ],
+          general_accessibility_statement_url: [
+            "The selected general accessibility url is invalid.",
+          ],
           general_pagination_page_size: [
             "The general pagination page size field is required.",
           ],
@@ -3150,6 +3193,9 @@ describe("Admin settings with edit permission", function () {
           ],
           room_file_terms_of_use: [
             "The selected room file terms of use is invalid.",
+          ],
+          room_hide_owner_from_guests: [
+            "The selected room hide owner for guests field is invalid.",
           ],
           user_password_change_allowed: [
             "The user password change allowed field is required.",
@@ -3204,6 +3250,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="privacy-policy-url-field"]').should(
       "include.text",
       "The selected general privacy policy url is invalid.",
+    );
+    cy.get('[data-test="accessibility-statement-url-field"]').should(
+      "include.text",
+      "The selected general accessibility url is invalid.",
     );
     cy.get('[data-test="pagination-page-size-field"]').should(
       "include.text",
@@ -3312,6 +3362,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="room-file-terms-of-use-field"]').should(
       "include.text",
       "The selected room file terms of use is invalid.",
+    );
+    cy.get('[data-test="room-hide-owner-field"]').should(
+      "include.text",
+      "The selected room hide owner for guests field is invalid.",
     );
 
     cy.get('[data-test="password-change-allowed-field"]').should(
@@ -3499,6 +3553,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="room-file-terms-of-use-field"]').should(
       "not.include.text",
       "The selected room file terms of use is invalid.",
+    );
+    cy.get('[data-test="room-hide-owner-field"]').should(
+      "not.include.text",
+      "The selected room hide owner for guests field is invalid.",
     );
 
     cy.get('[data-test="password-change-allowed-field"]').should(

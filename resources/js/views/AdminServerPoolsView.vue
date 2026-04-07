@@ -193,6 +193,7 @@
     </OverlayComponent>
     <ConfirmDialog
       data-test="stale-server-pool-dialog"
+      :draggable="false"
       :pt="{
         pcAcceptButton: {
           root: {

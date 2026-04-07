@@ -76,6 +76,7 @@ return [
         'unauthorized' => 'لا تملك الصلاحيات اللازمة للوصول إلى هذا المسار!',
     ],
     'footer' => [
+        'accessibility' => 'بيان إمكانية الوصول',
         'legal_notice' => 'الإشعار القانوني',
         'privacy_policy' => 'سياسة الخصوصية',
     ],

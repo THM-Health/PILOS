@@ -38,6 +38,7 @@ class UpdateSettings extends FormRequest
             'general_help_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_legal_notice_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_privacy_policy_url' => ['nullable', 'string', 'url', 'max:255'],
+            'general_accessibility_statement_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_no_welcome_page' => ['required', 'boolean'],
 
             'theme_logo' => ['required_without:theme_logo_file', 'string', 'max:255'],
@@ -69,6 +70,7 @@ class UpdateSettings extends FormRequest
             'room_auto_delete_never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_deadline_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)->only([TimePeriod::ONE_WEEK, TimePeriod::TWO_WEEKS, TimePeriod::ONE_MONTH])],
             'room_file_terms_of_use' => ['nullable', 'string', 'max:65000'],
+            'room_hide_owner_from_guests' => ['required', 'boolean'],
 
             'user_password_change_allowed' => ['required', 'boolean'],
 

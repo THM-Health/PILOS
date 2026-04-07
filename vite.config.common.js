@@ -5,6 +5,7 @@ import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
+import VueDevTools from "vite-plugin-vue-devtools";
 
 export default (mode) => {
   const ENV_PREFIX = ["VITE_"];
@@ -16,6 +17,9 @@ export default (mode) => {
 
   return {
     plugins: [
+      VueDevTools({
+        appendTo: "resources/js/app.js",
+      }),
       tailwindcss(),
       laravel({
         input: ["resources/js/app.js", "resources/css/app.css"],

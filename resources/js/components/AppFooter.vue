@@ -4,6 +4,7 @@
       v-if="
         settingsStore.getSetting('general.legal_notice_url') ||
         settingsStore.getSetting('general.privacy_policy_url') ||
+        settingsStore.getSetting('general.accessibility_statement_url') ||
         settingsStore.getSetting('general.version') ||
         !settingsStore.getSetting('general.whitelabel')
       "
@@ -46,6 +47,31 @@
               data-test="privacy-policy-button"
             >
               {{ $t("app.footer.privacy_policy") }}
+            </Button>
+
+            <div
+              v-if="
+                (settingsStore.getSetting('general.legal_notice_url') ||
+                  settingsStore.getSetting('general.privacy_policy_url')) &&
+                settingsStore.getSetting('general.accessibility_statement_url')
+              "
+              class="mx-2 inline"
+            >
+              <raw-text>|</raw-text>
+            </div>
+            <Button
+              v-if="
+                settingsStore.getSetting('general.accessibility_statement_url')
+              "
+              as="a"
+              link
+              :href="
+                settingsStore.getSetting('general.accessibility_statement_url')
+              "
+              class="p-0 text-sm"
+              data-test="accessibility-button"
+            >
+              {{ $t("app.footer.accessibility") }}
             </Button>
           </div>
           <div>

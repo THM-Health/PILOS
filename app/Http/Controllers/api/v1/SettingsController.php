@@ -167,6 +167,7 @@ class SettingsController extends Controller
         $generalSettings->help_url = $request->input('general_help_url');
         $generalSettings->legal_notice_url = $request->input('general_legal_notice_url');
         $generalSettings->privacy_policy_url = $request->input('general_privacy_policy_url');
+        $generalSettings->accessibility_statement_url = $request->input('general_accessibility_statement_url');
         $generalSettings->toast_lifetime = $request->integer('general_toast_lifetime');
         $generalSettings->no_welcome_page = $request->boolean('general_no_welcome_page');
 
@@ -183,6 +184,7 @@ class SettingsController extends Controller
         $roomSettings->auto_delete_never_used_period = $request->enum('room_auto_delete_never_used_period', TimePeriod::class);
         $roomSettings->auto_delete_deadline_period = $request->enum('room_auto_delete_deadline_period', TimePeriod::class);
         $roomSettings->file_terms_of_use = $request->input('room_file_terms_of_use');
+        $roomSettings->hide_owner_from_guests = $request->boolean('room_hide_owner_from_guests');
 
         $userSettings->password_change_allowed = $request->boolean('user_password_change_allowed');
 

@@ -280,4 +280,19 @@ class UserTest extends TestCase
         $this->assertFalse($user->has_external_image);
 
     }
+
+    public function test_create_user_long_external_id()
+    {
+        $longDN = 'CN=jdoe,OU=dev,'.str_repeat('OU=VeryLongOrganizationalUnit,', 16).'DC=example,DC=com';
+        $this->assertEquals(512, strlen($longDN));
+
+        $user = User::factory()->create([
+            'external_id' => $longDN,
+        ]);
+
+        $user->refresh();
+
+        $this->assertEquals($longDN, $user->external_id);
+
+    }
 }

@@ -76,6 +76,7 @@ return [
         'unauthorized' => 'Sie haben für die aufgerufene Route nicht die notwendigen Rechte!',
     ],
     'footer' => [
+        'accessibility' => 'Barrierefreiheitserklärung',
         'legal_notice' => 'Impressum',
         'privacy_policy' => 'Datenschutzerklärung',
     ],
