@@ -630,6 +630,17 @@ class MembershipTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'invalid_role']))
             ->assertJsonCount(5, 'data')
             ->assertJsonPath('meta.total', 6);
+
+        // Test deleted room
+        $room->delete();
+
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'invalid_role']))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     /**
@@ -719,6 +730,17 @@ class MembershipTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.add', ['room' => $room]), ['user' => $newUser->id, 'role' => RoomUserRole::USER])
             ->assertNoContent();
         $this->role->permissions()->detach($this->managePermission);
+
+        // Test with deleted room
+        $room->delete();
+
+        $this->actingAs($owner)->postJson(route('api.v1.rooms.member.add', ['room' => $room]), ['user' => $newUser->id, 'role' => RoomUserRole::USER])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     /**
@@ -803,6 +825,17 @@ class MembershipTest extends TestCase
         $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['is_member' => false]);
+
+        // Remove member of deleted room
+        $room->delete();
+
+        $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     /**
@@ -869,6 +902,17 @@ class MembershipTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
         $this->role->permissions()->detach($this->managePermission);
+
+        // Test with deleted room
+        $room->delete();
+
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_bulk_import_members()
@@ -1027,6 +1071,17 @@ class MembershipTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.bulkImport', ['room' => $room]), ['user_emails' => [$newUser->email], 'role' => RoomUserRole::USER])
             ->assertNoContent();
         $this->role->permissions()->detach($this->managePermission);
+
+        // Test with deleted room
+        $room->delete();
+
+        $this->actingAs($owner)->postJson(route('api.v1.rooms.member.bulkImport', ['room' => $room]), ['user_emails' => [$newUser->email], 'role' => RoomUserRole::USER])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_bulk_update_members()
@@ -1178,6 +1233,19 @@ class MembershipTest extends TestCase
             route('api.v1.rooms.member.bulkUpdate', ['room' => $room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
         )->assertForbidden();
+
+        // Test with deleted room
+        $room->delete();
+
+        $this->actingAs($owner)->putJson(
+            route('api.v1.rooms.member.bulkUpdate', ['room' => $room]),
+            ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
+        )->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_bulk_remove_members()
@@ -1275,5 +1343,16 @@ class MembershipTest extends TestCase
         // Remove yourself as co-owner
         $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room' => $room]), ['users' => [$memberUser->id, $memberCoOwner->id]])
             ->assertUnprocessable();
+
+        // Test with deleted room
+        $room->delete();
+
+        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room' => $room]), ['users' => [$memberUser->id]])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 }

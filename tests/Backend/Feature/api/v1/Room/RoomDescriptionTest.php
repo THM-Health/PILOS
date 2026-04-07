@@ -300,5 +300,16 @@ class RoomDescriptionTest extends TestCase
             ->assertUnprocessable();
         $room->refresh();
         $this->assertNull($room->description);
+
+        // Test deleted room
+        $room->delete();
+
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => $this->faker->text(100)])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 }

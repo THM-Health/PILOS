@@ -530,5 +530,17 @@ class RoomPersonalizedLinkTest extends TestCase
                     'model' => 'room_personalized_link',
                     'ids' => [$link->id],
                 ]);
+
+        // Test deleted room
+        $this->room->delete();
+
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [$this->room->id],
+                ]);
     }
 }

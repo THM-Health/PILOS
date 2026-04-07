@@ -1104,6 +1104,17 @@ class RecordingTest extends TestCase
                 'model' => 'recording',
                 'ids' => [$recording->id],
             ]);
+
+        // Test deleted room
+        $room->delete();
+
+        $this->putJson(route('api.v1.rooms.recordings.update', ['room' => $room->id, 'recording' => $recording->id]), $payload)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_update_permissions()
@@ -1247,6 +1258,18 @@ class RecordingTest extends TestCase
                 'message' => 'model_not_found',
                 'model' => 'recording',
                 'ids' => [$recording->id],
+            ]);
+
+        // Test with deleted room
+        $room->delete();
+
+        $this->actingAs($room->owner)
+            ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $room->id, 'recording' => $recording->id]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
             ]);
     }
 
