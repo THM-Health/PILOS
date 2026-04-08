@@ -596,8 +596,10 @@ class OIDCTest extends TestCase
         $mapping = json_decode($this->mapping);
         $mapping->attributes->image = 'picture';
 
-        config(['services.oidc.mapping' => $mapping,
-            'services.oidc.profile_image_trusted_hosts' => 'example.org']);
+        config([
+            'services.oidc.mapping' => $mapping,
+            'services.oidc.profile_image_trusted_hosts' => ['example.org'],
+        ]);
 
         // Generate random values
         $code = Str::random();
@@ -740,8 +742,10 @@ class OIDCTest extends TestCase
         $mapping = json_decode($this->mapping);
         $mapping->attributes->image = 'picture';
 
-        config(['services.oidc.mapping' => $mapping,
-            'services.oidc.profile_image_trusted_hosts' => 'example.org']);
+        config([
+            'services.oidc.mapping' => $mapping,
+            'services.oidc.profile_image_trusted_hosts' => ['example.org'],
+        ]);
 
         // Generate random values
         $code = Str::random();
@@ -791,8 +795,10 @@ class OIDCTest extends TestCase
         $mapping = json_decode($this->mapping);
         $mapping->attributes->image = 'picture';
 
-        config(['services.oidc.mapping' => $mapping,
-            'services.oidc.profile_image_trusted_hosts' => 'example.org']);
+        config([
+            'services.oidc.mapping' => $mapping,
+            'services.oidc.profile_image_trusted_hosts' => ['example.com'],
+        ]);
 
         // Generate random values
         $code = Str::random();
