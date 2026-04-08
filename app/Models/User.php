@@ -221,7 +221,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopewithNameOrEmail(Builder $query, $name)
+    public function scopewithNameOrEmail(Builder $query, string $name)
     {
         $name = preg_replace('/\s\s+/', ' ', $name);
         $splittedName = explode(' ', $name);

@@ -48,6 +48,10 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
+        if (! $request->has('query')) {
+            abort(204, 'Too many results');
+        }
+
         $query = User::withNameOrEmail($request->query('query'));
 
         if ($query->count() > config('bigbluebutton.user_search_limit')) {
