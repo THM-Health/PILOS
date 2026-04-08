@@ -44,7 +44,7 @@ class ProvisionCommandTest extends TestCase
         $this->assertEquals(1, count(Server::all()));
         $this->assertNotNull(Server::firstWhere('name', 'Default server'));
         $this->assertEquals(1, count(ServerPool::all()));
-        $this->assertNotNull(ServerPool::firstWhere('name', 'default'));
+        $this->assertNotNull(ServerPool::firstWhere('name', 'Default'));
         $this->assertEquals(4, count(RoomType::all()));
         $this->assertNotNull(RoomType::firstWhere('name', 'Meeting'));
         $this->assertEquals(3, count(Role::all()));
