@@ -4,9 +4,9 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateRoomStreamingConfig;
-use App\Http\Resources\RoomStreaming;
-use App\Http\Resources\RoomStreamingConfig;
+use App\Http\Requests\UpdateRoomStreamingConfigRequest;
+use App\Http\Resources\RoomStreamingConfigResource;
+use App\Http\Resources\RoomStreamingResource;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Services\StreamingServiceFactory;
@@ -20,10 +20,10 @@ class RoomStreamingController extends Controller
      */
     public function getConfig(Room $room)
     {
-        return new RoomStreamingConfig($room->streaming);
+        return new RoomStreamingConfigResource($room->streaming);
     }
 
-    public function updateConfig(Room $room, UpdateRoomStreamingConfig $request)
+    public function updateConfig(Room $room, UpdateRoomStreamingConfigRequest $request)
     {
         $streaming = $room->streaming;
 
@@ -42,7 +42,7 @@ class RoomStreamingController extends Controller
 
         $streaming->save();
 
-        return new RoomStreamingConfig($streaming);
+        return new RoomStreamingConfigResource($streaming);
     }
 
     public function status(Room $room)
@@ -65,7 +65,7 @@ class RoomStreamingController extends Controller
             // Ignore all exceptions (meeting not running, and streaming service connection error) in the status call
         }
 
-        return new RoomStreaming($room->streaming);
+        return new RoomStreamingResource($room->streaming);
     }
 
     private function getStreamingService(Room $room)
@@ -94,7 +94,7 @@ class RoomStreamingController extends Controller
         }
         $room->streaming->refresh();
 
-        return new RoomStreaming($room->streaming);
+        return new RoomStreamingResource($room->streaming);
     }
 
     public function stop(Room $room)
@@ -106,7 +106,7 @@ class RoomStreamingController extends Controller
         }
         $room->streaming->refresh();
 
-        return new RoomStreaming($room->streaming);
+        return new RoomStreamingResource($room->streaming);
     }
 
     public function pause(Room $room)
@@ -118,7 +118,7 @@ class RoomStreamingController extends Controller
         }
         $room->streaming->refresh();
 
-        return new RoomStreaming($room->streaming);
+        return new RoomStreamingResource($room->streaming);
     }
 
     public function resume(Room $room)
@@ -130,6 +130,6 @@ class RoomStreamingController extends Controller
         }
         $room->streaming->refresh();
 
-        return new RoomStreaming($room->streaming);
+        return new RoomStreamingResource($room->streaming);
     }
 }

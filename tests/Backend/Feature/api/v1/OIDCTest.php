@@ -269,8 +269,8 @@ class OIDCTest extends TestCase
         $this->assertEquals('http://localhost/auth/oidc/callback', $queryParams['redirect_uri']);
         $this->assertEquals('openid profile email', $queryParams['scope']);
 
-        $this->assertEquals(\Illuminate\Support\Facades\Session::get('openid_connect_nonce'), $queryParams['nonce']);
-        $this->assertEquals(\Illuminate\Support\Facades\Session::get('openid_connect_state'), $queryParams['state']);
+        $this->assertEquals(Session::get('openid_connect_nonce'), $queryParams['nonce']);
+        $this->assertEquals(Session::get('openid_connect_state'), $queryParams['state']);
 
     }
 

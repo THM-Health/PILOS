@@ -1,9 +1,11 @@
 <?php
 
+use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
+
 return [
     'enabled' => explode(',', env('PLUGINS', '')),
     'contracts' => [
-        \App\Plugins\Contracts\ServerLoadCalculationPluginContract::class,
+        ServerLoadCalculationPluginContract::class,
     ],
     'namespaces' => [
         'defaults' => 'App\Plugins\Defaults',

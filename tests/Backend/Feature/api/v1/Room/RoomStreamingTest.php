@@ -12,6 +12,7 @@ use App\Models\Server;
 use App\Models\User;
 use App\Services\StreamingService;
 use App\Services\StreamingServiceFactory;
+use App\Settings\StreamingSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -120,7 +121,7 @@ class RoomStreamingTest extends TestCase
      */
     public function test_streaming_settings()
     {
-        $streamingSettings = app(\App\Settings\StreamingSettings::class);
+        $streamingSettings = app(StreamingSettings::class);
 
         // Test default values
         $this->actingAs($this->room->owner)

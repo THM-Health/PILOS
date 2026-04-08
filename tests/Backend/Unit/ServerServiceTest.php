@@ -9,6 +9,7 @@ use App\Models\Meeting;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\ServerService;
+use BigBlueButton\Enum\HashingAlgorithm;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Event;
@@ -642,7 +643,7 @@ class ServerServiceTest extends TestCase
     public function test_hashing_algorithm_sha1()
     {
         config([
-            'bigbluebutton.server_hashing_algorithm' => \BigBlueButton\Enum\HashingAlgorithm::SHA_1,
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_1,
         ]);
         $server = Server::factory()->create();
 
@@ -660,7 +661,7 @@ class ServerServiceTest extends TestCase
     public function test_hashing_algorithm_sha256()
     {
         config([
-            'bigbluebutton.server_hashing_algorithm' => \BigBlueButton\Enum\HashingAlgorithm::SHA_256,
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_256,
         ]);
         $server = Server::factory()->create();
 
@@ -678,7 +679,7 @@ class ServerServiceTest extends TestCase
     public function test_hashing_algorithm_sha384()
     {
         config([
-            'bigbluebutton.server_hashing_algorithm' => \BigBlueButton\Enum\HashingAlgorithm::SHA_384,
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_384,
         ]);
         $server = Server::factory()->create();
 
@@ -696,7 +697,7 @@ class ServerServiceTest extends TestCase
     public function test_hashing_algorithm_sha512()
     {
         config([
-            'bigbluebutton.server_hashing_algorithm' => \BigBlueButton\Enum\HashingAlgorithm::SHA_512,
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_512,
         ]);
         $server = Server::factory()->create();
 

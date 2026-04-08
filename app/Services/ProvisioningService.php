@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Enums\ServerStatus;
 use App\Enums\TimePeriod;
-use App\Http\Requests\UpdateSettings;
+use App\Http\Requests\UpdateSettingsRequest;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoomType;
@@ -291,7 +291,7 @@ class SettingsProvisioner
             'user' => 'array:password_change_allowed',
             'recording' => 'array:server_usage_enabled,server_usage_retention_period,meeting_usage_enabled,meeting_usage_retention_period,attendance_retention_period,recording_retention_period',
         ];
-        foreach ((new UpdateSettings)->rules() as $property => $validations) {
+        foreach ((new UpdateSettingsRequest)->rules() as $property => $validations) {
             foreach (['banner', 'bbb', 'theme'] as $section) {
                 if (str_starts_with($property, $section)) {
                     continue 2;

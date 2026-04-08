@@ -5,7 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomPersonalizedLinkRequest;
-use App\Http\Resources\RoomPersonalizedLink as RoomPersonalizedLinkResource;
+use App\Http\Resources\RoomPersonalizedLinkResource;
 use App\Models\Room;
 use App\Models\RoomPersonalizedLink;
 use App\Settings\GeneralSettings;

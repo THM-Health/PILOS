@@ -3,6 +3,7 @@
 namespace App\Auth\Local;
 
 use Illuminate\Auth\EloquentUserProvider;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 
 class LocalProvider extends EloquentUserProvider implements UserProvider
@@ -10,7 +11,7 @@ class LocalProvider extends EloquentUserProvider implements UserProvider
     /**
      * Retrieve a user by the given credentials.
      *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     * @return Authenticatable|null
      */
     public function retrieveByCredentials(array $credentials)
     {

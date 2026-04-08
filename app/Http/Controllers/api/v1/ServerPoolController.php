@@ -5,11 +5,14 @@ namespace App\Http\Controllers\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServerPoolRequest;
-use App\Http\Resources\ServerPool as ServerPoolResource;
+use App\Http\Resources\RoomTypeResource;
+use App\Http\Resources\ServerPoolResource;
 use App\Models\Server;
 use App\Models\ServerPool;
 use App\Settings\GeneralSettings;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class ServerPoolController extends Controller
@@ -17,13 +20,13 @@ class ServerPoolController extends Controller
     public function __construct()
     {
         $this->authorizeResource(ServerPool::class, 'serverPool');
-        $this->middleware('check.stale:serverPool,\App\Http\Resources\ServerPool,withServers', ['only' => 'update']);
+        $this->middleware('check.stale:serverPool,\App\Http\Resources\ServerPoolResource,withServers', ['only' => 'update']);
     }
 
     /**
      * Return a json array with all room types
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function index(Request $request)
     {
@@ -106,7 +109,7 @@ class ServerPoolController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @return \Illuminate\Http\JsonResponse|Response
+     * @return JsonResponse|Response
      *
      * @throws \Exception
      */
@@ -121,7 +124,7 @@ class ServerPoolController extends Controller
             return response()->json([
                 'error' => CustomStatusCodes::STALE_MODEL->value,
                 'message' => __('app.errors.server_pool_delete_failed'),
-                'room_types' => \App\Http\Resources\RoomType::collection($serverPool->roomTypes),
+                'room_types' => RoomTypeResource::collection($serverPool->roomTypes),
             ], CustomStatusCodes::STALE_MODEL->value);
         }
     }
