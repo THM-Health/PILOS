@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Services\LocaleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
@@ -37,8 +36,10 @@ class LocalesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Config::set('ldap.enabled', true);
-        Config::set('ldap.mapping', json_decode($this->ldapMapping));
+        config([
+            'ldap.enabled' => true,
+            'ldap.mapping' => json_decode($this->ldapMapping),
+        ]);
         $this->withoutMix();
 
         config([

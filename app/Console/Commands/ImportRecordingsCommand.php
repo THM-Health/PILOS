@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Jobs\ProcessRecording;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -17,7 +16,7 @@ class ImportRecordingsCommand extends Command
 
     public function handle()
     {
-        $hook_script_path = Config::get('recording.import_before_hook');
+        $hook_script_path = config('recording.import_before_hook');
         if ($hook_script_path) {
             $this->info('Invoking recording import before hook '.$hook_script_path);
             $result = Process::run($hook_script_path);

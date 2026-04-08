@@ -8,7 +8,6 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use LdapRecord\Container;
@@ -95,8 +94,8 @@ class LdapLoginTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Config::set('ldap.enabled', true);
-        Config::set('ldap.mapping', json_decode($this->ldapMapping));
+        config(['ldap.enabled' => true]);
+        config(['ldap.mapping' => json_decode($this->ldapMapping)]);
 
         Container::getConnection('default')->getConfiguration()->set('use_tls', false);
         Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
@@ -136,7 +135,7 @@ class LdapLoginTest extends TestCase
      */
     public function test_login_route()
     {
-        Config::set('ldap.enabled', false);
+        config(['ldap.enabled' => false]);
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret',
@@ -183,7 +182,7 @@ class LdapLoginTest extends TestCase
     public function test_attribute_mapping()
     {
         Log::swap(new LogFake);
-        Config::set('ldap.logging.enabled', false);
+        config(['ldap.logging.enabled' => false]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -217,7 +216,7 @@ class LdapLoginTest extends TestCase
     public function test_attribute_mapping_logging()
     {
         Log::swap(new LogFake);
-        Config::set('ldap.logging.enabled', true);
+        config(['ldap.logging.enabled' => true]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -252,7 +251,9 @@ class LdapLoginTest extends TestCase
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         unset($newAttributeConf->attributes->first_name);
-        Config::set('ldap.mapping', $newAttributeConf);
+        config([
+            'ldap.mapping' => $newAttributeConf,
+        ]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -269,7 +270,9 @@ class LdapLoginTest extends TestCase
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->attributes->first_name = 'wrongAttribute';
-        Config::set('ldap.mapping', $newAttributeConf);
+        config([
+            'ldap.mapping' => $newAttributeConf,
+        ]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -286,7 +289,9 @@ class LdapLoginTest extends TestCase
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->attributes->new_attribute = 'givenName';
-        Config::set('ldap.mapping', $newAttributeConf);
+        config([
+            'ldap.mapping' => $newAttributeConf,
+        ]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -327,7 +332,9 @@ class LdapLoginTest extends TestCase
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->roles[0]->rules[0]->attribute = 'notExistingAttribute';
-        Config::set('ldap.mapping', $newAttributeConf);
+        config([
+            'ldap.mapping' => $newAttributeConf,
+        ]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -352,7 +359,9 @@ class LdapLoginTest extends TestCase
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->roles[0]->name = 'notExistingRole';
-        Config::set('ldap.mapping', $newAttributeConf);
+        config([
+            'ldap.mapping' => $newAttributeConf,
+        ]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -377,7 +386,9 @@ class LdapLoginTest extends TestCase
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->roles = [];
-        Config::set('ldap.mapping', $newAttributeConf);
+        config([
+            'ldap.mapping' => $newAttributeConf,
+        ]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -531,7 +542,9 @@ class LdapLoginTest extends TestCase
 
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->attributes->image = 'jpegphoto';
-        Config::set('ldap.mapping', $newAttributeConf);
+        config([
+            'ldap.mapping' => $newAttributeConf,
+        ]);
 
         $pathProfileImage1 = __DIR__.'/../../../Fixtures/profileImage-1.jpg';
         $profileImage = file_get_contents($pathProfileImage1);
