@@ -18,7 +18,7 @@ class ShibbolethUser extends ExternalUser
         foreach ($attributeMap as $attribute => $saml_attribute) {
             // Split the attribute values on the semicolon (used to separate multiple values)
             $re = '/(?<!\\\\);/';
-            $attribute_values = preg_split($re, $request->header($saml_attribute));
+            $attribute_values = preg_split($re, $request->header($saml_attribute, ''));
 
             // Add all attribute values to the user object
             foreach ($attribute_values as $value) {
