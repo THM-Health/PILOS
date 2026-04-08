@@ -19,7 +19,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -1363,15 +1362,19 @@ class UserTest extends TestCase
         $this->assertNull($user->image);
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $changes['image'] = $file;
         $changes['updated_at'] = $user->updated_at;
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     public function test_show()

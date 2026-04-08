@@ -19,7 +19,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -324,15 +323,19 @@ class RoomStreamingTest extends TestCase
         $this->assertNull($this->room->streaming->pause_image_url);
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $data['pause_image'] = $this->file_valid;
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['pause_image']);
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     /**

@@ -13,7 +13,6 @@ use App\Settings\GeneralSettings;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -92,7 +91,7 @@ class ImportGreenlight3Command extends Command
         }
 
         // Read Greenlight 3 data from database
-        Config::set('database.connections.greenlight', [
+        config(['database.connections.greenlight' => [
             'driver' => 'pgsql',
             'host' => $this->argument('host'),
             'database' => $this->argument('database'),
@@ -104,7 +103,7 @@ class ImportGreenlight3Command extends Command
             'prefix_indexes' => true,
             'schema' => 'public',
             'sslmode' => 'prefer',
-        ]);
+        ]]);
 
         $users = DB::connection('greenlight')->table('users')->where('provider', 'greenlight')->get(['id', 'name', 'email', 'external_id', 'password_digest']);
         $rooms = DB::connection('greenlight')->table('rooms')->get(['id', 'friendly_id', 'user_id', 'name']);

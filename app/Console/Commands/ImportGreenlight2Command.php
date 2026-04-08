@@ -13,7 +13,6 @@ use App\Settings\GeneralSettings;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -109,7 +108,7 @@ class ImportGreenlight2Command extends Command
             return 2;
         }
 
-        Config::set('database.connections.greenlight', [
+        config(['database.connections.greenlight' => [
             'driver' => 'pgsql',
             'host' => $this->argument('host'),
             'database' => $this->argument('database'),
@@ -121,7 +120,7 @@ class ImportGreenlight2Command extends Command
             'prefix_indexes' => true,
             'schema' => 'public',
             'sslmode' => 'prefer',
-        ]);
+        ]]);
 
         $requireAuth = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')?->value == true;
         $users = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest']);

@@ -17,7 +17,6 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
@@ -1234,8 +1233,10 @@ class SettingsTest extends TestCase
 
     public function test_virus_files()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
 
         $role = Role::factory()->create();
