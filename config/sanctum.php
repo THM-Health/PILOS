@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Laravel\Sanctum\Sanctum;
 
 return [
@@ -46,8 +48,8 @@ return [
     */
 
     'middleware' => [
-        'encrypt_cookies' => Illuminate\Cookie\Middleware\EncryptCookies::class,
-        'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+        'encrypt_cookies' => EncryptCookies::class,
+        'validate_csrf_token' => PreventRequestForgery::class,
     ],
 
     'guard' => env('SANCTUM_AUTH_GUARD', 'api'),

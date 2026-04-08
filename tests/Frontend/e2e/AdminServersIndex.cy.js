@@ -80,7 +80,7 @@ describe("Admin servers index", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index");
+      .should("include.text", "admin.breadcrumbs.servers.index");
 
     // Check that loading is over
     cy.get('[data-test="overlay"]').should("not.exist");

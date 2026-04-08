@@ -12,7 +12,7 @@ class Users implements ResolvesUsers
     /**
      * The resolved users.
      *
-     * @var Collection<int, \Illuminate\Contracts\Auth\Authenticatable>
+     * @var Collection<int, Authenticatable>
      */
     protected Collection $resolvedUsers;
 

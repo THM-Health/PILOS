@@ -2,7 +2,7 @@
 
 namespace App\Auth\LDAP;
 
-use Illuminate\Support\Facades\Config;
+use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Connection;
@@ -15,7 +15,7 @@ class LDAPServiceProvider extends ServiceProvider
         $this->registerLogging();
 
         Container::setDefaultConnection('default');
-        Container::addConnection(new Connection(Config::get('ldap.connection')));
+        Container::addConnection(new Connection(config('ldap.connection')));
     }
 
     /**
@@ -25,11 +25,11 @@ class LDAPServiceProvider extends ServiceProvider
      */
     protected function registerLogging()
     {
-        if (! Config::get('ldap.logging.enabled', false)) {
+        if (! config('ldap.logging.enabled', false)) {
             return;
         }
 
-        /** @var \Illuminate\Log\LogManager|null $logger */
+        /** @var LogManager|null $logger */
         if (is_null($logger = Log::getFacadeRoot())) {
             return;
         }

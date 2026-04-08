@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
@@ -87,9 +86,11 @@ class ShibbolethTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Config::set('services.shibboleth.enabled', true);
-        Config::set('services.shibboleth.mapping', json_decode($this->mapping));
-        Config::set('app.enabled_locales', ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]]);
+        config([
+            'services.shibboleth.enabled' => true,
+            'services.shibboleth.mapping' => json_decode($this->mapping),
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
+        ]);
 
         Role::factory()->create(['name' => 'admin']);
         Role::factory()->create(['name' => 'user']);
@@ -103,7 +104,9 @@ class ShibbolethTest extends TestCase
      */
     public function test_redirect_route_disabled()
     {
-        Config::set('services.shibboleth.enabled', false);
+        config([
+            'services.shibboleth.enabled' => false,
+        ]);
         $response = $this->get(route('auth.shibboleth.redirect'));
         $response->assertNotFound();
     }
@@ -126,7 +129,9 @@ class ShibbolethTest extends TestCase
      */
     public function test_callback_route_disabled()
     {
-        Config::set('services.shibboleth.enabled', false);
+        config([
+            'services.shibboleth.enabled' => false,
+        ]);
         $response = $this->get(route('auth.shibboleth.callback'));
         $response->assertNotFound();
     }
@@ -462,7 +467,9 @@ class ShibbolethTest extends TestCase
      */
     public function test_logout_route_disabled()
     {
-        Config::set('services.shibboleth.enabled', false);
+        config([
+            'services.shibboleth.enabled' => false,
+        ]);
         $response = $this->get(route('auth.shibboleth.logout'));
         $response->assertNotFound();
     }

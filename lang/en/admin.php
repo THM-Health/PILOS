@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'Edit :name',
             'index' => 'Roles',
@@ -190,7 +190,7 @@ return [
     ],
     'server_pools' => [
         'delete' => [
-            'confirm' => 'Are you really want to delete the server pool :name?',
+            'confirm' => 'Do you really want to delete the server pool :name?',
             'failed' => 'Server pool can\'t be deleted because the following room types still use it:',
             'item' => 'Delete server pool :name',
             'title' => 'Delete server pool?',
@@ -348,7 +348,7 @@ return [
         'no_welcome_page' => 'Hide welcome page',
         'one_day' => '1 Day (24 Hours)',
         'one_month' => '1 Month (30 Days)',
-        'one_week' => '1 Week (7 Day)',
+        'one_week' => '1 Week (7 Days)',
         'one_year' => '1 Year (365 Days)',
         'pagination_page_size' => [
             'description' => 'Number of records displayed simultaneously in tables',
@@ -420,7 +420,7 @@ return [
             'title' => 'Display duration of pop-up messages',
         ],
         'two_weeks' => '2 Weeks (14 Days)',
-        'two_years' => '2 Year (730 Days)',
+        'two_years' => '2 Years (730 Days)',
         'user_settings' => 'User settings',
     ],
     'streaming' => [
@@ -454,7 +454,7 @@ return [
         'base_data' => 'Base data',
         'bbb' => 'BigBlueButton',
         'delete' => [
-            'confirm' => 'Are you really want to delete the user :firstname :lastname?',
+            'confirm' => 'Do you really want to delete the user :firstname :lastname?',
             'item' => 'Delete user :firstname :lastname',
             'title' => 'Delete user?',
         ],

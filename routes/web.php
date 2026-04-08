@@ -4,9 +4,11 @@ use App\Auth\OIDC\OIDCController;
 use App\Auth\Shibboleth\ShibbolethController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\RecordingController;
 use App\Http\Controllers\RoomFileController;
 use Illuminate\Support\Facades\Route;
+use Spatie\Csp\AddCspHeaders;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,10 +67,10 @@ if (config('greenlight.compatibility')) {
     });
 }
 
-Route::get('metrics', \App\Http\Controllers\MetricsController::class)
+Route::get('metrics', MetricsController::class)
     ->middleware(['enable_if_config:metrics.enabled'])
     ->withoutMiddleware('web');
 
 if (! env('DISABLE_CATCHALL_ROUTES')) {
-    Route::any('/{any}', [ApplicationController::class, 'index'])->where('any', '.*')->middleware(Spatie\Csp\AddCspHeaders::class);
+    Route::any('/{any}', [ApplicationController::class, 'index'])->where('any', '.*')->middleware(AddCspHeaders::class);
 }

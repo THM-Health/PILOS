@@ -8,8 +8,8 @@ use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\NewUserRequest;
 use App\Http\Requests\UserRequest;
-use App\Http\Resources\User as UserResource;
-use App\Http\Resources\UserSearch;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserSearchResource;
 use App\Models\User;
 use App\Notifications\UserWelcome;
 use App\Services\AuthenticationService;
@@ -35,7 +35,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
-        $this->middleware('check.stale:user,\App\Http\Resources\User', ['only' => 'update']);
+        $this->middleware('check.stale:user,\App\Http\Resources\UserResource', ['only' => 'update']);
     }
 
     /**
@@ -52,7 +52,7 @@ class UserController extends Controller
             abort(204, 'Too many results');
         }
 
-        return UserSearch::collection($query->orderByRaw('LOWER(lastname) ASC')->orderByRaw('LOWER(firstname) ASC')->get());
+        return UserSearchResource::collection($query->orderByRaw('LOWER(lastname) ASC')->orderByRaw('LOWER(firstname) ASC')->get());
     }
 
     /**

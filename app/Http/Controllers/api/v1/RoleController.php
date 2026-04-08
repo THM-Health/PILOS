@@ -5,7 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
-use App\Http\Resources\Role as RoleResource;
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use App\Settings\GeneralSettings;
 use Exception;
@@ -20,7 +20,7 @@ class RoleController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Role::class, 'role');
-        $this->middleware('check.stale:role,\App\Http\Resources\Role,withPermissions', ['only' => 'update']);
+        $this->middleware('check.stale:role,\App\Http\Resources\RoleResource,withPermissions', ['only' => 'update']);
     }
 
     /**

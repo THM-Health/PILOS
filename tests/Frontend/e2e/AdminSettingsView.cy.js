@@ -29,7 +29,7 @@ describe("Admin settings with edit permission", function () {
           .and("be.disabled");
       });
 
-    cy.get('[ data-test="help-url-field"]')
+    cy.get('[data-test="help-url-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.help_url.title")
       .and("include.text", "admin.settings.help_url.description")

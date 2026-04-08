@@ -111,7 +111,7 @@ describe("Admin users index", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index");
+      .should("include.text", "admin.breadcrumbs.users.index");
 
     // Check that headers are displayed correctly
     cy.get('[data-test="user-header-cell"]').should("have.length", 9);

@@ -10,7 +10,7 @@ use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Enums\ServerHealth;
 use App\Events\RoomEnded;
-use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResource;
 use App\Models\Meeting;
 use App\Models\Permission;
 use App\Models\Role;
