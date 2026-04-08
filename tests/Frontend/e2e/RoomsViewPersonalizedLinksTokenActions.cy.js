@@ -432,7 +432,9 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_personalized_link",
+        ids: [3],
       },
     }).as("editLinkRequest");
 
@@ -706,7 +708,9 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/personalizedLinks/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_personalized_link",
+        ids: [3],
       },
     }).as("deleteLinkRequest");
 

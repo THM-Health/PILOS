@@ -120,14 +120,11 @@ class RoomMemberController extends Controller
      *
      * @return Response
      */
-    public function update(Room $room, User $user, UpdateRoomMemberRequest $request)
+    public function update(Room $room, User $member, UpdateRoomMemberRequest $request)
     {
-        if (! $room->members->contains($user)) {
-            abort(410, __('app.errors.not_member_of_room'));
-        }
-        $room->members()->updateExistingPivot($user, ['role' => $request->role]);
+        $room->members()->updateExistingPivot($member, ['role' => $request->role]);
 
-        Log::info('Changed role for member {member} to {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label(), 'member' => $user->getLogLabel()]);
+        Log::info('Changed role for member {member} to {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label(), 'member' => $member->getLogLabel()]);
 
         return response()->noContent();
     }
@@ -153,14 +150,11 @@ class RoomMemberController extends Controller
      *
      * @return Response
      */
-    public function destroy(Room $room, User $user)
+    public function destroy(Room $room, User $member)
     {
-        if (! $room->members->contains($user)) {
-            abort(410, __('app.errors.not_member_of_room'));
-        }
-        $room->members()->detach($user);
+        $room->members()->detach($member);
 
-        Log::info('Removed member {member} from room {room}', ['room' => $room->getLogLabel(), 'member' => $user->getLogLabel()]);
+        Log::info('Removed member {member} from room {room}', ['room' => $room->getLogLabel(), 'member' => $member->getLogLabel()]);
 
         return response()->noContent();
     }

@@ -41,7 +41,7 @@ return [
         'membership_disabled' => 'Membership failed! Membership for this room is currently not available.',
         'no_room_access' => 'You does not have the necessary permissions, to edit this room.',
         'no_server_available' => 'Currently there are no servers available.',
-        'not_member_of_room' => 'The person is not a member of this room (anymore).',
+        'not_member_of_room' => 'The user is not a member of this room.',
         'not_running' => 'Joining the room has failed as it is currently closed.',
         'personalized_link_not_found' => 'The personalized room link could not be found.',
         'record_agreement_missing' => 'Consent to the recording is required.',
@@ -66,7 +66,7 @@ return [
         'guests_only' => 'The request can only be made by guests!',
         'model_not_found' => [
             'title' => 'The :model was not found!',
-            'details' => ' Model ids: :ids',
+            'details' => ' Model id: :ids',
         ],
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
@@ -99,7 +99,7 @@ return [
         'fr' => 'French',
     ],
     'model' => [
-        'meeting' => 'meeting',
+        'meeting' => 'Meeting',
         'role' => 'Role',
         'roles' => 'role',
         'room' => 'Room',

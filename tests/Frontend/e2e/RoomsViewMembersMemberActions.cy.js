@@ -580,9 +580,11 @@ describe("Rooms view members member actions", function () {
 
     // Check with member gone
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/member/5", {
-      statusCode: 410,
+      statusCode: 404,
       body: {
-        message: "The person is not a member of this room (anymore).",
+        message: "model_not_found",
+        model: "user",
+        ids: [5],
       },
     }).as("editUserRequest");
 
@@ -610,10 +612,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]').should("have.length", 2);
 
     // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"The person is not a member of this room (anymore)."}',
-      'app.flash.server_error.error_code_{"statusCode":410}',
-    ]);
+    cy.checkToastMessage("app.errors.not_member_of_room");
 
     // Check with 422 error
     cy.get('[data-test="room-member-item"]')
@@ -808,9 +807,11 @@ describe("Rooms view members member actions", function () {
 
     // Check delete with member gone
     cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/member/5", {
-      statusCode: 410,
+      statusCode: 404,
       body: {
-        message: "The person is not a member of this room (anymore).",
+        message: "model_not_found",
+        model: "user",
+        ids: [5],
       },
     }).as("deleteMemberRequest");
 
@@ -836,10 +837,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]').should("have.length", 2);
 
     // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"The person is not a member of this room (anymore)."}',
-      'app.flash.server_error.error_code_{"statusCode":410}',
-    ]);
+    cy.checkToastMessage("app.errors.not_member_of_room");
 
     // Check with 500 error
     cy.get('[data-test="room-member-item"]')
