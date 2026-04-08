@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
 - Room description editor not closed after 403 error on save ([#2997], [#3000])
 
 ## [v4.14.0] - 2026-04-07
