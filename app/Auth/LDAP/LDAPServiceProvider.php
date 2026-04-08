@@ -2,6 +2,7 @@
 
 namespace App\Auth\LDAP;
 
+use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
@@ -29,7 +30,7 @@ class LDAPServiceProvider extends ServiceProvider
             return;
         }
 
-        /** @var \Illuminate\Log\LogManager|null $logger */
+        /** @var LogManager|null $logger */
         if (is_null($logger = Log::getFacadeRoot())) {
             return;
         }

@@ -6,7 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
-use App\Http\Resources\RoleCollection;
+use App\Http\Resources\RoleResourceCollection;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
@@ -173,7 +173,8 @@ class RoomTypeTest extends TestCase
                             'enabled' => true,
                         ],
                     ],
-                ],
+                ])
+            ->assertJsonFragment(
                 [
                     'id' => $roomTypePublicEnforced->id,
                     'name' => $roomTypePublicEnforced->name,
@@ -183,8 +184,7 @@ class RoomTypeTest extends TestCase
                             'enabled' => false,
                         ],
                     ],
-                ]
-            )
+                ])
             ->assertJsonCount(4, 'data');
 
         // Test logged in users (with filter own)
@@ -407,7 +407,7 @@ class RoomTypeTest extends TestCase
                 'color' => $roomType->color,
                 'description' => $roomType->description,
                 'restrict' => true,
-                'roles' => new RoleCollection([$role1]),
+                'roles' => new RoleResourceCollection([$role1]),
                 'max_duration' => 90,
                 'max_participants' => 30,
                 'everyone_can_start_default' => false,
@@ -740,7 +740,7 @@ class RoomTypeTest extends TestCase
                 'name' => $roomType->name,
                 'color' => $roomType->color,
                 'restrict' => true,
-                'roles' => new RoleCollection([$role1]),
+                'roles' => new RoleResourceCollection([$role1]),
             ]);
 
         // Test with invalid data

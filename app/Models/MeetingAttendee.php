@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MeetingAttendee extends Model
 {
@@ -23,7 +24,7 @@ class MeetingAttendee extends Model
     /**
      * Meeting
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function meeting()
     {
@@ -33,7 +34,7 @@ class MeetingAttendee extends Model
     /**
      * Authenticated user
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user()
     {

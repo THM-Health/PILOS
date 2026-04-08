@@ -13,6 +13,7 @@ use App\Settings\GeneralSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -968,7 +969,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the custom bbb style sheet
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_style()
     {
@@ -1066,7 +1067,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_logo()
     {
@@ -1150,7 +1151,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb dark logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_dark_logo()
     {

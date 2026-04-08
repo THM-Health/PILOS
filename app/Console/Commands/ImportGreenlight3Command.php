@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\progress;
@@ -372,7 +373,7 @@ class ImportGreenlight3Command extends Command
                     $this->importedPresentationFiles[] = $file->path;
 
                     $created++;
-                } catch (\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException $e) {
+                } catch (FileNotFoundException $e) {
                     $failed++;
 
                     continue;

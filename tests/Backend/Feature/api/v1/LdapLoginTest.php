@@ -4,6 +4,7 @@ namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
@@ -121,7 +122,7 @@ class LdapLoginTest extends TestCase
     /**
      * Returns the current authenticated user for the configured guard.
      *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     * @return Authenticatable|null
      */
     private function getAuthenticatedUser()
     {

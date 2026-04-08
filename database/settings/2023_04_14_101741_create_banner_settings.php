@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\LinkButtonStyle;
+use App\Enums\LinkTarget;
 use Spatie\LaravelSettings\Migrations\SettingsMigration;
 
 return new class extends SettingsMigration
@@ -13,9 +15,9 @@ return new class extends SettingsMigration
         $this->migrator->add('banner.color');
         $this->migrator->add('banner.background');
         $this->migrator->add('banner.title');
-        $this->migrator->add('banner.link_style', \App\Enums\LinkButtonStyle::PRIMARY);
+        $this->migrator->add('banner.link_style', LinkButtonStyle::PRIMARY);
         $this->migrator->add('banner.link_text');
-        $this->migrator->add('banner.link_target', \App\Enums\LinkTarget::BLANK);
+        $this->migrator->add('banner.link_target', LinkTarget::BLANK);
     }
 
     public function down(): void

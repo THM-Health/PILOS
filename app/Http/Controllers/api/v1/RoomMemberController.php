@@ -4,16 +4,19 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AddRoomMember;
+use App\Http\Requests\AddRoomMemberRequest;
 use App\Http\Requests\BulkDestroyRequest;
 use App\Http\Requests\BulkImportRequest;
 use App\Http\Requests\BulkUpdateRequest;
-use App\Http\Requests\UpdateRoomMember;
-use App\Http\Resources\RoomUser;
+use App\Http\Requests\UpdateRoomMemberRequest;
+use App\Http\Resources\RoomUserResource;
 use App\Models\Room;
 use App\Models\User;
 use App\Settings\GeneralSettings;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -27,7 +30,7 @@ class RoomMemberController extends Controller
     /**
      * Return a list with all members of the room
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function index(Room $room, Request $request)
     {
@@ -76,15 +79,15 @@ class RoomMemberController extends Controller
             $resource = $resource->where($filter[0], $filter[1]);
         }
 
-        return RoomUser::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
+        return RoomUserResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     /**
      * Add membership
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function store(Room $room, AddRoomMember $request)
+    public function store(Room $room, AddRoomMemberRequest $request)
     {
         $room->members()->attach($request->user, ['role' => $request->role]);
 
@@ -98,7 +101,7 @@ class RoomMemberController extends Controller
     /**
      * Add multiple members
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function bulkImport(Room $room, BulkImportRequest $request)
     {
@@ -115,9 +118,9 @@ class RoomMemberController extends Controller
     /**
      * Update membership role
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function update(Room $room, User $user, UpdateRoomMember $request)
+    public function update(Room $room, User $user, UpdateRoomMemberRequest $request)
     {
         if (! $room->members->contains($user)) {
             abort(410, __('app.errors.not_member_of_room'));
@@ -132,7 +135,7 @@ class RoomMemberController extends Controller
     /**
      * Update multiple member roles
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function bulkUpdate(Room $room, BulkUpdateRequest $request)
     {
@@ -148,7 +151,7 @@ class RoomMemberController extends Controller
     /**
      * Remove membership
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(Room $room, User $user)
     {
@@ -165,7 +168,7 @@ class RoomMemberController extends Controller
     /**
      * Remove multiple members
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function bulkDestroy(Room $room, BulkDestroyRequest $request)
     {
@@ -179,7 +182,7 @@ class RoomMemberController extends Controller
     /**
      * User is self promoting to become a member
      *
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     * @return JsonResponse|Response
      */
     public function join(Room $room)
     {
@@ -202,7 +205,7 @@ class RoomMemberController extends Controller
     /**
      * Leaving membership in this room
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function leave(Room $room)
     {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RoomUserRole;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,7 +21,7 @@ return new class extends Migration
             $table->primary(['token', 'room_id']);
             $table->string('firstname');
             $table->string('lastname');
-            $table->tinyInteger('role')->default(\App\Enums\RoomUserRole::USER);
+            $table->tinyInteger('role')->default(RoomUserRole::USER);
             $table->dateTime('last_usage')->nullable();
             $table->timestamps();
         });

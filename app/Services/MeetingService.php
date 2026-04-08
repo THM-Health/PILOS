@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Events\RoomEnded;
-use App\Http\Requests\JoinMeeting;
-use App\Http\Requests\StartMeeting;
+use App\Http\Requests\JoinMeetingRequest;
+use App\Http\Requests\StartMeetingRequest;
 use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\User;
@@ -17,6 +17,7 @@ use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
+use BigBlueButton\Responses\CreateMeetingResponse;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
@@ -66,7 +67,7 @@ class MeetingService
     /**
      * Start meeting with the properties saved for this meeting and room
      */
-    public function start(): ?\BigBlueButton\Responses\CreateMeetingResponse
+    public function start(): ?CreateMeetingResponse
     {
         // Set meeting parameters
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
@@ -631,7 +632,7 @@ class MeetingService
     /**
      * @return string Join url
      */
-    public function getJoinUrl(JoinMeeting|StartMeeting $request): string
+    public function getJoinUrl(JoinMeetingRequest|StartMeetingRequest $request): string
     {
         $personalizedLink = Context::getHidden("room.{$this->meeting->room->id}.personalized_link");
 
