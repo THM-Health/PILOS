@@ -15,7 +15,7 @@ class GreenlightSharedAccess
     /**
      * GreenlightSharedAccess constructor.
      */
-    public function __construct($id, $room_id, $user_id)
+    public function __construct(string $id, string $room_id, string $user_id)
     {
         $this->id = $id;
         $this->room_id = $room_id;
