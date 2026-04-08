@@ -97,7 +97,7 @@ class UserController extends Controller
             Validator::make($request->all(), [
                 'role' => 'required|exists:roles,id',
             ])->validate();
-            $resource = $resource->withRole($request->query('role'));
+            $resource = $resource->withRole($request->integer('role'));
         }
 
         if ($request->has('query')) {

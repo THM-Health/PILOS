@@ -182,7 +182,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  int  $role  Role the user has
      * @return Builder The scoped query
      */
-    public function scopeWithRole(Builder $query, $role)
+    public function scopeWithRole(Builder $query, int $role)
     {
         return $query->join('role_user', 'role_user.user_id', '=', 'users.id')->where('role_user.role_id', $role);
     }
