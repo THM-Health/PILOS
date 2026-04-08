@@ -737,7 +737,7 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => 111111111,
+            'access_code' => '111111111',
         ]);
 
         // Try 6 times with wrong access code
