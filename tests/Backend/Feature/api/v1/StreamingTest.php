@@ -274,7 +274,7 @@ class StreamingTest extends TestCase
         // Virus file
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $this->actingAs($this->user)
@@ -329,7 +329,7 @@ class StreamingTest extends TestCase
         // Virus file
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $data['css_file'] = UploadedFile::fake()->create('streaming.css', 100, 'text/css');
@@ -545,7 +545,7 @@ class StreamingTest extends TestCase
         // Virus file
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $data['default_pause_image'] = $this->file_valid;

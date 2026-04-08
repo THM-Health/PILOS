@@ -27,7 +27,7 @@ class AntivirusTest extends TestCase
     {
         config([
             'antivirus.enabled' => false,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
 
         Http::fake();
@@ -54,7 +54,7 @@ class AntivirusTest extends TestCase
     {
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         $file = UploadedFile::fake()->create('clean.txt');
         Http::fake([
@@ -88,7 +88,7 @@ class AntivirusTest extends TestCase
     {
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         $file = UploadedFile::fake()->create('virus.txt');
         Http::fake([
@@ -126,7 +126,7 @@ class AntivirusTest extends TestCase
     {
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         $file = UploadedFile::fake()->create('virus.txt');
         Http::fake([
@@ -159,7 +159,7 @@ class AntivirusTest extends TestCase
     {
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
 
         $file = UploadedFile::fake()->create('virus.txt');

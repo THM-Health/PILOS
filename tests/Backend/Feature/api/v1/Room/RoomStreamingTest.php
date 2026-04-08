@@ -325,7 +325,7 @@ class RoomStreamingTest extends TestCase
         // Virus file
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $data['pause_image'] = $this->file_valid;

@@ -132,7 +132,7 @@ class FileTest extends TestCase
         // Virus file
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => UploadedFile::fake()->create('virus.txt')])

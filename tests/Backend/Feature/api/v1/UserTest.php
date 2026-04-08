@@ -1364,7 +1364,7 @@ class UserTest extends TestCase
         // Virus file
         config([
             'antivirus.enabled' => true,
-            'antivirus.clamav' => 'http://clamav',
+            'antivirus.clamav.url' => 'http://clamav',
         ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $changes['image'] = $file;
