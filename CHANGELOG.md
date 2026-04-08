@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BBB API URL is now automatically normalized to include a trailing `/` when adding BBB servers using the provision command ([#3011], [#3014])
-- Provision command data format now supports partical provision using optional sections and fields ([#3014])
+- Provision command data format to support partial provision using optional sections and fields ([#3014])
 
 ### Fixed
 
