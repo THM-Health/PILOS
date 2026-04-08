@@ -26,7 +26,7 @@ class MeetingFactory extends Factory
     public function definition()
     {
         $length = $this->faker->numberBetween(1, 20000);
-        $end = $this->faker->date('U');
+        $end = (int) $this->faker->date('U');
 
         return [
             'room_id' => Room::factory(),
