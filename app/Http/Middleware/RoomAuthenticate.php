@@ -9,6 +9,7 @@ use App\Models\Room;
 use App\Models\RoomAuthToken;
 use App\Prometheus\Counter;
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +27,7 @@ class RoomAuthenticate
      *
      * If a room auth token is provided, but is invalid an error is return and the request isn't continued.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  bool  $allowUnAuthenticated  Allow users that are unauthenticated to pass
      * @return mixed
      */

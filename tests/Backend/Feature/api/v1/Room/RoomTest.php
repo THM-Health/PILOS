@@ -10,7 +10,7 @@ use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Enums\ServerHealth;
 use App\Events\RoomEnded;
-use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResource;
 use App\Models\Meeting;
 use App\Models\Permission;
 use App\Models\Role;
@@ -587,6 +587,51 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
             ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
+    }
+
+    /**
+     * Test visibility of room owner for unauthenticated users based on settings.
+     */
+    public function test_hide_owner_from_guests()
+    {
+        // Create a room allowing guests
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+        ]);
+
+        // Case 1: The setting is enabled.
+        // Guests should NOT see the owner information.
+        $this->roomSettings->hide_owner_from_guests = true;
+        $this->roomSettings->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonMissingPath('data.owner');
+
+        // Case 2: The setting is enabled, but the user is authenticated.
+        // Authenticated users should always see the owner information.
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonStructure(['data' => [
+                'owner' => [
+                    'id',
+                    'name',
+                ],
+            ]]);
+
+        // Case 3: The setting is disabled.
+        // Guests should see the owner information.
+        $this->roomSettings->hide_owner_from_guests = false;
+        $this->roomSettings->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonStructure(['data' => [
+                'owner' => [
+                    'id',
+                    'name',
+                ],
+            ]]);
     }
 
     /**

@@ -59,8 +59,8 @@ describe("Admin room types new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
-      .should("include.text", "admin.breakcrumbs.room_types.new");
+      .should("include.text", "admin.breadcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.new");
 
     cy.get('[data-test="room-type-name-field"]')
       .should("be.visible")
@@ -72,8 +72,8 @@ describe("Admin room types new", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
-      .should("include.text", "admin.breakcrumbs.room_types.new");
+      .should("include.text", "admin.breadcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -736,10 +736,10 @@ describe("Admin room types new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
   });
 

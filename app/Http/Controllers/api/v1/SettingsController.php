@@ -6,9 +6,9 @@ use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateSettings;
-use App\Http\Resources\Config;
-use App\Http\Resources\Settings;
+use App\Http\Requests\UpdateSettingsRequest;
+use App\Http\Resources\ConfigResource;
+use App\Http\Resources\SettingsResource;
 use App\Settings\BannerSettings;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
@@ -30,7 +30,7 @@ class SettingsController extends Controller
             return ! in_array($style, LinkButtonStyle::getDeprecated());
         });
 
-        return (new Settings)->additional([
+        return (new SettingsResource)->additional([
             'meta' => [
                 'link_btn_styles' => $linkStyles,
                 'link_targets' => LinkTarget::cases(),
@@ -42,9 +42,9 @@ class SettingsController extends Controller
     /**
      * Update application config
      *
-     * @return Config
+     * @return ConfigResource
      */
-    public function update(UpdateSettings $request)
+    public function update(UpdateSettingsRequest $request)
     {
         $generalSettings = app(GeneralSettings::class);
         $themeSettings = app(ThemeSettings::class);
@@ -184,6 +184,7 @@ class SettingsController extends Controller
         $roomSettings->auto_delete_never_used_period = $request->enum('room_auto_delete_never_used_period', TimePeriod::class);
         $roomSettings->auto_delete_deadline_period = $request->enum('room_auto_delete_deadline_period', TimePeriod::class);
         $roomSettings->file_terms_of_use = $request->input('room_file_terms_of_use');
+        $roomSettings->hide_owner_from_guests = $request->boolean('room_hide_owner_from_guests');
 
         $userSettings->password_change_allowed = $request->boolean('user_password_change_allowed');
 

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
@@ -95,7 +96,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Rooms the user is owner of
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function myRooms()
     {
@@ -105,7 +106,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * The user favorites
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function roomFavorites()
     {
@@ -153,7 +154,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Rooms the user is member of
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function sharedRooms()
     {

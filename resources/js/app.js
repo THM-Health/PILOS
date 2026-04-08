@@ -74,3 +74,12 @@ if (
   app = createApp(App);
   setupApp(app);
 }
+
+// preventing iOS input auto zooming
+if (navigator.userAgent.indexOf("iPhone") > -1) {
+  const viewportMetaTag = document.querySelector("[name=viewport]");
+  viewportMetaTag.setAttribute(
+    "content",
+    viewportMetaTag.getAttribute("content") + ", maximum-scale=1",
+  );
+}

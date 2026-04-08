@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\CustomErrorMessages;
 use App\Models\RoomFile;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,7 +33,7 @@ class RoomFileService
         return true;
     }
 
-    public function download(): \Illuminate\Http\Response
+    public function download(): Response
     {
         Log::info('Download room file {file}', ['file' => $this->file->getLogLabel()]);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SetApplicationLocale
@@ -14,7 +15,7 @@ class SetApplicationLocale
      * Otherwise the locale of the session or the locale from the 'Accept-Language'-Header will be used if set. For the
      * last instance the fallback locale of the application will be used.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)

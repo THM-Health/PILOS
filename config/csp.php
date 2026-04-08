@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\CSPPolicy;
+use App\Support\LaravelViteNonceGenerator;
 
 return [
 
@@ -36,5 +37,5 @@ return [
     /*
      * The class responsible for generating the nonces used in inline tags and headers.
      */
-    'nonce_generator' => \App\Support\LaravelViteNonceGenerator::class,
+    'nonce_generator' => LaravelViteNonceGenerator::class,
 ];

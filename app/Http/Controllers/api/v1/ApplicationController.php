@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Config;
-use App\Http\Resources\Settings;
-use App\Http\Resources\User as UserResource;
+use App\Http\Resources\ConfigResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
@@ -13,11 +12,11 @@ class ApplicationController extends Controller
     /**
      * Load basic application data, like settings
      *
-     * @return Config
+     * @return ConfigResource
      */
     public function config()
     {
-        return new Config;
+        return new ConfigResource;
     }
 
     /**

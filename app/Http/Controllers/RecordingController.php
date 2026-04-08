@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\CustomErrorMessages;
 use App\Models\Recording;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -12,12 +13,12 @@ use ZipStream\ZipStream;
 
 class RecordingController extends Controller
 {
-    public function presentationResource(Recording $recording, string $resource): \Illuminate\Http\Response
+    public function presentationResource(Recording $recording, string $resource): Response
     {
         return $this->resource('presentation', $recording, $resource);
     }
 
-    public function resource(string $formatName, Recording $recording, string $resource = 'index.html'): \Illuminate\Http\Response
+    public function resource(string $formatName, Recording $recording, string $resource = 'index.html'): Response
     {
         // Get format with the given name of the recording
         $format = $recording->formats()->where('format', $formatName)->firstOrFail();

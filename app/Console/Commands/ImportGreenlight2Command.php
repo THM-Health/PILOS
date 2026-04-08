@@ -13,11 +13,11 @@ use App\Settings\GeneralSettings;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\progress;
@@ -108,7 +108,7 @@ class ImportGreenlight2Command extends Command
             return 2;
         }
 
-        Config::set('database.connections.greenlight', [
+        config(['database.connections.greenlight' => [
             'driver' => 'pgsql',
             'host' => $this->argument('host'),
             'database' => $this->argument('database'),
@@ -120,7 +120,7 @@ class ImportGreenlight2Command extends Command
             'prefix_indexes' => true,
             'schema' => 'public',
             'sslmode' => 'prefer',
-        ]);
+        ]]);
 
         $requireAuth = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')?->value == true;
         $users = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest']);
@@ -454,7 +454,7 @@ class ImportGreenlight2Command extends Command
                     $this->importedPresentationFiles[] = $file->path;
 
                     $created++;
-                } catch (\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException $e) {
+                } catch (FileNotFoundException $e) {
                     $failed++;
 
                     continue;
