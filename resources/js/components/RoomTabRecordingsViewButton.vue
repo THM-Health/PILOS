@@ -64,8 +64,6 @@
 </template>
 <script setup>
 import { ref } from "vue";
-import { useSettingsStore } from "../stores/settings.js";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   roomAuthToken: {
@@ -108,21 +106,8 @@ const props = defineProps({
 
 const modalVisible = ref(false);
 
-const settingsStore = useSettingsStore();
-const router = useRouter();
-
 function viewFormatUrl(format) {
-  const baseUrl = settingsStore.getSetting("general.base_url");
-
-  const roomHref = router.resolve({
-    name: "rooms.view",
-    params: { id: props.roomId },
-  }).href;
-
-  const url = new URL(
-    `${roomHref}/recordings/${props.recordingId}/formats/${format.id}`,
-    baseUrl,
-  );
+  const url = new URL(format.url);
 
   if (props.roomAuthToken) {
     url.searchParams.set("room_auth_token", props.roomAuthToken.id);

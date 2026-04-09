@@ -31,8 +31,7 @@ describe("Rooms view recordings recording actions", function () {
           .and(
             "have.attr",
             "href",
-            Cypress.config("baseUrl") +
-              "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1",
+            "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1",
           )
           .and("have.attr", "rel", "opener")
           .and("have.attr", "target", "_blank");
@@ -42,8 +41,7 @@ describe("Rooms view recordings recording actions", function () {
           .and(
             "have.attr",
             "href",
-            Cypress.config("baseUrl") +
-              "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
+            "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
           )
           .and("have.attr", "rel", "opener")
           .and("have.attr", "target", "_blank");
@@ -53,8 +51,7 @@ describe("Rooms view recordings recording actions", function () {
           .and(
             "have.attr",
             "href",
-            Cypress.config("baseUrl") +
-              "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3",
+            "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3",
           )
           .and("have.attr", "rel", "opener")
           .and("have.attr", "target", "_blank");
@@ -64,8 +61,7 @@ describe("Rooms view recordings recording actions", function () {
           .and(
             "have.attr",
             "href",
-            Cypress.config("baseUrl") +
-              "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/4",
+            "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/4",
           )
           .and("have.attr", "rel", "opener")
           .and("have.attr", "target", "_blank");
@@ -139,8 +135,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1?room_auth_token=roomAuthToken&room_auth_token_type=0",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1?room_auth_token=roomAuthToken&room_auth_token_type=0",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
@@ -150,8 +145,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2?room_auth_token=roomAuthToken&room_auth_token_type=0",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2?room_auth_token=roomAuthToken&room_auth_token_type=0",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
@@ -161,8 +155,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3?room_auth_token=roomAuthToken&room_auth_token_type=0",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3?room_auth_token=roomAuthToken&room_auth_token_type=0",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
@@ -172,8 +165,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/4?room_auth_token=roomAuthToken&room_auth_token_type=0",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/4?room_auth_token=roomAuthToken&room_auth_token_type=0",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
@@ -363,8 +355,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1?room_auth_token=roomAuthToken&room_auth_token_type=1",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1?room_auth_token=roomAuthToken&room_auth_token_type=1",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
@@ -374,8 +365,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2?room_auth_token=roomAuthToken&room_auth_token_type=1",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2?room_auth_token=roomAuthToken&room_auth_token_type=1",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
@@ -385,8 +375,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3?room_auth_token=roomAuthToken&room_auth_token_type=1",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3?room_auth_token=roomAuthToken&room_auth_token_type=1",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
@@ -396,8 +385,7 @@ describe("Rooms view recordings recording actions", function () {
       .and(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") +
-          "/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/4?room_auth_token=roomAuthToken&room_auth_token_type=1",
+        "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/4?room_auth_token=roomAuthToken&room_auth_token_type=1",
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
