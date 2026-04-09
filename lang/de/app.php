@@ -64,7 +64,6 @@ return [
     'flash' => [
         'client_error' => 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
         'guests_only' => 'Die Anfrage ist nur für nicht angemeldete Benutzer gestattet!',
-        'popup_blocked' => 'Ihr Browser hat das Öffnen eines neuen Fensters blockiert. Bitte erlauben Sie das Öffnen von Popups für diese Seite und versuchen Sie es erneut.',
         'server_error' => [
             'empty_message' => 'Es ist ein Fehler auf dem Server aufgetreten!',
             'error_code' => 'Fehlercode: :statusCode',
