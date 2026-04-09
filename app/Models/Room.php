@@ -170,7 +170,7 @@ class Room extends Model
      */
     public function recordings()
     {
-        return $this->hasMany(Recording::class);
+        return $this->hasMany(Recording::class)->chaperone();
     }
 
     /**
