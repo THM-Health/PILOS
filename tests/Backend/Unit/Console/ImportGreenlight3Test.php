@@ -17,10 +17,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\Backend\TestCase;
+use Tests\Backend\Unit\Console\helper\Greenlight3Presentation;
 use Tests\Backend\Unit\Console\helper\Greenlight3Room;
+use Tests\Backend\Unit\Console\helper\Greenlight3SharedAccess;
 use Tests\Backend\Unit\Console\helper\Greenlight3User;
-use Tests\Backend\Unit\Console\helper\GreenlightPresentation;
-use Tests\Backend\Unit\Console\helper\GreenlightSharedAccess;
 
 class ImportGreenlight3Test extends TestCase
 {
@@ -249,19 +249,19 @@ class ImportGreenlight3Test extends TestCase
 
         // Create fake presentations
         $presentations = [];
-        $presentations[] = new GreenlightPresentation('1', 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
-        $presentations[] = new GreenlightPresentation('2', 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
-        $presentations[] = new GreenlightPresentation('3', '20yeie1yac7uy8pnjbpr44oaxbir424i', '3testvongpresiher.pdf');
+        $presentations[] = new Greenlight3Presentation('1', 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
+        $presentations[] = new Greenlight3Presentation('2', 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
+        $presentations[] = new Greenlight3Presentation('3', '20yeie1yac7uy8pnjbpr44oaxbir424i', '3testvongpresiher.pdf');
 
         // Create fake shared accesses
         $sharedAccesses = [];
-        $sharedAccesses[] = new GreenlightSharedAccess('1', '1', '2');
-        $sharedAccesses[] = new GreenlightSharedAccess('2', '1', '3');  // shared access should be applied for existing users
-        $sharedAccesses[] = new GreenlightSharedAccess('3', '1', '4');
+        $sharedAccesses[] = new Greenlight3SharedAccess('1', '1', '2');
+        $sharedAccesses[] = new Greenlight3SharedAccess('2', '1', '3');  // shared access should be applied for existing users
+        $sharedAccesses[] = new Greenlight3SharedAccess('3', '1', '4');
 
-        $sharedAccesses[] = new GreenlightSharedAccess('4', '1', '99'); // invalid user id
-        $sharedAccesses[] = new GreenlightSharedAccess('5', '7', '1');  // room that has an invalid owner
-        $sharedAccesses[] = new GreenlightSharedAccess('6', '8', '1');  // room that already exists should not be modified
+        $sharedAccesses[] = new Greenlight3SharedAccess('4', '1', '99'); // invalid user id
+        $sharedAccesses[] = new Greenlight3SharedAccess('5', '7', '1');  // room that has an invalid owner
+        $sharedAccesses[] = new Greenlight3SharedAccess('6', '8', '1');  // room that already exists should not be modified
 
         // Mock database connections with fake data
         $this->fakeDatabase(new Collection($users), new Collection($rooms), new Collection($sharedAccesses), new Collection($presentations));

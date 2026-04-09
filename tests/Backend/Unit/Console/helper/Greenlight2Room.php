@@ -23,7 +23,7 @@ class Greenlight2Room
     /**
      * GreenlightRoom constructor.
      */
-    public function __construct(string $id, string $user_id, string $name, string $uid, ?string $access_code = null, array $room_settings = [], bool $deleted = false)
+    public function __construct(int $id, int $user_id, string $name, string $uid, ?string $access_code = null, array $room_settings = [], bool $deleted = false)
     {
         $this->id = $id;
         $this->user_id = $user_id;

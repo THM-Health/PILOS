@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Backend\Unit\Console\helper;
 
-class GreenlightPresentation
+class Greenlight3Presentation
 {
     public $room_id;
 
