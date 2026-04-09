@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BBB API URL is now automatically normalized to include a trailing `/` when adding BBB servers using the provision command ([#3011], [#3014])
 - Provision command data format to support partial provision using optional sections and fields ([#3014])
+- Show a login button instead of a reload button for guests without access to a room ([#2321])
 
 ### Fixed
 
@@ -687,6 +688,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2304]: https://github.com/THM-Health/PILOS/pull/2304
 [#2313]: https://github.com/THM-Health/PILOS/issues/2313
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
+[#2321]: https://github.com/THM-Health/PILOS/pull/2321
 [#2325]: https://github.com/THM-Health/PILOS/pull/2325
 [#2345]: https://github.com/THM-Health/PILOS/issues/2345
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
