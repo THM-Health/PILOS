@@ -453,7 +453,7 @@ class RoomController extends Controller
 
                 Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-                abort(403, CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value);
+                abort(403, CustomErrorMessages::GUESTS_NOT_ALLOWED->value);
             }
 
             if ($room->access_code == null) {
@@ -495,7 +495,7 @@ class RoomController extends Controller
         } elseif ($request->type === RoomAuthTokenType::PERSONALIZED_LINK->value) {
             if (Auth::user()) {
                 // current user is authenticated
-                abort(CustomStatusCodes::GUESTS_ONLY->value, CustomErrorMessages::ROOM_GUESTS_ONLY->value);
+                abort(CustomStatusCodes::GUESTS_ONLY->value, CustomErrorMessages::GUESTS_ONLY->value);
             }
 
             $personalizedLink = RoomPersonalizedLink::where('token', $request->personalized_link_token)

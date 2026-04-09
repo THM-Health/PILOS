@@ -65,7 +65,7 @@ class Recording extends Model
      */
     public function formats()
     {
-        return $this->hasMany(RecordingFormat::class);
+        return $this->hasMany(RecordingFormat::class)->chaperone();
     }
 
     /**

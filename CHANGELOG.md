@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Room description editor not closed after 403 error on save ([#2997], [#3000])
+- Recording access blocked in some browsers due to restrictions on opening new windows without user interaction ([#2851], [#2901])
 
 ## [v4.14.0] - 2026-04-07
 
@@ -736,6 +737,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2809]: https://github.com/THM-Health/PILOS/pull/2809
 [#2843]: https://github.com/THM-Health/PILOS/issues/2843
 [#2844]: https://github.com/THM-Health/PILOS/pull/2844
+[#2851]: https://github.com/THM-Health/PILOS/issues/2851
 [#2854]: https://github.com/THM-Health/PILOS/issues/2854
 [#2855]: https://github.com/THM-Health/PILOS/pull/2855
 [#2856]: https://github.com/THM-Health/PILOS/issues/2856
@@ -744,6 +746,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2874]: https://github.com/THM-Health/PILOS/pull/2874
 [#2879]: https://github.com/THM-Health/PILOS/issues/2879
 [#2880]: https://github.com/THM-Health/PILOS/pull/2880
+[#2901]: https://github.com/THM-Health/PILOS/pull/2901
 [#2905]: https://github.com/THM-Health/PILOS/issues/2905
 [#2906]: https://github.com/THM-Health/PILOS/issues/2906
 [#2910]: https://github.com/THM-Health/PILOS/pull/2910

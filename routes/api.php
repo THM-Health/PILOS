@@ -10,7 +10,6 @@ use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\MeetingController;
 use App\Http\Controllers\api\v1\PermissionController;
 use App\Http\Controllers\api\v1\RecordingController;
-use App\Http\Controllers\api\v1\RecordingFormatController;
 use App\Http\Controllers\api\v1\RoleController;
 use App\Http\Controllers\api\v1\RoomController;
 use App\Http\Controllers\api\v1\RoomFileController;
@@ -180,7 +179,6 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
             Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get');
             Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index');
-            Route::get('rooms/{room}/recordings/{recording}/formats/{format}', [RecordingFormatController::class, 'show'])->name('rooms.recordings.formats.show')->middleware('can:viewRecordingFormat,room,format');
 
         });
 
