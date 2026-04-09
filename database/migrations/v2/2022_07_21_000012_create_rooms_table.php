@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use Illuminate\Database\Migrations\Migration;

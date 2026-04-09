@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => ':attribute muss akzeptiert werden.',
     'accepted_if' => ':attribute muss akzeptiert werden, wenn :other :value ist.',

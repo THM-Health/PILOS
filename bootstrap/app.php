@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Exceptions\Handler;
 use App\Http\Kernel;
 use Illuminate\Contracts\Debug\ExceptionHandler;

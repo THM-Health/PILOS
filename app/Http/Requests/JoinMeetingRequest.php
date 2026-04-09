@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Rules\ValidName;
@@ -13,7 +15,7 @@ class JoinMeetingRequest extends FormRequest
         $personalizedLink = Context::getHidden("room.{$this->room->id}.personalized_link");
 
         $rules = [
-            'name' => auth()->check() || $personalizedLink ? [] : ['required', 'min:2', 'max:50',  new ValidName],
+            'name' => auth()->check() || $personalizedLink ? [] : ['bail', 'required', 'min:2', 'max:50', new ValidName],
             'dark_mode' => ['sometimes', 'boolean'],
         ];
 

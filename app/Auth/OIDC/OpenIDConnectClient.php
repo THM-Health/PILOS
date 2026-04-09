@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Heavily inspired by https://github.com/jumbojett/OpenID-Connect-PHP/pull/488
  *

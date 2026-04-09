@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use App\Enums\CustomErrorMessages;
@@ -61,7 +63,7 @@ class RoomAuthenticate
             // Retrieve the validated input
             $validated = $validator->validated();
             $providedRoomAuthToken = $validated['room_auth_token'];
-            $providedRoomAuthTokenType = RoomAuthTokenType::from($validated['room_auth_token_type']);
+            $providedRoomAuthTokenType = RoomAuthTokenType::from((int) $validated['room_auth_token_type']);
 
             // Room Auth Token was provided and is a UUID
             $roomAuthToken = RoomAuthToken::where('id', $providedRoomAuthToken)

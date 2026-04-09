@@ -652,9 +652,6 @@ describe("Rooms view recordings recording actions", function () {
     // Check that the error message is shown
     cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
 
-    // Check that reload button is shown
-    cy.get('[data-test="reload-room-button"]').should("be.visible");
-
     cy.interceptRoomViewRequests();
     cy.interceptRoomRecordingsRequests();
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Auth\LDAP\LDAPServiceProvider;
 use App\Auth\OIDC\OIDCServiceProvider;
 use App\Auth\Shibboleth\ShibbolethServiceProvider;

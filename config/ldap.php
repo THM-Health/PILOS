@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $ldapEnabled = env('LDAP_ENABLED', false);
 
 return [

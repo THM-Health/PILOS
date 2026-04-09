@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Code d\'accès',
     'auth_throttled' => 'Trop de tentatives. Merci de retenter dans :try_again secondes.',
