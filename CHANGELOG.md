@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BBB API URL is now automatically normalized to include a trailing `/` when adding BBB servers using the provision command ([#3011], [#3014])
 - Provision command data format to support partial provision using optional sections and fields ([#3014])
-- Show login button instead of reload button in room can only be used by authenticated users view ([#2321])
+- Show a login button instead of a reload button for guests without access to a room ([#2321])
 
 ### Fixed
 
