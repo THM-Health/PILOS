@@ -9,7 +9,7 @@
         if (window.opener) {
             window.opener.postMessage(
                 {
-                    type: "file_not_found",
+                    type: @json(\App\Enums\CustomErrorMessages::NOT_FOUND->value)
                 },
                 "{{config('app.url')}}"
             );

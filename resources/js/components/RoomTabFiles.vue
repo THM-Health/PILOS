@@ -312,6 +312,7 @@ import {
   HTTP_GUESTS_ONLY,
   HTTP_ROOM_INVALID_AUTH_TOKEN,
   HTTP_ROOM_REQUIRE_CODE,
+  HTTP_NOT_FOUND,
 } from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
@@ -444,7 +445,10 @@ function handleFileErrorMessages(event) {
   // Check origin
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
   if (event.data?.type === null || event.data?.type === undefined) return;
-  if (event.data.type === HTTP_FILE_NOT_FOUND) {
+  if (
+    event.data.type === HTTP_FILE_NOT_FOUND ||
+    event.data.type === HTTP_NOT_FOUND
+  ) {
     // File not found
     toast.error(t("rooms.flash.file_gone"));
     loadData();

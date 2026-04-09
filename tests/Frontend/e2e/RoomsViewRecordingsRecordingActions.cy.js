@@ -506,7 +506,7 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.wait("@roomRecordingsRequest");
 
-    // Check with 404 error (recording not found / already deleted)
+    // Check with file_not_found error (recording not found / already deleted)
     cy.fixture("roomRecordings.json").then((roomRecordings) => {
       roomRecordings.data = roomRecordings.data.slice(0, 3);
       roomRecordings.meta.to = 3;
@@ -532,6 +532,34 @@ describe("Rooms view recordings recording actions", function () {
     // Check that error message is shown and that recording is not shown anymore
     cy.checkToastMessage("rooms.flash.recording_gone");
     cy.get('[data-test="room-recording-item"]').should("have.length", 3);
+    cy.get('[data-test="room-recordings-view-dialog"]').should("not.exist");
+
+    // Check with not_found error (not found / already deleted)
+    cy.fixture("roomRecordings.json").then((roomRecordings) => {
+      roomRecordings.data = roomRecordings.data.slice(0, 2);
+      roomRecordings.meta.to = 2;
+      roomRecordings.meta.total = 2;
+      roomRecordings.meta.total_no_filter = 2;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+        statusCode: 200,
+        body: roomRecordings,
+      }).as("roomRecordingsRequest");
+    });
+
+    cy.window().then(($window) => {
+      const message = {
+        type: "not_found",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check recordings are reloaded
+    cy.wait("@roomRecordingsRequest");
+
+    // Check that error message is shown and that recording is not shown anymore
+    cy.checkToastMessage("rooms.flash.recording_gone");
+    cy.get('[data-test="room-recording-item"]').should("have.length", 2);
     cy.get('[data-test="room-recordings-view-dialog"]').should("not.exist");
 
     // Check forbidden error

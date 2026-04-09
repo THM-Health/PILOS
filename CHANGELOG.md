@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
 - Recording access blocked in some browsers due to restrictions on opening new windows without user interaction ([#2851], [#2901])
 
 ## [v4.14.0] - 2026-04-07

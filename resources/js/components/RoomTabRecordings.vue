@@ -321,6 +321,7 @@ import {
   HTTP_GUESTS_ONLY,
   HTTP_ROOM_INVALID_AUTH_TOKEN,
   HTTP_ROOM_REQUIRE_CODE,
+  HTTP_NOT_FOUND,
 } from "../constants/httpCustomErrorMessages.js";
 import EventBus from "../services/EventBus.js";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
@@ -469,7 +470,10 @@ function handleRecordingErrorMessages(event) {
   // Check origin
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
   if (event.data?.type === null || event.data?.type === undefined) return;
-  if (event.data.type === HTTP_FILE_NOT_FOUND) {
+  if (
+    event.data.type === HTTP_FILE_NOT_FOUND ||
+    event.data.type === HTTP_NOT_FOUND
+  ) {
     // Recording not found
     toast.error(t("rooms.flash.recording_gone"));
     loadData();

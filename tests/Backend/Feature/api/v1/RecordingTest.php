@@ -1025,7 +1025,8 @@ class RecordingTest extends TestCase
 
         $this->actingAs($otherRoom->owner)
             ->get(route('rooms.recordings.formats.show', ['room' => $otherRoom->id, 'recording' => $recording->id, 'format' => $format->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertSee('type: "not_found"', false);
     }
 
     public function test_show_url()
@@ -1373,7 +1374,8 @@ class RecordingTest extends TestCase
 
         // Try to access other format
         $this->actingAs($room->owner)->get(route('recording.resource', ['formatName' => 'podcast', 'recording' => $recording->id, 'resource' => 'audio.ogg']))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertSee('type: "not_found"', false);
 
         // Check if permission to access the resource are bound to the session
         $this->flushSession();

@@ -948,13 +948,14 @@ class FileTest extends TestCase
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->get($download_link)
-            ->assertNotFound();
+            ->assertSee('type: "not_found"', false);
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
         $this->actingAs($this->room->owner)->get($download_link)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertSee('type: "not_found"', false);
     }
 
     /**

@@ -15,4 +15,5 @@ enum CustomErrorMessages: string
     case GUESTS_ONLY = 'guests_only';
     case FORBIDDEN = 'forbidden';
     case FILE_NOT_FOUND = 'file_not_found';
+    case NOT_FOUND = 'not_found';
 }

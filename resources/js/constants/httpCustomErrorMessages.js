@@ -7,3 +7,4 @@ export const HTTP_GUESTS_NOT_ALLOWED = "guests_not_allowed";
 export const HTTP_GUESTS_ONLY = "guests_only";
 export const HTTP_FORBIDDEN = "forbidden";
 export const HTTP_FILE_NOT_FOUND = "file_not_found";
+export const HTTP_NOT_FOUND = "not_found";
