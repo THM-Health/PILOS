@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ServerStatus;
 use App\Models\Server;
 use Illuminate\Database\Migrations\Migration;

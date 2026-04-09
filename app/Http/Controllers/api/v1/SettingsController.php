@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\LinkButtonStyle;
@@ -132,7 +134,7 @@ class SettingsController extends Controller
             $path = $request->file('bbb_logo_file')->store('images', 'public');
             $url = Storage::url($path);
             $bigBlueButtonSettings->logo = url($url);
-        } elseif ($request->has('bbb_logo') && trim($request->input('bbb_logo') != '')) {
+        } elseif ($request->has('bbb_logo') && $request->input('bbb_logo') != '') {
             $bigBlueButtonSettings->logo = $request->input('bbb_logo');
         } else {
             $bigBlueButtonSettings->logo = null;
@@ -143,7 +145,7 @@ class SettingsController extends Controller
             $path = $request->file('bbb_logo_dark_file')->store('images', 'public');
             $url = Storage::url($path);
             $bigBlueButtonSettings->logo_dark = url($url);
-        } elseif ($request->has('bbb_logo_dark') && trim($request->input('bbb_logo_dark') != '')) {
+        } elseif ($request->has('bbb_logo_dark') && $request->input('bbb_logo_dark') != '') {
             $bigBlueButtonSettings->logo_dark = $request->input('bbb_logo_dark');
         } else {
             $bigBlueButtonSettings->logo_dark = null;

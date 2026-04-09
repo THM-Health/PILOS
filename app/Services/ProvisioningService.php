@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Enums\ServerStatus;
@@ -315,7 +317,7 @@ class SettingsProvisioner
             foreach ($items as $name => $value) {
                 info("Provisioning setting '$sect.$name'");
                 if ($section->{$name} instanceof TimePeriod) {
-                    $value = TimePeriod::from($value);
+                    $value = TimePeriod::from((int) $value);
                 }
                 $section->{$name} = $value;
             }

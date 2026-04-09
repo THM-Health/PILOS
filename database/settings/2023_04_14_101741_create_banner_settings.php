@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use Spatie\LaravelSettings\Migrations\SettingsMigration;

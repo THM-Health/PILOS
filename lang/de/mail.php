@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'action_url' => 'Wenn Sie Probleme haben, den ":actionText" Button zu drücken, kopieren Sie die nachfolgende URL und fügen diese in Ihren Browser ein:',
     'email_changed' => [
