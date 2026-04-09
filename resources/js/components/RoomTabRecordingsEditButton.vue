@@ -198,13 +198,7 @@ const charactersLeftDescription = computed(() => {
  */
 function showModal() {
   newDescription.value = props.description;
-  newFormats.value = _.cloneDeep(props.formats).map((format) => {
-    return {
-      id: format.id,
-      format: format.format,
-      disabled: format.disabled,
-    };
-  });
+  newFormats.value = _.cloneDeep(props.formats);
   newAccess.value = props.access;
   formErrors.clear();
   modalVisible.value = true;
@@ -225,7 +219,12 @@ function save() {
       data: {
         description: newDescription.value,
         access: newAccess.value,
-        formats: newFormats.value,
+        formats: newFormats.value.map((format) => {
+          return {
+            id: format.id,
+            disabled: format.disabled,
+          };
+        }),
       },
     })
     .then(() => {

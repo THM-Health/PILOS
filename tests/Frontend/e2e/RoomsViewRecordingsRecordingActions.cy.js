@@ -1106,22 +1106,18 @@ describe("Rooms view recordings recording actions", function () {
         formats: [
           {
             id: 1,
-            format: "notes",
             disabled: true,
           },
           {
             id: 2,
-            format: "podcast",
             disabled: true,
           },
           {
             id: 3,
-            format: "presentation",
             disabled: true,
           },
           {
             id: 4,
-            format: "screenshare",
             disabled: false,
           },
         ],
