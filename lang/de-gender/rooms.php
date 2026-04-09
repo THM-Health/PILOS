@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Zugangscode',
     'become_member' => 'Mitglied werden',

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Actions',
     'back' => 'Back',
@@ -64,7 +66,6 @@ return [
     'flash' => [
         'client_error' => 'An unknown error occurred in the application!',
         'guests_only' => 'The request can only be made by guests!',
-        'popup_blocked' => 'Your browser has blocked opening a new window. Please allow pop-ups to open for this page and try again.',
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
             'error_code' => 'Error code: :statusCode',

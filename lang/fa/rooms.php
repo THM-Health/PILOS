@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'کد دسترسی',
     'auth_throttled' => 'تعداد دفعات تلاش بیش از حد مجاز است. لطفاً پس از :try_again ثانیه مجدداً تلاش کنید.',

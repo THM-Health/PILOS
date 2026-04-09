@@ -1,0 +1,46 @@
+{
+  "servers": {
+    "add": [
+      {
+        "name": "Default server",
+        "description": "Our default BBB backend",
+        "endpoint": "https://default.bbb.example.biz",
+        "secret": "Xuper5ecr37",
+        "strength": 5,
+        "status": "enabled"
+      }
+    ]
+  },
+
+  "server_pools": {
+    "add": []
+  },
+
+  "room_types": {},
+
+  "roles": {
+    "add": [
+      {
+        "name": "Admin",
+        "permissions": {
+          "rooms": ["viewAll", "manage"],
+          "meetings": ["viewAny"],
+          "settings": ["viewAny", "update"],
+          "users": ["viewAny", "view", "update", "create", "delete"],
+          "roles": ["viewAny", "view"],
+          "roomTypes": ["view", "update", "create", "delete"],
+          "servers": ["viewAny", "view"],
+          "serverPools": ["viewAny", "view"]
+        }
+      }
+    ]
+  },
+
+  "settings": {
+    "general": {
+      "name": "Example company - PILOS",
+      "default_timezone": "Europe/Berlin"
+    },
+    "recording": {}
+  }
+}

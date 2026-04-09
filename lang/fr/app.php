@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Actions',
     'back' => 'Retour',
@@ -64,7 +66,6 @@ return [
     'flash' => [
         'client_error' => 'Une erreur inconnue s\'est produite dans l\'application !',
         'guests_only' => 'La demande ne peut être faite que par les invités !',
-        'popup_blocked' => 'Votre navigateur a bloqué une nouvelle fenêtre. Merci d\'autoriser les pop-ups à s\'ouvrir pour cette page puis réessayez.',
         'server_error' => [
             'empty_message' => 'Une erreur s\'est produite sur le serveur lors de la requête !',
             'error_code' => 'Code d\'erreur: :statusCode',

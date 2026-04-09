@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomErrorMessages;
@@ -9,16 +11,18 @@ use App\Enums\RoomSortingType;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateRoom;
-use App\Http\Requests\JoinMeeting;
+use App\Http\Requests\CreateRoomRequest;
+use App\Http\Requests\JoinMeetingRequest;
 use App\Http\Requests\RoomAuthRequest;
 use App\Http\Requests\ShowRoomsRequest;
-use App\Http\Requests\StartMeeting;
+use App\Http\Requests\StartMeetingRequest;
 use App\Http\Requests\TransferOwnershipRequest;
-use App\Http\Requests\UpdateRoomDescription;
-use App\Http\Requests\UpdateRoomSettings;
+use App\Http\Requests\UpdateRoomDescriptionRequest;
+use App\Http\Requests\UpdateRoomSettingsRequest;
+use App\Http\Resources\MeetingResource;
 use App\Http\Resources\RoomAuthTokenResource;
-use App\Http\Resources\RoomSettings;
+use App\Http\Resources\RoomResource;
+use App\Http\Resources\RoomSettingsResource;
 use App\Models\Room;
 use App\Models\RoomAuthToken;
 use App\Models\RoomPersonalizedLink;
@@ -31,6 +35,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -46,7 +52,7 @@ class RoomController extends Controller
     /**
      * Return a json array with all rooms the user owners or is member of
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\Response
+     * @return AnonymousResourceCollection|Response
      */
     public function index(ShowRoomsRequest $request)
     {
@@ -154,16 +160,16 @@ class RoomController extends Controller
 
         $collection = $collection->paginate($request->per_page);
 
-        return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
+        return RoomResource::collection($collection)->additional($additionalMeta);
     }
 
     /**
      * Store a new created room
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \App\Http\Resources\Room|JsonResponse
+     * @param  Request  $request
+     * @return RoomResource|JsonResponse
      */
-    public function store(CreateRoom $request)
+    public function store(CreateRoomRequest $request)
     {
         if (Auth::user()->hasRoomLimitExceeded()) {
             abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED->value, __('app.errors.room_limit_exceeded'));
@@ -192,29 +198,29 @@ class RoomController extends Controller
 
         Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
 
-        return new \App\Http\Resources\Room($room);
+        return new RoomResource($room);
     }
 
     /**
      * Return all general room details
      *
-     * @return \App\Http\Resources\Room
+     * @return RoomResource
      */
     public function show(Room $room)
     {
-        return (new \App\Http\Resources\Room($room))->withDetails();
+        return (new RoomResource($room))->withDetails();
     }
 
     /**
      * Return all room settings
      *
-     * @return RoomSettings
+     * @return RoomSettingsResource
      */
     public function getSettings(Room $room)
     {
         $this->authorize('viewSettings', $room);
 
-        return new RoomSettings($room);
+        return new RoomSettingsResource($room);
     }
 
     /**
@@ -224,7 +230,7 @@ class RoomController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function start(Room $room, StartMeeting $request)
+    public function start(Room $room, StartMeetingRequest $request)
     {
         $roomService = new RoomService($room);
         $url = $roomService->start()->getJoinUrl($request);
@@ -261,7 +267,7 @@ class RoomController extends Controller
      *
      * @return JsonResponse
      */
-    public function join(Room $room, JoinMeeting $request)
+    public function join(Room $room, JoinMeetingRequest $request)
     {
         $roomService = new RoomService($room);
         $url = $roomService->join()->getJoinUrl($request);
@@ -272,9 +278,9 @@ class RoomController extends Controller
     /**
      * Update room settings
      *
-     * @return RoomSettings
+     * @return RoomSettingsResource
      */
-    public function update(UpdateRoomSettings $request, Room $room)
+    public function update(UpdateRoomSettingsRequest $request, Room $room)
     {
         $room->name = $request->name;
         $room->expert_mode = $request->expert_mode;
@@ -299,15 +305,15 @@ class RoomController extends Controller
 
         Log::info('Changed settings for room {room}', ['room' => $room->getLogLabel()]);
 
-        return new RoomSettings($room);
+        return new RoomSettingsResource($room);
     }
 
     /**
      * Update room description
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function updateDescription(UpdateRoomDescription $request, Room $room)
+    public function updateDescription(UpdateRoomDescriptionRequest $request, Room $room)
     {
         $room->description = $request->description;
 
@@ -327,7 +333,7 @@ class RoomController extends Controller
     /**
      * Delete a room and all related data
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(Room $room)
     {
@@ -341,7 +347,7 @@ class RoomController extends Controller
     /**
      * List of all meeting of the given room
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      *
      * @throws AuthorizationException
      */
@@ -363,13 +369,13 @@ class RoomController extends Controller
         // Get all meeting of the room and sort them, only meetings that are not in the starting phase
         $resource = $room->meetings()->orderByRaw($sortBy.' '.$sortOrder)->whereNotNull('start');
 
-        return \App\Http\Resources\Meeting::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size));
+        return MeetingResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size));
     }
 
     /**
      * add a room to the users favorites
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function addToFavorites(Room $room)
     {
@@ -381,7 +387,7 @@ class RoomController extends Controller
     /**
      * delete a room from the users favorites
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function deleteFromFavorites(Room $room)
     {
@@ -393,7 +399,7 @@ class RoomController extends Controller
     /**
      * transfer the room ownership to another user
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function transferOwnership(Room $room, TransferOwnershipRequest $request)
     {
@@ -449,7 +455,7 @@ class RoomController extends Controller
 
                 Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-                abort(403, CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value);
+                abort(403, CustomErrorMessages::GUESTS_NOT_ALLOWED->value);
             }
 
             if ($room->access_code == null) {
@@ -491,7 +497,7 @@ class RoomController extends Controller
         } elseif ($request->type === RoomAuthTokenType::PERSONALIZED_LINK->value) {
             if (Auth::user()) {
                 // current user is authenticated
-                abort(CustomStatusCodes::GUESTS_ONLY->value, CustomErrorMessages::ROOM_GUESTS_ONLY->value);
+                abort(CustomStatusCodes::GUESTS_ONLY->value, CustomErrorMessages::GUESTS_ONLY->value);
             }
 
             $personalizedLink = RoomPersonalizedLink::where('token', $request->personalized_link_token)

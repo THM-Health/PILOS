@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'إجراءات',
     'back' => 'رجوع',
@@ -64,7 +66,6 @@ return [
     'flash' => [
         'client_error' => 'حدث خطأ غير معروف في التطبيق!',
         'guests_only' => 'هذا الطلب متاح للضيوف فقط!',
-        'popup_blocked' => 'قام المتصفح بحظر فتح نافذة جديدة. يرجى السماح بالنوافذ المنبثقة لهذه الصفحة والمحاولة مرة أخرى.',
         'server_error' => [
             'empty_message' => 'حدث خطأ في الخادم أثناء معالجة الطلب!',
             'error_code' => 'رمز الخطأ: :statusCode',

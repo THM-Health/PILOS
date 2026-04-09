@@ -219,7 +219,12 @@ function save() {
       data: {
         description: newDescription.value,
         access: newAccess.value,
-        formats: newFormats.value,
+        formats: newFormats.value.map((format) => {
+          return {
+            id: format.id,
+            disabled: format.disabled,
+          };
+        }),
       },
     })
     .then(() => {

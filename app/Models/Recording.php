@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\RecordingAccess;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Recording extends Model
@@ -39,7 +43,7 @@ class Recording extends Model
     /**
      * Room the recording belongs to
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function room()
     {
@@ -49,7 +53,7 @@ class Recording extends Model
     /**
      * Meeting the recording belongs to (if available)
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function meeting()
     {
@@ -59,11 +63,11 @@ class Recording extends Model
     /**
      * Formats of the recording (screenshare, notes, etc.)
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function formats()
     {
-        return $this->hasMany(RecordingFormat::class);
+        return $this->hasMany(RecordingFormat::class)->chaperone();
     }
 
     /**

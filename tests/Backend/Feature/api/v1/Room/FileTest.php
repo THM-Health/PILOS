@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\CustomErrorMessages;
@@ -18,7 +20,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -131,12 +132,16 @@ class FileTest extends TestCase
         Storage::disk('local')->assertMissing($this->room->id.'/'.$this->file_toobig->hashName());
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => UploadedFile::fake()->create('virus.txt')])
             ->assertJsonValidationErrors('file');
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     /**
@@ -154,7 +159,7 @@ class FileTest extends TestCase
         // Testing guests without guest access
         $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         $this->room->allow_guests = true;
         $this->room->save();
@@ -371,7 +376,7 @@ class FileTest extends TestCase
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value,
+                'type' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value,
                 'code' => 403,
                 'title' => 'Forbidden',
                 'message' => __('rooms.only_used_by_authenticated_users'),
@@ -414,7 +419,7 @@ class FileTest extends TestCase
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value,
+                'type' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value,
                 'code' => 403,
                 'title' => 'Forbidden',
                 'message' => __('rooms.only_used_by_authenticated_users'),
@@ -440,7 +445,7 @@ class FileTest extends TestCase
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value,
+                'type' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value,
                 'code' => 403,
                 'title' => 'Forbidden',
                 'message' => __('rooms.only_used_by_authenticated_users'),
@@ -858,7 +863,7 @@ class FileTest extends TestCase
             ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
             ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value)
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_GUESTS_ONLY->value,
+                'type' => CustomErrorMessages::GUESTS_ONLY->value,
                 'code' => CustomStatusCodes::GUESTS_ONLY->value,
                 'title' => 'Guests only',
                 'message' => __('app.flash.guests_only'),
@@ -887,7 +892,7 @@ class FileTest extends TestCase
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_FILE_FORBIDDEN->value,
+                'type' => CustomErrorMessages::FORBIDDEN->value,
                 'code' => 403,
                 'title' => 'Forbidden',
                 'message' => __('rooms.flash.file_forbidden'),
@@ -899,7 +904,7 @@ class FileTest extends TestCase
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_FILE_FORBIDDEN->value,
+                'type' => CustomErrorMessages::FORBIDDEN->value,
                 'code' => 403,
                 'title' => 'Forbidden',
                 'message' => __('rooms.flash.file_forbidden'),
@@ -911,7 +916,7 @@ class FileTest extends TestCase
             ->assertForbidden()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_FILE_FORBIDDEN->value,
+                'type' => CustomErrorMessages::FORBIDDEN->value,
                 'code' => 403,
                 'title' => 'Forbidden',
                 'message' => __('rooms.flash.file_forbidden'),
@@ -945,13 +950,14 @@ class FileTest extends TestCase
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->get($download_link)
-            ->assertNotFound();
+            ->assertSee('type: "not_found"', false);
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
         $this->actingAs($this->room->owner)->get($download_link)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertSee('type: "not_found"', false);
     }
 
     /**
@@ -1000,7 +1006,7 @@ class FileTest extends TestCase
             ->assertNotFound()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_FILE_NOT_FOUND->value,
+                'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
                 'code' => 404,
                 'title' => 'File not found',
                 'message' => __('rooms.flash.file_gone'),
@@ -1100,7 +1106,7 @@ class FileTest extends TestCase
             ->assertNotFound()
             ->assertViewIs('new-tab-error')
             ->assertViewHasAll([
-                'type' => CustomErrorMessages::ROOM_FILE_NOT_FOUND->value,
+                'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
                 'code' => 404,
                 'title' => 'File not found',
                 'message' => __('rooms.flash.file_gone'),

@@ -1125,7 +1125,7 @@ describe("Rooms view meetings", function () {
     });
 
     // Reload room
-    cy.get('[data-test="reload-room-button"]').click();
+    cy.reload();
 
     cy.wait("@roomRequest");
 
@@ -2545,7 +2545,7 @@ describe("Rooms view meetings", function () {
     }).as("roomRequest");
 
     // Reload room
-    cy.get('[data-test="reload-room-button"]').click();
+    cy.reload();
 
     cy.wait("@roomRequest");
 
