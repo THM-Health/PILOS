@@ -105,7 +105,7 @@ class ServerProvisioner extends AbstractProvisioner
             $status = ServerStatus::{strtoupper($properties->status)};
             $srv->name = $properties->name;
             $srv->description = $properties->description;
-            $srv->base_url = $properties->endpoint;
+            $srv->base_url = Str::finish($properties->endpoint, '/');
             $srv->secret = $properties->secret;
             $srv->strength = $properties->strength;
             $srv->status = $status;
@@ -208,6 +208,7 @@ class RoleProvisioner extends AbstractProvisioner
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($role) use ($properties) {
+            $permissions = [];
             foreach ($properties->permissions as $group => $perms) {
                 foreach ($perms as $item) {
                     $permName = "$group.$item";

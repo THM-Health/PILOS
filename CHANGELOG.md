@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- BBB API URL is now automatically normalized to include a trailing `/` when adding BBB servers using the provision command ([#3011], [#3014])
+- Provision command data format to support partial provision using optional sections and fields ([#3014])
+
 ### Fixed
 
+- Room description editor not closed after 403 error on save ([#2997], [#3000])
 - Recording access blocked in some browsers due to restrictions on opening new windows without user interaction ([#2851], [#2901])
 
 ## [v4.14.0] - 2026-04-07
@@ -745,8 +751,12 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2911]: https://github.com/THM-Health/PILOS/pull/2911
 [#2912]: https://github.com/THM-Health/PILOS/issues/2912
 [#2913]: https://github.com/THM-Health/PILOS/pull/2913
+[#2997]: https://github.com/THM-Health/PILOS/issues/2997
 [#2998]: https://github.com/THM-Health/PILOS/issues/2998
 [#2999]: https://github.com/THM-Health/PILOS/pull/2999
+[#3000]: https://github.com/THM-Health/PILOS/pull/3000
+[#3011]: https://github.com/THM-Health/PILOS/issues/3011
+[#3014]: https://github.com/THM-Health/PILOS/pull/3014
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.0...develop
