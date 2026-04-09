@@ -21,7 +21,7 @@ class Greenlight2Room
     public $deleted;
 
     /**
-     * GreenlightRoom constructor.
+     * Greenlight2Room constructor.
      */
     public function __construct(int $id, int $user_id, string $name, string $uid, ?string $access_code = null, array $room_settings = [], bool $deleted = false)
     {

@@ -186,7 +186,7 @@ class ImportGreenlight2Command extends Command
      *
      * @param  Collection  $users  Collection with all users found in the greenlight database
      * @param  int  $defaultRole  IDs of the role that should be assigned to local users
-     * @return array Array map of greenlight user ids as key and id of the found/created user as value
+     * @return array<int, int> Array map of greenlight user ids as key and id of the found/created user as value
      */
     protected function importUsers(Collection $users, int $defaultRole, array $providerAuthenticatorMap): array
     {
@@ -309,10 +309,10 @@ class ImportGreenlight2Command extends Command
      *
      * @param  Collection  $rooms  Collection with rooms users found in the greenlight database
      * @param  int  $roomType  ID of the roomtype the rooms should be assigned to
-     * @param  array  $userMap  Array map of greenlight user ids as key and id of the found/created user as value
+     * @param  array<int, int>  $userMap  Array map of greenlight user ids as key and id of the found/created user as value
      * @param  bool  $allowGuests  Are guests allowed to access the room
      * @param  string|null  $prefix  Prefix to add to room names
-     * @return array Array map of greenlight room ids as key and id of the created room as value
+     * @return array<int, int> Array map of greenlight room ids as key and id of the created room as value
      */
     protected function importRooms(Collection $rooms, int $roomType, array $userMap, bool $allowGuests, ?string $prefix): array
     {
@@ -415,10 +415,10 @@ class ImportGreenlight2Command extends Command
     /**
      *  Process room mapping and import the rooms' presentations
      *
-     * @param  array  $roomMap  Array map of greenlight room ids as key and id of the created room as value
+     * @param  array<int, int>  $roomMap  Array map of greenlight room ids as key and id of the created room as value
      * @param  string  $presentationPath  Path to GL2 presentation files in default storage
      */
-    protected function importPresentations(array $roomMap, string $presentationPath)
+    protected function importPresentations(array $roomMap, string $presentationPath): void
     {
         $this->line('Importing presentations for rooms');
 
@@ -475,10 +475,10 @@ class ImportGreenlight2Command extends Command
      * Each user get the moderator role, as that is the greenlight equivalent
      *
      * @param  Collection  $sharedAccesses  Collection of user and room ids for shared room access
-     * @param  array  $roomMap  Array map of greenlight room ids as key and id of the created room as value
-     * @param  array  $userMap  Array map of greenlight user ids as key and id of the found/created user as value
+     * @param  array<int, int>  $roomMap  Array map of greenlight room ids as key and id of the created room as value
+     * @param  array<int, int>  $userMap  Array map of greenlight user ids as key and id of the found/created user as value
      */
-    protected function importSharedAccesses(Collection $sharedAccesses, array $roomMap, array $userMap)
+    protected function importSharedAccesses(Collection $sharedAccesses, array $roomMap, array $userMap): void
     {
         $this->line('Importing shared room accesses');
 
