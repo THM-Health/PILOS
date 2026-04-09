@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'action_url' => 'إذا كنت تواجه صعوبة في الضغط على زر ":actionText"، انسخ الرابط التالي والصقه في متصفحك:',
     'email_changed' => [

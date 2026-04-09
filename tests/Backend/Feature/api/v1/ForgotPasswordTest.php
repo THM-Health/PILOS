@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;

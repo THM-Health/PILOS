@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -46,6 +48,10 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
+        if (! $request->has('query')) {
+            abort(204, 'Too many results');
+        }
+
         $query = User::withNameOrEmail($request->query('query'));
 
         if ($query->count() > config('bigbluebutton.user_search_limit')) {
@@ -95,7 +101,7 @@ class UserController extends Controller
             Validator::make($request->all(), [
                 'role' => 'required|exists:roles,id',
             ])->validate();
-            $resource = $resource->withRole($request->query('role'));
+            $resource = $resource->withRole($request->integer('role'));
         }
 
         if ($request->has('query')) {

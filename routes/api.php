@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Auth\LDAP\LDAPController;
 use App\Http\Controllers\api\v1\ApplicationController;
 use App\Http\Controllers\api\v1\auth\ForgotPasswordController;

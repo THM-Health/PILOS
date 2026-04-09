@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;

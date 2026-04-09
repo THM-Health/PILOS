@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Enums\RoomUserRole;
@@ -36,7 +38,7 @@ class MeetingTest extends TestCase
         parent::setUp();
 
         // Create room and meeting
-        $room = Room::factory()->create(['access_code' => 123456789]);
+        $room = Room::factory()->create(['access_code' => '123456789']);
         $this->meeting = new Meeting;
         $this->meeting->room()->associate($room);
         $this->meeting->save();

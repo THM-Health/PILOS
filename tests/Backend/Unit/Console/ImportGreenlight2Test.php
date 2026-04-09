@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Console;
 
 use App\Enums\RoomLobby;
@@ -16,10 +18,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\Backend\TestCase;
+use Tests\Backend\Unit\Console\helper\Greenlight2Presentation;
 use Tests\Backend\Unit\Console\helper\Greenlight2Room;
+use Tests\Backend\Unit\Console\helper\Greenlight2SharedAccess;
 use Tests\Backend\Unit\Console\helper\Greenlight2User;
-use Tests\Backend\Unit\Console\helper\GreenlightPresentation;
-use Tests\Backend\Unit\Console\helper\GreenlightSharedAccess;
 
 class ImportGreenlight2Test extends TestCase
 {
@@ -45,10 +47,10 @@ class ImportGreenlight2Test extends TestCase
      * Mock DB with fake response of the postgres database
      *
      * @param  bool  $roomAuth  Authentication feature flag
-     * @param  Collection  $users  Collection of Users
-     * @param  Collection  $rooms  Collection Collection of Rooms
-     * @param  Collection  $sharedAccesses  Collection Collection of SharedAccesses
-     * @param  Collection  $presentations  Collection Collection of presentations
+     * @param  Collection  $users  Collection of Greenlight2Users
+     * @param  Collection  $rooms  Collection Collection of Greenlight2Rooms
+     * @param  Collection  $sharedAccesses  Collection Collection of Greenlight2SharedAccesses
+     * @param  Collection  $presentations  Collection Collection of Greenlight2Presentations
      */
     private function fakeDatabase(bool $roomAuth, Collection $users, Collection $rooms, Collection $sharedAccesses, Collection $presentations)
     {
@@ -250,18 +252,18 @@ class ImportGreenlight2Test extends TestCase
 
         // Create fake presentations
         $presentations = [];
-        $presentations[] = new GreenlightPresentation('1', 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
-        $presentations[] = new GreenlightPresentation('2', 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
-        $presentations[] = new GreenlightPresentation('3', '20yeie1yac7uy8pnjbpr44oaxbir424i', '3testvongpresiher.pdf');
+        $presentations[] = new Greenlight2Presentation(1, 'feen6movahheegheeg0ovahche8bu3mo', '1testvongpresiher.pdf');
+        $presentations[] = new Greenlight2Presentation(2, 'xivei7mi0cohtoecacahyaich8ohzaed', '2testvongpresiher.pdf');
+        $presentations[] = new Greenlight2Presentation(3, '20yeie1yac7uy8pnjbpr44oaxbir424i', '3testvongpresiher.pdf');
 
         // Create fake shared accesses
         $sharedAccesses = [];
-        $sharedAccesses[] = new GreenlightSharedAccess(1, 1, 2);
-        $sharedAccesses[] = new GreenlightSharedAccess(2, 1, 3);  // shared access should be applied for existing users
-        $sharedAccesses[] = new GreenlightSharedAccess(2, 1, 4);
-        $sharedAccesses[] = new GreenlightSharedAccess(3, 1, 99); // invalid user id
-        $sharedAccesses[] = new GreenlightSharedAccess(6, 9, 1);  // room that has an invalid owner
-        $sharedAccesses[] = new GreenlightSharedAccess(7, 10, 1);  // room that already exists should not be modified
+        $sharedAccesses[] = new Greenlight2SharedAccess(1, 1, 2);
+        $sharedAccesses[] = new Greenlight2SharedAccess(2, 1, 3);  // shared access should be applied for existing users
+        $sharedAccesses[] = new Greenlight2SharedAccess(2, 1, 4);
+        $sharedAccesses[] = new Greenlight2SharedAccess(3, 1, 99); // invalid user id
+        $sharedAccesses[] = new Greenlight2SharedAccess(6, 9, 1);  // room that has an invalid owner
+        $sharedAccesses[] = new Greenlight2SharedAccess(7, 10, 1);  // room that already exists should not be modified
 
         // Mock database connections with fake data
         $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses), new Collection($presentations));

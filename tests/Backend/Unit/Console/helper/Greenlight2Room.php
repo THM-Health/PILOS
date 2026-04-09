@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Console\helper;
 
 class Greenlight2Room
@@ -19,9 +21,9 @@ class Greenlight2Room
     public $deleted;
 
     /**
-     * GreenlightRoom constructor.
+     * Greenlight2Room constructor.
      */
-    public function __construct(string $id, string $user_id, string $name, string $uid, ?string $access_code = null, array $room_settings = [], bool $deleted = false)
+    public function __construct(int $id, int $user_id, string $name, string $uid, ?string $access_code = null, array $room_settings = [], bool $deleted = false)
     {
         $this->id = $id;
         $this->user_id = $user_id;
