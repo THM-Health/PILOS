@@ -396,7 +396,7 @@ function handleInvalidCode() {
 
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
-  reload(true);
+  reload(false);
 }
 
 /**
@@ -484,7 +484,7 @@ watch(authThrottledFor, (value) => {
 /**
  * Reload the room details/settings
  */
-function reload(ignoreAuthChange = false) {
+function reload(checkForRequireCodeError = true) {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
@@ -505,9 +505,9 @@ function reload(ignoreAuthChange = false) {
     .then((response) => {
       // Room was authenticated but now requires an access code
       if (
+        checkForRequireCodeError &&
         room.value?.authenticated &&
-        !response.data.data.authenticated &&
-        !ignoreAuthChange
+        !response.data.data.authenticated
       ) {
         // Reset access code error states to prevent confusing error state
         accessCodeInvalid.value = null;
