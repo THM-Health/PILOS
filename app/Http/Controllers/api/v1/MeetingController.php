@@ -51,7 +51,7 @@ class MeetingController extends Controller
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         // And-search, sub queries split by space
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {

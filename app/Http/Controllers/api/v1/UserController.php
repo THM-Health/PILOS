@@ -48,7 +48,7 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        if (! $request->has('query')) {
+        if (! $request->filled('query')) {
             abort(204, 'Too many results');
         }
 
@@ -104,7 +104,7 @@ class UserController extends Controller
             $resource = $resource->withRole($request->integer('role'));
         }
 
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->withNameOrEmail($request->query('query'));
         }
 

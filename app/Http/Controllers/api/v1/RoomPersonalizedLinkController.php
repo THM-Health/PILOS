@@ -61,7 +61,7 @@ class RoomPersonalizedLinkController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search query if set
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             // Split search query into single words and search for them in firstname and lastname
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {

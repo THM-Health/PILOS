@@ -60,7 +60,7 @@ class RoomFileController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search filter
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->where('filename', 'like', '%'.$request->query('query').'%');
         }
 

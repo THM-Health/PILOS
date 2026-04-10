@@ -57,7 +57,7 @@ class ServerPoolController extends Controller
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->withName($request->query('query'));
         }
 
