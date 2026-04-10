@@ -1402,6 +1402,8 @@ describe("Rooms view settings", function () {
 
     cy.get('[data-test="room-settings-save-button"]').click();
 
+    cy.wait("@roomSettingsSaveRequest");
+
     // Check that error messages are set
     cy.get('[data-test="room-setting-access_code"]').should(
       "include.text",
@@ -1695,7 +1697,7 @@ describe("Rooms view settings", function () {
         model: "room",
         ids: ["abc-def-123"],
       },
-    });
+    }).as("roomSettingsSaveRequest");
 
     cy.get('[data-test="room-settings-save-button"]').click();
 
@@ -2370,7 +2372,9 @@ describe("Rooms view settings", function () {
     cy.wait("@transferOwnershipRequest");
 
     // Check that redirect to room index page worked and error message is shown
-    cy.url().should("include", "/rooms");
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
 
     cy.checkToastMessage([
       'app.flash.model_not_found.title_{"model":"app.model.room"}',

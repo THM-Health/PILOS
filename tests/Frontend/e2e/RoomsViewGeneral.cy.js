@@ -724,7 +724,7 @@ describe("Room View general", function () {
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
 
-    // Check wit 404 error (room not found) as guest
+    // Check with 404 error (room not found) as guest
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;
