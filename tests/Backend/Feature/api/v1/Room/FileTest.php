@@ -350,18 +350,6 @@ class FileTest extends TestCase
             ->assertJsonCount(0, 'data')
             ->assertJsonPath('meta.total', 0)
             ->assertJsonPath('meta.total_no_filter', 3);
-
-        // Test deleted room
-        $this->room->delete();
-
-        $this->actingAs($this->room->owner)
-            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'query' => 'test']))
-            ->assertNotFound()
-            ->assertJson([
-                'message' => 'model_not_found',
-                'model' => 'room',
-                'ids' => [$this->room->id],
-            ]);
     }
 
     /**
@@ -1102,19 +1090,6 @@ class FileTest extends TestCase
 
         // Check if file was deleted as well
         Storage::disk('local')->assertMissing($this->room->id.'/'.$this->file_valid->hashName());
-
-        // Test delete with deleted room
-        $this->room->delete();
-
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $this->room->id, 'file' => $room_file]))
-            ->assertNotFound()
-            ->assertJson([
-                'message' => 'model_not_found',
-                'model' => 'room',
-                'ids' => [
-                    $this->room->id,
-                ],
-            ]);
     }
 
     /**

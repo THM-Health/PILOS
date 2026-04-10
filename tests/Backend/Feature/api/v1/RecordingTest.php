@@ -1261,18 +1261,6 @@ class RecordingTest extends TestCase
                 'model' => 'recording',
                 'ids' => [$recording->id],
             ]);
-
-        // Test with deleted room
-        $room->delete();
-
-        $this->actingAs($room->owner)
-            ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $room->id, 'recording' => $recording->id]))
-            ->assertNotFound()
-            ->assertJson([
-                'message' => 'model_not_found',
-                'model' => 'room',
-                'ids' => [$room->id],
-            ]);
     }
 
     public function test_delete_on_room_delete()

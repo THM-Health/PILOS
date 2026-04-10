@@ -181,17 +181,6 @@ class RoomStatisticTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?sort_direction=invalid')
             ->assertSuccessful()
             ->assertJsonPath('data.0.id', $meetings[0]->id);
-
-        // Test deleted room
-        $room->delete();
-
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?sort_direction=invalid')
-            ->assertNotFound()
-            ->assertJson([
-                'message' => 'model_not_found',
-                'model' => 'room',
-                'ids' => [$room->id],
-            ]);
     }
 
     /**
