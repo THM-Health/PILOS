@@ -96,6 +96,11 @@ class ServerPoolTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $serverPool1->id]);
 
+        // Filtering by name; empty is ignored, no filtering
+        $this->getJson(route('api.v1.serverPools.index').'?query=')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data');
+
         // Sorting name asc
         $this->getJson(route('api.v1.serverPools.index').'?sort_by=name&sort_direction=asc')
             ->assertSuccessful()

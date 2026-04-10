@@ -188,6 +188,8 @@ class UserTest extends TestCase
         // Filtering by invalid role
         $this->getJson(route('api.v1.users.index').'?role=0')
             ->assertJsonValidationErrors(['role']);
+        $this->getJson(route('api.v1.users.index').'?role=')
+            ->assertJsonValidationErrors(['role']);
 
         // Filtering by name / email
         $this->getJson(route('api.v1.users.index').'?query=J%20Doe')
@@ -221,6 +223,10 @@ class UserTest extends TestCase
 
         // Test without query and order, too many results
         $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+            ->assertNoContent();
+
+        // Test with empty query, too many results
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=')
             ->assertNoContent();
 
         // Test with query and order, too many results

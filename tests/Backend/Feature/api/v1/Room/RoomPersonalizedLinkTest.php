@@ -184,6 +184,10 @@ class RoomPersonalizedLinkTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
+        // Check search; empty is ignored, no filtering
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'query' => '']))
+            ->assertJsonCount($page_size, 'data');
+
         // Check search with whitespaces (all should match in first or last name)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'query' => 'John Doe']))
             ->assertJsonCount(1, 'data')

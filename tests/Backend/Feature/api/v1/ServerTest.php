@@ -123,6 +123,11 @@ class ServerTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $serverDisabled->id]);
 
+        // Filtering by name; empty is ignored, no filtering
+        $this->getJson(route('api.v1.servers.index').'?query=')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data');
+
         // Filtering by name
         $this->getJson(route('api.v1.servers.index').'?query=server')
             ->assertSuccessful()

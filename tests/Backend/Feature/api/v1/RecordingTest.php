@@ -363,6 +363,40 @@ class RecordingTest extends TestCase
             ->assertJsonCount(2, 'data');
     }
 
+    public function test_index_search()
+    {
+        $page_size = 5;
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
+
+        $room = Room::factory()->create();
+        $room->allow_guests = false;
+        $room->access_code = $this->createAccessCode();
+        $room->save();
+
+        Recording::factory()->create(['room_id' => $room->id, 'description' => 'Demo 1', 'access' => RecordingAccess::OWNER]);
+        Recording::factory()->create(['room_id' => $room->id, 'description' => 'Demo 2', 'access' => RecordingAccess::MODERATOR]);
+        Recording::factory()->create(['room_id' => $room->id, 'description' => 'Test 1', 'access' => RecordingAccess::PARTICIPANT]);
+        Recording::factory()->create(['room_id' => $room->id, 'description' => 'Test 2', 'access' => RecordingAccess::EVERYONE]);
+
+        foreach (Recording::all() as $recording) {
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
+        }
+
+        // Test search
+        $this->actingAs($room->owner)
+            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]).'?query=emo')
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+
+        // Test search; empty is ignored, no filtering
+        $this->actingAs($room->owner)
+            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]).'?query=')
+            ->assertOk()
+            ->assertJsonCount(4, 'data');
+    }
+
     public function test_index_pagination()
     {
         $page_size = 5;

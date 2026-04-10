@@ -74,6 +74,11 @@ class RoleTest extends TestCase
             ->assertJsonFragment(['name' => $roleA->name])
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('meta.total_no_filter', 2);
+
+        // Test search; empty is ignored, no filtering
+        $this->getJson(route('api.v1.roles.index').'?query=')
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data');
     }
 
     public function test_create()

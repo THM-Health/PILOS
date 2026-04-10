@@ -319,6 +319,12 @@ class FileTest extends TestCase
             ->assertJsonPath('data.0.filename', 'document.pdf')
             ->assertJsonPath('data.1.filename', 'notes.pdf');
 
+        // Test search; empty is ignored, no filtering
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'query' => '']))
+            ->assertSuccessful()
+            ->assertJsonCount(3, 'data');
+
         // Test filter downloadable
         $this->actingAs($this->room->owner)
             ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'filter' => 'downloadable']))

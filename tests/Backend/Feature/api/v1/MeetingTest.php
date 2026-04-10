@@ -121,6 +121,11 @@ class MeetingTest extends TestCase
             ->assertJsonFragment(['id' => $meeting2->id])
             ->assertJsonFragment(['id' => $meeting3->id]);
 
+        // Filtering empty; empty is ignored, no filtering
+        $this->getJson(route('api.v1.meetings.index').'?query=')
+            ->assertSuccessful()
+            ->assertJsonCount(3, 'data');
+
         // Filtering by owner
         $this->getJson(route('api.v1.meetings.index').'?query=John+Doe')
             ->assertSuccessful()
