@@ -521,10 +521,6 @@ function testConnection() {
       health.value = null;
       offlineReason.value = null;
 
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: "admin.servers" });
-      }
-
       api.error(error);
     })
     .finally(() => {
