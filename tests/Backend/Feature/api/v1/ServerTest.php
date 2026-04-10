@@ -126,7 +126,7 @@ class ServerTest extends TestCase
         // Filtering by name; empty is ignored, no filtering
         $this->getJson(route('api.v1.servers.index').'?query=')
             ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data');
+            ->assertJsonFragment(['total' => 11]);
 
         // Filtering by name
         $this->getJson(route('api.v1.servers.index').'?query=server')

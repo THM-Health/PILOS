@@ -124,7 +124,7 @@ class MeetingTest extends TestCase
         // Filtering empty; empty is ignored, no filtering
         $this->getJson(route('api.v1.meetings.index').'?query=')
             ->assertSuccessful()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonFragment(['total' => 3]);
 
         // Filtering by owner
         $this->getJson(route('api.v1.meetings.index').'?query=John+Doe')

@@ -323,7 +323,7 @@ class FileTest extends TestCase
         $this->actingAs($this->room->owner)
             ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'query' => '']))
             ->assertSuccessful()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonFragment(['total' => 3]);
 
         // Test filter downloadable
         $this->actingAs($this->room->owner)

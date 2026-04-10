@@ -76,7 +76,7 @@ class RoleTest extends TestCase
         // Test search; empty is ignored, no filtering
         $this->getJson(route('api.v1.roles.index').'?query=')
             ->assertSuccessful()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonFragment(['total' => 2]);
     }
 
     public function test_create()
