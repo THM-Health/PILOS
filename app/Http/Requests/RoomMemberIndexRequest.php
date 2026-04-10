@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Requests;
+
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class RoomMemberIndexRequest extends FormRequest
+{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'query' => ['nullable', 'string'],
+            'filter' => [Rule::in(['participant_role', 'moderator_role', 'co_owner_role'])],
+            'sort_by' => [Rule::in(['lastname', 'firstname'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
+        ];
+    }
+}

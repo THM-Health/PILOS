@@ -45,7 +45,7 @@ class ServerPool extends Model
      * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    public function scopeWithName(Builder $query, string $name)
     {
         return $query->whereLike('name', '%'.$name.'%');
     }

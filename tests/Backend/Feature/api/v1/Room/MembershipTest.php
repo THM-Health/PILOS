@@ -603,6 +603,11 @@ class MembershipTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
+        // Check search; empty is ignored, no filtering
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => '']))
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 6);
+
         // Check search with whitespaces (all should match in first or last name)
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => 'John Doe']))
             ->assertJsonCount(1, 'data')
@@ -628,10 +633,9 @@ class MembershipTest extends TestCase
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('meta.total_no_filter', 6);
 
-        // Check filter by invalid role (fallback to all)
+        // Check filter by invalid role
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'invalid_role']))
-            ->assertJsonCount(5, 'data')
-            ->assertJsonPath('meta.total', 6);
+            ->assertJsonValidationErrors(['filter']);
     }
 
     /**
