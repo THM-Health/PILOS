@@ -177,10 +177,9 @@ class RoomStatisticTest extends TestCase
             ->assertSuccessful()
             ->assertJsonPath('data.0.id', $meetings[5]->id);
 
-        // check invalid sort order, fallback to default
+        // check invalid sort order
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?sort_direction=invalid')
-            ->assertSuccessful()
-            ->assertJsonPath('data.0.id', $meetings[0]->id);
+            ->assertJsonValidationErrors(['sort_direction']);
     }
 
     /**

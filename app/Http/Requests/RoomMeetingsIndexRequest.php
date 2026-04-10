@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoomMeetingsIndexRequest extends FormRequest
 {
@@ -17,8 +18,8 @@ class RoomMeetingsIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sort_by' => ['nullable', 'string'],
-            'sort_direction' => ['nullable', 'string'],
+            'sort_by' => [Rule::in(['start'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
         ];
     }
 }

@@ -632,10 +632,9 @@ class MembershipTest extends TestCase
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('meta.total_no_filter', 6);
 
-        // Check filter by invalid role (fallback to all)
+        // Check filter by invalid role
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'invalid_role']))
-            ->assertJsonCount(5, 'data')
-            ->assertJsonPath('meta.total', 6);
+            ->assertJsonValidationErrors(['filter']);
     }
 
     /**

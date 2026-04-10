@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoleIndexRequest extends FormRequest
 {
@@ -18,8 +19,8 @@ class RoleIndexRequest extends FormRequest
     {
         return [
             'query' => ['nullable', 'string'],
-            'sort_by' => ['nullable', 'string'],
-            'sort_direction' => ['nullable', 'string'],
+            'sort_by' => [Rule::in(['id', 'name'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
         ];
     }
 }

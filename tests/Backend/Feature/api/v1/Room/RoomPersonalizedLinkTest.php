@@ -207,10 +207,9 @@ class RoomPersonalizedLinkTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
-        // Check filter by invalid role (fallback to all)
+        // Check filter by invalid role
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'filter' => 'invalid_role']))
-            ->assertJsonCount(5, 'data')
-            ->assertJsonPath('meta.total', 6);
+            ->assertJsonValidationErrors(['filter']);
     }
 
     public function test_create()

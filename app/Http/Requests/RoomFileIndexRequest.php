@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoomFileIndexRequest extends FormRequest
 {
@@ -18,9 +19,9 @@ class RoomFileIndexRequest extends FormRequest
     {
         return [
             'query' => ['nullable', 'string'],
-            'filter' => ['nullable', 'string'],
-            'sort_by' => ['nullable', 'string'],
-            'sort_direction' => ['nullable', 'string'],
+            'filter' => [Rule::in(['use_in_meeting', 'downloadable'])],
+            'sort_by' => [Rule::in(['filename', 'uploaded'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
         ];
     }
 }

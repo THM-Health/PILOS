@@ -149,10 +149,7 @@ class UserTest extends TestCase
 
         // Sorting wrong direction and field
         $this->getJson(route('api.v1.users.index').'?sort_by=external_id&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_by']);
 
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname')
             ->assertSuccessful()
@@ -166,17 +163,8 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index').'?sort_by=foo&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
-
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname&sort_direction=foo')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonMissingExact(['firstname' => $user->firstname])
-            ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_direction']);
 
         // Filtering by role
         $this->getJson(route('api.v1.users.index').'?role='.$role2->id)

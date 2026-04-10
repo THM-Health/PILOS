@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoomPersonalizedLinkIndexRequest extends FormRequest
 {
@@ -18,9 +19,9 @@ class RoomPersonalizedLinkIndexRequest extends FormRequest
     {
         return [
             'query' => ['nullable', 'string'],
-            'filter' => ['nullable', 'string'],
-            'sort_by' => ['nullable', 'string'],
-            'sort_direction' => ['nullable', 'string'],
+            'filter' => [Rule::in(['participant_role', 'moderator_role'])],
+            'sort_by' => [Rule::in(['firstname', 'lastname', 'last_usage'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
         ];
     }
 }

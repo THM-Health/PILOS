@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserIndexRequest extends FormRequest
 {
@@ -18,8 +19,8 @@ class UserIndexRequest extends FormRequest
     {
         return [
             'query' => ['nullable', 'string'],
-            'sort_by' => ['nullable', 'string'],
-            'sort_direction' => ['nullable', 'string'],
+            'sort_by' => [Rule::in(['id', 'firstname', 'lastname', 'email', 'authenticator', 'last_login'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
             'role' => ['exists:roles,id'],
         ];
     }

@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RecordingIndexRequest extends FormRequest
 {
@@ -18,9 +19,9 @@ class RecordingIndexRequest extends FormRequest
     {
         return [
             'query' => ['nullable', 'string'],
-            'filter' => ['nullable', 'string'],
-            'sort_by' => ['nullable', 'string'],
-            'sort_direction' => ['nullable', 'string'],
+            'filter' => [Rule::in(['everyone_access', 'participant_access', 'moderator_access', 'owner_access'])],
+            'sort_by' => [Rule::in(['description', 'start'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
         ];
     }
 }

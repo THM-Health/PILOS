@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class MeetingIndexRequest extends FormRequest
 {
@@ -18,8 +19,8 @@ class MeetingIndexRequest extends FormRequest
     {
         return [
             'query' => ['nullable', 'string'],
-            'sort_by' => ['nullable', 'string'],
-            'sort_direction' => ['nullable', 'string'],
+            'sort_by' => [Rule::in(['start', 'room.participant_count', 'room.listener_count', 'room.voice_participant_count', 'room.video_count'])],
+            'sort_direction' => [Rule::in(['asc', 'desc'])],
         ];
     }
 }
