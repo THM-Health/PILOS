@@ -304,6 +304,7 @@ function save() {
     })
     .finally(() => {
       isBusy.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>

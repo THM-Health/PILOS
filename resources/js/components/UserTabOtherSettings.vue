@@ -120,6 +120,7 @@ function save(event) {
       } else {
         // Other errors
         api.error(error);
+        formErrors.scrollToFirstError();
       }
     })
     .finally(() => {

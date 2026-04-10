@@ -234,6 +234,7 @@ function save() {
     .finally(() => {
       // Disable saving indicator
       isBusy.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 

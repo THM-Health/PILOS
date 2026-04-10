@@ -243,6 +243,7 @@ function save() {
     })
     .finally(() => {
       isLoadingAction.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>

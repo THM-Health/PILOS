@@ -239,6 +239,7 @@ function transferOwnership() {
     })
     .finally(() => {
       isLoadingAction.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 

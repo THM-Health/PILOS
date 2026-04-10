@@ -173,6 +173,7 @@ function save(event) {
     .finally(() => {
       currentPassword.value = null;
       isBusy.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>
