@@ -1,6 +1,7 @@
 /**
  * Mixin that provides methods to get error states and error messages for form inputs in edit or create views.
  */
+import { nextTick } from "vue";
 
 class FormError {
   errors = {};
@@ -11,6 +12,13 @@ class FormError {
 
   clear() {
     this.errors = {};
+  }
+
+  async scrollToFirstError() {
+    await nextTick();
+    document
+      .getElementsByClassName("form-error")[0]
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   /**
