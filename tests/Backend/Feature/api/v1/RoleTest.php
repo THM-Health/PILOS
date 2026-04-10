@@ -45,8 +45,8 @@ class RoleTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleA->name])
             ->assertJsonFragment(['superuser' => true])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 2]);
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 2);
 
         $this->getJson(route('api.v1.roles.index').'?page=2')
             ->assertSuccessful()
@@ -76,7 +76,7 @@ class RoleTest extends TestCase
         // Test search; empty is ignored, no filtering
         $this->getJson(route('api.v1.roles.index').'?query=')
             ->assertSuccessful()
-            ->assertJsonFragment(['total' => 2]);
+            ->assertJsonPath('meta.total', 2);
     }
 
     public function test_create()

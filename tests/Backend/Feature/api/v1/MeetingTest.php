@@ -77,8 +77,8 @@ class MeetingTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => $runningMeetings[0]->id])
             ->assertJsonFragment(['id' => $runningMeetings[4]->id])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 10])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 10)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -124,7 +124,7 @@ class MeetingTest extends TestCase
         // Filtering empty; empty is ignored, no filtering
         $this->getJson(route('api.v1.meetings.index').'?query=')
             ->assertSuccessful()
-            ->assertJsonFragment(['total' => 3]);
+            ->assertJsonPath('meta.total', 3);
 
         // Filtering by owner
         $this->getJson(route('api.v1.meetings.index').'?query=John+Doe')

@@ -394,7 +394,7 @@ class RecordingTest extends TestCase
         $this->actingAs($room->owner)
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]).'?query=')
             ->assertOk()
-            ->assertJsonFragment(['total' => 4]);
+            ->assertJsonPath('meta.total', 4);
     }
 
     public function test_index_pagination()

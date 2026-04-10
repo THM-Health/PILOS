@@ -83,8 +83,8 @@ class ServerTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => $servers[0]->id])
             ->assertJsonFragment(['id' => $servers[4]->id])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 11])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 11)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -126,7 +126,7 @@ class ServerTest extends TestCase
         // Filtering by name; empty is ignored, no filtering
         $this->getJson(route('api.v1.servers.index').'?query=')
             ->assertSuccessful()
-            ->assertJsonFragment(['total' => 11]);
+            ->assertJsonPath('meta.total', 11);
 
         // Filtering by name
         $this->getJson(route('api.v1.servers.index').'?query=server')

@@ -606,7 +606,7 @@ class MembershipTest extends TestCase
         // Check search; empty is ignored, no filtering
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => '']))
             ->assertSuccessful()
-            ->assertJsonFragment(['total' => 6]);
+            ->assertJsonPath('meta.total', 6);
 
         // Check search with whitespaces (all should match in first or last name)
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => 'John Doe']))

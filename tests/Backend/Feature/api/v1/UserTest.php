@@ -97,8 +97,8 @@ class UserTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $users[0]->firstname])
             ->assertJsonFragment(['firstname' => $users[4]->firstname])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 13])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 13)
             ->assertJsonStructure([
                 'meta',
                 'links',
