@@ -149,6 +149,7 @@ function save(event) {
     })
     .finally(() => {
       isBusy.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>

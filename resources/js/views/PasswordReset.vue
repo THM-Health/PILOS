@@ -143,6 +143,7 @@ function submit() {
     })
     .finally(() => {
       loading.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>

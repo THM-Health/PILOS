@@ -167,6 +167,7 @@ function changePassword(event) {
       currentPassword.value = null;
       newPassword.value = null;
       newPasswordConfirmation.value = null;
+      formErrors.scrollToFirstError();
     });
 }
 </script>

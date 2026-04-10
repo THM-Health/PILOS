@@ -345,6 +345,7 @@ function importUsers(firstRound = false) {
     })
     .finally(() => {
       isLoadingAction.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>

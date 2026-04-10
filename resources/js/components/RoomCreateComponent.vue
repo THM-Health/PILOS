@@ -169,6 +169,7 @@ function handleOk() {
           }
 
           formErrors.set(error.response.data.errors);
+          formErrors.scrollToFirstError();
           return;
         }
         // permission denied

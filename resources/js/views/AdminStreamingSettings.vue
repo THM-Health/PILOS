@@ -232,6 +232,7 @@ function updateSettings() {
     })
     .finally(() => {
       isBusy.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 
