@@ -59,9 +59,9 @@ class RoleTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleA->name]);
 
-        // Invalid sort order
+        // Invalid sort order and sort field
         $this->getJson(route('api.v1.roles.index').'?page=2&sort_by=test&sort_direction=foo')
-            ->assertJsonValidationErrors(['sort_direction']);
+            ->assertJsonValidationErrors(['sort_direction', 'sort_by']);
 
         // Test search
         $this->generalSettings->pagination_page_size = 10;
