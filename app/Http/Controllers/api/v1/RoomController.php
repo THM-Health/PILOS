@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoomRequest;
 use App\Http\Requests\JoinMeetingRequest;
 use App\Http\Requests\RoomAuthRequest;
+use App\Http\Requests\RoomMeetingsIndexRequest;
 use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartMeetingRequest;
 use App\Http\Requests\TransferOwnershipRequest;
@@ -34,7 +35,6 @@ use App\Settings\GeneralSettings;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -133,7 +133,7 @@ class RoomController extends Controller
         }
 
         // rooms that can be found with the search
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
                 $collection = $collection->where(function ($query) use ($searchQuery) {
@@ -166,7 +166,6 @@ class RoomController extends Controller
     /**
      * Store a new created room
      *
-     * @param  Request  $request
      * @return RoomResource|JsonResponse
      */
     public function store(CreateRoomRequest $request)
@@ -351,7 +350,7 @@ class RoomController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function meetings(Room $room, Request $request)
+    public function meetings(Room $room, RoomMeetingsIndexRequest $request)
     {
         $this->authorize('viewStatistics', $room);
 
