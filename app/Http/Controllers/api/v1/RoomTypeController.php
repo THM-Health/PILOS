@@ -6,13 +6,13 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTypeDestroyRequest;
+use App\Http\Requests\RoomTypeIndexRequest;
 use App\Http\Requests\RoomTypeRequest;
 use App\Http\Resources\RoomTypeResource;
 use App\Http\Resources\RoomTypeResourceCollection;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,7 +29,7 @@ class RoomTypeController extends Controller
      *
      * @return RoomTypeResourceCollection
      */
-    public function index(Request $request)
+    public function index(RoomTypeIndexRequest $request)
     {
         $roomTypes = RoomType::query();
 

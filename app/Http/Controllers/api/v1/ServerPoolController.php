@@ -6,6 +6,7 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ServerPoolIndexRequest;
 use App\Http\Requests\ServerPoolRequest;
 use App\Http\Resources\RoomTypeResource;
 use App\Http\Resources\ServerPoolResource;
@@ -30,7 +31,7 @@ class ServerPoolController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(ServerPoolIndexRequest $request)
     {
         $additionalMeta = [];
         $resource = ServerPool::withCount('servers');

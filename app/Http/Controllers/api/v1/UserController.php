@@ -9,7 +9,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\NewUserRequest;
+use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserRequest;
+use App\Http\Requests\UserSearchRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserSearchResource;
 use App\Models\User;
@@ -21,7 +23,6 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +31,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -43,10 +43,10 @@ class UserController extends Controller
     /**
      * Search for users in the whole database, based on first name and last name
      *
-     * @param  Request  $request  query parameter with search query
+     * @param  UserSearchRequest  $request  query parameter with search query
      * @return AnonymousResourceCollection
      */
-    public function search(Request $request)
+    public function search(UserSearchRequest $request)
     {
         if (! $request->filled('query')) {
             abort(204, 'Too many results');
@@ -66,7 +66,7 @@ class UserController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(UserIndexRequest $request)
     {
         $additionalMeta = [];
         $resource = User::query();
@@ -98,9 +98,6 @@ class UserController extends Controller
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         if ($request->has('role')) {
-            Validator::make($request->all(), [
-                'role' => 'required|exists:roles,id',
-            ])->validate();
             $resource = $resource->withRole($request->integer('role'));
         }
 

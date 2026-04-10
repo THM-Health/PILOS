@@ -183,7 +183,7 @@ class ServerTest extends TestCase
         $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.4.health'));
 
         // Request with forced usage update, should see that the online servers are now unhealthy (because it's fake data)
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server&update_usage=true')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server&update_usage=1')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
 

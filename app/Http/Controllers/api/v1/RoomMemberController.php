@@ -10,13 +10,13 @@ use App\Http\Requests\AddRoomMemberRequest;
 use App\Http\Requests\BulkDestroyRequest;
 use App\Http\Requests\BulkImportRequest;
 use App\Http\Requests\BulkUpdateRequest;
+use App\Http\Requests\RoomMemberIndexRequest;
 use App\Http\Requests\UpdateRoomMemberRequest;
 use App\Http\Resources\RoomUserResource;
 use App\Models\Room;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +34,7 @@ class RoomMemberController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Room $room, Request $request)
+    public function index(Room $room, RoomMemberIndexRequest $request)
     {
         $additional = [];
 

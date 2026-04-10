@@ -6,6 +6,7 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MeetingIndexRequest;
 use App\Http\Resources\AttendeeResource;
 use App\Http\Resources\MeetingStatResource;
 use App\Http\Resources\MeetingWithRoomAndServerResource as MeetingResource;
@@ -33,7 +34,7 @@ class MeetingController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(MeetingIndexRequest $request)
     {
         $additionalMeta = [];
 
