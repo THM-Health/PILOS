@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.14.2] - 2026-04-10
+
 ### Fixed
 
 - 500 error for empty search queries ([#3039], [#3040])
@@ -769,7 +771,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -795,3 +797,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.13.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.13.0
 [v4.14.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.0
 [v4.14.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.1
+[v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2
