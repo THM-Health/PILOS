@@ -439,7 +439,7 @@ function load() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found (Always redirect to 404 view)
+        // Room not found (Always redirect to 404 view or room index page)
         if (error.response.status === env.HTTP_NOT_FOUND) {
           if (authStore.isAuthenticated) {
             router.push({ name: "rooms.index" });
@@ -521,7 +521,7 @@ function reload() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found (Always redirect to 404 view)
+        // Room not found (Always redirect to 404 view or room index page)
         if (error.response.status === env.HTTP_NOT_FOUND) {
           if (authStore.isAuthenticated) {
             router.push({ name: "rooms.index" });
