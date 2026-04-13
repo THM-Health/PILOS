@@ -204,7 +204,7 @@
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
-                    @require-code="reload"
+                    @require-code="handleRequireCode"
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
                   />
@@ -224,7 +224,7 @@
             :room-auth-token="roomAuthToken"
             :room="room"
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
-            @require-code="reload"
+            @require-code="handleRequireCode"
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
           />
@@ -400,6 +400,27 @@ function handleInvalidCode() {
 }
 
 /**
+ * Reset access code error states and access code input and display error message
+ * Reload room details if reloadRoomDetails is true
+ * @param reloadRoomDetails
+ */
+function handleRequireCode(reloadRoomDetails = true) {
+  // Reset access code error states to prevent confusing error state
+  accessCodeInvalid.value = null;
+  formErrors.clear();
+
+  // Reset access code input
+  accessCodeInput.value = "";
+
+  // Show error message
+  toast.error(t("rooms.require_access_code"));
+
+  if (reloadRoomDetails) {
+    reload(false);
+  }
+}
+
+/**
  * Reset room due to personalized link error
  */
 function handleInvalidPersonalizedLink() {
@@ -483,6 +504,7 @@ watch(authThrottledFor, (value) => {
 
 /**
  * Reload the room details/settings
+ * @param checkForRequireCodeError
  */
 function reload(checkForRequireCodeError = true) {
   // Enable loading indicator
@@ -509,15 +531,7 @@ function reload(checkForRequireCodeError = true) {
         room.value?.authenticated &&
         !response.data.data.authenticated
       ) {
-        // Reset access code error states to prevent confusing error state
-        accessCodeInvalid.value = null;
-        formErrors.clear();
-
-        // Reset access code input
-        accessCodeInput.value = "";
-
-        // Show error message
-        toast.error(t("rooms.require_access_code"));
+        handleRequireCode(false);
       }
 
       room.value = response.data.data;
