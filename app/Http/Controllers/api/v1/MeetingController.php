@@ -6,6 +6,7 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MeetingIndexRequest;
 use App\Http\Resources\AttendeeResource;
 use App\Http\Resources\MeetingStatResource;
 use App\Http\Resources\MeetingWithRoomAndServerResource as MeetingResource;
@@ -33,7 +34,7 @@ class MeetingController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(MeetingIndexRequest $request)
     {
         $additionalMeta = [];
 
@@ -51,7 +52,7 @@ class MeetingController extends Controller
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         // And-search, sub queries split by space
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {
