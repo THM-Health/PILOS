@@ -138,19 +138,19 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('button[data-test="room-files-view-button"]')
-      .should("have.attr", "disabled", "disabled");
+      .should("be.disabled");
 
     // Check edit button is disabled during loading
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-edit-button"]')
-      .should("have.attr", "disabled", "disabled");
+      .should("be.disabled");
 
     // Check delete button is disabled during loading
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('button[data-test="room-files-delete-button"]')
-      .should("have.attr", "disabled", "disabled")
+      .should("be.disabled")
       .then(() => {
         roomFileReloadRequest.sendResponse();
       });
@@ -172,13 +172,13 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-edit-button"]')
-      .should("not.have.attr", "disabled");
+      .should("not.be.disabled");
 
     // Check delete button is enabled after loading
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('button[data-test="room-files-delete-button"]')
-      .should("not.have.attr", "disabled");
+      .should("not.be.disabled");
   });
 
   it("load files with access code", function () {
