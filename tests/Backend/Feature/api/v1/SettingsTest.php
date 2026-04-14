@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\LinkButtonStyle;
@@ -13,10 +15,10 @@ use App\Settings\GeneralSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
@@ -83,6 +85,7 @@ class SettingsTest extends TestCase
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
         $this->roomSettings->personalized_link_expiration = TimePeriod::ONE_WEEK;
         $this->roomSettings->file_terms_of_use = 'test';
+        $this->roomSettings->hide_owner_from_guests = false;
         $this->roomSettings->save();
 
         $this->userSettings->password_change_allowed = true;
@@ -157,6 +160,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_deadline_period' => 30,
                     'room_personalized_link_expiration' => 7,
                     'room_file_terms_of_use' => 'test',
+                    'room_hide_owner_from_guests' => false,
 
                     'user_password_change_allowed' => true,
 
@@ -219,6 +223,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
             'room_file_terms_of_use' => 'test',
+            'room_hide_owner_from_guests' => true,
 
             'user_password_change_allowed' => 1,
 
@@ -281,6 +286,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_never_used_period' => 30,
                     'room_auto_delete_deadline_period' => 7,
                     'room_file_terms_of_use' => 'test',
+                    'room_hide_owner_from_guests' => true,
 
                     'user_password_change_allowed' => 1,
 
@@ -358,6 +364,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -436,6 +443,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -518,6 +526,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 'notnumber',
             'room_auto_delete_never_used_period' => 'notnumber',
             'room_auto_delete_deadline_period' => 'notnumber',
+            'room_hide_owner_from_guests' => 'notbool',
 
             'user_password_change_allowed' => 'foo',
 
@@ -571,6 +580,7 @@ class SettingsTest extends TestCase
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
                 'room_auto_delete_deadline_period',
+                'room_hide_owner_from_guests',
 
                 'user_password_change_allowed',
 
@@ -654,6 +664,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -759,6 +770,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 1,
             'room_auto_delete_never_used_period' => 1,
             'room_auto_delete_deadline_period' => 1,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -813,6 +825,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_never_used_period' => 1000,
             'room_auto_delete_deadline_period' => 366,
             'room_file_terms_of_use' => str_repeat('a', 65001),
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -891,6 +904,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -956,7 +970,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the custom bbb style sheet
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_style()
     {
@@ -1002,6 +1016,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1053,7 +1068,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_logo()
     {
@@ -1098,6 +1113,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1136,7 +1152,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb dark logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_dark_logo()
     {
@@ -1181,6 +1197,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1218,8 +1235,10 @@ class SettingsTest extends TestCase
 
     public function test_virus_files()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
 
         $role = Role::factory()->create();
@@ -1268,6 +1287,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 

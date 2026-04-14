@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => ':name bearbeiten',
             'index' => 'Rollen',
@@ -259,6 +261,10 @@ return [
         'view' => 'Detaillierte Informationen über Server :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'Wenn nicht gesetzt, wird kein Link zur Barrierefreiheitserklärung in der Fußzeile angezeigt.',
+            'title' => 'URL zur Barrierefreiheitserklärung',
+        ],
         'application' => 'Anwendung',
         'attendance' => [
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
@@ -320,10 +326,6 @@ return [
             'description' => 'Wenn nicht gesetzt, wird kein Link zum Impressum in der Fußzeile angezeigt.',
             'title' => 'URL zum Impressum',
         ],
-        'accessibility_statement_url' => [
-            'description' => 'Wenn nicht gesetzt, wird kein Link zur Barrierefreiheitserklärung in der Fußzeile angezeigt.',
-            'title' => 'URL zur Barrierefreiheitserklärung',
-        ],
         'logo' => [
             'alt' => 'Logo Vorschau',
             'hint' => 'https://domain.tld/path/logo.svg',
@@ -384,6 +386,7 @@ return [
             'description' => 'Benutzer müssen den Nutzungsbedingungen zustimmen, um Dateien herunterladen zu können. Wenn das Feld leer ist, ist keine Zustimmung erforderlich.',
             'title' => 'Nutzungsbedingungen für das Herunterladen von Dateien',
         ],
+        'room_hide_owner_from_guests' => 'Raumeigentümer für nicht angemeldete Nutzer verbergen',
         'room_limit' => [
             'description' => 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.',
             'title' => 'Anzahl der Räume pro Benutzer',

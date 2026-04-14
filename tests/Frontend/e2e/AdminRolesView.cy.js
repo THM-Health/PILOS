@@ -77,8 +77,8 @@ describe("Admin roles view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", 'admin.breakcrumbs.roles.view_{"name":"Staff"}');
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", 'admin.breadcrumbs.roles.view_{"name":"Staff"}');
 
     // Check that role data is shown correctly
     cy.get('[data-test="name-field"]')

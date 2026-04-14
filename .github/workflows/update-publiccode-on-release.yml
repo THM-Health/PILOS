@@ -1,0 +1,45 @@
+name: Update publiccode.yml on release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  update-publiccode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Extract release version and date
+        id: release
+        run: |
+          RAW_VERSION="${GITHUB_REF#refs/tags/}"
+          VERSION="${RAW_VERSION#v}"   # strip leading 'v'
+          RELEASE_DATE=$(date -u +"%Y-%m-%d")
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "date=$RELEASE_DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Update publiccode.yml
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          RELEASE_DATE="${{ steps.release.outputs.date }}"
+
+          sed -i "s/^softwareVersion:.*/softwareVersion: \"$VERSION\"/" publiccode.yml
+          sed -i "s/^releaseDate:.*/releaseDate: \"$RELEASE_DATE\"/" publiccode.yml
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add publiccode.yml
+          git commit -m "update publiccode.yml to version ${{ steps.release.outputs.version }}" || exit 0
+          git push origin develop

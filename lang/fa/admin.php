@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'ویرایش :name',
             'index' => 'نقش‌ها',
@@ -257,6 +259,10 @@ return [
         'view' => 'اطلاعات دقیق برای سرور :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'اگر تنظیم نشده باشد، لینک بیانیه دسترسی‌پذیری در فوتر نمایش داده نمی‌شود.',
+            'title' => 'URL بیانیه دسترسی‌پذیری',
+        ],
         'application' => 'برنامه',
         'attendance' => [
             'retention_period_title' => 'دوره نگهداری گزارش حضور در روز',
@@ -317,10 +323,6 @@ return [
         'legal_notice_url' => [
             'description' => 'اگر تنظیم نشده باشد، لینک اطلاعیه قانونی در فوتر نمایش داده نمی‌شود.',
             'title' => 'URL اطلاعیه قانونی',
-        ],
-        'accessibility_statement_url' => [
-            'description' => 'اگر تنظیم نشده باشد، لینک بیانیه دسترسی‌پذیری در فوتر نمایش داده نمی‌شود.',
-            'title' => 'URL بیانیه دسترسی‌پذیری',
         ],
         'logo' => [
             'alt' => 'پیش‌نمایش لوگو',

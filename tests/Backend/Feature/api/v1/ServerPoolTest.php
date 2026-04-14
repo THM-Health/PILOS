@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -65,8 +67,8 @@ class ServerPoolTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => $serverPools[0]->id])
             ->assertJsonFragment(['id' => $serverPools[4]->id])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 10])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 10)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -93,6 +95,11 @@ class ServerPoolTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $serverPool1->id]);
+
+        // Filtering by name; empty is ignored, no filtering
+        $this->getJson(route('api.v1.serverPools.index').'?query=')
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 10);
 
         // Sorting name asc
         $this->getJson(route('api.v1.serverPools.index').'?sort_by=name&sort_direction=asc')

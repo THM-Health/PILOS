@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\AddsModelNameTrait;
@@ -100,7 +102,7 @@ class Role extends Model
      * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    public function scopeWithName(Builder $query, string $name)
     {
         return $query->whereLike('name', '%'.$name.'%');
     }

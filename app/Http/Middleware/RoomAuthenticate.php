@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use App\Enums\CustomErrorMessages;
@@ -9,6 +11,7 @@ use App\Models\Room;
 use App\Models\RoomAuthToken;
 use App\Prometheus\Counter;
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +29,7 @@ class RoomAuthenticate
      *
      * If a room auth token is provided, but is invalid an error is return and the request isn't continued.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  bool  $allowUnAuthenticated  Allow users that are unauthenticated to pass
      * @return mixed
      */
@@ -60,7 +63,7 @@ class RoomAuthenticate
             // Retrieve the validated input
             $validated = $validator->validated();
             $providedRoomAuthToken = $validated['room_auth_token'];
-            $providedRoomAuthTokenType = RoomAuthTokenType::from($validated['room_auth_token_type']);
+            $providedRoomAuthTokenType = RoomAuthTokenType::from((int) $validated['room_auth_token_type']);
 
             // Room Auth Token was provided and is a UUID
             $roomAuthToken = RoomAuthToken::where('id', $providedRoomAuthToken)
@@ -103,7 +106,7 @@ class RoomAuthenticate
                     Counter::get('room_authentication_errors_total')->inc('room_auth_token_invalid');
                     Log::notice('Room auth token authentication failed for room {room} (Authenticated with token type token)', ['room' => $room->getLogLabel()]);
 
-                    return $this->handleError(CustomErrorMessages::ROOM_GUESTS_ONLY->value, CustomStatusCodes::GUESTS_ONLY->value, 'Guests only', __('app.flash.guests_only'));
+                    return $this->handleError(CustomErrorMessages::GUESTS_ONLY->value, CustomStatusCodes::GUESTS_ONLY->value, 'Guests only', __('app.flash.guests_only'));
                 }
             }
         }
@@ -120,7 +123,7 @@ class RoomAuthenticate
 
             Log::notice('Room guest access failed for room {room}', ['room' => $room->getLogLabel()]);
 
-            return $this->handleError(CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value, 403, 'Forbidden', __('rooms.only_used_by_authenticated_users'));
+            return $this->handleError(CustomErrorMessages::GUESTS_NOT_ALLOWED->value, 403, 'Forbidden', __('rooms.only_used_by_authenticated_users'));
         }
 
         // if room has no access code

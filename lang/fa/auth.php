@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'تغییر ایمیل',
     'change_password' => 'تغییر رمز عبور',

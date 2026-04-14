@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Enums\RoomUserRole;
-use App\Http\Requests\JoinMeeting;
+use App\Http\Requests\JoinMeetingRequest;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomFile;
@@ -36,7 +38,7 @@ class MeetingTest extends TestCase
         parent::setUp();
 
         // Create room and meeting
-        $room = Room::factory()->create(['access_code' => 123456789]);
+        $room = Room::factory()->create(['access_code' => '123456789']);
         $this->meeting = new Meeting;
         $this->meeting->room()->associate($room);
         $this->meeting->save();
@@ -74,12 +76,72 @@ class MeetingTest extends TestCase
         $this->assertEquals(url('rooms/'.$meeting->room->id), $data['logoutURL']);
 
         $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);
-        $this->assertStringContainsString('http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
-        $this->assertStringContainsString('123-456-789', $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Link: http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Access code: 123-456-789', $data['moderatorOnlyMessage']);
 
         $salt = urldecode(explode('?salt=', $data['meta_endCallbackUrl'])[1]);
         $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
         $this->assertArrayNotHasKey('logo', $data);
+    }
+
+    /**
+     * Test start parameters for a room with a legacy access code
+     */
+    public function test_start_parameters_with_legacy_access_code()
+    {
+        $this->meeting->room->access_code = 'abc123';
+        $this->meeting->room->save();
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        // Check moderator only message contains access code but is not split into groups of three digits
+        $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Link: http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Access code: abc123', $data['moderatorOnlyMessage']);
+    }
+
+    /**
+     * Test start parameters for a room without an access code
+     */
+    public function test_start_parameters_without_access_code()
+    {
+        $this->meeting->room->access_code = null;
+        $this->meeting->room->save();
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        // Check moderator only message does not contain access code but still contains room name and link
+        $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('Link: http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
+        $this->assertStringNotContainsString('Access code:', $data['moderatorOnlyMessage']);
     }
 
     /**
@@ -340,7 +402,7 @@ class MeetingTest extends TestCase
         Context::addHidden("room.{$meeting->room->id}.authenticated", true);
         Auth::login($user);
 
-        $request = new JoinMeeting;
+        $request = new JoinMeetingRequest;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 
@@ -414,7 +476,7 @@ class MeetingTest extends TestCase
         $meetingService = new MeetingService($meeting);
         Context::addHidden("room.{$meeting->room->id}.authenticated", false);
 
-        $request = new JoinMeeting;
+        $request = new JoinMeetingRequest;
         $request->replace([
             'name' => 'John Doe',
         ]);
@@ -461,7 +523,7 @@ class MeetingTest extends TestCase
         Context::addHidden("room.{$meeting->room->id}.authenticated", false);
         Context::addHidden("room.{$meeting->room->id}.personalized_link", $link);
 
-        $request = new JoinMeeting;
+        $request = new JoinMeetingRequest;
 
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
@@ -511,7 +573,7 @@ class MeetingTest extends TestCase
         $roomType = $this->meeting->room->roomType;
         $roomType->join_parameters = "enforceLayout=PRESENTATION_ONLY\nwebcamBackgroundURL=https://example.com/background.png\nexcludeFromDashboard=true\nredirect=false\nuserdata-bbb_hide_presentation_on_join=true";
         $roomType->save();
-        $request = new JoinMeeting;
+        $request = new JoinMeetingRequest;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 
@@ -531,7 +593,7 @@ class MeetingTest extends TestCase
         $roomType->join_parameters = "enforceLayout=INVALID_LAYOUT\nexcludeFromDashboard=invalid\nuserdata-bbb_hide_presentation_on_join=true";
         $roomType->save();
 
-        $request = new JoinMeeting;
+        $request = new JoinMeetingRequest;
         $parameters = [];
         parse_str(parse_url($meetingService->setServerService($serverService)->getJoinUrl($request), PHP_URL_QUERY), $parameters);
 

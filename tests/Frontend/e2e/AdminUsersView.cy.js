@@ -104,10 +104,10 @@ describe("Admin users view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.view_{"firstname":"Laura","lastname":"Rivera"}',
+        'admin.breadcrumbs.users.view_{"firstname":"Laura","lastname":"Rivera"}',
       );
 
     // Check that user data is shown and all inputs are disabled

@@ -78,10 +78,10 @@ describe("Admin server pools view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.server_pools.view_{"name":"Test"}',
+        'admin.breadcrumbs.server_pools.view_{"name":"Test"}',
       );
 
     // Check that server pool data is shown correctly

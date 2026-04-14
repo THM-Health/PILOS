@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'تعديل :name',
             'index' => 'الأدوار',
@@ -259,6 +261,10 @@ return [
         'view' => 'معلومات تفصيلية عن الخادم :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'إذا لم يتم تعيينه، لن يظهر رابط بيان إمكانية الوصول في التذييل.',
+            'title' => 'رابط بيان إمكانية الوصول',
+        ],
         'application' => 'التطبيق',
         'attendance' => [
             'retention_period_title' => 'فترة الاحتفاظ بسجلات الحضور بالأيام',
@@ -319,10 +325,6 @@ return [
         'legal_notice_url' => [
             'description' => 'إذا لم يتم تعيينه، لن يظهر رابط الإشعار القانوني في التذييل.',
             'title' => 'رابط الإشعار القانوني',
-        ],
-        'accessibility_statement_url' => [
-            'description' => 'إذا لم يتم تعيينه، لن يظهر رابط بيان إمكانية الوصول في التذييل.',
-            'title' => 'رابط بيان إمكانية الوصول',
         ],
         'logo' => [
             'alt' => 'معاينة الشعار',

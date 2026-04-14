@@ -80,7 +80,7 @@ describe("Admin servers index", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index");
+      .should("include.text", "admin.breadcrumbs.servers.index");
 
     // Check that loading is over
     cy.get('[data-test="overlay"]').should("not.exist");
@@ -329,7 +329,7 @@ describe("Admin servers index", function () {
 
     // Check that update usage is set correctly when reloading servers
     cy.wait("@serversRequest").then((interception) => {
-      expect(interception.request.query.update_usage).to.eql("false");
+      expect(interception.request.query.update_usage).to.eql("0");
     });
 
     // Check that overlay is hidden
@@ -401,7 +401,7 @@ describe("Admin servers index", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "1",
       });
     });
@@ -530,7 +530,7 @@ describe("Admin servers index", function () {
       expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
-        update_usage: "false",
+        update_usage: "0",
       });
     });
 
@@ -556,7 +556,7 @@ describe("Admin servers index", function () {
       expect(interception.request.query.query).to.eql("Test");
       expect(interception.request.query).to.contain({
         page: "1",
-        update_usage: "false",
+        update_usage: "0",
       });
     });
 
@@ -587,7 +587,7 @@ describe("Admin servers index", function () {
       expect(interception.request.query.query).to.eql("Test2");
       expect(interception.request.query).to.contain({
         page: "1",
-        update_usage: "false",
+        update_usage: "0",
       });
     });
 
@@ -617,7 +617,7 @@ describe("Admin servers index", function () {
       expect(interception.request.query.query).to.eql("Server");
       expect(interception.request.query).to.contain({
         page: "1",
-        update_usage: "false",
+        update_usage: "0",
       });
     });
 
@@ -659,7 +659,7 @@ describe("Admin servers index", function () {
       expect(interception.request.query.query).to.eql("Server");
       expect(interception.request.query).to.contain({
         page: "2",
-        update_usage: "false",
+        update_usage: "0",
       });
     });
 
@@ -702,7 +702,7 @@ describe("Admin servers index", function () {
       expect(interception.request.query.query).to.eql("Se");
       expect(interception.request.query).to.contain({
         page: "1",
-        update_usage: "false",
+        update_usage: "0",
       });
     });
 

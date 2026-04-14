@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'key_1' => 'value_1',
     'key_2' => 'value_2',

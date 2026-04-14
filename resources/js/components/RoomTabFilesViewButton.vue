@@ -6,7 +6,6 @@
     v-tooltip="$t('rooms.files.view')"
     :aria-label="$t('rooms.files.view')"
     :disabled="disabled"
-    :loading="loading"
     icon="fa-solid fa-eye"
     data-test="room-files-view-button"
     @click="toggleTermsOfUsePopover"
@@ -20,7 +19,6 @@
     target="_blank"
     rel="opener"
     :href="downloadUrl"
-    :loading="loading"
     icon="fa-solid fa-eye"
     data-test="room-files-view-button"
     :as="disabled ? 'button' : 'a'"
@@ -59,7 +57,6 @@ const props = defineProps({
   },
 });
 
-const loading = ref(false);
 const op = ref();
 
 const downloadUrl = computed(() => {

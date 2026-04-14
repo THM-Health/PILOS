@@ -31,6 +31,7 @@
     "room_auto_delete_deadline_period": 14,
     "room_personalized_link_expiration": -1,
     "room_file_terms_of_use": "Room file terms of use",
+    "room_hide_owner_from_guests": false,
     "user_password_change_allowed": true,
     "recording_server_usage_enabled": true,
     "recording_server_usage_retention_period": -1,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'رمز الدخول',
     'auth_throttled' => 'محاولات كثيرة جدًا. يرجى المحاولة بعد :try_again ثانية.',

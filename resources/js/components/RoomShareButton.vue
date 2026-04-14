@@ -147,8 +147,10 @@ const roomUrl = computed(() => {
 });
 
 const formattedAccessCode = computed(() => {
-  return String(props.room.access_code)
-    .match(/.{1,3}/g)
-    .join("-");
+  return props.room.legacy_code
+    ? props.room.access_code
+    : String(props.room.access_code)
+        .match(/.{1,3}/g)
+        .join("-");
 });
 </script>

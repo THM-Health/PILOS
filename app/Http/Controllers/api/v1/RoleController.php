@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RoleIndexRequest;
 use App\Http\Requests\RoleRequest;
-use App\Http\Resources\Role as RoleResource;
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +22,7 @@ class RoleController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Role::class, 'role');
-        $this->middleware('check.stale:role,\App\Http\Resources\Role,withPermissions', ['only' => 'update']);
+        $this->middleware('check.stale:role,\App\Http\Resources\RoleResource,withPermissions', ['only' => 'update']);
     }
 
     /**
@@ -28,7 +30,7 @@ class RoleController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(RoleIndexRequest $request)
     {
         $additionalMeta = [];
         $resource = Role::query();
@@ -55,7 +57,7 @@ class RoleController extends Controller
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->withName($request->query('query'));
         }
 

@@ -318,7 +318,7 @@ function loadData(page = null, updateUsage = false) {
   const config = {
     params: {
       page: page || paginator.getCurrentPage(),
-      update_usage: updateUsage,
+      update_usage: updateUsage ? 1 : 0,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? "asc" : "desc",
       query: filter.value,

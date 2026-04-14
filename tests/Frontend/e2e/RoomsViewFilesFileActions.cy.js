@@ -1001,7 +1001,7 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@roomFilesRequest");
 
-    // Check file not found error (file not found / already deleted)
+    // Check file_not_found error (file not found / already deleted)
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data = roomFiles.data.slice(1, 3);
       roomFiles.meta.to = 2;
@@ -1027,6 +1027,33 @@ describe("Rooms view files file actions", function () {
     // Check that error message is shown and that file is not shown anymore
     cy.checkToastMessage("rooms.flash.file_gone");
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+    // Check not_found error (not found / already deleted)
+    cy.fixture("roomFiles.json").then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(1, 2);
+      roomFiles.meta.to = 1;
+      roomFiles.meta.total = 1;
+      roomFiles.meta.total_no_filter = 1;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+        statusCode: 200,
+        body: roomFiles,
+      }).as("roomFilesRequest");
+    });
+
+    cy.window().then(($window) => {
+      const message = {
+        type: "not_found",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are reloaded
+    cy.wait("@roomFilesRequest");
+
+    // Check that error message is shown and that file is not shown anymore
+    cy.checkToastMessage("rooms.flash.file_gone");
+    cy.get('[data-test="room-file-item"]').should("have.length", 1);
 
     // Check forbidden error
     cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
@@ -1118,9 +1145,6 @@ describe("Rooms view files file actions", function () {
 
     // Check that the error message is shown
     cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
-
-    // Check that reload button is shown
-    cy.get('[data-test="reload-room-button"]').should("be.visible");
 
     cy.interceptRoomViewRequests();
     cy.interceptRoomFilesRequest(true);

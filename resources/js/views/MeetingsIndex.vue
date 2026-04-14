@@ -150,8 +150,12 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.participant_count')"
+                aria-hidden="true"
                 class="fa-solid fa-users"
               />
+              <span class="sr-only">{{
+                $t("meetings.participant_count")
+              }}</span>
             </template>
             <template #body="slotProps">
               <span v-if="slotProps.data.room.participant_count !== null">{{
@@ -168,8 +172,10 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.listener_count')"
+                aria-hidden="true"
                 class="fa-solid fa-headphones"
               />
+              <span class="sr-only">{{ $t("meetings.listener_count") }}</span>
             </template>
             <template #body="slotProps">
               <span v-if="slotProps.data.room.listener_count !== null">{{
@@ -187,8 +193,12 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.voice_participant_count')"
+                aria-hidden="true"
                 class="fa-solid fa-microphone"
               />
+              <span class="sr-only">{{
+                $t("meetings.voice_participant_count")
+              }}</span>
             </template>
             <template #body="slotProps">
               <span
@@ -207,8 +217,10 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.video_count')"
+                aria-hidden="true"
                 class="fa-solid fa-video"
               />
+              <span class="sr-only">{{ $t("meetings.video_count") }}</span>
             </template>
             <template #body="slotProps">
               <span v-if="slotProps.data.room.video_count !== null">{{

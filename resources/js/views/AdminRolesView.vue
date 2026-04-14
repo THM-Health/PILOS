@@ -231,6 +231,7 @@
 
     <ConfirmDialog
       data-test="stale-role-dialog"
+      :draggable="false"
       :pt="{
         pcAcceptButton: {
           root: {

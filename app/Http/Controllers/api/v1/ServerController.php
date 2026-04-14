@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServerConnectionCheckRequest;
+use App\Http\Requests\ServerIndexRequest;
 use App\Http\Requests\ServerRequest;
-use App\Http\Resources\Server as ServerResource;
+use App\Http\Resources\ServerResource;
 use App\Models\Server;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\ServerService;
@@ -14,27 +17,29 @@ use App\Settings\GeneralSettings;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class ServerController extends Controller
 {
     public function __construct()
     {
         $this->authorizeResource(Server::class, 'server');
-        $this->middleware('check.stale:server,\App\Http\Resources\Server,withApi', ['only' => 'update']);
+        $this->middleware('check.stale:server,\App\Http\Resources\ServerResource,withApi', ['only' => 'update']);
     }
 
     /**
      * Return a json array with all room types
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(ServerIndexRequest $request)
     {
         /**
          * If query param update_usage is true, rebuild live and historical data, the same way as the cronjob would do
          */
-        if ($request->has('update_usage') && $request->update_usage == 'true') {
+        if ($request->boolean('update_usage')) {
             foreach (Server::all() as $server) {
                 $serverService = new ServerService($server);
                 $serverService->updateUsage();
@@ -70,7 +75,7 @@ class ServerController extends Controller
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->withName($request->query('query'));
         }
 
@@ -98,7 +103,7 @@ class ServerController extends Controller
     {
         $server->name = $request->name;
         $server->description = $request->description;
-        $server->base_url = $request->base_url;
+        $server->base_url = Str::finish($request->base_url, '/');
         $server->secret = $request->secret;
         $server->strength = $request->strength;
         $server->status = $request->status;
@@ -125,7 +130,7 @@ class ServerController extends Controller
         $server = new Server;
         $server->name = $request->name;
         $server->description = $request->description;
-        $server->base_url = $request->base_url;
+        $server->base_url = Str::finish($request->base_url, '/');
         $server->secret = $request->secret;
         $server->strength = $request->strength;
         $server->status = $request->status;
@@ -187,7 +192,7 @@ class ServerController extends Controller
         $secretOk = false;
 
         try {
-            $bbb = new BigBlueButton($request->base_url, $request->secret, new LaravelHTTPClient);
+            $bbb = new BigBlueButton(Str::finish($request->base_url, '/'), $request->secret, new LaravelHTTPClient);
             $response = $bbb->getMeetings();
 
             if ($response->success()) {

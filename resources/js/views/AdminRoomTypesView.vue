@@ -1495,6 +1495,7 @@
     </OverlayComponent>
     <ConfirmDialog
       data-test="stale-room-type-dialog"
+      :draggable="false"
       :pt="{
         pcAcceptButton: {
           root: {

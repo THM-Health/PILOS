@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -19,7 +21,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -96,8 +97,8 @@ class UserTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $users[0]->firstname])
             ->assertJsonFragment(['firstname' => $users[4]->firstname])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 13])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 13)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -148,10 +149,7 @@ class UserTest extends TestCase
 
         // Sorting wrong direction and field
         $this->getJson(route('api.v1.users.index').'?sort_by=external_id&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_by']);
 
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname')
             ->assertSuccessful()
@@ -165,17 +163,8 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index').'?sort_by=foo&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
-
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname&sort_direction=foo')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonMissingExact(['firstname' => $user->firstname])
-            ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_direction']);
 
         // Filtering by role
         $this->getJson(route('api.v1.users.index').'?role='.$role2->id)
@@ -186,6 +175,8 @@ class UserTest extends TestCase
 
         // Filtering by invalid role
         $this->getJson(route('api.v1.users.index').'?role=0')
+            ->assertJsonValidationErrors(['role']);
+        $this->getJson(route('api.v1.users.index').'?role=')
             ->assertJsonValidationErrors(['role']);
 
         // Filtering by name / email
@@ -220,6 +211,10 @@ class UserTest extends TestCase
 
         // Test without query and order, too many results
         $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+            ->assertNoContent();
+
+        // Test with empty query, too many results
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=')
             ->assertNoContent();
 
         // Test with query and order, too many results
@@ -1363,15 +1358,19 @@ class UserTest extends TestCase
         $this->assertNull($user->image);
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $changes['image'] = $file;
         $changes['updated_at'] = $user->updated_at;
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     public function test_show()

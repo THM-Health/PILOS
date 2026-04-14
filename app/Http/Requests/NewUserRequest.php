@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Models\Role;
@@ -23,8 +25,8 @@ class NewUserRequest extends FormRequest
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where('authenticator', 'local')],
-            'user_locale' => ['required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
-            'timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
+            'user_locale' => ['required', Rule::in(array_keys(config('app.enabled_locales')))],
+            'timezone' => ['required', Rule::in(timezone_identifiers_list())],
             'roles' => ['required', 'array'],
             'roles.*' => ['distinct', 'integer', 'exists:App\Models\Role,id', Rule::notIn($prohibitedRoles)],
             'generate_password' => ['required', 'boolean'],

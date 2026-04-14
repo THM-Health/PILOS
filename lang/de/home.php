@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'description_details' => 'PILOS wurde speziell für den Bildungsbereich entwickelt und bietet eine unkomplizierte, interaktive und sichere Lösung für das Online-Lernen, den Unterricht und alle Arten von virtuellen Meetings. PILOS lässt sich an die jeweiligen Bedürfnisse anpassen und bietet hochwertige Videoübertragung, robuste Tools für die Zusammenarbeit und eine intuitive Benutzeroberfläche.',
     'description_intro' => 'Die universelle Plattform für Videokonferenzen, basierend auf BigBlueButton™.',
