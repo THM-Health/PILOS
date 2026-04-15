@@ -102,6 +102,7 @@
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
                 @reload="reload"
+                @left-membership="reload(false)"
               />
               <Divider />
 
@@ -177,6 +178,7 @@
                   roomAuthToken = null;
                   reload();
                 "
+                @left-membership="reload(false)"
               />
             </template>
             <template #content>
@@ -204,7 +206,10 @@
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
-                    @require-code="handleRequireCode"
+                    @require-code="
+                      handleRequireCode();
+                      reload(false);
+                    "
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
                   />
@@ -224,7 +229,10 @@
             :room-auth-token="roomAuthToken"
             :room="room"
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
-            @require-code="handleRequireCode"
+            @require-code="
+              handleRequireCode();
+              reload();
+            "
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
           />
@@ -401,10 +409,8 @@ function handleInvalidCode() {
 
 /**
  * Reset access code error states and access code input and display error message
- * Reload room details if reloadRoomDetails is true
- * @param reloadRoomDetails
  */
-function handleRequireCode(reloadRoomDetails = true) {
+function handleRequireCode() {
   // Reset access code error states to prevent confusing error state
   accessCodeInvalid.value = null;
   formErrors.clear();
@@ -414,10 +420,6 @@ function handleRequireCode(reloadRoomDetails = true) {
 
   // Show error message
   toast.error(t("rooms.require_access_code"));
-
-  if (reloadRoomDetails) {
-    reload(false);
-  }
 }
 
 /**
@@ -504,7 +506,7 @@ watch(authThrottledFor, (value) => {
 
 /**
  * Reload the room details/settings
- * @param checkForRequireCodeError
+ * @param {boolean} [checkForRequireCodeError=true]
  */
 function reload(checkForRequireCodeError = true) {
   // Enable loading indicator
@@ -531,7 +533,7 @@ function reload(checkForRequireCodeError = true) {
         room.value?.authenticated &&
         !response.data.data.authenticated
       ) {
-        handleRequireCode(false);
+        handleRequireCode();
       }
 
       room.value = response.data.data;
