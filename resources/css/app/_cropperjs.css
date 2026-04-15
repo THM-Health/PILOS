@@ -1,0 +1,36 @@
+@import "cropperjs/dist/cropper.css";
+
+.cropper-container {
+    img {
+        display: block;
+
+        /* This rule is very important, please don't ignore this */
+        max-width: 100%;
+    }
+
+    .cropper-view-box,
+    .cropper-face {
+        border-radius: 50%;
+    }
+
+    /* The css styles for `outline` do not follow `border-radius` on iOS/Safari (#979). */
+    .cropper-view-box {
+        outline: 0;
+        box-shadow: 0 0 0 2px #fff;
+    }
+
+    .cropper-line {
+        background-color: #fff;
+    }
+
+    .cropper-point {
+        background-color: #fff;
+    }
+
+    .cropper-point.point-n,
+    .cropper-point.point-w,
+    .cropper-point.point-s,
+    .cropper-point.point-e {
+        display: none;
+    }
+}

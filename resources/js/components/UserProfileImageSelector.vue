@@ -7,7 +7,7 @@
       <FileUpload
         v-if="!imageDeleted"
         mode="basic"
-        accept="image/*"
+        accept="image/png, image/jpeg"
         custom-upload
         auto
         :disabled="disabled"
@@ -67,8 +67,6 @@
         :image="croppedImage ? croppedImage : image"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        class="overflow-hidden rounded-border"
-        shape="square"
         data-test="profile-image-preview"
       />
       <UserAvatar
@@ -78,7 +76,6 @@
         :lastname="lastname"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        shape="square"
       />
     </div>
   </div>
@@ -101,7 +98,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="modalVisible = false"
+          @click="closeModal"
         />
         <Button
           :label="$t('admin.users.image.save')"
@@ -112,22 +109,20 @@
       </div>
     </template>
 
-    <VueCropper
-      v-show="selectedFile"
-      ref="cropperRef"
-      class="my-2"
-      :auto-crop-area="1"
-      :aspect-ratio="1"
-      :view-mode="1"
-      :src="selectedFile"
-      :alt="$t('admin.users.image.title')"
-    />
+    <div v-if="selectedFile" class="cropper-container my-2">
+      <img
+        :src="selectedFile"
+        width="100%"
+        id="cropper"
+        :alt="$t('admin.users.image.title')"
+      />
+    </div>
   </Dialog>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-import VueCropper from "vue-cropperjs";
+import { nextTick, ref, watch } from "vue";
+import Cropper from "cropperjs";
 
 const props = defineProps({
   image: {
@@ -159,7 +154,7 @@ const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
-const cropperRef = ref();
+const cropper = ref();
 
 watch(
   () => props.image,
@@ -175,7 +170,7 @@ watch(
  */
 async function save() {
   isLoadingAction.value = true;
-  const oc = cropperRef.value.getCroppedCanvas({
+  const oc = cropper.value.getCroppedCanvas({
     width: 100,
     height: 100,
     fillColor: "#ffff",
@@ -185,7 +180,7 @@ async function save() {
   oc.toBlob((blob) => {
     emit("newImage", blob);
     isLoadingAction.value = false;
-    modalVisible.value = false;
+    closeModal();
   }, "image/jpeg");
 }
 
@@ -198,16 +193,40 @@ function resetFileUpload() {
   selectedFile.value = null;
 }
 
+function closeModal() {
+  if (cropper.value) {
+    cropper.value.destroy();
+    cropper.value = null;
+  }
+  modalVisible.value = false;
+  selectedFile.value = null;
+}
+
 async function onFileSelect(event) {
   modalVisible.value = true;
   isLoadingAction.value = true;
   const file = event.files[0];
 
   const reader = new FileReader();
-  reader.onload = (event) => {
+  reader.onload = async (event) => {
     selectedFile.value = event.target.result;
-    cropperRef.value.replace(selectedFile.value);
-    isLoadingAction.value = false;
+
+    await nextTick();
+
+    cropper.value = new Cropper(document.getElementById("cropper"), {
+      aspectRatio: 1,
+      autoCropArea: 1,
+      guides: false,
+      center: false,
+      rotatable: false,
+      zoomable: false,
+      movable: false,
+      viewMode: 1,
+      dragMode: "none",
+      ready: function () {
+        isLoadingAction.value = false;
+      },
+    });
   };
   reader.readAsDataURL(file);
 }
