@@ -231,7 +231,7 @@
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
             @require-code="
               handleRequireCode();
-              reload();
+              reload(false);
             "
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
