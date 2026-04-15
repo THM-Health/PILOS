@@ -293,8 +293,12 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertJsonValidationErrors(['base_url']);
 
+        $newServer = Server::first();
+        $newServer->status = ServerStatus::DISABLED;
+        $newServer->save();
+        $newServer->delete();
+
         // Test that missing trailing slash is automatically appended
-        $data['name'] = $this->faker->unique()->word;
         $data['base_url'] = 'https://test-new.notld/bigbluebutton';
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertSuccessful()
