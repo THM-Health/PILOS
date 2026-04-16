@@ -78,7 +78,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install pv mariadb-client
       - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
+        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # 2.37.0
         with:
           php-version: ${{ env.PHP_VERSION }}
           extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite, imagick, exif, intl
