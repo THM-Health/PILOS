@@ -13,9 +13,10 @@ jobs:
 
     steps:
       - name: Checkout develop branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: develop
+          persist-credentials: false
 
       - name: Extract release version and date
         id: release
@@ -29,11 +30,11 @@ jobs:
 
       - name: Update publiccode.yml
         run: |
-          VERSION="${{ steps.release.outputs.version }}"
-          RELEASE_DATE="${{ steps.release.outputs.date }}"
-
           sed -i "s/^softwareVersion:.*/softwareVersion: \"$VERSION\"/" publiccode.yml
           sed -i "s/^releaseDate:.*/releaseDate: \"$RELEASE_DATE\"/" publiccode.yml
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_DATE: ${{ steps.release.outputs.date }}
 
       - name: Commit and push changes
         run: |
@@ -41,5 +42,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add publiccode.yml
-          git commit -m "update publiccode.yml to version ${{ steps.release.outputs.version }}" || exit 0
+          git commit -m "update publiccode.yml to version ${ VERSION }" || exit 0
           git push origin develop
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
