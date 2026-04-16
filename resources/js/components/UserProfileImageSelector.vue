@@ -215,7 +215,8 @@ async function onFileSelect(event) {
 
     cropper.value = new Cropper(document.getElementById("cropper"), {
       aspectRatio: 1,
-      autoCropArea: 1,
+      autoCropArea: 0.9,
+      background: false,
       guides: false,
       center: false,
       rotatable: false,
@@ -223,8 +224,12 @@ async function onFileSelect(event) {
       movable: false,
       viewMode: 1,
       dragMode: "none",
-      ready: function () {
+      ready: async function () {
         isLoadingAction.value = false;
+
+        await nextTick();
+
+        document.querySelector('[data-test="dialog-cancel-button"]').focus();
       },
     });
   };

@@ -1,6 +1,8 @@
 @import "cropperjs/dist/cropper.css";
 
 .cropper-container {
+    overflow: hidden;
+
     img {
         display: block;
 
@@ -13,24 +15,34 @@
         border-radius: 50%;
     }
 
-    /* The css styles for `outline` do not follow `border-radius` on iOS/Safari (#979). */
     .cropper-view-box {
         outline: 0;
-        box-shadow: 0 0 0 2px #fff;
+    }
+
+    .cropper-face {
+        background-color: transparent;
+        opacity: 1;
+        border: 1px dashed #fff;
     }
 
     .cropper-line {
-        background-color: #fff;
+        display: none;
     }
 
     .cropper-point {
         background-color: #fff;
+        border-radius: 50%;
+        border: 1px solid #767676;
+        opacity: 1;
+        width: 10px;
+        height: 10px;
     }
 
     .cropper-point.point-n,
     .cropper-point.point-w,
     .cropper-point.point-s,
-    .cropper-point.point-e {
+    .cropper-point.point-e,
+    .cropper-point.point-se::before {
         display: none;
     }
 }
