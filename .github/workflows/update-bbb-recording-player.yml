@@ -38,7 +38,12 @@ jobs:
       - name: Extract the current BBB Recording Player version from Docker file
         run: echo "CURRENT_PLAYER_VERSION=$(sed -n 's/ARG PLAYBACK_PLAYER_VERSION=//p' docker/app/Dockerfile)" >> $GITHUB_ENV
       - name: Compare the versions
-        run: echo "NEEDS_UPDATE=$(dpkg --compare-versions ${ LATEST_PLAYER_VERSION } gt ${ CURRENT_PLAYER_VERSION } && echo true || echo false)" >> $GITHUB_ENV
+        run: |
+          if dpkg --compare-versions "$LATEST_PLAYER_VERSION" gt "$CURRENT_PLAYER_VERSION"; then
+            echo "NEEDS_UPDATE=true" >> "$GITHUB_ENV"
+          else
+            echo "NEEDS_UPDATE=false" >> "$GITHUB_ENV"
+          fi
         env:
           LATEST_PLAYER_VERSION: ${{ env.LATEST_PLAYER_VERSION }}
           CURRENT_PLAYER_VERSION: ${{ env.CURRENT_PLAYER_VERSION }}
