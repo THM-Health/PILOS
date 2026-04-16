@@ -9,6 +9,8 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     open-pull-requests-limit: 20
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "monday"
@@ -27,6 +29,19 @@ updates:
   - package-ecosystem: "composer"
     directory: "/"
     open-pull-requests-limit: 20
+    cooldown:
+      default-days: 7
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Berlin"
+
+  # Github  Actions updates
+  - package-ecosystem: "github-actions"
+    directory: ".github/workflows"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "monday"
