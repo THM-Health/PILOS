@@ -32,7 +32,7 @@ jobs:
       - name: Update publiccode.yml
         run: |
           sed -i "s/^softwareVersion:.*/softwareVersion: \"${VERSION}\"/" publiccode.yml
-          sed -i "s/^releaseDate:.*/releaseDate: \"{$RELEASE_DATE}\"/" publiccode.yml
+          sed -i "s/^releaseDate:.*/releaseDate: \"${RELEASE_DATE}\"/" publiccode.yml
         env:
           VERSION: ${{ steps.release.outputs.version }}
           RELEASE_DATE: ${{ steps.release.outputs.date }}
