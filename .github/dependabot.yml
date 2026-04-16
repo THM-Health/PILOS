@@ -39,7 +39,7 @@ updates:
 
   # Github  Actions updates
   - package-ecosystem: "github-actions"
-    directory: ".github/workflows"
+    directory: "/"
     cooldown:
       default-days: 7
     schedule:
