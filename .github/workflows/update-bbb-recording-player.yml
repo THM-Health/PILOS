@@ -22,7 +22,12 @@ jobs:
           fetch-depth: 2
           persist-credentials: false
       - name: Get the latest BBB Recording Player release
-        run: curl "https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest" -o player-release.json
+        run: |
+          curl --fail --silent --show-error --location \
+            --retry 5 --retry-all-errors --retry-delay 2 \
+            --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            --url "https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest" \
+            -o player-release.json
       - name: Extract the latest BBB Recording Player version
         run: echo "LATEST_PLAYER_VERSION=$(jq -r '.tag_name' player-release.json | sed 's/^v//')" >> $GITHUB_ENV
       - name: Extract release notes

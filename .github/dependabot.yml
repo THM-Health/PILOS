@@ -45,7 +45,7 @@ updates:
           - "brianium/paratest"
           - "phpunit/phpunit"
 
-  # Github  Actions updates
+  # Github Actions updates
   - package-ecosystem: "github-actions"
     directory: "/"
     cooldown:
