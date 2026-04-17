@@ -189,6 +189,11 @@ class RoomPersonalizedLinkTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
+        // Check search; empty is ignored, no filtering
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'query' => '']))
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 6);
+
         // Check search with whitespaces (all should match in first or last name)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'query' => 'John Doe']))
             ->assertJsonCount(1, 'data')
@@ -208,10 +213,9 @@ class RoomPersonalizedLinkTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
-        // Check filter by invalid role (fallback to all)
+        // Check filter by invalid role
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'filter' => 'invalid_role']))
-            ->assertJsonCount(5, 'data')
-            ->assertJsonPath('meta.total', 6);
+            ->assertJsonValidationErrors(['filter']);
     }
 
     public function test_create()

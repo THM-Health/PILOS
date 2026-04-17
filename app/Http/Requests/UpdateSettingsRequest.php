@@ -35,7 +35,7 @@ class UpdateSettingsRequest extends FormRequest
         return [
             'general_name' => ['required', 'string', 'max:255'],
             'general_pagination_page_size' => ['required', 'numeric', 'min:1', 'max:100'],
-            'general_default_timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
+            'general_default_timezone' => ['required', Rule::in(timezone_identifiers_list())],
             'general_toast_lifetime' => ['required', 'numeric', 'min:0', 'max:30'],
             'general_help_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_legal_notice_url' => ['nullable', 'string', 'url', 'max:255'],

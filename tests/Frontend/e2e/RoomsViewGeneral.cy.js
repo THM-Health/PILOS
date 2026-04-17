@@ -2223,6 +2223,9 @@ describe("Room View general", function () {
 
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
     cy.get("#access-code").should("have.value", "123-456-789");
+
+    // Check that no error message is shown even though room request returned authenticated false again
+    cy.get(".p-toast-message").should("not.exist");
   });
 
   it("membership button errors", function () {

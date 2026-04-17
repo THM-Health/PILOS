@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Improved error handling when a room requires an access code but none was provided ([#3035])
 - Improved 404 error messages for better readability and clarity ([#86], [#3036])
 - Standardized 404 error handling on admin pages ([#1676], [#3036])
 - Improved and standardized room not found error handling in the room view ([#3036])
+
+## [v4.14.2] - 2026-04-10
+
+### Fixed
+
+- 500 error for empty search queries ([#3039], [#3040])
 
 ## [v4.14.1] - 2026-04-09
 
@@ -771,8 +778,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3014]: https://github.com/THM-Health/PILOS/pull/3014
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
+[#3035]: https://github.com/THM-Health/PILOS/pull/3035
 [#3036]: https://github.com/THM-Health/PILOS/pull/3036
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.1...develop
+[#3039]: https://github.com/THM-Health/PILOS/issues/3039
+[#3040]: https://github.com/THM-Health/PILOS/pull/3040
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -798,3 +808,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.13.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.13.0
 [v4.14.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.0
 [v4.14.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.1
+[v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2

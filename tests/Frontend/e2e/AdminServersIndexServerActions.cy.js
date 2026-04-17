@@ -218,7 +218,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "1",
       });
     });
@@ -256,7 +256,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "true",
+        update_usage: "1",
         page: "1",
       });
     });
@@ -291,7 +291,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "2",
       });
     });
@@ -338,7 +338,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "true",
+        update_usage: "1",
         page: "2",
       });
     });
@@ -368,7 +368,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "2",
       });
     });

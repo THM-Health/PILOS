@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RoomFileIndexRequest;
 use App\Http\Requests\StoreRoomFileRequest;
 use App\Http\Requests\UpdateRoomFileRequest;
 use App\Http\Resources\PrivateRoomFileResource;
@@ -12,7 +13,6 @@ use App\Http\Resources\RoomFileResource;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Settings\GeneralSettings;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
@@ -25,7 +25,7 @@ class RoomFileController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Room $room, Request $request)
+    public function index(Room $room, RoomFileIndexRequest $request)
     {
         $additional = [];
 
@@ -60,7 +60,7 @@ class RoomFileController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search filter
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->where('filename', 'like', '%'.$request->query('query').'%');
         }
 

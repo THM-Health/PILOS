@@ -6,12 +6,12 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RoomPersonalizedLinkIndexRequest;
 use App\Http\Requests\RoomPersonalizedLinkRequest;
 use App\Http\Resources\RoomPersonalizedLinkResource;
 use App\Models\Room;
 use App\Models\RoomPersonalizedLink;
 use App\Settings\GeneralSettings;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -24,7 +24,7 @@ class RoomPersonalizedLinkController extends Controller
      * @param  Room  $room  Room for which the personalized links should be listed.
      * @return AnonymousResourceCollection
      */
-    public function index(Room $room, Request $request)
+    public function index(Room $room, RoomPersonalizedLinkIndexRequest $request)
     {
         $additional = [];
 
@@ -61,7 +61,7 @@ class RoomPersonalizedLinkController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search query if set
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             // Split search query into single words and search for them in firstname and lastname
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {

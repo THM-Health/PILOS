@@ -36,6 +36,7 @@ This project is actively used and trusted by a growing number of academic instit
 - Technische Hochschule Mittelhessen (THM)
 - Universität Osnabrück
 - Goethe-Universität Frankfurt
+- Universität Innsbruck
 - Hochschule für nachhaltige Entwicklung Eberswalde
 - Kompetenzzentrum für Telemedizin und E-Health Hessen (KTE Hessen)
 - IT-Dienstleistungszentrum des Freistaats Bayern (LDBV)
