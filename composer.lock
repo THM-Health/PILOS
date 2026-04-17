@@ -1951,16 +1951,16 @@
         },
         {
             "name": "laravel/pulse",
-            "version": "v1.7.2",
+            "version": "v1.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/pulse.git",
-                "reference": "998db6ca8220d7d09ee3cc89395a72a687be338a"
+                "reference": "dfd3b8e98cd1ada8d105e528da0afe1bbfe7d990"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/pulse/zipball/998db6ca8220d7d09ee3cc89395a72a687be338a",
-                "reference": "998db6ca8220d7d09ee3cc89395a72a687be338a",
+                "url": "https://api.github.com/repos/laravel/pulse/zipball/dfd3b8e98cd1ada8d105e528da0afe1bbfe7d990",
+                "reference": "dfd3b8e98cd1ada8d105e528da0afe1bbfe7d990",
                 "shasum": ""
             },
             "require": {
@@ -2035,7 +2035,7 @@
                 "issues": "https://github.com/laravel/pulse/issues",
                 "source": "https://github.com/laravel/pulse"
             },
-            "time": "2026-03-18T14:20:19+00:00"
+            "time": "2026-03-26T14:27:31+00:00"
         },
         {
             "name": "laravel/sanctum",
@@ -3110,16 +3110,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v4.2.1",
+            "version": "v4.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "93e972fa42c1b34fff1550093ab94f778d81ea5a"
+                "reference": "7d0bfa46269b1ec186b8cdd38baffee5cc647d10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/93e972fa42c1b34fff1550093ab94f778d81ea5a",
-                "reference": "93e972fa42c1b34fff1550093ab94f778d81ea5a",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/7d0bfa46269b1ec186b8cdd38baffee5cc647d10",
+                "reference": "7d0bfa46269b1ec186b8cdd38baffee5cc647d10",
                 "shasum": ""
             },
             "require": {
@@ -3174,7 +3174,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v4.2.1"
+                "source": "https://github.com/livewire/livewire/tree/v4.2.4"
             },
             "funding": [
                 {
@@ -3182,7 +3182,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-28T00:01:19+00:00"
+            "time": "2026-04-02T20:48:35+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -11969,9 +11969,7 @@
     ],
     "aliases": [],
     "minimum-stability": "beta",
-    "stability-flags": {
-        "laravel/pulse": 10
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
