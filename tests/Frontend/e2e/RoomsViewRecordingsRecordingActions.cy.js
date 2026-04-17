@@ -263,9 +263,9 @@ describe("Rooms view recordings recording actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    // Reload (without setting room auth token)
+    cy.get('[data-test="reload-room-button"]').click();
 
-    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
@@ -294,9 +294,10 @@ describe("Rooms view recordings recording actions", function () {
     });
 
     // Check if error message is shown and close it
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("view recording with personalized link", function () {
