@@ -9655,16 +9655,16 @@
         },
         {
             "name": "laravel/boost",
-            "version": "v2.4.1",
+            "version": "v2.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/boost.git",
-                "reference": "f6241df9fd81a86d79a051851177d4ffe3e28506"
+                "reference": "db101b977897e00c6d2e40e9b610591cb0aa277e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/boost/zipball/f6241df9fd81a86d79a051851177d4ffe3e28506",
-                "reference": "f6241df9fd81a86d79a051851177d4ffe3e28506",
+                "url": "https://api.github.com/repos/laravel/boost/zipball/db101b977897e00c6d2e40e9b610591cb0aa277e",
+                "reference": "db101b977897e00c6d2e40e9b610591cb0aa277e",
                 "shasum": ""
             },
             "require": {
@@ -9717,20 +9717,20 @@
                 "issues": "https://github.com/laravel/boost/issues",
                 "source": "https://github.com/laravel/boost"
             },
-            "time": "2026-03-25T16:37:40+00:00"
+            "time": "2026-04-16T16:53:05+00:00"
         },
         {
             "name": "laravel/mcp",
-            "version": "v0.6.4",
+            "version": "v0.6.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "f822c5eb5beed19adb2e5bfe2f46f8c977ecea42"
+                "reference": "c3775e57b95d7eadb580d543689d9971ec8721f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/f822c5eb5beed19adb2e5bfe2f46f8c977ecea42",
-                "reference": "f822c5eb5beed19adb2e5bfe2f46f8c977ecea42",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/c3775e57b95d7eadb580d543689d9971ec8721f2",
+                "reference": "c3775e57b95d7eadb580d543689d9971ec8721f2",
                 "shasum": ""
             },
             "require": {
@@ -9790,7 +9790,7 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2026-03-19T12:37:13+00:00"
+            "time": "2026-04-15T08:30:42+00:00"
         },
         {
             "name": "laravel/pint",
@@ -11783,16 +11783,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v8.0.6",
+            "version": "v8.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "5f006c50a981e1630bbb70ad409c5d85f9a716e0"
+                "reference": "54174ab48c0c0f9e21512b304be17f8150ccf8f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/5f006c50a981e1630bbb70ad409c5d85f9a716e0",
-                "reference": "5f006c50a981e1630bbb70ad409c5d85f9a716e0",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/54174ab48c0c0f9e21512b304be17f8150ccf8f1",
+                "reference": "54174ab48c0c0f9e21512b304be17f8150ccf8f1",
                 "shasum": ""
             },
             "require": {
@@ -11834,7 +11834,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v8.0.6"
+                "source": "https://github.com/symfony/yaml/tree/v8.0.8"
             },
             "funding": [
                 {
@@ -11854,7 +11854,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-09T10:14:57+00:00"
+            "time": "2026-03-30T15:14:47+00:00"
         },
         {
             "name": "theseer/tokenizer",
