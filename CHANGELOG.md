@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Improved 404 error messages for better readability and clarity ([#86], [#3036])
+- Standardized 404 error handling on admin pages ([#1676], [#3036])
+- Improved and standardized room not found error handling in the room view ([#3036])
+
 ## [v4.14.1] - 2026-04-09
 
 ### Changed
@@ -534,6 +540,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
 [#77]: https://github.com/THM-Health/PILOS/issues/77
+[#86]: https://github.com/THM-Health/PILOS/issues/86
 [#300]: https://github.com/THM-Health/PILOS/issues/300
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
@@ -630,6 +637,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1636]: https://github.com/THM-Health/PILOS/issues/1636
 [#1651]: https://github.com/THM-Health/PILOS/issues/1651
 [#1675]: https://github.com/THM-Health/PILOS/issues/1675
+[#1676]: https://github.com/THM-Health/PILOS/issues/1676
 [#1677]: https://github.com/THM-Health/PILOS/issues/1677
 [#1678]: https://github.com/THM-Health/PILOS/pull/1678
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
@@ -763,6 +771,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3014]: https://github.com/THM-Health/PILOS/pull/3014
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
+[#3036]: https://github.com/THM-Health/PILOS/pull/3036
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
