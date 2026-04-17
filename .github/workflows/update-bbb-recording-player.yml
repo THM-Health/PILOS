@@ -16,21 +16,17 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Get the latest BBB Recording Player release
-        run: |
-          curl -s --request GET \
-          --url "https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest" \
-          > player-release.json
-      - name: Extract the latest BBB Recording Player version
-        run: echo "LATEST_PLAYER_VERSION=$(jq -r '.tag_name' player-release.json | sed 's/^v//')" >> $GITHUB_ENV
-      - name: Extract release notes
-        run: |
-          jq -r '.body // ""' player-release.json > player-release-notes.md
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 2
           persist-credentials: false
+      - name: Get the latest BBB Recording Player release
+        run: curl "https://api.github.com/repos/bigbluebutton/bbb-playback/releases/latest" -o player-release.json
+      - name: Extract the latest BBB Recording Player version
+        run: echo "LATEST_PLAYER_VERSION=$(jq -r '.tag_name' player-release.json | sed 's/^v//')" >> $GITHUB_ENV
+      - name: Extract release notes
+        run: jq -r '.body // ""' player-release.json > player-release-notes.md
       - name: Extract the current BBB Recording Player version from Docker file
         run: echo "CURRENT_PLAYER_VERSION=$(sed -n 's/ARG PLAYBACK_PLAYER_VERSION=//p' docker/app/Dockerfile)" >> $GITHUB_ENV
       - name: Compare the versions
@@ -45,8 +41,7 @@ jobs:
           CURRENT_PLAYER_VERSION: ${{ env.CURRENT_PLAYER_VERSION }}
       - name: Update the BBB Player version
         if: ${{ env.NEEDS_UPDATE == 'true' }}
-        run: |
-          sed -i "s/ARG PLAYBACK_PLAYER_VERSION=.*/ARG PLAYBACK_PLAYER_VERSION=${LATEST_PLAYER_VERSION}/" docker/app/Dockerfile
+        run: sed -i "s/ARG PLAYBACK_PLAYER_VERSION=.*/ARG PLAYBACK_PLAYER_VERSION=${LATEST_PLAYER_VERSION}/" docker/app/Dockerfile
       - name: Prepare PR body file
         if: ${{ env.NEEDS_UPDATE == 'true' }}
         run: |
