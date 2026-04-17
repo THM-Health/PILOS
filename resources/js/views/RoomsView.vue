@@ -102,7 +102,6 @@
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
                 @reload="reload"
-                @left-membership="reload(false)"
               />
               <Divider />
 
