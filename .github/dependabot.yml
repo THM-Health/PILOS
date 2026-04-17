@@ -36,6 +36,14 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Europe/Berlin"
+    groups:
+      laravel:
+        patterns:
+          - "laravel/*"
+      phpunit:
+        patterns:
+          - "brianium/paratest"
+          - "phpunit/phpunit"
 
   # Github  Actions updates
   - package-ecosystem: "github-actions"
