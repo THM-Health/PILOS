@@ -255,7 +255,7 @@ function uploadFile(file) {
       reset();
       if (error.response) {
         if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
-          formErrors.set({ file: [t("app.validation.too_large")] });
+          formErrors.set({ file: [t("app.file.too_large")] });
           return;
         }
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

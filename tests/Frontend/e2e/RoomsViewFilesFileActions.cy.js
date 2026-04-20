@@ -261,7 +261,7 @@ describe("Rooms view files file actions", function () {
     // Check that dialog stayed open and error message is shown
     cy.get('[data-test="room-files-upload-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.validation.too_large");
+      .and("include.text", "app.file.too_large");
 
     // Check 422 error (validation error)
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/files", {

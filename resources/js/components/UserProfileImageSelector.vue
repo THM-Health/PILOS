@@ -12,8 +12,8 @@
         auto
         :disabled="disabled"
         class="w-full"
-        :invalidFileSizeMessage="$t('app.validation.too_large')"
-        :invalid-file-type-message="$t('app.validation.invalid_type')"
+        :invalidFileSizeMessage="$t('app.file.too_large')"
+        :invalid-file-type-message="$t('app.file.invalid_type')"
         :choose-label="$t('admin.users.image.upload')"
         :pt="{
           pcChooseButton: {
@@ -124,7 +124,7 @@
 </template>
 
 <script setup>
-import { nextTick, ref, useTemplateRef, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import Cropper from "cropperjs";
 import { useI18n } from "vue-i18n";
 

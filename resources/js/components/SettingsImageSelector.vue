@@ -56,10 +56,10 @@
       </div>
       <div>
         <p v-if="fileTooBig" class="text-red-500" role="alert">
-          {{ $t("app.validation.too_large") }}
+          {{ $t("app.file.too_large") }}
         </p>
         <p v-if="fileInvalidExtension" class="text-red-500" role="alert">
-          {{ $t("app.validation.invalid_type") }}
+          {{ $t("app.file.invalid_type") }}
         </p>
         <FormError :errors="fileError" />
         <FormError :errors="urlError" />
