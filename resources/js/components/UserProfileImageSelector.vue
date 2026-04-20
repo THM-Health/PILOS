@@ -12,7 +12,7 @@
         auto
         :disabled="disabled"
         class="w-full"
-        :invalidFileSizeMessage="$t('app.file.too_large')"
+        :invalid-file-size-message="$t('app.file.too_large')"
         :invalid-file-type-message="$t('app.file.invalid_type')"
         :choose-label="$t('admin.users.image.upload')"
         :pt="{
@@ -100,8 +100,8 @@
           severity="secondary"
           :disabled="isSavingAction"
           data-test="dialog-cancel-button"
-          @click="closeModal"
           autofocus
+          @click="closeModal"
         />
         <Button
           :label="$t('admin.users.image.save')"
@@ -114,9 +114,9 @@
 
     <div v-if="selectedFile" class="cropper-container">
       <img
+        ref="cropperImgRef"
         :src="selectedFile"
         width="100%"
-        ref="cropperImgRef"
         :alt="$t('admin.users.image.title')"
       />
     </div>
