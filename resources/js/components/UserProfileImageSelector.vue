@@ -7,11 +7,13 @@
       <FileUpload
         v-if="!imageDeleted"
         mode="basic"
-        accept="image/png, image/jpeg"
+        accept=".jpg,.png"
         custom-upload
         auto
         :disabled="disabled"
         class="w-full"
+        :invalidFileSizeMessage="$t('app.validation.too_large')"
+        :invalid-file-type-message="$t('app.validation.invalid_type')"
         :choose-label="$t('admin.users.image.upload')"
         :pt="{
           pcChooseButton: {
@@ -46,7 +48,7 @@
         :label="$t('admin.users.image.delete')"
         icon="fa-solid fa-trash"
         data-test="delete-image-button"
-        @click="emit('deleteImage', true)"
+        @click="deleteImage"
       />
       <Button
         v-if="imageDeleted"
@@ -55,7 +57,7 @@
         :label="$t('app.undo_delete')"
         icon="fa-solid fa-undo"
         data-test="undo-delete-button"
-        @click="emit('deleteImage', false)"
+        @click="undoDeleteImage"
       />
     </div>
     <div
@@ -96,13 +98,14 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          :disabled="isLoadingAction"
+          :disabled="isSavingAction"
           data-test="dialog-cancel-button"
           @click="closeModal"
+          autofocus
         />
         <Button
           :label="$t('admin.users.image.save')"
-          :loading="isLoadingAction"
+          :loading="isLoadingAction || isSavingAction"
           data-test="dialog-save-button"
           @click="save"
         />
@@ -113,7 +116,7 @@
       <img
         :src="selectedFile"
         width="100%"
-        id="cropper"
+        ref="cropperImgRef"
         :alt="$t('admin.users.image.title')"
       />
     </div>
@@ -121,7 +124,7 @@
 </template>
 
 <script setup>
-import { nextTick, ref, watch } from "vue";
+import { nextTick, ref, useTemplateRef, watch } from "vue";
 import Cropper from "cropperjs";
 
 const props = defineProps({
@@ -152,9 +155,11 @@ const emit = defineEmits(["newImage", "deleteImage"]);
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
+const isSavingAction = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
 const cropper = ref();
+const cropperImgRef = ref(null);
 
 watch(
   () => props.image,
@@ -169,7 +174,7 @@ watch(
  * Convert image to data url to display and to blob to upload to server
  */
 async function save() {
-  isLoadingAction.value = true;
+  isSavingAction.value = true;
   const oc = cropper.value.getCroppedCanvas({
     width: 100,
     height: 100,
@@ -179,7 +184,7 @@ async function save() {
   croppedImage.value = oc.toDataURL("image/jpeg");
   oc.toBlob((blob) => {
     emit("newImage", blob);
-    isLoadingAction.value = false;
+    isSavingAction.value = false;
     closeModal();
   }, "image/jpeg");
 }
@@ -187,10 +192,14 @@ async function save() {
 /**
  * Reset other previously uploaded images
  */
-function resetFileUpload() {
+async function resetFileUpload() {
   croppedImage.value = null;
   emit("newImage", null);
   selectedFile.value = null;
+
+  await nextTick();
+
+  document.querySelector("[data-test='upload-file-button']")?.focus();
 }
 
 function closeModal() {
@@ -205,6 +214,7 @@ function closeModal() {
 async function onFileSelect(event) {
   modalVisible.value = true;
   isLoadingAction.value = true;
+
   const file = event.files[0];
 
   const reader = new FileReader();
@@ -213,7 +223,7 @@ async function onFileSelect(event) {
 
     await nextTick();
 
-    cropper.value = new Cropper(document.getElementById("cropper"), {
+    cropper.value = new Cropper(cropperImgRef.value, {
       aspectRatio: 1,
       autoCropArea: 0.9,
       background: false,
@@ -226,13 +236,21 @@ async function onFileSelect(event) {
       dragMode: "none",
       ready: async function () {
         isLoadingAction.value = false;
-
-        await nextTick();
-
-        document.querySelector('[data-test="dialog-cancel-button"]').focus();
       },
     });
   };
   reader.readAsDataURL(file);
+}
+
+async function deleteImage() {
+  emit("deleteImage", true);
+  await nextTick();
+  document.querySelector("[data-test='undo-delete-button']")?.focus();
+}
+
+async function undoDeleteImage() {
+  emit("deleteImage", false);
+  await nextTick();
+  document.querySelector("[data-test='delete-image-button']")?.focus();
 }
 </script>

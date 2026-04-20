@@ -21,9 +21,9 @@ describe("Rooms view files file actions", function () {
       .should("include.text", "rooms.files.upload")
       .should(
         "include.text",
-        'rooms.files.formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
+        'app.file.allowed_formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
       )
-      .should("include.text", 'rooms.files.size_{"size":30')
+      .should("include.text", 'app.file.max_size_{"size":30 MB')
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="drop-zone"]')

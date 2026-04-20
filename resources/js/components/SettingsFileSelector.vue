@@ -63,12 +63,26 @@
         </p>
         <FormError :errors="fileError" />
       </div>
+      <small
+        >{{
+          $t("app.file.allowed_formats", {
+            formats: allowedExtensions.join(", "),
+          })
+        }}<br />{{
+          $t("app.file.max_size", {
+            size: fileHelpers.fileSize(maxFileSize),
+          })
+        }}</small
+      >
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import { useFileHelpers } from "../composables/useFileHelpers.js";
+
+const fileHelpers = useFileHelpers();
 
 const file = defineModel("file", { type: File });
 const fileUrl = defineModel("fileUrl", { type: String });
