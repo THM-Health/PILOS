@@ -339,6 +339,10 @@ function initKeyboardShortcuts() {
 }
 
 function moveEventListener(e) {
+  if (!shouldHandleArrowKey(e)) {
+    return;
+  }
+
   const cropDimensions = cropper.value.getCropBoxData();
 
   switch (e.key) {
@@ -360,6 +364,10 @@ function moveEventListener(e) {
 }
 
 function topLeftEventListener(e) {
+  if (!shouldHandleArrowKey(e)) {
+    return;
+  }
+
   const cropDimensions = cropper.value.getCropBoxData();
 
   switch (e.key) {
@@ -383,6 +391,10 @@ function topLeftEventListener(e) {
 }
 
 function topRightEventListener(e) {
+  if (!shouldHandleArrowKey(e)) {
+    return;
+  }
+
   const cropDimensions = cropper.value.getCropBoxData();
 
   switch (e.key) {
@@ -404,6 +416,10 @@ function topRightEventListener(e) {
 }
 
 function bottomLeftEventListener(e) {
+  if (!shouldHandleArrowKey(e)) {
+    return;
+  }
+
   const cropDimensions = cropper.value.getCropBoxData();
 
   switch (e.key) {
@@ -425,6 +441,10 @@ function bottomLeftEventListener(e) {
 }
 
 function bottomRightEventListener(e) {
+  if (!shouldHandleArrowKey(e)) {
+    return;
+  }
+
   const cropDimensions = cropper.value.getCropBoxData();
 
   switch (e.key) {
@@ -441,5 +461,15 @@ function bottomRightEventListener(e) {
   }
 
   cropper.value.setCropBoxData(cropDimensions);
+}
+
+function shouldHandleArrowKey(e) {
+  if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    return false;
+  }
+
+  e.preventDefault();
+  e.stopPropagation();
+  return true;
 }
 </script>
