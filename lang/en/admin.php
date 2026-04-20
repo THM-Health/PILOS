@@ -473,6 +473,13 @@ return [
             'title' => 'Profile picture',
             'title_short' => 'Picture',
             'upload' => 'Upload new picture',
+            'aria_crop_selection' => [
+                'move' => 'Use the arrow keys to move the crop selection area',
+                'top_left' => 'Use the arrow keys to move the top left drag handle to change the crop selection area',
+                'top_right' => 'Use the arrow keys to move the top right drag handle to change the crop selection area',
+                'bottom_left' => 'Use the arrow keys to move the bottom left drag handle to change the crop selection area',
+                'bottom_right' => 'Use the arrow keys to move the bottom right drag handle to change the crop selection area',
+            ]
         ],
         'last_login' => [
             'title' => 'Last login',

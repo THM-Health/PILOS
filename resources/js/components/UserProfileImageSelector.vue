@@ -94,7 +94,7 @@
     :closable="false"
   >
     <template #footer>
-      <div class="flex justify-end gap-2">
+      <div class="mt-2 flex justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
@@ -112,7 +112,7 @@
       </div>
     </template>
 
-    <div v-if="selectedFile" class="cropper-container my-2">
+    <div v-if="selectedFile" class="cropper-container">
       <img
         :src="selectedFile"
         width="100%"
@@ -126,6 +126,7 @@
 <script setup>
 import { nextTick, ref, useTemplateRef, watch } from "vue";
 import Cropper from "cropperjs";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   image: {
@@ -153,6 +154,8 @@ const props = defineProps({
 
 const emit = defineEmits(["newImage", "deleteImage"]);
 
+const { t } = useI18n();
+
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const isSavingAction = ref(false);
@@ -160,6 +163,13 @@ const selectedFile = ref(null);
 const croppedImage = ref(null);
 const cropper = ref();
 const cropperImgRef = ref(null);
+
+const moveHandle = ref(null);
+const topLeftHandle = ref(null);
+const topRightHandle = ref(null);
+const bottomLeftHandle = ref(null);
+const bottomRightHandle = ref(null);
+const scaleMove = ref(1);
 
 watch(
   () => props.image,
@@ -204,6 +214,7 @@ async function resetFileUpload() {
 
 function closeModal() {
   if (cropper.value) {
+    clearKeyboardShortcuts();
     cropper.value.destroy();
     cropper.value = null;
   }
@@ -236,6 +247,8 @@ async function onFileSelect(event) {
       dragMode: "none",
       ready: async function () {
         isLoadingAction.value = false;
+
+        initKeyboardShortcuts();
       },
     });
   };
@@ -252,5 +265,181 @@ async function undoDeleteImage() {
   emit("deleteImage", false);
   await nextTick();
   document.querySelector("[data-test='delete-image-button']")?.focus();
+}
+
+function clearKeyboardShortcuts() {
+  // Remove event listeners
+  moveHandle.value?.removeEventListener("keydown", moveEventListener);
+  topLeftHandle.value?.removeEventListener("keydown", topLeftEventListener);
+  topRightHandle.value?.removeEventListener("keydown", topRightEventListener);
+  bottomLeftHandle.value?.removeEventListener(
+    "keydown",
+    bottomLeftEventListener,
+  );
+  bottomRightHandle.value?.removeEventListener(
+    "keydown",
+    bottomRightEventListener,
+  );
+}
+
+function initKeyboardShortcuts() {
+  const dimensions = cropper.value.getData();
+  scaleMove.value = Math.min(dimensions.width, dimensions.height) / 100;
+
+  // Get all handles
+  moveHandle.value = document.getElementsByClassName("cropper-move")[0];
+  topLeftHandle.value = document.getElementsByClassName(
+    "cropper-point point-nw",
+  )[0];
+  topRightHandle.value = document.getElementsByClassName(
+    "cropper-point point-ne",
+  )[0];
+  bottomLeftHandle.value = document.getElementsByClassName(
+    "cropper-point point-sw",
+  )[0];
+  bottomRightHandle.value = document.getElementsByClassName(
+    "cropper-point point-se",
+  )[0];
+
+  // Add tabindex
+  moveHandle.value.setAttribute("tabindex", 0);
+  topLeftHandle.value.setAttribute("tabindex", 0);
+  topRightHandle.value.setAttribute("tabindex", 0);
+  bottomLeftHandle.value.setAttribute("tabindex", 0);
+  bottomRightHandle.value.setAttribute("tabindex", 0);
+
+  // Add aria-labels
+  moveHandle.value.setAttribute(
+    "aria-label",
+    t("admin.users.image.aria_crop_selection.move"),
+  );
+  topLeftHandle.value.setAttribute(
+    "aria-label",
+    t("admin.users.image.aria_crop_selection.top_left"),
+  );
+  topRightHandle.value.setAttribute(
+    "aria-label",
+    t("admin.users.image.aria_crop_selection.top_right"),
+  );
+  bottomLeftHandle.value.setAttribute(
+    "aria-label",
+    t("admin.users.image.aria_crop_selection.bottom_left"),
+  );
+  bottomRightHandle.value.setAttribute(
+    "aria-label",
+    t("admin.users.image.aria_crop_selection.bottom_right"),
+  );
+
+  // Add event listeners
+  moveHandle.value.addEventListener("keydown", moveEventListener);
+  topLeftHandle.value.addEventListener("keydown", topLeftEventListener);
+  topRightHandle.value.addEventListener("keydown", topRightEventListener);
+  bottomLeftHandle.value.addEventListener("keydown", bottomLeftEventListener);
+  bottomRightHandle.value.addEventListener("keydown", bottomRightEventListener);
+}
+
+function moveEventListener(e) {
+  const cropDimensions = cropper.value.getCropBoxData();
+
+  switch (e.key) {
+    case "ArrowUp":
+      cropDimensions.top -= scaleMove.value;
+      break;
+    case "ArrowDown":
+      cropDimensions.top += scaleMove.value;
+      break;
+    case "ArrowLeft":
+      cropDimensions.left -= scaleMove.value;
+      break;
+    case "ArrowRight":
+      cropDimensions.left += scaleMove.value;
+      break;
+  }
+
+  cropper.value.setCropBoxData(cropDimensions);
+}
+
+function topLeftEventListener(e) {
+  const cropDimensions = cropper.value.getCropBoxData();
+
+  switch (e.key) {
+    case "ArrowUp":
+    case "ArrowLeft":
+      cropDimensions.top -= scaleMove.value;
+      cropDimensions.height += scaleMove.value;
+      cropDimensions.left -= scaleMove.value;
+      cropDimensions.width += scaleMove.value;
+      break;
+    case "ArrowDown":
+    case "ArrowRight":
+      cropDimensions.top += scaleMove.value;
+      cropDimensions.height -= scaleMove.value;
+      cropDimensions.left += scaleMove.value;
+      cropDimensions.width -= scaleMove.value;
+      break;
+  }
+
+  cropper.value.setCropBoxData(cropDimensions);
+}
+
+function topRightEventListener(e) {
+  const cropDimensions = cropper.value.getCropBoxData();
+
+  switch (e.key) {
+    case "ArrowUp":
+    case "ArrowRight":
+      cropDimensions.top -= scaleMove.value;
+      cropDimensions.height += scaleMove.value;
+      cropDimensions.width += scaleMove.value;
+      break;
+    case "ArrowDown":
+    case "ArrowLeft":
+      cropDimensions.top += scaleMove.value;
+      cropDimensions.height -= scaleMove.value;
+      cropDimensions.width -= scaleMove.value;
+      break;
+  }
+
+  cropper.value.setCropBoxData(cropDimensions);
+}
+
+function bottomLeftEventListener(e) {
+  const cropDimensions = cropper.value.getCropBoxData();
+
+  switch (e.key) {
+    case "ArrowDown":
+    case "ArrowLeft":
+      cropDimensions.height += scaleMove.value;
+      cropDimensions.left -= scaleMove.value;
+      cropDimensions.width += scaleMove.value;
+      break;
+    case "ArrowUp":
+    case "ArrowRight":
+      cropDimensions.height -= scaleMove.value;
+      cropDimensions.left += scaleMove.value;
+      cropDimensions.width -= scaleMove.value;
+      break;
+  }
+
+  cropper.value.setCropBoxData(cropDimensions);
+}
+
+function bottomRightEventListener(e) {
+  const cropDimensions = cropper.value.getCropBoxData();
+
+  switch (e.key) {
+    case "ArrowDown":
+    case "ArrowRight":
+      cropDimensions.height += scaleMove.value;
+      cropDimensions.width += scaleMove.value;
+      break;
+    case "ArrowUp":
+    case "ArrowLeft":
+      cropDimensions.height -= scaleMove.value;
+      cropDimensions.width -= scaleMove.value;
+      break;
+  }
+
+  cropper.value.setCropBoxData(cropDimensions);
 }
 </script>
