@@ -9208,16 +9208,16 @@
         },
         {
             "name": "web-token/jwt-framework",
-            "version": "4.1.4",
+            "version": "4.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-framework.git",
-                "reference": "46b7f7e634b669a24803b8c3e757a6b785c8386a"
+                "reference": "d126963451857602ae23032a0e29b0e18c2e9920"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-framework/zipball/46b7f7e634b669a24803b8c3e757a6b785c8386a",
-                "reference": "46b7f7e634b669a24803b8c3e757a6b785c8386a",
+                "url": "https://api.github.com/repos/web-token/jwt-framework/zipball/d126963451857602ae23032a0e29b0e18c2e9920",
+                "reference": "d126963451857602ae23032a0e29b0e18c2e9920",
                 "shasum": ""
             },
             "require": {
@@ -9309,7 +9309,7 @@
             ],
             "support": {
                 "issues": "https://github.com/web-token/jwt-framework/issues",
-                "source": "https://github.com/web-token/jwt-framework/tree/4.1.4"
+                "source": "https://github.com/web-token/jwt-framework/tree/4.1.6"
             },
             "funding": [
                 {
@@ -9321,7 +9321,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-03-30T07:43:04+00:00"
+            "time": "2026-04-14T07:44:20+00:00"
         }
     ],
     "packages-dev": [
@@ -11969,7 +11969,9 @@
     ],
     "aliases": [],
     "minimum-stability": "beta",
-    "stability-flags": {},
+    "stability-flags": {
+        "laravel/pulse": 10
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
