@@ -226,7 +226,7 @@ Then the attribute and role mapping must be configured by creating a file in the
             ]
         },
         {
-            "name": "admin",
+            "name": "superuser",
             "disabled": false,
             "all": true,
             "rules": [
@@ -240,7 +240,7 @@ Then the attribute and role mapping must be configured by creating a file in the
 }
 ```
 
-This role mapping gives users of the group students the user role and users of the group staff the admin role.
+This role mapping gives users of the group students the user role and users of the group staff the superuser role.
 
 There are three user accounts (see `docker/openldap/bootstrap.ldif`)
 
