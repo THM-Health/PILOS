@@ -229,6 +229,7 @@ function closeModal() {
 async function onFileSelect(event) {
   modalVisible.value = true;
   isLoadingAction.value = true;
+  selectedFile.value = null;
 
   const file = event.files[0];
 
@@ -238,6 +239,10 @@ async function onFileSelect(event) {
 
     await nextTick();
 
+    // cancel if modal is already closed
+    if (!cropperImgRef.value) {
+      return;
+    }
     cropper.value = new Cropper(cropperImgRef.value, {
       aspectRatio: 1,
       autoCropArea: 0.9,
