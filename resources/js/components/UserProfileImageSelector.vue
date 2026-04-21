@@ -191,12 +191,16 @@ async function save() {
     fillColor: "#ffff",
   });
 
-  croppedImage.value = oc.toDataURL("image/jpeg");
-  oc.toBlob((blob) => {
-    emit("newImage", blob);
-    isSavingAction.value = false;
-    closeModal();
-  }, "image/jpeg");
+  croppedImage.value = oc.toDataURL("image/jpeg", 1);
+  oc.toBlob(
+    (blob) => {
+      emit("newImage", blob);
+      isSavingAction.value = false;
+      closeModal();
+    },
+    "image/jpeg",
+    1,
+  );
 }
 
 /**
