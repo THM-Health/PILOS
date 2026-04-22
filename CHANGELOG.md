@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved error handling when a room requires an access code but none was provided ([#3035])
 
+### Fixed
+
+- Buttons insufficiently disabled during loading actions ([#1811])
+
 ## [v4.14.2] - 2026-04-10
 
 ### Fixed
@@ -662,6 +666,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1795]: https://github.com/THM-Health/PILOS/pull/1795
 [#1801]: https://github.com/THM-Health/PILOS/pull/1801
 [#1802]: https://github.com/THM-Health/PILOS/pull/1802
+[#1811]: https://github.com/THM-Health/PILOS/pull/1811
 [#1824]: https://github.com/THM-Health/PILOS/issues/1824
 [#1825]: https://github.com/THM-Health/PILOS/pull/1825
 [#1827]: https://github.com/THM-Health/PILOS/issues/1827
