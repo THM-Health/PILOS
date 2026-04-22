@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'one_more_error' => '(and :count more error)',
+    'several_errors' => '(and :count more errors)',
     'accepted' => 'The :attribute must be accepted.',
     'accepted_if' => 'The :attribute must be accepted when :other is :value.',
     'active_url' => 'The :attribute is not a valid URL.',
