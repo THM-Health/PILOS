@@ -3,7 +3,7 @@ title: Migrate from Greenlight
 description: Step by step guide to migrate from Greenlight to PILOS
 ---
 
-PILOS provides an easy to use command to import all Greenlight users (incl. ldap), rooms and shared accesses.
+PILOS provides an easy-to-use command to import all Greenlight users (incl. ldap), rooms (incl. default presentation) and shared accesses.
 
 ## Preparing migration from other host
 
@@ -31,9 +31,9 @@ Successfully imported presentation files will be copied to a different location.
 
 ## Running migration command
 
-The command will output the process of the import and informs about failed user, room and shared access import.
+The command will output the process of the import and informs about failed user, room, room presentation and shared access import.
 
-**Note** If a room with the same room id already exists in PILOS it will NOT be imported and the shared accesses are ignored.
+**Note** If a room with the same room id already exists in PILOS it will NOT be imported and its default presentation and shared accesses are ignored.
 
 ### Greenlight 2
 
@@ -134,6 +134,25 @@ docker compose exec app pilos-cli import:greenlight-v3 \
     postgres \
     12345678
 ```
+
+## Importing recordings
+
+You can also import recordings for existing rooms. To make this possible the import command creates a meeting with the BBB meeting ID for every imported room.
+This meeting does not have a start- or end timestamp, so it not visible in the frontend. Associated recordings _will_ be listed, however.
+
+To import existing recordings, you have to
+
+1. find the meeting ID (column `bbb_id` (GL2) or `meeting_id` (GL3) in the `rooms` table)
+2. find all recordings with this meeting ID (XPath: `/recording/meta/meetingId` in metadata.xml)
+3. pack matching recordings into tar files and
+4. move or copy those tar files to PILOS' `recordings-spool` directory.
+
+Existing recordings prepared like this will be imported just like new ones would.
+
+**Note** You _may_ have to temporarily increase RAM allocated to horizon if it is limited.
+
+**Note** YMMV, depending on your BBB loadbalancer. If, for example, you run b3scale, you need to extract the "simple" Greenlight meeting ID from the
+more complex b3scale meeting ID.
 
 ## Adjust nginx
 
