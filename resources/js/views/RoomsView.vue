@@ -177,6 +177,7 @@
                   roomAuthToken = null;
                   reload();
                 "
+                @left-membership="reload(false)"
               />
             </template>
             <template #content>
@@ -204,6 +205,10 @@
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
+                    @require-code="
+                      handleRequireCode();
+                      reload(false);
+                    "
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
                   />
@@ -223,6 +228,10 @@
             :room-auth-token="roomAuthToken"
             :room="room"
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
+            @require-code="
+              handleRequireCode();
+              reload(false);
+            "
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
           />
@@ -394,7 +403,22 @@ function handleInvalidCode() {
 
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
-  reload();
+  reload(false);
+}
+
+/**
+ * Reset access code error states and access code input and display error message
+ */
+function handleRequireCode() {
+  // Reset access code error states to prevent confusing error state
+  accessCodeInvalid.value = null;
+  formErrors.clear();
+
+  // Reset access code input
+  accessCodeInput.value = "";
+
+  // Show error message
+  toast.error(t("rooms.require_access_code"));
 }
 
 /**
@@ -481,8 +505,9 @@ watch(authThrottledFor, (value) => {
 
 /**
  * Reload the room details/settings
+ * @param {boolean} [checkForRequireCodeError=true]
  */
-function reload() {
+function reload(checkForRequireCodeError = true) {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
@@ -501,6 +526,15 @@ function reload() {
   api
     .call(url, config)
     .then((response) => {
+      // Room was authenticated but now requires an access code
+      if (
+        checkForRequireCodeError &&
+        room.value?.authenticated &&
+        !response.data.data.authenticated
+      ) {
+        handleRequireCode();
+      }
+
       room.value = response.data.data;
 
       setPageTitle(room.value.name);

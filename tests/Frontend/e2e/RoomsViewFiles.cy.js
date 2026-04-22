@@ -394,7 +394,8 @@ describe("Rooms View Files", function () {
         "roomRequest",
       );
 
-      cy.get('[data-test="room-login-button"]').click();
+      // Reload room to trigger files request again (but without setting room auth token)
+      cy.get('[data-test="reload-room-button"]').click();
 
       cy.fixture("room.json").then((room2) => {
         room2.data.owner = { id: 2, name: "Max Doe" };
@@ -411,28 +412,25 @@ describe("Rooms View Files", function () {
       });
     });
 
-    cy.wait("@roomAuthRequest");
-
     cy.wait("@roomRequest");
 
     cy.wait("@roomFilesRequest").then((interception) => {
-      // Check that room auth token is set
-      expect(interception.request.query).to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      // Check that room auth token is not set
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     cy.wait("@roomRequest").then((interception) => {
-      // Check that room auth token is reset
+      // Check that room auth token is not set
       expect(interception.request.query.room_auth_token).to.be.undefined;
       expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("load files with personalized link", function () {

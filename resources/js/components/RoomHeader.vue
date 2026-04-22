@@ -40,7 +40,7 @@
             :room="props.room"
             :room-auth-token="roomAuthToken"
             @joined-membership="emit('joinedMembership')"
-            @left-membership="emit('reload')"
+            @left-membership="emit('leftMembership')"
             @invalid-room-auth-token="emit('invalidRoomAuthToken')"
             @membership-disabled="emit('reload')"
           />
@@ -116,5 +116,6 @@ const emit = defineEmits([
   "joinedMembership",
   "reload",
   "invalidRoomAuthToken",
+  "leftMembership",
 ]);
 </script>

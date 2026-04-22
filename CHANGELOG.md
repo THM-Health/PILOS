@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Improved error handling when a room requires an access code but none was provided ([#3035])
+
 ## [v4.14.2] - 2026-04-10
 
 ### Fixed
@@ -769,6 +773,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3014]: https://github.com/THM-Health/PILOS/pull/3014
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
+[#3035]: https://github.com/THM-Health/PILOS/pull/3035
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.2...develop
