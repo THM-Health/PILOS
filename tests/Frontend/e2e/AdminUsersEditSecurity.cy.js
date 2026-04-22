@@ -395,6 +395,11 @@ describe("Admin users edit email", function () {
         .and("be.disabled");
 
       // Check that input fields and buttons are disabled
+      cy.get("#new_password").should("be.disabled");
+      cy.get("#new_password_confirmation").should("be.disabled");
+
+      cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
       cy.get('[data-test="role-dropdown"]').should(
         "have.class",
         "multiselect--disabled",
@@ -669,7 +674,15 @@ describe("Admin users edit email", function () {
 
       // Check that input fields and buttons are disabled
       cy.get("#new_password").should("be.disabled");
-      cy.get("#new_password_confirmation")
+      cy.get("#new_password_confirmation").should("be.disabled");
+
+      cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
+      cy.get('[data-test="role-dropdown"]').should(
+        "have.class",
+        "multiselect--disabled",
+      );
+      cy.get('[data-test="users-roles-save-button"]')
         .should("be.disabled")
         .then(() => {
           saveChangesRequest.sendResponse();
