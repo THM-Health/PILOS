@@ -28,26 +28,28 @@
       <p class="m-0 whitespace-pre-wrap" data-test="banner-message">
         {{ message }}
       </p>
-      <a
-        v-if="link"
-        :href="link"
-        :target="`_${linkTarget}`"
-        data-test="banner-link-button"
-      >
+      <div>
         <Button
+          v-if="link"
+          as="a"
+          data-test="banner-link-button"
+          :href="link"
+          :target="`_${linkTarget}`"
           :link="linkStyle === 'link'"
-          :style="linkStyle === 'link' ? { color: color } : {}"
-          :class="linkStyle === 'link' ? 'p-0 underline' : ''"
+          :style="buttonStyle"
+          :class="buttonClass"
           :severity="linkStyle"
           :label="linkText ? linkText : link"
         />
-      </a>
+      </div>
     </div>
   </Message>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+
+const props = defineProps({
   background: {
     type: String,
     default: null,
@@ -92,6 +94,14 @@ defineProps({
     type: String,
     default: null,
   },
+});
+
+const buttonClass = computed(() => {
+  return props.linkStyle === "link" ? "p-0 underline" : "";
+});
+
+const buttonStyle = computed(() => {
+  return props.linkStyle === "link" ? { color: props.color } : {};
 });
 </script>
 <style scoped>
