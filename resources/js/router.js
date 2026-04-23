@@ -71,6 +71,7 @@ export const routes = [
     props: (route) => {
       return {
         error: route.query.error,
+        noMessage: route.query.no_message === "1",
       };
     },
   },

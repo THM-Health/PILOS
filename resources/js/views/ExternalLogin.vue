@@ -60,6 +60,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  noMessage: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const toast = useToast();
@@ -70,8 +74,11 @@ const route = useRoute();
 onMounted(() => {
   // Successfully login via external provider
   if (!props.error) {
-    // show toast message
-    toast.success(t("auth.flash.login"));
+    if (!props.noMessage) {
+      // show toast message
+      toast.success(t("auth.flash.login"));
+    }
+
     // check if user should be redirected back after login,
     // otherwise redirect to own rooms (dashboard)
     if (route.query.redirect !== undefined) {

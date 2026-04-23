@@ -125,6 +125,24 @@ class ShibbolethTest extends TestCase
     }
 
     /**
+     * Test that the redirect route can be accessed by logged-in users
+     *
+     * @return void
+     */
+    public function test_redirect_route_as_logged_in_user()
+    {
+        $user = User::factory()->create();
+
+        // Check without redirect url
+        $response = $this->actingAs($user)->get(route('auth.shibboleth.redirect'));
+        $response->assertRedirect('http://localhost/external_login?no_message=1');
+
+        // Check with redirect url
+        $response = $this->actingAs($user)->get(route('auth.shibboleth.redirect', ['redirect' => '/rooms/abc-123-def']));
+        $response->assertRedirect('http://localhost/external_login?no_message=1&redirect=%2Frooms%2Fabc-123-def');
+    }
+
+    /**
      * Test that the callback route is disabled if disabled in env
      *
      * @return void
