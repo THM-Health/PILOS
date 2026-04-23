@@ -692,6 +692,10 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("external login callback missing attributes error", function () {
@@ -799,5 +803,30 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.checkToastMessage("auth.flash.login");
+  });
+
+  it("external login with redirect query and no_message set", function () {
+    // Intercept user request (user that has the permission to show the config page)
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["admin.view"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    // Visit redirect page after external login (redirect query is set)
+    cy.visit("/external_login?no_message=1&redirect=/admin");
+
+    // Check if redirect works
+    cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and no toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.get(".p-toast-message").should("not.exist");
   });
 });
