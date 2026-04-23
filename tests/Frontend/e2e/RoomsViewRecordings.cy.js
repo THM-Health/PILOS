@@ -102,6 +102,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-enabled"]')
           .eq(3)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     cy.get('[data-test="room-recording-item"]')
@@ -134,6 +144,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-disabled"]')
           .eq(3)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     cy.get('[data-test="room-recording-item"]')
@@ -163,6 +183,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-disabled"]')
           .eq(1)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     cy.get('[data-test="room-recording-item"]')
@@ -192,6 +222,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-enabled"]')
           .eq(1)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     // Check if retention period message is shown correctly
@@ -199,6 +239,74 @@ describe("Rooms view recordings", function () {
       .should("be.visible")
       .and("include.text", "rooms.recordings.retention_period.title")
       .and("include.text", "rooms.recordings.retention_period.unlimited");
+
+    // Reload recording list
+    const roomRecordingReloadRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/rooms/abc-def-123/recordings*",
+      { fixture: "roomRecordings.json" },
+      "roomRecordingsReloadRequest",
+    );
+
+    cy.get('[data-test="room-recordings-reload-button"]').click();
+
+    // Check loading overlay shown during loading
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check buttons are disabled during loading
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-view-button"]')
+      .should("be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-download-button"]')
+      .should("be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-edit-button"]')
+      .should("be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-delete-button"]')
+      .should("be.disabled")
+      .then(() => {
+        roomRecordingReloadRequest.sendResponse();
+      });
+
+    // Check overlay is hidden after reload
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check buttons are enabled again after loading
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-view-button"]')
+      .should("not.be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('a[data-test="room-recordings-download-button"]')
+      .should(
+        "have.attr",
+        "href",
+        Cypress.config("baseUrl") +
+          "/download/recording/" +
+          "e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+      )
+      .and("have.attr", "target", "_blank");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-edit-button"]')
+      .should("not.be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-delete-button"]')
+      .should("not.be.disabled");
   });
 
   it("load recordings with access code", function () {

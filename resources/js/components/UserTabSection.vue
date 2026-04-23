@@ -6,18 +6,30 @@
       </template>
       <Tabs v-if="!isBusy && user" value="base" scrollable lazy>
         <TabList>
-          <Tab value="base" data-test="base-tab-button"
+          <Tab
+            value="base"
+            data-test="base-tab-button"
+            :disabled="isLoadingAction"
             ><i class="fa-solid fa-user mr-2" />
             {{ $t("admin.users.base_data") }}</Tab
           >
-          <Tab value="email" data-test="email-tab-button"
+          <Tab
+            value="email"
+            data-test="email-tab-button"
+            :disabled="isLoadingAction"
             ><i class="fa-solid fa-envelope mr-2" /> {{ $t("app.email") }}</Tab
           >
-          <Tab value="security" data-test="security-tab-button"
+          <Tab
+            value="security"
+            data-test="security-tab-button"
+            :disabled="isLoadingAction"
             ><i class="fa-solid fa-user-shield mr-2" />
             {{ $t("app.security") }}</Tab
           >
-          <Tab value="others" data-test="others-tab-button"
+          <Tab
+            value="others"
+            data-test="others-tab-button"
+            :disabled="isLoadingAction"
             ><i class="fa-solid fa-user-gear mr-2" />
             {{ $t("admin.users.other_settings") }}</Tab
           >
@@ -30,6 +42,7 @@
               @update-user="updateUser"
               @stale-error="handleStaleError"
               @not-found-error="handleNotFoundError"
+              @busy="(state) => (isLoadingAction = state)"
             />
           </TabPanel>
           <TabPanel value="email">
@@ -38,6 +51,7 @@
               :view-only="viewOnly"
               @update-user="updateUser"
               @not-found-error="handleNotFoundError"
+              @busy="(state) => (isLoadingAction = state)"
             />
           </TabPanel>
           <TabPanel value="security">
@@ -47,6 +61,7 @@
               @update-user="updateUser"
               @stale-error="handleStaleError"
               @not-found-error="handleNotFoundError"
+              @busy="(state) => (isLoadingAction = state)"
             />
           </TabPanel>
           <TabPanel value="others">
@@ -56,6 +71,7 @@
               @update-user="updateUser"
               @stale-error="handleStaleError"
               @not-found-error="handleNotFoundError"
+              @busy="(state) => (isLoadingAction = state)"
             />
           </TabPanel>
         </TabPanels>
@@ -108,10 +124,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["updateUser"]);
+const emit = defineEmits(["updateUser", "busy", "loadingAction"]);
 
 const user = ref(null);
 const isBusy = ref(false);
+const isLoadingAction = ref(false);
 const loadingError = ref(false);
 const staleError = ref({});
 const modalVisible = ref(false);
@@ -122,6 +139,14 @@ const userPermissions = useUserPermissions();
 
 onMounted(() => {
   loadUser();
+});
+
+// detect busy status while data fetching and notify parent
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
+});
+watch(isLoadingAction, () => {
+  emit("loadingAction", isLoadingAction.value);
 });
 
 function handleNotFoundError(error) {

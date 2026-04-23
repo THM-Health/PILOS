@@ -230,7 +230,7 @@
               v-tooltip="
                 $t('admin.servers.view', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.view', { name: slotProps.data.name })
@@ -247,7 +247,7 @@
               v-tooltip="
                 $t('admin.servers.edit', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.edit', { name: slotProps.data.name })
@@ -267,6 +267,7 @@
               "
               :id="slotProps.data.id"
               :name="slotProps.data.name"
+              :disabled="isBusy"
               @deleted="loadData(null, false)"
               @not-found="loadData(null, false)"
             ></SettingsServersDeleteButton>

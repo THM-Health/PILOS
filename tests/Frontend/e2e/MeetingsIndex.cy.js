@@ -1116,4 +1116,66 @@ describe("Meetings index", function () {
     cy.url().should("include", "/rooms/abc-def-123");
     cy.url().should("not.include", "/meetings");
   });
+
+  it("check loading state during reload", function () {
+    cy.visit("/meetings");
+    cy.wait("@meetingsRequest");
+
+    const meetingsReloadRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/meetings*",
+      { fixture: "meetings.json" },
+      "meetingsReloadRequest",
+    );
+
+    // Trigger reload by triggering reload button
+    cy.get('[data-test="meetings-reload-button"]').click();
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check loading state during reload
+    cy.get('[data-test="meeting-search"]').within(() => {
+      cy.get("input").should("be.visible").and("be.disabled");
+      cy.get("button").should("be.visible").and("be.disabled");
+    });
+
+    cy.get('[data-test="meetings-reload-button"]')
+      .should("be.visible")
+      .and("be.disabled");
+
+    cy.get('[data-test="meeting-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('button[data-test="meeting-view-room-button"]')
+          .should("be.visible")
+          .and("be.disabled")
+          .then(() => {
+            meetingsReloadRequest.sendResponse();
+          });
+      });
+
+    cy.wait("@meetingsReloadRequest");
+
+    // Check that overlay is hidden after reload
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check loading state after reload
+    cy.get('[data-test="meeting-search"]').within(() => {
+      cy.get("input").should("be.visible").and("not.be.disabled");
+      cy.get("button").should("be.visible").and("not.be.disabled");
+    });
+
+    cy.get('[data-test="meetings-reload-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
+    cy.get('[data-test="meeting-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('a[data-test="meeting-view-room-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/rooms/abc-def-123");
+      });
+  });
 });

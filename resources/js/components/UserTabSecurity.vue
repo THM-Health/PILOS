@@ -4,9 +4,11 @@
       <UserTabSecurityRolesAndPermissionsSection
         :user="user"
         :view-only="viewOnly"
+        :disabled="isBusy"
         @update-user="updateUser"
         @stale-error="handleStaleError"
         @not-found-error="handleNotFoundError"
+        @busy="(state) => (isBusy = state)"
       />
     </AdminPanel>
 
@@ -16,13 +18,18 @@
     >
       <UserTabSecurityPasswordSection
         :user="user"
+        :disabled="isBusy"
         @update-user="updateUser"
         @not-found-error="handleNotFoundError"
+        @busy="(state) => (isBusy = state)"
       />
     </AdminPanel>
 
     <AdminPanel v-if="isOwnUser" :title="$t('auth.sessions.active')">
-      <UserTabSecuritySessionsSection />
+      <UserTabSecuritySessionsSection
+        :disabled="isBusy"
+        @busy="(state) => (isBusy = state)"
+      />
     </AdminPanel>
   </div>
 </template>
@@ -30,7 +37,7 @@
 <script setup>
 import { useSettingsStore } from "../stores/settings";
 import { useAuthStore } from "../stores/auth";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
   user: {
@@ -43,10 +50,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["staleError", "updateUser", "notFoundError"]);
+const emit = defineEmits(["staleError", "updateUser", "notFoundError", "busy"]);
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
+
+const isBusy = ref(false);
 
 const isOwnUser = computed(() => {
   return authStore.currentUser?.id === props.user.id;
@@ -56,6 +65,10 @@ const canChangePassword = computed(() => {
   return (
     !isOwnUser.value || settingsStore.getSetting("user.password_change_allowed")
   );
+});
+
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
 });
 
 function handleStaleError(error) {

@@ -13,7 +13,7 @@
         lastname: props.lastname,
       })
     "
-    :disabled="isBusy"
+    :disabled="isBusy || props.disabled"
     severity="warn"
     icon="fa-solid fa-key"
     data-test="users-reset-password-button"
@@ -86,6 +86,10 @@ const props = defineProps({
   email: {
     type: String,
     required: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 
