@@ -120,11 +120,11 @@ function save(event) {
       } else {
         // Other errors
         api.error(error);
-        formErrors.scrollToFirstError();
       }
     })
     .finally(() => {
       isBusy.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>

@@ -288,11 +288,11 @@ function save() {
         emit("staleError", error.response.data);
       } else {
         api.error(error);
-        formErrors.scrollToFirstError();
       }
     })
     .finally(() => {
       isBusy.value = false;
+      formErrors.scrollToFirstError();
     });
 }
 </script>
