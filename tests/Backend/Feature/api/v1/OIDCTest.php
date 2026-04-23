@@ -2063,14 +2063,8 @@ class OIDCTest extends TestCase
             'code' => $code,
             'state' => $state,
         ]));
+        $response->assertRedirect('http://localhost/external_login?redirect=%2Frooms%2Fabc-123-def');
         $this->assertAuthenticated();
-
-        $redirectUrl = $response->getTargetUrl();
-
-        $redirectUrlParsed = parse_url($redirectUrl);
-        $queryParams = [];
-        parse_str($redirectUrlParsed['query'], $queryParams);
-        $this->assertEquals('/rooms/abc-123-def', $queryParams['redirect']);
     }
 
     public function test_rp_initiated_logout_missing_end_session_endpoint()

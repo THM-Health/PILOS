@@ -217,6 +217,28 @@ class ShibbolethTest extends TestCase
         $this->assertEquals($user->roles()->pluck('name')->toArray(), ['user']);
     }
 
+    public function test_redirect_and_callback()
+    {
+        $this->generalSettings->default_timezone = 'Europe/Paris';
+        $this->generalSettings->save();
+
+        $header = [
+            'Accept-Language' => 'fr',
+            'shib-session-id' => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname' => 'johnd@university.org',
+            'givenname' => 'John',
+            'surname' => 'Doe',
+            'mail' => 'john.doe@domain.tld',
+            'scoped-affiliation' => 'student@university.org;staff@university.org',
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback', ['redirect' => '/rooms/abc-123-def']), $header);
+        $response->assertRedirect('http://localhost/external_login?redirect=%2Frooms%2Fabc-123-def');
+
+        $this->assertAuthenticated();
+    }
+
     public function test_set_last_login()
     {
         $this->generalSettings->default_timezone = 'Europe/Paris';
