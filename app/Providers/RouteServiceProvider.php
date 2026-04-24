@@ -59,10 +59,6 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($throttleKey);
         });
 
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        });
-
         RateLimiter::for('password_reset', function (Request $request) {
             return Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip());
         });

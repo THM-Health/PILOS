@@ -15,7 +15,7 @@ class MissingAttributeException extends \Exception
         parent::__construct($message);
     }
 
-    public function render(Request $request): JsonResponse
+    public function render(Request $request): void
     {
         abort(500, __('auth.error.missing_attributes'));
     }
