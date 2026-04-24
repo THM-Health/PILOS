@@ -181,20 +181,17 @@ class OpenIDConnectClient
      * Authenticate the user with the OpenID Connect provider using the authorization code
      *
      * @param  Request  $request  The request object containing the authorization code and state
-     * @return bool Returns true if authentication is successful, false if the code is missing
      *
-     * @throws OpenIDConnectClientException
-     * @throws OpenIDConnectNetworkException
      * @throws ConnectionException
-     * @throws OpenIDConnectClientException
-     * @throws OpenIDConnectNetworkException
-     * @throws RequestException
-     * @throws OpenIDConnectValidationException
-     * @throws OpenIDConnectProviderException
-     * @throws JsonException
      * @throws InvalidClaimException
+     * @throws JsonException
      * @throws MissingMandatoryClaimException
+     * @throws OpenIDConnectClientException
      * @throws OpenIDConnectCodeMissingException
+     * @throws OpenIDConnectNetworkException
+     * @throws OpenIDConnectProviderException
+     * @throws OpenIDConnectValidationException
+     * @throws RequestException
      */
     public function authenticate(Request $request): void
     {
