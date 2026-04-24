@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improved error handling when a room requires an access code but none was provided ([#3035])
+- Login URL and external login redirect URLs now support authenticated users and honor the redirect query parameter ([#3078], [#3079])
 
 ### Fixed
 
@@ -781,6 +782,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3035]: https://github.com/THM-Health/PILOS/pull/3035
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
+[#3078]: https://github.com/THM-Health/PILOS/issues/3078
+[#3079]: https://github.com/THM-Health/PILOS/pull/3079
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
