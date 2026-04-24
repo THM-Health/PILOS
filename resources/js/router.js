@@ -62,7 +62,6 @@ export const routes = [
     path: "/login",
     name: "login",
     component: Login,
-    meta: { guestsOnly: true },
   },
   {
     path: "/external_login",

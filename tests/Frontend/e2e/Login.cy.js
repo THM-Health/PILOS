@@ -601,12 +601,22 @@ describe("Login", function () {
   });
 
   it("visit login page with already logged in user", function () {
-    cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["admin.view"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
     cy.interceptRoomIndexRequests();
 
+    // Check without redirect query parameter
     cy.visit("/login");
-    cy.checkToastMessage("app.flash.guests_only");
-    cy.url().should("not.include", "/login");
+    cy.url().should("include", "/rooms").and("not.include", "/login");
+
+    // Check with redirect query parameter
+    cy.visit("/login?redirect=/admin");
+    cy.url().should("include", "/admin").and("not.include", "/login");
   });
 
   it("shibboleth login", function () {

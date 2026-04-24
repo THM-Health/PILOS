@@ -121,6 +121,18 @@ const errors = reactive({
 
 const activeTab = ref("");
 onMounted(() => {
+  // Redirect already authenticated users
+  // to their prefered redirect route
+  // fallback to room overview
+  if (authStore.isAuthenticated) {
+    if (route.query.redirect !== undefined) {
+      router.push(route.query.redirect);
+    } else {
+      router.push({ name: "rooms.index" });
+    }
+    return;
+  }
+
   if (settingsStore.getSetting("auth.ldap")) {
     activeTab.value = "ldap";
   } else if (settingsStore.getSetting("auth.shibboleth")) {
