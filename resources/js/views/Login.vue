@@ -120,13 +120,20 @@ const errors = reactive({
 });
 
 const activeTab = ref("");
+
+const normalizedRedirect = computed(() => {
+  const value = route.query.redirect;
+  const redirectValue = Array.isArray(value) ? value[0] : value;
+  return redirectValue || undefined;
+});
+
 onMounted(() => {
   // Redirect already authenticated users
-  // to their prefered redirect route
+  // to their preferred redirect route
   // fallback to room overview
   if (authStore.isAuthenticated) {
-    if (route.query.redirect !== undefined) {
-      router.push(route.query.redirect);
+    if (normalizedRedirect.value !== undefined) {
+      router.push(normalizedRedirect.value);
     } else {
       router.push({ name: "rooms.index" });
     }
@@ -146,15 +153,15 @@ onMounted(() => {
 
 const oidcRedirectUrl = computed(() => {
   const url = "/auth/oidc/redirect";
-  return route.query.redirect
-    ? url + "?redirect=" + encodeURIComponent(route.query.redirect)
+  return normalizedRedirect.value
+    ? url + "?redirect=" + encodeURIComponent(normalizedRedirect.value)
     : url;
 });
 
 const shibbolethRedirectUrl = computed(() => {
   const url = "/auth/shibboleth/redirect";
-  return route.query.redirect
-    ? url + "?redirect=" + encodeURIComponent(route.query.redirect)
+  return normalizedRedirect.value
+    ? url + "?redirect=" + encodeURIComponent(normalizedRedirect.value)
     : url;
 });
 

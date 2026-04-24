@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -71,6 +71,12 @@ const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
+const normalizedRedirect = computed(() => {
+  const value = route.query.redirect;
+  const redirectValue = Array.isArray(value) ? value[0] : value;
+  return redirectValue || undefined;
+});
+
 onMounted(() => {
   // Successfully login via external provider
   if (!props.error) {
@@ -81,8 +87,8 @@ onMounted(() => {
 
     // check if user should be redirected back after login,
     // otherwise redirect to own rooms (dashboard)
-    if (route.query.redirect !== undefined) {
-      router.push(route.query.redirect);
+    if (normalizedRedirect.value !== undefined) {
+      router.push(normalizedRedirect.value);
     } else {
       router.push({ name: "rooms.index" });
     }
