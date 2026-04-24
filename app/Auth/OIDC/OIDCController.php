@@ -25,11 +25,11 @@ class OIDCController extends Controller
     /**
      * Redirect to the OpenID Provider for authentication with an optional redirect back to a specific URL
      */
-    public function redirect(Request $request)
+    public function redirect(OIDCRedirectRequest $request)
     {
         if (Auth()->check()) {
             $uri = Uri::of(self::REDIRECT_URL)->withQuery(['no_message' => true]);
-            if ($request->query('redirect')) {
+            if ($request->has('redirect')) {
                 return redirect($uri
                     ->withQuery(['redirect' => $request->query('redirect')])
                     ->value());
@@ -56,7 +56,7 @@ class OIDCController extends Controller
     /**
      * Handle Authorization Code Flow redirect back from the OpenID Provider with an Authorization Code
      */
-    public function callback(Request $request): RedirectResponse
+    public function callback(OIDCCallbackRequest $request): RedirectResponse
     {
         try {
             $user = $this->provider->login($request);

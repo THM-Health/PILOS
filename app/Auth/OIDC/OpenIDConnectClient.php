@@ -194,8 +194,9 @@ class OpenIDConnectClient
      * @throws JsonException
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
+     * @throws OpenIDConnectCodeMissingException
      */
-    public function authenticate(Request $request): bool
+    public function authenticate(Request $request): void
     {
         // Do a preemptive check to see if the provider has thrown an error from a previous redirect
         if ($request->has('error')) {
@@ -206,7 +207,7 @@ class OpenIDConnectClient
         // If the authorization code is missing, the authentication has failed
         // User might have called the authentication URL directly
         if (! $request->has('code')) {
-            return false;
+            throw new OpenIDConnectCodeMissingException("Response is missing 'code' parameter.");
         }
 
         // Check OpenID Connect session
@@ -264,7 +265,7 @@ class OpenIDConnectClient
         $this->verifiedClaims = $claims;
 
         // Success!
-        return true;
+
     }
 
     /**

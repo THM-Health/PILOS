@@ -23,11 +23,11 @@ class ShibbolethController extends Controller
     /**
      * Redirect to the Shibboleth for authentication with an optional redirect back to a specific URL
      */
-    public function redirect(Request $request)
+    public function redirect(ShibbolethRedirectRequest $request)
     {
         if (Auth()->check()) {
             $uri = Uri::of(self::REDIRECT_URL)->withQuery(['no_message' => true]);
-            if ($request->query('redirect')) {
+            if ($request->has('redirect')) {
                 return redirect($uri
                     ->withQuery(['redirect' => $request->query('redirect')])
                     ->value());
@@ -58,7 +58,7 @@ class ShibbolethController extends Controller
     /**
      * Request to login with shibboleth, route is protected by mod-shibb of the reverse proxy
      */
-    public function callback(Request $request)
+    public function callback(ShibbolethCallbackRequest $request)
     {
         try {
             $user = $this->provider->login($request);
@@ -79,7 +79,7 @@ class ShibbolethController extends Controller
         $user->save();
 
         // Redirect to the external login page in the frontend, optionally with a redirect back to a specific URL
-        if ($request->query('redirect')) {
+        if ($request->has('redirect')) {
             return redirect(Uri::of(self::REDIRECT_URL)
                 ->withQuery(['redirect' => $request->query('redirect')])
                 ->value());
