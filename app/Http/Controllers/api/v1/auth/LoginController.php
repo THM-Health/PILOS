@@ -8,7 +8,6 @@ use App\Auth\OIDC\OIDCProvider;
 use App\Auth\Shibboleth\ShibbolethProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Requests\LoginRequest;
 
@@ -17,7 +16,7 @@ class LoginController extends AuthenticatedSessionController
     public function login(LoginRequest $request)
     {
         return $this->loginPipeline($request)->then(function ($request) {
-            return app(LoginResponse::class);
+            return response()->json(['two_factor' => false]);
         });
     }
 

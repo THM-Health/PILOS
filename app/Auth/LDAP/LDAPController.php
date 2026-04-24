@@ -6,7 +6,6 @@ namespace App\Auth\LDAP;
 
 use App\Prometheus\Counter;
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Requests\LoginRequest;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
@@ -23,13 +22,11 @@ class LDAPController extends AuthenticatedSessionController
 
     /**
      * Process the login request
-     *
-     * @return void
      */
     public function login(LoginRequest $request)
     {
         $response = $this->loginPipeline($request)->then(function ($request) {
-            return app(LoginResponse::class);
+            return response()->json(['two_factor' => false]);
         });
 
         if ($response->exception != null && $response->getStatusCode() !== ResponseAlias::HTTP_TOO_MANY_REQUESTS) {
