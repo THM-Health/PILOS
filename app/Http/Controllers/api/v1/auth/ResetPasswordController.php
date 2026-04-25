@@ -10,11 +10,8 @@ use App\Models\User;
 use App\Services\AuthenticationService;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Password as PasswordBrokerFacade;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\FailedPasswordResetResponse;
 use Laravel\Fortify\Contracts\PasswordResetResponse;
@@ -24,7 +21,7 @@ class ResetPasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @return RedirectResponse|JsonResponse
+     * @return PasswordResetResponse|FailedPasswordResetResponse
      *
      * @throws ValidationException
      */
@@ -61,7 +58,7 @@ class ResetPasswordController extends Controller
      */
     public function broker(string $name): PasswordBroker
     {
-        return PasswordBrokerFacade::broker($name);
+        return Password::broker($name);
     }
 
     /**
