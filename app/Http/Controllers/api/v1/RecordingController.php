@@ -1,23 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\RecordingAccess;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RecordingIndexRequest;
 use App\Http\Requests\UpdateRecordingRequest;
 use App\Http\Resources\RecordingResource;
 use App\Models\Recording;
 use App\Models\Room;
 use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class RecordingController extends Controller
 {
-    public function index(Room $room, Request $request)
+    public function index(Room $room, RecordingIndexRequest $request)
     {
         $additional = [];
 
@@ -65,7 +67,7 @@ class RecordingController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search filter
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->whereLike('description', '%'.$request->query('query').'%');
         }
 

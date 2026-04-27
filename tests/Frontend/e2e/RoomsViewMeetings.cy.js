@@ -830,7 +830,7 @@ describe("Rooms view meetings", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
 
-    // Intercept room request for reload (after entering access code)
+    // Intercept room request for reload
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
       room.data.last_meeting = {
@@ -844,9 +844,9 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    // Reload room (but without setting room auth token)
+    cy.get('[data-test="reload-room-button"]').click();
 
-    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
     // Test require_code
@@ -877,10 +877,8 @@ describe("Rooms view meetings", function () {
 
     // Check that params are set correctly
     cy.wait("@joinRequest").then((interception) => {
-      expect(interception.request.query).to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check that access code header is reset
@@ -890,9 +888,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("join running meeting with personalized link", function () {
@@ -1125,7 +1124,7 @@ describe("Rooms view meetings", function () {
     });
 
     // Reload room
-    cy.get('[data-test="reload-room-button"]').click();
+    cy.reload();
 
     cy.wait("@roomRequest");
 
@@ -1413,17 +1412,51 @@ describe("Rooms view meetings", function () {
       },
     }).as("preJoinRequest");
 
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     // Try again
     cy.get('[data-test="loading-retry-button"]').click();
+
+    cy.wait("@preJoinRequest");
+    cy.wait("@roomRequest");
 
     // Check error message
     cy.checkToastMessage("rooms.flash.access_code_invalid");
 
-    // Check dialog is closed
+    // Check dialog is closed and access code input is shown with correct error message
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
 
+    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+
     // Reload
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
 
     // Test require_code
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
@@ -1433,17 +1466,49 @@ describe("Rooms view meetings", function () {
       },
     }).as("preJoinRequest");
 
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     // Try to join meeting
     cy.get('[data-test="room-join-button"]').click();
     cy.wait("@preJoinRequest");
+    cy.wait("@roomRequest");
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
     // Check dialog is closed
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
 
+    // Check that access code input is shown without value and error message
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
+
     // Reload
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     cy.intercept("GET", "api/v1/currentUser", {});
 
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -2278,7 +2343,7 @@ describe("Rooms view meetings", function () {
     // Check if error message is shown and close it
     cy.checkToastMessage("rooms.flash.access_code_invalid");
 
-    // Intercept room request for reload (after entering access code)
+    // Intercept room request for reload
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
 
@@ -2288,8 +2353,8 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
-    cy.wait("@roomAuthRequest");
+    // Reload (but without room auth token)
+    cy.get('[data-test="reload-room-button"]').click();
     cy.wait("@roomRequest");
 
     // Test require_code
@@ -2316,10 +2381,8 @@ describe("Rooms view meetings", function () {
 
     // Check that header is set correctly
     cy.wait("@startRequest").then((interception) => {
-      expect(interception.request.query).to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check that access code header is reset
@@ -2329,9 +2392,10 @@ describe("Rooms view meetings", function () {
     });
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("start meeting with personalized link", function () {
@@ -2545,7 +2609,7 @@ describe("Rooms view meetings", function () {
     }).as("roomRequest");
 
     // Reload room
-    cy.get('[data-test="reload-room-button"]').click();
+    cy.reload();
 
     cy.wait("@roomRequest");
 
@@ -2918,8 +2982,25 @@ describe("Rooms view meetings", function () {
       },
     }).as("preStartRequest");
 
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T08:18:20.000000Z",
+      };
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     // Try again
     cy.get('[data-test="loading-retry-button"]').click();
+
+    cy.wait("@preStartRequest");
+    cy.wait("@roomRequest");
 
     // Check error message
     cy.checkToastMessage("rooms.flash.access_code_invalid");
@@ -2927,8 +3008,25 @@ describe("Rooms view meetings", function () {
     // Check dialog is closed
     cy.get('[data-test="room-start-dialog"]').should("not.exist");
 
+    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+
     // Reload
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T08:18:20.000000Z",
+      };
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
 
     // Test require_code
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
@@ -2938,18 +3036,49 @@ describe("Rooms view meetings", function () {
       },
     }).as("preStartRequest");
 
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T08:18:20.000000Z",
+      };
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
     // Try to join meeting
     cy.get('[data-test="room-start-button"]').click();
     cy.wait("@preStartRequest");
+    cy.wait("@roomRequest");
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
     // Check dialog is closed
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
 
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
+
     // Reload
     cy.intercept("GET", "api/v1/currentUser", {});
+
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T08:18:20.000000Z",
+      };
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
 
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,

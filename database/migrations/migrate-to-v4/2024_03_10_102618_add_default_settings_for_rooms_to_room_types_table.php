@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Enums\RoomLobby;
+use App\Enums\RoomUserRole;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -34,10 +38,10 @@ return new class extends Migration
             $table->boolean('allow_guests_enforced')->default(false);
             $table->boolean('allow_membership_default')->default(false);
             $table->boolean('allow_membership_enforced')->default(false);
-            $table->integer('default_role_default')->default(\App\Enums\RoomUserRole::USER);
+            $table->integer('default_role_default')->default(RoomUserRole::USER);
             $table->integer('default_role_enforced')->default(false);
-            $table->integer('lobby_default')->default(\App\Enums\RoomLobby::DISABLED);
-            $table->integer('lobby_enforced')->default(\App\Enums\RoomLobby::DISABLED);
+            $table->integer('lobby_default')->default(RoomLobby::DISABLED);
+            $table->integer('lobby_enforced')->default(RoomLobby::DISABLED);
         });
     }
 

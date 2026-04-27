@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServerConnectionCheckRequest;
+use App\Http\Requests\ServerIndexRequest;
 use App\Http\Requests\ServerRequest;
-use App\Http\Resources\Server as ServerResource;
+use App\Http\Resources\ServerResource;
 use App\Models\Server;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\ServerService;
@@ -14,6 +17,7 @@ use App\Settings\GeneralSettings;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
@@ -22,20 +26,20 @@ class ServerController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Server::class, 'server');
-        $this->middleware('check.stale:server,\App\Http\Resources\Server,withApi', ['only' => 'update']);
+        $this->middleware('check.stale:server,\App\Http\Resources\ServerResource,withApi', ['only' => 'update']);
     }
 
     /**
      * Return a json array with all room types
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(ServerIndexRequest $request)
     {
         /**
          * If query param update_usage is true, rebuild live and historical data, the same way as the cronjob would do
          */
-        if ($request->has('update_usage') && $request->update_usage == 'true') {
+        if ($request->boolean('update_usage')) {
             foreach (Server::all() as $server) {
                 $serverService = new ServerService($server);
                 $serverService->updateUsage();
@@ -71,7 +75,7 @@ class ServerController extends Controller
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->withName($request->query('query'));
         }
 

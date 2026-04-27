@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Code d\'accès',
     'auth_throttled' => 'Trop de tentatives. Merci de retenter dans :try_again secondes.',
@@ -261,7 +263,7 @@ return [
             'select_user' => 'Merci de sélectionner le nouveau propriétaire',
             'title' => 'Transférer la propriété',
             'transfer' => 'Transférer',
-            'warning' => 'Attention: Cela peu faire perdre l\'accès à cette salle à son propriétaire actuel',
+            'warning' => 'Attention: Cela peut faire perdre l\'accès à cette salle à son propriétaire actuel',
         ],
     ],
     'name' => 'Nom de la salle',

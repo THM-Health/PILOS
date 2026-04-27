@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\CustomStatusCodes;
@@ -114,8 +116,8 @@ class RoomStatisticTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertSuccessful()
             ->assertJsonCount(5, 'data')
-            ->assertJsonFragment(['per_page' => 5])
-            ->assertJsonFragment(['total' => 6])
+            ->assertJsonPath('meta.per_page', 5)
+            ->assertJsonPath('meta.total', 6)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -148,8 +150,8 @@ class RoomStatisticTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?page=2')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
-            ->assertJsonFragment(['per_page' => 5])
-            ->assertJsonFragment(['total' => 6])
+            ->assertJsonPath('meta.per_page', 5)
+            ->assertJsonPath('meta.total', 6)
             ->assertJsonPath('data.0', [
                 'id' => $meetings[5]->id,
                 'start' => $meetings[5]->start->toJson(),
@@ -175,10 +177,9 @@ class RoomStatisticTest extends TestCase
             ->assertSuccessful()
             ->assertJsonPath('data.0.id', $meetings[5]->id);
 
-        // check invalid sort order, fallback to default
+        // check invalid sort order
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?sort_direction=invalid')
-            ->assertSuccessful()
-            ->assertJsonPath('data.0.id', $meetings[0]->id);
+            ->assertJsonValidationErrors(['sort_direction']);
     }
 
     /**

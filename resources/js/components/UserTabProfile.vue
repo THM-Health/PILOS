@@ -250,7 +250,7 @@ function save() {
     formData.append("image", "");
   } else if (croppedImageBlob.value != null) {
     // cropped image
-    formData.append("image", croppedImageBlob.value, "image.png");
+    formData.append("image", croppedImageBlob.value, "image.jpg");
   }
 
   formErrors.clear();

@@ -224,6 +224,10 @@ function save() {
         formErrors.set(error.response.data.errors);
         return;
       }
+      // Description couldn't be saved due to missing permission, close the editor
+      if (error.response.status === env.HTTP_FORBIDDEN) {
+        editorOpen.value = false;
+      }
       // Handle other errors
       api.error(error, { redirectOnUnauthenticated: false });
     })

@@ -61,8 +61,8 @@ describe("Admin server pools new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
-      .should("include.text", "admin.breakcrumbs.server_pools.new");
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.new");
 
     cy.get('[data-test="name-field"]')
       .should("be.visible")
@@ -74,8 +74,8 @@ describe("Admin server pools new", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
-      .should("include.text", "admin.breakcrumbs.server_pools.new");
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")

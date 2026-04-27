@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Models\Role;
@@ -7,6 +9,7 @@ use App\Rules\Antivirus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class UserRequest extends FormRequest
 {
@@ -20,12 +23,12 @@ class UserRequest extends FormRequest
         $prohibitedRoles = Auth::user()->superuser ? [] : Role::where(['superuser' => true])->pluck('id')->toArray();
 
         $rules = [
-            'user_locale' => ['sometimes', 'required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
+            'user_locale' => ['sometimes', 'required', Rule::in(array_keys(config('app.enabled_locales')))],
             'bbb_skip_check_audio' => ['sometimes', 'required', 'boolean'],
-            'timezone' => ['sometimes', 'required', 'string', Rule::in(timezone_identifiers_list())],
+            'timezone' => ['sometimes', 'required', Rule::in(timezone_identifiers_list())],
             'roles' => ['sometimes', 'required', 'array'],
             'roles.*' => ['sometimes', 'distinct', 'integer', 'exists:App\Models\Role,id', Rule::notIn($prohibitedRoles)],
-            'image' => ['bail', 'sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100', Rule::prohibitedIf($this->user?->has_external_image), new Antivirus],
+            'image' => ['bail', 'sometimes', 'nullable', File::types('jpg')->extensions('jpg')->max('50kb'), Rule::dimensions()->width(100)->height(100), Rule::prohibitedIf($this->user?->has_external_image), new Antivirus],
         ];
 
         if (! $this->user || $this->user->authenticator === 'local') {

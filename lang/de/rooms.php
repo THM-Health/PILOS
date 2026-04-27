@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Zugangscode',
     'auth_throttled' => 'Zu viele Versuche. Bitte versuchen Sie es in :try_again Sekunden erneut.',
@@ -304,7 +306,7 @@ return [
     'recording_attendance_info' => 'Die Anwesenheit in diesem Raum wird protokolliert.',
     'recording_hint' => 'Wenn Sie nicht möchten, dass Ihre Stimme aufgezeichnet wird, stellen Sie sicher, dass Ihr Mikrofon stumm geschaltet ist. Verwenden Sie stattdessen den Chat, um sich zu beteiligen.',
     'recording_info' => 'Dieser Raum wird möglicherweise aufgezeichnet.',
-    'recording_video_accept' => 'Mein Videobild darf aufgezeichnet werden.',
+    'recording_video_accept' => '(Optional) Mein Videobild darf aufgezeichnet werden.',
     'recordings' => [
         'access' => 'Zugriffsrecht',
         'access_types' => [

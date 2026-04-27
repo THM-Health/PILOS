@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\RoomLobby;
@@ -11,6 +13,9 @@ use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Validation\Rule;
@@ -163,17 +168,17 @@ class Room extends Model
     /**
      * Recordings
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function recordings()
     {
-        return $this->hasMany(Recording::class);
+        return $this->hasMany(Recording::class)->chaperone();
     }
 
     /**
      * Room owner
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function owner()
     {
@@ -212,7 +217,7 @@ class Room extends Model
     /**
      * Room type
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function roomType()
     {
@@ -222,7 +227,7 @@ class Room extends Model
     /**
      * Members of the room
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function members()
     {
@@ -232,7 +237,7 @@ class Room extends Model
     /**
      * Meetings
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function meetings()
     {
@@ -242,7 +247,7 @@ class Room extends Model
     /**
      * Last meeting of the room
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function latestMeeting()
     {
@@ -252,7 +257,7 @@ class Room extends Model
     /**
      * Files
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function files()
     {
@@ -262,7 +267,7 @@ class Room extends Model
     /**
      * Personalized links.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function personalizedLinks()
     {

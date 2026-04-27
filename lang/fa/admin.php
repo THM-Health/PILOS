@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'ویرایش :name',
             'index' => 'نقش‌ها',

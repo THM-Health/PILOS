@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Console\helper;
 
 class Greenlight2User
@@ -21,7 +23,7 @@ class Greenlight2User
     /**
      * GreenlightUser constructor.
      */
-    public function __construct($id, $provider, $name, $username, $social_uid, $email, $password_digest)
+    public function __construct(int $id, string $provider, string $name, ?string $username, ?string $social_uid, string $email, ?string $password_digest)
     {
         $this->id = $id;
         $this->provider = $provider;

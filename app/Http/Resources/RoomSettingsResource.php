@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Resources;
+
+use App\Models\Room;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class RoomSettingsResource extends JsonResource
+{
+    public function getRoomSettings()
+    {
+        $settings = [];
+
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $settings[$setting] = $this->getRoomSetting($setting);
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  Request  $request
+     * @return array
+     */
+    public function toArray($request)
+    {
+        return [
+            'name' => $this->name,
+            'expert_mode' => $this->expert_mode,
+            'welcome' => $this->expert_mode ? $this->welcome : '',
+            'short_description' => $this->short_description,
+            'access_code' => $this->access_code,
+            'room_type' => (new RoomTypeResource($this->roomType))->withDefaultRoomSettings()->withFeatures(),
+            $this->merge($this->getRoomSettings()),
+        ];
+    }
+}

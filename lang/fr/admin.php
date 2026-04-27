@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'Modifier :name',
             'index' => 'Rôles',
@@ -384,6 +386,7 @@ return [
             'description' => 'Les utilisateurs doivent accepter les conditions d\'utilisation afin de télécharger les fichiers. Si le champ est vide, aucun consentement ne sera requis.',
             'title' => 'Conditions d\'utilisation du téléchargement de fichiers',
         ],
+        'room_hide_owner_from_guests' => 'Masquer le propriétaire de la salle aux utilisateurs non identifiées',
         'room_limit' => [
             'description' => 'Limiter le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre est écraser par les limites spécifiques d\'un groupe.',
             'title' => 'Nombre de salles par utilisateur',

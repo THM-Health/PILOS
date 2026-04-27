@@ -691,9 +691,6 @@ describe("Room View general", function () {
     // Check that the error message is shown
     cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
 
-    // Check that reload button is shown
-    cy.get('[data-test="reload-room-button"]').should("be.visible");
-
     // Check that access code overlay is hidden
     cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
   });
@@ -2136,6 +2133,9 @@ describe("Room View general", function () {
 
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
     cy.get("#access-code").should("have.value", "123-456-789");
+
+    // Check that no error message is shown even though room request returned authenticated false again
+    cy.get(".p-toast-message").should("not.exist");
   });
 
   it("membership button errors", function () {
@@ -2715,22 +2715,12 @@ describe("Room View general", function () {
     // Check that the error message is shown
     cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
 
-    // Get reload button and reload without error
-    const reloadRequest = interceptIndefinitely(
-      "GET",
-      "api/v1/rooms/abc-def-123",
-      { fixture: "room.json" },
-      "roomRequest",
+    // Get login button and check if redirect is correctly set
+    cy.get('a[data-test="login-room-button"]').should(
+      "have.attr",
+      "href",
+      "/login?redirect=/rooms/abc-def-123",
     );
-    cy.get('[data-test="reload-room-button"]').click();
-    cy.get('[data-test="reload-room-button"]')
-      .should("be.disabled")
-      .then(() => {
-        reloadRequest.sendResponse();
-      });
-
-    cy.wait("@roomRequest");
-    cy.contains("Meeting One").should("be.visible");
   });
 
   it("visit with personalized link as authenticated user", function () {
@@ -2884,20 +2874,6 @@ describe("Room View general", function () {
     cy.wait("@roomRequest");
     cy.contains("Meeting One").should("be.visible");
 
-    // Test reload with guests forbidden
-    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-      statusCode: 403,
-      body: {
-        message: "guests_not_allowed",
-      },
-    }).as("roomRequest");
-
-    cy.get('[data-test="reload-room-button"]').click();
-
-    cy.wait("@roomRequest");
-    // Check that the error message is shown
-    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
-
     // Test reload with general error
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       statusCode: 500,
@@ -2913,6 +2889,35 @@ describe("Room View general", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+
+    // Test reload with guests forbidden
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      statusCode: 403,
+      body: {
+        message: "guests_not_allowed",
+      },
+    }).as("roomRequest");
+
+    cy.get('[data-test="reload-room-button"]').click();
+
+    cy.wait("@roomRequest");
+    // Check that the error message is shown
+    cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
+
+    // Reload page successfully
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+
+      cy.reload();
+    });
+
+    cy.wait("@roomRequest");
 
     // Test reload with room not found
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {

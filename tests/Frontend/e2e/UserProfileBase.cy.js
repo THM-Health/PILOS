@@ -1,6 +1,9 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 import { parseFormData } from "../support/utils/formData.js";
-import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
+import {
+  _arrayBufferToBase64,
+  _compareBase64Images,
+} from "../support/utils/fileHelper.js";
 
 describe("User Profile Base", function () {
   beforeEach(function () {
@@ -112,8 +115,11 @@ describe("User Profile Base", function () {
         .should("have.attr", "src")
         .then((src) => {
           cy.fixture("files/profileImagePreview.jpg", "base64").then(
-            (content) => {
-              expect(src).to.eql("data:image/jpeg;base64," + content);
+            async (content) => {
+              await _compareBase64Images(
+                "data:image/jpeg;base64," + content,
+                src,
+              );
             },
           );
         });
@@ -173,8 +179,11 @@ describe("User Profile Base", function () {
         .should("have.attr", "src")
         .then((src) => {
           cy.fixture("files/profileImagePreview.jpg", "base64").then(
-            (content) => {
-              expect(src).to.eql("data:image/jpeg;base64," + content);
+            async (content) => {
+              await _compareBase64Images(
+                "data:image/jpeg;base64," + content,
+                src,
+              );
             },
           );
         });
@@ -377,14 +386,20 @@ describe("User Profile Base", function () {
       expect(formData.get("updated_at")).to.eql("2024-09-13T14:20:26.000000Z");
 
       const uploadedFile = formData.get("image");
-      expect(uploadedFile.name).to.eql("image.png");
+      expect(uploadedFile.name).to.eql("image.jpg");
       expect(uploadedFile.type).to.eql("image/jpeg");
-      cy.fixture("files/profileImagePreview.jpg", "base64").then((content) => {
-        uploadedFile.arrayBuffer().then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          expect(content).to.eql(base64);
-        });
-      });
+      cy.fixture("files/profileImagePreview.jpg", "base64").then(
+        (referenceImageBase64) => {
+          uploadedFile.arrayBuffer().then(async (actualImageBuffer) => {
+            const actualImageBase64 = _arrayBufferToBase64(actualImageBuffer);
+
+            await _compareBase64Images(
+              "data:image/jpeg;base64," + referenceImageBase64,
+              "data:image/jpeg;base64," + actualImageBase64,
+            );
+          });
+        },
+      );
     });
 
     cy.wait("@currentUserRequest");

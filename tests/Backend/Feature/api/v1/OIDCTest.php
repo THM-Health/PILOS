@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\Role;
@@ -7,7 +9,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -174,19 +175,21 @@ class OIDCTest extends TestCase
     {
         parent::setUp();
         Http::preventStrayRequests();
-        Config::set('services.oidc.enabled', true);
-        Config::set('services.oidc.client_id', 'fake-client-id');
-        Config::set('services.oidc.client_secret', 'fake-client-secret');
-        Config::set('services.oidc.issuer', 'https://example.org');
-        Config::set('services.oidc.scopes', ['profile', 'email']);
+        config([
+            'services.oidc.enabled' => true,
+            'services.oidc.client_id' => 'fake-client-id',
+            'services.oidc.client_secret' => 'fake-client-secret',
+            'services.oidc.issuer' => 'https://example.org',
+            'services.oidc.scopes' => ['profile', 'email'],
 
-        Config::set('services.oidc.leeway', 60);
-        Config::set('services.oidc.timeout', 10);
-        Config::set('services.oidc.cache_config_max_age', 0);
-        Config::set('services.oidc.cache_jwks_max_age', 0);
+            'services.oidc.leeway' => 60,
+            'services.oidc.timeout' => 10,
+            'services.oidc.cache_config_max_age' => 0,
+            'services.oidc.cache_jwks_max_age' => 0,
 
-        Config::set('services.oidc.mapping', json_decode($this->mapping));
-        Config::set('app.enabled_locales', ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]]);
+            'services.oidc.mapping' => json_decode($this->mapping),
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
+        ]);
 
         Role::factory()->create(['name' => 'admin']);
         Role::factory()->create(['name' => 'user']);
@@ -200,7 +203,7 @@ class OIDCTest extends TestCase
      */
     public function test_redirect_route_disabled()
     {
-        Config::set('services.oidc.enabled', false);
+        config(['services.oidc.enabled' => false]);
         $response = $this->get(route('auth.oidc.redirect'));
         $response->assertNotFound();
     }
@@ -269,8 +272,8 @@ class OIDCTest extends TestCase
         $this->assertEquals('http://localhost/auth/oidc/callback', $queryParams['redirect_uri']);
         $this->assertEquals('openid profile email', $queryParams['scope']);
 
-        $this->assertEquals(\Illuminate\Support\Facades\Session::get('openid_connect_nonce'), $queryParams['nonce']);
-        $this->assertEquals(\Illuminate\Support\Facades\Session::get('openid_connect_state'), $queryParams['state']);
+        $this->assertEquals(Session::get('openid_connect_nonce'), $queryParams['nonce']);
+        $this->assertEquals(Session::get('openid_connect_state'), $queryParams['state']);
 
     }
 
@@ -281,7 +284,7 @@ class OIDCTest extends TestCase
      */
     public function test_callback_route_disabled()
     {
-        Config::set('services.oidc.enabled', false);
+        config(['services.oidc.enabled' => false]);
         $response = $this->get(route('auth.oidc.callback'));
         $response->assertNotFound();
     }
@@ -595,8 +598,10 @@ class OIDCTest extends TestCase
         $mapping = json_decode($this->mapping);
         $mapping->attributes->image = 'picture';
 
-        Config::set('services.oidc.mapping', $mapping);
-        Config::set('services.oidc.profile_image_trusted_hosts', ['example.org']);
+        config([
+            'services.oidc.mapping' => $mapping,
+            'services.oidc.profile_image_trusted_hosts' => ['example.org'],
+        ]);
 
         // Generate random values
         $code = Str::random();
@@ -739,8 +744,10 @@ class OIDCTest extends TestCase
         $mapping = json_decode($this->mapping);
         $mapping->attributes->image = 'picture';
 
-        Config::set('services.oidc.mapping', $mapping);
-        Config::set('services.oidc.profile_image_trusted_hosts', ['example.org']);
+        config([
+            'services.oidc.mapping' => $mapping,
+            'services.oidc.profile_image_trusted_hosts' => ['example.org'],
+        ]);
 
         // Generate random values
         $code = Str::random();
@@ -790,8 +797,10 @@ class OIDCTest extends TestCase
         $mapping = json_decode($this->mapping);
         $mapping->attributes->image = 'picture';
 
-        Config::set('services.oidc.mapping', $mapping);
-        Config::set('services.oidc.profile_image_trusted_hosts', ['example.com']);
+        config([
+            'services.oidc.mapping' => $mapping,
+            'services.oidc.profile_image_trusted_hosts' => ['example.com'],
+        ]);
 
         // Generate random values
         $code = Str::random();
@@ -855,7 +864,7 @@ class OIDCTest extends TestCase
         Auth::logout();
 
         // Test with empty list of trusted hosts
-        Config::set('services.oidc.profile_image_trusted_hosts', []);
+        config(['services.oidc.profile_image_trusted_hosts' => []]);
 
         // Simulate the state and nonce have been set in the session
         Session::put('openid_connect_state', $state);
@@ -2454,7 +2463,7 @@ class OIDCTest extends TestCase
 
     public function test_back_channel_logout_disabled()
     {
-        Config::set('services.oidc.enabled', false);
+        config(['services.oidc.enabled' => false]);
         $this->post(route('auth.oidc.logout'))
             ->assertNotFound();
     }

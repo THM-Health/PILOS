@@ -21,9 +21,9 @@ describe("Rooms view files file actions", function () {
       .should("include.text", "rooms.files.upload")
       .should(
         "include.text",
-        'rooms.files.formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
+        'app.file.allowed_formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
       )
-      .should("include.text", 'rooms.files.size_{"size":30')
+      .should("include.text", 'app.file.max_size_{"size":"30 MB"')
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="drop-zone"]')
@@ -261,7 +261,7 @@ describe("Rooms view files file actions", function () {
     // Check that dialog stayed open and error message is shown
     cy.get('[data-test="room-files-upload-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.validation.too_large");
+      .and("include.text", "app.file.too_large");
 
     // Check 422 error (validation error)
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/files", {
@@ -863,9 +863,9 @@ describe("Rooms view files file actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    // Reload room (but without setting room auth token)
+    cy.get('[data-test="reload-room-button"]').click();
 
-    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
 
@@ -887,16 +887,17 @@ describe("Rooms view files file actions", function () {
       $window.postMessage(message, Cypress.config("baseUrl"));
     });
 
-    // Check that room auth token is reset
+    // Check that room auth token is not set
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query.room_auth_token).to.be.undefined;
       expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("download file with personalized link errors", function () {
@@ -1001,7 +1002,7 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@roomFilesRequest");
 
-    // Check file not found error (file not found / already deleted)
+    // Check file_not_found error (file not found / already deleted)
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data = roomFiles.data.slice(1, 3);
       roomFiles.meta.to = 2;
@@ -1027,6 +1028,33 @@ describe("Rooms view files file actions", function () {
     // Check that error message is shown and that file is not shown anymore
     cy.checkToastMessage("rooms.flash.file_gone");
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+    // Check not_found error (not found / already deleted)
+    cy.fixture("roomFiles.json").then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(1, 2);
+      roomFiles.meta.to = 1;
+      roomFiles.meta.total = 1;
+      roomFiles.meta.total_no_filter = 1;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+        statusCode: 200,
+        body: roomFiles,
+      }).as("roomFilesRequest");
+    });
+
+    cy.window().then(($window) => {
+      const message = {
+        type: "not_found",
+      };
+      $window.postMessage(message, Cypress.config("baseUrl"));
+    });
+
+    // Check that files are reloaded
+    cy.wait("@roomFilesRequest");
+
+    // Check that error message is shown and that file is not shown anymore
+    cy.checkToastMessage("rooms.flash.file_gone");
+    cy.get('[data-test="room-file-item"]').should("have.length", 1);
 
     // Check forbidden error
     cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
@@ -1118,9 +1146,6 @@ describe("Rooms view files file actions", function () {
 
     // Check that the error message is shown
     cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
-
-    // Check that reload button is shown
-    cy.get('[data-test="reload-room-button"]').should("be.visible");
 
     cy.interceptRoomViewRequests();
     cy.interceptRoomFilesRequest(true);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Access code',
     'auth_throttled' => 'Too many attempts. Please try again in :try_again seconds.',
@@ -120,10 +122,8 @@ return [
             'downloadable' => 'Downloadable files',
             'use_in_meeting' => 'Files available in video conference',
         ],
-        'formats' => 'Allowed file formats: :formats',
         'nodata' => 'No files available',
         'select_or_drag' => 'Select a file or drag and drop it here...',
-        'size' => 'Max. file size: :size MB',
         'sort' => [
             'filename' => 'Filename',
             'uploaded_at' => 'Added',
@@ -469,7 +469,7 @@ return [
             'enabled' => 'Enabled',
             'pause_image' => 'Pause image',
             'pause_image_alt' => 'Pause image',
-            'pause_image_format' => 'Format: PNG, JPEG, GIF, BMP; Resolution: 1920x1080px',
+            'pause_image_resolution' => 'Resolution: 1920x1080px',
             'title' => 'Streaming configuration',
             'url' => 'RTMP(S) URL',
         ],

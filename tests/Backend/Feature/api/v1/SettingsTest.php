@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\LinkButtonStyle;
@@ -13,10 +15,10 @@ use App\Settings\GeneralSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
@@ -865,7 +867,7 @@ class SettingsTest extends TestCase
         $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
         $this->user->roles()->attach($role);
 
-        config(['bigbluebutton.allowed_file_mimes' => 'pdf,jpg']);
+        config(['bigbluebutton.allowed_file_mimes' => ['pdf', 'jpg']]);
         config(['bigbluebutton.max_filesize' => 5]);
         config(['recording.max_retention_period' => -1]);
 
@@ -968,7 +970,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the custom bbb style sheet
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_style()
     {
@@ -1066,7 +1068,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_logo()
     {
@@ -1150,7 +1152,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb dark logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_dark_logo()
     {
@@ -1233,8 +1235,10 @@ class SettingsTest extends TestCase
 
     public function test_virus_files()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
 
         $role = Role::factory()->create();

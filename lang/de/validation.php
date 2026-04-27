@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => ':attribute muss akzeptiert werden.',
     'accepted_if' => ':attribute muss akzeptiert werden, wenn :other :value ist.',
@@ -75,6 +77,7 @@ return [
         'firstname' => 'Vorname',
         'formats' => 'Formate',
         'gender' => 'Geschlecht',
+        'general_accessibility_statement_url' => 'URL zur Barrierefreiheitserklärung',
         'general_default_timezone' => 'Standardzeitzone',
         'general_help_url' => 'URL zur Hilfeseite',
         'general_legal_notice_url' => 'URL zum Impressum',
@@ -129,6 +132,7 @@ return [
         'room_auto_delete_inactive_period' => 'Zeitraum bis inaktive Räume gelöscht werden',
         'room_auto_delete_never_used_period' => 'Zeitraum bis nie genutzte Räume gelöscht werden',
         'room_file_terms_of_use' => 'Nutzungsbedingungen für das Herunterladen von Dateien',
+        'room_hide_owner_from_guests' => 'Raumeigentümer für nicht angemeldete Nutzer verbergen',
         'room_limit' => 'Maximale Anzahl an Räumen',
         'room_personalized_link_expiration' => 'Ablaufzeit für personalisierte Raumlinks',
         'room_type' => 'Raumart',

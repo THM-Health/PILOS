@@ -45,14 +45,13 @@
           </span>
         </template>
         <template #footer>
-          <div class="flex w-full justify-start">
-            <!-- Reload page, in case the room settings changed -->
+          <div class="mt-4 flex w-full justify-start">
             <Button
-              data-test="reload-room-button"
-              :loading="loading"
-              icon="fa-solid fa-sync"
-              :label="$t('rooms.try_again')"
-              @click="reload"
+              data-test="login-room-button"
+              icon="fa-solid fa-lock"
+              :label="$t('auth.login')"
+              as="router-link"
+              :to="{ name: 'login', query: { redirect: $route.fullPath } }"
             />
           </div>
         </template>
@@ -178,6 +177,7 @@
                   roomAuthToken = null;
                   reload();
                 "
+                @left-membership="reload(false)"
               />
             </template>
             <template #content>
@@ -205,6 +205,10 @@
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
+                    @require-code="
+                      handleRequireCode();
+                      reload(false);
+                    "
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
                   />
@@ -224,6 +228,10 @@
             :room-auth-token="roomAuthToken"
             :room="room"
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
+            @require-code="
+              handleRequireCode();
+              reload(false);
+            "
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
           />
@@ -252,7 +260,7 @@ import {
 } from "../constants/roomAuthTokenTypes.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import {
-  HTTP_ROOM_GUESTS_NOT_ALLOWED,
+  HTTP_GUESTS_NOT_ALLOWED,
   HTTP_ROOM_INVALID_CODE,
   HTTP_ROOM_INVALID_PERSONALIZED_LINK,
   HTTP_ROOM_INVALID_AUTH_TOKEN,
@@ -395,7 +403,22 @@ function handleInvalidCode() {
 
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
-  reload();
+  reload(false);
+}
+
+/**
+ * Reset access code error states and access code input and display error message
+ */
+function handleRequireCode() {
+  // Reset access code error states to prevent confusing error state
+  accessCodeInvalid.value = null;
+  formErrors.clear();
+
+  // Reset access code input
+  accessCodeInput.value = "";
+
+  // Show error message
+  toast.error(t("rooms.require_access_code"));
 }
 
 /**
@@ -457,7 +480,7 @@ function load() {
         // Forbidden, guests not allowed
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === HTTP_ROOM_GUESTS_NOT_ALLOWED
+          error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
         ) {
           guestsNotAllowed.value = true;
           return;
@@ -482,8 +505,9 @@ watch(authThrottledFor, (value) => {
 
 /**
  * Reload the room details/settings
+ * @param {boolean} [checkForRequireCodeError=true]
  */
-function reload() {
+function reload(checkForRequireCodeError = true) {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
@@ -502,6 +526,15 @@ function reload() {
   api
     .call(url, config)
     .then((response) => {
+      // Room was authenticated but now requires an access code
+      if (
+        checkForRequireCodeError &&
+        room.value?.authenticated &&
+        !response.data.data.authenticated
+      ) {
+        handleRequireCode();
+      }
+
       room.value = response.data.data;
 
       setPageTitle(room.value.name);
@@ -533,7 +566,7 @@ function reload() {
         // Forbidden, guests not allowed
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === HTTP_ROOM_GUESTS_NOT_ALLOWED
+          error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
         ) {
           return handleGuestsNotAllowed();
         }
@@ -669,7 +702,7 @@ function authenticate(type, codeOrToken) {
           // Forbidden, guests not allowed
           if (
             error.response.status === env.HTTP_FORBIDDEN &&
-            error.response.data.message === HTTP_ROOM_GUESTS_NOT_ALLOWED
+            error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
           ) {
             handleGuestsNotAllowed();
             return;

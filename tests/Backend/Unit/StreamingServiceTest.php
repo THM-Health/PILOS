@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\Server;
 use App\Services\StreamingService;
+use App\Settings\StreamingSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
@@ -105,7 +108,7 @@ class StreamingServiceTest extends TestCase
         $this->room->roomType->streamingSettings->default_pause_image = 'https://example.com/room_type_default_image.jpg';
         $this->room->roomType->streamingSettings->save();
 
-        $streamingSettings = app(\App\Settings\StreamingSettings::class);
+        $streamingSettings = app(StreamingSettings::class);
         $streamingSettings->default_pause_image = 'https://example.com/system_default_image.jpg';
         $streamingSettings->save();
 

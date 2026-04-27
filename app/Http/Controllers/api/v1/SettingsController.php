@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateSettings;
-use App\Http\Resources\Config;
-use App\Http\Resources\Settings;
+use App\Http\Requests\UpdateSettingsRequest;
+use App\Http\Resources\ConfigResource;
+use App\Http\Resources\SettingsResource;
 use App\Settings\BannerSettings;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
@@ -30,7 +32,7 @@ class SettingsController extends Controller
             return ! in_array($style, LinkButtonStyle::getDeprecated());
         });
 
-        return (new Settings)->additional([
+        return (new SettingsResource)->additional([
             'meta' => [
                 'link_btn_styles' => $linkStyles,
                 'link_targets' => LinkTarget::cases(),
@@ -42,9 +44,9 @@ class SettingsController extends Controller
     /**
      * Update application config
      *
-     * @return Config
+     * @return ConfigResource
      */
-    public function update(UpdateSettings $request)
+    public function update(UpdateSettingsRequest $request)
     {
         $generalSettings = app(GeneralSettings::class);
         $themeSettings = app(ThemeSettings::class);
@@ -132,7 +134,7 @@ class SettingsController extends Controller
             $path = $request->file('bbb_logo_file')->store('images', 'public');
             $url = Storage::url($path);
             $bigBlueButtonSettings->logo = url($url);
-        } elseif ($request->has('bbb_logo') && trim($request->input('bbb_logo') != '')) {
+        } elseif ($request->has('bbb_logo') && $request->input('bbb_logo') != '') {
             $bigBlueButtonSettings->logo = $request->input('bbb_logo');
         } else {
             $bigBlueButtonSettings->logo = null;
@@ -143,7 +145,7 @@ class SettingsController extends Controller
             $path = $request->file('bbb_logo_dark_file')->store('images', 'public');
             $url = Storage::url($path);
             $bigBlueButtonSettings->logo_dark = url($url);
-        } elseif ($request->has('bbb_logo_dark') && trim($request->input('bbb_logo_dark') != '')) {
+        } elseif ($request->has('bbb_logo_dark') && $request->input('bbb_logo_dark') != '') {
             $bigBlueButtonSettings->logo_dark = $request->input('bbb_logo_dark');
         } else {
             $bigBlueButtonSettings->logo_dark = null;

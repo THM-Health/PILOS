@@ -27,14 +27,14 @@
                   v-model:file-deleted="defaultPauseImageDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="5000000"
+                  :max-file-size="5_000_000"
                   show-delete
                   :allowed-extensions="['jpg', 'jpeg', 'png', 'gif']"
                   :file-invalid="formErrors.fieldInvalid('default_pause_image')"
                   :file-error="formErrors.fieldError('default_pause_image')"
                 />
                 <small>{{
-                  $t("rooms.streaming.config.pause_image_format")
+                  $t("rooms.streaming.config.pause_image_resolution")
                 }}</small>
               </div>
             </fieldset>
@@ -55,7 +55,7 @@
                   v-model:file-deleted="cssFileDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="500000"
+                  :max-file-size="5_000_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('css_file')"

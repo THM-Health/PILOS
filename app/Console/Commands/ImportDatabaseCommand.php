@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -65,7 +67,7 @@ class ImportDatabaseCommand extends Command
                 $this->error($output);
                 $this->setError(true);
             } elseif (is_numeric($output)) {
-                $this->bar->setProgress($output);
+                $this->bar->setProgress((int) $output);
             } else {
                 $this->bar->clear();
                 $this->warn($output);

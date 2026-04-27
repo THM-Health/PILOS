@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\CustomErrorMessages;
@@ -10,7 +12,7 @@ use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Enums\ServerHealth;
 use App\Events\RoomEnded;
-use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResource;
 use App\Models\Meeting;
 use App\Models\Permission;
 use App\Models\Role;
@@ -563,14 +565,14 @@ class RoomTest extends TestCase
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         $room->allow_guests = false;
         $room->save();
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         // Test for default value set to true (not enforced)
         $room->roomType()->associate($roomTypeGuestAccessDefault);
@@ -578,7 +580,7 @@ class RoomTest extends TestCase
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         // Test for default value set to false (not enforced)
         $room->roomType()->associate($roomTypeNoGuestAccessDefault);
@@ -586,7 +588,7 @@ class RoomTest extends TestCase
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
     }
 
     /**
@@ -735,7 +737,7 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => 111111111,
+            'access_code' => '111111111',
         ]);
 
         // Try 6 times with wrong access code
@@ -3284,7 +3286,7 @@ class RoomTest extends TestCase
 
         $this->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
@@ -3292,7 +3294,7 @@ class RoomTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         // Testing authorized users
         $currentSession = $this->startNewSession($this->user);

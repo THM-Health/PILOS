@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Enums\CustomErrorMessages;
 use App\Models\RoomFile;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,13 +35,13 @@ class RoomFileService
         return true;
     }
 
-    public function download(): \Illuminate\Http\Response
+    public function download(): Response
     {
         Log::info('Download room file {file}', ['file' => $this->file->getLogLabel()]);
 
         if (! $this->checkFileExists()) {
             return response(view('new-tab-error', [
-                'type' => CustomErrorMessages::ROOM_FILE_NOT_FOUND->value,
+                'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
                 'code' => 404,
                 'title' => 'File not found',
                 'message' => __('rooms.flash.file_gone'),
