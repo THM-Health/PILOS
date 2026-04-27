@@ -98,14 +98,14 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          :disabled="isSavingAction"
+          :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          autofocus
           @click="closeModal"
         />
-        <Button
+        <LoadingButton
+          autofocus
           :label="$t('admin.users.image.save')"
-          :loading="isLoadingAction || isSavingAction"
+          :loading="isLoadingAction"
           data-test="dialog-save-button"
           @click="save"
         />
@@ -158,7 +158,6 @@ const { t } = useI18n();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
-const isSavingAction = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
 const cropper = ref();
@@ -184,7 +183,8 @@ watch(
  * Convert image to data url to display and to blob to upload to server
  */
 async function save() {
-  isSavingAction.value = true;
+  clearKeyboardShortcuts();
+  isLoadingAction.value = true;
   const oc = cropper.value.getCroppedCanvas({
     width: 100,
     height: 100,
@@ -195,7 +195,7 @@ async function save() {
   oc.toBlob(
     (blob) => {
       emit("newImage", blob);
-      isSavingAction.value = false;
+      isLoadingAction.value = false;
       closeModal();
     },
     "image/jpeg",
@@ -277,6 +277,18 @@ async function undoDeleteImage() {
 }
 
 function clearKeyboardShortcuts() {
+  // Remove tabindex and role
+  moveHandle.value?.removeAttribute("tabindex");
+  moveHandle.value?.removeAttribute("role");
+  topLeftHandle.value?.removeAttribute("tabindex");
+  topLeftHandle.value?.removeAttribute("role");
+  topRightHandle.value?.removeAttribute("tabindex");
+  topLeftHandle.value?.removeAttribute("role");
+  bottomLeftHandle.value?.removeAttribute("tabindex");
+  topLeftHandle.value?.removeAttribute("role");
+  bottomRightHandle.value?.removeAttribute("tabindex");
+  topLeftHandle.value?.removeAttribute("role");
+
   // Remove event listeners
   moveHandle.value?.removeEventListener("keydown", moveEventListener);
   topLeftHandle.value?.removeEventListener("keydown", topLeftEventListener);
@@ -310,12 +322,17 @@ function initKeyboardShortcuts() {
     "cropper-point point-se",
   )[0];
 
-  // Add tabindex
+  // Add tabindex and role
   moveHandle.value.setAttribute("tabindex", 0);
+  moveHandle.value.setAttribute("role", "application");
   topLeftHandle.value.setAttribute("tabindex", 0);
+  topLeftHandle.value.setAttribute("role", "application");
   topRightHandle.value.setAttribute("tabindex", 0);
+  topRightHandle.value.setAttribute("role", "application");
   bottomLeftHandle.value.setAttribute("tabindex", 0);
+  bottomLeftHandle.value.setAttribute("role", "application");
   bottomRightHandle.value.setAttribute("tabindex", 0);
+  bottomRightHandle.value.setAttribute("role", "application");
 
   // Add aria-labels
   moveHandle.value.setAttribute(
