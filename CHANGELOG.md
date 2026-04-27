@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Show allowed file sizes and file types next to file upload inputs ([#3060])
+- Keyboard and focus support for the user avatar cropper to improve accessibility ([#3060])
+
 ### Changed
 
 - Improved error handling when a room requires an access code but none was provided ([#3035])
+- User avatar cropper and preview now displayed in circular shape ([#3060])
 
 ### Fixed
 
@@ -781,6 +787,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3035]: https://github.com/THM-Health/PILOS/pull/3035
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
+[#3060]: https://github.com/THM-Health/PILOS/pull/3060
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

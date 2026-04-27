@@ -84,3 +84,9 @@ a.p-button-link {
         text-decoration: underline;
     }
 }
+
+.p-button[aria-disabled="true"] {
+    cursor: default;
+    opacity: var(--p-disabled-opacity);
+    pointer-events: none;
+}

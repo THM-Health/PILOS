@@ -56,14 +56,25 @@
       </div>
       <div>
         <p v-if="fileTooBig" class="text-red-500" role="alert">
-          {{ $t("app.validation.too_large") }}
+          {{ $t("app.file.too_large") }}
         </p>
         <p v-if="fileInvalidExtension" class="text-red-500" role="alert">
-          {{ $t("app.validation.invalid_type") }}
+          {{ $t("app.file.invalid_type") }}
         </p>
         <FormError :errors="fileError" />
         <FormError :errors="urlError" />
       </div>
+      <small
+        >{{
+          $t("app.file.allowed_formats", {
+            formats: allowedExtensions.join(", "),
+          })
+        }}<br />{{
+          $t("app.file.max_size", {
+            size: fileHelpers.fileSize(maxFileSize),
+          })
+        }}</small
+      >
     </div>
     <div
       class="col-span-12 flex justify-center rounded-border border border-surface p-2 lg:col-span-3"
@@ -82,6 +93,9 @@
 
 <script setup>
 import { ref, watch } from "vue";
+import { useFileHelpers } from "../composables/useFileHelpers.js";
+
+const fileHelpers = useFileHelpers();
 
 const image = defineModel("image", { type: File });
 const imageUrl = defineModel("imageUrl", { type: String });

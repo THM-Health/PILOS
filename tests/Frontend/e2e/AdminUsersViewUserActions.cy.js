@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+import { _compareBase64Images } from "../support/utils/fileHelper.js";
 
 describe("Admin users view user actions", function () {
   beforeEach(function () {
@@ -283,8 +284,11 @@ describe("Admin users view user actions", function () {
         .should("have.attr", "src")
         .then((src) => {
           cy.fixture("files/profileImagePreview.jpg", "base64").then(
-            (content) => {
-              expect(src).to.eql("data:image/jpeg;base64," + content);
+            async (content) => {
+              await _compareBase64Images(
+                "data:image/jpeg;base64," + content,
+                src,
+              );
             },
           );
         });
