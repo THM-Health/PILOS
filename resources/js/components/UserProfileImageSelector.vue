@@ -7,7 +7,7 @@
       <FileUpload
         v-if="!imageDeleted"
         mode="basic"
-        accept=".jpg,.png"
+        accept=".jpg,.jpeg,.png"
         custom-upload
         auto
         :disabled="disabled"
