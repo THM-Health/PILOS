@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" v-if="!authStore.isAuthenticated">
     <div class="mt-6 mb-8 grid grid-cols-12 gap-4">
       <div
         class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
@@ -62,6 +62,7 @@ import { computed, onMounted } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useAuthStore } from "../stores/auth";
 
 const props = defineProps({
   error: {
@@ -78,6 +79,7 @@ const toast = useToast();
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+const authStore = useAuthStore();
 
 const normalizedRedirect = computed(() => {
   const value = route.query.redirect;
@@ -98,6 +100,12 @@ onMounted(() => {
     if (normalizedRedirect.value !== undefined) {
       router.push(normalizedRedirect.value);
     } else {
+      router.push({ name: "rooms.index" });
+    }
+  } else {
+    // an error occurred during an external authentication
+    // however the user is logged in, redirect to rooms overview
+    if (authStore.isAuthenticated) {
       router.push({ name: "rooms.index" });
     }
   }

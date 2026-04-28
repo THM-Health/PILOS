@@ -787,6 +787,17 @@ describe("Login", function () {
       .should("have.attr", "href", "/login");
   });
 
+  it("external login callback with error and already logged in user", function () {
+    cy.intercept("/api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.interceptRoomIndexRequests();
+
+    // Visit redirect page after external login with error
+    cy.visit("/external_login?error=invalid_request");
+
+    // Check redirected to room overview page
+    cy.url().should("include", "/rooms").and("not.include", "/login");
+  });
+
   it("oidc login", function () {
     // Intercept config request to only show oidc login tab
     cy.fixture("config.json").then((config) => {
