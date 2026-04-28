@@ -15,6 +15,13 @@
               {{ $t("auth.error.try_again") }}</Message
             >
             <Message
+              v-if="props.error === 'invalid_request'"
+              severity="error"
+              :closable="false"
+              >{{ $t("auth.error.invalid_request") }}
+              {{ $t("auth.error.try_again") }}</Message
+            >
+            <Message
               v-if="props.error === 'shibboleth_session_duplicate_exception'"
               severity="error"
               :closable="false"
@@ -38,9 +45,10 @@
           </template>
           <template #footer>
             <Button
+              data-test="login-button"
               as="router-link"
-              :to="{ name: 'home' }"
-              :label="$t('app.home')"
+              :to="{ name: 'login' }"
+              :label="$t('auth.login')"
             />
           </template>
         </Card>

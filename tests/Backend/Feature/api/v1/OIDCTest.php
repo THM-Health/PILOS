@@ -295,6 +295,27 @@ class OIDCTest extends TestCase
         $response->assertRedirect('http://localhost/external_login?no_message=1&redirect=%2Frooms%2Fabc-123-def');
     }
 
+    public function test_redirect_route_invalid_parameter()
+    {
+        Log::swap(new LogFake);
+
+        // Redirect parameter empty
+        $response = $this->get(route('auth.oidc.redirect', ['redirect' => '']));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        // Redirect parameter array
+        $response = $this->get(route('auth.oidc.redirect', ['redirect' => ['foo', 'bar']]));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        Log::assertLoggedTimes(
+            fn (LogEntry $log) => $log->level == 'error'
+                && $log->message == 'OIDC login redirect failed: invalid request parameter(s): redirect'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['current-user'] == 'guest',
+            2
+        );
+    }
+
     /**
      * Test that the callback route is disabled if disabled in env
      *
@@ -328,6 +349,31 @@ class OIDCTest extends TestCase
         $response = $this->get(route('auth.oidc.callback'));
         $response->assertRedirect('http://localhost/auth/oidc/redirect');
         $this->assertGuest();
+    }
+
+    public function test_callback_route_invalid_parameter()
+    {
+        Log::swap(new LogFake);
+
+        $params = ['code', 'state', 'error', 'error_description'];
+
+        foreach ($params as $param) {
+            // Parameter empty
+            $response = $this->get(route('auth.oidc.callback', [$param => '']));
+            $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+            // Parameter array
+            $response = $this->get(route('auth.oidc.callback', [$param => ['foo', 'bar']]));
+            $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+            Log::assertLoggedTimes(
+                fn (LogEntry $log) => $log->level == 'error'
+                    && $log->message == 'OIDC login callback failed: invalid request parameter(s): '.$param
+                    && $log->context['ip'] == '127.0.0.1'
+                    && $log->context['current-user'] == 'guest',
+                2
+            );
+        }
     }
 
     public function test_callback_with_user_info_signed()

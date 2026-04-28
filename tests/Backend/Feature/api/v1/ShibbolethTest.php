@@ -142,6 +142,27 @@ class ShibbolethTest extends TestCase
         $response->assertRedirect('http://localhost/external_login?no_message=1&redirect=%2Frooms%2Fabc-123-def');
     }
 
+    public function test_redirect_route_invalid_redirect_parameter()
+    {
+        Log::swap(new LogFake);
+
+        // Redirect parameter empty
+        $response = $this->get(route('auth.shibboleth.redirect', ['redirect' => '']));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        // Redirect parameter array
+        $response = $this->get(route('auth.shibboleth.redirect', ['redirect' => ['foo', 'bar']]));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        Log::assertLoggedTimes(
+            fn (LogEntry $log) => $log->level == 'error'
+                && $log->message == 'Shibboleth login redirect failed: invalid request parameter(s): redirect'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['current-user'] == 'guest',
+            2
+        );
+    }
+
     /**
      * Test that the callback route is disabled if disabled in env
      *
@@ -215,6 +236,27 @@ class ShibbolethTest extends TestCase
         $this->assertEquals('Europe/Paris', $user->timezone);
 
         $this->assertEquals($user->roles()->pluck('name')->toArray(), ['user']);
+    }
+
+    public function test_callback_route_invalid_redirect_parameter()
+    {
+        Log::swap(new LogFake);
+
+        // Redirect parameter empty
+        $response = $this->get(route('auth.shibboleth.callback', ['redirect' => '']));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        // Redirect parameter array
+        $response = $this->get(route('auth.shibboleth.callback', ['redirect' => ['foo', 'bar']]));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        Log::assertLoggedTimes(
+            fn (LogEntry $log) => $log->level == 'error'
+                && $log->message == 'Shibboleth login callback failed: invalid request parameter(s): redirect'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['current-user'] == 'guest',
+            2
+        );
     }
 
     public function test_redirect_and_callback()

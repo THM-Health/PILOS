@@ -715,6 +715,12 @@ describe("Login", function () {
     // Check if error gets displayed
     cy.contains("auth.error.login_failed").should("be.visible");
     cy.contains("auth.error.missing_attributes").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
   });
 
   it("external login callback duplicate session error", function () {
@@ -726,6 +732,59 @@ describe("Login", function () {
     cy.contains("auth.error.shibboleth_session_duplicate_exception").should(
       "be.visible",
     );
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback invalid request", function () {
+    // Visit redirect page after external login with error (invalid request)
+    cy.visit("/external_login?error=invalid_request");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.invalid_request").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback openid connect network exception", function () {
+    // Visit redirect page after external login with error (openid connect network exception)
+    cy.visit("/external_login?error=openid_connect_network_exception");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.openid_connect_network_exception").should(
+      "be.visible",
+    );
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback openid connect exception", function () {
+    // Visit redirect page after external login with error (openid connect exception)
+    cy.visit("/external_login?error=openid_connect_exception");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.openid_connect_exception").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
   });
 
   it("oidc login", function () {
