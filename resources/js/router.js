@@ -62,7 +62,6 @@ export const routes = [
     path: "/login",
     name: "login",
     component: Login,
-    meta: { guestsOnly: true },
   },
   {
     path: "/external_login",
@@ -71,6 +70,7 @@ export const routes = [
     props: (route) => {
       return {
         error: route.query.error,
+        noMessage: route.query.no_message === "1",
       };
     },
   },

@@ -76,10 +76,7 @@ class OIDCProvider
      */
     public function login(Request $request): User
     {
-        if (! $this->openIDConnectClient->authenticate($request)) {
-            // Response is missing the code parameters
-            throw new OpenIDConnectCodeMissingException("Response is missing 'code' parameter.");
-        }
+        $this->openIDConnectClient->authenticate($request);
 
         $claims = $this->openIDConnectClient->getVerifiedClaims();
 
