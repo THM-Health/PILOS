@@ -68,7 +68,7 @@ return [
         'guests_only' => 'The request can only be made by guests!',
         'model_not_found' => [
             'title' => 'The :model was not found!',
-            'details' => 'Ids: :ids',
+            'details' => 'IDs: :ids',
         ],
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
