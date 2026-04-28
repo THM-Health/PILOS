@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="!authStore.isAuthenticated">
+  <div v-if="!authStore.isAuthenticated" class="container">
     <div class="mt-6 mb-8 grid grid-cols-12 gap-4">
       <div
         class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
