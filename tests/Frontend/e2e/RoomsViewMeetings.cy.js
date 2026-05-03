@@ -526,7 +526,8 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid",
+        message:
+          "The name contains the following non-permitted characters: 123!",
         errors: {
           name: [
             "The name contains the following non-permitted characters: 123!",
@@ -2162,7 +2163,8 @@ describe("Rooms view meetings", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid",
+        message:
+          "The name contains the following non-permitted characters: 123!",
         errors: {
           name: [
             "The name contains the following non-permitted characters: 123!",

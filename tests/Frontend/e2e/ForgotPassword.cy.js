@@ -137,6 +137,7 @@ describe("Forgot password", function () {
     cy.intercept("POST", "api/v1/password/email", {
       statusCode: 422,
       body: {
+        message: "The email field is required",
         errors: {
           email: ["The email fiel is required."],
         },

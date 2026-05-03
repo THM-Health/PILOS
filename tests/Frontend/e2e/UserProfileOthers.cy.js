@@ -68,6 +68,7 @@ describe("User Profile Others", function () {
     cy.intercept("POST", "api/v1/users/1", {
       statusCode: 422,
       body: {
+        message: "The bbb skip check audio field is required.",
         errors: {
           bbb_skip_check_audio: ["The bbb skip check audio field is required."],
         },
@@ -79,6 +80,9 @@ describe("User Profile Others", function () {
     cy.wait("@saveChangesRequest");
 
     cy.get("#bbb_skip_check_audio").should("not.be.checked");
+
+    // Check error message
+    cy.checkToastMessage("The bbb skip check audio field is required.");
 
     cy.get('[data-test="bbb-skip-check-audio-field"]').should(
       "include.text",

@@ -314,6 +314,7 @@ describe("Admin servers view", function () {
     cy.intercept("POST", "api/v1/servers", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 5 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -330,6 +331,8 @@ describe("Admin servers view", function () {
     cy.wait("@newServerRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 5 more errors)");
+
     cy.get('[data-test="name-field"]').should(
       "include.text",
       "The name field is required.",

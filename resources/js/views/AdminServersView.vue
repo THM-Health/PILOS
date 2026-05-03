@@ -588,6 +588,7 @@ function saveServer() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL

@@ -131,6 +131,7 @@ import RoomTabSettingsRadioGroup from "./RoomTabSettingsRadioGroup.vue";
 import RoomTabSettingsSelectButton from "./RoomTabSettingsSelectButton.vue";
 import RoomTabSettingsRoomTypeSelect from "./RoomTabSettingsRoomTypeSelect.vue";
 import RoomTabSettingsAccessCodeInput from "./RoomTabSettingsAccessCodeInput.vue";
+import { useToast } from "../composables/useToast.js";
 
 const props = defineProps({
   room: {
@@ -159,6 +160,7 @@ const userPermissions = useUserPermissions();
 const { t } = useI18n();
 const saveButton = ref(null);
 const saveButtonIsVisible = useElementVisibility(saveButton);
+const toast = useToast();
 
 const form = computed(() => {
   const sections = [
@@ -390,6 +392,7 @@ function save(event) {
       // Settings couldn't be saved
       if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
         return;
       }
       api.error(error, { redirectOnUnauthenticated: false });

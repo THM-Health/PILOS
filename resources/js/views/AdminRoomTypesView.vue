@@ -1526,6 +1526,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useI18n } from "vue-i18n";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useColors } from "../composables/useColors.js";
+import { useToast } from "../composables/useToast.js";
 
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
@@ -1732,6 +1733,7 @@ function saveRoomType() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL

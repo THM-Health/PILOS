@@ -158,6 +158,7 @@ function changePassword(event) {
         emit("notFoundError", error);
       } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else {
         api.error(error);
       }

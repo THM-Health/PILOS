@@ -1222,7 +1222,7 @@ describe("Admin room types edit", function () {
     cy.intercept("PUT", "api/v1/roomTypes/3", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The name field is required. (and 39 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -1334,6 +1334,8 @@ describe("Admin room types edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 39 more errors)");
+
     cy.get('[data-test="room-type-name-field"]').should(
       "include.text",
       "The name field is required.",

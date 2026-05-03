@@ -224,6 +224,7 @@ import { inject, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useI18n } from "vue-i18n";
+import { useToast } from "../composables/useToast.js";
 
 const { t } = useI18n();
 
@@ -373,6 +374,7 @@ function saveServerPool() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL

@@ -77,6 +77,7 @@ describe("Verify email", function () {
     cy.intercept("POST", "api/v1/email/verify", {
       statusCode: 422,
       body: {
+        message: "The email field is required. (and 1 more error)",
         errors: {
           email: ["The email field is required."],
           token: ["The token field is required."],

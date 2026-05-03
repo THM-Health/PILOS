@@ -46,6 +46,7 @@ import * as _ from "lodash-es";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { onBeforeMount, ref, watch } from "vue";
+import { useToast } from "../composables/useToast.js";
 
 const props = defineProps({
   user: {
@@ -65,6 +66,7 @@ const isBusy = ref(false);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const toast = useToast();
 
 watch(
   () => props.user,
@@ -115,6 +117,7 @@ function save(event) {
       ) {
         // Validation errors
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL
