@@ -2090,6 +2090,8 @@ describe("Rooms view settings", function () {
     cy.contains("Laura Walter").should("be.visible");
 
     // Check that access code overlay is shown
+    cy.checkToastMessage("rooms.require_access_code");
+
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
     cy.checkFinalState();
   });

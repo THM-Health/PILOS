@@ -202,6 +202,8 @@ Cypress.Commands.add(
     cy.checkToastMessage("app.flash.unauthenticated");
     cy.contains("auth.login").should("be.visible");
 
+    cy.checkToastMessage("rooms.require_access_code");
+
     // Check with 401 error but guests are forbidden
     // Reload with logged in user
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
@@ -394,6 +396,9 @@ Cypress.Commands.add(
 
     // Check that room gets reloaded
     cy.wait("@roomRequestCheckRoomAuthErrors");
+
+    // Check that require code error message is shown
+    cy.checkToastMessage("rooms.require_access_code");
 
     // Check that access code overlay is shown
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
