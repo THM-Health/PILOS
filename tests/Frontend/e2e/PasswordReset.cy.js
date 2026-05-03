@@ -153,6 +153,7 @@ describe("Password reset", function () {
     cy.intercept("POST", "api/v1/password/reset", {
       statusCode: 422,
       body: {
+        message: "The New password field is required. (and 1 more error)",
         errors: {
           password: ["The New password field is required."],
           password_confirmation: [
@@ -181,6 +182,7 @@ describe("Password reset", function () {
     cy.intercept("POST", "api/v1/password/reset", {
       statusCode: 422,
       body: {
+        message: "The Email field is required. (and 1 more error)",
         errors: {
           email: ["The Email field is required."],
           token: ["The Token field is required."],

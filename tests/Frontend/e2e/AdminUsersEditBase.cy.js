@@ -572,6 +572,7 @@ describe("Admin users edit base", function () {
     cy.intercept("POST", "api/v1/users/2", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 3 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
@@ -586,6 +587,10 @@ describe("Admin users edit base", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that error messages are shown
+    cy.checkToastMessage(
+      "The firstname field is required. (and 3 more errors)",
+    );
+
     cy.get('[data-test="firstname-field"]').should(
       "include.text",
       "The firstname field is required.",

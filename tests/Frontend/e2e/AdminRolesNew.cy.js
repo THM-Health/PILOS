@@ -1328,6 +1328,7 @@ describe("Admin roles new", function () {
     cy.intercept("POST", "api/v1/roles", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 2 more errors)",
         errors: {
           name: ["The Name field is required."],
           room_limit: ["The Room limit must be at least -1."],
@@ -1343,6 +1344,8 @@ describe("Admin roles new", function () {
     cy.wait("@newRoleRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 2 more errors)");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "The Name field is required.");

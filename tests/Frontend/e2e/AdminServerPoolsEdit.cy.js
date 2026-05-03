@@ -403,7 +403,7 @@ describe("Admin server pools edit", function () {
     cy.intercept("PUT", "api/v1/serverPools/1", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The Name field is required. (and 2 more errors)",
         errors: {
           name: ["The Name field is required."],
           description: [
@@ -419,6 +419,8 @@ describe("Admin server pools edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that error messages are shown
+    cy.checkToastMessage("The Name field is required. (and 2 more errors)");
+
     cy.get('[data-test="name-field"]').should(
       "include.text",
       "The Name field is required.",

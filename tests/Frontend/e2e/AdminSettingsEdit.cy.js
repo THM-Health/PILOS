@@ -3128,7 +3128,7 @@ describe("Admin settings with edit permission", function () {
     cy.intercept("POST", "api/v1/settings", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The general name field is required. (and 49 more errors)",
         errors: {
           general_name: ["The general name field is required."],
           general_help_url: ["The selected general help url is invalid."],
@@ -3235,6 +3235,10 @@ describe("Admin settings with edit permission", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that errors are shown correctly
+    cy.checkToastMessage(
+      "The general name field is required. (and 49 more errors)",
+    );
+
     cy.get('[data-test="application-name-field"]').should(
       "include.text",
       "The general name field is required.",

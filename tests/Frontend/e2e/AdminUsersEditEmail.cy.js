@@ -111,6 +111,7 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2/email", {
       statusCode: 422,
       body: {
+        message: "The email field is required",
         errors: {
           email: ["The email field is required."],
         },
@@ -120,6 +121,9 @@ describe("Admin users edit email", function () {
     cy.get('[data-test="user-tab-email-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error message
+    cy.checkToastMessage("The email field is required");
 
     cy.get('[data-test="email-field"]').should(
       "include.text",

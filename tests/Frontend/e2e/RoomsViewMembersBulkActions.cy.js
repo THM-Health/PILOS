@@ -1301,6 +1301,7 @@ describe("Rooms view members bulk actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 422,
       body: {
+        message: "The user emails field is required.",
         errors: {
           user_emails: ["The user emails field is required."],
         },
@@ -1323,6 +1324,7 @@ describe("Rooms view members bulk actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },

@@ -222,12 +222,14 @@ import { useSettingsStore } from "../stores/settings";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
+import { useToast } from "../composables/useToast.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
 const isBusy = ref(false);
 const showPassword = ref(false);
@@ -298,6 +300,7 @@ function save() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else {
         api.error(error);
       }

@@ -46,6 +46,7 @@ import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useAuthStore } from "../stores/auth.js";
+import { useToast } from "../composables/useToast.js";
 
 const props = defineProps({
   viewOnly: {
@@ -63,6 +64,7 @@ const emit = defineEmits(["staleError", "updateUser", "notFoundError"]);
 const userPermissions = useUserPermissions();
 const api = useApi();
 const formErrors = useFormErrors();
+const toast = useToast();
 
 const isBusy = ref(false);
 const model = ref(null);
@@ -126,6 +128,7 @@ function save(event) {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL

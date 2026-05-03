@@ -314,6 +314,7 @@ describe("User Profile Security", function () {
     cy.intercept("PUT", "api/v1/users/1/password", {
       statusCode: 422,
       body: {
+        message: "The Current password field is required. (and 2 more errors)",
         errors: {
           current_password: ["The Current password field is required."],
           new_password: ["The New password field is required."],
@@ -327,6 +328,11 @@ describe("User Profile Security", function () {
     cy.get('[data-test="change-password-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error messages
+    cy.checkToastMessage(
+      "The Current password field is required. (and 2 more errors)",
+    );
 
     cy.get('[data-test="security-tab-current-password-field"]').should(
       "include.text",

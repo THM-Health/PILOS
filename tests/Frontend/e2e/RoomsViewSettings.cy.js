@@ -1333,6 +1333,8 @@ describe("Rooms view settings", function () {
     cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
       statusCode: 422,
       body: {
+        message:
+          "The room requires an access code because of its room type. (and 17 more errors)",
         errors: {
           access_code: [
             "The room requires an access code because of its room type.",
@@ -1371,6 +1373,10 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-settings-save-button"]').click();
 
     // Check that error messages are set
+    cy.checkToastMessage(
+      "The room requires an access code because of its room type. (and 17 more errors)",
+    );
+
     cy.get('[data-test="room-setting-access_code"]').should(
       "include.text",
       "The room requires an access code because of its room type.",
@@ -1556,6 +1562,8 @@ describe("Rooms view settings", function () {
     cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
       statusCode: 422,
       body: {
+        message:
+          "The room requires an access code because of its room type. (and 4 more errors)",
         errors: {
           access_code: [
             "The room requires an access code because of its room type.",
@@ -1575,6 +1583,10 @@ describe("Rooms view settings", function () {
     cy.wait("@roomSettingsSaveRequest");
 
     // Check that error messages are set
+    cy.checkToastMessage(
+      "The room requires an access code because of its room type. (and 4 more errors)",
+    );
+
     cy.get('[data-test="room-setting-access_code"]').should(
       "include.text",
       "The room requires an access code because of its room type.",
@@ -2181,6 +2193,7 @@ describe("Rooms view settings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },
@@ -2203,6 +2216,7 @@ describe("Rooms view settings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
       statusCode: 422,
       body: {
+        message: "The selected user can not own rooms.",
         errors: {
           user: ["The selected user can not own rooms."],
         },

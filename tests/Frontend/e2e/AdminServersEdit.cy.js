@@ -344,6 +344,7 @@ describe("Admin servers edit", function () {
     cy.intercept("PUT", "api/v1/servers/1", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 5 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -360,6 +361,8 @@ describe("Admin servers edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 5 more errors)");
+
     cy.get('[data-test="name-field"]').should(
       "include.text",
       "The name field is required.",

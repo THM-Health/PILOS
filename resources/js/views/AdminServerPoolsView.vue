@@ -222,6 +222,7 @@ import { inject, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useI18n } from "vue-i18n";
+import { useToast } from "../composables/useToast.js";
 
 const { t } = useI18n();
 
@@ -231,6 +232,7 @@ const api = useApi();
 const confirm = useConfirm();
 const router = useRouter();
 const breakcrumbLabelData = inject("breakcrumbLabelData");
+const toast = useToast();
 
 const props = defineProps({
   id: {
@@ -371,6 +373,7 @@ function saveServerPool() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        toast.error(error.response.data.message);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL
