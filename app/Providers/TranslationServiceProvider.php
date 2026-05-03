@@ -10,7 +10,6 @@ use Illuminate\Translation\TranslationServiceProvider as BaseTranslationServiceP
 
 class TranslationServiceProvider extends BaseTranslationServiceProvider
 {
-
     public function register()
     {
         parent::register();
