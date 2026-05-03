@@ -1,25 +1,10 @@
-Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
-  return cy
-    .wrap(null)
-    .then(() => {
-      cy.checkFinalState();
-    })
-    .then(() => {
-      return originalFn(url, options);
-    });
-});
-
-Cypress.Commands.overwrite("reload", (originalFn, options) => {
-  return cy
-    .wrap(null)
-    .then(() => {
-      cy.checkFinalState();
-    })
-    .then(() => {
-      return originalFn(options);
-    });
-});
-
+/**
+ * Check that the final state of the test is correct, e.g. that there are no unexpected error toasts.
+ * This should be called at the end of every test to make sure that unexpected errors aren't missed in the tests.
+ * @memberof cy
+ * @method checkFinalState
+ * @returns void
+ */
 Cypress.Commands.add("checkFinalState", () => {
   cy.url().then((currentUrl) => {
     const currentOrigin = new URL(currentUrl).origin;
