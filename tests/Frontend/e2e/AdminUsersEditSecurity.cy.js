@@ -82,6 +82,7 @@ describe("Admin users edit email", function () {
 
     // Check that essions are not shown
     cy.get('[data-test="session-panel"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("check view with external user", function () {
@@ -122,6 +123,7 @@ describe("Admin users edit email", function () {
 
     // Check that sessions are not shown
     cy.get('[data-test="session-panel"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("change role", function () {
@@ -422,6 +424,7 @@ describe("Admin users edit email", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
+    cy.checkFinalState();
   });
 
   it("check that superuser role is disabled for users that are not superusers", function () {
@@ -485,6 +488,7 @@ describe("Admin users edit email", function () {
       .eq(4)
       .should("include.text", "admin.roles.no_data")
       .and("not.be.visible");
+    cy.checkFinalState();
   });
 
   it("change role errors", function () {
@@ -625,6 +629,7 @@ describe("Admin users edit email", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("change password", function () {
@@ -704,6 +709,7 @@ describe("Admin users edit email", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
+    cy.checkFinalState();
   });
 
   it("change password errors", function () {
@@ -838,6 +844,7 @@ describe("Admin users edit email", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load roles errors", function () {
@@ -977,5 +984,6 @@ describe("Admin users edit email", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

@@ -125,6 +125,7 @@ describe("Rooms view members", function () {
       .eq(2)
       .find("img")
       .should("have.attr", "src", "test.jpg");
+    cy.checkFinalState();
   });
 
   it("load members errors", function () {
@@ -484,6 +485,7 @@ describe("Rooms view members", function () {
       "api/v1/rooms/abc-def-123/member*",
       "members",
     );
+    cy.checkFinalState();
   });
 
   it("load members page out of range", function () {
@@ -558,6 +560,7 @@ describe("Rooms view members", function () {
         page: "1",
       });
     });
+    cy.checkFinalState();
   });
 
   it("search members", function () {
@@ -748,6 +751,7 @@ describe("Rooms view members", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("filter members", function () {
@@ -991,6 +995,7 @@ describe("Rooms view members", function () {
       "have.text",
       "rooms.members.filter.all",
     );
+    cy.checkFinalState();
   });
 
   it("sort members", function () {
@@ -1210,6 +1215,7 @@ describe("Rooms view members", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("check button visibility co_owner", function () {
@@ -1392,6 +1398,7 @@ describe("Rooms view members", function () {
     cy.get('[data-test="room-members-select-all-checkbox"]').should(
       "not.exist",
     );
+    cy.checkFinalState();
   });
 
   it("check button visibility with rooms.viewAll and rooms.manage permissions", function () {
@@ -1570,5 +1577,6 @@ describe("Rooms view members", function () {
     cy.get('[data-test="room-members-bulk-delete-button"]').should(
       "be.visible",
     );
+    cy.checkFinalState();
   });
 });

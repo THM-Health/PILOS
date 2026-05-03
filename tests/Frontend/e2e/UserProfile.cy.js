@@ -8,6 +8,7 @@ describe("User Profile", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/profile");
+    cy.checkFinalState();
   });
 
   it("open user profile", function () {
@@ -55,6 +56,7 @@ describe("User Profile", function () {
     cy.get('[data-test="email-tab-button"]').should("be.visible");
     cy.get('[data-test="security-tab-button"]').should("be.visible");
     cy.get('[data-test="others-tab-button"]').should("be.visible");
+    cy.checkFinalState();
   });
 
   it("open user profile errors", function () {
@@ -106,6 +108,7 @@ describe("User Profile", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("should hide edit controls when external_image is true", function () {
@@ -120,5 +123,6 @@ describe("User Profile", function () {
     cy.get('[data-test="profile-image-field"]').should("be.visible");
     cy.get('[data-test="upload-file-button"]').should("not.exist");
     cy.get('[data-test="delete-image-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 });

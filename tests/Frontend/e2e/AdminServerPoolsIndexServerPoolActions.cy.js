@@ -109,6 +109,7 @@ describe("Admin server pools index server pool actions", function () {
     // Cancel delete of server pool
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("delete server pool errors", function () {
@@ -210,6 +211,7 @@ describe("Admin server pools index server pool actions", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("open add new server pool page", function () {
@@ -222,6 +224,7 @@ describe("Admin server pools index server pool actions", function () {
     cy.get('[data-test="server-pools-add-button"]').click();
 
     cy.url().should("include", "/admin/server_pools/new");
+    cy.checkFinalState();
   });
 
   it("open edit server pool page", function () {
@@ -237,6 +240,7 @@ describe("Admin server pools index server pool actions", function () {
       .click();
 
     cy.url().should("include", "/admin/server_pools/1/edit");
+    cy.checkFinalState();
   });
 
   it("open view server pool page", function () {
@@ -253,5 +257,6 @@ describe("Admin server pools index server pool actions", function () {
 
     cy.url().should("include", "/admin/server_pools/1");
     cy.url().should("not.include", "/edit");
+    cy.checkFinalState();
   });
 });

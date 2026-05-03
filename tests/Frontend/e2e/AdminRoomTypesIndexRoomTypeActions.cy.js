@@ -142,6 +142,7 @@ describe("Admin room types index room type actions", function () {
         "include.text",
         'admin.room_types.delete.confirm_{"name":"Meeting"}',
       );
+    cy.checkFinalState();
   });
 
   it("delete room type with replacement", function () {
@@ -252,6 +253,7 @@ describe("Admin room types index room type actions", function () {
 
     // Check that dialog is closed
     cy.get('[data-test="room-types-delete-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("delete room type errors", function () {
@@ -392,6 +394,7 @@ describe("Admin room types index room type actions", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load replacement room types errors", function () {
@@ -489,6 +492,7 @@ describe("Admin room types index room type actions", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("open add new room type page", function () {
@@ -501,6 +505,7 @@ describe("Admin room types index room type actions", function () {
     cy.get('[data-test="room-types-add-button"]').click();
 
     cy.url().should("include", "/admin/room_types/new");
+    cy.checkFinalState();
   });
 
   it("open edit room type page", function () {
@@ -516,6 +521,7 @@ describe("Admin room types index room type actions", function () {
       .click();
 
     cy.url().should("include", "/admin/room_types/3/edit");
+    cy.checkFinalState();
   });
 
   it("open view room type page", function () {
@@ -532,5 +538,6 @@ describe("Admin room types index room type actions", function () {
 
     cy.url().should("include", "/admin/room_types/3");
     cy.url().should("not.include", "/edit");
+    cy.checkFinalState();
   });
 });

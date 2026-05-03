@@ -16,6 +16,7 @@ describe("Admin roles index", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/roles");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to view roles", function () {
@@ -35,6 +36,7 @@ describe("Admin roles index", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/roles");
     cy.get("h1").should("be.visible").and("contain", "home.title");
+    cy.checkFinalState();
   });
 
   it("load roles", function () {
@@ -117,6 +119,7 @@ describe("Admin roles index", function () {
           .should("include.text", "Students")
           .and("not.include.text", "admin.roles.superuser");
       });
+    cy.checkFinalState();
   });
 
   it("load roles errors", function () {
@@ -266,6 +269,7 @@ describe("Admin roles index", function () {
     cy.url().should("include", "/login?redirect=/admin/roles");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load roles page out of bounds", function () {
@@ -346,6 +350,7 @@ describe("Admin roles index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("role search", function () {
@@ -525,6 +530,7 @@ describe("Admin roles index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("sort roles", function () {
@@ -687,6 +693,7 @@ describe("Admin roles index", function () {
       .eq(0)
       .should("include.text", "Superuser")
       .and("include.text", "admin.roles.superuser");
+    cy.checkFinalState();
   });
 
   it("check button visibility with view permission", function () {
@@ -739,6 +746,7 @@ describe("Admin roles index", function () {
         cy.get('[data-test="roles-edit-button"]').should("not.exist");
         cy.get('[data-test="roles-delete-button"]').should("not.exist");
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -798,6 +806,7 @@ describe("Admin roles index", function () {
           .and("have.attr", "href", "/admin/roles/3/edit");
         cy.get('[data-test="roles-delete-button"]').should("not.exist");
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility with add permission", function () {
@@ -860,6 +869,7 @@ describe("Admin roles index", function () {
           .and("have.attr", "href", "/admin/roles/3/edit");
         cy.get('[data-test="roles-delete-button"]').should("not.exist");
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -923,6 +933,7 @@ describe("Admin roles index", function () {
           .and("have.attr", "href", "/admin/roles/3/edit");
         cy.get('[data-test="roles-delete-button"]').should("be.visible");
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility for user that is no superuser", function () {
@@ -987,6 +998,7 @@ describe("Admin roles index", function () {
           .and("have.attr", "href", "/admin/roles/3/edit");
         cy.get('[data-test="roles-delete-button"]').should("be.visible");
       });
+    cy.checkFinalState();
   });
 
   it("check loading state during reload", function () {

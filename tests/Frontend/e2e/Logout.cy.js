@@ -33,6 +33,7 @@ describe("Logout", function () {
     // Check redirect to home page
     cy.get('[data-test="home-button"]').should("have.text", "app.home").click();
     cy.url().should("not.include", "/logout");
+    cy.checkFinalState();
   });
 
   it("successful logout with redirect", function () {
@@ -59,6 +60,7 @@ describe("Logout", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/idp?foo=a&bar=b`,
     );
+    cy.checkFinalState();
   });
 
   it("failed logout", function () {
@@ -89,5 +91,6 @@ describe("Logout", function () {
       .should("include", "/rooms")
       .and("not.include", "/logout")
       .and("not.include", "/login");
+    cy.checkFinalState();
   });
 });

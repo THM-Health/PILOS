@@ -23,6 +23,7 @@ describe("Rooms index create new room", function () {
     cy.get('[data-test="room-create-button"]').should("not.exist");
     // Check that room limit tag does not exist
     cy.contains("rooms.room_limit").should("not.exist");
+    cy.checkFinalState();
   });
 
   it("create new room", function () {
@@ -368,6 +369,7 @@ describe("Rooms index create new room", function () {
 
     // Check if redirected to the created room
     cy.url().should("include", "/rooms/abc-def-123");
+    cy.checkFinalState();
   });
 
   it("create new room with features enabled", function () {
@@ -468,6 +470,7 @@ describe("Rooms index create new room", function () {
             );
           });
       });
+    cy.checkFinalState();
   });
 
   it("create new room with features disabled", function () {
@@ -539,6 +542,7 @@ describe("Rooms index create new room", function () {
             cy.get('[data-test="room-type-features"]').should("not.exist");
           });
       });
+    cy.checkFinalState();
   });
 
   it("create new room with features disabled and show disabled features", function () {
@@ -622,6 +626,7 @@ describe("Rooms index create new room", function () {
             );
           });
       });
+    cy.checkFinalState();
   });
 
   it("create new room errors", function () {
@@ -855,6 +860,7 @@ describe("Rooms index create new room", function () {
     cy.url().should("include", "/login?redirect=/rooms");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("create new room limit reached", function () {
@@ -980,6 +986,7 @@ describe("Rooms index create new room", function () {
     // Check if room limit is updated and create button is disabled
     cy.get('[data-test="room-create-button"]').should("be.disabled");
     cy.contains('rooms.room_limit_{"has":1,"max":1}').should("be.visible");
+    cy.checkFinalState();
   });
 
   it("create new room limit reached when visiting", function () {
@@ -1010,6 +1017,7 @@ describe("Rooms index create new room", function () {
     // Check if room limit is shown and create button is disabled
     cy.get('[data-test="room-create-button"]').should("be.disabled");
     cy.contains('rooms.room_limit_{"has":1,"max":1}').should("be.visible");
+    cy.checkFinalState();
   });
 
   it("cancel create new room", function () {
@@ -1057,6 +1065,7 @@ describe("Rooms index create new room", function () {
         cy.get("#room-name").should("have.value", "");
         cy.get('[data-test="room-type-details"]').should("not.exist");
       });
+    cy.checkFinalState();
   });
 
   it("errors loading room types", function () {
@@ -1166,5 +1175,6 @@ describe("Rooms index create new room", function () {
     cy.url().should("include", "/login?redirect=/rooms");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

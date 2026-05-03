@@ -20,6 +20,7 @@ describe("Admin server pools view", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/server_pools/1");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to view server pools", function () {
@@ -38,6 +39,7 @@ describe("Admin server pools view", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/servers/1");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkFinalState();
   });
 
   it("check serverPoolView shown correctly", function () {
@@ -121,6 +123,7 @@ describe("Admin server pools view", function () {
               .should("not.exist");
           });
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -150,6 +153,7 @@ describe("Admin server pools view", function () {
       .and("have.attr", "href", "/admin/server_pools/1/edit");
     cy.get('[data-test="server-pools-delete-button"]').should("not.exist");
     cy.get('[data-test="server-pools-save-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -183,6 +187,7 @@ describe("Admin server pools view", function () {
       .should("be.visible")
       .and("not.be.disabled");
     cy.get('[data-test="server-pools-save-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("open view errors", function () {
@@ -261,5 +266,6 @@ describe("Admin server pools view", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools/1");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

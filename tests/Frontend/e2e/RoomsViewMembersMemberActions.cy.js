@@ -239,6 +239,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]')
       .eq(3)
       .should("include.text", "rooms.roles.moderator");
+    cy.checkFinalState();
   });
 
   it("add new member errors", function () {
@@ -432,6 +433,7 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member",
       "members",
     );
+    cy.checkFinalState();
   });
 
   it("edit member", function () {
@@ -521,6 +523,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]')
       .eq(0)
       .should("include.text", "rooms.roles.moderator");
+    cy.checkFinalState();
   });
 
   it("edit member errors", function () {
@@ -636,6 +639,7 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member/6",
       "members",
     );
+    cy.checkFinalState();
   });
 
   it("delete member", function () {
@@ -704,6 +708,7 @@ describe("Rooms view members member actions", function () {
 
     // Check that delete dialog is closed
     cy.get('[data-test="room-members-delete-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("delete member errors", function () {
@@ -797,5 +802,6 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member/6",
       "members",
     );
+    cy.checkFinalState();
   });
 });

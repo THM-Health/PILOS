@@ -235,6 +235,8 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="room-file-item"]')
       .eq(4)
       .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+
+    cy.checkFinalState();
   });
 
   it("upload file errors", function () {
@@ -332,6 +334,8 @@ describe("Rooms view files file actions", function () {
       "/api/v1/rooms/abc-def-123/files",
       "files",
     );
+
+    cy.checkFinalState();
   });
 
   it("delete file", function () {
@@ -400,6 +404,8 @@ describe("Rooms view files file actions", function () {
 
     // Check that dialog is closed
     cy.get('[data-test="room-files-delete-dialog"]').should("not.exist");
+
+    cy.checkFinalState();
   });
 
   it("delete file errors", function () {
@@ -504,6 +510,8 @@ describe("Rooms view files file actions", function () {
       "/api/v1/rooms/abc-def-123/files/1",
       "files",
     );
+
+    cy.checkFinalState();
   });
 
   it("change file settings", function () {
@@ -596,6 +604,8 @@ describe("Rooms view files file actions", function () {
       .and("include.text", "rooms.files.use_in_next_meeting")
       .and("not.include.text", "rooms.files.download_visible")
       .and("not.include.text", "rooms.files.use_in_next_meeting_disabled");
+
+    cy.checkFinalState();
   });
 
   it("change file settings errors", function () {
@@ -724,6 +734,8 @@ describe("Rooms view files file actions", function () {
       "/api/v1/rooms/abc-def-123/files/1",
       "files",
     );
+
+    cy.checkFinalState();
   });
 
   it("download file with terms of use", function () {
@@ -779,6 +791,8 @@ describe("Rooms view files file actions", function () {
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
+
+    cy.checkFinalState();
   });
 
   it("download file with access code errors", function () {
@@ -898,6 +912,8 @@ describe("Rooms view files file actions", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("not.exist");
     cy.get("#access-code").should("have.value", "");
+
+    cy.checkFinalState();
   });
 
   it("download file with personalized link errors", function () {
@@ -985,6 +1001,8 @@ describe("Rooms view files file actions", function () {
     cy.url()
       .should("not.include", "/rooms/abc-def-123")
       .and("not.include", "/rooms");
+
+    cy.checkFinalState();
   });
 
   it("download file errors", function () {
@@ -1242,5 +1260,6 @@ describe("Rooms view files file actions", function () {
 
     // Check that files were not reloaded
     cy.get("@reloadRoomFilesRequest").should("be.null");
+    cy.checkFinalState();
   });
 });

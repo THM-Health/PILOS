@@ -23,6 +23,7 @@ describe("Admin servers view", function () {
 
   it("visit with user that  is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/servers/new");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to add new servers", function () {
@@ -47,6 +48,7 @@ describe("Admin servers view", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/users");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkFinalState();
   });
 
   it("add new server", function () {
@@ -290,6 +292,7 @@ describe("Admin servers view", function () {
         "include.text",
         'admin.breadcrumbs.servers.view_{"name":"Server 01"}',
       );
+    cy.checkFinalState();
   });
 
   it("add new server errors", function () {
@@ -450,5 +453,6 @@ describe("Admin servers view", function () {
     cy.url().should("include", "/login?redirect=/admin/servers/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

@@ -16,6 +16,7 @@ describe("Admin server pools index", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/server_pools");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to view server pools", function () {
@@ -33,6 +34,7 @@ describe("Admin server pools index", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/servers");
     cy.get("h1").should("be.visible").and("contain", "home.title");
+    cy.checkFinalState();
   });
 
   it("load server pools", function () {
@@ -115,6 +117,7 @@ describe("Admin server pools index", function () {
           .eq(1)
           .should("have.text", "1");
       });
+    cy.checkFinalState();
   });
 
   it("load server pools errors", function () {
@@ -268,6 +271,7 @@ describe("Admin server pools index", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load server pools page out of bounds", function () {
@@ -331,6 +335,7 @@ describe("Admin server pools index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("server pools search", function () {
@@ -506,6 +511,7 @@ describe("Admin server pools index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("sort server pools", function () {
@@ -758,6 +764,7 @@ describe("Admin server pools index", function () {
       .eq(0)
       .should("have.attr", "data-p-sorted", "true")
       .and("have.attr", "aria-sort", "ascending");
+    cy.checkFinalState();
   });
 
   it("check button visibility with view permission", function () {
@@ -799,6 +806,7 @@ describe("Admin server pools index", function () {
         cy.get('[data-test="server-pools-edit-button"]').should("not.exist");
         cy.get('[data-test="server-pools-delete-button"]').should("not.exist");
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -846,6 +854,7 @@ describe("Admin server pools index", function () {
           .and("have.attr", "href", "/admin/server_pools/2/edit");
         cy.get('[data-test="server-pools-delete-button"]').should("not.exist");
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility with add permission", function () {
@@ -896,6 +905,7 @@ describe("Admin server pools index", function () {
           .and("have.attr", "href", "/admin/server_pools/2/edit");
         cy.get('[data-test="server-pools-delete-button"]').should("not.exist");
       });
+    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -947,6 +957,7 @@ describe("Admin server pools index", function () {
           .and("have.attr", "href", "/admin/server_pools/2/edit");
         cy.get('[data-test="server-pools-delete-button"]').should("be.visible");
       });
+    cy.checkFinalState();
   });
 
   it("check loading state during reload", function () {

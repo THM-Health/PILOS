@@ -62,6 +62,7 @@ describe("Rooms view history meeting actions", function () {
           1163 * window.devicePixelRatio,
         );
       });
+    cy.checkFinalState();
   });
 
   it("show stats errors", function () {
@@ -176,6 +177,7 @@ describe("Rooms view history meeting actions", function () {
       "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
       "history",
     );
+    cy.checkFinalState();
   });
 
   it("show attendance", function () {
@@ -370,6 +372,7 @@ describe("Rooms view history meeting actions", function () {
           0,
         );
       });
+    cy.checkFinalState();
   });
 
   it("show attendance errors", function () {
@@ -514,5 +517,6 @@ describe("Rooms view history meeting actions", function () {
       "api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
       "history",
     );
+    cy.checkFinalState();
   });
 });

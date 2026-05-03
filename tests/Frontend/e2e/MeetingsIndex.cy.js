@@ -16,6 +16,7 @@ describe("Meetings index", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/meetings");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to view meetings", function () {
@@ -31,6 +32,7 @@ describe("Meetings index", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/meetings");
     cy.get("h1").should("be.visible").and("contain", "home.title");
+    cy.checkFinalState();
   });
 
   it("load meetings", function () {
@@ -269,6 +271,7 @@ describe("Meetings index", function () {
               .and("have.attr", "href", "/rooms/def-abc-456");
           });
       });
+    cy.checkFinalState();
   });
 
   it("load meetings errors", function () {
@@ -431,6 +434,7 @@ describe("Meetings index", function () {
     cy.url().should("include", "/login?redirect=/meetings");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load meetings page out of bounds", function () {
@@ -510,6 +514,7 @@ describe("Meetings index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("meeting search", function () {
@@ -694,6 +699,7 @@ describe("Meetings index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("sort meetings", function () {
@@ -1005,6 +1011,7 @@ describe("Meetings index", function () {
       .eq(7)
       .should("have.attr", "data-p-sorted", "true")
       .and("have.attr", "aria-sort", "ascending");
+    cy.checkFinalState();
   });
 
   it("reload meetings", function () {
@@ -1094,6 +1101,7 @@ describe("Meetings index", function () {
       .eq(0)
       .should("include.text", "02/12/2021, 19:10")
       .and("include.text", "Meeting Two");
+    cy.checkFinalState();
   });
 
   it("view room of meeting", function () {
@@ -1115,6 +1123,7 @@ describe("Meetings index", function () {
     // Check that redirect worked
     cy.url().should("include", "/rooms/abc-def-123");
     cy.url().should("not.include", "/meetings");
+    cy.checkFinalState();
   });
 
   it("check loading state during reload", function () {

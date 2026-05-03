@@ -130,6 +130,7 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-edit-button"]')
       .should("have.text", "app.edit")
       .and("not.be.disabled");
+    cy.checkFinalState();
   });
 
   it("edit description", function () {
@@ -387,6 +388,7 @@ describe("Rooms view description", function () {
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
     cy.get('[data-test="room-description-edit-button"]').should("be.visible");
+    cy.checkFinalState();
   });
 
   it("edit description errors", function () {
@@ -462,6 +464,7 @@ describe("Rooms view description", function () {
       "api/v1/rooms/abc-def-123/description",
       "description",
     );
+    cy.checkFinalState();
   });
 
   it("description changes", function () {
@@ -543,6 +546,7 @@ describe("Rooms view description", function () {
           .and("be.visible");
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("open external link", function () {
@@ -617,6 +621,7 @@ describe("Rooms view description", function () {
         `${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b`,
         "_blank",
       );
+    cy.checkFinalState();
   });
 
   it("sanitize html", function () {
@@ -689,5 +694,6 @@ describe("Rooms view description", function () {
             `${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b`,
           );
       });
+    cy.checkFinalState();
   });
 });

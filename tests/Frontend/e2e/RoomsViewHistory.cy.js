@@ -159,6 +159,7 @@ describe("Rooms view history", function () {
     cy.get('[data-test="room-history-item"]').should("have.length", 0);
 
     cy.contains("meetings.no_historical_data").should("be.visible");
+    cy.checkFinalState();
   });
 
   it("load history errors", function () {
@@ -496,6 +497,7 @@ describe("Rooms view history", function () {
       "api/v1/rooms/abc-def-123/meetings*",
       "history",
     );
+    cy.checkFinalState();
   });
 
   it("load history page out of range", function () {
@@ -570,6 +572,7 @@ describe("Rooms view history", function () {
         page: "1",
       });
     });
+    cy.checkFinalState();
   });
 
   it("load history retention period", function () {
@@ -614,6 +617,7 @@ describe("Rooms view history", function () {
         "include.text",
         'meetings.attendance.retention_period_{"days":30}',
       );
+    cy.checkFinalState();
   });
 
   it("sort history", function () {
@@ -831,5 +835,6 @@ describe("Rooms view history", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 });

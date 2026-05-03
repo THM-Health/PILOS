@@ -105,6 +105,7 @@ describe("Admin roles index role actions", function () {
       .should("have.text", "app.no")
       .click();
     cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("delete role errors", function () {
@@ -175,6 +176,7 @@ describe("Admin roles index role actions", function () {
     cy.url().should("include", "/login?redirect=/admin/roles");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("open add new role page", function () {
@@ -185,6 +187,7 @@ describe("Admin roles index role actions", function () {
 
     cy.get('[data-test="roles-add-button"]').click();
     cy.url().should("include", "/admin/roles/new");
+    cy.checkFinalState();
   });
 
   it("open edit role page", function () {
@@ -198,6 +201,7 @@ describe("Admin roles index role actions", function () {
       .find('[data-test="roles-edit-button"]')
       .click();
     cy.url().should("include", "/admin/roles/2/edit");
+    cy.checkFinalState();
   });
 
   it("open view role page", function () {
@@ -211,5 +215,6 @@ describe("Admin roles index role actions", function () {
       .find('[data-test="roles-view-button"]')
       .click();
     cy.url().should("include", "/admin/roles/2");
+    cy.checkFinalState();
   });
 });

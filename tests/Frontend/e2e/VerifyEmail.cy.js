@@ -27,10 +27,12 @@ describe("Verify email", function () {
     cy.visit("/verify_email");
 
     cy.url().should("include", "/404").and("not.include", "/verify_email");
+    cy.checkFinalState();
   });
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/verify_email");
+    cy.checkFinalState();
   });
 
   it("verify email", function () {
@@ -70,6 +72,7 @@ describe("Verify email", function () {
       .and("include.text", "app.verify_email.success");
     cy.get('[data-test="verify-invalid-message"]').should("not.exist");
     cy.get('[data-test="verify-error-message"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("verify email errors", function () {
@@ -169,5 +172,6 @@ describe("Verify email", function () {
     cy.url().should("include", "/login?redirect=/verify_email");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

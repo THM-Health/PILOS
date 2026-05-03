@@ -39,6 +39,7 @@ describe("Rooms view streaming", function () {
     cy.get('[data-test="streaming-stop-button"]').should("be.disabled");
     cy.get('[data-test="streaming-pause-button"]').should("be.disabled");
     cy.get('[data-test="streaming-resume-button"]').should("be.disabled");
+    cy.checkFinalState();
   });
 
   it("no running meeting, meeting ended", function () {
@@ -69,6 +70,7 @@ describe("Rooms view streaming", function () {
     cy.get('[data-test="streaming-stop-button"]').should("be.disabled");
     cy.get('[data-test="streaming-pause-button"]').should("be.disabled");
     cy.get('[data-test="streaming-resume-button"]').should("be.disabled");
+    cy.checkFinalState();
   });
 
   it("running meeting, streaming disabled", function () {
@@ -107,6 +109,7 @@ describe("Rooms view streaming", function () {
     cy.get('[data-test="streaming-stop-button"]').should("be.disabled");
     cy.get('[data-test="streaming-pause-button"]').should("be.disabled");
     cy.get('[data-test="streaming-resume-button"]').should("be.disabled");
+    cy.checkFinalState();
   });
 
   it("fps counter is shown", function () {
@@ -172,6 +175,7 @@ describe("Rooms view streaming", function () {
 
     // Check if fps counter is not shown
     cy.get('[data-test="streaming-fps-counter"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("start, pause, resume and stop streaming", function () {
@@ -458,6 +462,7 @@ describe("Rooms view streaming", function () {
       "contain",
       "rooms.streaming.failed",
     );
+    cy.checkFinalState();
   });
 
   it("load settings with different permissions", function () {
@@ -578,6 +583,7 @@ describe("Rooms view streaming", function () {
       "contain",
       "rooms.streaming.running",
     );
+    cy.checkFinalState();
   });
 
   it("auto reloading", function () {
@@ -642,6 +648,7 @@ describe("Rooms view streaming", function () {
         "rooms.streaming.running",
       );
     });
+    cy.checkFinalState();
   });
 
   it("error handling", function () {
@@ -786,5 +793,6 @@ describe("Rooms view streaming", function () {
       "contain",
       "rooms.streaming.no_running_meeting",
     );
+    cy.checkFinalState();
   });
 });

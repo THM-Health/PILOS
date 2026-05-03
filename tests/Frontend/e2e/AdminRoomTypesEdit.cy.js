@@ -24,6 +24,7 @@ describe("Admin room types edit", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/room_types/3/edit");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to edit room types", function () {
@@ -42,6 +43,7 @@ describe("Admin room types edit", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/room_types/3/edit");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkFinalState();
   });
 
   it("edit room type", function () {
@@ -869,6 +871,7 @@ describe("Admin room types edit", function () {
         "include.text",
         'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
+    cy.checkFinalState();
   });
 
   it("edit room type with restrictions", function () {
@@ -1181,6 +1184,7 @@ describe("Admin room types edit", function () {
     // Check that room type view page is shown
     cy.url().should("include", "/admin/room_types/3");
     cy.url().should("not.include", "/edit");
+    cy.checkFinalState();
   });
 
   it("edit room type errors", function () {
@@ -2118,6 +2122,7 @@ describe("Admin room types edit", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load room type errors", function () {
@@ -2196,6 +2201,7 @@ describe("Admin room types edit", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("check button visibility without delete permission", function () {
@@ -2229,6 +2235,7 @@ describe("Admin room types edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.save");
+    cy.checkFinalState();
   });
 
   it("load roles errors", function () {
@@ -2436,6 +2443,7 @@ describe("Admin room types edit", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load server pools errors", function () {
@@ -2602,5 +2610,6 @@ describe("Admin room types edit", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/3/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

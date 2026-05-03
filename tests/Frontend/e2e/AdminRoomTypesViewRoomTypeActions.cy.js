@@ -113,6 +113,7 @@ describe("Admin room types view room type actions", function () {
     // Check that redirect worked
     cy.url().should("not.include", "/admin/room_types/3");
     cy.url().should("include", "/admin/room_types");
+    cy.checkFinalState();
   });
 
   it("delete room type with replacement", function () {
@@ -213,6 +214,7 @@ describe("Admin room types view room type actions", function () {
     // Check that redirect worked
     cy.url().should("not.include", "/admin/room_types/3");
     cy.url().should("include", "/admin/room_types");
+    cy.checkFinalState();
   });
 
   it("delete room type errors", function () {
@@ -300,6 +302,7 @@ describe("Admin room types view room type actions", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/3");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load replacement room types errors", function () {
@@ -389,6 +392,7 @@ describe("Admin room types view room type actions", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/3");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("switch between edit and view", function () {
@@ -962,5 +966,6 @@ describe("Admin room types view room type actions", function () {
     cy.get('[data-test="room-types-save-button"]')
       .should("be.visible")
       .and("not.be.disabled");
+    cy.checkFinalState();
   });
 });

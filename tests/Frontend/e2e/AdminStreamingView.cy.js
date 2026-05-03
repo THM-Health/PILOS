@@ -35,6 +35,7 @@ describe("Admin settings with edit permission", function () {
 
     // check 404
     cy.url().should("include", "/404");
+    cy.checkFinalState();
   });
 
   it("check settings with only view permission", function () {
@@ -111,6 +112,7 @@ describe("Admin settings with edit permission", function () {
           )
           .and("be.disabled");
       });
+    cy.checkFinalState();
   });
 
   it("check room type settings table", function () {
@@ -282,5 +284,6 @@ describe("Admin settings with edit permission", function () {
           .find(".fa-solid.fa-check")
           .should("exist");
       });
+    cy.checkFinalState();
   });
 });

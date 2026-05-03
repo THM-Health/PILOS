@@ -31,6 +31,7 @@ describe("Rooms view browser notification", function () {
       "aria-label",
       "rooms.notification.disable",
     );
+    cy.checkFinalState();
   });
 
   it("enable notifications with denied permission", function () {
@@ -55,6 +56,7 @@ describe("Rooms view browser notification", function () {
       "aria-label",
       "rooms.notification.enable",
     );
+    cy.checkFinalState();
   });
 
   it("enable notification with default permission, but granted on request", function () {
@@ -97,6 +99,7 @@ describe("Rooms view browser notification", function () {
       "aria-label",
       "rooms.notification.disable",
     );
+    cy.checkFinalState();
   });
 
   it("enable notification with default permission, but denied on request", function () {
@@ -136,6 +139,7 @@ describe("Rooms view browser notification", function () {
       "aria-label",
       "rooms.notification.enable",
     );
+    cy.checkFinalState();
   });
 
   it("hide enable button if not supported by browser", function () {
@@ -148,6 +152,7 @@ describe("Rooms view browser notification", function () {
     cy.wait("@roomRequest");
 
     cy.get('[data-test="room-notification-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("hide enable button if not fully supported", function () {
@@ -170,6 +175,7 @@ describe("Rooms view browser notification", function () {
       .and("be.calledWith", "");
 
     cy.get('[data-test="room-notification-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("change status from not running to running", function () {
@@ -347,6 +353,7 @@ describe("Rooms view browser notification", function () {
       "rooms.notification.enable",
     );
     cy.checkToastMessage("rooms.notification.disabled");
+    cy.checkFinalState();
   });
 
   it("change status from not running to running errors", function () {
@@ -385,5 +392,6 @@ describe("Rooms view browser notification", function () {
     cy.checkToastMessage("rooms.notification.browser_support");
 
     cy.get('[data-test="room-notification-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 });

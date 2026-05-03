@@ -82,6 +82,7 @@ describe("Admin server pools view", function () {
     // Check that redirect worked
     cy.url().should("not.include", "/admin/server_pools/1");
     cy.url().should("include", "/admin/server_pools");
+    cy.checkFinalState();
   });
 
   it("delete server pool errors", function () {
@@ -175,6 +176,7 @@ describe("Admin server pools view", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools/1");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("switch between edit and view", function () {
@@ -312,5 +314,6 @@ describe("Admin server pools view", function () {
     cy.get('[data-test="server-pools-save-button"]')
       .should("be.visible")
       .and("not.be.disabled");
+    cy.checkFinalState();
   });
 });

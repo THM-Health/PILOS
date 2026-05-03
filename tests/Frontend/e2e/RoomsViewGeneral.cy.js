@@ -101,6 +101,7 @@ describe("Room View general", function () {
     cy.get("#tab-recordings").should("be.visible");
     cy.get("#tab-history").should("not.exist");
     cy.get("#tab-settings").should("not.exist");
+    cy.checkFinalState();
   });
 
   it("room view with access code", function () {
@@ -391,6 +392,7 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("room view with legacy access code", function () {
@@ -498,6 +500,7 @@ describe("Room View general", function () {
 
     // Check that the correct tab is shown
     cy.contains("rooms.description.title").should("be.visible");
+    cy.checkFinalState();
   });
 
   it("room auth with access code errors", function () {
@@ -693,6 +696,7 @@ describe("Room View general", function () {
 
     // Check that access code overlay is hidden
     cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("room view with access code errors", function () {
@@ -835,6 +839,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
     cy.get("#access-code").should("not.be.disabled");
     cy.get('[data-test="room-login-button"]').should("not.be.disabled");
+    cy.checkFinalState();
   });
 
   it("room view as member", function () {
@@ -888,6 +893,7 @@ describe("Room View general", function () {
 
     // Check if share button is hidden
     cy.get('[data-test="room-share-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("room view as moderator", function () {
@@ -939,6 +945,7 @@ describe("Room View general", function () {
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').should("exist");
+    cy.checkFinalState();
   });
 
   it("share room", function () {
@@ -1137,6 +1144,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-invitation-copy-code-button"]').should(
       "not.exist",
     );
+    cy.checkFinalState();
   });
 
   it("room view as co-owner", function () {
@@ -1190,6 +1198,7 @@ describe("Room View general", function () {
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').should("exist");
+    cy.checkFinalState();
   });
 
   it("room view as owner", function () {
@@ -1235,6 +1244,7 @@ describe("Room View general", function () {
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').should("exist");
+    cy.checkFinalState();
   });
 
   it("room view with personalized link (participant)", function () {
@@ -1346,6 +1356,7 @@ describe("Room View general", function () {
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+    cy.checkFinalState();
   });
 
   it("room view with personalized link (moderator)", function () {
@@ -1426,6 +1437,7 @@ describe("Room View general", function () {
 
     // Check if share button is hidden
     cy.get('[data-test="room-share-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("room auth with personalized link errors", function () {
@@ -1589,6 +1601,7 @@ describe("Room View general", function () {
     cy.contains("rooms.index.room_component.never_started").should(
       "be.visible",
     );
+    cy.checkFinalState();
   });
 
   it("room view with personalized link errors", function () {
@@ -1781,6 +1794,7 @@ describe("Room View general", function () {
 
     // Check that room auth request was not sent again
     cy.get("@differentRoomAuthRequest").should("be.null");
+    cy.checkFinalState();
   });
 
   it("room view with rooms.viewAll permission", function () {
@@ -1838,6 +1852,7 @@ describe("Room View general", function () {
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').should("exist");
+    cy.checkFinalState();
   });
 
   it("room view streaming enabled", function () {
@@ -1883,6 +1898,7 @@ describe("Room View general", function () {
     cy.get("#tab-streaming")
       .should("be.visible")
       .should("have.attr", "data-feature-disabled", "false");
+    cy.checkFinalState();
   });
 
   it("room view streaming disabled", function () {
@@ -1983,6 +1999,7 @@ describe("Room View general", function () {
         'rooms.feature_disabled_system_{"name":"rooms.streaming.title"}',
       );
     cy.get('[data-test="dialog-close-button"]').click();
+    cy.checkFinalState();
   });
 
   it("membership button", function () {
@@ -2136,6 +2153,7 @@ describe("Room View general", function () {
 
     // Check that no error message is shown even though room request returned authenticated false again
     cy.get(".p-toast-message").should("not.exist");
+    cy.checkFinalState();
   });
 
   it("membership button errors", function () {
@@ -2451,6 +2469,7 @@ describe("Room View general", function () {
 
     // Check that access code overlay is shown
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.checkFinalState();
   });
 
   it("trigger favorites button", function () {
@@ -2556,6 +2575,7 @@ describe("Room View general", function () {
       "aria-label",
       "rooms.favorites.add",
     );
+    cy.checkFinalState();
   });
 
   it("trigger favorites button errors", function () {
@@ -2699,6 +2719,7 @@ describe("Room View general", function () {
 
     // Check that access code overlay is shown
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.checkFinalState();
   });
 
   it("visit with guest forbidden", function () {
@@ -2721,6 +2742,7 @@ describe("Room View general", function () {
       "href",
       "/login?redirect=/rooms/abc-def-123",
     );
+    cy.checkFinalState();
   });
 
   it("visit with personalized link as authenticated user", function () {
@@ -2750,6 +2772,7 @@ describe("Room View general", function () {
       "not.include",
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
+    cy.checkFinalState();
   });
 
   it("visit with general error", function () {
@@ -2783,6 +2806,7 @@ describe("Room View general", function () {
 
     // Check that overlay is hidden
     cy.get('[data-test="no-room-overlay"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("visit with room not found", function () {
@@ -2798,6 +2822,7 @@ describe("Room View general", function () {
     cy.url()
       .should("include", "/404")
       .should("not.include", "/rooms/abc-def-123");
+    cy.checkFinalState();
   });
 
   it("auto-reload", function () {
@@ -2827,6 +2852,7 @@ describe("Room View general", function () {
     // Wait more than 60 seconds (due to reload randomness) for a auto-reload
     cy.tick(100000);
     cy.get("@roomRequest.all").should("have.length", 2);
+    cy.checkFinalState();
   });
 
   it("auto-reload disabled on error", function () {
@@ -2855,6 +2881,7 @@ describe("Room View general", function () {
     // Wait more than 60 seconds (due to reload randomness) for no auto-reload
     cy.tick(100000);
     cy.get("@roomRequest.all").should("have.length", 1);
+    cy.checkFinalState();
   });
 
   it("reload with errors", function () {
@@ -2933,6 +2960,7 @@ describe("Room View general", function () {
     cy.url()
       .should("include", "/404")
       .should("not.include", "/rooms/abc-def-123");
+    cy.checkFinalState();
   });
 
   it("reload with access code errors", function () {
@@ -3045,6 +3073,7 @@ describe("Room View general", function () {
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
 
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.checkFinalState();
   });
 
   it("reload with personalized link errors", function () {
@@ -3155,6 +3184,7 @@ describe("Room View general", function () {
     cy.url()
       .should("not.include", "/rooms")
       .and("not.include", "rooms/abc-def-123");
+    cy.checkFinalState();
   });
 
   it("logged in status change", function () {
@@ -3232,6 +3262,7 @@ describe("Room View general", function () {
     cy.get("#tab-recordings").should("be.visible");
     cy.get("#tab-history").should("be.visible");
     cy.get("#tab-settings").should("be.visible");
+    cy.checkFinalState();
   });
 
   it("displays meeting ended reason", function () {
@@ -3260,6 +3291,7 @@ describe("Room View general", function () {
 
     // Check reason message is removed from URL
     cy.url().should("not.include", "reason");
+    cy.checkFinalState();
   });
 
   it("displays bbb error messages", function () {
@@ -3328,6 +3360,7 @@ describe("Room View general", function () {
 
     // Check url is updated (no errors)
     cy.url().should("not.include", "errors");
+    cy.checkFinalState();
   });
 
   it("hide room owner if not provided", function () {
@@ -3349,5 +3382,6 @@ describe("Room View general", function () {
 
     // room should not contain owner name
     cy.contains("John Doe").should("not.exist");
+    cy.checkFinalState();
   });
 });

@@ -85,6 +85,7 @@ describe("Admin roles view role actions", function () {
 
     // Check that dialog was closed
     cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("delete role errors", function () {
@@ -150,6 +151,7 @@ describe("Admin roles view role actions", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/2");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("switch between edit and view", function () {
@@ -390,5 +392,6 @@ describe("Admin roles view role actions", function () {
     cy.get('[data-test="roles-save-button"]')
       .should("be.visible")
       .and("not.be.disabled");
+    cy.checkFinalState();
   });
 });

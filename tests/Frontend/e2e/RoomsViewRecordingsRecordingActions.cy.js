@@ -66,6 +66,7 @@ describe("Rooms view recordings recording actions", function () {
           .and("have.attr", "rel", "opener")
           .and("have.attr", "target", "_blank");
       });
+    cy.checkFinalState();
   });
 
   it("view recording with access code", function () {
@@ -169,6 +170,7 @@ describe("Rooms view recordings recording actions", function () {
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
+    cy.checkFinalState();
   });
 
   it("view recording with access code errors", function () {
@@ -298,6 +300,8 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("not.exist");
     cy.get("#access-code").should("have.value", "");
+
+    cy.checkFinalState();
   });
 
   it("view recording with personalized link", function () {
@@ -390,6 +394,7 @@ describe("Rooms view recordings recording actions", function () {
       )
       .and("have.attr", "rel", "opener")
       .and("have.attr", "target", "_blank");
+    cy.checkFinalState();
   });
 
   it("view recording with personalized link errors", function () {
@@ -488,6 +493,7 @@ describe("Rooms view recordings recording actions", function () {
     cy.url()
       .should("not.include", "/rooms/abc-def-123")
       .and("not.include", "/rooms");
+    cy.checkFinalState();
   });
 
   it("view recording with errors", function () {
@@ -740,6 +746,7 @@ describe("Rooms view recordings recording actions", function () {
     cy.get(".p-toast-message").should("not.exist");
 
     cy.get("@reloadRoomRecordingsRequest").should("be.null");
+    cy.checkFinalState();
   });
 
   it("delete recording", function () {
@@ -806,6 +813,7 @@ describe("Rooms view recordings recording actions", function () {
 
     // Check that dialog is closed
     cy.get('[data-test="room-recordings-delete-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("delete recording errors", function () {
@@ -911,6 +919,7 @@ describe("Rooms view recordings recording actions", function () {
       "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       "recordings",
     );
+    cy.checkFinalState();
   });
 
   it("edit recording", function () {
@@ -1101,6 +1110,7 @@ describe("Rooms view recordings recording actions", function () {
           .eq(0)
           .should("include.text", "rooms.recordings.format_types.screenshare");
       });
+    cy.checkFinalState();
   });
 
   it("edit recording errors", function () {
@@ -1264,5 +1274,6 @@ describe("Rooms view recordings recording actions", function () {
       "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       "recordings",
     );
+    cy.checkFinalState();
   });
 });

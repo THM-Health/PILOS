@@ -88,6 +88,7 @@ describe("Login", function () {
     cy.checkToastMessage("auth.flash.login");
     // Check if redirect works
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("hide ldap login if disabled", function () {
@@ -108,6 +109,7 @@ describe("Login", function () {
 
     cy.get('[data-test="login-tab-button-local"]').should("exist");
     cy.get('[data-test="login-tab-button-ldap"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("ldap login with redirect query set", function () {
@@ -154,6 +156,7 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("local login", function () {
@@ -247,6 +250,7 @@ describe("Login", function () {
     cy.checkToastMessage("auth.flash.login");
     // Check if redirect works
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("open forgot password page", function () {
@@ -278,6 +282,7 @@ describe("Login", function () {
       .click();
 
     cy.url().should("include", "/forgot_password").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("hide local login if disabled", function () {
@@ -297,6 +302,7 @@ describe("Login", function () {
 
     cy.get('[data-test="login-tab-button-ldap"]').should("exist");
     cy.get('[data-test="login-tab-button-local"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("local login with redirect query set", function () {
@@ -342,6 +348,7 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("local login errors", function () {
@@ -466,6 +473,7 @@ describe("Login", function () {
 
     cy.checkToastMessage("app.flash.guests_only");
     cy.url().should("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("ldap login errors", function () {
@@ -598,6 +606,7 @@ describe("Login", function () {
 
     cy.checkToastMessage("app.flash.guests_only");
     cy.url().should("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("visit login page with already logged in user", function () {
@@ -617,6 +626,7 @@ describe("Login", function () {
     // Check with redirect query parameter
     cy.visit("/login?redirect=/admin");
     cy.url().should("include", "/admin").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("shibboleth login", function () {
@@ -645,6 +655,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("hide shibboleth login if disabled", function () {
@@ -664,6 +675,7 @@ describe("Login", function () {
     cy.wait("@configRequest");
     cy.get('[data-test="login-tab-button-local"]').should("exist");
     cy.get('[data-test="login-tab-button-shibboleth"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("shibboleth login with redirect query set", function () {
@@ -706,6 +718,8 @@ describe("Login", function () {
     // Check admin page is shown (loading is finished) and toast message is shown
     cy.contains("admin.title").should("be.visible");
     cy.checkToastMessage("auth.flash.login");
+
+    cy.checkFinalState();
   });
 
   it("external login callback missing attributes error", function () {
@@ -721,6 +735,8 @@ describe("Login", function () {
       .should("be.visible")
       .should("have.text", "auth.login")
       .should("have.attr", "href", "/login");
+
+    cy.checkFinalState();
   });
 
   it("external login callback duplicate session error", function () {
@@ -738,6 +754,8 @@ describe("Login", function () {
       .should("be.visible")
       .should("have.text", "auth.login")
       .should("have.attr", "href", "/login");
+
+    cy.checkFinalState();
   });
 
   it("external login callback invalid request", function () {
@@ -753,6 +771,8 @@ describe("Login", function () {
       .should("be.visible")
       .should("have.text", "auth.login")
       .should("have.attr", "href", "/login");
+
+    cy.checkFinalState();
   });
 
   it("external login callback openid connect network exception", function () {
@@ -825,6 +845,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkFinalState();
   });
 
   it("hide oidc login if disabled", function () {
@@ -844,6 +865,7 @@ describe("Login", function () {
     cy.wait("@configRequest");
     cy.get('[data-test="login-tab-button-local"]').should("exist");
     cy.get('[data-test="login-tab-button-oidc"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("oidc login with redirect query set", function () {
@@ -908,5 +930,6 @@ describe("Login", function () {
     // Check admin page is shown (loading is finished) and no toast message is shown
     cy.contains("admin.title").should("be.visible");
     cy.get(".p-toast-message").should("not.exist");
+    cy.checkFinalState();
   });
 });

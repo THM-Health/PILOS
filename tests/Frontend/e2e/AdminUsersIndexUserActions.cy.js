@@ -116,6 +116,7 @@ describe("Admin users index user actions", function () {
     // Cancel delete
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("delete user errors", function () {
@@ -166,6 +167,7 @@ describe("Admin users index user actions", function () {
     cy.url().should("include", "/login?redirect=/admin/users");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("reset password", function () {
@@ -220,6 +222,7 @@ describe("Admin users index user actions", function () {
 
     // Check that dialog is closed
     cy.get('[data-test="users-reset-password-dialog"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("reset password errors", function () {
@@ -268,6 +271,7 @@ describe("Admin users index user actions", function () {
     cy.url().should("include", "/login?redirect=/admin/users");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("open add new user page", function () {
@@ -280,6 +284,7 @@ describe("Admin users index user actions", function () {
     cy.get('[data-test="users-add-button"]').click();
 
     cy.url().should("include", "/admin/users/new");
+    cy.checkFinalState();
   });
 
   it("open edit user page", function () {
@@ -323,6 +328,7 @@ describe("Admin users index user actions", function () {
       .click();
 
     cy.url().should("include", "/admin/users/1/edit");
+    cy.checkFinalState();
   });
 
   it("open view user page", function () {
@@ -372,5 +378,6 @@ describe("Admin users index user actions", function () {
 
     cy.url().should("include", "/admin/users/1");
     cy.url().should("not.include", "/edit");
+    cy.checkFinalState();
   });
 });

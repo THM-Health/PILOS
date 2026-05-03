@@ -23,6 +23,7 @@ describe("Admin servers edit", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/servers/1/edit");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to edit servers", function () {
@@ -46,6 +47,7 @@ describe("Admin servers edit", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/users/2/edit");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkFinalState();
   });
 
   it("edit server", function () {
@@ -345,6 +347,7 @@ describe("Admin servers edit", function () {
     // Check that delete button is now hidden because server is enabled and
     // therefore cannot be deleted
     cy.get('[data-test="servers-delete-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -676,6 +679,7 @@ describe("Admin servers edit", function () {
     cy.url().should("include", "/login?redirect=/admin/servers/1/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("check button visibility without delete permission", function () {
@@ -780,6 +784,7 @@ describe("Admin servers edit", function () {
       .and("not.be.disabled");
 
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("load server errors", function () {
@@ -857,5 +862,6 @@ describe("Admin servers edit", function () {
     cy.url().should("include", "/login?redirect=/admin/servers/1/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

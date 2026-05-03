@@ -117,6 +117,7 @@ describe("Admin users edit email", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
+    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -212,6 +213,7 @@ describe("Admin users edit email", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("view for external user", function () {
@@ -240,5 +242,6 @@ describe("Admin users edit email", function () {
       .and("have.value", "LauraWRivera@domain.tld");
 
     cy.get('[data-test="user-tab-email-save-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 });

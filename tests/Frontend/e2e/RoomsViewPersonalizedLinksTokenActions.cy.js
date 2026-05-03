@@ -137,6 +137,7 @@ describe("Rooms view personalized links actions", function () {
       .and("include.text", "rooms.roles.participant")
       .and("not.include.text", "rooms.personalized_links.last_used_at")
       .and("not.include.text", "rooms.personalized_links.expires_at");
+    cy.checkFinalState();
   });
 
   it("add new personalized link errors", function () {
@@ -234,6 +235,7 @@ describe("Rooms view personalized links actions", function () {
       "/api/v1/rooms/abc-def-123/personalizedLinks/",
       "tokens",
     );
+    cy.checkFinalState();
   });
 
   it("edit personalized link", function () {
@@ -374,6 +376,7 @@ describe("Rooms view personalized links actions", function () {
         "include.text",
         'rooms.personalized_links.expires_at_{"date":"10/17/2021, 14:21"}',
       );
+    cy.checkFinalState();
   });
 
   it("edit personalized link errors", function () {
@@ -523,6 +526,7 @@ describe("Rooms view personalized links actions", function () {
       "/api/v1/rooms/abc-def-123/personalizedLinks/1",
       "tokens",
     );
+    cy.checkFinalState();
   });
 
   it("delete personalized link", function () {
@@ -600,6 +604,7 @@ describe("Rooms view personalized links actions", function () {
       "have.length",
       2,
     );
+    cy.checkFinalState();
   });
 
   it("delete personalized link errors", function () {
@@ -716,6 +721,7 @@ describe("Rooms view personalized links actions", function () {
       "/api/v1/rooms/abc-def-123/personalizedLinks/1",
       "tokens",
     );
+    cy.checkFinalState();
   });
 
   it("copy personalized link", function () {
@@ -742,5 +748,6 @@ describe("Rooms view personalized links actions", function () {
     cy.checkToastMessage(
       'rooms.personalized_links.room_link_copied_{"firstname":"John","lastname":"Doe"}',
     );
+    cy.checkFinalState();
   });
 });

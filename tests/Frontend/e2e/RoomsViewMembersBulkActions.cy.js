@@ -246,6 +246,7 @@ describe("Rooms view members bulk actions", function () {
     // Check that bulk edit dialog is closed and bulk edit button is hidden
     cy.get('[data-test="room-members-bulk-edit-dialog"]').should("not.exist");
     cy.get('[data-test="room-members-bulk-edit-button"]').should("not.exist");
+    cy.checkFinalState();
   });
 
   it("bulk edit members errors", function () {
@@ -408,6 +409,7 @@ describe("Rooms view members bulk actions", function () {
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
     );
+    cy.checkFinalState();
   });
 
   it("bulk delete members", function () {
@@ -576,6 +578,7 @@ describe("Rooms view members bulk actions", function () {
     // Check that users were removed
     cy.get('[data-test="room-member-item"]').should("have.length", 0);
     cy.contains("rooms.members.nodata").should("be.visible");
+    cy.checkFinalState();
   });
 
   it("bulk delete members errors", function () {
@@ -682,6 +685,7 @@ describe("Rooms view members bulk actions", function () {
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
     );
+    cy.checkFinalState();
   });
 
   it("bulk import members", function () {
@@ -1281,6 +1285,7 @@ describe("Rooms view members bulk actions", function () {
 
     cy.get('[data-test="room-members-bulk-import-dialog"]').should("not.exist");
     cy.get('[data-test="room-member-item"]').should("have.length", 5);
+    cy.checkFinalState();
   });
 
   it("bulk import members errors", function () {
@@ -1386,5 +1391,6 @@ describe("Rooms view members bulk actions", function () {
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
     );
+    cy.checkFinalState();
   });
 });

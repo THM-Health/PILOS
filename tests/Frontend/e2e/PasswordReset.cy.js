@@ -27,6 +27,7 @@ describe("Password reset", function () {
     cy.visit("/reset_password");
 
     cy.url().should("include", "/404").and("not.include", "/forgot_password");
+    cy.checkFinalState();
   });
 
   it("visit with logged in user", function () {
@@ -43,6 +44,7 @@ describe("Password reset", function () {
     // Check that user is redirected to home page
     cy.url().should("not.include", "/forgot_password");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkFinalState();
   });
 
   it("reset password of existing user", function () {
@@ -128,6 +130,7 @@ describe("Password reset", function () {
     // Check that user is redirected to home page
     cy.url().should("not.include", "/reset_password");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkFinalState();
   });
 
   it("reset password view for new user", function () {
@@ -141,6 +144,7 @@ describe("Password reset", function () {
       "have.text",
       "auth.set_password",
     );
+    cy.checkFinalState();
   });
 
   it("reset password errors", function () {
@@ -245,5 +249,6 @@ describe("Password reset", function () {
 
     // Check that error message is shown
     cy.checkToastMessage("app.flash.too_many_requests");
+    cy.checkFinalState();
   });
 });

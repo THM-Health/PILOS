@@ -24,6 +24,7 @@ describe("Admin server pools edit", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/server_pools/1");
+    cy.checkFinalState();
   });
 
   it("visit with user without permission to edit server pools", function () {
@@ -47,6 +48,7 @@ describe("Admin server pools edit", function () {
       cy.url().should("not.include", "/admin/server_pools/1/edit");
       cy.get("h1").should("be.visible").and("include.text", "home.title");
     });
+    cy.checkFinalState();
   });
 
   it("edit server pool", function () {
@@ -385,6 +387,7 @@ describe("Admin server pools edit", function () {
         "include.text",
         'admin.breadcrumbs.server_pools.view_{"name":"Server Pool 1"}',
       );
+    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -655,6 +658,7 @@ describe("Admin server pools edit", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools/1/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("check button visibility without delete permission", function () {
@@ -689,6 +693,7 @@ describe("Admin server pools edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.save");
+    cy.checkFinalState();
   });
 
   it("load server pool errors", function () {
@@ -767,6 +772,7 @@ describe("Admin server pools edit", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools/1/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 
   it("load servers errors", function () {
@@ -916,5 +922,6 @@ describe("Admin server pools edit", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools/1/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+    cy.checkFinalState();
   });
 });

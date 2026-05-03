@@ -179,6 +179,7 @@ describe("Rooms View Files", function () {
       .eq(0)
       .find('button[data-test="room-files-delete-button"]')
       .should("not.be.disabled");
+    cy.checkFinalState();
   });
 
   it("load files with access code", function () {
@@ -285,6 +286,7 @@ describe("Rooms View Files", function () {
       .eq(1)
       .find('[data-test="room-files-delete-button"]')
       .should("not.exist");
+    cy.checkFinalState();
   });
 
   it("load files with access code errors", function () {
@@ -431,6 +433,8 @@ describe("Rooms View Files", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("not.exist");
     cy.get("#access-code").should("have.value", "");
+    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.checkFinalState();
   });
 
   it("load files with personalized link", function () {
@@ -525,6 +529,7 @@ describe("Rooms View Files", function () {
       .eq(1)
       .find('[data-test="room-files-delete-button"]')
       .should("not.exist");
+    cy.checkFinalState();
   });
 
   it("load files with personalized link errors", function () {
@@ -616,6 +621,7 @@ describe("Rooms View Files", function () {
     cy.url()
       .should("not.include", "/rooms/abc-def-123")
       .and("not.include", "/rooms");
+    cy.checkFinalState();
   });
 
   it("load files errors", function () {
@@ -777,6 +783,7 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("load files page out of range", function () {
@@ -851,6 +858,7 @@ describe("Rooms View Files", function () {
         page: "1",
       });
     });
+    cy.checkFinalState();
   });
 
   it("view with different permissions", function () {
@@ -1421,6 +1429,7 @@ describe("Rooms View Files", function () {
       .eq(2)
       .find('[data-test="room-files-delete-button"]')
       .should("not.be.disabled");
+    cy.checkFinalState();
   });
 
   it("search files", function () {
@@ -1601,6 +1610,7 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("filter files", function () {
@@ -1829,6 +1839,7 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 
   it("sort files", function () {
@@ -2043,5 +2054,6 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+    cy.checkFinalState();
   });
 });
