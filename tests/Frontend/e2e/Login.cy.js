@@ -655,6 +655,8 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
+
     cy.checkFinalState();
   });
 
@@ -845,6 +847,8 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
+
     cy.checkFinalState();
   });
 

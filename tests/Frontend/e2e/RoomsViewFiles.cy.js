@@ -433,7 +433,6 @@ describe("Rooms View Files", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("not.exist");
     cy.get("#access-code").should("have.value", "");
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
     cy.checkFinalState();
   });
 

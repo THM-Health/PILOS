@@ -44,6 +44,8 @@ describe("Admin roles new", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/room_types");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkToastMessage("app.flash.unauthorized");
+
     cy.checkFinalState();
   });
 
