@@ -137,8 +137,8 @@ docker compose exec app pilos-cli import:greenlight-v3 \
 
 ## Importing recordings
 
-You can also import recordings for existing rooms. To make this possible the import command creates a meeting with the BBB meeting ID for every imported room.
-This meeting does not have a start- or end timestamp, so it not visible in the frontend. Associated recordings _will_ be listed, however.
+You can also import recordings for existing rooms. To make this possible the import command creates a meeting with the BBB meeting ID for every
+imported room. This meeting does not have a start- or end timestamp, so it is not visible in the frontend but associated recordings _will_ be listed.
 
 To import existing recordings, you have to
 
@@ -148,6 +148,9 @@ To import existing recordings, you have to
 4. move or copy those tar files to PILOS' `recordings-spool` directory.
 
 Existing recordings prepared like this will be imported just like new ones would.
+
+Imported recordings will be visible only to room owners, who may of course change this, if they so choose. If you want imported recordings to be
+visible to everyone, put them in a subfolder `public` in the `recordings-spool` directory.
 
 **Note** You _may_ have to temporarily increase RAM allocated to horizon if it is limited.
 
