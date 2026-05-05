@@ -134,7 +134,6 @@ function deleteMembers() {
     })
     .finally(() => {
       isLoadingAction.value = false;
-      formErrors.scrollToFirstError();
     });
 }
 </script>

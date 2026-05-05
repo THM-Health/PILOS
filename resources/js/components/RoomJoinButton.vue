@@ -411,9 +411,7 @@ function getJoinUrl() {
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
 
-          loadStartJoinRequirements().then(() => {
-            formErrors.scrollToFirstError();
-          });
+          loadStartJoinRequirements();
           return;
         }
 

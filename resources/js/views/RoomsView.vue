@@ -712,7 +712,6 @@ function authenticate(type, codeOrToken) {
       })
       .finally(() => {
         authLoading.value = false;
-        formErrors.scrollToFirstError();
       });
   });
 }

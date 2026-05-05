@@ -400,7 +400,6 @@ function save(event) {
     .finally(() => {
       // Disable busy indicator
       isBusy.value = false;
-      formErrors.scrollToFirstError();
     });
 }
 

@@ -391,7 +391,6 @@ function saveServerPool() {
     })
     .finally(() => {
       isBusy.value = false;
-      formErrors.scrollToFirstError();
     });
 }
 

@@ -308,7 +308,6 @@ function importUsers(firstRound = false) {
           // check for role errors
           if (error.response.data.errors.role) {
             formErrors.set(error.response.data.errors);
-
             return;
           }
           // check for general errors with user list (empty, too long)
@@ -316,7 +315,6 @@ function importUsers(firstRound = false) {
             formErrors.set({
               user_emails: error.response.data.errors.user_emails,
             });
-
             return;
           }
 
@@ -345,7 +343,6 @@ function importUsers(firstRound = false) {
     })
     .finally(() => {
       isLoadingAction.value = false;
-      formErrors.scrollToFirstError();
     });
 }
 </script>

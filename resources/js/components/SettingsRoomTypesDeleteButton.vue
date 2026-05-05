@@ -214,7 +214,6 @@ function deleteRoomType() {
     })
     .finally(() => {
       isBusy.value = false;
-      formErrors.scrollToFirstError();
     });
 }
 

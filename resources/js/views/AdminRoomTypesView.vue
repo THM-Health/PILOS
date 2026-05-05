@@ -1752,7 +1752,6 @@ function saveRoomType() {
     })
     .finally(() => {
       isBusy.value = false;
-      formErrors.scrollToFirstError();
     });
 }
 
