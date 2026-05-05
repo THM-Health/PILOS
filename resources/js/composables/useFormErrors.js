@@ -14,13 +14,6 @@ class FormError {
     this.errors = {};
   }
 
-  async scrollToFirstError() {
-    await nextTick();
-    document
-      .getElementsByClassName("form-error")[0]
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
   /**
    * Returns the state for a field with the given name.
    *

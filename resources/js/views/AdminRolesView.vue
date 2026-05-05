@@ -630,7 +630,6 @@ function saveRole() {
     })
     .finally(() => {
       busyCounter.value--;
-      formErrors.scrollToFirstError();
     });
 }
 

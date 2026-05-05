@@ -266,9 +266,6 @@ function uploadFile(file) {
         }
       }
       api.error(error, { redirectOnUnauthenticated: false });
-    })
-    .finally(() => {
-      formErrors.scrollToFirstError();
     });
 }
 </script>
