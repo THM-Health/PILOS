@@ -605,12 +605,22 @@ describe("Login", function () {
   });
 
   it("visit login page with already logged in user", function () {
-    cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["admin.view"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
     cy.interceptRoomIndexRequests();
 
+    // Check without redirect query parameter
     cy.visit("/login");
-    cy.checkToastMessage("app.flash.guests_only");
-    cy.url().should("not.include", "/login");
+    cy.url().should("include", "/rooms").and("not.include", "/login");
+
+    // Check with redirect query parameter
+    cy.visit("/login?redirect=/admin");
+    cy.url().should("include", "/admin").and("not.include", "/login");
   });
 
   it("shibboleth login", function () {
@@ -696,6 +706,10 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("external login callback missing attributes error", function () {
@@ -705,6 +719,12 @@ describe("Login", function () {
     // Check if error gets displayed
     cy.contains("auth.error.login_failed").should("be.visible");
     cy.contains("auth.error.missing_attributes").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
   });
 
   it("external login callback duplicate session error", function () {
@@ -716,6 +736,70 @@ describe("Login", function () {
     cy.contains("auth.error.shibboleth_session_duplicate_exception").should(
       "be.visible",
     );
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback invalid request", function () {
+    // Visit redirect page after external login with error (invalid request)
+    cy.visit("/external_login?error=invalid_request");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.invalid_request").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback openid connect network exception", function () {
+    // Visit redirect page after external login with error (openid connect network exception)
+    cy.visit("/external_login?error=openid_connect_network_exception");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.openid_connect_network_exception").should(
+      "be.visible",
+    );
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback openid connect exception", function () {
+    // Visit redirect page after external login with error (openid connect exception)
+    cy.visit("/external_login?error=openid_connect_exception");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.openid_connect_exception").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback with error and already logged in user", function () {
+    cy.intercept("/api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.interceptRoomIndexRequests();
+
+    // Visit redirect page after external login with error
+    cy.visit("/external_login?error=invalid_request");
+
+    // Check redirected to room overview page
+    cy.url().should("include", "/rooms").and("not.include", "/login");
   });
 
   it("oidc login", function () {
@@ -803,5 +887,30 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.checkToastMessage("auth.flash.login");
+  });
+
+  it("external login with redirect query and no_message set", function () {
+    // Intercept user request (user that has the permission to show the config page)
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["admin.view"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    // Visit redirect page after external login (redirect query is set)
+    cy.visit("/external_login?no_message=1&redirect=/admin");
+
+    // Check if redirect works
+    cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and no toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.get(".p-toast-message").should("not.exist");
   });
 });

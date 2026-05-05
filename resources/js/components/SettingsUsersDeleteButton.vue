@@ -12,7 +12,7 @@
         lastname: props.lastname,
       })
     "
-    :disabled="isBusy"
+    :disabled="isBusy || props.disabled"
     severity="danger"
     icon="fa-solid fa-trash"
     data-test="users-delete-button"
@@ -75,6 +75,10 @@ const props = defineProps({
   lastname: {
     type: String,
     required: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 

@@ -59,7 +59,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["updateUser", "notFoundError", "staleError"]);
+const emit = defineEmits(["updateUser", "notFoundError", "staleError", "busy"]);
 
 const model = ref(null);
 const isBusy = ref(false);
@@ -75,6 +75,10 @@ watch(
   },
   { deep: true },
 );
+
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
+});
 
 onBeforeMount(() => {
   model.value = _.cloneDeep(props.user);

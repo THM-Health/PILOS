@@ -10,6 +10,7 @@
     severity="info"
     icon="fa-solid fa-edit"
     data-test="streaming-room-type-settings-edit-button"
+    :disabled="disabled"
     @click="showModal"
   />
 

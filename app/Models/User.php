@@ -170,7 +170,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $firstname  Firstname to search for
      * @return Builder The scoped query
      */
-    public function scopeWithFirstName(Builder $query, $firstname)
+    public function scopeWithFirstName(Builder $query, string $firstname)
     {
         return $query->whereLike('firstname', '%'.$firstname.'%');
     }
@@ -194,7 +194,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $lastname  Lastname to search for
      * @return Builder The scoped query
      */
-    public function scopeWithLastName(Builder $query, $lastname)
+    public function scopeWithLastName(Builder $query, string $lastname)
     {
         return $query->whereLike('lastname', '%'.$lastname.'%');
     }
@@ -206,7 +206,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $email  Email to search for
      * @return Builder The scoped query
      */
-    public function scopeWithEmail(Builder $query, $email)
+    public function scopeWithEmail(Builder $query, string $email)
     {
         return $query->whereLike('email', '%'.$email.'%');
     }

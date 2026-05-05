@@ -1,7 +1,7 @@
 <template>
   <Button
     v-tooltip:top="$t('rooms.recordings.download')"
-    as="a"
+    :as="props.disabled ? 'button' : 'a'"
     target="_blank"
     :href="downloadUrl"
     severity="help"
@@ -29,9 +29,6 @@ const props = defineProps({
 });
 
 const downloadUrl = computed(() => {
-  if (props.disabled) {
-    return null;
-  }
   return (
     settingsStore.getSetting("general.base_url") +
     "/download/recording/" +

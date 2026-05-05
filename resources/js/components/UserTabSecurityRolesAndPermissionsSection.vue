@@ -13,7 +13,10 @@
             aria-labelledby="roles-label"
             :invalid="formErrors.fieldInvalid('roles', true)"
             :disabled="
-              isBusy || viewOnly || !userPermissions.can('editUserRole', model)
+              isBusy ||
+              viewOnly ||
+              !userPermissions.can('editUserRole', model) ||
+              disabled
             "
             :automatic-roles="automaticRoles"
             :disable-superuser="!authStore.currentUser?.superuser"
@@ -26,7 +29,7 @@
       <div class="flex justify-end">
         <Button
           v-if="!viewOnly && userPermissions.can('editUserRole', model)"
-          :disabled="isBusy || rolesLoadingError || rolesLoading"
+          :disabled="isBusy || rolesLoadingError || rolesLoading || disabled"
           type="submit"
           :loading="isBusy"
           :label="$t('app.save')"
@@ -57,9 +60,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["staleError", "updateUser", "notFoundError"]);
+const emit = defineEmits(["staleError", "updateUser", "notFoundError", "busy"]);
 
 const userPermissions = useUserPermissions();
 const api = useApi();
@@ -93,6 +100,10 @@ watch(
   },
   { deep: true },
 );
+
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
+});
 
 onBeforeMount(() => {
   model.value = _.cloneDeep(props.user);

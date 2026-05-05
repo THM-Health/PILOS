@@ -209,6 +209,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   "invalidRoomAuthToken",
+  "requireCode",
   "guestsNotAllowed",
   "changed",
 ]);
@@ -447,7 +448,7 @@ function handleError(error) {
     error.response.status === env.HTTP_FORBIDDEN &&
     error.response.data.message === HTTP_ROOM_REQUIRE_CODE
   ) {
-    emit("invalidRoomAuthToken");
+    emit("requireCode");
     modalVisible.value = false;
     return true;
   }

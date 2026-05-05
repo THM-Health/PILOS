@@ -338,7 +338,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidRoomAuthToken", "guestsNotAllowed"]);
+const emit = defineEmits([
+  "invalidRoomAuthToken",
+  "requireCode",
+  "guestsNotAllowed",
+]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -435,7 +439,7 @@ function loadData(page = null) {
           error.response.status === env.HTTP_FORBIDDEN &&
           error.response.data.message === HTTP_ROOM_REQUIRE_CODE
         ) {
-          return emit("invalidRoomAuthToken");
+          return emit("requireCode");
         }
       }
       loadingError.value = true;
@@ -482,7 +486,7 @@ function handleRecordingErrorMessages(event) {
     emit("invalidRoomAuthToken");
   } else if (event.data.type === HTTP_ROOM_REQUIRE_CODE) {
     // Forbidden, require access code
-    emit("invalidRoomAuthToken");
+    emit("requireCode");
   } else if (event.data.type === HTTP_FORBIDDEN) {
     // Forbidden, not allowed to view recording
     toast.error(t("rooms.flash.recording_forbidden"));

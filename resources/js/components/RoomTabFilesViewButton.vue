@@ -21,7 +21,7 @@
     :href="downloadUrl"
     icon="fa-solid fa-eye"
     data-test="room-files-view-button"
-    as="a"
+    :as="disabled ? 'button' : 'a'"
   />
 
   <Popover ref="op" class="max-w-96" data-test="terms-of-use-required-info">

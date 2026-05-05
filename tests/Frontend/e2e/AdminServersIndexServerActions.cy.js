@@ -169,7 +169,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "1",
       });
     });
@@ -196,18 +196,60 @@ describe("Admin servers index server actions", function () {
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/servers*", {
-        statusCode: 200,
-        body: servers,
-      }).as("serversRequest");
-    });
+      const reloadServersRequest = interceptIndefinitely(
+        "GET",
+        "api/v1/servers*",
+        {
+          statusCode: 200,
+          body: servers,
+        },
+        "serversRequest",
+      );
 
-    // Reload with update usage
-    cy.get('[data-test="servers-reload-usage-button"]').click();
+      // Reload with update usage
+      cy.get('[data-test="servers-reload-usage-button"]').click();
+
+      // Check loading state during reload
+      cy.get('[data-test="server-search"]')
+        .eq(0)
+        .within(() => {
+          cy.get("input").should("be.visible").and("be.disabled");
+          cy.get("button").should("be.visible").and("be.disabled");
+        });
+
+      cy.get('[data-test="servers-reload-usage-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="servers-reload-no-usage-button"]').should(
+        "be.disabled",
+      );
+
+      cy.get('[data-test="servers-add-button"]')
+        .should("be.visible")
+        .and("not.be.disabled");
+
+      cy.get('[data-test="server-item"]')
+        .eq(2)
+        .within(() => {
+          cy.get('button[data-test="servers-view-button"]')
+            .should("be.visible")
+            .and("be.disabled");
+          cy.get('button[data-test="servers-edit-button"]')
+            .should("be.visible")
+            .and("be.disabled");
+
+          cy.get('[data-test="servers-delete-button"]')
+            .should("be.visible")
+            .and("be.disabled")
+            .then(() => {
+              reloadServersRequest.sendResponse();
+            });
+        });
+    });
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "true",
+        update_usage: "1",
         page: "1",
       });
     });
@@ -242,7 +284,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "2",
       });
     });
@@ -289,7 +331,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "true",
+        update_usage: "1",
         page: "2",
       });
     });
@@ -319,7 +361,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "2",
       });
     });

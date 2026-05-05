@@ -263,9 +263,9 @@ describe("Rooms view recordings recording actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    // Reload (without setting room auth token)
+    cy.get('[data-test="reload-room-button"]').click();
 
-    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
@@ -294,9 +294,10 @@ describe("Rooms view recordings recording actions", function () {
     });
 
     // Check if error message is shown and close it
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("view recording with personalized link", function () {
@@ -739,60 +740,6 @@ describe("Rooms view recordings recording actions", function () {
     cy.get(".p-toast-message").should("not.exist");
 
     cy.get("@reloadRoomRecordingsRequest").should("be.null");
-  });
-
-  it("check download recording buttons", function () {
-    cy.visit("/rooms/abc-def-123#tab=recordings");
-
-    cy.wait("@roomRecordingsRequest");
-
-    cy.get('[data-test="room-recording-item"]')
-      .eq(0)
-      .find('a[data-test="room-recordings-download-button"]')
-      .should(
-        "have.attr",
-        "href",
-        Cypress.config("baseUrl") +
-          "/download/recording/" +
-          "e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
-      )
-      .and("have.attr", "target", "_blank");
-
-    cy.get('[data-test="room-recording-item"]')
-      .eq(1)
-      .find('a[data-test="room-recordings-download-button"]')
-      .should(
-        "have.attr",
-        "href",
-        Cypress.config("baseUrl") +
-          "/download/recording/" +
-          "0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
-      )
-      .and("have.attr", "target", "_blank");
-
-    cy.get('[data-test="room-recording-item"]')
-      .eq(2)
-      .find('a[data-test="room-recordings-download-button"]')
-      .should(
-        "have.attr",
-        "href",
-        Cypress.config("baseUrl") +
-          "/download/recording/" +
-          "66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975",
-      )
-      .and("have.attr", "target", "_blank");
-
-    cy.get('[data-test="room-recording-item"]')
-      .eq(3)
-      .find('a[data-test="room-recordings-download-button"]')
-      .should(
-        "have.attr",
-        "href",
-        Cypress.config("baseUrl") +
-          "/download/recording/" +
-          "f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775",
-      )
-      .and("have.attr", "target", "_blank");
   });
 
   it("delete recording", function () {

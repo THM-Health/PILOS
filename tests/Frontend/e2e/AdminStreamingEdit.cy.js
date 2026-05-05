@@ -85,6 +85,17 @@ describe("Admin settings with edit permission", function () {
 
       // Check loading
       cy.get('[data-test="overlay"]').should("be.visible");
+
+      cy.get('[data-test="room-type-item"]')
+        .eq(0)
+        .find('[data-test="streaming-room-type-settings-edit-button"]')
+        .should("be.disabled");
+
+      cy.get('[data-test="room-type-item"]')
+        .eq(1)
+        .find('[data-test="streaming-room-type-settings-edit-button"]')
+        .should("be.disabled");
+
       cy.get('[data-test="save-button"]')
         .should("be.disabled")
         .then(() => {

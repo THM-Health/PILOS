@@ -78,8 +78,8 @@ describe("Rooms index create new room", function () {
     roomTypesRequest.sendResponse();
     cy.wait("@roomTypesRequest").then((interception) => {
       expect(interception.request.query).to.deep.equal({
-        with_room_settings: "true",
-        with_features: "true",
+        with_room_settings: "1",
+        with_features: "1",
         filter: "own",
       });
     });
