@@ -54,7 +54,7 @@
     "@vueuse/components": "^14.2.1",
     "@vueuse/core": "^14.2.0",
     "axe-core": "^4.11.2",
-    "axios": "^1.15.1",
+    "axios": "^1.15.2",
     "chart.js": "^4.5.1",
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^4.1.0",
