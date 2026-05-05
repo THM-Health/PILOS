@@ -553,8 +553,10 @@ class MeetingTest extends TestCase
 
     public function test_join_parameters_with_custom_join_parameters()
     {
-        LogFake::bind();
         $meeting = $this->meeting;
+        Auth::login($meeting->room->owner);
+
+        LogFake::bind();
 
         Http::fake([
             'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
@@ -566,8 +568,6 @@ class MeetingTest extends TestCase
         $serverService = new ServerService($server);
         $meetingService = new MeetingService($meeting);
         Context::addHidden("room.{$meeting->room->id}.authenticated", false);
-
-        Auth::login($meeting->room->owner);
 
         // Check with valid join parameters
         $roomType = $this->meeting->room->roomType;
