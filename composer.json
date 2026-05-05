@@ -14,7 +14,7 @@
     "ext-redis": "*",
     "ext-simplexml": "*",
     "ext-zip": "*",
-    "directorytree/ldaprecord-laravel": "^3.0",
+    "directorytree/ldaprecord-laravel": "^4.0",
     "guzzlehttp/guzzle": "^7.0.1",
     "laravel/fortify": "^1.36",
     "laravel/framework": "^13.2",
