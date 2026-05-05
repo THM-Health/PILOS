@@ -6,7 +6,7 @@
  * @returns void
  */
 Cypress.Commands.add("checkFinalState", () => {
-  cy.url().then((currentUrl) => {
+  cy.url({ log: false }).then((currentUrl) => {
     const currentOrigin = new URL(currentUrl).origin;
     const baseOrigin = new URL(Cypress.config().baseUrl).origin;
 

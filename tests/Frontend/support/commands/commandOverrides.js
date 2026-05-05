@@ -4,11 +4,12 @@
  */
 Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
   return cy
-    .wrap(null)
+    .wrap(null, { log: false })
     .then(() => {
       cy.checkFinalState();
     })
     .then(() => {
+      cy.log(`Visit ${url}`);
       return originalFn(url, options);
     });
 });
@@ -19,11 +20,12 @@ Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
  */
 Cypress.Commands.overwrite("reload", (originalFn, options) => {
   return cy
-    .wrap(null)
+    .wrap(null, { log: false })
     .then(() => {
       cy.checkFinalState();
     })
     .then(() => {
+      cy.log("Reload page");
       return originalFn(options);
     });
 });
