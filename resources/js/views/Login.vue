@@ -194,7 +194,14 @@ async function handleLogin({ data, id }) {
         error.response !== undefined &&
         error.response.status === env.HTTP_TOO_MANY_REQUESTS
       ) {
-        errors[id] = error.response.data.errors;
+        const retryAfter = error.response.headers["retry-after"];
+        if (data.username) {
+          errors[id] = {
+            username: [t("auth.throttle", { seconds: retryAfter })],
+          };
+        } else {
+          errors[id] = { email: [t("auth.throttle", { seconds: retryAfter })] };
+        }
       } else {
         api.error(error);
       }

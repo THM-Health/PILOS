@@ -9,6 +9,7 @@ use App\Plugins\PluginServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Providers\FakerServiceProvider;
+use App\Providers\FortifyServiceProvider;
 use App\Providers\HorizonServiceProvider;
 use App\Providers\MetricsServiceProvider;
 use App\Providers\RouteServiceProvider;
@@ -260,6 +261,8 @@ return [
         /*
          * Package Service Providers...
          */
+
+        FortifyServiceProvider::class,
 
         /*
          * Application Service Providers...
