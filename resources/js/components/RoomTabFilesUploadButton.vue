@@ -251,8 +251,10 @@ function uploadFile(file) {
       // Fetch successful
       uploadedFiles.value.push(file);
       emit("uploaded");
+      reset();
     })
     .catch((error) => {
+      reset();
       if (error.response) {
         if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
           formErrors.set({ file: [t("app.validation.too_large")] });
@@ -266,7 +268,6 @@ function uploadFile(file) {
       api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
-      reset();
       formErrors.scrollToFirstError();
     });
 }
