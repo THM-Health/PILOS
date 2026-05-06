@@ -3068,7 +3068,9 @@ describe("Room View general", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       statusCode: 404,
       body: {
-        message: "No query results for model [App\\Room] abc-def-123",
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
       },
     });
 
@@ -3080,8 +3082,8 @@ describe("Room View general", function () {
       .should("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
 
     // Try with guest
@@ -3095,8 +3097,8 @@ describe("Room View general", function () {
       .should("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
   });
 
@@ -3225,7 +3227,9 @@ describe("Room View general", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       statusCode: 404,
       body: {
-        message: "No query results for model [App\\Room] abc-def-123",
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
       },
     }).as("roomRequest");
 
@@ -3238,8 +3242,8 @@ describe("Room View general", function () {
       .should("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
 
     // Test reload with room not found and authenticated user
@@ -3260,7 +3264,9 @@ describe("Room View general", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       statusCode: 404,
       body: {
-        message: "No query results for model [App\\Room] abc-def-123",
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
       },
     }).as("roomRequest");
 
@@ -3273,8 +3279,8 @@ describe("Room View general", function () {
       .should("not.include", "/rooms/abc-def-123");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model [App\\\\Room] abc-def-123"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
   });
 

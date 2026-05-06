@@ -463,15 +463,6 @@ function load() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found (Always redirect to 404 view or room index page)
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          if (authStore.isAuthenticated) {
-            router.push({ name: "rooms.index" });
-          } else {
-            router.push({ name: "404" });
-          }
-        }
-
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
@@ -492,7 +483,6 @@ function load() {
 
       api.error(error, {
         redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: false,
       });
     })
     .finally(() => {
@@ -555,15 +545,6 @@ function reload(checkForRequireCodeError = true) {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found (Always redirect to 404 view or room index page)
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          if (authStore.isAuthenticated) {
-            router.push({ name: "rooms.index" });
-          } else {
-            router.push({ name: "404" });
-          }
-        }
-
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
@@ -582,7 +563,6 @@ function reload(checkForRequireCodeError = true) {
       }
       api.error(error, {
         redirectOnUnauthenticated: false,
-        redirectOnRoomModelNotFound: false,
       });
     })
     .finally(() => {
