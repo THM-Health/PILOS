@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Docs: Import of existing Greenlight v2/v3 recordings ([#2877], [#3034])
+- Toast notification for form validation errors in non-dialog forms ([#3056])
+- Auto-scroll to the first form validation error ([#3056])
 
 ### Changed
 
@@ -799,6 +801,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3036]: https://github.com/THM-Health/PILOS/pull/3036
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
+[#3056]: https://github.com/THM-Health/PILOS/pull/3056
 [#3078]: https://github.com/THM-Health/PILOS/issues/3078
 [#3079]: https://github.com/THM-Health/PILOS/pull/3079
 [#3128]: https://github.com/THM-Health/PILOS/pull/3128
