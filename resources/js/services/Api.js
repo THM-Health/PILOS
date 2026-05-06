@@ -135,11 +135,16 @@ export class Api {
       }
     }
 
+    // Show error message for model not found error with model name and ids if available
     this.toast.error(
       this.t("app.flash.model_not_found.title", {
         model: this.t("app.model." + model),
       }),
-      this.t("app.flash.model_not_found.details", { ids: `${ids.join(", ")}` }),
+      ids && ids.length > 0
+        ? this.t("app.flash.model_not_found.details", {
+            ids: `${ids.join(", ")}`,
+          })
+        : null,
     );
   }
 
