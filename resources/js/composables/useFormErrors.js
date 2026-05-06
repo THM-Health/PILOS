@@ -1,7 +1,6 @@
 /**
  * Mixin that provides methods to get error states and error messages for form inputs in edit or create views.
  */
-import { nextTick } from "vue";
 
 class FormError {
   errors = {};
