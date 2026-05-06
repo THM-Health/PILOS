@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Toast notification for form validation errors in non-dialog forms ([#3056])
-- Auto-scroll to the first form validation error ([#3056])
+- Toast notification for form validation errors in non-dialog forms ([#3038], [#3056])
+- Auto-scroll to the first form validation error ([#3038], [#3056])
 
 ### Changed
 
@@ -785,6 +785,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
 [#3035]: https://github.com/THM-Health/PILOS/pull/3035
+[#3038]: https://github.com/THM-Health/PILOS/issues/3038
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
 [#3056]: https://github.com/THM-Health/PILOS/pull/3056
