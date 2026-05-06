@@ -278,6 +278,45 @@ class OIDCTest extends TestCase
     }
 
     /**
+     * Test that the redirect route can be accessed by logged-in users
+     *
+     * @return void
+     */
+    public function test_redirect_route_as_logged_in_user()
+    {
+        $user = User::factory()->create();
+
+        // Check without redirect url
+        $response = $this->actingAs($user)->get(route('auth.oidc.redirect'));
+        $response->assertRedirect('http://localhost/external_login?no_message=1');
+
+        // Check with redirect url
+        $response = $this->actingAs($user)->get(route('auth.oidc.redirect', ['redirect' => '/rooms/abc-123-def']));
+        $response->assertRedirect('http://localhost/external_login?no_message=1&redirect=%2Frooms%2Fabc-123-def');
+    }
+
+    public function test_redirect_route_invalid_parameter()
+    {
+        Log::swap(new LogFake);
+
+        // Redirect parameter empty
+        $response = $this->get(route('auth.oidc.redirect', ['redirect' => '']));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        // Redirect parameter array
+        $response = $this->get(route('auth.oidc.redirect', ['redirect' => ['foo', 'bar']]));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        Log::assertLoggedTimes(
+            fn (LogEntry $log) => $log->level == 'error'
+                && $log->message == 'OIDC login redirect failed: invalid request parameter(s): redirect'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['current-user'] == 'guest',
+            2
+        );
+    }
+
+    /**
      * Test that the callback route is disabled if disabled in env
      *
      * @return void
@@ -310,6 +349,31 @@ class OIDCTest extends TestCase
         $response = $this->get(route('auth.oidc.callback'));
         $response->assertRedirect('http://localhost/auth/oidc/redirect');
         $this->assertGuest();
+    }
+
+    public function test_callback_route_invalid_parameter()
+    {
+        Log::swap(new LogFake);
+
+        $params = ['code', 'state', 'error', 'error_description'];
+
+        foreach ($params as $param) {
+            // Parameter empty
+            $response = $this->get(route('auth.oidc.callback', [$param => '']));
+            $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+            // Parameter array
+            $response = $this->get(route('auth.oidc.callback', [$param => ['foo', 'bar']]));
+            $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+            Log::assertLoggedTimes(
+                fn (LogEntry $log) => $log->level == 'error'
+                    && $log->message == 'OIDC login callback failed: invalid request parameter(s): '.$param
+                    && $log->context['ip'] == '127.0.0.1'
+                    && $log->context['current-user'] == 'guest',
+                2
+            );
+        }
     }
 
     public function test_callback_with_user_info_signed()
@@ -2045,14 +2109,8 @@ class OIDCTest extends TestCase
             'code' => $code,
             'state' => $state,
         ]));
+        $response->assertRedirect('http://localhost/external_login?redirect=%2Frooms%2Fabc-123-def');
         $this->assertAuthenticated();
-
-        $redirectUrl = $response->getTargetUrl();
-
-        $redirectUrlParsed = parse_url($redirectUrl);
-        $queryParams = [];
-        parse_str($redirectUrlParsed['query'], $queryParams);
-        $this->assertEquals('/rooms/abc-123-def', $queryParams['redirect']);
     }
 
     public function test_rp_initiated_logout_missing_end_session_endpoint()
