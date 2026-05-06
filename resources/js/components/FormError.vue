@@ -43,9 +43,9 @@ onMounted(async () => {
 <template>
   <p
     v-if="hasError"
+    ref="formError"
     class="form-error text-red-500"
     role="alert"
-    ref="formError"
   >
     <template v-for="(error, index) in props.errors" :key="index">
       {{ error }}
