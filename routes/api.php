@@ -75,7 +75,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('rooms', [RoomController::class, 'index'])->name('rooms.index');
         Route::post('rooms', [RoomController::class, 'store'])->name('rooms.store');
 
-        Route::middleware('throttle:room-enumeration')->group(function () {
+        Route::middleware('throttle:room-enumeration')->scopeBindings()->group(function () {
             Route::post('rooms/{room}/favorites', [RoomController::class, 'addToFavorites'])->name('rooms.favorites.add');
             Route::delete('rooms/{room}/favorites', [RoomController::class, 'deleteFromFavorites'])->name('rooms.favorites.delete');
             Route::put('rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
@@ -91,30 +91,33 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('rooms/{room}/membership', [RoomMemberController::class, 'join'])->name('rooms.membership.join');
             Route::delete('rooms/{room}/membership', [RoomMemberController::class, 'leave'])->name('rooms.membership.leave');
 
-            // Membership users for mass update & delete
-            Route::post('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkImport'])->name('rooms.member.bulkImport')->middleware('can:manageMembers,room');
-            Route::put('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
-            Route::delete('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
-
             // Membership operations by room owner
             Route::get('rooms/{room}/member', [RoomMemberController::class, 'index'])->name('rooms.member.get')->middleware('can:viewMembers,room');
-            Route::post('rooms/{room}/member', [RoomMemberController::class, 'store'])->name('rooms.member.add')->middleware('can:manageMembers,room');
-            Route::put('rooms/{room}/member/{user}', [RoomMemberController::class, 'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
-            Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class, 'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
+
+            Route::middleware('can:manageMembers,room')->group(function () {
+                // Membership users for mass update & delete
+                Route::post('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkImport'])->name('rooms.member.bulkImport');
+                Route::put('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate');
+                Route::delete('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy');
+
+                Route::post('rooms/{room}/member', [RoomMemberController::class, 'store'])->name('rooms.member.add');
+                Route::put('rooms/{room}/member/{member}', [RoomMemberController::class, 'update'])->name('rooms.member.update');
+                Route::delete('rooms/{room}/member/{member}', [RoomMemberController::class, 'destroy'])->name('rooms.member.destroy');
+            });
 
             // Recording operations
-            Route::middleware('can:manageRecordings,room')->scopeBindings()->group(function () {
+            Route::middleware('can:manageRecordings,room')->group(function () {
                 Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class, 'update'])->name('rooms.recordings.update');
                 Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class, 'destroy'])->name('rooms.recordings.destroy');
             });
 
             // Streaming operations
-            Route::middleware('can:viewStreaming,room')->scopeBindings()->group(function () {
+            Route::middleware('can:viewStreaming,room')->group(function () {
                 Route::get('rooms/{room}/streaming/config', [RoomStreamingController::class, 'getConfig'])->name('rooms.streaming.config.get');
                 Route::get('rooms/{room}/streaming/status', [RoomStreamingController::class, 'status'])->name('rooms.streaming.status');
             });
 
-            Route::middleware('can:manageStreaming,room')->scopeBindings()->group(function () {
+            Route::middleware('can:manageStreaming,room')->group(function () {
                 Route::put('rooms/{room}/streaming/config', [RoomStreamingController::class, 'updateConfig'])->name('rooms.streaming.config.update');
                 Route::post('rooms/{room}/streaming/start', [RoomStreamingController::class, 'start'])->name('rooms.streaming.start');
                 Route::post('rooms/{room}/streaming/stop', [RoomStreamingController::class, 'stop'])->name('rooms.streaming.stop');
@@ -124,12 +127,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
             // Personalized room links
             Route::get('rooms/{room}/personalizedLinks', [RoomPersonalizedLinkController::class, 'index'])->name('rooms.personalizedLinks.get')->middleware('can:viewPersonalizedLinks,room');
-            Route::post('rooms/{room}/personalizedLinks', [RoomPersonalizedLinkController::class, 'store'])->name('rooms.personalizedLinks.add')->middleware('can:managePersonalizedLinks,room');
-            Route::put('rooms/{room}/personalizedLinks/{link}', [RoomPersonalizedLinkController::class, 'update'])->name('rooms.personalizedLinks.update')->middleware('can:managePersonalizedLinks,room');
-            Route::delete('rooms/{room}/personalizedLinks/{link}', [RoomPersonalizedLinkController::class, 'destroy'])->name('rooms.personalizedLinks.destroy')->middleware('can:managePersonalizedLinks,room');
+
+            Route::middleware('can:managePersonalizedLinks,room')->group(function () {
+                Route::post('rooms/{room}/personalizedLinks', [RoomPersonalizedLinkController::class, 'store'])->name('rooms.personalizedLinks.add');
+                Route::put('rooms/{room}/personalizedLinks/{personalizedLink}', [RoomPersonalizedLinkController::class, 'update'])->name('rooms.personalizedLinks.update');
+                Route::delete('rooms/{room}/personalizedLinks/{personalizedLink}', [RoomPersonalizedLinkController::class, 'destroy'])->name('rooms.personalizedLinks.destroy');
+            });
 
             // File operations
-            Route::middleware('can:manageFiles,room')->scopeBindings()->group(function () {
+            Route::middleware('can:manageFiles,room')->group(function () {
                 Route::post('rooms/{room}/files', [RoomFileController::class, 'store'])->name('rooms.files.add');
                 Route::put('rooms/{room}/files/{file}', [RoomFileController::class, 'update'])->name('rooms.files.update');
                 Route::delete('rooms/{room}/files/{file}', [RoomFileController::class, 'destroy'])->name('rooms.files.destroy');

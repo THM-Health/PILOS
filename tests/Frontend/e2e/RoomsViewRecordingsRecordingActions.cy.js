@@ -825,7 +825,9 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 404,
         body: {
-          message: "No query results for model",
+          message: "model_not_found",
+          model: "recording",
+          ids: ["f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775"],
         },
       },
     ).as("deleteRecordingRequest");
@@ -911,6 +913,51 @@ describe("Rooms view recordings recording actions", function () {
       "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       "recordings",
     );
+
+    // Reload room
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomRecordingsRequests();
+
+    cy.reload();
+    cy.get("#tab-recordings").should("be.visible").click();
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept(
+      "DELETE",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+      {
+        statusCode: 404,
+        body: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      },
+    ).as("deleteRecordingRequest");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-delete-button"]')
+      .click();
+
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-continue-button"]')
+      .click();
+
+    cy.wait("@deleteRecordingRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("edit recording", function () {
@@ -1120,7 +1167,9 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 404,
         body: {
-          message: "No query results for model",
+          message: "model_not_found",
+          model: "recording",
+          ids: ["f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775"],
         },
       },
     ).as("editRecordingRequest");
@@ -1264,5 +1313,52 @@ describe("Rooms view recordings recording actions", function () {
       "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       "recordings",
     );
+
+    // Reload room
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomRecordingsRequests();
+
+    cy.reload();
+    cy.get("#tab-recordings").should("be.visible").click();
+
+    cy.wait("@roomRecordingsRequest");
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept(
+      "PUT",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+      {
+        statusCode: 404,
+        body: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      },
+    ).as("editRecordingRequest");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-edit-button"]')
+      .click();
+
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-save-button"]')
+      .click();
+
+    cy.wait("@editRecordingRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

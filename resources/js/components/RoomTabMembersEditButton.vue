@@ -99,6 +99,9 @@ import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
+import { USER } from "../constants/modelNames.js";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   roomId: {
@@ -131,6 +134,8 @@ const emit = defineEmits(["edited", "gone"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const toast = useToast();
+const { t } = useI18n();
 
 const modalVisible = ref(false);
 const newRole = ref(null);
@@ -168,9 +173,14 @@ function save() {
       // editing failed
       if (error.response) {
         // user not found
-        if (error.response.status === env.HTTP_GONE) {
+        if (
+          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.data?.model === USER
+        ) {
+          toast.error(t("app.errors.not_member_of_room"));
           emit("gone");
           modalVisible.value = false;
+          return;
         }
         // failed due to form validation errors
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

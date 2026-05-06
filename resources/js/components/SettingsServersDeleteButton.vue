@@ -44,6 +44,7 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
+import env from "../env.js";
 
 const api = useApi();
 
@@ -62,7 +63,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 const modalVisible = ref(false);
 const isBusy = ref(false);
 
@@ -89,6 +90,10 @@ function deleteServer() {
       emit("deleted");
     })
     .catch((error) => {
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        modalVisible.value = false;
+        emit("notFound");
+      }
       api.error(error);
     })
     .finally(() => {

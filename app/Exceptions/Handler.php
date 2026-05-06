@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Foundation\ViteException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Psr\Log\LogLevel;
 use Spatie\LaravelIgnition\Exceptions\ViewException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -76,6 +79,22 @@ class Handler extends ExceptionHandler
             }
 
             return null;
+        });
+
+        $this->renderable(function (NotFoundHttpException $e, Request $request) {
+            if ($request->expectsJson()) {
+                $modelNotFoundException = $e->getPrevious() instanceof ModelNotFoundException ? $e->getPrevious() : null;
+
+                if ($modelNotFoundException) {
+                    $json = [
+                        'message' => 'model_not_found',
+                        'model' => Str::snake(class_basename($modelNotFoundException->getModel())),
+                        'ids' => $modelNotFoundException->getIds(),
+                    ];
+
+                    return response()->json($json, 404);
+                }
+            }
         });
     }
 }

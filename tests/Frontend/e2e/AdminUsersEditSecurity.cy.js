@@ -587,7 +587,9 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2 ", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -602,8 +604,8 @@ describe("Admin users edit email", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again
@@ -792,7 +794,9 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2/password", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -807,8 +811,8 @@ describe("Admin users edit email", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again

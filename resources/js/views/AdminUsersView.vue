@@ -33,6 +33,7 @@
           :lastname="user.lastname"
           :email="user.email"
           :disabled="isBusy || isLoadingAction"
+          @not-found="$router.push({ name: 'admin.users' })"
         />
         <SettingsUsersDeleteButton
           v-if="userPermissions.can('delete', user)"
@@ -41,6 +42,7 @@
           :lastname="user.lastname"
           :disabled="isBusy || isLoadingAction"
           @deleted="$router.push({ name: 'admin.users' })"
+          @not-found="$router.push({ name: 'admin.users' })"
         />
       </div>
     </div>

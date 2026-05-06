@@ -463,12 +463,6 @@ function load() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
-          return;
-        }
-
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
@@ -487,7 +481,9 @@ function load() {
         }
       }
 
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -549,12 +545,6 @@ function reload(checkForRequireCodeError = true) {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
-          return;
-        }
-
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
@@ -571,7 +561,9 @@ function reload(checkForRequireCodeError = true) {
           return handleGuestsNotAllowed();
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -708,7 +700,9 @@ function authenticate(type, codeOrToken) {
             return;
           }
         }
-        api.error(error, { redirectOnUnauthenticated: false });
+        api.error(error, {
+          redirectOnUnauthenticated: false,
+        });
       })
       .finally(() => {
         authLoading.value = false;
