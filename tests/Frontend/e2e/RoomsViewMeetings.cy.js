@@ -1345,6 +1345,56 @@ describe("Rooms view meetings", function () {
       "have.text",
       "rooms.start",
     );
+
+    // Reload page
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+    cy.reload();
+
+    // Test with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/join*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("joinRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-join-button"]').click();
+
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#record-attendance-agreement").should("not.be.checked").click();
+        cy.get("#record-agreement").should("not.be.checked").click();
+        cy.get("#record-video-agreement").should("not.be.checked").click();
+        cy.get('[data-test="dialog-continue-button"]').click();
+      });
+
+    cy.wait("@joinRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("join meeting load requirements errors", function () {
@@ -1466,6 +1516,7 @@ describe("Rooms view meetings", function () {
         message: "require_code",
       },
     }).as("preJoinRequest");
+    cy.interceptRoomFilesRequest();
 
     cy.fixture("room.json").then((room) => {
       room.data.last_meeting = {
@@ -1553,6 +1604,46 @@ describe("Rooms view meetings", function () {
 
     // Check dialog is closed
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
+
+    // Reload room
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Check with 404 error (room not found)
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("preJoinRequest");
+
+    // Try to join meeting
+    cy.get('[data-test="room-join-button"]').click();
+    cy.wait("@preJoinRequest");
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("join running meeting with dark mode", function () {
@@ -2915,6 +3006,48 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
+
+    // Reload room
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      fixture: "room.json",
+    }).as("roomRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Try with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("startRequest");
+
+    cy.get('[data-test="room-start-button"]').click();
+    cy.get('[data-test="room-join-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#record-attendance-agreement").should("not.be.checked").click();
+        cy.get("#record-agreement").should("not.be.checked").click();
+        cy.get("#record-video-agreement").should("not.be.checked").click();
+        cy.get('[data-test="dialog-continue-button"]').click();
+      });
+
+    cy.wait("@startRequest");
+
+    // Check if redirect worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("start meeting load requirements errors", function () {
@@ -3143,6 +3276,28 @@ describe("Rooms view meetings", function () {
 
     // Check dialog is closed
     cy.get('[data-test="room-join-dialog"]').should("not.exist");
+
+    // Test 404 error (room not found)
+    cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("preStartRequest");
+
+    // Try to start meeting
+    cy.get('[data-test="room-start-button"]').click();
+    cy.wait("@preStartRequest");
+
+    // Check if redirect worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("start meeting with dark mode", function () {

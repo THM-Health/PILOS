@@ -28,6 +28,7 @@
           :name="name"
           :disabled="isBusy"
           @deleted="$router.push({ name: 'admin.server_pools' })"
+          @not-found="$router.push({ name: 'admin.server_pools' })"
         >
         </SettingsServerPoolsDeleteButton>
       </div>

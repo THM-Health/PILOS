@@ -462,6 +462,38 @@ describe("Rooms view description", function () {
       "api/v1/rooms/abc-def-123/description",
       "description",
     );
+
+    // Reload page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("saveDescriptionRequest");
+
+    cy.get('[data-test="room-description-edit-button"]').click();
+    cy.get('[data-test="tip-tap-editor"]').should("be.visible");
+    cy.get('[data-test="room-description-save-button"]').click();
+
+    cy.wait("@saveDescriptionRequest");
+
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("description changes", function () {

@@ -137,6 +137,37 @@ describe("Admin roles view role actions", function () {
       'app.flash.server_error.error_code_{"statusCode":464}',
     ]);
 
+    // Check with 404 error
+    cy.intercept("DELETE", "api/v1/roles/2", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "role",
+        ids: [2],
+      },
+    }).as("deleteRoleRequest");
+
+    cy.interceptAdminRolesIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteRoleRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/roles").and("not.include", "/2");
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.role"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
+    ]);
+
+    // Reload view and open delete dialog again
+    cy.visit("/admin/roles/2");
+
+    cy.wait("@roleRequest");
+
+    cy.get('[data-test="roles-delete-button"]').click();
+    cy.get('[data-test="roles-delete-dialog"]').should("be.visible");
+
     // Check with 401 error
     cy.intercept("DELETE", "api/v1/roles/2", {
       statusCode: 401,

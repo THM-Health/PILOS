@@ -332,6 +332,42 @@ describe("Rooms view files file actions", function () {
       "/api/v1/rooms/abc-def-123/files",
       "files",
     );
+
+    // Reload page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
+    cy.reload();
+
+    // Check 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/files", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("uploadFileRequest");
+
+    cy.get('[data-test="room-files-upload-button"]').click();
+    cy.get('[data-test="room-files-upload-dialog"]')
+      .should("be.visible")
+      .find("#file")
+      .selectFile("tests/Frontend/fixtures/files/testFile.txt", {
+        force: true,
+      });
+
+    cy.wait("@uploadFileRequest");
+
+    // Check that redirect to room index page worked
+    cy.url().should("include", "/rooms").and("not.include", "abc-def-123");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("delete file", function () {
@@ -417,7 +453,9 @@ describe("Rooms view files file actions", function () {
     cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/files/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_file",
+        ids: [3],
       },
     }).as("deleteFileRequest");
 
@@ -504,6 +542,44 @@ describe("Rooms view files file actions", function () {
       "/api/v1/rooms/abc-def-123/files/1",
       "files",
     );
+
+    // Reload page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
+    cy.reload();
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/files/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteFileRequest");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-delete-button"]')
+      .click();
+
+    cy.get('[data-test="room-files-delete-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-continue-button"]')
+      .click();
+
+    cy.wait("@deleteFileRequest");
+
+    // Check that redirect to room index page worked
+    cy.url().should("include", "/rooms").and("not.include", "abc-def-123");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("change file settings", function () {
@@ -613,7 +689,9 @@ describe("Rooms view files file actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_file",
+        ids: [3],
       },
     }).as("editFileRequest");
 
@@ -725,6 +803,44 @@ describe("Rooms view files file actions", function () {
       "/api/v1/rooms/abc-def-123/files/1",
       "files",
     );
+
+    // Reload page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
+    cy.reload();
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("editFileRequest");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-edit-button"]')
+      .click();
+
+    cy.get('[data-test="room-files-edit-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-save-button"]')
+      .click();
+
+    cy.wait("@editFileRequest");
+
+    // Check that redirect to room index page worked
+    cy.url().should("include", "/rooms").and("not.include", "abc-def-123");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("download file with terms of use", function () {

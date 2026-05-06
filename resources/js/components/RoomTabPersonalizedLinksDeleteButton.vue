@@ -59,6 +59,7 @@ import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { ROOM_PERSONALIZED_LINK } from "../constants/modelNames.js";
 
 const props = defineProps({
   roomId: {
@@ -120,7 +121,10 @@ function deleteLink() {
       // deleting failed
       if (error.response) {
         // personalized link not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.data?.model === ROOM_PERSONALIZED_LINK
+        ) {
           toast.error(t("rooms.flash.personalized_link_gone"));
           modalVisible.value = false;
           emit("notFound");

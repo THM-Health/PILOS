@@ -1644,7 +1644,9 @@ describe("Admin roles edit", function () {
     cy.intercept("PUT", "api/v1/roles/2", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "role",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -1659,8 +1661,8 @@ describe("Admin roles edit", function () {
     cy.wait("@rolesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.role"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Reload
@@ -1807,7 +1809,9 @@ describe("Admin roles edit", function () {
     cy.intercept("GET", "api/v1/roles/2", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "role",
+        ids: [2],
       },
     }).as("roleRequest");
 
@@ -1824,8 +1828,8 @@ describe("Admin roles edit", function () {
 
     // Check that error message is shown
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.role"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Reload page with 401 error

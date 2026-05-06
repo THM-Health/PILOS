@@ -35,6 +35,7 @@
                 <RoomFavoriteButton
                   :room="props.room"
                   class="room-card-button h-8 w-8 p-0 text-sm"
+                  :redirect-on-room-model-not-found="false"
                   @favorites-changed="$emit('favoritesChanged')"
                 />
               </div>
@@ -72,6 +73,7 @@
         <div class="room-card-buttons shrink-0">
           <RoomFavoriteButton
             :room="props.room"
+            :redirect-on-room-model-not-found="false"
             @favorites-changed="$emit('favoritesChanged')"
           />
         </div>

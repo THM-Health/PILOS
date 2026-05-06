@@ -146,6 +146,7 @@
               :name="slotProps.data.name"
               :disabled="isBusy"
               @deleted="loadData()"
+              @not-found="loadData()"
             >
             </SettingsServerPoolsDeleteButton>
           </div>

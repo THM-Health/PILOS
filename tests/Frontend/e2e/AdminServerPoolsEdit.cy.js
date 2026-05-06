@@ -622,7 +622,9 @@ describe("Admin server pools edit", function () {
     cy.intercept("PUT", "api/v1/serverPools/1", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "server_pool",
+        ids: [1],
       },
     }).as("saveChangesRequest");
 
@@ -637,8 +639,8 @@ describe("Admin server pools edit", function () {
     cy.wait("@serverPoolsRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.server_pool"}',
+      'app.flash.model_not_found.details_{"ids":"1"}',
     ]);
 
     // Reload
@@ -737,7 +739,9 @@ describe("Admin server pools edit", function () {
     cy.intercept("GET", "api/v1/serverPools/1", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "server_pool",
+        ids: [1],
       },
     }).as("serverPoolRequest");
 
@@ -752,8 +756,8 @@ describe("Admin server pools edit", function () {
     cy.wait("@serverPoolsRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.server_pool"}',
+      'app.flash.model_not_found.details_{"ids":"1"}',
     ]);
 
     // Reload page with 401 error
