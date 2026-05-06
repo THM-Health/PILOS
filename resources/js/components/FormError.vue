@@ -23,7 +23,7 @@ async function scrollToFirstError() {
 
   // Only scroll into view, if this form error is the first form error rendered on the page
   if (selfDomElement != null && selfDomElement === firstDomElement) {
-    selfDomElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    selfDomElement.scrollIntoView({ behavior: "auto", block: "center" });
   }
 }
 
