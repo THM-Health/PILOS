@@ -107,7 +107,7 @@ return [
         'role' => 'Role',
         'roles' => 'role',
         'room' => 'Room',
-        'room_file' => 'Room file',
+        'room_file' => 'File',
         'room_personalized_link' => 'Personalized room link',
         'room_type' => 'Room type',
         'room_types' => 'room type',
