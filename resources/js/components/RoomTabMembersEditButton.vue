@@ -46,7 +46,7 @@
     </template>
 
     <!-- select role -->
-    <div class="mt-6 flex flex-col gap-2">
+    <div class="field mt-6 flex flex-col gap-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend>{{ $t("rooms.role") }}</legend>
 

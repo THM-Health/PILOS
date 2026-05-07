@@ -84,3 +84,33 @@ a.p-button-link {
         text-decoration: underline;
     }
 }
+
+fieldset.field,
+.field {
+    padding: .5rem;
+    margin-left: -.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+fieldset.field:has(.form-error),
+.field:has(.form-error) {
+    background: var(--color-red-500) / 0.2;
+    @apply rounded-border;
+}
+
+.dark {
+    fieldset.field:has(.form-error),
+    .field:has(.form-error) {
+        background: var(--color-red-500 / 0.2);
+    }
+}
+
+form {
+    border: 2px solid blue;
+
+    fieldset.field,
+    .field {
+        border: 2px solid green;
+    }
+}

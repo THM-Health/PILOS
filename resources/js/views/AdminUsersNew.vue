@@ -1,7 +1,7 @@
 <template>
   <div>
     <OverlayComponent :show="isBusy">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <form noValidate class="flex flex-col gap-4" @submit.prevent="save">
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <div
             class="field grid grid-cols-12 gap-4"

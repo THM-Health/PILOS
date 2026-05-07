@@ -37,6 +37,7 @@
       </div>
 
       <div v-else>
+        <div class="field">
         <TipTapEditor
           v-model="newContent"
           :class="{
@@ -45,6 +46,7 @@
           :disabled="isBusy"
         />
         <FormError :errors="formErrors.fieldError('description')" />
+        </div>
       </div>
     </OverlayComponent>
     <div class="mt-2 flex justify-end">

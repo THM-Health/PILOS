@@ -39,7 +39,7 @@
           @reload="loadRoomType"
         ></LoadingRetryButton>
       </template>
-      <form class="flex flex-col gap-4" @submit.prevent="saveRoomType">
+      <form noValidate class="flex flex-col gap-4" @submit.prevent="saveRoomType">
         <!-- General room type settings -->
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <!-- Room type name -->
@@ -58,6 +58,7 @@
                 v-model="model.name"
                 class="w-full"
                 type="text"
+                required
                 :invalid="formErrors.fieldInvalid('name')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
@@ -156,6 +157,7 @@
                   :show-no-results="false"
                   :show-labels="false"
                   :options="serverPools"
+                  require
                   :disabled="
                     isBusy ||
                     modelLoadingError ||

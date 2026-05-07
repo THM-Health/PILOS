@@ -53,7 +53,7 @@
       </div>
     </template>
 
-    <div class="flex flex-col gap-2">
+    <div class="field flex flex-col gap-2">
       <span>
         {{
           $t("rooms.members.modals.remove.confirm_bulk", {

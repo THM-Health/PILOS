@@ -21,7 +21,7 @@
     :draggable="false"
     data-test="tip-tap-link-dialog"
   >
-    <div class="mt-6 flex flex-col gap-2" data-test="url-field">
+    <div class="field mt-6 flex flex-col gap-2" data-test="url-field">
       <label for="url">{{ $t("rooms.description.modals.link.url") }}</label>
       <InputText id="url" v-model.trim="link" autofocus :invalid="urlInvalid" />
       <p v-if="urlInvalid" class="text-red-500" role="alert">

@@ -30,7 +30,7 @@
       },
     }"
   >
-    <div class="flex flex-col gap-2">
+    <div class="field flex flex-col gap-2">
       <label
         for="file"
         class="p-button p-component flex flex-row justify-center gap-2 rounded-border"

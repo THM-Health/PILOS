@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.base_data')">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <form noValidate class="flex flex-col gap-4" @submit.prevent="save">
         <div class="field grid grid-cols-12 gap-4" data-test="firstname-field">
           <label
             for="firstname"

@@ -15,15 +15,46 @@ const hasError = computed(() => {
   return props.errors != null && Object.keys(props.errors).length > 0;
 });
 
+function isElementInViewport (el) {
+  var rect = el.getBoundingClientRect();
+
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+  );
+}
+
 async function scrollToFirstError() {
+  await nextTick();
   await nextTick();
 
   const selfDomElement = formError.value;
-  const firstDomElement = document.getElementsByClassName("form-error")[0];
+
+  if (selfDomElement == null) {
+    return;
+  }
+
+  const formElement = selfDomElement.closest("form");
+  if (formElement == null) {
+    return;
+  }
+
+  const firstErrorInForm = formElement.getElementsByClassName("form-error")[0];
 
   // Only scroll into view, if this form error is the first form error rendered on the page
-  if (selfDomElement != null && selfDomElement === firstDomElement) {
-    selfDomElement.scrollIntoView({ behavior: "auto", block: "center" });
+  if (selfDomElement != null && selfDomElement === firstErrorInForm) {
+    // Scroll to error if not already in viewport
+    if(!isElementInViewport(selfDomElement)){
+      selfDomElement.scrollIntoView({ behavior: "auto", block: "center" });
+    }
+
+   
+
+    // Focus on error container for better accessibility
+    selfDomElement.focus();
+
   }
 }
 
@@ -41,15 +72,16 @@ onMounted(async () => {
 </script>
 
 <template>
-  <p
+  <div
     v-if="hasError"
+    tabindex="-1"
     ref="formError"
-    class="form-error text-red-500"
+    class="form-error text-red-500 dark:text-red-300 font-semibold flex flex-col mt-2"
     role="alert"
   >
-    <template v-for="(error, index) in props.errors" :key="index">
-      {{ error }}
-      <br v-if="index < props.errors.length - 1" />
-    </template>
-  </p>
+    <div v-for="(error, index) in props.errors" :key="index" class="flex items-baseline gap-1">
+      <i class="fas fa-exclamation-circle shrink-0 grow-0" aria-hidden="true"></i>
+      <span>{{ error }}</span>
+    </div>
+  </div>
 </template>

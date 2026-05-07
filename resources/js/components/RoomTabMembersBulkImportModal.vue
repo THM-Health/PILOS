@@ -75,7 +75,7 @@
     </template>
 
     <div v-if="step === 0">
-      <div class="mt-6 flex flex-col gap-2">
+      <div class="field mt-6 flex flex-col gap-2">
         <label for="user-emails">{{
           $t("rooms.members.modals.bulk_import.label")
         }}</label>
@@ -95,7 +95,7 @@
         <FormError :errors="formErrors.fieldError('user_emails')" />
       </div>
       <!-- select role -->
-      <div class="mt-6 flex flex-col gap-2">
+      <div class="field mt-6 flex flex-col gap-2">
         <fieldset class="flex w-full flex-col gap-2">
           <legend>{{ $t("rooms.role") }}</legend>
 

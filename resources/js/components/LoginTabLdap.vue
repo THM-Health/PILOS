@@ -1,8 +1,8 @@
 <template>
   <div>
     <h1 class="p-card-title">{{ props.title }}</h1>
-    <form @submit.prevent="submit">
-      <div class="flex flex-col gap-2" data-test="username-field">
+    <form noValidate @submit.prevent="submit">
+      <div class="field flex flex-col gap-2" data-test="username-field">
         <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>
         <InputText
           :id="`${props.id}-username`"
@@ -25,7 +25,7 @@
         <FormError :errors="props.errors?.username" />
       </div>
 
-      <div class="mt-6 flex flex-col gap-2" data-test="password-field">
+      <div class="field mt-6 flex flex-col gap-2" data-test="password-field">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
           v-model="password"

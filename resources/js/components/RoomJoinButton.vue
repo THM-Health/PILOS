@@ -39,7 +39,7 @@
     <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-    <form ref="joinForm" @submit.prevent="getJoinUrl">
+    <form noValidate ref="joinForm" @submit.prevent="getJoinUrl">
       <OverlayComponent :show="isLoadingAction || loadingError" :opacity="0">
         <template #overlay>
           <LoadingRetryButton

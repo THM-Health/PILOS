@@ -3,8 +3,8 @@
     :data-test="'room-setting-' + setting"
     :class="
       fullWidth
-        ? 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
-        : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
+        ? 'col-span-12 field row-span-2 grid grid-rows-subgrid gap-0'
+        : 'col-span-12 field row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
   >
     <div class="mb-2 flex flex-col justify-end">
@@ -44,7 +44,7 @@
         :draggable="false"
         :dismissable-mask="false"
       >
-        <div class="flex flex-col gap-2">
+        <div class="field flex flex-col gap-2">
           <label id="room-type-label">{{
             $t("rooms.settings.general.type")
           }}</label>

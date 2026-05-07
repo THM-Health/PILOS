@@ -13,8 +13,8 @@
             }}
           </template>
           <template #content>
-            <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2" data-test="new-password-field">
+            <form noValidate @submit.prevent="submit">
+              <div class="field flex flex-col gap-2" data-test="new-password-field">
                 <label for="new_password">{{ $t("auth.new_password") }}</label>
                 <InputText
                   id="new_password"

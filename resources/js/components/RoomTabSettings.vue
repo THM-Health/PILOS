@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form :aria-hidden="loadingError" @submit="save">
+    <form noValidate :aria-hidden="loadingError" @submit="save">
       <OverlayComponent :show="isBusy || loadingError">
         <template #overlay>
           <LoadingRetryButton :error="loadingError" @reload="load" />

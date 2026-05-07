@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form @submit.prevent="updateSettings">
+    <form noValidate @submit.prevent="updateSettings">
       <OverlayComponent :show="isBusy || modelLoadingError" :no-center="true">
         <template #overlay>
           <div class="mt-6 flex justify-center">
@@ -14,7 +14,7 @@
         <div class="flex flex-col gap-6">
           <AdminPanel :title="$t('admin.settings.application')">
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="application-name-field"
             >
               <label
@@ -38,7 +38,7 @@
                 <FormError :errors="formErrors.fieldError('general_name')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4" data-test="help-url-field">
+            <div class="field grid grid-cols-12 gap-4" data-test="help-url-field">
               <label for="help-url" class="col-span-12 md:col-span-4 md:mb-0">{{
                 $t("admin.settings.help_url.title")
               }}</label>
@@ -60,7 +60,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="legal-notice-url-field"
             >
               <label
@@ -86,7 +86,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="privacy-policy-url-field"
             >
               <label
@@ -114,7 +114,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="accessibility-statement-url-field"
             >
               <label
@@ -148,7 +148,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="pagination-page-size-field"
             >
               <label
@@ -181,7 +181,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="toast-lifetime-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -257,7 +257,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="default-timezone-field"
             >
               <label
@@ -282,7 +282,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="no-welcome-page-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -309,7 +309,7 @@
           </AdminPanel>
 
           <AdminPanel :title="$t('admin.settings.theme.title')">
-            <fieldset class="grid grid-cols-12 gap-4" data-test="favicon-field">
+            <fieldset class="field grid grid-cols-12 gap-4" data-test="favicon-field">
               <legend
                 id="favicon-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -336,7 +336,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="favicon-dark-field"
             >
               <legend
@@ -366,7 +366,7 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4" data-test="logo-field">
+            <fieldset class="field grid grid-cols-12 gap-4" data-test="logo-field">
               <legend id="logo-label" class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.logo.title") }}
               </legend>
@@ -390,7 +390,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="logo-dark-field"
             >
               <legend
@@ -421,7 +421,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="primary-color-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -450,7 +450,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="theme-rounded-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -471,7 +471,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="theme-custom-css-field"
             >
               <legend
@@ -499,7 +499,7 @@
 
           <AdminPanel :title="$t('admin.settings.banner.title')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-enabled-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -520,7 +520,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-preview-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -541,7 +541,7 @@
                 />
               </div>
             </fieldset>
-            <div class="grid grid-cols-12 gap-4" data-test="banner-title-field">
+            <div class="field grid grid-cols-12 gap-4" data-test="banner-title-field">
               <label
                 for="banner-title"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -558,7 +558,7 @@
                 <FormError :errors="formErrors.fieldError('banner_title')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4" data-test="banner-icon-field">
+            <div class="field grid grid-cols-12 gap-4" data-test="banner-icon-field">
               <label
                 for="banner-icon"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -580,7 +580,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-message-field"
             >
               <label
@@ -599,7 +599,7 @@
                 <FormError :errors="formErrors.fieldError('banner_message')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4" data-test="banner-link-field">
+            <div class="field grid grid-cols-12 gap-4" data-test="banner-link-field">
               <label
                 for="banner-link"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -617,7 +617,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-link-text-field"
             >
               <label
@@ -639,7 +639,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-link-style-field"
             >
               <label
@@ -673,7 +673,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-link-target-field"
             >
               <label
@@ -707,7 +707,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-color-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -734,7 +734,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-background-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -766,7 +766,7 @@
 
           <AdminPanel :title="$t('app.rooms')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-limit-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -840,7 +840,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-personalized-link-expiration-field"
             >
               <label
@@ -890,7 +890,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-auto-delete-deadline-period-field"
             >
               <label
@@ -938,7 +938,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-auto-delete-inactive-period-field"
             >
               <label
@@ -986,7 +986,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-auto-delete-never-used-period-field"
             >
               <label
@@ -1037,7 +1037,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-file-terms-of-use-field"
             >
               <label
@@ -1064,7 +1064,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-hide-owner-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1092,7 +1092,7 @@
 
           <AdminPanel :title="$t('app.users')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="password-change-allowed-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1126,7 +1126,7 @@
             :title="$t('admin.settings.recording_and_statistics_title')"
           >
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-servers-enabled-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1155,7 +1155,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-servers-retention-period-field"
             >
               <label
@@ -1200,7 +1200,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-meetings-enabled-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1229,7 +1229,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-meetings-retention-period-field"
             >
               <label
@@ -1276,7 +1276,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="attendance-retention-period-field"
             >
               <label
@@ -1320,7 +1320,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="recording-retention-period-field"
             >
               <label
@@ -1366,7 +1366,7 @@
 
           <AdminPanel :title="$t('admin.settings.bbb.title')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="bbb-logo-field"
             >
               <legend
@@ -1396,7 +1396,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="bbb-logo-dark-field"
             >
               <legend
@@ -1427,7 +1427,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="bbb-style-field"
             >
               <legend
@@ -1452,7 +1452,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="default-presentation-field"
             >
               <legend

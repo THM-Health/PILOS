@@ -9,9 +9,9 @@
 
       <div class="flex flex-col gap-6">
         <AdminPanel :title="$t('admin.streaming.general.title')">
-          <form class="flex flex-col gap-6" @submit.prevent="updateSettings">
+          <form noValidate class="flex flex-col gap-6" @submit.prevent="updateSettings">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="default-pause-image-field"
             >
               <legend
@@ -39,7 +39,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="css-file-field"
             >
               <legend

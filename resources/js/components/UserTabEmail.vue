@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.email')">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <form noValidate class="flex flex-col gap-4" @submit.prevent="save">
         <div
           v-if="
             !viewOnly &&

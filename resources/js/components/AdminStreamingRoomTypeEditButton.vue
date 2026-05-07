@@ -58,9 +58,9 @@
         <LoadingRetryButton :error="loadingError" @reload="loadSettings()" />
       </template>
 
-      <form v-if="settings != null" class="flex flex-col gap-4">
+      <form noValidate v-if="settings != null" class="flex flex-col gap-4">
         <div
-          class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
+          class="field col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
           data-test="streaming-enabled-field"
         >
           <label for="streaming-enabled" class="flex items-center">
@@ -77,7 +77,7 @@
         </div>
 
         <fieldset
-          class="grid-rows grid gap-2"
+          class="field grid-rows grid gap-2"
           data-test="streaming-default-pause-image-field"
         >
           <legend

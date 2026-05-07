@@ -48,9 +48,9 @@
           <LoadingRetryButton :error="modelLoadingError" @click="loadConfig" />
         </div>
       </template>
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <form noValidate class="flex flex-col gap-4" @submit.prevent="save">
         <div
-          class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
+          class="col-span-12 field flex flex-col gap-2 md:col-span-6 xl:col-span-3"
           data-test="streaming-enabled-field"
         >
           <label for="streaming-enabled" class="flex items-center">
@@ -68,7 +68,7 @@
 
         <!-- Streaming url -->
         <div
-          class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
+          class="col-span-12 field flex flex-col gap-2 md:col-span-6 xl:col-span-3"
           data-test="streaming-url-field"
         >
           <label for="streaming-url" class="mb-2">{{
@@ -85,7 +85,7 @@
         </div>
 
         <fieldset
-          class="grid-rows grid gap-2"
+          class="field grid-rows grid gap-2"
           data-test="streaming-pause-image-field"
         >
           <legend
