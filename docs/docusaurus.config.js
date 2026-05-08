@@ -55,6 +55,7 @@ const config = {
         },
       }),
     ],
+    ["redocusaurus", {}],
   ],
 
   future: {
@@ -62,7 +63,7 @@ const config = {
       removeLegacyPostBuildHeadAttribute: true,
       useCssCascadeLayers: true,
     },
-    experimental_faster: {
+    faster: {
       ssgWorkerThreads: true,
     },
   },
@@ -151,6 +152,11 @@ const config = {
           "json",
           "scss",
         ],
+      },
+      docs: {
+        sidebar: {
+          hideable: true,
+        },
       },
     }),
 };
