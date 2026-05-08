@@ -32,6 +32,7 @@ import { useToast } from "./composables/useToast";
 import i18n from "./i18n";
 import { useUserPermissions } from "./composables/useUserPermission.js";
 import { useApi } from "./composables/useApi.js";
+import OAuthAuthorize from "./views/OAuthAuthorize.vue";
 
 const Home = Object.values(
   import.meta.glob(["../custom/js/views/Home.vue", "./views/Home.vue"], {
@@ -126,6 +127,12 @@ export const routes = [
         !useSettingsStore().getSetting("auth.local"),
       guestsOnly: true,
     },
+  },
+  {
+    path: "/oauth/authorize",
+    name: "oauth.authorize",
+    component: OAuthAuthorize,
+    meta: { requiresAuth: true },
   },
   {
     path: "/rooms",

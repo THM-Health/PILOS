@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('telescope:prune')->daily()->onOneServer();
         $schedule->command('horizon:snapshot')->everyFiveMinutes()->onOneServer();
         $schedule->command(ImportRecordingsCommand::class)->everyMinute()->withoutOverlapping()->onOneServer();
+        $schedule->command('passport:purge')->hourly()->onOneServer();
     }
 
     /**

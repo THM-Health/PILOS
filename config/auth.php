@@ -48,6 +48,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'oauth_external' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
     ],
 
     /*

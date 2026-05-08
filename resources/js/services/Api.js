@@ -109,7 +109,7 @@ export class Api {
       if (options.redirectOnUnauthenticated !== false) {
         this.router.replace({
           name: "login",
-          query: { redirect: this.router.currentRoute.value.path },
+          query: { redirect: this.router.currentRoute.value.fullPath },
         });
       }
     }

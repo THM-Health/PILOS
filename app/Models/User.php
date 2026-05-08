@@ -20,12 +20,23 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\Contracts\OAuthenticatable;
+use Laravel\Passport\HasApiTokens;
+use Laravel\Passport\Token;
 
 #[ObservedBy([UserObserver::class])]
-class User extends Authenticatable implements HasLocalePreference
+class User extends Authenticatable implements HasLocalePreference, OAuthenticatable
 {
     use AddsModelNameTrait, HasApiTokens, HasFactory, Notifiable;
+
+    public function getProviderName(): string
+    {
+        if ($this->authenticator === 'ldap') {
+            return 'ldap';
+        }
+
+        return 'users';
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -296,6 +307,11 @@ class User extends Authenticatable implements HasLocalePreference
     public function sessions()
     {
         return $this->hasMany(Session::class);
+    }
+
+    public function oauthTokens()
+    {
+        return $this->hasMany(Token::class, 'user_id');
     }
 
     public function verifyEmails()
