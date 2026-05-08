@@ -16,7 +16,6 @@ tests
 .phpunit.result.cache
 .styleci.yml
 phpunit.xml
-docs
 ssl
 db
 redis
