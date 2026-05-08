@@ -10,6 +10,8 @@ use App\Http\Controllers\api\v1\auth\ResetPasswordController;
 use App\Http\Controllers\api\v1\auth\VerificationController;
 use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\MeetingController;
+use App\Http\Controllers\api\v1\OAuthAuthorizationController;
+use App\Http\Controllers\api\v1\OAuthTokenController;
 use App\Http\Controllers\api\v1\PermissionController;
 use App\Http\Controllers\api\v1\RecordingController;
 use App\Http\Controllers\api\v1\RoleController;
@@ -26,7 +28,10 @@ use App\Http\Controllers\api\v1\SessionController;
 use App\Http\Controllers\api\v1\SettingsController;
 use App\Http\Controllers\api\v1\StreamingController;
 use App\Http\Controllers\api\v1\UserController;
+use App\Http\Middleware\ApiRedirectMiddleware;
 use Illuminate\Support\Facades\Route;
+use Laravel\Passport\Http\Controllers\ApproveAuthorizationController;
+use Laravel\Passport\Http\Controllers\DenyAuthorizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -158,6 +163,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('sessions', [SessionController::class, 'index'])->name('sessions.index');
         Route::delete('sessions', [SessionController::class, 'destroy'])->name('sessions.destroy');
+
+        Route::middleware(['enable_if_config:passport.enabled', ApiRedirectMiddleware::class])->group(function () {
+            Route::get('oauth/authorize', [OAuthAuthorizationController::class, 'authorize'])->middleware('cache.headers:no_store')->name('oauth.authorize');
+            Route::post('oauth/authorize', [ApproveAuthorizationController::class, 'approve'])->middleware('cache.headers:no_store')->name('oauth.approve');
+            Route::delete('oauth/authorize', [DenyAuthorizationController::class, 'deny'])->middleware('cache.headers:no_store')->name('oauth.deny');
+
+            Route::get('tokens', [OAuthTokenController::class, 'index'])->name('tokens.index');
+            Route::delete('tokens/{token}', [OAuthTokenController::class, 'destroy'])->name('tokens.destroy');
+        });
 
         Route::post('servers/check', [ServerController::class, 'check'])->name('servers.check')->middleware('can:viewAny,App\Models\Server');
         Route::post('servers/{server}/panic', [ServerController::class, 'panic'])->name('servers.panic')->middleware('can:update,server');

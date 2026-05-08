@@ -11,6 +11,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 use Laravel\Pulse\Contracts\ResolvesUsers;
 
 class AppServiceProvider extends ServiceProvider
@@ -36,5 +37,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(TelescopeServiceProvider::class);
 
         $this->app->singleton(StreamingServiceFactory::class, StreamingServiceFactory::class);
+
+        Passport::ignoreRoutes();
     }
 }

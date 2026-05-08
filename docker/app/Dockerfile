@@ -1,3 +1,9 @@
+FROM node:25-alpine AS docs
+
+WORKDIR /docs
+COPY ./docs/ ./
+RUN npm install && npm run build
+
 FROM php:8.4-fpm-alpine
 
 LABEL maintainer="Samuel Weirich"
@@ -89,7 +95,7 @@ RUN mkdir -p /var/log/php
 COPY ./docker/app/ldap/ /etc/openldap
 
 # Copy application files
-COPY --chown=www-data:www-data ./ /var/www/html
+COPY --exclude=docs --chown=www-data:www-data ./ /var/www/html
 
 # Add folder to git safe.directory
 RUN su-exec www-data git config --global --add safe.directory /var/www/html
@@ -107,6 +113,9 @@ RUN if [ "$VITE_COVERAGE" != "true" ] ; then \
 # Run and optimize composer for production
 RUN su-exec www-data composer install --no-dev
 RUN su-exec www-data composer dump-autoload -o
+
+# Copy docs (Only for this branch, REMOVE before merge!) from the first stage
+COPY --chown=www-data:www-data --from=docs /docs/build/ /var/www/html/public/PILOS/
 
 EXPOSE 80
 EXPOSE 443

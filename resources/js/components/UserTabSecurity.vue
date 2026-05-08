@@ -31,6 +31,13 @@
         @busy="(state) => (isBusy = state)"
       />
     </AdminPanel>
+
+    <AdminPanel
+      v-if="isOwnUser && settingsStore.getSetting('auth.oauth')"
+      :title="$t('auth.tokens.active')"
+    >
+      <UserTabSecurityTokensSection />
+    </AdminPanel>
   </div>
 </template>
 

@@ -51,7 +51,7 @@ class UpdateRoomSettingsRequest extends FormRequest
 
         $rules = $legacy
                ? ['alpha_num:ascii', 'lowercase', 'size:6', 'bail']
-               : ['numeric', 'digits:9', 'bail'];
+               : ['string', 'numeric', 'digits:9', 'bail'];
 
         // Make sure that the given room type id is a number
         if (is_numeric($this->input('room_type'))) {

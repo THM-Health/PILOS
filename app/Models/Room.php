@@ -128,11 +128,12 @@ class Room extends Model
      * Setting must be defined in the ROOM_SETTINGS_DEFINITION
      *
      * @param  string  $settingName  setting name of the setting
+     * @param  RoomType|null  $roomType  (Optional) Room type to apply restrictions
      * @return string[] setting rules for the setting
      *
      * @throws \Exception
      */
-    public static function getRoomSettingValidationRule($settingName)
+    public static function getRoomSettingValidationRule(string $settingName, ?RoomType $roomType = null): array
     {
         $rules = ['required'];
 
@@ -145,16 +146,26 @@ class Room extends Model
 
         // Boolean
         if ($castType === 'boolean') {
-            array_push($rules, 'boolean');
+            $rules[] = 'boolean';
+
+            if ($roomType && $roomType[$settingName.'_enforced']) {
+                $rules[] = $roomType[$settingName.'_default'] ? 'accepted' : 'declined';
+            }
         }
         // Enum
         elseif (enum_exists($castType)) {
 
             $enumValidation = Rule::enum($castType);
-            // Only some values allowed
-            if (isset(self::ROOM_SETTINGS_DEFINITION[$settingName]['only'])) {
-                $enumValidation = $enumValidation->only(self::ROOM_SETTINGS_DEFINITION[$settingName]['only']);
+
+            if ($roomType && $roomType[$settingName.'_enforced']) {
+                $enumValidation = $enumValidation->only($roomType[$settingName.'_default']);
+            } else {
+                // Only some values allowed
+                if (isset(self::ROOM_SETTINGS_DEFINITION[$settingName]['only'])) {
+                    $enumValidation = $enumValidation->only(self::ROOM_SETTINGS_DEFINITION[$settingName]['only']);
+                }
             }
+
             array_push($rules, $enumValidation);
         }
         // Room setting validation with invalid cast

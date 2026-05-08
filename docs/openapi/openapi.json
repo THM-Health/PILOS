@@ -1,0 +1,665 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PILOS External API",
+    "version": "1.0.0",
+    "description": "OpenAPI specification for the external OAuth-protected API routes under /external-api/v1.\n"
+  },
+  "servers": [
+    {
+      "url": "/external-api/v1"
+    }
+  ],
+  "paths": {
+    "/room_types": {
+      "get": {
+        "tags": ["Room Types"],
+        "operationId": "listExternalRoomTypes",
+        "summary": "List room types",
+        "description": "Returns available room types.\n",
+        "security": [
+          {
+            "oauth2External": ["room:create"]
+          },
+          {
+            "oauth2External": ["room:own:read"]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "description": "* `own`: Only room types the authenticated user can use\n",
+            "schema": {
+              "type": "string",
+              "enum": ["own"]
+            },
+            "example": "own"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room types loaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "List of room types.",
+                      "items": {
+                        "$ref": "#/components/schemas/RoomType"
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Room types response",
+                    "value": {
+                      "data": [
+                        {
+                          "id": 1,
+                          "name": "Lecture",
+                          "description": "Room type for lecture sessions",
+                          "room_settings": {
+                            "has_access_code_default": true,
+                            "has_access_code_enforced": false,
+                            "has_allow_guests_default": true,
+                            "has_allow_guests_enforced": false
+                          }
+                        },
+                        {
+                          "id": 2,
+                          "name": "Seminar",
+                          "description": "Restricted seminar room",
+                          "room_settings": {
+                            "has_access_code_default": false,
+                            "has_access_code_enforced": true,
+                            "has_allow_guests_default": false,
+                            "has_allow_guests_enforced": true
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsError"
+          }
+        }
+      }
+    },
+    "/rooms": {
+      "get": {
+        "tags": ["Rooms"],
+        "operationId": "listExternalRooms",
+        "summary": "List own rooms",
+        "description": "Returns all rooms owned by the authenticated user.",
+        "security": [
+          {
+            "oauth2External": ["room:own:read"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rooms loaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "List of rooms.",
+                      "items": {
+                        "$ref": "#/components/schemas/Room"
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Room list response",
+                    "value": {
+                      "data": [
+                        {
+                          "id": "abc-123-def",
+                          "name": "External Room",
+                          "room_type": {
+                            "id": 1,
+                            "name": "Lecture",
+                            "description": "Room type for lecture sessions",
+                            "room_settings": {
+                              "has_access_code_default": true,
+                              "has_access_code_enforced": false,
+                              "has_allow_guests_default": true,
+                              "has_allow_guests_enforced": false
+                            }
+                          },
+                          "access_code": "123456789",
+                          "allow_guests": true,
+                          "link": "https://example.org/rooms/abc-123-def"
+                        },
+                        {
+                          "id": "hij-987-klm",
+                          "name": "External Room",
+                          "room_type": {
+                            "id": 2,
+                            "name": "Seminar",
+                            "description": "Restricted seminar room",
+                            "room_settings": {
+                              "has_access_code_default": false,
+                              "has_access_code_enforced": true,
+                              "has_allow_guests_default": false,
+                              "has_allow_guests_enforced": true
+                            }
+                          },
+                          "access_code": null,
+                          "allow_guests": false,
+                          "link": "https://example.org/rooms/hij-987-klm"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Rooms"],
+        "operationId": "createExternalRoom",
+        "summary": "Create a room",
+        "description": "Creates a new room for the authenticated user.",
+        "security": [
+          {
+            "oauth2External": ["room:create"]
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoomRequest"
+              },
+              "examples": {
+                "validRequest": {
+                  "summary": "Create room request",
+                  "value": {
+                    "name": "External Room",
+                    "room_type": 1,
+                    "access_code": "123456789",
+                    "allow_guests": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomSingleResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Room create response",
+                    "value": {
+                      "data": {
+                        "id": "abc-123-def",
+                        "name": "External Room",
+                        "room_type": {
+                          "id": 1,
+                          "name": "Lecture",
+                          "description": "Room type for lecture sessions",
+                          "room_settings": {
+                            "has_access_code_default": true,
+                            "has_access_code_enforced": false,
+                            "has_allow_guests_default": true,
+                            "has_allow_guests_enforced": false
+                          }
+                        },
+                        "access_code": "123456789",
+                        "allow_guests": true,
+                        "link": "https://example.org/rooms/abc-123-def"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "description": "Room creation is rate-limited or room limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "tooManyRequests": {
+                    "summary": "General rate limit",
+                    "value": {
+                      "message": "Too Many Attempts."
+                    }
+                  },
+                  "roomLimitExceeded": {
+                    "summary": "Room limit exceeded",
+                    "value": {
+                      "message": "Creating room failed! You have reached the max. amount of rooms."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "operationId": "getCurrentUserDetails",
+        "summary": "Get details about the user associcated with the token",
+        "security": [
+          {
+            "oauth2External": ["user:own:read"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user loaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CurrentUser"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oauth2External": {
+        "type": "oauth2",
+        "description": "OAuth 2.0",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "/oauth/authorize",
+            "tokenUrl": "/oauth/token",
+            "scopes": {
+              "room:own:read": "Read rooms owned by the authenticated user.",
+              "room:create": "Create rooms.",
+              "user:own:read": "Read details about the authenticated user."
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Authentication is required or bearer token is invalid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorMessage"
+            },
+            "examples": {
+              "unauthorized": {
+                "value": {
+                  "message": "Unauthenticated."
+                }
+              }
+            }
+          }
+        }
+      },
+      "ForbiddenError": {
+        "description": "The token is authenticated but misses required scope(s).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorMessage"
+            },
+            "examples": {
+              "forbidden": {
+                "value": {
+                  "message": "This action is unauthorized."
+                }
+              }
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Request validation failed.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationErrorResponse"
+            },
+            "examples": {
+              "invalidFilter": {
+                "value": {
+                  "message": "The selected filter is invalid.",
+                  "errors": {
+                    "filter": ["The selected filter is invalid."]
+                  }
+                }
+              },
+              "invalidCreatePayload": {
+                "value": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "name": ["The name field is required."],
+                    "room_type": ["The selected room type is invalid."],
+                    "access_code": ["The access code must be 9 digits."]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "TooManyRequestsError": {
+        "description": "Too many requests.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorMessage"
+            },
+            "examples": {
+              "tooManyRequests": {
+                "value": {
+                  "message": "Too Many Attempts."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "CurrentUser": {
+        "type": "object",
+        "description": "Public representation of the user represented by the token.",
+        "required": [
+          "id",
+          "image",
+          "email",
+          "firstname",
+          "lastname",
+          "locale",
+          "room_limit",
+          "timezone",
+          "permissions"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique user identifier.",
+            "example": 1
+          },
+          "image": {
+            "type": "string",
+            "description": "URL to the profile picture.",
+            "example": "https://example.org/storage/profile_images/ruuQxYgDXWDid2gIb8uMUwjUiqaJRO8tX36ye9Lt.jpg"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email.",
+            "example": "john.doe@example.org"
+          },
+          "firstname": {
+            "type": "string",
+            "description": "First name.",
+            "example": "John"
+          },
+          "lastname": {
+            "type": "string",
+            "description": "Last name.",
+            "example": "Doe"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale of the user.",
+            "example": "de"
+          },
+          "room_limit": {
+            "type": "integer",
+            "description": "Max. amount of rooms the user can have; -1: unlimited.",
+            "example": 5
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone of the user.",
+            "example": "Europe/Berlin"
+          },
+          "permissions": {
+            "type": "array",
+            "description": "List of permissions the user has.",
+            "items": {
+              "type": "string"
+            },
+            "example": ["rooms.create"]
+          }
+        }
+      },
+      "RoomType": {
+        "type": "object",
+        "description": "Public representation of a room type usable in the external API.",
+        "required": ["id", "name", "description", "room_settings"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique room type identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable room type name."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the room type."
+          },
+          "room_settings": {
+            "$ref": "#/components/schemas/RoomSettings"
+          }
+        }
+      },
+      "RoomSettings": {
+        "type": "object",
+        "description": "Default and enforced room settings inherited from the room type.",
+        "required": [
+          "has_access_code_default",
+          "has_access_code_enforced",
+          "has_allow_guests_default",
+          "has_allow_guests_enforced"
+        ],
+        "properties": {
+          "has_access_code_default": {
+            "type": "boolean",
+            "description": "Whether the room should have an access code by default"
+          },
+          "has_access_code_enforced": {
+            "type": "boolean",
+            "description": "Whether has_access_code_default value is enforced"
+          },
+          "has_allow_guests_default": {
+            "type": "boolean",
+            "description": "Whether the room should allow guests by default"
+          },
+          "has_allow_guests_enforced": {
+            "type": "boolean",
+            "description": "Whether has_allow_guests_default value is enforced"
+          }
+        }
+      },
+      "Room": {
+        "type": "object",
+        "description": "Room.",
+        "required": [
+          "id",
+          "name",
+          "room_type",
+          "access_code",
+          "allow_guests",
+          "link"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique room identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Room display name.",
+            "minLength": 2
+          },
+          "room_type": {
+            "$ref": "#/components/schemas/RoomType"
+          },
+          "access_code": {
+            "nullable": true,
+            "type": "string",
+            "description": "9-digit numeric access code if enabled.",
+            "pattern": "^[0-9]{9}$"
+          },
+          "allow_guests": {
+            "type": "boolean",
+            "description": "Whether guests can join the room."
+          },
+          "link": {
+            "type": "string",
+            "format": "uri",
+            "description": "Absolute URL to open the room in the web UI."
+          }
+        }
+      },
+      "CreateRoomRequest": {
+        "type": "object",
+        "description": "Payload to create a room.",
+        "required": ["name", "room_type"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Room name.",
+            "minLength": 2,
+            "maxLength": 255
+          },
+          "room_type": {
+            "type": "integer",
+            "description": "Existing room type ID."
+          },
+          "access_code": {
+            "nullable": true,
+            "type": "string",
+            "description": "9-digit numeric access code.\nDepending on room type settings, this field may be required, optional, or prohibited.\n",
+            "pattern": "^[0-9]{9}$"
+          },
+          "allow_guests": {
+            "type": "boolean",
+            "description": "Guest access allowed for the room.\nDepending on room type settings, this fields value might be enforced (See room type attribute `has_allow_guests_enforced` and `has_allow_guests_default`)\n"
+          }
+        }
+      },
+      "RoomSingleResponse": {
+        "type": "object",
+        "description": "Single room response wrapper.",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Room"
+          }
+        }
+      },
+      "ErrorMessage": {
+        "type": "object",
+        "description": "Generic error message response.",
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Human-readable error description."
+          }
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "description": "Validation error response.",
+        "required": ["message", "errors"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "High-level validation failure message."
+          },
+          "errors": {
+            "type": "object",
+            "description": "Validation errors grouped by field name.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
