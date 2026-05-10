@@ -31,6 +31,7 @@
           :name="name"
           :disabled="isBusy"
           @deleted="$router.push({ name: 'admin.roles' })"
+          @not-found="$router.push({ name: 'admin.roles' })"
         />
       </div>
     </div>

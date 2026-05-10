@@ -130,6 +130,7 @@ import * as _ from "lodash-es";
 import { useSettingsStore } from "../stores/settings.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { RECORDING } from "../constants/modelNames.js";
 
 const props = defineProps({
   recordingId: {
@@ -236,7 +237,10 @@ function save() {
       // editing failed
       if (error.response) {
         // recording not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.data?.model === RECORDING
+        ) {
           toast.error(t("rooms.flash.recording_gone"));
           modalVisible.value = false;
           emit("notFound");

@@ -33,6 +33,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  redirectOnRoomModelNotFound: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const isLoading = ref(false);
@@ -57,6 +61,7 @@ function toggleFavorite() {
     .catch((error) => {
       api.error(error, {
         redirectOnUnauthenticated: props.redirectOnUnauthenticated,
+        redirectOnRoomModelNotFound: props.redirectOnRoomModelNotFound,
       });
     })
     .finally(() => {

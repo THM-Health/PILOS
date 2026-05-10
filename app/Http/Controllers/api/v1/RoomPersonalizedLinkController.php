@@ -103,20 +103,16 @@ class RoomPersonalizedLinkController extends Controller
      *
      * @return RoomPersonalizedLinkResource
      */
-    public function update(Room $room, RoomPersonalizedLink $link, RoomPersonalizedLinkRequest $request)
+    public function update(Room $room, RoomPersonalizedLink $personalizedLink, RoomPersonalizedLinkRequest $request)
     {
-        if (! $link->room->is($room)) {
-            abort(404, __('app.errors.personalized_link_not_found'));
-        }
+        $personalizedLink->firstname = $request->firstname;
+        $personalizedLink->lastname = $request->lastname;
+        $personalizedLink->role = $request->role;
+        $personalizedLink->save();
 
-        $link->firstname = $request->firstname;
-        $link->lastname = $request->lastname;
-        $link->role = $request->role;
-        $link->save();
+        Log::info('Updated personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'name' => $personalizedLink->fullname]);
 
-        Log::info('Updated personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
-
-        return new RoomPersonalizedLinkResource($link);
+        return new RoomPersonalizedLinkResource($personalizedLink);
     }
 
     /**
@@ -126,15 +122,11 @@ class RoomPersonalizedLinkController extends Controller
      *
      * @throws \Exception
      */
-    public function destroy(Room $room, RoomPersonalizedLink $link)
+    public function destroy(Room $room, RoomPersonalizedLink $personalizedLink)
     {
-        if (! $link->room->is($room)) {
-            abort(404, __('app.errors.personalized_link_not_found'));
-        }
+        $personalizedLink->delete();
 
-        $link->delete();
-
-        Log::info('Removed personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
+        Log::info('Removed personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'name' => $personalizedLink->fullname]);
 
         return response()->noContent();
     }

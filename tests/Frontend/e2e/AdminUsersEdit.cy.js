@@ -277,7 +277,9 @@ describe("Admin users edit", function () {
     cy.intercept("GET", "api/v1/users/2", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("userRequest");
 
@@ -293,8 +295,8 @@ describe("Admin users edit", function () {
 
     // Check that error message gets shown
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Reload page with 401 error

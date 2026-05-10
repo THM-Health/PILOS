@@ -292,7 +292,12 @@ class RoomTest extends TestCase
 
         // Try again after deleted
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room' => $room]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_transfer_room()
@@ -433,7 +438,12 @@ class RoomTest extends TestCase
         // Guest trying to access non-existing rooms
         for ($i = 0; $i < 10; $i++) {
             $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
-                ->assertNotFound();
+                ->assertNotFound()
+                ->assertJson([
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [999999],
+                ]);
         }
         // Check route is now rate limited
         $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
@@ -448,7 +458,12 @@ class RoomTest extends TestCase
         $this->actingAs($room->owner);
         for ($i = 0; $i < 10; $i++) {
             $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
-                ->assertNotFound();
+                ->assertNotFound()
+                ->assertJson([
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [999999],
+                ]);
         }
         // Check route is now rate limited
         $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
@@ -464,11 +479,21 @@ class RoomTest extends TestCase
         // Time travel 1 minute to reset rate limit
         $this->travel(1)->minutes();
         $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [999999],
+            ]);
 
         $this->actingAsGuest();
         $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [999999],
+            ]);
 
         // Time travel 1 minute to reset rate limit
         $this->travel(1)->minutes();
@@ -477,7 +502,12 @@ class RoomTest extends TestCase
         // due to other reasons than the room not existing are not so strictly rate limited
         for ($i = 0; $i < 50; $i++) {
             $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => 999999]))
-                ->assertNotFound();
+                ->assertNotFound()
+                ->assertJson([
+                    'message' => 'model_not_found',
+                    'model' => 'room_file',
+                    'ids' => ['999999'],
+                ]);
         }
     }
 
@@ -1639,6 +1669,17 @@ class RoomTest extends TestCase
         $room->save();
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertJsonPath('data.legacy_code', false);
+
+        // Test deleted
+        $room->delete();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     /**

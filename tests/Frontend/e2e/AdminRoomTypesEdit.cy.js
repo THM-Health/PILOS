@@ -2087,7 +2087,9 @@ describe("Admin room types edit", function () {
     cy.intercept("PUT", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("saveChangesRequest");
 
@@ -2102,8 +2104,8 @@ describe("Admin room types edit", function () {
     cy.wait("@roomTypesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Reload
@@ -2169,7 +2171,9 @@ describe("Admin room types edit", function () {
     cy.intercept("GET", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("roomTypeRequest");
 
@@ -2184,8 +2188,8 @@ describe("Admin room types edit", function () {
     cy.wait("@roomTypesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Reload page with 401 error

@@ -782,6 +782,56 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+
+    // Check with 404 error (room not found) as authenticated user
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomFilesRequest");
+
+    cy.reload();
+    cy.wait("@roomFilesRequest");
+
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+
+    // Check with 404 error (room not found) as guest
+    cy.intercept("GET", "api/v1/currentUser", { data: [] });
+    cy.fixture("room.json").then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=files");
+
+    cy.wait("@roomFilesRequest");
+
+    // Check that redirect to 404 page worked
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
     cy.checkFinalState();
   });
 

@@ -269,6 +269,7 @@
               :name="slotProps.data.name"
               :disabled="isBusy"
               @deleted="loadData(null, false)"
+              @not-found="loadData(null, false)"
             ></SettingsServersDeleteButton>
           </div>
         </template>

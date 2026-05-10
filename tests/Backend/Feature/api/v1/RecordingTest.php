@@ -1129,6 +1129,28 @@ class RecordingTest extends TestCase
         $this->assertTrue($podcast->disabled);
         $this->assertFalse($presentation->disabled);
         $this->assertTrue($notes->disabled);
+
+        // Test deleted recording
+        $recording->delete();
+
+        $this->putJson(route('api.v1.rooms.recordings.update', ['room' => $room->id, 'recording' => $recording->id]), $payload)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'recording',
+                'ids' => [$recording->id],
+            ]);
+
+        // Test deleted room
+        $room->delete();
+
+        $this->putJson(route('api.v1.rooms.recordings.update', ['room' => $room->id, 'recording' => $recording->id]), $payload)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_update_permissions()
@@ -1226,7 +1248,12 @@ class RecordingTest extends TestCase
         $otherRoom = Room::factory()->create();
         $this->actingAs($otherRoom->owner)
             ->putJson(route('api.v1.rooms.recordings.update', ['room' => $otherRoom->id, 'recording' => $recording->id]), $payload)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'recording',
+                'ids' => [$recording->id],
+            ]);
 
     }
 
@@ -1258,6 +1285,16 @@ class RecordingTest extends TestCase
 
         // Check storage
         $this->assertDirectoryDoesNotExist(Storage::disk('recordings')->path($recording->id));
+
+        // Test delete again
+        $this->actingAs($room->owner)
+            ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $room->id, 'recording' => $recording->id]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'recording',
+                'ids' => [$recording->id],
+            ]);
     }
 
     public function test_delete_on_room_delete()
@@ -1355,7 +1392,12 @@ class RecordingTest extends TestCase
         $otherRoom = Room::factory()->create();
         $this->actingAs($otherRoom->owner)
             ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $otherRoom->id, 'recording' => $recording->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'recording',
+                'ids' => [$recording->id],
+            ]);
     }
 
     public function test_access_recording_resource()
