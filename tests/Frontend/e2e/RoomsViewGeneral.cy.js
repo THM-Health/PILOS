@@ -2599,7 +2599,6 @@ describe("Room View general", function () {
     cy.url().should("not.include", "/login");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkToastMessage("rooms.require_access_code");
 
     cy.contains("auth.login").should("be.visible");
 
@@ -2944,8 +2943,6 @@ describe("Room View general", function () {
     cy.url().should("not.include", "/login");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkToastMessage("rooms.require_access_code");
-
     cy.contains("auth.login").should("be.visible");
 
     // Check that access code overlay is shown

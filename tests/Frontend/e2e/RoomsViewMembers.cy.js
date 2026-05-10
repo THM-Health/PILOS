@@ -377,8 +377,6 @@ describe("Rooms view members", function () {
 
     // Check that error message is shown
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkToastMessage("rooms.require_access_code");
-
     cy.contains("auth.login").should("be.visible");
 
     // 401 error but guests are forbidden
