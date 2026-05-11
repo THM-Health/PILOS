@@ -35,11 +35,11 @@ trait ZipHelper
 
         // Compare the files content
         foreach ($filesExpected as $file) {
-            $this->assertEquals($disk->get('expected/'.$file), $disk->get('actual/'.$file));
+            $this->assertEquals($disk->get('zip/expected/'.$file), $disk->get('zip/actual/'.$file));
         }
 
         // Cleanup
-        Storage::deleteDirectory('zip');
+        $disk->deleteDirectory('zip');
     }
 
     public function unpackZipFile($file, $dir)
