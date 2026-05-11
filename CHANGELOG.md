@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standardized 404 error handling on admin pages ([#1676], [#3036])
 - Improved and standardized room not found error handling in the room view ([#3036])
 - Greenlight v2/v3 import commands now prepares import of existing recordings ([#2877], ([#3034])
+- Bump base PHP image to 8.5 ([#2814])
 
 ### Fixed
 
@@ -763,6 +764,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2789]: https://github.com/THM-Health/PILOS/pull/2789
 [#2798]: https://github.com/THM-Health/PILOS/pull/2798
 [#2809]: https://github.com/THM-Health/PILOS/pull/2809
+[#2814]: https://github.com/THM-Health/PILOS/pull/2814
 [#2843]: https://github.com/THM-Health/PILOS/issues/2843
 [#2844]: https://github.com/THM-Health/PILOS/pull/2844
 [#2851]: https://github.com/THM-Health/PILOS/issues/2851
