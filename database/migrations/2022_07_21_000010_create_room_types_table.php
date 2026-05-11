@@ -1,5 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Enums\RoomLobby;
+use App\Enums\RoomUserRole;
+use App\Enums\RoomVisibility;
 use Database\Seeders\RoomTypeSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -46,17 +51,17 @@ return new class extends Migration
             $table->boolean('allow_guests_enforced')->default(false);
             $table->boolean('allow_membership_default')->default(false);
             $table->boolean('allow_membership_enforced')->default(false);
-            $table->integer('default_role_default')->default(\App\Enums\RoomUserRole::USER);
+            $table->integer('default_role_default')->default(RoomUserRole::USER);
             $table->integer('default_role_enforced')->default(false);
-            $table->integer('lobby_default')->default(\App\Enums\RoomLobby::DISABLED);
-            $table->integer('lobby_enforced')->default(\App\Enums\RoomLobby::DISABLED);
+            $table->integer('lobby_default')->default(RoomLobby::DISABLED);
+            $table->integer('lobby_enforced')->default(RoomLobby::DISABLED);
             $table->boolean('record_attendance_default')->default(false);
             $table->boolean('record_attendance_enforced')->default(false);
             $table->boolean('record_default')->default(false);
             $table->boolean('record_enforced')->default(false);
             $table->boolean('auto_start_recording_default')->default(false);
             $table->boolean('auto_start_recording_enforced')->default(false);
-            $table->integer('visibility_default')->default(\App\Enums\RoomVisibility::PRIVATE);
+            $table->integer('visibility_default')->default(RoomVisibility::PRIVATE);
             $table->boolean('visibility_enforced')->default(false);
 
             $table->boolean('has_access_code_enforced')->default(false);

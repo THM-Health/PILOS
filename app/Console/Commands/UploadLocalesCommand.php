@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Services\LocaleService;
-use Http;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class UploadLocalesCommand extends Command
 {

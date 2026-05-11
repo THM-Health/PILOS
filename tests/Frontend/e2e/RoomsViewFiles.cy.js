@@ -79,42 +79,106 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "File1.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "File1.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("include.text", "rooms.files.download_visible")
+      .and("include.text", "rooms.files.use_in_next_meeting_disabled")
+      .find('a[data-test="room-files-view-button"]')
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
 
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "File2.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "rooms.files.use_in_next_meeting");
+      .should("include.text", "File2.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("include.text", "rooms.files.download_visible")
+      .and("include.text", "rooms.files.use_in_next_meeting")
+      .find('a[data-test="room-files-view-button"]')
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File2.pdf?signature=def456",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
 
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .should("include.text", "File3.pdf");
+      .should("include.text", "File3.pdf")
+      .and("include.text", "Sep 21, 2020, 09:09")
+      .and("include.text", "rooms.files.download_hidden")
+      .and("include.text", "rooms.files.use_in_next_meeting_disabled")
+      .find('a[data-test="room-files-view-button"]')
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File3.pdf?signature=ghi789",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
+
+    // Reload file list
+    const roomFileReloadRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/rooms/abc-def-123/files*",
+      { fixture: "roomFiles.json" },
+      "roomFilesReloadRequest",
+    );
+    cy.get('[data-test="room-files-reload-button"]').click();
+
+    // Check loading overlay shown during loading
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check view button is disabled during loading
     cy.get('[data-test="room-file-item"]')
-      .eq(2)
-      .should("include.text", "Sep 21, 2020, 09:09");
+      .eq(0)
+      .find('button[data-test="room-files-view-button"]')
+      .should("be.disabled");
+
+    // Check edit button is disabled during loading
     cy.get('[data-test="room-file-item"]')
-      .eq(2)
-      .should("include.text", "rooms.files.download_hidden");
+      .eq(0)
+      .find('[data-test="room-files-edit-button"]')
+      .should("be.disabled");
+
+    // Check delete button is disabled during loading
     cy.get('[data-test="room-file-item"]')
-      .eq(2)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .eq(0)
+      .find('button[data-test="room-files-delete-button"]')
+      .should("be.disabled")
+      .then(() => {
+        roomFileReloadRequest.sendResponse();
+      });
+
+    // Check overlay is hidden after loading
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check view button is enabled after loading
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('a[data-test="room-files-view-button"]')
+      .should(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123",
+      );
+
+    // Check edit button is enabled after loading
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-edit-button"]')
+      .should("not.be.disabled");
+
+    // Check delete button is enabled after loading
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('button[data-test="room-files-delete-button"]')
+      .should("not.be.disabled");
   });
 
   it("load files with access code", function () {
@@ -136,10 +200,20 @@ describe("Rooms View Files", function () {
     cy.wait("@roomRequest");
     cy.get("#access-code").type("123456789");
 
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 0,
+        },
+      },
+    }).as("roomAuthRequest");
+
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -147,11 +221,15 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
     cy.wait("@roomFilesRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+      // Check that room auth token is set
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "0",
+      });
     });
 
     cy.contains("rooms.files.title").should("be.visible");
@@ -162,20 +240,19 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "File1.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
+      .should("include.text", "File1.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting_disabled")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123&room_auth_token=roomAuthToken&room_auth_token_type=0",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-edit-button"]')
@@ -187,20 +264,19 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "File2.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "Sep 21, 2020, 09:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
+      .should("include.text", "File2.pdf")
+      .and("include.text", "Sep 21, 2020, 09:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File2.pdf?signature=def456&room_auth_token=roomAuthToken&room_auth_token_type=0",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-edit-button"]')
@@ -225,7 +301,7 @@ describe("Rooms View Files", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
       statusCode: 401,
       body: {
-        message: "invalid_code",
+        message: "invalid_auth_token",
       },
     }).as("roomFilesRequest");
 
@@ -235,12 +311,22 @@ describe("Rooms View Files", function () {
     cy.wait("@roomRequest");
     cy.get("#access-code").type("123456789");
 
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 0,
+        },
+      },
+    }).as("roomAuthRequest");
+
     cy.fixture("room.json").then((room1) => {
       room1.data.owner = { id: 2, name: "Max Doe" };
 
       const firstRoomRequest = interceptIndefinitely(
         "GET",
-        "api/v1/rooms/abc-def-123",
+        "api/v1/rooms/abc-def-123*",
         {
           statusCode: 200,
           body: room1,
@@ -254,7 +340,7 @@ describe("Rooms View Files", function () {
         room2.data.owner = { id: 2, name: "Max Doe" };
         room2.data.authenticated = false;
 
-        cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
           statusCode: 200,
           body: room2,
         })
@@ -265,16 +351,21 @@ describe("Rooms View Files", function () {
       });
     });
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
     cy.wait("@roomFilesRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+      // Check that room auth token is set
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "0",
+      });
     });
 
-    // Check that access code header is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.headers["access-code"]).to.be.undefined;
+      // Check that room auth token is reset
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown and close it
@@ -295,7 +386,7 @@ describe("Rooms View Files", function () {
 
       const firstRoomRequest = interceptIndefinitely(
         "GET",
-        "api/v1/rooms/abc-def-123",
+        "api/v1/rooms/abc-def-123*",
         {
           statusCode: 200,
           body: room1,
@@ -303,13 +394,14 @@ describe("Rooms View Files", function () {
         "roomRequest",
       );
 
-      cy.get('[data-test="room-login-button"]').click();
+      // Reload room to trigger files request again (but without setting room auth token)
+      cy.get('[data-test="reload-room-button"]').click();
 
       cy.fixture("room.json").then((room2) => {
         room2.data.owner = { id: 2, name: "Max Doe" };
         room2.data.authenticated = false;
 
-        cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
           statusCode: 200,
           body: room2,
         })
@@ -323,47 +415,62 @@ describe("Rooms View Files", function () {
     cy.wait("@roomRequest");
 
     cy.wait("@roomFilesRequest").then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers["access-code"]).to.eq("123456789");
+      // Check that room auth token is not set
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
-    // Check that access code header is reset
     cy.wait("@roomRequest").then((interception) => {
-      expect(interception.request.headers["access-code"]).to.be.undefined;
+      // Check that room auth token is not set
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
-  it("load files with token", function () {
+  it("load files with personalized link", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
 
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
     cy.interceptRoomFilesRequest();
 
-    // Visit room with token
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
+    cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
 
     cy.wait("@roomFilesRequest").then((interception) => {
-      // Check that header for token is set
-      expect(interception.request.headers.token).to.eq(
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
+      // Check that room auth token is set
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "1",
+      });
     });
 
     cy.contains("rooms.files.title").should("be.visible");
@@ -373,20 +480,19 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "File1.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("include.text", "Sep 21, 2020, 03:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
-    cy.get('[data-test="room-file-item"]')
-      .eq(0)
+      .should("include.text", "File1.pdf")
+      .and("include.text", "Sep 21, 2020, 03:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting_disabled")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File1.pdf?signature=abc123&room_auth_token=roomAuthToken&room_auth_token_type=1",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-edit-button"]')
@@ -398,20 +504,19 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "File2.pdf");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("include.text", "Sep 21, 2020, 03:08");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
-    cy.get('[data-test="room-file-item"]')
-      .eq(1)
+      .should("include.text", "File2.pdf")
+      .and("include.text", "Sep 21, 2020, 03:08")
+      .and("not.include.text", "rooms.files.download_visible")
+      .and("not.include.text", "rooms.files.use_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
-      .should("not.be.disabled");
+      .should("not.be.disabled")
+      .and(
+        "have.attr",
+        "href",
+        "https://example.com/files/File2.pdf?signature=def456&room_auth_token=roomAuthToken&room_auth_token_type=1",
+      )
+      .and("have.attr", "rel", "opener")
+      .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-edit-button"]')
@@ -422,38 +527,95 @@ describe("Rooms View Files", function () {
       .should("not.exist");
   });
 
-  it("load files with token errors", function () {
+  it("load files with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
     });
 
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
-      statusCode: 401,
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
       body: {
-        message: "invalid_token",
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
       },
-    }).as("roomFilesRequest");
+    }).as("roomAuthRequest");
 
-    // Visit room with token
+    const fileRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/rooms/abc-def-123/files*",
+      {
+        statusCode: 401,
+        body: {
+          message: "invalid_auth_token",
+        },
+      },
+      "roomFilesRequest",
+    );
+
+    // Visit room with personalized link
     cy.visit(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    cy.wait("@roomRequest");
+    cy.wait("@roomAuthRequest").then(() => {
+      cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+        statusCode: 401,
+        body: {
+          message: "invalid_personalized_link",
+        },
+      }).as("roomAuthRequest");
 
+      fileRequest.sendResponse();
+    });
+    cy.wait("@roomRequest");
     cy.wait("@roomFilesRequest");
+    cy.wait("@roomAuthRequest");
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.token_invalid");
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
 
-    cy.contains("rooms.invalid_personal_link").should("be.visible");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    // Check with guests only error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      statusCode: 420,
+      body: {
+        message: "guests_only",
+      },
+    }).as("roomFilesRequest");
+
+    cy.reload();
+
+    cy.wait("@roomAuthRequest");
+    cy.wait("@roomRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check that the error message is shown
+    cy.checkToastMessage("app.flash.guests_only");
+
+    // Check that redirected to home page
+    cy.url()
+      .should("not.include", "/rooms/abc-def-123")
+      .and("not.include", "/rooms");
   });
 
   it("load files errors", function () {
@@ -615,6 +777,56 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+
+    // Check with 404 error (room not found) as authenticated user
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomFilesRequest");
+
+    cy.reload();
+    cy.wait("@roomFilesRequest");
+
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+
+    // Check with 404 error (room not found) as guest
+    cy.intercept("GET", "api/v1/currentUser", { data: [] });
+    cy.fixture("room.json").then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=files");
+
+    cy.wait("@roomFilesRequest");
+
+    // Check that redirect to 404 page worked
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load files page out of range", function () {

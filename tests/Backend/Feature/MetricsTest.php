@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature;
 
 use App\Enums\ServerStatus;
@@ -82,6 +84,7 @@ class MetricsTest extends TestCase
         Counter::get('room_authentication_errors_total')->incBy(10, ['access_code_invalid']);
         Counter::get('room_authentication_errors_total')->incBy(20, ['guest_access']);
         Counter::get('room_authentication_errors_total')->incBy(30, ['token']);
+        Counter::get('room_authentication_errors_total')->incBy(40, ['room_auth_token_invalid']);
         Counter::get('room_started_total')->incBy(40);
         Counter::get('room_start_errors_total')->incBy(50, ['no_server_found']);
         Counter::get('room_start_errors_total')->incBy(60, ['start_failed']);
@@ -93,6 +96,7 @@ class MetricsTest extends TestCase
         $this->assertEquals(10, $metrics['pilos_room_authentication_errors_total{error_type="access_code_invalid"}']);
         $this->assertEquals(20, $metrics['pilos_room_authentication_errors_total{error_type="guest_access"}']);
         $this->assertEquals(30, $metrics['pilos_room_authentication_errors_total{error_type="token"}']);
+        $this->assertEquals(40, $metrics['pilos_room_authentication_errors_total{error_type="room_auth_token_invalid"}']);
         $this->assertEquals(40, $metrics['pilos_room_started_total']);
         $this->assertEquals(50, $metrics['pilos_room_start_errors_total{error_type="no_server_found"}']);
         $this->assertEquals(60, $metrics['pilos_room_start_errors_total{error_type="start_failed"}']);
@@ -105,6 +109,7 @@ class MetricsTest extends TestCase
         $this->assertEquals(10, $metrics['pilos_room_authentication_errors_total{error_type="access_code_invalid"}']);
         $this->assertEquals(20, $metrics['pilos_room_authentication_errors_total{error_type="guest_access"}']);
         $this->assertEquals(30, $metrics['pilos_room_authentication_errors_total{error_type="token"}']);
+        $this->assertEquals(40, $metrics['pilos_room_authentication_errors_total{error_type="room_auth_token_invalid"}']);
         $this->assertEquals(40, $metrics['pilos_room_started_total']);
         $this->assertEquals(50, $metrics['pilos_room_start_errors_total{error_type="no_server_found"}']);
         $this->assertEquals(60, $metrics['pilos_room_start_errors_total{error_type="start_failed"}']);
@@ -116,6 +121,7 @@ class MetricsTest extends TestCase
         Counter::get('room_authentication_errors_total')->incBy(1, ['access_code_invalid']);
         Counter::get('room_authentication_errors_total')->incBy(2, ['guest_access']);
         Counter::get('room_authentication_errors_total')->incBy(3, ['token']);
+        Counter::get('room_authentication_errors_total')->incBy(3, ['room_auth_token_invalid']);
         Counter::get('room_started_total')->incBy(4);
         Counter::get('room_start_errors_total')->incBy(5, ['no_server_found']);
         Counter::get('room_start_errors_total')->incBy(6, ['start_failed']);
@@ -127,6 +133,7 @@ class MetricsTest extends TestCase
         $this->assertEquals(11, $metrics['pilos_room_authentication_errors_total{error_type="access_code_invalid"}']);
         $this->assertEquals(22, $metrics['pilos_room_authentication_errors_total{error_type="guest_access"}']);
         $this->assertEquals(33, $metrics['pilos_room_authentication_errors_total{error_type="token"}']);
+        $this->assertEquals(43, $metrics['pilos_room_authentication_errors_total{error_type="room_auth_token_invalid"}']);
         $this->assertEquals(44, $metrics['pilos_room_started_total']);
         $this->assertEquals(55, $metrics['pilos_room_start_errors_total{error_type="no_server_found"}']);
         $this->assertEquals(66, $metrics['pilos_room_start_errors_total{error_type="start_failed"}']);

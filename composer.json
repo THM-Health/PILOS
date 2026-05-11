@@ -16,18 +16,18 @@
     "ext-zip": "*",
     "directorytree/ldaprecord-laravel": "^3.0",
     "guzzlehttp/guzzle": "^7.0.1",
-    "laravel/framework": "^12.3",
+    "laravel/fortify": "^1.36",
+    "laravel/framework": "^13.2",
     "laravel/horizon": "^5.21",
     "laravel/prompts": "^0.3.2",
     "laravel/pulse": "^1.0@beta",
     "laravel/sanctum": "^v4.0",
     "laravel/telescope": "^5.0",
-    "laravel/tinker": "^2.0",
-    "laravel/ui": "^4.3",
+    "laravel/tinker": "^3.0",
     "littleredbutton/bigbluebutton-api-php": "^6.0",
-    "maatwebsite/excel": "^3.1",
     "maennchen/zipstream-php": "^3.1",
     "nunomaduro/collision": "^8.1",
+    "phpoffice/phpspreadsheet": "^5.7",
     "pilos/sail": "^1.0",
     "predis/predis": "^3.0",
     "promphp/prometheus_client_php": "^2.14",
@@ -39,7 +39,6 @@
     "web-token/jwt-framework": "^4.0"
   },
   "require-dev": {
-    "barryvdh/laravel-ide-helper": "^3.0",
     "brianium/paratest": "^7.9",
     "fakerphp/faker": "^1.9.1",
     "laravel/boost": "^2.0",
@@ -96,9 +95,7 @@
     ],
     "post-update-cmd": [
       "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
-      "@php artisan boost:update --ansi",
-      "@php artisan ide-helper:generate",
-      "@php artisan ide-helper:meta"
+      "@php artisan boost:update --ansi"
     ],
     "test": "php artisan test --parallel",
     "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",

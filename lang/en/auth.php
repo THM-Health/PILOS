@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'Change Email',
     'change_password' => 'Change password',
@@ -10,6 +12,7 @@ return [
     ],
     'error' => [
         'login_failed' => 'Login failed',
+        'invalid_request' => 'Authentication failed due to an invalid request.',
         'missing_attributes' => 'Attributes for authentication are missing.',
         'openid_connect_exception' => 'Authentication failed due to an error.',
         'openid_connect_network_exception' => 'Failed to connect to the authentication provider.',

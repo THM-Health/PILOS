@@ -58,7 +58,7 @@ describe("Admin room types index", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index");
+      .should("include.text", "admin.breadcrumbs.room_types.index");
 
     // Check that table headers are displayed correctly
     cy.get('[data-test="room-type-header-cell"]').should("have.length", 1);
@@ -474,6 +474,111 @@ describe("Admin room types index", function () {
           .should("be.visible")
           .and("have.attr", "href", "/admin/room_types/1/edit");
         cy.get('[data-test="room-types-delete-button"]').should("be.visible");
+      });
+  });
+
+  it("check loading state during reload", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "roles.viewAny",
+        "serverPools.viewAny",
+        "roomTypes.view",
+        "roomTypes.update",
+        "roomTypes.create",
+        "roomTypes.delete",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/room_types");
+
+    cy.wait("@roomTypesRequest");
+
+    // Trigger reload by deleting a room type
+    cy.intercept("DELETE", "api/v1/roomTypes/3", { statusCode: 204 }).as(
+      "deleteRoomTypeRequest",
+    );
+
+    cy.get('[data-test="room-type-item"]')
+      .eq(0)
+      .find('[data-test="room-types-delete-button"]')
+      .click();
+
+    cy.wait("@roomTypesRequest");
+
+    const roomTypesReloadRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes*",
+      { fixture: "roomTypes.json" },
+      "roomTypesReloadRequest",
+    );
+
+    cy.get('[data-test="room-types-delete-dialog"]')
+      .find('[data-test="dialog-continue-button"]')
+      .click();
+
+    cy.wait("@deleteRoomTypeRequest");
+
+    // Check that loading overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check loading state during reload
+    cy.get('[data-test="room-type-search"]').within(() => {
+      cy.get("input").should("be.visible").and("be.disabled");
+      cy.get("button").should("be.visible").and("be.disabled");
+    });
+
+    cy.get('[data-test="room-types-add-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="room-type-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('button[data-test="room-types-view-button"]').should(
+          "be.disabled",
+        );
+        cy.get('button[data-test="room-types-edit-button"]').should(
+          "be.disabled",
+        );
+        cy.get('[data-test="room-types-delete-button"]')
+          .should("be.disabled")
+          .then(() => {
+            roomTypesReloadRequest.sendResponse();
+          });
+      });
+
+    cy.wait("@roomTypesReloadRequest");
+
+    // Check that overlay is hidden after reload
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check loading state after reload
+    cy.get('[data-test="room-type-search"]').within(() => {
+      cy.get("input").should("be.visible").and("not.be.disabled");
+      cy.get("button").should("be.visible").and("not.be.disabled");
+    });
+
+    cy.get('[data-test="room-types-add-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="room-type-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('a[data-test="room-types-view-button"]').should(
+          "have.attr",
+          "href",
+          "/admin/room_types/3",
+        );
+        cy.get('a[data-test="room-types-edit-button"]').should(
+          "have.attr",
+          "href",
+          "/admin/room_types/3/edit",
+        );
+        cy.get('[data-test="room-types-delete-button"]').should(
+          "not.be.disabled",
+        );
       });
   });
 });

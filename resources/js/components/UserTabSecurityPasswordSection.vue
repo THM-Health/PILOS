@@ -18,7 +18,7 @@
             autocomplete="current-password"
             type="password"
             required
-            :disabled="isBusy"
+            :disabled="isBusy || disabled"
             class="w-full"
             :invalid="formErrors.fieldInvalid('current_password')"
           />
@@ -39,7 +39,7 @@
             :autocomplete="isOwnUser ? 'new-password' : 'off'"
             type="password"
             required
-            :disabled="isBusy"
+            :disabled="isBusy || disabled"
             class="w-full"
             :invalid="formErrors.fieldInvalid('new_password')"
           />
@@ -63,7 +63,7 @@
             :autocomplete="isOwnUser ? 'new-password' : 'off'"
             type="password"
             required
-            :disabled="isBusy"
+            :disabled="isBusy || disabled"
             class="w-full"
             :invalid="formErrors.fieldInvalid('new_password_confirmation')"
           />
@@ -74,6 +74,7 @@
       </div>
       <div class="flex justify-end">
         <Button
+          :disabled="isBusy || disabled"
           type="submit"
           :loading="isBusy"
           :label="$t('auth.change_password')"
@@ -88,7 +89,7 @@
 <script setup>
 import env from "../env";
 import { useAuthStore } from "../stores/auth";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
@@ -99,9 +100,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["updateUser", "notFoundError"]);
+const emit = defineEmits(["updateUser", "notFoundError", "busy"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -116,6 +121,10 @@ const isBusy = ref(false);
 
 const isOwnUser = computed(() => {
   return authStore.currentUser?.id === props.user.id;
+});
+
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
 });
 
 function changePassword(event) {

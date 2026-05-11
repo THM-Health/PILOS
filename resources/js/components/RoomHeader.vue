@@ -38,10 +38,10 @@
           <RoomMembershipButton
             v-if="!hideMembership && authStore.isAuthenticated"
             :room="props.room"
-            :access-code="props.accessCode"
+            :room-auth-token="roomAuthToken"
             @joined-membership="emit('joinedMembership')"
-            @left-membership="emit('reload')"
-            @invalid-code="emit('invalidCode')"
+            @left-membership="emit('leftMembership')"
+            @invalid-room-auth-token="emit('invalidRoomAuthToken')"
             @membership-disabled="emit('reload')"
           />
         </div>
@@ -94,8 +94,8 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  accessCode: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
   disableReload: {
@@ -112,5 +112,10 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["joinedMembership", "reload", "invalidCode"]);
+const emit = defineEmits([
+  "joinedMembership",
+  "reload",
+  "invalidRoomAuthToken",
+  "leftMembership",
+]);
 </script>

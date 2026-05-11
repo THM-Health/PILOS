@@ -1,13 +1,13 @@
 ---
-title: Migrate from Greenlight v2
-description: Step by step guide to migrate from Greenlight v2 to PILOS
+title: Migrate from Greenlight
+description: Step by step guide to migrate from Greenlight to PILOS
 ---
 
-PILOS provides an easy to use command to import all greenlight users (incl. ldap), rooms and shared accesses.
+PILOS provides an easy-to-use command to import all Greenlight users (incl. ldap), rooms (incl. default presentation) and shared accesses.
 
 ## Preparing migration from other host
 
-If you plan to run PILOS on a different host than greenlight, you have to adjust the docker-compose.yml inside the greenlight directory
+If you plan to run PILOS on a different host than Greenlight, you have to adjust the docker-compose.yml inside the Greenlight directory
 to publish the database port.
 
 Change the port configuration for the db service from:
@@ -26,29 +26,147 @@ ports:
 
 Also make sure the internal firewall of the OS and no external firewall is not blocking access to the port and from the host PILOS is running on.
 
+If you want to import Room presentations, copy Greenlight's active storage directory to the PILOS app storage at `/storage/app/migration/presentations` and specify `--presentation-path=migration/presentations` at the command line.
+Successfully imported presentation files will be copied to a different location.
+
 ## Running migration command
 
-```bash
-docker compose exec app pilos-cli import:greenlight-v2   {host : ip or hostname of postgres database server}
-                                {port : port of postgres database server}
-                                {database : greenlight database name, see greenlight .env variable DB_NAME}
-                                {username : greenlight database username, see greenlight .env variable DB_USERNAME}
-                                {password : greenlight database password, see greenlight .env variable DB_PASSWORD}
+The command will output the process of the import and informs about failed user, room, room presentation and shared access import.
+
+**Note** If a room with the same room id already exists in PILOS it will NOT be imported and its default presentation and shared accesses are ignored.
+
+### Greenlight 2
+
+```text
+Usage:
+  import:greenlight-v2 <host> <port> <database> <username> <password>
+
+Arguments:
+  host                  ip or hostname of postgres database server
+  port                  port of postgres database server
+  database              Greenlight database name, see Greenlight .env variable DB_NAME
+  username              Greenlight database username, see Greenlight .env variable DB_USERNAME
+  password              Greenlight database password, see Greenlight .env variable DB_PASSWORD
+
+Options:
+      --no-confirm                             do not ask if the import should be committed
+      --default-role[=DEFAULT-ROLE]            name of the default role for imported local users (case-insensitive)
+      --room-prefix[=ROOM-PREFIX]              prefix for imported room names (empty string is allowed)
+      --room-type[=ROOM-TYPE]                  name of the room type for imported rooms
+      --presentation-path[=PRESENTATION-PATH]  path to room presentations, relative to /storage/app
+      --auth-provider-map[=AUTH-PROVIDER-MAP]  JSON mapping of user authentication providers (Greenlight => PILOS)
 ```
 
 **Example**
 
 ```bash
-docker compose exec app pilos-cli import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678
+docker compose exec app \
+    pilos-cli import:greenlight-v2 \
+    localhost \
+    5432 \
+    greenlight_production \
+    postgres \
+    12345678
 ```
 
-The command will output the process of the import and imforms about failed user, room and shared access import.
+**Example (non-interactive)**
 
-**Note** If a room with the same room id already exists in PILOS it will NOT be imported and the shared accesses are ignored.
+```bash
+docker compose exec app \
+    pilos-cli import:greenlight-v2 \
+    --no-confirm \
+    --default-role=User \
+    --room-prefix='' \
+    --room-type=Meeting \
+    --presentation-path=migration/presentations \
+    --auth-provider-map='{"shibboleth":"shibboleth","google":"oidc"}' \
+    localhost \
+    5432 \
+    greenlight_production \
+    postgres \
+    12345678
+```
 
-## Adjust nginx to redirect to PILOS (other host)
+### Greenlight v3
 
-Please replace the following section of the greenlight nginx configuration:
+```text
+Usage:
+  import:greenlight-v3 [options] [--] <host> <port> <database> <username> <password>
+
+Arguments:
+  host                                         ip or hostname of postgres database server
+  port                                         port of postgres database server
+  database                                     Greenlight database name
+  username                                     Greenlight database username
+  password                                     Greenlight database password
+
+Options:
+      --no-confirm                             do not ask if the import should be committed
+      --default-role[=DEFAULT-ROLE]            name of the default role for imported local users (case-insensitive)
+      --room-prefix[=ROOM-PREFIX]              prefix for imported room names (empty string is allowed)
+      --room-type[=ROOM-TYPE]                  name of the room type for imported rooms (case-insensitive)
+      --presentation-path[=PRESENTATION-PATH]  path to room presentations, relative to /storage/app
+```
+
+**Example**
+
+```bash
+docker compose exec app pilos-cli import:greenlight-v3 \
+    localhost \
+    5432 \
+    greenlight-v3-production \
+    postgres \
+    12345678
+```
+
+**Example (non-interactive)**
+
+```bash
+docker compose exec app pilos-cli import:greenlight-v3 \
+    --no-confirm \
+    --default-role=User \
+    --room-prefix='' \
+    --room-type=Meeting \
+    --presentation-path=migration/presentations \
+    localhost \
+    5432 \
+    greenlight-v3-production \
+    postgres \
+    12345678
+```
+
+## Importing recordings
+
+You can also import recordings for existing rooms. To make this possible the import command creates a meeting with the BBB meeting ID for every
+imported room. This meeting does not have a start- or end timestamp, so it is not visible in the frontend but associated recordings _will_ be listed.
+
+To import existing recordings, you have to
+
+1. find the meeting ID (column `bbb_id` (GL2) or `meeting_id` (GL3) in the `rooms` table)
+2. find all recordings with this meeting ID (XPath: `/recording/meta/meetingId` in metadata.xml)
+3. pack matching recordings into tar files and
+4. move or copy those tar files to PILOS' `recordings-spool` directory.
+
+Existing recordings prepared like this will be imported just like new ones would.
+
+Imported recordings will be visible only to room owners, who may of course change this, if they so choose. If you want imported recordings to be
+visible to everyone, put them in a subfolder `public` in the `recordings-spool` directory.
+
+**Note** You _may_ have to temporarily increase RAM allocated to horizon if it is limited.
+
+**Note** YMMV, depending on your BBB loadbalancer. If, for example, you run b3scale, you need to extract the "simple" Greenlight meeting ID from the
+more complex b3scale meeting ID.
+
+## Adjust nginx
+
+### PILOS is running on the same host
+
+To use PILOS as a drop-in replacement for Greenlight 2 or Greenlight 3, remove all greenlight related nginx configuration
+and run PILOS on the same host following the instructions in the [getting started guide](../02-getting-started.md).
+
+### Greenlight 2: PILOS is running on a different host
+
+Please replace the following section of the Greenlight nginx configuration:
 
 ```nginx
 location /b {
@@ -100,29 +218,44 @@ location /b {
 }
 ```
 
-This will redirect all traffic to PILOS. If you don't use the /b base path for greenlight adjust the code accordingly.
+This will redirect all traffic to PILOS. If you don't use the /b base path for Greenlight adjust the code accordingly.
 Replace **DOMAIN.TLD** with the hostname of your PILOS installation.
 
-## Enable greenlight compatibility mode
+### Greenlight 3: PILOS is running on a different host
 
-To enable support for the most common greenlight urls e.g. room urls, /ldap_signin, /signin and /default_room please set the following .env variable
+Replace the content of the file
+`/etc/greenlight/nginx/greenlight-v3.nginx` (Greenlight Standalone) or
+`/usr/share/bigbluebutton/nginx/greenlight-v3.nginx` (Greenlight part of BigBlueButton)
+with
 
+```nginx
+location @bbb-fe {
+    return 301 https://DOMAIN.TLD$request_uri;
+}
 ```
+
+This will redirect all traffic to PILOS. Replace **DOMAIN.TLD** with the hostname of your PILOS installation.
+
+## Enable Greenlight compatibility mode
+
+To enable support for the most common Greenlight URLs set the following .env variable
+
+```dotenv
 GREENLIGHT_COMPATIBILITY=true
 ```
 
-If your greenlight base was different than /b adjust the .env variable. Do not include the slash "/".
+If your Greenlight was running in a subdirectory (Greeenlight 2 is running in `/b` by default) adjust the .env variable. Do not include the slash `/`.
 
-```
+```dotenv
 GREENLIGHT_PATH=b
 ```
 
-**Note** We don't support greenlight compatibility mode for greenlight installations without a prefix like /b.
-You also need to make sure the prefix does not collide with PILOS urls (check routes in: routes/api.php, routes/web.php and resources/js/router.js )
+**Note** We don't support Greenlight compatibility mode for Greenlight 2 installations without a prefix like /b.
+You also need to make sure the prefix does not collide with PILOS URLs (check routes in: routes/api.php, routes/web.php and resources/js/router.js )
 
-## Shutdown greenlight
+## Shutdown Greenlight
 
-To shutdown greenlight run this command inside the greenlight directory
+To shutdown Greenlight run this command inside the Greenlight directory
 
 ```bash
 docker-compose down

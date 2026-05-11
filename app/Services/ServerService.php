@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Enums\ServerHealth;
@@ -12,7 +14,7 @@ use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Support\Collection;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ServerService
 {

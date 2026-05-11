@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Aktionen',
     'back' => 'Zurück',
@@ -43,6 +45,7 @@ return [
         'no_server_available' => 'Zur Zeit sind keine Server verfügbar.',
         'not_member_of_room' => 'Die Person ist nicht (mehr) Mitglied dieses Raums.',
         'not_running' => 'Der Beitritt zum Raum ist fehlgeschlagen, da er derzeit geschlossen ist.',
+        'personalized_link_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
         'record_agreement_missing' => 'Die Zustimmung zur Aufzeichnung ist erforderlich.',
         'role_delete_linked_users' => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',
         'role_update_permission_lost' => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
@@ -57,14 +60,12 @@ return [
         'streaming_error' => 'Fehler beim Verbinden mit dem Streaming-Server. Bitte versuchen Sie es später noch einmal.',
         'streaming_meeting_not_running' => 'Das Meeting läuft gerade nicht.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming ist für das aktuelle Meeting nicht aktiviert.',
-        'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
     'filter_no_results' => 'Keine Ergebnisse gefunden',
     'firstname' => 'Vorname',
     'flash' => [
         'client_error' => 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
         'guests_only' => 'Die Anfrage ist nur für nicht angemeldete Benutzer gestattet!',
-        'popup_blocked' => 'Ihr Browser hat das Öffnen eines neuen Fensters blockiert. Bitte erlauben Sie das Öffnen von Popups für diese Seite und versuchen Sie es erneut.',
         'server_error' => [
             'empty_message' => 'Es ist ein Fehler auf dem Server aufgetreten!',
             'error_code' => 'Fehlercode: :statusCode',
@@ -76,6 +77,7 @@ return [
         'unauthorized' => 'Sie haben für die aufgerufene Route nicht die notwendigen Rechte!',
     ],
     'footer' => [
+        'accessibility' => 'Barrierefreiheitserklärung',
         'legal_notice' => 'Impressum',
         'privacy_policy' => 'Datenschutzerklärung',
     ],

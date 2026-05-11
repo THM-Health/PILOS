@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\User;
 use App\Services\LocaleService;
-use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
@@ -37,8 +38,10 @@ class LocalesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Config::set('ldap.enabled', true);
-        Config::set('ldap.mapping', json_decode($this->ldapMapping));
+        config([
+            'ldap.enabled' => true,
+            'ldap.mapping' => json_decode($this->ldapMapping),
+        ]);
         $this->withoutMix();
 
         config([

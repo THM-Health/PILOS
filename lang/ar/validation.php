@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => 'يجب قبول :attribute.',
     'accepted_if' => 'يجب قبول :attribute عندما يكون :other هو :value.',
@@ -130,7 +132,7 @@ return [
         'room_auto_delete_never_used_period' => 'المدة حتى حذف الغرف التي لم تُستخدم أبدًا',
         'room_file_terms_of_use' => 'شروط استخدام تنزيل الملفات',
         'room_limit' => 'حد الغرف',
-        'room_token_expiration' => 'مدة صلاحية روابط الغرف المخصصة',
+        'room_personalized_link_expiration' => 'مدة صلاحية روابط الغرف المخصصة',
         'room_type' => 'نوع الغرفة',
         'search' => 'البحث',
         'second' => 'الثانية',

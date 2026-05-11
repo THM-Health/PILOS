@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Enums\LinkButtonStyle;
@@ -13,10 +15,10 @@ use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
-use Artisan;
-use DB;
 use Illuminate\Console\Command;
-use Schema;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UpgradeDatabaseCommand extends Command
 {
@@ -175,16 +177,16 @@ class UpgradeDatabaseCommand extends Command
             $roomSettings->limit = (int) $oldSettings['room_limit'];
         }
         if (isset($oldSettings['room_token_expiration'])) {
-            $roomSettings->token_expiration = TimePeriod::tryFrom($oldSettings['room_token_expiration']) ?: TimePeriod::THREE_MONTHS;
+            $roomSettings->personalized_link_expiration = TimePeriod::tryFrom((int) $oldSettings['room_token_expiration']) ?: TimePeriod::THREE_MONTHS;
         }
         if (isset($oldSettings['room_auto_delete.inactive_period'])) {
-            $roomSettings->auto_delete_inactive_period = TimePeriod::tryFrom($oldSettings['room_auto_delete.inactive_period']) ?: TimePeriod::UNLIMITED;
+            $roomSettings->auto_delete_inactive_period = TimePeriod::tryFrom((int) $oldSettings['room_auto_delete.inactive_period']) ?: TimePeriod::UNLIMITED;
         }
         if (isset($oldSettings['room_auto_delete.never_used_period'])) {
-            $roomSettings->auto_delete_never_used_period = TimePeriod::tryFrom($oldSettings['room_auto_delete.never_used_period']) ?: TimePeriod::UNLIMITED;
+            $roomSettings->auto_delete_never_used_period = TimePeriod::tryFrom((int) $oldSettings['room_auto_delete.never_used_period']) ?: TimePeriod::UNLIMITED;
         }
         if (isset($oldSettings['room_auto_delete.deadline_period'])) {
-            $roomSettings->auto_delete_deadline_period = TimePeriod::tryFrom($oldSettings['room_auto_delete.deadline_period']) ?: TimePeriod::TWO_WEEKS;
+            $roomSettings->auto_delete_deadline_period = TimePeriod::tryFrom((int) $oldSettings['room_auto_delete.deadline_period']) ?: TimePeriod::TWO_WEEKS;
         }
         $roomSettings->save();
 
@@ -199,16 +201,16 @@ class UpgradeDatabaseCommand extends Command
             $recordingSettings->server_usage_enabled = $oldSettings['statistics.servers.enabled'] == '1';
         }
         if (isset($oldSettings['statistics.servers.retention_period'])) {
-            $recordingSettings->server_usage_retention_period = TimePeriod::tryFrom($oldSettings['statistics.servers.retention_period']) ?: TimePeriod::ONE_MONTH;
+            $recordingSettings->server_usage_retention_period = TimePeriod::tryFrom((int) $oldSettings['statistics.servers.retention_period']) ?: TimePeriod::ONE_MONTH;
         }
         if (isset($oldSettings['statistics.meetings.enabled'])) {
             $recordingSettings->meeting_usage_enabled = $oldSettings['statistics.meetings.enabled'] == '1';
         }
         if (isset($oldSettings['statistics.meetings.retention_period'])) {
-            $recordingSettings->meeting_usage_retention_period = TimePeriod::tryFrom($oldSettings['statistics.meetings.retention_period']) ?: TimePeriod::ONE_MONTH;
+            $recordingSettings->meeting_usage_retention_period = TimePeriod::tryFrom((int) $oldSettings['statistics.meetings.retention_period']) ?: TimePeriod::ONE_MONTH;
         }
         if (isset($oldSettings['attendance.retention_period'])) {
-            $recordingSettings->attendance_retention_period = TimePeriod::tryFrom($oldSettings['attendance.retention_period']) ?: TimePeriod::TWO_WEEKS;
+            $recordingSettings->attendance_retention_period = TimePeriod::tryFrom((int) $oldSettings['attendance.retention_period']) ?: TimePeriod::TWO_WEEKS;
         }
         $recordingSettings->save();
 

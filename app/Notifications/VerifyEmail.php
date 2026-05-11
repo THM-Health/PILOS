@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use App\Services\EmailVerification\NewVerifyEmailToken;
@@ -7,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Arr;
 
 class VerifyEmail extends Notification implements ShouldQueue
 {
@@ -35,7 +38,7 @@ class VerifyEmail extends Notification implements ShouldQueue
 
     public function getActionUrl()
     {
-        return url('/verify_email?').\Arr::query([
+        return url('/verify_email?').Arr::query([
             'token' => $this->token->getPlainTextToken(),
             'email' => $this->token->getVerifyEmail()->email,
         ]);

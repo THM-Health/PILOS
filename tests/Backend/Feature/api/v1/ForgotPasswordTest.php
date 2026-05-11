@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Models\User;
 use App\Notifications\PasswordReset;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,7 +63,7 @@ class ForgotPasswordTest extends TestCase
         $this->userSettings->password_change_allowed = true;
         $this->userSettings->save();
         $this->actingAs($user)->postJson(route('api.v1.password.email'))
-            ->assertStatus(420);
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
 
         Auth::logout();
         $this->postJson(route('api.v1.password.email'))

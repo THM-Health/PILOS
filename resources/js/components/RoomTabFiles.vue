@@ -256,16 +256,12 @@
                 >
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"
-                    :file-id="item.id"
-                    :token="props.token"
-                    :access-code="props.accessCode"
+                    :file-url="item.url"
+                    :room-auth-token="props.roomAuthToken"
                     :disabled="isBusy"
                     :require-terms-of-use-acceptance="
                       !downloadAgreement && requireAgreement
                     "
-                    @not-found="loadData()"
-                    @invalid-code="emit('invalidCode')"
-                    @invalid-token="emit('invalidToken')"
                   />
                   <RoomTabFilesEditButton
                     v-if="userPermissions.can('manageSettings', props.room)"
@@ -299,36 +295,49 @@
 </template>
 <script setup>
 import env from "../env.js";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
 import { usePaginator } from "../composables/usePaginator.js";
 import { useI18n } from "vue-i18n";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 import { useSettingsStore } from "../stores/settings.js";
+import { useToast } from "../composables/useToast.js";
+import { EVENT_FORBIDDEN } from "../constants/events.js";
+import EventBus from "../services/EventBus.js";
+import {
+  HTTP_FORBIDDEN,
+  HTTP_FILE_NOT_FOUND,
+  HTTP_GUESTS_NOT_ALLOWED,
+  HTTP_GUESTS_ONLY,
+  HTTP_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+  HTTP_NOT_FOUND,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   room: {
     type: Object,
     required: true,
   },
-  accessCode: {
-    type: String,
-    default: null,
-  },
-  token: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
 });
 
-const emit = defineEmits(["invalidCode", "invalidToken"]);
+const emit = defineEmits([
+  "invalidRoomAuthToken",
+  "requireCode",
+  "guestsNotAllowed",
+]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 const { t } = useI18n();
 const settingsStore = useSettingsStore();
+const toast = useToast();
 
 const files = ref([]);
 const defaultFile = ref(null);
@@ -385,10 +394,9 @@ function loadData(page = null) {
     },
   };
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+  if (props.roomAuthToken) {
+    config.params.room_auth_token = props.roomAuthToken.id;
+    config.params.room_auth_token_type = props.roomAuthToken.type;
   }
 
   api
@@ -405,28 +413,20 @@ function loadData(page = null) {
     })
     .catch((error) => {
       if (error.response) {
-        // Access code invalid
+        // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
+          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
         ) {
-          return emit("invalidCode");
-        }
-
-        // Room token is invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
-        ) {
-          return emit("invalidToken");
+          return emit("invalidRoomAuthToken");
         }
 
         // Forbidden, require access code
         if (
           error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "require_code"
+          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
         ) {
-          return emit("invalidCode");
+          return emit("requireCode");
         }
       }
       api.error(error, { redirectOnUnauthenticated: false });
@@ -442,8 +442,49 @@ function onPage(event) {
   loadData(event.page + 1);
 }
 
+/**
+ * Handle file error messages
+ */
+function handleFileErrorMessages(event) {
+  // Check origin
+  if (event.origin !== settingsStore.getSetting("general.base_url")) return;
+  if (event.data?.type === null || event.data?.type === undefined) return;
+  if (
+    event.data.type === HTTP_FILE_NOT_FOUND ||
+    event.data.type === HTTP_NOT_FOUND
+  ) {
+    // File not found
+    toast.error(t("rooms.flash.file_gone"));
+    loadData();
+  } else if (event.data.type === HTTP_ROOM_INVALID_AUTH_TOKEN) {
+    // Room auth token is invalid
+    emit("invalidRoomAuthToken");
+  } else if (event.data.type === HTTP_ROOM_REQUIRE_CODE) {
+    // Forbidden, require access code
+    emit("requireCode");
+  } else if (event.data.type === HTTP_FORBIDDEN) {
+    // Forbidden, not allowed to view file
+    toast.error(t("rooms.flash.file_forbidden"));
+    EventBus.emit(EVENT_FORBIDDEN);
+    // Reload file to reflect changes to file visibility (e.g. download no longer allowed)
+    // This can result in multiple reloads in some cases, but ensures the file list stays up to date
+    loadData();
+  } else if (event.data.type === HTTP_GUESTS_NOT_ALLOWED) {
+    // Guests are not allowed
+    emit("guestsNotAllowed");
+  } else if (event.data.type === HTTP_GUESTS_ONLY) {
+    api.handleGuestsOnly();
+  }
+}
+
 onMounted(() => {
   loadData();
+  // Listen for messages from file viewer window
+  window.addEventListener("message", handleFileErrorMessages);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("message", handleFileErrorMessages);
 });
 
 onRoomHasChanged(

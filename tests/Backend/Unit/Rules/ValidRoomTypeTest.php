@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Rules;
 
 use App\Models\Role;
@@ -8,6 +10,7 @@ use App\Models\User;
 use App\Rules\ValidRoomType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Validator;
 use Tests\Backend\TestCase;
 
 class ValidRoomTypeTest extends TestCase
@@ -31,18 +34,17 @@ class ValidRoomTypeTest extends TestCase
         $roomTypeC = RoomType::factory()->create();
         $roomTypeC->roles()->sync([$roleA->id]);
 
-        $validRoomType = new ValidRoomType($user);
-
-        $this->assertFalse($validRoomType->passes('', null));
-        $this->assertFalse($validRoomType->passes('', 1337));
-        $this->assertFalse($validRoomType->passes('', $roomTypeA->id));
-        $this->assertTrue($validRoomType->passes('', $roomTypeB->id));
-        $this->assertTrue($validRoomType->passes('', $roomTypeC->id));
+        $this->assertFalse(Validator::make(['room_type' => null], ['room_type' => new ValidRoomType($user)])->passes());
+        $this->assertFalse(Validator::make(['room_type' => 1337], ['room_type' => new ValidRoomType($user)])->passes());
+        $this->assertFalse(Validator::make(['room_type' => $roomTypeA->id], ['room_type' => new ValidRoomType($user)])->passes());
+        $this->assertTrue(Validator::make(['room_type' => $roomTypeB->id], ['room_type' => new ValidRoomType($user)])->passes());
+        $this->assertTrue(Validator::make(['room_type' => $roomTypeC->id], ['room_type' => new ValidRoomType($user)])->passes());
     }
 
     public function test_message()
     {
         $user = User::factory()->create();
-        $this->assertEquals(__('validation.custom.invalid_room_type'), (new ValidRoomType($user))->message());
+        $message = Validator::make(['room_type' => null], ['room_type' => new ValidRoomType($user)])->errors()->first('room_type');
+        $this->assertEquals(__('validation.custom.invalid_room_type'), $message);
     }
 }

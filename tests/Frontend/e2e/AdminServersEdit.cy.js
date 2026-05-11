@@ -12,6 +12,7 @@ describe("Admin servers edit", function () {
         "servers.view",
         "servers.update",
         "servers.create",
+        "servers.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -48,42 +49,48 @@ describe("Admin servers edit", function () {
   });
 
   it("edit server", function () {
-    const serverRequest = interceptIndefinitely(
-      "GET",
-      "api/v1/servers/1",
-      { fixture: "server.json" },
-      "serverRequest",
-    );
+    cy.fixture("server.json").then((server) => {
+      server.data.status = -1;
 
-    cy.visit("/admin/servers/1/edit");
+      const serverRequest = interceptIndefinitely(
+        "GET",
+        "api/v1/servers/1",
+        { statusCode: 200, body: server },
+        "serverRequest",
+      );
 
-    cy.contains("admin.title");
+      cy.visit("/admin/servers/1/edit");
 
-    // Check loading
-    cy.get('[data-test="servers-cancel-edit-button"]').should("not.exist");
-    cy.get('[data-test="servers-edit-button"]').should("not.exist");
-    cy.get('[data-test="servers-delete-button"]').should("not.exist");
-    cy.get('[data-test="servers-save-button"]').should("be.disabled");
+      cy.contains("admin.title");
 
-    cy.get('[data-test="overlay"]')
-      .should("be.visible")
-      .then(() => {
-        serverRequest.sendResponse();
-      });
+      // Check loading
+      cy.get('[data-test="servers-cancel-edit-button"]').should("not.exist");
+      cy.get('[data-test="servers-edit-button"]').should("not.exist");
+      cy.get('[data-test="servers-delete-button"]').should("not.exist");
+      cy.get('[data-test="servers-save-button"]').should("be.disabled");
+
+      cy.get('[data-test="overlay"]')
+        .should("be.visible")
+        .then(() => {
+          serverRequest.sendResponse();
+        });
+    });
 
     cy.wait("@serverRequest");
 
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
 
-    // Check that buttons are still hidden (missing permissions)
+    // Check buttons
     cy.get('[data-test="servers-cancel-edit-button"]')
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/servers/1");
     cy.get('[data-test="servers-edit-button"]').should("not.exist");
-    cy.get('[data-test="servers-delete-button"]').should("not.exist");
+    cy.get('[data-test="servers-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
     cy.get('[data-test="servers-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")
@@ -92,10 +99,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 01"}',
       );
 
     // Change server settings
@@ -110,10 +117,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 01"}',
       );
 
     cy.get('[data-test="description-field"]')
@@ -188,7 +195,7 @@ describe("Admin servers edit", function () {
       .and("include.text", "admin.servers.status")
       .within(() => {
         cy.get('[data-test="status-dropdown"]')
-          .should("have.text", "admin.servers.enabled")
+          .should("have.text", "admin.servers.disabled")
           .within(() => {
             cy.get(".p-select-label").should(
               "not.have.attr",
@@ -215,13 +222,13 @@ describe("Admin servers edit", function () {
           .eq(2)
           .should("have.text", "admin.servers.disabled");
 
-        cy.get('[data-test="status-dropdown-option"]').eq(2).click();
+        cy.get('[data-test="status-dropdown-option"]').eq(0).click();
       });
 
     cy.get('[data-test="status-dropdown-items"]').should("not.exist");
     cy.get('[data-test="status-dropdown"]').should(
       "have.text",
-      "admin.servers.disabled",
+      "admin.servers.enabled",
     );
 
     cy.get('[data-test="health-status-field"]')
@@ -256,7 +263,6 @@ describe("Admin servers edit", function () {
       server.data.base_url = "https://localhost/bigbluebutton2";
       server.data.secret = "Secret123456789";
       server.data.strength = 6;
-      server.data.status = -1;
 
       const saveChangesRequest = interceptIndefinitely(
         "PUT",
@@ -297,6 +303,15 @@ describe("Admin servers edit", function () {
       });
 
       cy.get("#healthStatus").and("be.disabled");
+
+      cy.get('button[data-test="servers-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
+      cy.get('[data-test="servers-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
       cy.get('[data-test="servers-test-connection-button"]').should(
         "be.disabled",
       );
@@ -321,11 +336,15 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.view_{"name":"Server 02"}',
+        'admin.breadcrumbs.servers.view_{"name":"Server 02"}',
       );
+
+    // Check that delete button is now hidden because server is enabled and
+    // therefore cannot be deleted
+    cy.get('[data-test="servers-delete-button"]').should("not.exist");
   });
 
   it("save changes errors", function () {
@@ -334,10 +353,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 01"}',
       );
 
     // Check with 422 error
@@ -510,10 +529,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.edit_{"name":"Server 03"}',
+        'admin.breadcrumbs.servers.edit_{"name":"Server 03"}',
       );
 
     // Check that correct data is shown
@@ -608,10 +627,10 @@ describe("Admin servers edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.view_{"name":"Server 03"}',
+        'admin.breadcrumbs.servers.view_{"name":"Server 03"}',
       );
 
     // Reload
@@ -622,7 +641,9 @@ describe("Admin servers edit", function () {
     cy.intercept("PUT", "api/v1/servers/1", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "server",
+        ids: [1],
       },
     }).as("saveChangesRequest");
 
@@ -637,8 +658,8 @@ describe("Admin servers edit", function () {
     cy.wait("@serversRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.server"}',
+      'app.flash.model_not_found.details_{"ids":"1"}',
     ]);
 
     // Reload
@@ -659,7 +680,7 @@ describe("Admin servers edit", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("check button visibility with delete permission", function () {
+  it("check button visibility without delete permission", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
@@ -667,7 +688,6 @@ describe("Admin servers edit", function () {
         "servers.view",
         "servers.update",
         "servers.create",
-        "servers.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -750,9 +770,7 @@ describe("Admin servers edit", function () {
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/servers/1");
     cy.get('[data-test="servers-edit-button"]').should("not.exist");
-    cy.get('[data-test="servers-delete-button"]')
-      .should("be.visible")
-      .and("not.be.disabled");
+    cy.get('[data-test="servers-delete-button"]').should("not.exist");
     cy.get('[data-test="servers-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")
@@ -809,7 +827,9 @@ describe("Admin servers edit", function () {
     cy.intercept("GET", "api/v1/servers/1", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "server",
+        ids: [1],
       },
     }).as("serverRequest");
 
@@ -824,8 +844,8 @@ describe("Admin servers edit", function () {
     cy.wait("@serversRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.server"}',
+      'app.flash.model_not_found.details_{"ids":"1"}',
     ]);
 
     // Reload page with 401 error

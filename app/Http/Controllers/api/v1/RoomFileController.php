@@ -1,26 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreRoomFile;
-use App\Http\Requests\UpdateRoomFile;
-use App\Http\Resources\PrivateRoomFile;
+use App\Http\Requests\RoomFileIndexRequest;
+use App\Http\Requests\StoreRoomFileRequest;
+use App\Http\Requests\UpdateRoomFileRequest;
+use App\Http\Resources\PrivateRoomFileResource;
+use App\Http\Resources\RoomFileResource;
 use App\Models\Room;
 use App\Models\RoomFile;
-use App\Services\RoomFileService;
 use App\Settings\GeneralSettings;
-use Illuminate\Http\Request;
-use Log;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class RoomFileController extends Controller
 {
     /**
      * Return a list of all files of a room and id of the default file
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
-    public function index(Room $room, Request $request)
+    public function index(Room $room, RoomFileIndexRequest $request)
     {
         $additional = [];
 
@@ -47,7 +52,7 @@ class RoomFileController extends Controller
         $resource = $room->files()->orderBy($sortBy, $sortOrder)->orderBy('room_files.id');
 
         // If user is not allowed to view all files, only query files that are downloadable
-        if (! \Gate::allows('viewAllFiles', $room)) {
+        if (! Gate::allows('viewAllFiles', $room)) {
             $resource = $resource->where('download', true);
         }
 
@@ -55,7 +60,7 @@ class RoomFileController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search filter
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->where('filename', 'like', '%'.$request->query('query').'%');
         }
 
@@ -65,21 +70,21 @@ class RoomFileController extends Controller
         }
 
         // If user is allowed to view all files, return PrivateRoomFile resource to show additional information
-        if (\Gate::allows('viewAllFiles', $room)) {
+        if (Gate::allows('viewAllFiles', $room)) {
             $additional['default'] = $room->files()->where('default', true)->first();
 
-            return PrivateRoomFile::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
+            return PrivateRoomFileResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
         }
 
-        return \App\Http\Resources\RoomFile::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
+        return RoomFileResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     /**
      * Store a new file in the storage
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function store(Room $room, StoreRoomFile $request)
+    public function store(Room $room, StoreRoomFileRequest $request)
     {
         $name = $request->file('file')->getClientOriginalName();
         $path = $request->file('file')->store($room->id);
@@ -96,25 +101,11 @@ class RoomFileController extends Controller
     }
 
     /**
-     * Get url to download the specified file
-     *
-     * @param  UpdateRoomFile  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show(Room $room, RoomFile $file)
-    {
-        $roomFileService = new RoomFileService($file);
-        $url = $roomFileService->setTimeLimit(1)->url();
-
-        return response()->json(['url' => $url]);
-    }
-
-    /**
      * Update the specified file attributes
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
+    public function update(UpdateRoomFileRequest $request, Room $room, RoomFile $file)
     {
         if ($request->has('use_in_meeting')) {
             $file->use_in_meeting = $request->use_in_meeting;
@@ -147,7 +138,7 @@ class RoomFileController extends Controller
     /**
      * Remove the specified file from storage and database.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @throws \Exception
      */

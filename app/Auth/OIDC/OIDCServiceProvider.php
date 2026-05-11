@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\OIDC;
 
 use Illuminate\Contracts\Support\DeferrableProvider;

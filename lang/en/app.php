@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Actions',
     'back' => 'Back',
@@ -41,8 +43,9 @@ return [
         'membership_disabled' => 'Membership failed! Membership for this room is currently not available.',
         'no_room_access' => 'You does not have the necessary permissions, to edit this room.',
         'no_server_available' => 'Currently there are no servers available.',
-        'not_member_of_room' => 'The person is not a member of this room (anymore).',
+        'not_member_of_room' => 'The user is not a member of this room.',
         'not_running' => 'Joining the room has failed as it is currently closed.',
+        'personalized_link_not_found' => 'The personalized room link could not be found.',
         'record_agreement_missing' => 'Consent to the recording is required.',
         'role_delete_linked_users' => 'The role is linked to users and therefore it can\'t be deleted!',
         'role_update_permission_lost' => 'The changes of the role would lead to a lost of permissions to view and update roles for you!',
@@ -57,14 +60,16 @@ return [
         'streaming_error' => 'Error connecting to the streaming server. Please try again later.',
         'streaming_meeting_not_running' => 'The meeting is not running.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming is not enabled for the current meeting.',
-        'token_not_found' => 'The personalized room link could not be found.',
     ],
     'filter_no_results' => 'No results found',
     'firstname' => 'Firstname',
     'flash' => [
         'client_error' => 'An unknown error occurred in the application!',
         'guests_only' => 'The request can only be made by guests!',
-        'popup_blocked' => 'Your browser has blocked opening a new window. Please allow pop-ups to open for this page and try again.',
+        'model_not_found' => [
+            'title' => 'The :model was not found!',
+            'details' => 'ID: :ids',
+        ],
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
             'error_code' => 'Error code: :statusCode',
@@ -76,6 +81,7 @@ return [
         'unauthorized' => 'You don\'t have the necessary rights to access the called route!',
     ],
     'footer' => [
+        'accessibility' => 'Accessibility statement',
         'legal_notice' => 'Legal notice',
         'privacy_policy' => 'Privacy policy',
     ],
@@ -95,10 +101,21 @@ return [
         'fr' => 'French',
     ],
     'model' => [
+        'meeting' => 'Meeting',
+        'recording' => 'Recording',
+        'recording_format' => 'Recording format',
+        'role' => 'Role',
         'roles' => 'role',
+        'room' => 'Room',
+        'room_file' => 'File',
+        'room_personalized_link' => 'Personalized room link',
+        'room_type' => 'Room type',
         'room_types' => 'room type',
+        'server' => 'Server',
+        'server_pool' => 'Server pool',
         'server_pools' => 'server pool',
         'servers' => 'server',
+        'user' => 'User',
         'users' => 'user',
     ],
     'model_name' => 'Name',

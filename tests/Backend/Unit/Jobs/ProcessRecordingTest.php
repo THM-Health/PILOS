@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Jobs;
 
 use App\Enums\RecordingAccess;
@@ -8,9 +10,9 @@ use App\Jobs\ProcessRecording;
 use App\Models\Meeting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Log;
-use Queue;
-use Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -168,7 +170,7 @@ class ProcessRecordingTest extends TestCase
         $formats = $recording->formats;
         $this->assertCount(1, $formats);
 
-        // Check if formats are disabled and have the correct URL (from the metadata.xml)
+        // Check if formats are enabled and have the correct URL (from the metadata.xml)
         $notes = $formats->firstWhere('format', 'notes');
         $this->assertFalse($notes->disabled);
         $this->assertEquals('/notes/'.self::INTERNAL_MEETING_ID.'/notes.pdf', $notes->url);
@@ -213,7 +215,7 @@ class ProcessRecordingTest extends TestCase
         $formats = $recording->formats;
         $this->assertCount(5, $formats);
 
-        // Check if formats are disabled and have the correct URL (from the metadata.xml)
+        // Check if formats are enabled and have the correct URL (from the metadata.xml)
         $notes = $formats->firstWhere('format', 'notes');
         $this->assertFalse($notes->disabled);
         $this->assertEquals('/notes/'.self::INTERNAL_MEETING_ID.'/notes.pdf', $notes->url);
@@ -225,5 +227,51 @@ class ProcessRecordingTest extends TestCase
         $this->assertFileExists(Storage::disk('recordings')->path(self::INTERNAL_MEETING_ID.'/screenshare/screenshare-0.webm'));
         $this->assertFileExists(Storage::disk('recordings')->path(self::INTERNAL_MEETING_ID.'/presentation/video/webcams.webm'));
         $this->assertFileExists(Storage::disk('recordings')->path(self::INTERNAL_MEETING_ID.'/video/video-0.m4v'));
+    }
+
+    public function test_public()
+    {
+        Storage::fake('recordings');
+        Storage::fake('recordings-spool');
+
+        $meeting = Meeting::factory()->create([
+            'id' => self::EXTERNAL_MEETING_ID,
+        ]);
+
+        Log::swap(new LogFake);
+        Queue::fake();
+
+        Storage::disk('recordings-spool')->makeDirectory('public');
+        copy(base_path('tests/Backend/Fixtures/Recordings/notes.tar'), Storage::disk('recordings-spool')->path('public/notes.tar'));
+
+        $this->assertCount(1, Storage::disk('recordings-spool')->files('public'));
+
+        $job = (new ProcessRecording('public/notes.tar', RecordingAccess::EVERYONE))->withFakeQueueInteractions();
+
+        $job->handle();
+
+        $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
+        $this->assertCount(0, Storage::disk('recordings-spool')->files('failed'));
+
+        // Check if recording was added
+        $this->assertCount(1, $meeting->room->recordings);
+        $recording = $meeting->room->recordings->first();
+        $this->assertEquals(self::TITLE, $recording->description);
+        $this->assertEquals(RecordingAccess::EVERYONE, $recording->access);
+        $this->assertEquals(self::START, $recording->start->getTimestamp());
+        $this->assertEquals(self::END, $recording->end->getTimestamp());
+
+        // Check if formats were added to the database
+        $formats = $recording->formats;
+        $this->assertCount(1, $formats);
+
+        // Check if formats are enabled and have the correct URL (from the metadata.xml)
+        $notes = $formats->firstWhere('format', 'notes');
+        $this->assertFalse($notes->disabled);
+        $this->assertEquals('/notes/'.self::INTERNAL_MEETING_ID.'/notes.pdf', $notes->url);
+
+        // Check if files are correctly extracted (list incomplete)
+        $this->assertTrue(Storage::disk('recordings')->directoryExists(self::INTERNAL_MEETING_ID));
+        $this->assertFileExists(Storage::disk('recordings')->path(self::INTERNAL_MEETING_ID.'/notes/notes.pdf'));
     }
 }

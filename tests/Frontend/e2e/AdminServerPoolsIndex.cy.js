@@ -78,7 +78,7 @@ describe("Admin server pools index", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index");
+      .should("include.text", "admin.breadcrumbs.server_pools.index");
 
     // Check that table headers are displayed correctly
     cy.get('[data-test="server-pool-header-cell"]').should("have.length", 2);
@@ -946,6 +946,98 @@ describe("Admin server pools index", function () {
           .should("be.visible")
           .and("have.attr", "href", "/admin/server_pools/2/edit");
         cy.get('[data-test="server-pools-delete-button"]').should("be.visible");
+      });
+  });
+
+  it("check loading state during reload", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "servers.viewAny",
+        "serverPools.viewAny",
+        "serverPools.view",
+        "serverPools.update",
+        "serverPools.create",
+        "serverPools.delete",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/server_pools");
+    cy.wait("@serverPoolsRequest");
+
+    const serverPoolsReloadRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/serverPools*",
+      {
+        fixture: "serverPools.json",
+      },
+      "serverPoolsReloadRequest",
+    );
+
+    // Trigger reload by triggering search
+    cy.get('[data-test="server-pool-search"] > button').click();
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check loading state during reload
+    cy.get('[data-test="server-pool-search"]').within(() => {
+      cy.get("input").should("be.visible").and("be.disabled");
+      cy.get("button").should("be.visible").and("be.disabled");
+    });
+
+    cy.get('[data-test="server-pools-add-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
+    cy.get('[data-test="server-pool-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('button[data-test="server-pools-view-button"]')
+          .should("be.visible")
+          .and("be.disabled");
+        cy.get('button[data-test="server-pools-edit-button"]')
+          .should("be.visible")
+          .and("be.disabled");
+        cy.get('[data-test="server-pools-delete-button"]')
+          .should("be.visible")
+          .and("be.disabled")
+          .then(() => {
+            serverPoolsReloadRequest.sendResponse();
+          });
+      });
+
+    cy.wait("@serverPoolsReloadRequest");
+
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check loading state after reload
+    cy.get('[data-test="server-pool-search"]').within(() => {
+      cy.get("input").should("be.visible").and("not.be.disabled");
+      cy.get("button").should("be.visible").and("not.be.disabled");
+    });
+
+    cy.get('[data-test="server-pools-add-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+
+    cy.get('[data-test="server-pool-item"]')
+      .eq(0)
+      .within(() => {
+        cy.get('a[data-test="server-pools-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/server_pools/1");
+        cy.get('a[data-test="server-pools-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/server_pools/1/edit");
+        cy.get('[data-test="server-pools-delete-button"]')
+          .should("be.visible")
+          .and("not.be.disabled");
       });
   });
 });

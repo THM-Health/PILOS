@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => 'The :attribute must be accepted.',
     'accepted_if' => 'The :attribute must be accepted when :other is :value.',
@@ -75,6 +77,7 @@ return [
         'firstname' => 'Firstname',
         'formats' => 'Formats',
         'gender' => 'Gender',
+        'general_accessibility_statement_url' => 'URL to the accessibility statement',
         'general_default_timezone' => 'Default timezone',
         'general_help_url' => 'URL to the help page',
         'general_legal_notice_url' => 'URL to the legal notice',
@@ -129,8 +132,9 @@ return [
         'room_auto_delete_inactive_period' => 'Period until inactive rooms are deleted',
         'room_auto_delete_never_used_period' => 'Period until never used rooms are deleted',
         'room_file_terms_of_use' => 'Terms of use for file download',
+        'room_hide_owner_from_guests' => 'Hide room owner from unauthenticated users',
         'room_limit' => 'Room limit',
-        'room_token_expiration' => 'Expiration time for personalized room links',
+        'room_personalized_link_expiration' => 'Expiration time for personalized room links',
         'room_type' => 'Room type',
         'search' => 'Search',
         'second' => 'Second',

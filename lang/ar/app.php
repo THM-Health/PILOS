@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'إجراءات',
     'back' => 'رجوع',
@@ -43,6 +45,7 @@ return [
         'no_server_available' => 'لا توجد خوادم متاحة حاليًا.',
         'not_member_of_room' => 'هذا الشخص ليس عضوًا في هذه الغرفة (بعد الآن).',
         'not_running' => 'فشل الانضمام إلى الغرفة لأنها مغلقة حاليًا.',
+        'personalized_link_not_found' => 'تعذّر العثور على رابط الغرفة المخصص.',
         'record_agreement_missing' => 'يجب الموافقة على التسجيل.',
         'role_delete_linked_users' => 'الدور مرتبط بمستخدمين ولا يمكن حذفه!',
         'role_update_permission_lost' => 'التغييرات على هذا الدور ستؤدي إلى فقدان صلاحياتك في عرض وتعديل الأدوار!',
@@ -57,14 +60,12 @@ return [
         'streaming_error' => 'خطأ في الاتصال بخادم البث. يرجى المحاولة لاحقًا.',
         'streaming_meeting_not_running' => 'الاجتماع غير قيد التشغيل.',
         'streaming_not_enabled_for_current_meeting_error' => 'البث غير مفعّل للاجتماع الحالي.',
-        'token_not_found' => 'تعذّر العثور على رابط الغرفة المخصص.',
     ],
     'filter_no_results' => 'لم يتم العثور على نتائج',
     'firstname' => 'الاسم الأول',
     'flash' => [
         'client_error' => 'حدث خطأ غير معروف في التطبيق!',
         'guests_only' => 'هذا الطلب متاح للضيوف فقط!',
-        'popup_blocked' => 'قام المتصفح بحظر فتح نافذة جديدة. يرجى السماح بالنوافذ المنبثقة لهذه الصفحة والمحاولة مرة أخرى.',
         'server_error' => [
             'empty_message' => 'حدث خطأ في الخادم أثناء معالجة الطلب!',
             'error_code' => 'رمز الخطأ: :statusCode',
@@ -76,6 +77,7 @@ return [
         'unauthorized' => 'لا تملك الصلاحيات اللازمة للوصول إلى هذا المسار!',
     ],
     'footer' => [
+        'accessibility' => 'بيان إمكانية الوصول',
         'legal_notice' => 'الإشعار القانوني',
         'privacy_policy' => 'سياسة الخصوصية',
     ],

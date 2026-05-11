@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Zugangscode',
     'auth_throttled' => 'Zu viele Versuche. Bitte versuchen Sie es in :try_again Sekunden erneut.',
@@ -141,14 +143,15 @@ return [
     'first_and_lastname' => 'Vor- und Nachname',
     'flash' => [
         'access_code_invalid' => 'Der Zugangscode ist ungültig.',
+        'auth_token_invalid' => 'Das Authentifizierungstoken ist ungültig.',
         'file_forbidden' => 'Der Zugriff auf die Datei wurde verweigert.',
         'file_gone' => 'Die Datei wurde in der Zwischenzeit gelöscht.',
         'no_new_room' => 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
+        'personalized_link_gone' => 'Der personalisierte Raumlink wurde in der Zwischenzeit gelöscht.',
+        'personalized_link_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
         'recording_forbidden' => 'Der Zugriff auf die Aufzeichnung wurde verweigert.',
         'recording_gone' => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden' => 'Der Raum kann von Ihnen nicht gestartet werden.',
-        'token_gone' => 'Der personalisierte Raumlink wurde in der Zwischenzeit gelöscht.',
-        'token_invalid' => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
         'filter' => 'Filter',
@@ -175,7 +178,7 @@ return [
             'select_sorting' => 'Sortierung',
         ],
     ],
-    'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
+    'invalid_personalized_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation' => [
         'code' => 'Zugangscode',
         'copied_code' => 'Zugangscode in Zwischenablage kopiert',
@@ -277,13 +280,33 @@ return [
         'enabled' => 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
     ],
     'only_used_by_authenticated_users' => 'Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.',
+    'personalized_links' => [
+        'add' => 'Personalisierten Raumlink hinzufügen',
+        'confirm_delete' => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',
+        'copy' => 'Personalisierten Raumlink in Zwischenablage kopieren',
+        'delete' => 'Personalisierten Raumlink löschen',
+        'edit' => 'Personalisierten Raumlink bearbeiten',
+        'expires' => 'Verfallsdatum',
+        'expires_at' => 'Läuft ab am :date',
+        'filter' => [
+            'all' => 'Alle',
+            'moderator_role' => 'Nur Moderatoren',
+            'participant_role' => 'Nur Teilnehmer',
+        ],
+        'last_usage' => 'Zuletzt verwendet',
+        'last_used_at' => 'Zuletzt verwendet am :date',
+        'last_used_never' => 'Noch nie verwendet',
+        'nodata' => 'Keine personalisierten Raumlinks vorhanden!',
+        'room_link_copied' => 'Der persionalisierte Raumlink für :firstname :lastname wurde in Ihre Zwischenablage kopiert.',
+        'title' => 'Personalisierte Raumlinks',
+    ],
     'placeholder_name' => 'Max Mustermann',
     'recording_accept' => 'Ich bin mit der Aufzeichnung einverstanden.',
     'recording_attendance_accept' => 'Ich bin mit der Protokollierung der Anwesenheit einverstanden.',
     'recording_attendance_info' => 'Die Anwesenheit in diesem Raum wird protokolliert.',
     'recording_hint' => 'Wenn Sie nicht möchten, dass Ihre Stimme aufgezeichnet wird, stellen Sie sicher, dass Ihr Mikrofon stumm geschaltet ist. Verwenden Sie stattdessen den Chat, um sich zu beteiligen.',
     'recording_info' => 'Dieser Raum wird möglicherweise aufgezeichnet.',
-    'recording_video_accept' => 'Mein Videobild darf aufgezeichnet werden.',
+    'recording_video_accept' => '(Optional) Mein Videobild darf aufgezeichnet werden.',
     'recordings' => [
         'access' => 'Zugriffsrecht',
         'access_types' => [
@@ -467,25 +490,5 @@ return [
     'streaming_accept' => 'Ich bin mit dem Streaming einverstanden.',
     'streaming_hint' => 'Wenn Sie nicht möchten, dass Ihre Stimme oder Ihr Video gestreamt wird, stellen Sie sicher, dass Ihr Mikrofon stumm und Ihre Kamera ausgeschaltet ist.',
     'streaming_info' => 'Dieser Raum wird möglicherweise gestreamt.',
-    'tokens' => [
-        'add' => 'Personalisierten Raumlink hinzufügen',
-        'confirm_delete' => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',
-        'copy' => 'Personalisierten Raumlink in Zwischenablage kopieren',
-        'delete' => 'Personalisierten Raumlink löschen',
-        'edit' => 'Personalisierten Raumlink bearbeiten',
-        'expires' => 'Verfallsdatum',
-        'expires_at' => 'Läuft ab am :date',
-        'filter' => [
-            'all' => 'Alle',
-            'moderator_role' => 'Nur Moderatoren',
-            'participant_role' => 'Nur Teilnehmer',
-        ],
-        'last_usage' => 'Zuletzt verwendet',
-        'last_used_at' => 'Zuletzt verwendet am :date',
-        'last_used_never' => 'Noch nie verwendet',
-        'nodata' => 'Keine personalisierten Raumlinks vorhanden!',
-        'room_link_copied' => 'Der persionalisierte Raumlink für :firstname :lastname wurde in Ihre Zwischenablage kopiert.',
-        'title' => 'Personalisierte Raumlinks',
-    ],
     'try_again' => 'Erneut versuchen',
 ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Heavily inspired by https://github.com/jumbojett/OpenID-Connect-PHP/pull/488
  *
@@ -35,7 +37,9 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Support\Uri;
 use InvalidArgumentException;
@@ -70,7 +74,6 @@ use Jose\Component\Signature\JWSTokenSupport;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use JsonException;
-use Session;
 use Symfony\Component\Clock\Clock;
 
 class OpenIDConnectClient
@@ -178,21 +181,19 @@ class OpenIDConnectClient
      * Authenticate the user with the OpenID Connect provider using the authorization code
      *
      * @param  Request  $request  The request object containing the authorization code and state
-     * @return bool Returns true if authentication is successful, false if the code is missing
      *
-     * @throws OpenIDConnectClientException
-     * @throws OpenIDConnectNetworkException
      * @throws ConnectionException
-     * @throws OpenIDConnectClientException
-     * @throws OpenIDConnectNetworkException
-     * @throws RequestException
-     * @throws OpenIDConnectValidationException
-     * @throws OpenIDConnectProviderException
-     * @throws JsonException
      * @throws InvalidClaimException
+     * @throws JsonException
      * @throws MissingMandatoryClaimException
+     * @throws OpenIDConnectClientException
+     * @throws OpenIDConnectCodeMissingException
+     * @throws OpenIDConnectNetworkException
+     * @throws OpenIDConnectProviderException
+     * @throws OpenIDConnectValidationException
+     * @throws RequestException
      */
-    public function authenticate(Request $request): bool
+    public function authenticate(Request $request): void
     {
         // Do a preemptive check to see if the provider has thrown an error from a previous redirect
         if ($request->has('error')) {
@@ -203,7 +204,7 @@ class OpenIDConnectClient
         // If the authorization code is missing, the authentication has failed
         // User might have called the authentication URL directly
         if (! $request->has('code')) {
-            return false;
+            throw new OpenIDConnectCodeMissingException("Response is missing 'code' parameter.");
         }
 
         // Check OpenID Connect session
@@ -261,7 +262,7 @@ class OpenIDConnectClient
         $this->verifiedClaims = $claims;
 
         // Success!
-        return true;
+
     }
 
     /**
@@ -431,8 +432,8 @@ class OpenIDConnectClient
             $well_known_config_url = Str::finish($this->providerUrl, '/').'.well-known/openid-configuration';
 
             // If we have the response cached, use it
-            if (\Cache::has($well_known_config_url)) {
-                $this->wellKnown = \Cache::get($well_known_config_url);
+            if (Cache::has($well_known_config_url)) {
+                $this->wellKnown = Cache::get($well_known_config_url);
             } else {
                 // Try to fetch the well known configuration
                 try {
@@ -451,7 +452,7 @@ class OpenIDConnectClient
                     $this->wellKnown = $response->object();
 
                     if ($maxAge > 0) {
-                        \Cache::put($well_known_config_url, $this->wellKnown, $maxAge);
+                        Cache::put($well_known_config_url, $this->wellKnown, $maxAge);
                     }
                 } else {
                     throw new OpenIDConnectClientException('The well-known configuration is not a valid JSON object.');
@@ -477,8 +478,8 @@ class OpenIDConnectClient
         $jwksUri = $this->getWellKnownConfigValue('jwks_uri');
 
         // If we have the response cached, use it
-        if (\Cache::has($jwksUri)) {
-            $jwkSetResponse = \Cache::get($jwksUri);
+        if (Cache::has($jwksUri)) {
+            $jwkSetResponse = Cache::get($jwksUri);
         } else {
             // Try to fetch the jwks
             try {
@@ -493,7 +494,7 @@ class OpenIDConnectClient
                 }
             }
             if ($maxAge > 0) {
-                \Cache::put($jwksUri, $response->body(), $maxAge);
+                Cache::put($jwksUri, $response->body(), $maxAge);
             }
 
             $jwkSetResponse = $response->body();

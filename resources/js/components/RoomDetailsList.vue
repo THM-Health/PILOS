@@ -4,7 +4,7 @@
     :class="{ 'md:flex-row': props.inline }"
   >
     <!--owner name-->
-    <div class="flex">
+    <div v-if="props.room.owner" class="flex">
       <div class="room-details__icon">
         <i class="fa-solid fa-user" />
       </div>

@@ -115,6 +115,40 @@
             </div>
             <div
               class="grid grid-cols-12 gap-4"
+              data-test="accessibility-statement-url-field"
+            >
+              <label
+                for="accessibility-statement-url"
+                class="col-span-12 md:col-span-4 md:mb-0"
+                >{{
+                  $t("admin.settings.accessibility_statement_url.title")
+                }}</label
+              >
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <InputText
+                  id="accessibility-statement-url"
+                  v-model="settings.general_accessibility_statement_url"
+                  type="text"
+                  :invalid="
+                    formErrors.fieldInvalid(
+                      'general_accessibility_statement_url',
+                    )
+                  "
+                  :disabled="disabled"
+                  aria-describedby="accessibility-statement-url-help"
+                />
+                <small id="accessibility-statement-url-help">{{
+                  $t("admin.settings.accessibility_statement_url.description")
+                }}</small>
+                <FormError
+                  :errors="
+                    formErrors.fieldError('general_accessibility_statement_url')
+                  "
+                />
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-12 gap-4"
               data-test="pagination-page-size-field"
             >
               <label
@@ -807,40 +841,51 @@
             </fieldset>
             <div
               class="grid grid-cols-12 gap-4"
-              data-test="room-token-expiration-field"
+              data-test="room-personalized-link-expiration-field"
             >
               <label
-                id="room-token-expiration-label"
+                id="room-personalized-link-expiration-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
-                >{{ $t("admin.settings.room_token_expiration.title") }}</label
+                >{{
+                  $t("admin.settings.room_personalized_link_expiration.title")
+                }}</label
               >
               <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
-                  v-model="settings.room_token_expiration"
-                  data-test="room-token-expiration-dropdown"
+                  v-model="settings.room_personalized_link_expiration"
+                  data-test="room-personalized-link-expiration-dropdown"
                   :options="timePeriods"
                   option-label="text"
                   option-value="value"
-                  :invalid="formErrors.fieldInvalid('room_token_expiration')"
+                  :invalid="
+                    formErrors.fieldInvalid('room_personalized_link_expiration')
+                  "
                   :disabled="disabled"
-                  aria-labelledby="room-token-expiration-label"
+                  aria-labelledby="room-personalized-link-expiration-label"
                   :pt="{
                     input: {
-                      'aria-describedby': 'room-token-expiration-help',
+                      'aria-describedby':
+                        'room-personalized-link-expiration-help',
                     },
                     listContainer: {
-                      'data-test': 'room-token-expiration-dropdown-items',
+                      'data-test':
+                        'room-personalized-link-expiration-dropdown-items',
                     },
                     option: {
-                      'data-test': 'room-token-expiration-dropdown-option',
+                      'data-test':
+                        'room-personalized-link-expiration-dropdown-option',
                     },
                   }"
                 />
-                <small id="room-token-expiration-help">{{
-                  $t("admin.settings.room_token_expiration.description")
+                <small id="room-personalized-link-expiration-help">{{
+                  $t(
+                    "admin.settings.room_personalized_link_expiration.description",
+                  )
                 }}</small>
                 <FormError
-                  :errors="formErrors.fieldError('room_token_expiration')"
+                  :errors="
+                    formErrors.fieldError('room_personalized_link_expiration')
+                  "
                 />
               </div>
             </div>
@@ -1018,6 +1063,31 @@
                 />
               </div>
             </div>
+            <fieldset
+              class="grid grid-cols-12 gap-4"
+              data-test="room-hide-owner-field"
+            >
+              <legend class="col-span-12 md:col-span-4 md:mb-0">
+                {{ $t("admin.settings.room_hide_owner_from_guests") }}
+              </legend>
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <div class="flex items-center gap-2">
+                  <ToggleSwitch
+                    v-model="settings.room_hide_owner_from_guests"
+                    input-id="room-hide-owner"
+                    binary
+                    :disabled="disabled"
+                    :invalid="
+                      formErrors.fieldInvalid('room_hide_owner_from_guests')
+                    "
+                  />
+                  <label for="room-hide-owner">{{ $t("app.enable") }}</label>
+                </div>
+                <FormError
+                  :errors="formErrors.fieldError('room_hide_owner_from_guests')"
+                />
+              </div>
+            </fieldset>
           </AdminPanel>
 
           <AdminPanel :title="$t('app.users')">
@@ -1728,7 +1798,7 @@ function toastLifetimeModeChanged(value) {
 }
 
 /**
- * Options for time period selects (room token expiration, room auto delete, etc.)
+ * Options for time period selects (room personalized link expiration, room auto delete, etc.)
  */
 const timePeriods = computed(() => {
   return [

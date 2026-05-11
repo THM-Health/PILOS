@@ -29,7 +29,7 @@ describe("Admin settings with edit permission", function () {
           .and("be.disabled");
       });
 
-    cy.get('[ data-test="help-url-field"]')
+    cy.get('[data-test="help-url-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.help_url.title")
       .and("include.text", "admin.settings.help_url.description")
@@ -51,6 +51,19 @@ describe("Admin settings with edit permission", function () {
       .and("include.text", "admin.settings.privacy_policy_url.description")
       .within(() => {
         cy.get("#privacy-policy-url")
+          .should("have.value", "")
+          .and("be.disabled");
+      });
+
+    cy.get('[data-test="accessibility-statement-url-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.accessibility_statement_url.title")
+      .and(
+        "include.text",
+        "admin.settings.accessibility_statement_url.description",
+      )
+      .within(() => {
+        cy.get("#accessibility-statement-url")
           .should("have.value", "")
           .and("be.disabled");
       });
@@ -406,10 +419,8 @@ describe("Admin settings with edit permission", function () {
             .should("be.visible")
             .and("have.attr", "href", "/rooms")
             .and("have.attr", "target", "_self")
-            .and("have.text", "Rooms");
-          cy.get('[data-test="banner-link-button"]')
-            .find("button")
-            .should("have.attr", "data-p-severity", "link")
+            .and("have.text", "Rooms")
+            .and("have.attr", "data-p-severity", "link")
             .and("have.class", "p-0 underline")
             .and("have.attr", "style")
             .and("include", "color: rgb(255, 255, 255)");
@@ -543,12 +554,18 @@ describe("Admin settings with edit permission", function () {
           });
       });
 
-    cy.get('[data-test="room-token-expiration-field"]')
+    cy.get('[data-test="room-personalized-link-expiration-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.room_token_expiration.title")
-      .and("include.text", "admin.settings.room_token_expiration.description")
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.title",
+      )
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.description",
+      )
       .within(() => {
-        cy.get('[data-test="room-token-expiration-dropdown"]')
+        cy.get('[data-test="room-personalized-link-expiration-dropdown"]')
           .should("have.text", "app.unlimited")
           .within(() => {
             cy.get(".p-select-label").should(
@@ -636,11 +653,19 @@ describe("Admin settings with edit permission", function () {
           .and("be.disabled");
       });
 
+    cy.get('[data-test="room-hide-owner-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.room_hide_owner_from_guests")
+      .within(() => {
+        cy.get("#room-hide-owner").should("not.be.checked").and("be.disabled");
+      });
+
     // Reload with different settings
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = 10;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
+      settings.data.room_hide_owner_from_guests = true;
 
       cy.intercept("GET", "api/v1/settings", {
         statusCode: 200,
@@ -679,6 +704,13 @@ describe("Admin settings with edit permission", function () {
               .should("be.checked")
               .and("be.disabled");
           });
+      });
+
+    cy.get('[data-test="room-hide-owner-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.room_hide_owner_from_guests")
+      .within(() => {
+        cy.get("#room-hide-owner").should("be.checked").and("be.disabled");
       });
   });
 

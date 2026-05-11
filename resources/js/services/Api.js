@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/auth";
 import { useRouter } from "vue-router";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
 import EventBus from "./EventBus.js";
+import { ROOM } from "../constants/modelNames.js";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
@@ -61,6 +62,13 @@ export class Api {
     ) {
       // 403 => unauthorized, show error messages as flash!
       this.handleForbidden(error, options);
+    } else if (statusCode === env.HTTP_NOT_FOUND) {
+      // 404 => not found, show error messages as flash!
+      if (message === "model_not_found") {
+        this.handleModelNotFound(error, options);
+      } else {
+        this.handleOtherServerError(error, options);
+      }
     } else if (statusCode === env.HTTP_GUESTS_ONLY) {
       // 420 => only for guests, redirect to home route
       this.handleGuestsOnly(error, options);
@@ -110,6 +118,34 @@ export class Api {
   handleForbidden() {
     EventBus.emit(EVENT_FORBIDDEN);
     this.toast.error(this.t("app.flash.unauthorized"));
+  }
+
+  handleModelNotFound(error, options) {
+    const data = error.response?.data;
+    const model = data?.model;
+    const ids = data?.ids;
+
+    if (model === ROOM && options.redirectOnRoomModelNotFound !== false) {
+      // Redirect to room index page if user is authenticated, otherwise show 404 page, because
+      // unauthenticated user is not able to visit the room index page
+      if (this.auth.isAuthenticated) {
+        this.router.push({ name: "rooms.index" });
+      } else {
+        this.router.push({ name: "404" });
+      }
+    }
+
+    // Show error message for model not found error with model name and ids if available
+    this.toast.error(
+      this.t("app.flash.model_not_found.title", {
+        model: this.t("app.model." + model),
+      }),
+      ids && ids.length > 0
+        ? this.t("app.flash.model_not_found.details", {
+            ids: `${ids.join(", ")}`,
+          })
+        : null,
+    );
   }
 
   handleGuestsOnly() {

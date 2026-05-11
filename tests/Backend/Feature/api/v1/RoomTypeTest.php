@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
-use App\Http\Resources\RoleCollection;
+use App\Http\Resources\RoleResourceCollection;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
@@ -173,7 +175,8 @@ class RoomTypeTest extends TestCase
                             'enabled' => true,
                         ],
                     ],
-                ],
+                ])
+            ->assertJsonFragment(
                 [
                     'id' => $roomTypePublicEnforced->id,
                     'name' => $roomTypePublicEnforced->name,
@@ -183,8 +186,7 @@ class RoomTypeTest extends TestCase
                             'enabled' => false,
                         ],
                     ],
-                ]
-            )
+                ])
             ->assertJsonCount(4, 'data');
 
         // Test logged in users (with filter own)
@@ -325,7 +327,14 @@ class RoomTypeTest extends TestCase
         // Test deleted
         $roomType->delete();
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.show', ['roomType' => $roomType->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_type',
+                'ids' => [
+                    $roomType->id,
+                ],
+            ]);
     }
 
     /**
@@ -407,7 +416,7 @@ class RoomTypeTest extends TestCase
                 'color' => $roomType->color,
                 'description' => $roomType->description,
                 'restrict' => true,
-                'roles' => new RoleCollection([$role1]),
+                'roles' => new RoleResourceCollection([$role1]),
                 'max_duration' => 90,
                 'max_participants' => 30,
                 'everyone_can_start_default' => false,
@@ -740,7 +749,7 @@ class RoomTypeTest extends TestCase
                 'name' => $roomType->name,
                 'color' => $roomType->color,
                 'restrict' => true,
-                'roles' => new RoleCollection([$role1]),
+                'roles' => new RoleResourceCollection([$role1]),
             ]);
 
         // Test with invalid data
@@ -895,7 +904,14 @@ class RoomTypeTest extends TestCase
         // Test deleted
         $roomType->delete();
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType' => $roomType->id]), $data)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_type',
+                'ids' => [
+                    $roomType->id,
+                ],
+            ]);
     }
 
     /**
@@ -925,7 +941,14 @@ class RoomTypeTest extends TestCase
 
         // Test delete again
         $this->actingAs($this->user)->deleteJson(route('api.v1.roomTypes.destroy', ['roomType' => $roomType->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_type',
+                'ids' => [
+                    $roomType->id,
+                ],
+            ]);
 
         $this->assertDatabaseMissing('room_types', ['id' => $roomType->id]);
 

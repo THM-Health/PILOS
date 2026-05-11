@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class BulkDestroyRequest extends FormRequest
 {
@@ -17,7 +20,7 @@ class BulkDestroyRequest extends FormRequest
                     if (! $this->room->members()->find($value) or $this->room->owner->is($user)) {
                         $fail(__('validation.custom.room.not_member', ['firstname' => $user->firstname, 'lastname' => $user->lastname]));
                     }
-                    if ($user->is(\Auth::user())) {
+                    if ($user->is(Auth::user())) {
                         $fail(__('validation.custom.room.self_delete'));
                     }
                 }],

@@ -50,10 +50,7 @@
 
         <div v-if="!isLoadingAction && !loadingError">
           <!-- Ask guests for their first and lastname -->
-          <div
-            v-if="!authStore.isAuthenticated && !token"
-            class="mb-4 flex flex-col gap-2"
-          >
+          <div v-if="requiresGuestName" class="mb-4 flex flex-col gap-2">
             <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
             <InputText
               id="guest-name"
@@ -182,6 +179,12 @@ import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import { useDark } from "@vueuse/core";
+import { ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK } from "../constants/roomAuthTokenTypes.js";
+import {
+  HTTP_GUESTS_NOT_ALLOWED,
+  HTTP_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   roomId: {
@@ -198,19 +201,15 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  token: {
-    type: String,
-    default: null,
-  },
-  accessCode: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
 });
 
 const emit = defineEmits([
-  "invalidCode",
-  "invalidToken",
+  "invalidRoomAuthToken",
+  "requireCode",
   "guestsNotAllowed",
   "changed",
 ]);
@@ -263,16 +262,17 @@ function loadStartJoinRequirements() {
     isLoadingAction.value = true;
     loadingError.value = false;
 
-    // Build url, add accessCode and token if needed
+    // Build url, add room auth token if needed
     const url = "rooms/" + props.roomId + "/" + action.value;
     const config = {
       method: "options",
     };
 
-    if (props.token) {
-      config.headers = { Token: props.token };
-    } else if (props.accessCode != null) {
-      config.headers = { "Access-Code": props.accessCode };
+    if (props.roomAuthToken) {
+      config.params = {
+        room_auth_token: props.roomAuthToken.id,
+        room_auth_token_type: props.roomAuthToken.type,
+      };
     }
 
     api
@@ -302,8 +302,15 @@ function loadStartJoinRequirements() {
   });
 }
 
+const requiresGuestName = computed(() => {
+  return (
+    !authStore.isAuthenticated &&
+    props.roomAuthToken?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
+  );
+});
+
 const autoJoin = computed(() => {
-  if (!authStore.isAuthenticated && !props.token) {
+  if (requiresGuestName.value) {
     return false;
   }
 
@@ -359,7 +366,7 @@ function getJoinUrl() {
   const config = {
     method: "post",
     data: {
-      name: props.token ? null : name.value,
+      name: !requiresGuestName.value ? null : name.value,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
@@ -368,10 +375,11 @@ function getJoinUrl() {
     },
   };
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+  if (props.roomAuthToken) {
+    config.params = {
+      room_auth_token: props.roomAuthToken.id,
+      room_auth_token_type: props.roomAuthToken.type,
+    };
   }
 
   const url = "rooms/" + props.roomId + "/" + action.value;
@@ -434,32 +442,22 @@ function getJoinUrl() {
  * @return {boolean} true if error was handled, false otherwise
  */
 function handleError(error) {
-  // Access code invalid
-  if (
-    error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === "invalid_code"
-  ) {
-    emit("invalidCode");
-    modalVisible.value = false;
-    return true;
-  }
-
   // Access code is required
   if (
     error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "require_code"
+    error.response.data.message === HTTP_ROOM_REQUIRE_CODE
   ) {
-    emit("invalidCode");
+    emit("requireCode");
     modalVisible.value = false;
     return true;
   }
 
-  // Room token is invalid
+  // Room auth token is invalid
   if (
     error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === "invalid_token"
+    error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
   ) {
-    emit("invalidToken");
+    emit("invalidRoomAuthToken");
     modalVisible.value = false;
     return true;
   }
@@ -467,7 +465,7 @@ function handleError(error) {
   // Forbidden, guests not allowed
   if (
     error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "guests_not_allowed"
+    error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
   ) {
     emit("guestsNotAllowed");
     modalVisible.value = false;

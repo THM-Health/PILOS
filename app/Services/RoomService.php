@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Enums\CustomStatusCodes;
@@ -9,7 +11,7 @@ use App\Models\Room;
 use App\Prometheus\Counter;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class RoomService
 {

@@ -8,11 +8,11 @@ describe("Rooms view personalized links", function () {
   });
 
   it("load personalized links", function () {
-    const roomTokensRequest = interceptIndefinitely(
+    const roomPersonalizedLinksRequest = interceptIndefinitely(
       "GET",
-      "/api/v1/rooms/abc-def-123/tokens*",
-      { fixture: "roomTokens.json" },
-      "roomTokensRequest",
+      "/api/v1/rooms/abc-def-123/personalizedLinks*",
+      { fixture: "roomPersonalizedLinks.json" },
+      "roomPersonalizedLinksRequest",
     );
 
     cy.visit("/rooms/abc-def-123");
@@ -48,10 +48,10 @@ describe("Rooms view personalized links", function () {
     cy.get('[data-test="room-personalized-links-reload-button"]')
       .should("be.disabled")
       .then(() => {
-        roomTokensRequest.sendResponse();
+        roomPersonalizedLinksRequest.sendResponse();
       });
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="overlay"]').should("not.exist");
 
@@ -100,19 +100,19 @@ describe("Rooms view personalized links", function () {
       .should("include.text", "John Doe")
       .should(
         "include.text",
-        'rooms.tokens.last_used_at_{"date":"09/17/2021, 16:36"}',
+        'rooms.personalized_links.last_used_at_{"date":"09/17/2021, 16:36"}',
       )
       .should(
         "include.text",
-        'rooms.tokens.expires_at_{"date":"10/17/2021, 14:21"}',
+        'rooms.personalized_links.expires_at_{"date":"10/17/2021, 14:21"}',
       )
       .should("include.text", "rooms.roles.participant");
 
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(1)
       .should("include.text", "Max Doe")
-      .should("not.include.text", "rooms.tokens.last_used_at")
-      .should("not.include.text", "rooms.tokens.expires_at")
+      .should("not.include.text", "rooms.personalized_links.last_used_at")
+      .should("not.include.text", "rooms.personalized_links.expires_at")
       .should("include.text", "rooms.roles.moderator");
 
     cy.get('[data-test="room-personalized-link-item"]')
@@ -120,26 +120,26 @@ describe("Rooms view personalized links", function () {
       .should("include.text", "Tammy Law")
       .should(
         "include.text",
-        'rooms.tokens.last_used_at_{"date":"10/03/2021, 19:24"}',
+        'rooms.personalized_links.last_used_at_{"date":"10/03/2021, 19:24"}',
       )
       .should(
         "include.text",
-        'rooms.tokens.expires_at_{"date":"10/20/2021, 11:17"}',
+        'rooms.personalized_links.expires_at_{"date":"10/20/2021, 11:17"}',
       )
       .should("include.text", "rooms.roles.moderator");
   });
 
   it("load personalized links errors", function () {
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
       statusCode: 500,
       body: {
         message: "Test",
       },
-    }).as("roomTokensRequest");
+    }).as("roomPersonalizedLinksRequest");
 
     cy.visit("/rooms/abc-def-123#tab=tokens");
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that overlay is shown
     cy.get('[data-test="overlay"]').should("be.visible");
@@ -184,23 +184,23 @@ describe("Rooms view personalized links", function () {
       "not.be.disabled",
     );
 
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     // Check if reload button exists and click it
     cy.get('[data-test="loading-retry-button"]')
       .should("include.text", "app.reload")
       .click();
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that overlay is hidden
     cy.get('[data-test="overlay"]').should("not.exist");
@@ -218,15 +218,15 @@ describe("Rooms view personalized links", function () {
     cy.get('[data-test="loading-retry-button"]').should("not.exist");
 
     // Switch to next page with general error
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
       statusCode: 500,
       body: {
         message: "Test",
       },
-    }).as("roomTokensRequest");
+    }).as("roomPersonalizedLinksRequest");
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that error message gets shown
     cy.checkToastMessage([
@@ -268,23 +268,23 @@ describe("Rooms view personalized links", function () {
       "not.be.disabled",
     );
 
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     // Check if reload button exists and click it
     cy.get('[data-test="loading-retry-button"]')
       .should("include.text", "app.reload")
       .click();
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -318,14 +318,14 @@ describe("Rooms view personalized links", function () {
     });
 
     // 401 error room that has no access code
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
       statusCode: 401,
-    }).as("roomTokensRequest");
+    }).as("roomPersonalizedLinksRequest");
 
     cy.interceptRoomFilesRequest();
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that room gets reloaded
     cy.wait("@roomRequest");
@@ -344,16 +344,16 @@ describe("Rooms view personalized links", function () {
       fixture: "room.json",
     }).as("roomRequest");
 
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.reload();
@@ -362,9 +362,9 @@ describe("Rooms view personalized links", function () {
 
     // 401 error but room has an access code
     // Switch to next page with 401 error
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
       statusCode: 401,
-    }).as("roomTokensRequest");
+    }).as("roomPersonalizedLinksRequest");
 
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;
@@ -378,7 +378,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that room gets reloaded
     cy.wait("@roomRequest");
@@ -395,16 +395,16 @@ describe("Rooms view personalized links", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       fixture: "room.json",
     }).as("roomRequest");
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.reload();
@@ -412,9 +412,9 @@ describe("Rooms view personalized links", function () {
     cy.get("#tab-tokens").click();
 
     // Switch to next page with 401 error
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
       statusCode: 401,
-    }).as("roomTokensRequest");
+    }).as("roomPersonalizedLinksRequest");
 
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       statusCode: 403,
@@ -425,7 +425,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that room gets reloaded
     cy.wait("@roomRequest");
@@ -439,16 +439,16 @@ describe("Rooms view personalized links", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123", {
       fixture: "room.json",
     }).as("roomRequest");
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.reload();
@@ -467,19 +467,19 @@ describe("Rooms view personalized links", function () {
     });
 
     // 403 error
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
       statusCode: 403,
       body: {
         message: "This action is unauthorized.",
       },
-    }).as("roomTokensRequest");
+    }).as("roomPersonalizedLinksRequest");
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that room gets reloaded
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that file tab is shown
     cy.wait("@roomFilesRequest");
@@ -490,82 +490,120 @@ describe("Rooms view personalized links", function () {
     // Check that error message is shown
     cy.checkToastMessage("app.flash.unauthorized");
 
-    // Check auth errors when loading tokens/personalized links
+    // Check auth errors when loading personalized links
     cy.checkRoomAuthErrorsLoadingTab(
       "GET",
-      "api/v1/rooms/abc-def-123/tokens*",
+      "api/v1/rooms/abc-def-123/personalizedLinks*",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept(
+      {
+        method: "GET",
+        url: "api/v1/rooms/abc-def-123/personalizedLinks*",
+      },
+      {
+        statusCode: 404,
+        body: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      },
+    ).as("roomPersonalizedLinksRequest");
+
+    cy.get("#tab-tokens").click();
+
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load personalized links page out of range", function () {
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.data[0].role = 3;
-      roomTokens.meta.last_page = 2;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
-      roomTokens.meta.total = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.data[0].role = 3;
+      roomPersonalizedLinks.meta.last_page = 2;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
+      roomPersonalizedLinks.meta.total = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Switch to next page but respond with no room personalized links on second page
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = [];
-      roomTokens.meta.current_page = 2;
-      roomTokens.meta.from = null;
-      roomTokens.meta.per_page = 2;
-      roomTokens.meta.to = null;
-      roomTokens.meta.total = 2;
-      roomTokens.meta.total_no_filter = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = [];
+      roomPersonalizedLinks.meta.current_page = 2;
+      roomPersonalizedLinks.meta.from = null;
+      roomPersonalizedLinks.meta.per_page = 2;
+      roomPersonalizedLinks.meta.to = null;
+      roomPersonalizedLinks.meta.total = 2;
+      roomPersonalizedLinks.meta.total_no_filter = 2;
 
-      const emptyroomTokensRequest = interceptIndefinitely(
+      const emptyroomPersonalizedLinksRequest = interceptIndefinitely(
         "GET",
-        "api/v1/rooms/abc-def-123/tokens*",
+        "api/v1/rooms/abc-def-123/personalizedLinks*",
         {
           statusCode: 200,
-          body: roomTokens,
+          body: roomPersonalizedLinks,
         },
-        "roomTokensRequest",
+        "roomPersonalizedLinksRequest",
       );
 
       cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-      cy.fixture("roomTokens.json").then((roomTokens) => {
-        roomTokens.data = roomTokens.data.slice(0, 2);
-        roomTokens.meta.per_page = 2;
-        roomTokens.meta.to = 2;
-        roomTokens.meta.total = 2;
-        roomTokens.meta.total_no_filter = 2;
+      cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+        roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 2);
+        roomPersonalizedLinks.meta.per_page = 2;
+        roomPersonalizedLinks.meta.to = 2;
+        roomPersonalizedLinks.meta.total = 2;
+        roomPersonalizedLinks.meta.total_no_filter = 2;
 
-        cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+        cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
           statusCode: 200,
-          body: roomTokens,
+          body: roomPersonalizedLinks,
         })
-          .as("roomTokensRequest")
+          .as("roomPersonalizedLinksRequest")
           .then(() => {
-            emptyroomTokensRequest.sendResponse();
+            emptyroomPersonalizedLinksRequest.sendResponse();
           });
       });
     });
 
     // Wait for first room request and check that page is still the same
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         page: "2",
       });
     });
 
     // Wait for second room request and check that page is reset
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         page: "1",
       });
@@ -595,7 +633,7 @@ describe("Rooms view personalized links", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that add button is hidden
     cy.get('[data-test="room-personalized-links-add-button"]').should(
@@ -665,7 +703,7 @@ describe("Rooms view personalized links", function () {
     cy.reload();
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that add button is shown
     cy.get('[data-test="room-personalized-links-add-button"]').should(
@@ -745,7 +783,7 @@ describe("Rooms view personalized links", function () {
     cy.reload();
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     // Check that add button is shown
     cy.get('[data-test="room-personalized-links-add-button"]').should(
@@ -799,7 +837,7 @@ describe("Rooms view personalized links", function () {
   it("search personalized links", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query.query).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
@@ -807,22 +845,22 @@ describe("Rooms view personalized links", function () {
     });
 
     // Check with no personalized links found for this search query
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = [];
-      roomTokens.meta.from = null;
-      roomTokens.meta.to = null;
-      roomTokens.meta.total = 0;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = [];
+      roomPersonalizedLinks.meta.from = null;
+      roomPersonalizedLinks.meta.to = null;
+      roomPersonalizedLinks.meta.total = 0;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="room-personalized-links-search"] > input').type("Test");
     cy.get('[data-test="room-personalized-links-search"] > button').click();
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         query: "Test",
         page: "1",
@@ -837,17 +875,17 @@ describe("Rooms view personalized links", function () {
     cy.contains("app.filter_no_results").should("be.visible");
 
     // Check with no personalized links in room
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = [];
-      roomTokens.meta.from = null;
-      roomTokens.meta.to = null;
-      roomTokens.meta.total = 0;
-      roomTokens.meta.total_no_filter = 0;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = [];
+      roomPersonalizedLinks.meta.from = null;
+      roomPersonalizedLinks.meta.to = null;
+      roomPersonalizedLinks.meta.total = 0;
+      roomPersonalizedLinks.meta.total_no_filter = 0;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="room-personalized-links-search"] > input').clear();
@@ -856,7 +894,7 @@ describe("Rooms view personalized links", function () {
       "{enter}",
     );
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         query: "Test2",
         page: "1",
@@ -868,27 +906,27 @@ describe("Rooms view personalized links", function () {
       "have.length",
       0,
     );
-    cy.contains("rooms.tokens.nodata").should("be.visible");
+    cy.contains("rooms.personalized_links.nodata").should("be.visible");
 
     // Check with 2 personalized links on 2 pages
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 2;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
-      roomTokens.meta.total = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 2;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
+      roomPersonalizedLinks.meta.total = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="room-personalized-links-search"] > input').clear();
     cy.get('[data-test="room-personalized-links-search"]').type("Doe");
     cy.get('[data-test="room-personalized-links-search"] > button').click();
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         query: "Doe",
         page: "1",
@@ -913,19 +951,19 @@ describe("Rooms view personalized links", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Switch to next page
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(1, 2);
-      roomTokens.meta.current_page = 2;
-      roomTokens.meta.last_page = 2;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.from = 2;
-      roomTokens.meta.to = 2;
-      roomTokens.meta.total = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(1, 2);
+      roomPersonalizedLinks.meta.current_page = 2;
+      roomPersonalizedLinks.meta.last_page = 2;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.from = 2;
+      roomPersonalizedLinks.meta.to = 2;
+      roomPersonalizedLinks.meta.total = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     // Click on button for next page (eq(1) needed because there are two paginator components
@@ -933,7 +971,7 @@ describe("Rooms view personalized links", function () {
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
     // Check if the search query stays the same after changing the page
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         query: "Doe",
         page: "2",
@@ -960,17 +998,17 @@ describe("Rooms view personalized links", function () {
       .should("include.text", "Max Doe");
 
     // Change search query and make sure that the page is reset
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 2;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
-      roomTokens.meta.total = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 2;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
+      roomPersonalizedLinks.meta.total = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="room-personalized-links-search"] > input').clear();
@@ -978,7 +1016,7 @@ describe("Rooms view personalized links", function () {
     cy.get('[data-test="room-personalized-links-search"] > button').click();
 
     // Check that personalized-links are loaded with the page reset to the first page
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         query: "Do",
         page: "1",
@@ -994,7 +1032,7 @@ describe("Rooms view personalized links", function () {
   it("filter personalized links", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query.filter).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
@@ -1005,7 +1043,7 @@ describe("Rooms view personalized links", function () {
 
     // Check that correct filter is displayed
     cy.get('[data-test="filter-dropdown"]')
-      .should("have.text", "rooms.tokens.filter.all")
+      .should("have.text", "rooms.personalized_links.filter.all")
       .click();
 
     cy.get('[data-test="filter-dropdown-items"]')
@@ -1017,35 +1055,41 @@ describe("Rooms view personalized links", function () {
 
         cy.get("[data-test=filter-dropdown-option]")
           .eq(0)
-          .should("have.text", "rooms.tokens.filter.all");
+          .should("have.text", "rooms.personalized_links.filter.all");
         cy.get("[data-test=filter-dropdown-option]")
           .eq(0)
           .should("have.attr", "aria-selected", "true");
         cy.get("[data-test=filter-dropdown-option]")
           .eq(1)
-          .should("have.text", "rooms.tokens.filter.participant_role");
+          .should(
+            "have.text",
+            "rooms.personalized_links.filter.participant_role",
+          );
         cy.get("[data-test=filter-dropdown-option]")
           .eq(2)
-          .should("have.text", "rooms.tokens.filter.moderator_role");
+          .should(
+            "have.text",
+            "rooms.personalized_links.filter.moderator_role",
+          );
       });
 
     // Change filter and respond with no personalized links found for this filter
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = [];
-      roomTokens.meta.from = null;
-      roomTokens.meta.to = null;
-      roomTokens.meta.total = 0;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = [];
+      roomPersonalizedLinks.meta.from = null;
+      roomPersonalizedLinks.meta.to = null;
+      roomPersonalizedLinks.meta.total = 0;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get("[data-test=filter-dropdown-option]").eq(1).click();
 
     // Check that correct filter is sent with request and check that correct filter is displayed
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         filter: "participant_role",
         page: "1",
@@ -1054,7 +1098,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.participant_role",
+      "rooms.personalized_links.filter.participant_role",
     );
 
     // Check if correct message is shown and no personalized links are displayed
@@ -1066,24 +1110,24 @@ describe("Rooms view personalized links", function () {
     cy.get("[data-test=filter-dropdown-items]").should("have.length", 0);
 
     // Change filter again and respond with no personalized links in room
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = [];
-      roomTokens.meta.from = null;
-      roomTokens.meta.to = null;
-      roomTokens.meta.total = 0;
-      roomTokens.meta.total_no_filter = 0;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = [];
+      roomPersonalizedLinks.meta.from = null;
+      roomPersonalizedLinks.meta.to = null;
+      roomPersonalizedLinks.meta.total = 0;
+      roomPersonalizedLinks.meta.total_no_filter = 0;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get("[data-test=filter-dropdown]").click();
     cy.get("[data-test=filter-dropdown-option]").eq(2).click();
 
     // Check that correct filter is sent with request and check that correct filter is displayed
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         filter: "moderator_role",
         page: "1",
@@ -1092,11 +1136,11 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.moderator_role",
+      "rooms.personalized_links.filter.moderator_role",
     );
 
     // Check if correct message is shown and no personalized links are displayed
-    cy.contains("rooms.tokens.nodata").should("be.visible");
+    cy.contains("rooms.personalized_links.nodata").should("be.visible");
     cy.get('[data-test="room-personalized-link-item"]').should(
       "have.length",
       0,
@@ -1104,24 +1148,24 @@ describe("Rooms view personalized links", function () {
     cy.get("[data-test=filter-dropdown-items]").should("have.length", 0);
 
     // Change filter again and respond with 2 personalized links on 2 pages
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 2;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
-      roomTokens.meta.total = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 2;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
+      roomPersonalizedLinks.meta.total = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get("[data-test=filter-dropdown]").click();
     cy.get("[data-test=filter-dropdown-option]").eq(1).click();
 
     // Check that correct filter is sent with request and check that correct filter is displayed
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         filter: "participant_role",
         page: "1",
@@ -1130,7 +1174,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.participant_role",
+      "rooms.personalized_links.filter.participant_role",
     );
 
     // Check that correct personalized link is shown
@@ -1151,20 +1195,20 @@ describe("Rooms view personalized links", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Switch to next page
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(1, 2);
-      roomTokens.data[0].role = 1;
-      roomTokens.meta.current_page = 2;
-      roomTokens.meta.last_page = 2;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.from = 2;
-      roomTokens.meta.to = 2;
-      roomTokens.meta.total = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(1, 2);
+      roomPersonalizedLinks.data[0].role = 1;
+      roomPersonalizedLinks.meta.current_page = 2;
+      roomPersonalizedLinks.meta.last_page = 2;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.from = 2;
+      roomPersonalizedLinks.meta.to = 2;
+      roomPersonalizedLinks.meta.total = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     // Click on button for next page (eq(1) needed because there are two paginator components
@@ -1172,7 +1216,7 @@ describe("Rooms view personalized links", function () {
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
     // Check that the filter stayed the same after changing the page
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         filter: "participant_role",
         page: "2",
@@ -1181,7 +1225,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.participant_role",
+      "rooms.personalized_links.filter.participant_role",
     );
 
     // Check that correct pagination is active
@@ -1199,24 +1243,24 @@ describe("Rooms view personalized links", function () {
       .should("include.text", "Max Doe");
 
     // Change filter again (reset filter) and make sure that the page is reset
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 2;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
-      roomTokens.meta.total = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 2;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
+      roomPersonalizedLinks.meta.total = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get("[data-test=filter-dropdown]").click();
     cy.get("[data-test=filter-dropdown-option]").eq(0).click();
 
     // Check that filter and page were reset
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query.filter).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: "1",
@@ -1230,14 +1274,14 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=filter-dropdown]").should(
       "have.text",
-      "rooms.tokens.filter.all",
+      "rooms.personalized_links.filter.all",
     );
   });
 
   it("sort personalized links", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         sort_by: "lastname",
         sort_direction: "asc",
@@ -1270,25 +1314,27 @@ describe("Rooms view personalized links", function () {
           .should("have.attr", "aria-selected", "true");
         cy.get("[data-test=sorting-type-dropdown-option]")
           .eq(2)
-          .should("have.text", "rooms.tokens.last_usage");
+          .should("have.text", "rooms.personalized_links.last_usage");
 
         // Change sorting type and respond with 3 personalized links on 3 different pages
-        cy.fixture("roomTokens.json").then((roomTokens) => {
-          roomTokens.data = roomTokens.data.slice(0, 1);
-          roomTokens.meta.last_page = 3;
-          roomTokens.meta.per_page = 1;
-          roomTokens.meta.to = 1;
+        cy.fixture("roomPersonalizedLinks.json").then(
+          (roomPersonalizedLinks) => {
+            roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+            roomPersonalizedLinks.meta.last_page = 3;
+            roomPersonalizedLinks.meta.per_page = 1;
+            roomPersonalizedLinks.meta.to = 1;
 
-          cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
-            statusCode: 200,
-            body: roomTokens,
-          }).as("roomTokensRequest");
-        });
+            cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
+              statusCode: 200,
+              body: roomPersonalizedLinks,
+            }).as("roomPersonalizedLinksRequest");
+          },
+        );
 
         cy.get("[data-test=sorting-type-dropdown-option]").eq(0).click();
       });
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         sort_by: "firstname",
         sort_direction: "asc",
@@ -1321,25 +1367,25 @@ describe("Rooms view personalized links", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Switch to next page
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(1, 2);
-      roomTokens.meta.current_page = 2;
-      roomTokens.meta.from = 2;
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(1, 2);
+      roomPersonalizedLinks.meta.current_page = 2;
+      roomPersonalizedLinks.meta.from = 2;
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     // Click on button for next page (eq(1) needed because there are two paginator components
     // (first one for small devices second one for larger devices))
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         sort_by: "firstname",
         sort_direction: "asc",
@@ -1367,21 +1413,21 @@ describe("Rooms view personalized links", function () {
       .should("include.text", "Max Doe");
 
     // Change sorting direction and make sure that the page is reset
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="sorting-type-inputgroup"]').find("button").click();
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         sort_by: "firstname",
         sort_direction: "desc",
@@ -1395,25 +1441,25 @@ describe("Rooms view personalized links", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Switch to next page
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(1, 2);
-      roomTokens.meta.current_page = 2;
-      roomTokens.meta.from = 2;
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(1, 2);
+      roomPersonalizedLinks.meta.current_page = 2;
+      roomPersonalizedLinks.meta.from = 2;
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     // Click on button for next page (eq(1) needed because there are two paginator components
     // (first one for small devices second one for larger devices))
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         sort_by: "firstname",
         sort_direction: "desc",
@@ -1427,23 +1473,23 @@ describe("Rooms view personalized links", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Change sorting type and make sure that the page is reset
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 1);
-      roomTokens.meta.last_page = 3;
-      roomTokens.meta.per_page = 1;
-      roomTokens.meta.to = 1;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 1);
+      roomPersonalizedLinks.meta.last_page = 3;
+      roomPersonalizedLinks.meta.per_page = 1;
+      roomPersonalizedLinks.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get("[data-test=sorting-type-dropdown]").click();
     cy.get("[data-test=sorting-type-dropdown-option]").eq(2).click();
 
     // Check that personalized links are loaded with the page reset to the first page
-    cy.wait("@roomTokensRequest").then((interception) => {
+    cy.wait("@roomPersonalizedLinksRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         sort_by: "last_usage",
         sort_direction: "desc",
@@ -1453,7 +1499,7 @@ describe("Rooms view personalized links", function () {
 
     cy.get("[data-test=sorting-type-dropdown]").should(
       "have.text",
-      "rooms.tokens.last_usage",
+      "rooms.personalized_links.last_usage",
     );
 
     // Check that correct pagination is active

@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'تعديل :name',
             'index' => 'الأدوار',
@@ -259,6 +261,10 @@ return [
         'view' => 'معلومات تفصيلية عن الخادم :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'إذا لم يتم تعيينه، لن يظهر رابط بيان إمكانية الوصول في التذييل.',
+            'title' => 'رابط بيان إمكانية الوصول',
+        ],
         'application' => 'التطبيق',
         'attendance' => [
             'retention_period_title' => 'فترة الاحتفاظ بسجلات الحضور بالأيام',
@@ -384,7 +390,7 @@ return [
             'description' => 'يحدد الحد الأقصى لعدد الغرف لكل مستخدم. يتم استبدال هذا الإعداد بحدود الأدوار المخصصة.',
             'title' => 'عدد الغرف لكل مستخدم',
         ],
-        'room_token_expiration' => [
+        'room_personalized_link_expiration' => [
             'description' => 'الفترة منذ آخر استخدام التي يتم بعدها حذف روابط الغرف المخصصة تلقائيًا.',
             'title' => 'مدة صلاحية روابط الغرف المخصصة',
         ],

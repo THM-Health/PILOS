@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateRoomTypeStreamingSettings;
-use App\Http\Resources\RoomTypeStreamingSettings;
+use App\Http\Requests\UpdateRoomTypeStreamingSettingsRequest;
+use App\Http\Resources\RoomTypeStreamingSettingsResource;
 use App\Models\RoomType;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,10 +14,10 @@ class RoomTypeStreamingController extends Controller
 {
     public function view(RoomType $roomType)
     {
-        return new RoomTypeStreamingSettings($roomType->streamingSettings);
+        return new RoomTypeStreamingSettingsResource($roomType->streamingSettings);
     }
 
-    public function update(RoomType $roomType, UpdateRoomTypeStreamingSettings $request)
+    public function update(RoomType $roomType, UpdateRoomTypeStreamingSettingsRequest $request)
     {
         $settings = $roomType->streamingSettings;
         $settings->enabled = $request->boolean('enabled');
@@ -32,6 +34,6 @@ class RoomTypeStreamingController extends Controller
 
         $settings->save();
 
-        return new RoomTypeStreamingSettings($roomType->streamingSettings);
+        return new RoomTypeStreamingSettingsResource($roomType->streamingSettings);
     }
 }

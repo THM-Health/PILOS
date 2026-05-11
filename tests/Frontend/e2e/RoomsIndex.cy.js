@@ -1934,7 +1934,7 @@ describe("Room Index", function () {
     });
   });
 
-  it("trigger favorites button errors", function () {
+  it("trigger favorites button errors (room card)", function () {
     cy.fixture("rooms.json").then((rooms) => {
       rooms.data = rooms.data.slice(0, 1);
       rooms.meta.last_page = 3;
@@ -1996,6 +1996,42 @@ describe("Room Index", function () {
     cy.url().should("include", "/login?redirect=/rooms");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Test add to favorites with 404 error
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("addFavoritesRequest");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .click();
+      });
+
+    cy.wait("@addFavoritesRequest");
+
+    // Check that rooms are reloaded and error message is shown
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        page: "1",
+      });
+    });
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
 
     // Visit rooms again with a room that is already a favorite
     cy.fixture("rooms.json").then((rooms) => {
@@ -2061,6 +2097,293 @@ describe("Room Index", function () {
     cy.url().should("include", "/login?redirect=/rooms");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Test remove from favorites with 404 error
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteFavoritesRequest");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .click();
+      });
+
+    cy.wait("@deleteFavoritesRequest");
+
+    // Check that rooms are reloaded and error message is shown
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        page: "1",
+      });
+    });
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+  });
+
+  it("trigger favorites button errors (room info dialog)", function () {
+    cy.fixture("rooms.json").then((rooms) => {
+      rooms.data = rooms.data.slice(0, 1);
+      rooms.meta.last_page = 3;
+      rooms.meta.per_page = 1;
+      rooms.meta.to = 1;
+
+      rooms.data[0].short_description = "Room short descriptions";
+
+      cy.intercept("GET", "api/v1/rooms?*", {
+        statusCode: 200,
+        body: rooms,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    // Test add to favorites with general error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 500,
+      body: {
+        message: "Test add favorite error",
+      },
+    }).as("addFavoritesRequest");
+
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-info-button"]').click();
+      });
+
+    cy.get('[data-test="room-info-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .click();
+
+        cy.wait("@addFavoritesRequest");
+        cy.wait("@roomRequest");
+      });
+
+    // Check that error message is shown and button stayed the same
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test add favorite error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Test add to favorites with unauthenticated error
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 401,
+    }).as("addFavoritesRequest");
+
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-info-button"]').click();
+      });
+
+    cy.get('[data-test="room-info-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .click();
+
+        cy.wait("@addFavoritesRequest");
+        cy.wait("@roomRequest");
+      });
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/rooms");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Test add to favorites with 404 error
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("addFavoritesRequest");
+
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-info-button"]').click();
+      });
+
+    cy.get('[data-test="room-info-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .click();
+      });
+
+    cy.wait("@addFavoritesRequest");
+
+    // Check that rooms are reloaded and error message is shown
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        page: "1",
+      });
+    });
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+
+    // Visit rooms again with a room that is already a favorite
+    cy.fixture("rooms.json").then((rooms) => {
+      rooms.data = rooms.data.slice(0, 1);
+      rooms.data[0].is_favorite = true;
+
+      rooms.meta.last_page = 3;
+      rooms.meta.per_page = 1;
+      rooms.meta.to = 1;
+
+      cy.intercept("GET", "api/v1/rooms?*", {
+        statusCode: 200,
+        body: rooms,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    // Test remove from favorites with general error
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 500,
+      body: {
+        message: "Test remove favorite error",
+      },
+    }).as("deleteFavoritesRequest");
+
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-info-button"]').click();
+      });
+
+    cy.get('[data-test="room-info-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .click();
+
+        cy.wait("@deleteFavoritesRequest");
+        cy.wait("@roomRequest");
+      });
+
+    // Check that error message is shown and button stayed the same
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test remove favorite error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Test remove from favorites with unauthenticated error
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 401,
+    }).as("addFavoritesRequest");
+
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-info-button"]').click();
+      });
+
+    cy.get('[data-test="room-info-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .click();
+
+        cy.wait("@addFavoritesRequest");
+        cy.wait("@roomRequest");
+      });
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/rooms");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Test remove from favorites with 404 error
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/favorites", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteFavoritesRequest");
+
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
+
+    cy.get('[data-test="room-card"]')
+      .eq(0)
+      .within(() => {
+        cy.get('[data-test="room-info-button"]').click();
+      });
+
+    cy.get('[data-test="room-info-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="room-favorites-button"]')
+          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .click();
+      });
+
+    cy.wait("@deleteFavoritesRequest");
+
+    // Check that rooms are reloaded and error message is shown
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        page: "1",
+      });
+    });
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("error loading rooms", function () {

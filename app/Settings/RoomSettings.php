@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Settings;
 
 use App\Enums\TimePeriod;
@@ -9,7 +11,7 @@ class RoomSettings extends Settings
 {
     public int $limit;
 
-    public TimePeriod $token_expiration;
+    public TimePeriod $personalized_link_expiration;
 
     public TimePeriod $auto_delete_inactive_period;
 
@@ -18,6 +20,8 @@ class RoomSettings extends Settings
     public TimePeriod $auto_delete_deadline_period;
 
     public ?string $file_terms_of_use;
+
+    public bool $hide_owner_from_guests;
 
     public static function group(): string
     {

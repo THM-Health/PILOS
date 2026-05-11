@@ -1,27 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
+use App\Enums\CustomErrorMessages;
+use App\Enums\CustomStatusCodes;
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
 use App\Models\RoomFile;
+use App\Models\RoomPersonalizedLink;
 use App\Models\Server;
 use App\Models\User;
-use App\Services\RoomFileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
+use Tests\Backend\Utils\SessionHelpers;
 
 class FileTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, SessionHelpers, WithFaker;
 
     protected $user;
 
@@ -124,12 +132,16 @@ class FileTest extends TestCase
         Storage::disk('local')->assertMissing($this->room->id.'/'.$this->file_toobig->hashName());
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => UploadedFile::fake()->create('virus.txt')])
             ->assertJsonValidationErrors('file');
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     /**
@@ -141,71 +153,118 @@ class FileTest extends TestCase
         $presentation = RoomFile::factory()->create(['filename' => 'presentation.pptx', 'created_at' => '2024-04-01 09:00:00', 'download' => false, 'default' => false, 'use_in_meeting' => true, 'room_id' => $this->room->id]);
         $notes = RoomFile::factory()->create(['filename' => 'notes.pdf', 'created_at' => '2024-04-01 10:00:00', 'download' => true, 'default' => false, 'use_in_meeting' => false, 'room_id' => $this->room->id]);
 
-        \Auth::logout();
+        Auth::logout();
         // Testing access for room owners only file list
 
         // Testing guests without guest access
         $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         $this->room->allow_guests = true;
         $this->room->save();
 
         // Testing guests with guest access
         $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
-            ->assertSuccessful();
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
 
         // Testing users
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
-            ->assertForbidden();
-        \Auth::logout();
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+        Auth::logout();
 
         $this->room->access_code = $this->createAccessCode();
         $this->room->save();
 
-        // Testing guests without access code
+        // Testing guests without room auth token
         $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_REQUIRE_CODE->value]);
 
-        // Testing users without access code
+        // Testing users without room auth token
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
-            ->assertForbidden();
-        \Auth::logout();
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_REQUIRE_CODE->value]);
+        Auth::logout();
 
-        // Testing guests with access code
-        $this->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
-            ->assertSuccessful()
-            ->assertJsonCount(2, 'data');
-        $this->flushHeaders();
+        // Create RoomAuthToken with token type code
+        $currentSession = $this->startNewSession();
 
-        // Testing users with access code
-        $this->actingAs($this->user)->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        // Testing guests with room auth token (access code)
+        $this
+            ->getJson(route('api.v1.rooms.files.get', [
+                'room' => $this->room,
+                'room_auth_token' => $roomAuthToken->id,
+                'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+            ]))
             ->assertSuccessful()
-            ->assertJsonCount(2, 'data');
-        $this->flushHeaders();
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+
+        // Testing users with room auth token (access code)
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', [
+            'room' => $this->room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
 
         // Testing co-owner member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]));
 
         // Testing owner
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]));
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
@@ -213,7 +272,11 @@ class FileTest extends TestCase
         $this->role->permissions()->attach($this->viewAllPermission);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]));
+
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Test default sorting / fallback
@@ -256,6 +319,12 @@ class FileTest extends TestCase
             ->assertJsonPath('data.0.filename', 'document.pdf')
             ->assertJsonPath('data.1.filename', 'notes.pdf');
 
+        // Test search; empty is ignored, no filtering
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'query' => '']))
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 3);
+
         // Test filter downloadable
         $this->actingAs($this->room->owner)
             ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'filter' => 'downloadable']))
@@ -287,78 +356,235 @@ class FileTest extends TestCase
             ->assertJsonCount(0, 'data')
             ->assertJsonPath('meta.total', 0)
             ->assertJsonPath('meta.total_no_filter', 3);
-
     }
 
     /**
-     * Test getting file download url and download of file that is shared with participants of a room without an access code
+     * Test file download of file that is shared with participants of a room without an access code
      */
     public function test_download_files_download()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
+
+        // Set file to downloadable
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
         $room_file->download = true;
         $room_file->save();
-        \Auth::logout();
 
-        $download_link = route('api.v1.rooms.files.show', ['room' => $room_file->room, 'file' => $room_file]);
+        // Retrieve download link
+        $download_link = $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
+            ->assertSuccessful()->json('data.0.url');
+
+        Auth::logout();
 
         // Access as guest, without guest access
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.only_used_by_authenticated_users'),
+            ]);
 
-        // Testing user
+        // Testing user (room has no access code => download allowed)
         $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
-        \Auth::logout();
+        Auth::logout();
 
         // Allow guest access
         $this->room->allow_guests = true;
         $this->room->save();
         $response = $this->get($download_link);
         $response->assertSuccessful();
-        $this->assertIsString($response->json('url'));
-
-        // Download file
-        $this->get($response->json('url'))
-            ->assertSuccessful();
     }
 
     /**
-     * Test get download url of file that is shared with participants of a room that requires an access code
+     * Test file download of file that is shared with participants of a room that requires an access code
      */
     public function test_download_files_download_with_access_code()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
         $this->room->access_code = $this->createAccessCode();
         $this->room->save();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
         $room_file->download = true;
         $room_file->save();
-        \Auth::logout();
 
-        $download_link = route('api.v1.rooms.files.show', ['room' => $room_file->room, 'file' => $room_file]);
+        // Retrieve download link
+        $download_link = $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
+            ->assertSuccessful()->json('data.0.url');
+
+        Auth::logout();
 
         // Access as guest, without guest access and without access code
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.only_used_by_authenticated_users'),
+            ]);
 
-        // Access as guest, without guest access and with access code
-        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
-            ->assertForbidden();
-        $this->flushHeaders();
+        // Create RoomAuthToken with token type code
+        $currentSession = $this->startNewSession();
 
-        // Testing user without access code
-        $this->actingAs($this->user)->get($download_link)
-            ->assertForbidden();
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
 
-        // Testing user with access code
-        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
+        $roomAuthToken->save();
+
+        // Access as guest, without guest access and with room auth token (type access code)
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.only_used_by_authenticated_users'),
+            ]);
+
+        // Testing user without room auth token (type access code)
+        $this->actingAs($this->user)
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link)
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_REQUIRE_CODE->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.require_access_code'),
+            ]);
+
+        // Testing user with room auth token (type access code)
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();
-        $this->flushHeaders();
+
+        // Testing user with room auth token (type access code) but no access code needed
+        $this->room->access_code = null;
+        $this->room->save();
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertSuccessful();
+
+        // Reset access code
+        $this->room->access_code = $this->createAccessCode();
+        $this->room->save();
+
+        // Create new session and room auth token (old ones are invalid now after access code changes)
+        $currentSession = $this->startNewSession($this->user);
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthToken->save();
+
+        // Testing user with invalid room auth token
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token=invalidToken&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.access_code_invalid'),
+            ]);
+
+        // Testing with valid room auth token but invalid token type
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type=invalidTokenType')
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -381,50 +607,326 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
-        \Auth::logout();
+        Auth::logout();
 
         // Allow guest access
         $this->room->allow_guests = true;
         $this->room->save();
 
-        // Access as guest, with guest access and without access code
+        // Access as guest, with guest access and without room auth token
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_REQUIRE_CODE->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.require_access_code'),
+            ]);
 
-        // Access as guest, with guest access and access code
-        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
+        // Access as guest, with guest access and room auth token
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
             ->assertSuccessful();
-        $this->flushHeaders();
+
+        // Download as guest with room auth token but no access code needed
+        $this->room->access_code = null;
+        $this->room->save();
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertSuccessful();
+
+        // Reset access code
+        $this->room->access_code = $this->createAccessCode();
+        $this->room->save();
+
+        // Create new session and room auth token (old ones are invalid now after access code changes)
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        // Download as guest with invalid token
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token=invalidToken&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.access_code_invalid'),
+            ]);
+
+        // Download as guest with valid token but invalid token type
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type=invalidTokenType')
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+    }
+
+    public function test_download_files_download_with_token_type_token()
+    {
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
+            ->assertSuccessful();
+        $this->room->access_code = $this->createAccessCode();
+        $this->room->save();
+        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
+        $room_file->download = true;
+        $room_file->save();
+
+        // Retrieve download link
+        $response = $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
+            ->assertSuccessful();
+
+        $download_link = $response->json('data.0.url');
+
+        Auth::logout();
+
+        // Create personalized link
+        $link = RoomPersonalizedLink::factory()->create(['room_id' => $this->room->id]);
+        $link->role = RoomUserRole::USER;
+        $link->save();
+
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $this->room->id,
+            'type' => RoomAuthTokenType::PERSONALIZED_LINK,
+            'room_personalized_link_id' => $link->id,
+        ]);
+
+        // Download as guest with token with room participant role
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
+            ->assertSuccessful();
+
+        // Increase personalized link role to moderator
+        $link->role = RoomUserRole::MODERATOR;
+        $link->save();
+
+        // Download as guest with personalized link with room moderator role
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
+            ->assertSuccessful();
+
+        // Download as guest with invalid token
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token=InvalidToken&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$this->faker->uuid().'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.personalized_link_invalid'),
+            ]);
+
+        // Download as guest with token but invalid token type
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::CODE->value)
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        $this
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type=invalidTokenType')
+            ->assertUnauthorized()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value,
+                'code' => 401,
+                'title' => 'Invalid token',
+                'message' => __('rooms.flash.auth_token_invalid'),
+            ]);
+
+        // Download as user with token
+        $this->actingAs($this->user)
+            ->withCookies([
+                session()->getName() => $currentSession->id,
+            ])
+            ->get($download_link.'&room_auth_token='.$roomAuthToken->id.'&room_auth_token_type='.RoomAuthTokenType::PERSONALIZED_LINK->value)
+            ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value)
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::GUESTS_ONLY->value,
+                'code' => CustomStatusCodes::GUESTS_ONLY->value,
+                'title' => 'Guests only',
+                'message' => __('app.flash.guests_only'),
+            ]);
     }
 
     /**
-     * Test get download url of file that is not with participants of a room
+     * Test get download url of file that is not downloadable with participants of a room
      */
     public function test_download_files_download_disabled()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
         $this->room->allow_guests = true;
         $this->room->save();
 
-        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
-        \Auth::logout();
+        // Retrieve download link
+        $response = $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
+            ->assertSuccessful();
 
-        $download_link = route('api.v1.rooms.files.show', ['room' => $room_file->room, 'file' => $room_file]);
+        $download_link = $response->json('data.0.url');
+        Auth::logout();
 
         // Access as guest
         $this->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::FORBIDDEN->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.flash.file_forbidden'),
+            ]);
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
         $this->actingAs($this->user)->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::FORBIDDEN->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.flash.file_forbidden'),
+            ]);
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->get($download_link)
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::FORBIDDEN->value,
+                'code' => 403,
+                'title' => 'Forbidden',
+                'message' => __('rooms.flash.file_forbidden'),
+            ]);
 
         // Testing owner
         $this->actingAs($this->room->owner)->get($download_link)
@@ -439,26 +941,29 @@ class FileTest extends TestCase
     }
 
     /**
-     * Check if get download url of a file from an other room is working, if parameters in the url are changed
+     * Check if download possible for a file from another room is working, if parameters in the url are changed
      */
     public function test_download_files_download_url_manipulation()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
         $other_room = Room::factory()->create();
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $other_room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
+
         // Testing for room without permission
-        $this->actingAs($this->room->owner)->get(route('api.v1.rooms.files.show', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertNotFound();
+        $this->actingAs($this->room->owner)->get($download_link)
+            ->assertSee('type: "not_found"', false);
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
-        $this->actingAs($this->room->owner)->get(route('api.v1.rooms.files.show', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertNotFound();
+        $this->actingAs($this->room->owner)->get($download_link)
+            ->assertNotFound()
+            ->assertSee('type: "not_found"', false);
     }
 
     /**
@@ -466,15 +971,52 @@ class FileTest extends TestCase
      */
     public function test_download_for_bbb()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
-        \Auth::logout();
+        Auth::logout();
 
-        $this->get((new RoomFileService($room_file))->url())
+        $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
+            'roomFile' => $room_file->id,
+            'filename' => $room_file->filename,
+        ]);
+
+        $this->get($downloadLink)
             ->assertSuccessful();
+    }
+
+    /**
+     * Testing download link for bbb for file that was deleted on the drive
+     */
+    public function test_download_for_bbb_for_file_deleted_from_drive()
+    {
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
+            ->assertSuccessful();
+        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
+
+        Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
+
+        // delete file on the drive
+        Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
+
+        Auth::logout();
+
+        $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
+            'roomFile' => $room_file->id,
+            'filename' => $room_file->filename,
+        ]);
+
+        $this->get($downloadLink)
+            ->assertNotFound()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
+                'code' => 404,
+                'title' => 'File not found',
+                'message' => __('rooms.flash.file_gone'),
+            ]);
     }
 
     /**
@@ -482,13 +1024,13 @@ class FileTest extends TestCase
      */
     public function test_files_delete()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
         Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
 
-        \Auth::logout();
+        Auth::logout();
 
         // Testing guest
         $this->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $this->room->id, 'file' => $room_file]))
@@ -523,7 +1065,7 @@ class FileTest extends TestCase
         $this->role->permissions()->detach($this->managePermission);
 
         // recreate file
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
@@ -533,7 +1075,7 @@ class FileTest extends TestCase
             ->assertSuccessful();
 
         // recreate file
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
@@ -543,34 +1085,17 @@ class FileTest extends TestCase
 
         // Testing delete again
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $this->room->id, 'file' => $room_file]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Check if file was deleted as well
         Storage::disk('local')->assertMissing($this->room->id.'/'.$this->file_valid->hashName());
-    }
-
-    /**
-     * Testing to get file download url for file that was deleted on the drive
-     */
-    public function test_get_download_link_for_file_delete_from_drive()
-    {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
-            ->assertSuccessful();
-        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
-
-        Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
-
-        // delete file on the drive
-        Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
-
-        $download_link = route('api.v1.rooms.files.show', ['room' => $room_file->room, 'file' => $room_file]);
-
-        // try to access deleted file
-        $this->get($download_link)
-            ->assertNotFound();
-
-        // Check if model was deleted as well
-        $this->assertDatabaseMissing('room_files', ['id' => $room_file->id]);
     }
 
     /**
@@ -578,24 +1103,27 @@ class FileTest extends TestCase
      */
     public function test_download_deleted_file_from_drive()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
         Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
 
-        // try to access deleted file
-        $response = $this->get(route('api.v1.rooms.files.show', ['room' => $room_file->room, 'file' => $room_file]))
-            ->assertSuccessful();
-
-        $this->assertIsString($response->json('url'));
-
         // delete file on the drive
         Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
 
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
+
         // Download file
-        $this->get($response->json('url'))
-            ->assertNotFound();
+        $this->get($download_link)
+            ->assertNotFound()
+            ->assertViewIs('new-tab-error')
+            ->assertViewHasAll([
+                'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
+                'code' => 404,
+                'title' => 'File not found',
+                'message' => __('rooms.flash.file_gone'),
+            ]);
 
         // Check if model was deleted as well
         $this->assertDatabaseMissing('room_files', ['id' => $room_file->id]);
@@ -606,7 +1134,7 @@ class FileTest extends TestCase
      */
     public function test_delete_file_url_manipulation()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
         $other_room = Room::factory()->create();
@@ -615,13 +1143,27 @@ class FileTest extends TestCase
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
     }
 
     /**
@@ -629,7 +1171,7 @@ class FileTest extends TestCase
      */
     public function test_update_file()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
@@ -639,7 +1181,7 @@ class FileTest extends TestCase
 
         Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
 
-        \Auth::logout();
+        Auth::logout();
 
         $route = route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file]);
         $params = [
@@ -699,13 +1241,27 @@ class FileTest extends TestCase
         $other_room = Room::factory()->create();
         // Testing for room without permission
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
 
         // Testing missing properties
         $params = [];
@@ -721,6 +1277,31 @@ class FileTest extends TestCase
 
         $this->actingAs($this->room->owner)->putJson($route, $params)
             ->assertJsonValidationErrors(['use_in_meeting', 'download', 'default']);
+
+        // Test deleted
+        $room_file->delete();
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file->id,
+                ],
+            ]);
+
+        // Test deleted room
+        $this->room->delete();
+
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [
+                    $this->room->id,
+                ],
+            ]);
     }
 
     /**
@@ -731,9 +1312,9 @@ class FileTest extends TestCase
         $file_1 = UploadedFile::fake()->create('document1.pdf', config('bigbluebutton.max_filesize') - 1, 'application/pdf');
         $file_2 = UploadedFile::fake()->create('document2.pdf', config('bigbluebutton.max_filesize') - 1, 'application/pdf');
 
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $file_1])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $file_1])
             ->assertSuccessful();
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $file_2])
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $file_2])
             ->assertSuccessful();
 
         $room_file_1 = $this->room->files()->where('filename', $file_1->name)->first();

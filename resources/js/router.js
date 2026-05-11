@@ -62,7 +62,6 @@ export const routes = [
     path: "/login",
     name: "login",
     component: Login,
-    meta: { guestsOnly: true },
   },
   {
     path: "/external_login",
@@ -71,6 +70,7 @@ export const routes = [
     props: (route) => {
       return {
         error: route.query.error,
+        noMessage: route.query.no_message === "1",
       };
     },
   },
@@ -133,7 +133,15 @@ export const routes = [
     component: RoomsIndex,
     meta: { requiresAuth: true },
   },
-
+  /**
+   * Greenlight v3 compatibility
+   */
+  {
+    path: "/rooms/:id/join",
+    redirect: (to) => {
+      return { name: "rooms.view", params: { id: to.params.id } };
+    },
+  },
   {
     path: "/rooms/:id/:token?",
     name: "rooms.view",

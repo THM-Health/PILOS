@@ -149,8 +149,57 @@ describe("Admin servers index server actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check with 401 error
+    // Check 404 error
+    cy.fixture("servers.json").then((servers) => {
+      servers.data = servers.data.filter((server) => server.id !== 3);
+      servers.meta.to = 3;
+      servers.meta.total = 3;
+      servers.meta.total_no_filter = 3;
+
+      servers.data[2].status = -1;
+
+      cy.intercept("GET", "api/v1/servers*", {
+        statusCode: 200,
+        body: servers,
+      }).as("serversRequest");
+    });
+
     cy.intercept("DELETE", "api/v1/servers/3", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "server",
+        ids: [3],
+      },
+    }).as("deleteServerRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteServerRequest");
+
+    // Check that server list was refreshed
+    cy.wait("@serversRequest");
+
+    // Check that dialog is closed and error message is shown
+    cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.server"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
+    ]);
+
+    // Check that server is not in list anymore
+    cy.get('[data-test="server-item"]').should("have.length", 3);
+
+    // Reopen dialog for different server
+    cy.get('[data-test="server-item"]')
+      .eq(2)
+      .find('[data-test="servers-delete-button"]')
+      .click();
+
+    cy.get('[data-test="servers-delete-dialog"]').should("be.visible");
+
+    // Check with 401 error
+    cy.intercept("DELETE", "api/v1/servers/4", {
       statusCode: 401,
     }).as("deleteServerRequest");
 
@@ -169,7 +218,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "1",
       });
     });
@@ -196,18 +245,60 @@ describe("Admin servers index server actions", function () {
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
-      cy.intercept("GET", "api/v1/servers*", {
-        statusCode: 200,
-        body: servers,
-      }).as("serversRequest");
-    });
+      const reloadServersRequest = interceptIndefinitely(
+        "GET",
+        "api/v1/servers*",
+        {
+          statusCode: 200,
+          body: servers,
+        },
+        "serversRequest",
+      );
 
-    // Reload with update usage
-    cy.get('[data-test="servers-reload-usage-button"]').click();
+      // Reload with update usage
+      cy.get('[data-test="servers-reload-usage-button"]').click();
+
+      // Check loading state during reload
+      cy.get('[data-test="server-search"]')
+        .eq(0)
+        .within(() => {
+          cy.get("input").should("be.visible").and("be.disabled");
+          cy.get("button").should("be.visible").and("be.disabled");
+        });
+
+      cy.get('[data-test="servers-reload-usage-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="servers-reload-no-usage-button"]').should(
+        "be.disabled",
+      );
+
+      cy.get('[data-test="servers-add-button"]')
+        .should("be.visible")
+        .and("not.be.disabled");
+
+      cy.get('[data-test="server-item"]')
+        .eq(2)
+        .within(() => {
+          cy.get('button[data-test="servers-view-button"]')
+            .should("be.visible")
+            .and("be.disabled");
+          cy.get('button[data-test="servers-edit-button"]')
+            .should("be.visible")
+            .and("be.disabled");
+
+          cy.get('[data-test="servers-delete-button"]')
+            .should("be.visible")
+            .and("be.disabled")
+            .then(() => {
+              reloadServersRequest.sendResponse();
+            });
+        });
+    });
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "true",
+        update_usage: "1",
         page: "1",
       });
     });
@@ -242,7 +333,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "2",
       });
     });
@@ -289,7 +380,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "true",
+        update_usage: "1",
         page: "2",
       });
     });
@@ -319,7 +410,7 @@ describe("Admin servers index server actions", function () {
 
     cy.wait("@serversRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        update_usage: "false",
+        update_usage: "0",
         page: "2",
       });
     });

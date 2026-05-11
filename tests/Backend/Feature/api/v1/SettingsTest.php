@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\LinkButtonStyle;
@@ -12,8 +14,8 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
-use Config;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -52,6 +54,7 @@ class SettingsTest extends TestCase
         $this->generalSettings->help_url = 'http://localhost/help';
         $this->generalSettings->legal_notice_url = 'http://localhost/legal';
         $this->generalSettings->privacy_policy_url = 'http://localhost/privacy';
+        $this->generalSettings->accessibility_statement_url = 'http://localhost/accessibility';
         $this->generalSettings->no_welcome_page = false;
         $this->generalSettings->save();
 
@@ -80,8 +83,9 @@ class SettingsTest extends TestCase
         $this->roomSettings->auto_delete_inactive_period = TimePeriod::ONE_WEEK;
         $this->roomSettings->auto_delete_never_used_period = TimePeriod::TWO_WEEKS;
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
-        $this->roomSettings->token_expiration = TimePeriod::ONE_WEEK;
+        $this->roomSettings->personalized_link_expiration = TimePeriod::ONE_WEEK;
         $this->roomSettings->file_terms_of_use = 'test';
+        $this->roomSettings->hide_owner_from_guests = false;
         $this->roomSettings->save();
 
         $this->userSettings->password_change_allowed = true;
@@ -128,6 +132,7 @@ class SettingsTest extends TestCase
                     'general_help_url' => 'http://localhost/help',
                     'general_legal_notice_url' => 'http://localhost/legal',
                     'general_privacy_policy_url' => 'http://localhost/privacy',
+                    'general_accessibility_statement_url' => 'http://localhost/accessibility',
                     'general_no_welcome_page' => false,
 
                     'theme_logo' => 'testlogo.svg',
@@ -153,8 +158,9 @@ class SettingsTest extends TestCase
                     'room_auto_delete_inactive_period' => 7,
                     'room_auto_delete_never_used_period' => 14,
                     'room_auto_delete_deadline_period' => 30,
-                    'room_token_expiration' => 7,
+                    'room_personalized_link_expiration' => 7,
                     'room_file_terms_of_use' => 'test',
+                    'room_hide_owner_from_guests' => false,
 
                     'user_password_change_allowed' => true,
 
@@ -191,6 +197,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => true,
 
             'theme_logo' => 'testlogo.svg',
@@ -211,11 +218,12 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
             'room_file_terms_of_use' => 'test',
+            'room_hide_owner_from_guests' => true,
 
             'user_password_change_allowed' => 1,
 
@@ -254,6 +262,7 @@ class SettingsTest extends TestCase
                     'general_help_url' => 'http://localhost',
                     'general_legal_notice_url' => 'http://localhost',
                     'general_privacy_policy_url' => 'http://localhost',
+                    'general_accessibility_statement_url' => 'http://localhost',
                     'general_no_welcome_page' => true,
 
                     'theme_logo' => 'testlogo.svg',
@@ -272,11 +281,12 @@ class SettingsTest extends TestCase
                     'banner_icon' => 'fas fa-door-open',
 
                     'room_limit' => -1,
-                    'room_token_expiration' => -1,
+                    'room_personalized_link_expiration' => -1,
                     'room_auto_delete_inactive_period' => 14,
                     'room_auto_delete_never_used_period' => 30,
                     'room_auto_delete_deadline_period' => 7,
                     'room_file_terms_of_use' => 'test',
+                    'room_hide_owner_from_guests' => true,
 
                     'user_password_change_allowed' => 1,
 
@@ -294,10 +304,12 @@ class SettingsTest extends TestCase
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->help_url);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->legal_notice_url);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->privacy_policy_url);
+        $this->assertEquals('http://localhost', app(GeneralSettings::class)->accessibility_statement_url);
 
         $payload['general_help_url'] = '';
         $payload['general_legal_notice_url'] = '';
         $payload['general_privacy_policy_url'] = '';
+        $payload['general_accessibility_statement_url'] = '';
         $payload['room_file_terms_of_use'] = '';
 
         $this->putJson(route('api.v1.settings.update'), $payload)
@@ -306,6 +318,7 @@ class SettingsTest extends TestCase
         $this->assertNull(app(GeneralSettings::class)->help_url);
         $this->assertNull(app(GeneralSettings::class)->legal_notice_url);
         $this->assertNull(app(GeneralSettings::class)->privacy_policy_url);
+        $this->assertNull(app(GeneralSettings::class)->accessibility_statement_url);
         $this->assertNull(app(RoomSettings::class)->file_terms_of_use);
     }
 
@@ -326,6 +339,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo_file' => UploadedFile::fake()->image('logo.svg'),
@@ -346,10 +360,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -399,6 +414,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => '/storage/image/logo.svg',
@@ -423,10 +439,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -481,6 +498,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 111,
             'general_legal_notice_url' => 222,
             'general_privacy_policy_url' => 333,
+            'general_accessibility_statement_url' => 444,
             'general_no_welcome_page' => 'notbool',
 
             'theme_logo' => '',
@@ -504,10 +522,11 @@ class SettingsTest extends TestCase
             'banner_background' => 'test',
 
             'room_limit' => 'notnumber',
-            'room_token_expiration' => 'notnumber',
+            'room_personalized_link_expiration' => 'notnumber',
             'room_auto_delete_inactive_period' => 'notnumber',
             'room_auto_delete_never_used_period' => 'notnumber',
             'room_auto_delete_deadline_period' => 'notnumber',
+            'room_hide_owner_from_guests' => 'notbool',
 
             'user_password_change_allowed' => 'foo',
 
@@ -532,6 +551,7 @@ class SettingsTest extends TestCase
                 'general_help_url',
                 'general_legal_notice_url',
                 'general_privacy_policy_url',
+                'general_accessibility_statement_url',
                 'general_no_welcome_page',
 
                 'theme_logo',
@@ -556,10 +576,11 @@ class SettingsTest extends TestCase
                 'banner_background',
 
                 'room_limit',
-                'room_token_expiration',
+                'room_personalized_link_expiration',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
                 'room_auto_delete_deadline_period',
+                'room_hide_owner_from_guests',
 
                 'user_password_change_allowed',
 
@@ -617,6 +638,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -638,10 +660,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -731,6 +754,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'banner_enabled' => 0,
@@ -742,10 +766,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -2,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 1,
             'room_auto_delete_never_used_period' => 1,
             'room_auto_delete_deadline_period' => 1,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -783,6 +808,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'banner_enabled' => 0,
@@ -794,11 +820,12 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => 101,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 1000,
             'room_auto_delete_never_used_period' => 1000,
             'room_auto_delete_deadline_period' => 366,
             'room_file_terms_of_use' => str_repeat('a', 65001),
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -852,6 +879,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -872,10 +900,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -941,7 +970,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the custom bbb style sheet
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_style()
     {
@@ -962,6 +991,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -982,10 +1012,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1037,7 +1068,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_logo()
     {
@@ -1057,6 +1088,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -1077,10 +1109,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1119,7 +1152,7 @@ class SettingsTest extends TestCase
     /**
      * Test to update the bbb dark logo
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function test_update_bbb_dark_logo()
     {
@@ -1139,6 +1172,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo' => 'testlogo.svg',
@@ -1159,10 +1193,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 
@@ -1200,8 +1235,10 @@ class SettingsTest extends TestCase
 
     public function test_virus_files()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
 
         $role = Role::factory()->create();
@@ -1224,6 +1261,7 @@ class SettingsTest extends TestCase
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
             'general_no_welcome_page' => false,
 
             'theme_logo_file' => $logo,
@@ -1245,10 +1283,11 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_token_expiration' => -1,
+            'room_personalized_link_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
 

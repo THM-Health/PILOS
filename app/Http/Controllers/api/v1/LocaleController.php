@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ChangeLocaleRequest;
 use App\Services\LocaleService;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class LocaleController extends Controller
 {

@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'ویرایش :name',
             'index' => 'نقش‌ها',
@@ -257,6 +259,10 @@ return [
         'view' => 'اطلاعات دقیق برای سرور :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'اگر تنظیم نشده باشد، لینک بیانیه دسترسی‌پذیری در فوتر نمایش داده نمی‌شود.',
+            'title' => 'URL بیانیه دسترسی‌پذیری',
+        ],
         'application' => 'برنامه',
         'attendance' => [
             'retention_period_title' => 'دوره نگهداری گزارش حضور در روز',
@@ -382,7 +388,7 @@ return [
             'description' => 'تعداد اتاق‌هایی که یک کاربر می‌تواند داشته باشد را محدود می‌کند. این تنظیم توسط محدودیت‌های گروهی جایگزین می‌شود.',
             'title' => 'تعداد اتاق‌ها برای هر کاربر',
         ],
-        'room_token_expiration' => [
+        'room_personalized_link_expiration' => [
             'description' => 'مدت زمان از آخرین استفاده، پس از آن لینک‌های شخصی‌سازی‌شده اتاق به‌طور خودکار حذف می‌شوند.',
             'title' => 'زمان انقضا برای لینک‌های شخصی‌سازی‌شده اتاق',
         ],

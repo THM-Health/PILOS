@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth;
 
 use App\Models\Role;
 use App\Models\User;
 use App\Settings\GeneralSettings;
-use Hash;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Log;
+use Illuminate\Support\Str;
 use Spatie\Image\Enums\Fit;
 use Spatie\Image\Image;
-use Str;
 
 /**
  * ExternalUser is an abstract class that represents an external user.
@@ -51,9 +53,9 @@ abstract class ExternalUser
      * Add a value to an attribute.
      *
      * @param  string  $name  The name of the attribute.
-     * @param  mixed  $value  The value to add to the attribute.
+     * @param  string|null  $value  The value to add to the attribute.
      */
-    public function addAttributeValue($name, $value)
+    public function addAttributeValue(string $name, ?string $value)
     {
         if (! isset($this->attributes[$name])) {
             $this->attributes[$name] = [];
@@ -96,6 +98,8 @@ abstract class ExternalUser
     /**
      * Validate the required attributes.
      * Throws a MissingAttributeException if the attribute is not set.
+     *
+     * @throws MissingAttributeException
      */
     public function validate()
     {

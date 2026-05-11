@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
+use App\Enums\RecordingAccess;
 use App\Jobs\ProcessRecording;
-use Config;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
-use Str;
+use Illuminate\Support\Str;
 
 class ImportRecordingsCommand extends Command
 {
@@ -17,7 +19,7 @@ class ImportRecordingsCommand extends Command
 
     public function handle()
     {
-        $hook_script_path = Config::get('recording.import_before_hook');
+        $hook_script_path = config('recording.import_before_hook');
         if ($hook_script_path) {
             $this->info('Invoking recording import before hook '.$hook_script_path);
             $result = Process::run($hook_script_path);
@@ -35,6 +37,15 @@ class ImportRecordingsCommand extends Command
             }
 
             ProcessRecording::dispatch($file);
+        }
+
+        $files = Storage::disk('recordings-spool')->files('public');
+        foreach ($files as $file) {
+            if (! Str::endsWith($file, '.tar')) {
+                continue;
+            }
+
+            ProcessRecording::dispatch($file, RecordingAccess::EVERYONE);
         }
     }
 }

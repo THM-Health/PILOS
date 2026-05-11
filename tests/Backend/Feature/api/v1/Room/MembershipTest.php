@@ -1,20 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
+use App\Enums\CustomErrorMessages;
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
 use App\Models\RoomType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\SessionHelpers;
 
 class MembershipTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, SessionHelpers, WithFaker;
 
     protected $user;
 
@@ -47,15 +53,63 @@ class MembershipTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false,  'allow_membership' => true]);
 
-        $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertUnauthorized();
+        // Try with invalid room auth token
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => 'invalidToken',
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
 
-        $this->withHeaders(['Access-Code' => $this->createAccessCode()])->getJson(route('api.v1.rooms.show', ['room' => $room]))
-            ->assertUnauthorized();
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $this->faker->uuid(),
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
 
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        // Try with valid room auth token
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
+
+        // Try with valid room auth token but invalid type
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => 'invalid_type',
+        ]))
+            ->assertUnauthorized()
+            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_INVALID_AUTH_TOKEN->value]);
     }
 
     public function test_join_membership()
@@ -162,73 +216,223 @@ class MembershipTest extends TestCase
             'room_type_id' => $roomTypeNoMembershipAllowedDefault->id,
         ]);
 
+        // Room auth tokens
+        $currentSession = $this->startNewSession();
+
+        $roomAuthTokenAllowMembershipEnforced1 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomAllowMembershipEnforced1->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenAllowMembershipEnforced2 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomAllowMembershipEnforced2->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenAllowMembershipEnforced3 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomAllowMembershipEnforced3->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenAllowMembershipDefault = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomAllowMembershipDefault->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenAllowMembershipExpert1 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomAllowMembershipExpert1->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenAllowMembershipExpert2 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomAllowMembershipExpert2->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenNoMembershipAllowedEnforced1 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomNoMembershipAllowedEnforced1->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenNoMembershipAllowedEnforced2 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomNoMembershipAllowedEnforced2->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenNoMembershipAllowedEnforced3 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomNoMembershipAllowedEnforced3->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenNoMembershipAllowedDefault = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomNoMembershipAllowedDefault->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenNoMembershipAllowedExpert1 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomNoMembershipAllowedExpert1->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $roomAuthTokenNoMembershipAllowedExpert2 = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $roomNoMembershipAllowedExpert2->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
         // Test rooms where joining membership is not allowed
-        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedEnforced1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedEnforced1]))
-            ->assertForbidden();
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomNoMembershipAllowedEnforced1,
+            'room_auth_token' => $roomAuthTokenNoMembershipAllowedEnforced1->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => __('app.errors.membership_disabled')]);
 
-        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedEnforced2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedEnforced2]))
-            ->assertForbidden();
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomNoMembershipAllowedEnforced2,
+            'room_auth_token' => $roomAuthTokenNoMembershipAllowedEnforced2->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => __('app.errors.membership_disabled')]);
 
-        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedEnforced3->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedEnforced3]))
-            ->assertForbidden();
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomNoMembershipAllowedEnforced3,
+            'room_auth_token' => $roomAuthTokenNoMembershipAllowedEnforced3->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => __('app.errors.membership_disabled')]);
 
-        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedDefault->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedDefault]))
-            ->assertForbidden();
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomNoMembershipAllowedDefault,
+            'room_auth_token' => $roomAuthTokenNoMembershipAllowedDefault->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => __('app.errors.membership_disabled')]);
 
-        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedExpert1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedExpert1]))
-            ->assertForbidden();
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomNoMembershipAllowedExpert1,
+            'room_auth_token' => $roomAuthTokenNoMembershipAllowedExpert1->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => __('app.errors.membership_disabled')]);
 
-        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedExpert2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedExpert2]))
-            ->assertForbidden();
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomNoMembershipAllowedExpert2,
+            'room_auth_token' => $roomAuthTokenNoMembershipAllowedExpert2->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
+            ->assertForbidden()
+            ->assertJsonFragment(['message' => __('app.errors.membership_disabled')]);
 
         // Test rooms where joining membership is allowed
-
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipEnforced1]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomAllowMembershipEnforced1,
+            'room_auth_token' => $roomAuthTokenAllowMembershipEnforced1->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertNoContent();
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipEnforced2]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomAllowMembershipEnforced2,
+            'room_auth_token' => $roomAuthTokenAllowMembershipEnforced2->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertNoContent();
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced3->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipEnforced3]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomAllowMembershipEnforced3,
+            'room_auth_token' => $roomAuthTokenAllowMembershipEnforced3->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertNoContent();
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipDefault->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipDefault]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomAllowMembershipDefault,
+            'room_auth_token' => $roomAuthTokenAllowMembershipDefault->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertNoContent();
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipExpert1]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomAllowMembershipExpert1,
+            'room_auth_token' => $roomAuthTokenAllowMembershipExpert1->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertNoContent();
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipExpert2]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', [
+            'room' => $roomAllowMembershipExpert2,
+            'room_auth_token' => $roomAuthTokenAllowMembershipExpert2->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertNoContent();
 
         // Try to get room details with access code even not needed
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced1->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced1]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $roomAllowMembershipEnforced1,
+            'room_auth_token' => $roomAuthTokenAllowMembershipEnforced1->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced2->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced2]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $roomAllowMembershipEnforced2,
+            'room_auth_token' => $roomAuthTokenAllowMembershipEnforced2->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced3->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced3]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $roomAllowMembershipEnforced3,
+            'room_auth_token' => $roomAuthTokenAllowMembershipEnforced3->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipDefault->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipDefault]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $roomAllowMembershipDefault,
+            'room_auth_token' => $roomAuthTokenAllowMembershipDefault->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert1->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipExpert1]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $roomAllowMembershipExpert1,
+            'room_auth_token' => $roomAuthTokenAllowMembershipExpert1->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
 
-        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert2->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipExpert2]))
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $roomAllowMembershipExpert2,
+            'room_auth_token' => $roomAuthTokenAllowMembershipExpert2->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
 
         // Try to get room details without access code, because members don't need it
-        $this->flushHeaders();
-
         $this->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced1]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
@@ -268,11 +472,23 @@ class MembershipTest extends TestCase
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.membership.leave', ['room' => $room]))
             ->assertNoContent();
         // Check membership is removed
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
+
         // Try to get room details without access code
-        $this->flushHeaders();
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false,  'allow_membership' => true, 'is_member' => false]);
@@ -387,6 +603,11 @@ class MembershipTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
+        // Check search; empty is ignored, no filtering
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => '']))
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 6);
+
         // Check search with whitespaces (all should match in first or last name)
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'query' => 'John Doe']))
             ->assertJsonCount(1, 'data')
@@ -412,10 +633,9 @@ class MembershipTest extends TestCase
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('meta.total_no_filter', 6);
 
-        // Check filter by invalid role (fallback to all)
+        // Check filter by invalid role
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'invalid_role']))
-            ->assertJsonCount(5, 'data')
-            ->assertJsonPath('meta.total', 6);
+            ->assertJsonValidationErrors(['filter']);
     }
 
     /**
@@ -531,54 +751,64 @@ class MembershipTest extends TestCase
         $room->members()->attach($memberCoOwner, ['role' => RoomUserRole::CO_OWNER]);
 
         // Remove member as guest
-        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertUnauthorized();
 
         // Remove member as non owner
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertForbidden();
 
         // Remove member as user member
-        $this->actingAs($memberUser)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->actingAs($memberUser)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertForbidden();
 
         // Remove member as moderator member
-        $this->actingAs($memberModerator)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->actingAs($memberModerator)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertForbidden();
 
         // Remove member as co-owner member
-        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertNoContent();
         $room->members()->attach($newUser, ['role' => RoomUserRole::USER]);
 
         // Remove with view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Remove with manage rooms permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertNoContent();
         $this->role->permissions()->detach($this->managePermission);
         $room->members()->attach($newUser, ['role' => RoomUserRole::USER]);
 
         // Remove member with invalid user
-        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => 0]))
-            ->assertNotFound();
+        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => 0]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [0],
+            ]);
 
         // Remove member as moderator
-        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
+        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
             ->assertNoContent();
 
         // Check member list
         $this->assertNull($room->members()->find($newUser));
 
         // Try to remove user again
-        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'user' => $newUser]))
-            ->assertStatus(410);
+        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room' => $room, 'member' => $newUser]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [$newUser->id],
+            ]);
 
         // Check if user is no member
         $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -611,45 +841,61 @@ class MembershipTest extends TestCase
         $room->members()->attach($memberCoOwner, ['role' => RoomUserRole::CO_OWNER]);
 
         // Update with wrong role
-        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => 10])
+        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => 10])
             ->assertJsonValidationErrors(['role']);
 
         // Update role
-        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
 
         // Update role for wrong user
-        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $otherUser]), ['role' => RoomUserRole::MODERATOR])
-            ->assertStatus(410);
+        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $otherUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [$otherUser->id],
+            ]);
 
         // Check if member role is changed
         $foundNewUser = $room->members()->find($newUser);
         $this->assertEquals(RoomUserRole::MODERATOR, $foundNewUser->pivot->role);
 
         // Update role as member user
-        $this->actingAs($memberUser)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+        $this->actingAs($memberUser)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertForbidden();
 
         // Update role as member moderator
-        $this->actingAs($memberModerator)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+        $this->actingAs($memberModerator)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertForbidden();
 
         // Update role as member co-owner
-        $this->actingAs($memberCoOwner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+        $this->actingAs($memberCoOwner)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
 
         // Update role with view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Update role with manage rooms permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'user' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
         $this->role->permissions()->detach($this->managePermission);
+
+        // Test with deleted room
+        $room->delete();
+
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room' => $room, 'member' => $newUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_bulk_import_members()

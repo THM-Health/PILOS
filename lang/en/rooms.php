@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Access code',
     'auth_throttled' => 'Too many attempts. Please try again in :try_again seconds.',
@@ -141,14 +143,15 @@ return [
     'first_and_lastname' => 'First- and last name',
     'flash' => [
         'access_code_invalid' => 'The access code is invalid.',
+        'auth_token_invalid' => 'The authentication token is invalid.',
         'file_forbidden' => 'The access to the requested file was forbidden.',
         'file_gone' => 'The file has been deleted in the meantime.',
         'no_new_room' => 'You do not have the necessary permission to create a new room.',
+        'personalized_link_gone' => 'The personalised room link has been deleted in the meantime.',
+        'personalized_link_invalid' => 'The personalised room link is no longer valid.',
         'recording_forbidden' => 'The access to the requested recording has been denied.',
         'recording_gone' => 'The recording has been deleted in the meantime.',
         'start_forbidden' => 'The room could not be started by you.',
-        'token_gone' => 'The personalised room link has been deleted in the meantime.',
-        'token_invalid' => 'The personalised room link is no longer valid.',
     ],
     'index' => [
         'filter' => 'Filter',
@@ -175,7 +178,7 @@ return [
             'select_sorting' => '-- Select sorting --',
         ],
     ],
-    'invalid_personal_link' => 'This personalised room link is invalid.',
+    'invalid_personalized_link' => 'This personalised room link is invalid.',
     'invitation' => [
         'code' => 'Access code',
         'copied_code' => 'Copied access code to clipboard',
@@ -277,6 +280,26 @@ return [
         'enabled' => 'You will be notified by your browser when the room starts. Do not close this window/tab.',
     ],
     'only_used_by_authenticated_users' => 'This room can only be used by authenticated users.',
+    'personalized_links' => [
+        'add' => 'Add personalized room link',
+        'confirm_delete' => 'Do you really want to delete the personalized room link for :firstname :lastname?',
+        'copy' => 'Copy personalized room link to clipboard',
+        'delete' => 'Delete personalized room link',
+        'edit' => 'Edit personalized room link',
+        'expires' => 'Expiry date',
+        'expires_at' => 'Expires at :date',
+        'filter' => [
+            'all' => 'All',
+            'moderator_role' => 'Only moderators',
+            'participant_role' => 'Only participants',
+        ],
+        'last_usage' => 'Last used',
+        'last_used_at' => 'Last used at :date',
+        'last_used_never' => 'Never used',
+        'nodata' => 'No personalized room links available!',
+        'room_link_copied' => 'The personalized room link for :firstname :lastname was copied to your clipboard.',
+        'title' => 'Personalized room links',
+    ],
     'placeholder_name' => 'John Doe',
     'recording_accept' => 'I consent to the recording.',
     'recording_attendance_accept' => 'I consent to the attendance logging.',
@@ -467,25 +490,5 @@ return [
     'streaming_accept' => 'I consent to the streaming.',
     'streaming_hint' => 'If you prefer not to have your voice or video streamed, please keep your microphone muted and your camera off.',
     'streaming_info' => 'This room may be streamed.',
-    'tokens' => [
-        'add' => 'Add personalized room link',
-        'confirm_delete' => 'Do you really want to delete the personalized room link for :firstname :lastname?',
-        'copy' => 'Copy personalized room link to clipboard',
-        'delete' => 'Delete personalized room link',
-        'edit' => 'Edit personalized room link',
-        'expires' => 'Expiry date',
-        'expires_at' => 'Expires at :date',
-        'filter' => [
-            'all' => 'All',
-            'moderator_role' => 'Only moderators',
-            'participant_role' => 'Only participants',
-        ],
-        'last_usage' => 'Last used',
-        'last_used_at' => 'Last used at :date',
-        'last_used_never' => 'Never used',
-        'nodata' => 'No personalized room links available!',
-        'room_link_copied' => 'The personalized room link for :firstname :lastname was copied to your clipboard.',
-        'title' => 'Personalized room links',
-    ],
     'try_again' => 'Try again',
 ];

@@ -1,51 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class ValidName implements Rule
+class ValidName implements ValidationRule
 {
-    private $failedChars;
-
-    private $attribute;
-
-    public function __construct()
-    {
-        //
-    }
-
-    /**
-     * Determine if the validation rule passes.
-     *
-     * @param  string  $attribute
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (preg_match('/^['.config('bigbluebutton.allowed_name_characters').']+$/u', $value)) {
-            return true;
+            return;
         }
-        $this->attribute = $attribute;
-        $this->failedChars = array_unique(str_split(preg_replace('/['.config('bigbluebutton.allowed_name_characters').']+/u', '', $value)));
 
-        return false;
-    }
+        $failedChars = array_unique(str_split(preg_replace('/['.config('bigbluebutton.allowed_name_characters').']+/u', '', $value)));
 
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        $invalidChars = implode('', $this->failedChars);
+        $invalidChars = implode('', $failedChars);
         $validUTF8 = mb_check_encoding($invalidChars, 'UTF-8');
         if ($validUTF8) {
-            return __('validation.validname', ['attribute' => __('validation.attributes.'.$this->attribute), 'chars' => $invalidChars]);
+            $fail(__('validation.validname', ['attribute' => __('validation.attributes.'.$attribute), 'chars' => $invalidChars]));
         } else {
-            return __('validation.validname_error', ['attribute' => __('validation.attributes.'.$this->attribute)]);
+            $fail(__('validation.validname_error', ['attribute' => __('validation.attributes.'.$attribute)]));
         }
+
     }
 }

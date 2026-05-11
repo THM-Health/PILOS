@@ -230,7 +230,7 @@
               v-tooltip="
                 $t('admin.servers.view', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.view', { name: slotProps.data.name })
@@ -247,7 +247,7 @@
               v-tooltip="
                 $t('admin.servers.edit', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.edit', { name: slotProps.data.name })
@@ -267,7 +267,9 @@
               "
               :id="slotProps.data.id"
               :name="slotProps.data.name"
+              :disabled="isBusy"
               @deleted="loadData(null, false)"
+              @not-found="loadData(null, false)"
             ></SettingsServersDeleteButton>
           </div>
         </template>
@@ -317,7 +319,7 @@ function loadData(page = null, updateUsage = false) {
   const config = {
     params: {
       page: page || paginator.getCurrentPage(),
-      update_usage: updateUsage,
+      update_usage: updateUsage ? 1 : 0,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? "asc" : "desc",
       query: filter.value,

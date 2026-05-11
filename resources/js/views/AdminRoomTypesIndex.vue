@@ -102,7 +102,7 @@
               v-tooltip="
                 $t('admin.room_types.view', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :aria-label="
                 $t('admin.room_types.view', { name: slotProps.data.name })
               "
@@ -119,7 +119,7 @@
               v-tooltip="
                 $t('admin.room_types.edit', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               severity="info"
               :aria-label="
                 $t('admin.room_types.edit', { name: slotProps.data.name })
@@ -136,6 +136,7 @@
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
+              :disabled="isBusy"
               @deleted="loadData()"
               @not-found="loadData()"
             />

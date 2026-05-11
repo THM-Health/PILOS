@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
-use DB;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CheckDatabaseConnectionCommand extends Command
 {

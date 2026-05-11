@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Integration\api\v1;
 
 use App\Models\Room;
