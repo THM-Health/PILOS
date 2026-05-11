@@ -194,4 +194,14 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
     {
         Storage::disk('recordings')->deleteDirectory($this->tempPath);
     }
+
+    public function getFile(): string
+    {
+        return $this->file;
+    }
+
+    public function getAccess(): RecordingAccess
+    {
+        return $this->access;
+    }
 }
