@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Docs: Import of existing Greenlight v2/v3 recordings ([#2877], [#3034])
+
 ### Changed
 
 - Improved error handling when a room requires an access code but none was provided ([#3035])
@@ -14,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved 404 error messages for better readability and clarity ([#86], [#3036])
 - Standardized 404 error handling on admin pages ([#1676], [#3036])
 - Improved and standardized room not found error handling in the room view ([#3036])
+- Greenlight v2/v3 import commands now prepares import of existing recordings ([#2877], ([#3034])
 
 ### Fixed
 
@@ -767,6 +772,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2857]: https://github.com/THM-Health/PILOS/pull/2857
 [#2873]: https://github.com/THM-Health/PILOS/issues/2873
 [#2874]: https://github.com/THM-Health/PILOS/pull/2874
+[#2877]: https://github.com/THM-Health/PILOS/issues/2877
 [#2879]: https://github.com/THM-Health/PILOS/issues/2879
 [#2880]: https://github.com/THM-Health/PILOS/pull/2880
 [#2901]: https://github.com/THM-Health/PILOS/pull/2901
@@ -784,6 +790,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3014]: https://github.com/THM-Health/PILOS/pull/3014
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
+[#3034]: https://github.com/THM-Health/PILOS/pull/3034
 [#3035]: https://github.com/THM-Health/PILOS/pull/3035
 [#3036]: https://github.com/THM-Health/PILOS/pull/3036
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039

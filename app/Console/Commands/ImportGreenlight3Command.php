@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Models\Meeting;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomFile;
@@ -108,7 +109,7 @@ class ImportGreenlight3Command extends Command
         ]]);
 
         $users = DB::connection('greenlight')->table('users')->where('provider', 'greenlight')->get(['id', 'name', 'email', 'external_id', 'password_digest']);
-        $rooms = DB::connection('greenlight')->table('rooms')->get(['id', 'friendly_id', 'user_id', 'name']);
+        $rooms = DB::connection('greenlight')->table('rooms')->get(['id', 'friendly_id', 'meeting_id', 'user_id', 'name']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
         // Start transaction to rollback if import fails or user cancels
@@ -300,6 +301,12 @@ class ImportGreenlight3Command extends Command
             // set room type to given roomType for this import batch
             $dbRoom->roomType()->associate($roomType);
             $dbRoom->save();
+
+            // Create meeting
+            $dbMeeting = new Meeting;
+            $dbMeeting->id = $room->meeting_id;
+            $dbMeeting->room()->associate($dbRoom);
+            $dbMeeting->save();
 
             // increase counter and add room to room map (key = greenlight db id, value = new db id)
             $created++;

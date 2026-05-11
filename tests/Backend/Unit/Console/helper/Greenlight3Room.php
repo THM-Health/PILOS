@@ -10,6 +10,8 @@ class Greenlight3Room
 
     public $friendly_id;
 
+    public $meeting_id;
+
     public $user_id;
 
     public $name;
@@ -17,11 +19,12 @@ class Greenlight3Room
     /**
      * Greenlight3Room constructor.
      */
-    public function __construct(string $id, string $friendly_id, string $user_id, string $name)
+    public function __construct(string $id, string $friendly_id, string $meeting_id, string $name, string $user_id)
     {
         $this->id = $id;
         $this->friendly_id = $friendly_id;
-        $this->user_id = $user_id;
+        $this->meeting_id = $meeting_id;
         $this->name = $name;
+        $this->user_id = $user_id;
     }
 }

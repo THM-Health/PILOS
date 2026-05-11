@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Models\Meeting;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomFile;
@@ -126,7 +127,7 @@ class ImportGreenlight2Command extends Command
 
         $requireAuth = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')?->value == true;
         $users = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest']);
-        $rooms = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
+        $rooms = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'bbb_id', 'user_id', 'name', 'room_settings', 'access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
         $socialProviders = DB::connection('greenlight')->table('users')->select('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->distinct()->get();
@@ -386,6 +387,12 @@ class ImportGreenlight2Command extends Command
             // set room type to given roomType for this import batch
             $dbRoom->roomType()->associate($roomType);
             $dbRoom->save();
+
+            // Create meeting
+            $dbMeeting = new Meeting;
+            $dbMeeting->id = $room->bbb_id;
+            $dbMeeting->room()->associate($dbRoom);
+            $dbMeeting->save();
 
             // increase counter and add room to room map (key = greenlight db id, value = new db id)
             $created++;
