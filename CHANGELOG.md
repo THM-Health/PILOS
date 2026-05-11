@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Docs: Import of existing Greenlight v2/v3 recordings ([#2877], [#3034])
+
 ### Changed
 
 - Improved error handling when a room requires an access code but none was provided ([#3035])
@@ -14,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved 404 error messages for better readability and clarity ([#86], [#3036])
 - Standardized 404 error handling on admin pages ([#1676], [#3036])
 - Improved and standardized room not found error handling in the room view ([#3036])
-- GL2- / GL3-Import commands now prepare import of existing recordings ([#2877], ([#3034])
+- Greenlight v2/v3 import commands now prepares import of existing recordings ([#2877], ([#3034])
 
 ### Fixed
 
