@@ -170,7 +170,7 @@ class ProcessRecordingTest extends TestCase
         $formats = $recording->formats;
         $this->assertCount(1, $formats);
 
-        // Check if formats are disabled and have the correct URL (from the metadata.xml)
+        // Check if formats are enabled and have the correct URL (from the metadata.xml)
         $notes = $formats->firstWhere('format', 'notes');
         $this->assertFalse($notes->disabled);
         $this->assertEquals('/notes/'.self::INTERNAL_MEETING_ID.'/notes.pdf', $notes->url);
@@ -215,7 +215,7 @@ class ProcessRecordingTest extends TestCase
         $formats = $recording->formats;
         $this->assertCount(5, $formats);
 
-        // Check if formats are disabled and have the correct URL (from the metadata.xml)
+        // Check if formats are enabled and have the correct URL (from the metadata.xml)
         $notes = $formats->firstWhere('format', 'notes');
         $this->assertFalse($notes->disabled);
         $this->assertEquals('/notes/'.self::INTERNAL_MEETING_ID.'/notes.pdf', $notes->url);
@@ -265,7 +265,7 @@ class ProcessRecordingTest extends TestCase
         $formats = $recording->formats;
         $this->assertCount(1, $formats);
 
-        // Check if formats are disabled and have the correct URL (from the metadata.xml)
+        // Check if formats are enabled and have the correct URL (from the metadata.xml)
         $notes = $formats->firstWhere('format', 'notes');
         $this->assertFalse($notes->disabled);
         $this->assertEquals('/notes/'.self::INTERNAL_MEETING_ID.'/notes.pdf', $notes->url);
