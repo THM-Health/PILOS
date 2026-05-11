@@ -123,7 +123,9 @@ class AttendanceExport
         $spreadsheet->getProperties()
             ->setTitle(__('meetings.attendance.spreadsheet.title', ['room' => $this->meeting->room->name]))
             ->setCreator(config('app.name'))
-            ->setLastModifiedBy(config('app.name'));
+            ->setLastModifiedBy(config('app.name'))
+            ->setCreated(now()->timestamp)
+            ->setModified(now()->timestamp);
 
         $activeSheet = $spreadsheet->getActiveSheet();
 
