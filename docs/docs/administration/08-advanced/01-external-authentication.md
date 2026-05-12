@@ -29,7 +29,10 @@ LDAP_PASSWORD="readonly"
 LDAP_PORT=389
 LDAP_BASE_DN="ou=users,dc=university,dc=org"
 LDAP_TIMEOUT=5
+
+# LDAPS: Connects using the ldaps:// protocol (LDAP over SSL/TLS), default port is 636
 LDAP_SSL=false
+# STARTTLS: Connects using the ldap:// protocol (upgrades to a secure connection using STARTTLS), default port is 389
 LDAP_TLS=true
 
 # LDAP logging debugging only
@@ -53,10 +56,10 @@ LDAP_LOGIN_ATTRIBUTE=uid
 
 #### SSL / TLS
 
-You can either use SSL or TLS to secure the connection to the LDAP server.
-SSL has been deprecated and is typically a separate port (636).
+You can either use LDAPS (LDAP over SSL/TLS) or STARTTLS to secure the connection to the LDAP server.
+LDAPS has been deprecated and is typically a separate port (636).
 TLS is using the same port as the unsecured connection (389) and doing an upgrade to TLS after the connection has been established.
-[Read more](https://ldaprecord.com/docs/core/v3/configuration/#ssl--tls).
+[Read more](https://ldaprecord.com/docs/core/v4/configuration#tls-and-starttls).
 
 By default, PILOS **doesn't verify** the TLS certificate of the LDAP server.
 However, you can customize this by overwriting the ldap.conf ([Read more](http://www.openldap.org/software/man.cgi?query=ldap.conf&manpath=OpenLDAP+2.6-Release)
