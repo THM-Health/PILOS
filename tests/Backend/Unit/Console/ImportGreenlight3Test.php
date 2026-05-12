@@ -6,6 +6,7 @@ namespace Tests\Backend\Unit\Console;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Models\Meeting;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -80,7 +81,7 @@ class ImportGreenlight3Test extends TestCase
                     ->once()
                     ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($rooms) {
                         $mock->shouldReceive('get')
-                            ->with(['id', 'friendly_id', 'user_id', 'name'])
+                            ->with(['id', 'friendly_id', 'meeting_id', 'user_id', 'name'])
                             ->andReturn($rooms);
                     }));
 
@@ -237,15 +238,14 @@ class ImportGreenlight3Test extends TestCase
 
         // Create fake rooms
         $rooms = [];
-        $rooms[] = new Greenlight3Room('1', 'abc-def-xyz-123', $users[0]->id, 'Test Room 1');
-        $rooms[] = new Greenlight3Room('2', 'abc-def-xyz-234', $users[1]->id, 'Test Room 2');
-        $rooms[] = new Greenlight3Room('3', 'abc-def-xyz-345', $users[2]->id, 'Test Room 3');
-        $rooms[] = new Greenlight3Room('4', 'abc-def-xyz-456', $users[3]->id, 'Test Room 4');
-
-        $rooms[] = new Greenlight3Room('5', 'hij-klm-xyz-123', $users[0]->id, 'Test Room 5');
-        $rooms[] = new Greenlight3Room('6', 'hij-klm-xyz-234', $users[0]->id, 'Test Room 6');
-        $rooms[] = new Greenlight3Room('7', 'hij-klm-xyz-456', '99', 'Test Room 9', true);
-        $rooms[] = new Greenlight3Room('8', $existingRoom->id, $users[0]->id, 'Test Room 10');
+        $rooms[] = new Greenlight3Room('1', 'abc-def-xyz-123', 'kah3caebohzosei4ohd5vadai5xeech4iephieha', 'Test Room 1', $users[0]->id);
+        $rooms[] = new Greenlight3Room('2', 'abc-def-xyz-234', 'shuuchuk3ahchu2xai3hienae1eghohngueleih9', 'Test Room 2', $users[1]->id);
+        $rooms[] = new Greenlight3Room('3', 'abc-def-xyz-345', 'aepoh2etaira5ahjootoh2naedahno6fieghaibi', 'Test Room 3', $users[2]->id);
+        $rooms[] = new Greenlight3Room('4', 'abc-def-xyz-456', 'jee8sha6koh9iechik4thohjahv2biedua8shiep', 'Test Room 4', $users[3]->id);
+        $rooms[] = new Greenlight3Room('5', 'hij-klm-xyz-123', 'jiel3oe0gohvohmei2aew0ooghahwiejaileeghu', 'Test Room 5', $users[0]->id);
+        $rooms[] = new Greenlight3Room('6', 'hij-klm-xyz-234', 'ies7oroizuulaiqu3cheeshoogahh1mae1aew0ee', 'Test Room 6', $users[0]->id);
+        $rooms[] = new Greenlight3Room('7', 'hij-klm-xyz-456', 'eu6ahs7eephahhain6thae6thodu7xoophooghei', 'Test Room 9', '99');
+        $rooms[] = new Greenlight3Room('8', $existingRoom->id, 'gaezohvohsh6lougho8coongaebiech0wu6jukia', 'Test Room 10', $users[0]->id);
 
         // Create fake presentations
         $presentations = [];
@@ -303,6 +303,19 @@ class ImportGreenlight3Test extends TestCase
         $this->assertEqualsCanonicalizing(
             [$existingRoom->id, 'abc-def-xyz-123', 'abc-def-xyz-234', 'abc-def-xyz-345', 'abc-def-xyz-456', 'hij-klm-xyz-123', 'hij-klm-xyz-234'],
             Room::all()->pluck('id')->toArray()
+        );
+
+        // Check if all meetings are created
+        $this->assertEqualsCanonicalizing(
+            [
+                'kah3caebohzosei4ohd5vadai5xeech4iephieha',
+                'shuuchuk3ahchu2xai3hienae1eghohngueleih9',
+                'aepoh2etaira5ahjootoh2naedahno6fieghaibi',
+                'jee8sha6koh9iechik4thohjahv2biedua8shiep',
+                'jiel3oe0gohvohmei2aew0ooghahwiejaileeghu',
+                'ies7oroizuulaiqu3cheeshoogahh1mae1aew0ee',
+            ],
+            Meeting::all()->pluck('id')->toArray()
         );
 
         // Check access code

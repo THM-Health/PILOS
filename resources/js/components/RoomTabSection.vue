@@ -88,6 +88,7 @@
           @require-code="$emit('requireCode')"
           @guests-not-allowed="$emit('guestsNotAllowed')"
           @settings-changed="$emit('settingsChanged')"
+          @transferred-ownership="$emit('transferredOwnership')"
         />
       </div>
     </template>
@@ -152,6 +153,7 @@ defineEmits([
   "requireCode",
   "guestsNotAllowed",
   "settingsChanged",
+  "transferredOwnership",
 ]);
 
 const props = defineProps({

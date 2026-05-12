@@ -14,6 +14,8 @@ class Greenlight2Room
 
     public $uid;
 
+    public $bbb_id;
+
     public $room_settings;
 
     public $access_code;
@@ -23,14 +25,15 @@ class Greenlight2Room
     /**
      * Greenlight2Room constructor.
      */
-    public function __construct(int $id, int $user_id, string $name, string $uid, ?string $access_code = null, array $room_settings = [], bool $deleted = false)
+    public function __construct(int $id, string $uid, string $bbb_id, string $name, int $user_id, ?string $access_code = null, array $room_settings = [], bool $deleted = false)
     {
         $this->id = $id;
-        $this->user_id = $user_id;
-        $this->name = $name;
         $this->uid = $uid;
-        $this->room_settings = json_encode($room_settings);
+        $this->bbb_id = $bbb_id;
+        $this->name = $name;
+        $this->user_id = $user_id;
         $this->access_code = $access_code;
+        $this->room_settings = json_encode($room_settings);
         $this->deleted = $deleted;
     }
 }

@@ -18,14 +18,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\File;
 use Tests\Backend\TestCase;
-use Tests\Backend\Utils\AttendanceExcelImport;
+use Tests\Backend\Utils\ZipHelper;
 
 /**
  * Testing the statistical features of a room
  */
 class RoomStatisticTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, WithFaker, ZipHelper;
 
     protected $user;
 
@@ -494,8 +494,12 @@ class RoomStatisticTest extends TestCase
      */
     public function test_attendance_download()
     {
+        $this->travelTo('2020-01-10 12:00:00');
+
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23', 'record_attendance' => false]);
+        $meeting->room->name = 'Demo Room';
+        $meeting->room->save();
 
         // set firstname, lastname and email to fixes values to make api output predictable
         $this->user->firstname = 'Mable';
@@ -568,62 +572,13 @@ class RoomStatisticTest extends TestCase
         $response->assertHeader('content-disposition', 'attachment; filename='.__('meetings.attendance.filename').'.xlsx');
         $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-        // Get file from download response and parse file back to array
+        // Get file from download response
         $file = $response->getFile();
-        $array = (new AttendanceExcelImport)->toArray($file->getPathname());
 
-        // Assert if the excel file content is correct
-        $this->assertEquals(
-            [
-                [
-                    [
-                        __('rooms.name'),
-                        $meeting->room->name,
-                        null,
-                        null,
-                    ],
-                    [
-                        __('meetings.start'),
-                        '01.01.2020 08:12:45',
-                        null,
-                        null,
-                    ],
-                    [
-                        __('meetings.end'),
-                        '01.01.2020 08:35:23',
-                        null,
-                        null,
-                    ],
-                    [null, null, null, null],
-                    [
-                        __('app.user_name'),
-                        __('app.email'),
-                        __('meetings.attendance.duration'),
-                        __('meetings.attendance.sessions')],
-                    [
-                        'Bertha Luff',
-                        null,
-                        __('meetings.attendance.duration_minute', ['duration' => 16]),
-                        '01.01.2020 08:15:11 -  01.01.2020 08:32:09 ('.__('meetings.attendance.duration_minute', ['duration' => 16]).')',
-                    ],
-                    [
-                        'Gregory Dumas',
-                        'g.dumas@example.net',
-                        __('meetings.attendance.duration_minute', ['duration' => 22]),
-                        '01.01.2020 08:12:45 -  01.01.2020 08:35:23 ('.__('meetings.attendance.duration_minute', ['duration' => 22]).')'],
-                    [
-                        'Mable Torres',
-                        'm.torres@example.net',
-                        __('meetings.attendance.duration_minute', ['duration' => 20]),
-                        '01.01.2020 08:14:15 -  01.01.2020 08:30:40 ('.__('meetings.attendance.duration_minute', ['duration' => 16]).")\n01.01.2020 08:31:07 -  01.01.2020 08:35:23 (".__('meetings.attendance.duration_minute', ['duration' => 4]).')'],
-                    [
-                        'Marie Walker',
-                        null,
-                        __('meetings.attendance.duration_minute', ['duration' => 13]),
-                        '01.01.2020 08:13:11 -  01.01.2020 08:15:51 ('.__('meetings.attendance.duration_minute', ['duration' => 2]).")\n01.01.2020 08:17:23 -  01.01.2020 08:29:05 (".__('meetings.attendance.duration_minute', ['duration' => 11]).')'],
-                ],
-            ],
-            $array
+        // Compare XSLX files
+        $this->assertZipFilesEqual(
+            base_path('tests/Backend/Fixtures/attendance.xlsx'),
+            $file->getPathname(),
         );
 
         // Remove temp. file
