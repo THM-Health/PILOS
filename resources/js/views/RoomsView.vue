@@ -101,7 +101,7 @@
                 :disable-reload="authThrottledFor > 0"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
-                @reload="reload"
+                @reload="reload(true)"
               />
               <Divider />
 
@@ -171,13 +171,13 @@
                 :details-inline="true"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
-                @reload="reload"
+                @reload="reload(true)"
                 @invalid-room-auth-token="handleInvalidRoomAuthToken"
                 @joined-membership="
                   roomAuthToken = null;
-                  reload();
+                  reload(true);
                 "
-                @left-membership="reload(false)"
+                @left-membership="reload"
               />
             </template>
             <template #content>
@@ -207,10 +207,10 @@
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
                     @require-code="
                       handleRequireCode();
-                      reload(false);
+                      reload();
                     "
                     @guests-not-allowed="handleGuestsNotAllowed"
-                    @changed="reload"
+                    @changed="reload(true)"
                   />
                   <RoomBrowserNotification
                     :room-name="room.name"
@@ -230,10 +230,11 @@
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
             @require-code="
               handleRequireCode();
-              reload(false);
+              reload();
             "
             @guests-not-allowed="handleGuestsNotAllowed"
-            @settings-changed="reload"
+            @settings-changed="reload(true)"
+            @transferred-ownership="reload"
           />
         </div>
       </div>
@@ -335,6 +336,7 @@ function startAutoRefresh() {
     reloadInterval.value = setInterval(
       reload,
       getRandomRefreshInterval() * 1000,
+      true,
     );
   }
 }
@@ -403,7 +405,7 @@ function handleInvalidCode() {
 
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
-  reload(false);
+  reload();
 }
 
 /**
@@ -501,9 +503,9 @@ watch(authThrottledFor, (value) => {
 
 /**
  * Reload the room details/settings
- * @param {boolean} [checkForRequireCodeError=true]
+ * @param {boolean} [checkForRequireCodeError=false]
  */
-function reload(checkForRequireCodeError = true) {
+function reload(checkForRequireCodeError = false) {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
@@ -608,7 +610,7 @@ function login() {
   authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
     if (success) {
       // Reload room details after authentication
-      reload();
+      reload(true);
     }
   });
 }
