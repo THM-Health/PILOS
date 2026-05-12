@@ -100,7 +100,7 @@ class LdapLoginTest extends TestCase
         config(['ldap.mapping' => json_decode($this->ldapMapping)]);
 
         Container::getConnection('default')->getConfiguration()->set('use_tls', false);
-        Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
+        Container::getConnection('default')->getConfiguration()->set('use_starttls', false);
         $fake = DirectoryEmulator::setup('default');
 
         $this->ldapUser = LdapUser::create([
