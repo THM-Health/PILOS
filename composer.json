@@ -11,6 +11,7 @@
     "php": "^8.5",
     "ext-curl": "*",
     "ext-json": "*",
+    "ext-pdo": "*",
     "ext-redis": "*",
     "ext-simplexml": "*",
     "ext-zip": "*",
