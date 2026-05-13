@@ -131,7 +131,6 @@ import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import AdminPanel from "../components/AdminPanel.vue";
-import { useToast } from "../composables/useToast.js";
 
 const defaultPauseImage = ref(null);
 const defaultPauseImageDeleted = ref(false);
@@ -144,7 +143,6 @@ const settings = ref({});
 const api = useApi();
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
-const toast = useToast();
 
 /**
  * Input fields are disabled
@@ -228,7 +226,7 @@ function updateSettings() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
-        toast.error(error.response.data.message);
+        api.validationError(error);
       } else {
         api.error(error);
       }

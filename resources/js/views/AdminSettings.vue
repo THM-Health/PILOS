@@ -1516,7 +1516,6 @@ import { useColors } from "../composables/useColors.js";
 import { useI18n } from "vue-i18n";
 import { updateTheme } from "../composables/useTheme";
 import AdminPanel from "../components/AdminPanel.vue";
-import { useToast } from "../composables/useToast.js";
 
 const roomLimitMode = ref("custom");
 const toastLifetimeMode = ref("custom");
@@ -1552,7 +1551,6 @@ const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
 const { t } = useI18n();
 const colors = useColors();
-const toast = useToast();
 
 /**
  * Input fields are disabled
@@ -1746,7 +1744,7 @@ function updateSettings() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
-        toast.error(error.response.data.message);
+        api.validationError(error);
       } else {
         api.error(error);
       }

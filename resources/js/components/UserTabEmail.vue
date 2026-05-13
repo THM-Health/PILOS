@@ -168,7 +168,7 @@ function save(event) {
         emit("notFoundError", error);
       } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
-        toast.error(error.response.data.message);
+        api.validationError(error);
       } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {
         toast.error(t("auth.throttle_email"));
       } else {

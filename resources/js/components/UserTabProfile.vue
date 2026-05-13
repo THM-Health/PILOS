@@ -172,7 +172,6 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import AdminPanel from "./AdminPanel.vue";
-import { useToast } from "../composables/useToast.js";
 
 const props = defineProps({
   viewOnly: {
@@ -200,7 +199,6 @@ const authStore = useAuthStore();
 const formErrors = useFormErrors();
 const api = useApi();
 const userPermissions = useUserPermissions();
-const toast = useToast();
 
 watch(
   () => props.user,
@@ -286,7 +284,7 @@ function save() {
       ) {
         // Validation error
         formErrors.set(error.response.data.errors);
-        toast.error(error.response.data.message);
+        api.validationError(error);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL

@@ -355,8 +355,6 @@ import { useI18n } from "vue-i18n";
 import * as _ from "lodash-es";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
-import { useToast } from "../composables/useToast.js";
-
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
@@ -614,7 +612,7 @@ function saveRole() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
-        toast.error(error.response.data.message);
+        api.validationError(error);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL
