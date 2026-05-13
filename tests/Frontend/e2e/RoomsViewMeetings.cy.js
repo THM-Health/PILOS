@@ -86,8 +86,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with attendance logging", function () {
@@ -174,8 +172,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with streaming", function () {
@@ -262,8 +258,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with recording", function () {
@@ -353,8 +347,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with recording without video", function () {
@@ -424,8 +416,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting guests", function () {
@@ -502,8 +492,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting guests errors", function () {
@@ -613,8 +601,6 @@ describe("Rooms view meetings", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with access code", function () {
@@ -731,8 +717,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting access code errors", function () {
@@ -908,8 +892,6 @@ describe("Rooms view meetings", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("not.exist");
     cy.get("#access-code").should("have.value", "");
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with personalized link", function () {
@@ -1007,8 +989,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with personalized link errors", function () {
@@ -1081,8 +1061,6 @@ describe("Rooms view meetings", function () {
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
 
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
-
-    cy.checkFinalState();
   });
 
   it("join meeting errors", function () {
@@ -1416,8 +1394,6 @@ describe("Rooms view meetings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("join meeting load requirements errors", function () {
@@ -1667,8 +1643,6 @@ describe("Rooms view meetings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("join running meeting with dark mode", function () {
@@ -1732,8 +1706,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting", function () {
@@ -1802,8 +1774,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting with attendance logging", function () {
@@ -1881,8 +1851,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting with streaming", function () {
@@ -1960,8 +1928,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting with recording", function () {
@@ -2042,8 +2008,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting with recording without video", function () {
@@ -2100,8 +2064,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting guests", function () {
@@ -2171,8 +2133,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting guests errors", function () {
@@ -2274,8 +2234,6 @@ describe("Rooms view meetings", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("start meeting with access code", function () {
@@ -2378,8 +2336,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting access code errors", function () {
@@ -2531,8 +2487,6 @@ describe("Rooms view meetings", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("not.exist");
     cy.get("#access-code").should("have.value", "");
-
-    cy.checkFinalState();
   });
 
   it("start meeting with personalized link", function () {
@@ -2619,8 +2573,6 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 
   it("start meeting with personalized link errors", function () {
@@ -2697,8 +2649,6 @@ describe("Rooms view meetings", function () {
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
 
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
-
-    cy.checkFinalState();
   });
 
   it("start meeting errors", function () {
@@ -3096,8 +3046,6 @@ describe("Rooms view meetings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("start meeting load requirements errors", function () {
@@ -3348,8 +3296,6 @@ describe("Rooms view meetings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("start meeting with dark mode", function () {
@@ -3400,7 +3346,5 @@ describe("Rooms view meetings", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/bigbluebutton?foo=a&bar=b`,
     );
-
-    cy.checkFinalState();
   });
 });

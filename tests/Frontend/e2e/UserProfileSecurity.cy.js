@@ -193,7 +193,6 @@ describe("User Profile Security", function () {
       .should("include.text", "auth.sessions.current")
       .should("include.text", "auth.sessions.browser Chrome")
       .should("include.text", "auth.sessions.ip 10.9.1.2");
-    cy.checkFinalState();
   });
 
   it("view without password change allowed", function () {
@@ -256,7 +255,6 @@ describe("User Profile Security", function () {
     cy.get('[data-test="logout-all-sessions-button"]')
       .should("have.text", "auth.sessions.logout_all")
       .should("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("view as external user", function () {
@@ -320,7 +318,6 @@ describe("User Profile Security", function () {
     cy.get('[data-test="logout-all-sessions-button"]')
       .should("have.text", "auth.sessions.logout_all")
       .should("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("change settings errors", function () {
@@ -482,7 +479,6 @@ describe("User Profile Security", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load sessions error", function () {
@@ -556,6 +552,5 @@ describe("User Profile Security", function () {
       .should("include.text", "01/23/2022, 16:55")
       .should("include.text", "auth.sessions.browser Mobile Safari")
       .should("include.text", "auth.sessions.ip 10.9.1.5");
-    cy.checkFinalState();
   });
 });

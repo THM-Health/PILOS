@@ -23,7 +23,6 @@ describe("Admin roles new", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/roles/new");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to add new roles", function () {
@@ -45,8 +44,6 @@ describe("Admin roles new", function () {
     cy.url().should("not.include", "/admin/room_types");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
     cy.checkToastMessage("app.flash.unauthorized");
-
-    cy.checkFinalState();
   });
 
   it("add new role", function () {
@@ -492,7 +489,6 @@ describe("Admin roles new", function () {
         "include.text",
         'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
       );
-    cy.checkFinalState();
   });
 
   it("add new role with different room limits", function () {
@@ -694,7 +690,6 @@ describe("Admin roles new", function () {
 
     // Check that role page is shown
     cy.url().should("include", "/admin/roles/40");
-    cy.checkFinalState();
   });
 
   it("check permission list with different permission dependencies", function () {
@@ -937,7 +932,6 @@ describe("Admin roles new", function () {
             cy.checkPermissionGroup(4, "serverPools.delete", true, true, false);
           });
       });
-    cy.checkFinalState();
   });
 
   it("check permission list with restricted permissions", function () {
@@ -1324,7 +1318,6 @@ describe("Admin roles new", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("add roles errors", function () {
@@ -1403,7 +1396,6 @@ describe("Admin roles new", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load permissions errors", function () {
@@ -1480,6 +1472,5 @@ describe("Admin roles new", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

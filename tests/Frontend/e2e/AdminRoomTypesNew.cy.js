@@ -24,7 +24,6 @@ describe("Admin room types new", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/room_types/new");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to add new room types", function () {
@@ -48,8 +47,6 @@ describe("Admin room types new", function () {
     cy.url().should("not.include", "/admin/room_types");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
     cy.checkToastMessage("app.flash.unauthorized");
-
-    cy.checkFinalState();
   });
 
   it("add new room type", function () {
@@ -745,7 +742,6 @@ describe("Admin room types new", function () {
         "include.text",
         'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
-    cy.checkFinalState();
   });
 
   it("add new room type with restrictions", function () {
@@ -1079,7 +1075,6 @@ describe("Admin room types new", function () {
 
     // Check that room type page is shown
     cy.url().should("include", "/admin/room_types/30");
-    cy.checkFinalState();
   });
 
   it("add new room type errors", function () {
@@ -1549,7 +1544,6 @@ describe("Admin room types new", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load roles errors", function () {
@@ -1695,7 +1689,6 @@ describe("Admin room types new", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load server pools errors", function () {
@@ -1852,6 +1845,5 @@ describe("Admin room types new", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

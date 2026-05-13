@@ -95,7 +95,6 @@ describe("Admin users view user actions", function () {
 
     // Check that dialog is closed
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("delete user errors", function () {
@@ -173,7 +172,6 @@ describe("Admin users view user actions", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("reset password", function () {
@@ -225,7 +223,6 @@ describe("Admin users view user actions", function () {
 
     // Check that dialog is closed
     cy.get('[data-test="users-reset-password-dialog"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("reset password errors", function () {
@@ -303,7 +300,6 @@ describe("Admin users view user actions", function () {
     cy.url().should("include", "/login?redirect=/admin/users");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("switch between edit and view", function () {
@@ -695,6 +691,5 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="user-tab-others-save-button"]')
       .should("be.visible")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 });

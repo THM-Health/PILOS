@@ -57,7 +57,6 @@ describe("Footer", function () {
           .should("be.visible")
           .and("have.text", "app.version 1.0.0");
       });
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with only legal notice link, no version and whitelabel", function () {
@@ -95,7 +94,6 @@ describe("Footer", function () {
         cy.get('[data-test="github-button"]').should("not.exist");
         cy.get('[data-test="version"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with only privacy policy link, no version and whitelabel", function () {
@@ -132,7 +130,6 @@ describe("Footer", function () {
         cy.get('[data-test="github-button"]').should("not.exist");
         cy.get('[data-test="version"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with no links, no version and no whitelabel", function () {
@@ -165,7 +162,6 @@ describe("Footer", function () {
           .and("have.attr", "href", "https://github.com/THM-Health/PILOS");
         cy.get('[data-test="version"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with no links, version and whitelabel", function () {
@@ -197,7 +193,6 @@ describe("Footer", function () {
           .should("be.visible")
           .and("have.text", "app.version 1.0.0");
       });
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with 2 links, version and whitelabel", function () {
@@ -250,7 +245,6 @@ describe("Footer", function () {
           .should("be.visible")
           .and("have.text", "app.version 1.0.0");
       });
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with 2 links, no version and whitelabel", function () {
@@ -300,7 +294,6 @@ describe("Footer", function () {
         cy.get('[data-test="github-button"]').should("not.exist");
         cy.get('[data-test="version"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check footer hidden with no links, no version and whitelabel", function () {
@@ -319,7 +312,6 @@ describe("Footer", function () {
     cy.wait("@configRequest");
 
     cy.get('[data-test="app-footer"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with only legal notice link, version and whitelabel", function () {
@@ -359,7 +351,6 @@ describe("Footer", function () {
           .should("be.visible")
           .and("have.text", "app.version 1.2.0");
       });
-    cy.checkFinalState();
   });
 
   it("check footer shown correctly with only privacy policy link, version and whitelabel", function () {
@@ -398,7 +389,6 @@ describe("Footer", function () {
           .should("be.visible")
           .and("have.text", "app.version 2.1.0");
       });
-    cy.checkFinalState();
   });
 
   it("open legal notice link", function () {
@@ -417,7 +407,6 @@ describe("Footer", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/legal?foo=a&bar=b`,
     );
-    cy.checkFinalState();
   });
 
   it("open accessibility link", function () {
@@ -436,7 +425,6 @@ describe("Footer", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/accessibility?foo=a&bar=b`,
     );
-    cy.checkFinalState();
   });
 
   it("open privacy policy link", function () {
@@ -455,6 +443,5 @@ describe("Footer", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/privacy?foo=a&bar=b`,
     );
-    cy.checkFinalState();
   });
 });

@@ -24,7 +24,6 @@ describe("Admin server pools new", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/server_pools/new");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to add new server pools", function () {
@@ -49,7 +48,6 @@ describe("Admin server pools new", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/users");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("add new server pool with 1 server", function () {
@@ -226,7 +224,6 @@ describe("Admin server pools new", function () {
 
     // Check that server pool page is shown
     cy.url().should("include", "/admin/server_pools/20");
-    cy.checkFinalState();
   });
 
   it("add new server pool with several servers", function () {
@@ -440,7 +437,6 @@ describe("Admin server pools new", function () {
 
     // Check that user page is shown
     cy.url().should("include", "/admin/server_pools/20");
-    cy.checkFinalState();
   });
 
   it("add new server pool errors", function () {
@@ -538,7 +534,6 @@ describe("Admin server pools new", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load servers errors", function () {
@@ -685,6 +680,5 @@ describe("Admin server pools new", function () {
     cy.url().should("include", "/login?redirect=/admin/server_pools/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

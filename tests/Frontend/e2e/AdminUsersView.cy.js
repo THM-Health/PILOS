@@ -31,7 +31,6 @@ describe("Admin users view", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/users/");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to view users", function () {
@@ -55,7 +54,6 @@ describe("Admin users view", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/users/2");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("check userView shown correctly", function () {
@@ -249,7 +247,6 @@ describe("Admin users view", function () {
 
     // Check that others save button is hidden
     cy.get('[data-test="user-tab-others-save-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check userView with ldap user", function () {
@@ -315,7 +312,6 @@ describe("Admin users view", function () {
     cy.get('[data-test="others-tab-button"]').click();
 
     cy.get("#bbb_skip_check_audio").should("not.be.checked").and("be.disabled");
-    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -347,7 +343,6 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -383,7 +378,6 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-delete-button"]')
       .should("be.visible")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("check button visibility for user that is superuser", function () {
@@ -454,7 +448,6 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-delete-button"]')
       .should("be.visible")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("check button visibility for user that is no superuser", function () {
@@ -518,7 +511,6 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]').should("not.exist");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("open view errors", function () {
@@ -599,7 +591,6 @@ describe("Admin users view", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load timezones error", function () {
@@ -670,6 +661,5 @@ describe("Admin users view", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

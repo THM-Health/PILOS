@@ -20,7 +20,6 @@ describe("Admin servers view", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/servers/1");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to view servers", function () {
@@ -39,7 +38,6 @@ describe("Admin servers view", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/servers/1");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("check serverView shown correctly (server enabled)", function () {
@@ -209,7 +207,6 @@ describe("Admin servers view", function () {
 
     // Check that panic button is hidden (missing permissions)
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check serverView shown correctly (server draining)", function () {
@@ -268,7 +265,6 @@ describe("Admin servers view", function () {
 
     // Check that panic button is hidden (missing permissions)
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check serverView shown correctly (server disabled)", function () {
@@ -331,7 +327,6 @@ describe("Admin servers view", function () {
 
     // Check that panic button is hidden (missing permissions)
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -432,7 +427,6 @@ describe("Admin servers view", function () {
       .and("not.be.disabled");
 
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -537,7 +531,6 @@ describe("Admin servers view", function () {
       .and("not.be.disabled");
 
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("open view errors", function () {
@@ -617,6 +610,5 @@ describe("Admin servers view", function () {
     cy.url().should("include", "/login?redirect=/admin/servers/1");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

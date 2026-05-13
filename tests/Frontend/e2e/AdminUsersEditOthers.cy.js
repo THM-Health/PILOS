@@ -107,7 +107,6 @@ describe("Admin users edit others", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
-    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -245,6 +244,5 @@ describe("Admin users edit others", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

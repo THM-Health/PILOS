@@ -212,7 +212,6 @@ describe("Rooms view streaming config actions", function () {
         // Close dialog
         cy.get('[data-test="dialog-cancel-button"]').click();
       });
-    cy.checkFinalState();
   });
 
   it("load with error", function () {
@@ -305,7 +304,6 @@ describe("Rooms view streaming config actions", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("edit settings", function () {
@@ -519,7 +517,6 @@ describe("Rooms view streaming config actions", function () {
 
     // Check dialog closed
     cy.get('[data-test="room-streaming-config-dialog"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("edit settings errors", function () {
@@ -661,7 +658,6 @@ describe("Rooms view streaming config actions", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("view/edit settings with different permissions", function () {
@@ -798,6 +794,5 @@ describe("Rooms view streaming config actions", function () {
         // Close dialog
         cy.get('[data-test="dialog-cancel-button"]').click();
       });
-    cy.checkFinalState();
   });
 });

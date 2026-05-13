@@ -16,7 +16,6 @@ describe("Admin room types view", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/room_types/3");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to view room types", function () {
@@ -35,7 +34,6 @@ describe("Admin room types view", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/room_types/3");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("check roomTypeView shown correctly", function () {
@@ -536,7 +534,6 @@ describe("Admin room types view", function () {
           )
           .and("be.disabled");
       });
-    cy.checkFinalState();
   });
 
   it("check restrictions shown correctly", function () {
@@ -588,7 +585,6 @@ describe("Admin room types view", function () {
               .should("not.exist");
           });
       });
-    cy.checkFinalState();
   });
 
   it("open view errors", function () {
@@ -670,7 +666,6 @@ describe("Admin room types view", function () {
     cy.url().should("include", "/login?redirect=/admin/room_types/3");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -699,7 +694,6 @@ describe("Admin room types view", function () {
       .and("have.attr", "href", "/admin/room_types/3/edit");
     cy.get('[data-test="room-types-delete-button"]').should("not.exist");
     cy.get('[data-test="room-types-save-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -733,6 +727,5 @@ describe("Admin room types view", function () {
       .should("be.visible")
       .and("not.be.disabled");
     cy.get('[data-test="room-types-save-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 });

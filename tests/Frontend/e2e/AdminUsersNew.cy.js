@@ -33,7 +33,6 @@ describe("Admin users new", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/users/new");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to add new users", function () {
@@ -58,7 +57,6 @@ describe("Admin users new", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/users");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("visit with local auth disabled", function () {
@@ -68,7 +66,6 @@ describe("Admin users new", function () {
 
     cy.url().should("not.include", "/admin/users/new");
     cy.url().should("include", "/404");
-    cy.checkFinalState();
   });
 
   it("add new user with custom password and 1 role", function () {
@@ -383,7 +380,6 @@ describe("Admin users new", function () {
         "include.text",
         'admin.breadcrumbs.users.view_{"firstname":"Max","lastname":"Doe"}',
       );
-    cy.checkFinalState();
   });
 
   it("add new user with generated password and several roles", function () {
@@ -629,7 +625,6 @@ describe("Admin users new", function () {
 
     // Check that user page is shown
     cy.url().should("include", "/admin/users/20");
-    cy.checkFinalState();
   });
 
   it("add new user errors", function () {
@@ -781,7 +776,6 @@ describe("Admin users new", function () {
     cy.url().should("include", "/login?redirect=/admin/users/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load timezones errors", function () {
@@ -859,7 +853,6 @@ describe("Admin users new", function () {
     cy.url().should("include", "/login?redirect=/admin/users/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("check that superuser role is disabled for users that are not superusers", function () {
@@ -919,7 +912,6 @@ describe("Admin users new", function () {
       .eq(4)
       .should("include.text", "admin.roles.no_data")
       .and("not.be.visible");
-    cy.checkFinalState();
   });
 
   it("load roles errors", function () {
@@ -1051,6 +1043,5 @@ describe("Admin users new", function () {
     cy.url().should("include", "/login?redirect=/admin/users/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

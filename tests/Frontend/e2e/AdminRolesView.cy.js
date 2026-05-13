@@ -20,7 +20,6 @@ describe("Admin roles view", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/roles/2");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to view roles", function () {
@@ -38,7 +37,6 @@ describe("Admin roles view", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/room_types/3");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("check rolesView shown correctly", function () {
@@ -280,7 +278,6 @@ describe("Admin roles view", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("check rolesView with no permissions available", function () {
@@ -338,7 +335,6 @@ describe("Admin roles view", function () {
     cy.get('[data-test="permission-list"]').should("not.exist");
 
     cy.contains("admin.roles.no_options").should("be.visible");
-    cy.checkFinalState();
   });
 
   it("check rolesView with different permission dependencies", function () {
@@ -511,7 +507,6 @@ describe("Admin roles view", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("check rolesView with different room limit settings", function () {
@@ -637,7 +632,6 @@ describe("Admin roles view", function () {
           .and("have.value", "2")
           .and("be.disabled");
       });
-    cy.checkFinalState();
   });
 
   it("load role errors", function () {
@@ -723,7 +717,6 @@ describe("Admin roles view", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/2");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load permissions errors", function () {
@@ -799,7 +792,6 @@ describe("Admin roles view", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/2");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -827,7 +819,6 @@ describe("Admin roles view", function () {
       .and("have.attr", "href", "/admin/roles/2/edit");
     cy.get('[data-test="roles-delete-button"]').should("not.exist");
     cy.get('[data-test="roles-save-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -859,7 +850,6 @@ describe("Admin roles view", function () {
       .should("be.visible")
       .and("not.be.disabled");
     cy.get('[data-test="roles-save-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check button visibility for user that is superuser", function () {
@@ -914,7 +904,6 @@ describe("Admin roles view", function () {
       .and("include.text", "app.edit")
       .and("have.attr", "href", "/admin/roles/2/edit");
     cy.get('[data-test="roles-delete-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("check button visibility for user that is no superuser", function () {
@@ -971,6 +960,5 @@ describe("Admin roles view", function () {
       .and("include.text", "app.edit")
       .and("have.attr", "href", "/admin/roles/2/edit");
     cy.get('[data-test="roles-delete-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 });

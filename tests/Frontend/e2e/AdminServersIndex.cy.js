@@ -16,7 +16,6 @@ describe("Admin servers index", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/servers");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to view servers", function () {
@@ -37,7 +36,6 @@ describe("Admin servers index", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/servers");
     cy.get("h1").should("be.visible").and("contain", "home.title");
-    cy.checkFinalState();
   });
 
   it("load servers", function () {
@@ -274,7 +272,6 @@ describe("Admin servers index", function () {
           .eq(6)
           .should("have.text", " --- ");
       });
-    cy.checkFinalState();
   });
 
   it("load servers errors", function () {
@@ -447,7 +444,6 @@ describe("Admin servers index", function () {
     cy.url().should("include", "/login?redirect=/admin/servers");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load servers page out of bounds", function () {
@@ -526,7 +522,6 @@ describe("Admin servers index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("server search", function () {
@@ -715,7 +710,6 @@ describe("Admin servers index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("sort servers", function () {
@@ -1054,7 +1048,6 @@ describe("Admin servers index", function () {
       .eq(6)
       .should("have.attr", "data-p-sorted", "true")
       .and("have.attr", "aria-sort", "ascending");
-    cy.checkFinalState();
   });
 
   it("check button visibility with view permission", function () {
@@ -1116,7 +1109,6 @@ describe("Admin servers index", function () {
         cy.get('[data-test="servers-edit-button" ]').should("not.exist");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -1196,7 +1188,6 @@ describe("Admin servers index", function () {
           .and("have.attr", "href", "/admin/servers/4/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check button visibility with add permission", function () {
@@ -1279,7 +1270,6 @@ describe("Admin servers index", function () {
           .and("have.attr", "href", "/admin/servers/4/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -1362,6 +1352,5 @@ describe("Admin servers index", function () {
           .and("have.attr", "href", "/admin/servers/4/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 });

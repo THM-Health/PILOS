@@ -1448,7 +1448,6 @@ describe("Rooms view settings room type actions", function () {
       .eq(1)
       .should("have.attr", "aria-pressed", "false")
       .and("be.disabled");
-    cy.checkFinalState();
   });
 
   it("change room type with features enabled", function () {
@@ -1595,7 +1594,6 @@ describe("Rooms view settings room type actions", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("change room type with features disabled", function () {
@@ -1645,7 +1643,6 @@ describe("Rooms view settings room type actions", function () {
             cy.get('[data-test="room-type-features"]').should("not.exist");
           });
       });
-    cy.checkFinalState();
   });
 
   it("change room type with features disabled and show disabled features", function () {
@@ -1722,7 +1719,6 @@ describe("Rooms view settings room type actions", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("change room type no expert", function () {
@@ -2514,7 +2510,6 @@ describe("Rooms view settings room type actions", function () {
     );
 
     cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("errors loading room types", function () {
@@ -2620,6 +2615,5 @@ describe("Rooms view settings room type actions", function () {
       "api/v1/roomTypes*",
       "settings",
     );
-    cy.checkFinalState();
   });
 });

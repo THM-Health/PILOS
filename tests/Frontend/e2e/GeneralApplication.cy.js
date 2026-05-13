@@ -28,7 +28,6 @@ describe("General", function () {
           .should("exist")
           .should("have.text", "Français");
       });
-    cy.checkFinalState();
   });
 
   it("hide locale menu if only one locale is available", function () {
@@ -40,7 +39,6 @@ describe("General", function () {
 
     // Check locale select is not shown
     cy.get('[data-test="navbar-locale"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("changing selected locale", function () {
@@ -88,7 +86,6 @@ describe("General", function () {
 
     // Check that the menu is closed
     cy.get('[data-test="submenu"]').should("not.be.visible");
-    cy.checkFinalState();
   });
 
   it("changing selected locale error", function () {
@@ -156,7 +153,6 @@ describe("General", function () {
       'app.flash.server_error.message_{"message":["Test"]}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-    cy.checkFinalState();
   });
 
   it("PrimeVue uses locale with exact match", function () {
@@ -198,7 +194,6 @@ describe("General", function () {
     cy.get('[data-test="paginator-page"]')
       .first()
       .should("have.attr", "aria-label", "Seite 1");
-    cy.checkFinalState();
   });
 
   it("PrimeVue uses parent locale for invalid language-region codes (de-XX -> de)", function () {
@@ -253,7 +248,6 @@ describe("General", function () {
     cy.get('[data-test="paginator-page"]')
       .first()
       .should("have.attr", "aria-label", "Seite 1");
-    cy.checkFinalState();
   });
 
   it("PrimeVue uses local fallback (en) for unsupported PrimeLocale locales", function () {
@@ -308,7 +302,6 @@ describe("General", function () {
     cy.get('[data-test="paginator-page"]')
       .last()
       .should("have.attr", "aria-label", "Page 1");
-    cy.checkFinalState();
   });
 
   it("disabled welcome page redirect unauthenticated users to login", function () {
@@ -330,7 +323,6 @@ describe("General", function () {
     cy.url().should("contain", "/login?redirect=/rooms");
 
     cy.get('[data-test="login-tab-button-local"]').should("be.visible");
-    cy.checkFinalState();
   });
 
   it("disabled welcome page redirect authenticated users to rooms overview", function () {
@@ -348,7 +340,6 @@ describe("General", function () {
 
     // Should be redirected to rooms overview
     cy.url().should("contain", "/rooms");
-    cy.checkFinalState();
   });
 
   it("welcome page shown", function () {
@@ -357,7 +348,6 @@ describe("General", function () {
 
     // Check if the welcome page is shown
     cy.get("h1").should("be.visible").and("contain", "home.title");
-    cy.checkFinalState();
   });
 
   it("check help button if help url specified", function () {
@@ -385,7 +375,6 @@ describe("General", function () {
       "eq",
       `${Cypress.expose("redirectBaseUrl")}/help?foo=a&bar=b`,
     );
-    cy.checkFinalState();
   });
 
   it("check help button hidden if help url not specified", function () {
@@ -397,7 +386,6 @@ describe("General", function () {
     cy.visit("/");
 
     cy.get('[data-test="navbar-help"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("change to dark mode", function () {
@@ -426,7 +414,6 @@ describe("General", function () {
     cy.get('[data-test="navbar-dark-mode"]')
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
-    cy.checkFinalState();
   });
 
   it("change to light mode", function () {
@@ -459,6 +446,5 @@ describe("General", function () {
     cy.get('[data-test="navbar-dark-mode"]')
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
-    cy.checkFinalState();
   });
 });

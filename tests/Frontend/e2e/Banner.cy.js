@@ -81,7 +81,6 @@ describe("Banner", function () {
         cy.get('[data-test="banner-link-button"]').should("not.exist");
       });
     });
-    cy.checkFinalState();
   });
 
   it("check banner link works correctly", function () {
@@ -149,7 +148,6 @@ describe("Banner", function () {
         .and("have.attr", "data-p-severity", "danger")
         .and("not.have.class", "p-0 underline");
     });
-    cy.checkFinalState();
   });
 
   it("check banner hidden if disabled", function () {
@@ -173,6 +171,5 @@ describe("Banner", function () {
 
     // Check that banner is shown correctly
     cy.get('[data-test="app-banner"]').should("not.exist");
-    cy.checkFinalState();
   });
 });

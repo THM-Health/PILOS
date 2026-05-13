@@ -221,7 +221,6 @@ describe("Admin settings with edit permission", function () {
       .within(() => {
         cy.checkSettingsFileSelector("", "streaming.css", true);
       });
-    cy.checkFinalState();
   });
 
   it("edit settings saving error", function () {
@@ -329,7 +328,6 @@ describe("Admin settings with edit permission", function () {
         "not.include.text",
         "The userdata-bbb_hide_notifications parameter is missing a value.",
       );
-    cy.checkFinalState();
   });
 
   it("edit settings loading error", function () {
@@ -391,7 +389,6 @@ describe("Admin settings with edit permission", function () {
 
     // Check save button is enabled
     cy.get('[data-test="save-button"]').should("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("check settings with update permission", function () {
@@ -476,7 +473,6 @@ describe("Admin settings with edit permission", function () {
           )
           .and("not.be.disabled");
       });
-    cy.checkFinalState();
   });
 
   it("check room type settings table", function () {
@@ -648,7 +644,6 @@ describe("Admin settings with edit permission", function () {
           .find(".fa-solid.fa-check")
           .should("exist");
       });
-    cy.checkFinalState();
   });
 
   it("edit room type settings", function () {
@@ -899,7 +894,6 @@ describe("Admin settings with edit permission", function () {
           .find(".fa-solid.fa-times")
           .should("exist");
       });
-    cy.checkFinalState();
   });
 
   it("edit room type settings saving error", function () {
@@ -986,7 +980,6 @@ describe("Admin settings with edit permission", function () {
       "not.include.text",
       "The Default pause image must have a resolution of 1920x1080 pixels.",
     );
-    cy.checkFinalState();
   });
 
   it("edit room type settings loading error", function () {
@@ -1055,6 +1048,5 @@ describe("Admin settings with edit permission", function () {
         // Check save button is enabled
         cy.get('[data-test="dialog-save-button"]').should("not.be.disabled");
       });
-    cy.checkFinalState();
   });
 });

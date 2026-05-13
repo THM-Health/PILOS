@@ -13,7 +13,6 @@ describe("Admin index", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin");
-    cy.checkFinalState();
   });
 
   it("visit without permission to view admin pages", function () {
@@ -28,8 +27,6 @@ describe("Admin index", function () {
     cy.url().should("not.include", "/admin");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
     cy.checkToastMessage("app.flash.unauthorized");
-
-    cy.checkFinalState();
   });
 
   it("check admin index with all permissions", function () {
@@ -97,7 +94,6 @@ describe("Admin index", function () {
       .and("have.attr", "href", "/admin")
       .and("include.text", "app.streaming")
       .and("include.text", "admin.streaming.tile_description");
-    cy.checkFinalState();
   });
 
   it("open admin settings", function () {
@@ -141,7 +137,6 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-settings-link"]').click();
 
     cy.url().should("include", "/admin/settings");
-    cy.checkFinalState();
   });
 
   it("open admin users", function () {
@@ -192,7 +187,6 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-users-link"]').click();
 
     cy.url().should("include", "/admin/users");
-    cy.checkFinalState();
   });
 
   it("open admin roles", function () {
@@ -235,7 +229,6 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-roles-link"]').click();
 
     cy.url().should("include", "/admin/roles");
-    cy.checkFinalState();
   });
 
   it("open admin room types", function () {
@@ -274,7 +267,6 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-room-types-link"]').click();
 
     cy.url().should("include", "/admin/room_types");
-    cy.checkFinalState();
   });
 
   it("open admin servers", function () {
@@ -317,7 +309,6 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-servers-link"]').click();
 
     cy.url().should("include", "/admin/servers");
-    cy.checkFinalState();
   });
 
   it("open admin server pools", function () {
@@ -360,7 +351,6 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-server-pools-link"]').click();
 
     cy.url().should("include", "/admin/server_pools");
-    cy.checkFinalState();
   });
 
   it("open admin streaming", function () {
@@ -414,6 +404,5 @@ describe("Admin index", function () {
     cy.get('[data-test="admin-streaming-link"]').click();
 
     cy.url().should("include", "/admin/streaming_settings");
-    cy.checkFinalState();
   });
 });

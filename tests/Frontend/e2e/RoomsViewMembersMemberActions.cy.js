@@ -239,7 +239,6 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]')
       .eq(3)
       .should("include.text", "rooms.roles.moderator");
-    cy.checkFinalState();
   });
 
   it("add new member errors", function () {
@@ -477,7 +476,6 @@ describe("Rooms view members member actions", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("edit member", function () {
@@ -567,7 +565,6 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]')
       .eq(0)
       .should("include.text", "rooms.roles.moderator");
-    cy.checkFinalState();
   });
 
   it("edit member errors", function () {
@@ -725,7 +722,6 @@ describe("Rooms view members member actions", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("delete member", function () {
@@ -794,7 +790,6 @@ describe("Rooms view members member actions", function () {
 
     // Check that delete dialog is closed
     cy.get('[data-test="room-members-delete-dialog"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("delete member errors", function () {
@@ -930,6 +925,5 @@ describe("Rooms view members member actions", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 });

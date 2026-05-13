@@ -113,7 +113,6 @@ describe("Admin servers index server actions", function () {
     // Cancel delete of server
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("delete server errors", function () {
@@ -212,7 +211,6 @@ describe("Admin servers index server actions", function () {
     cy.url().should("include", "/login?redirect=/admin/servers");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("reload servers", function () {
@@ -436,7 +434,6 @@ describe("Admin servers index server actions", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(1)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("open add new server page", function () {
@@ -447,7 +444,6 @@ describe("Admin servers index server actions", function () {
     cy.get('[data-test="servers-add-button"]').click();
 
     cy.url().should("include", "/admin/servers/new");
-    cy.checkFinalState();
   });
 
   it("open edit server page", function () {
@@ -463,7 +459,6 @@ describe("Admin servers index server actions", function () {
       .click();
 
     cy.url().should("include", "/admin/servers/1/edit");
-    cy.checkFinalState();
   });
 
   it("open view server page", function () {
@@ -480,6 +475,5 @@ describe("Admin servers index server actions", function () {
 
     cy.url().should("include", "/admin/servers/1");
     cy.url().should("not.include", "/edit");
-    cy.checkFinalState();
   });
 });

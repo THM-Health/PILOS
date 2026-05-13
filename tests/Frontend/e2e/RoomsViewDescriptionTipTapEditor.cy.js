@@ -98,7 +98,6 @@ describe("Rooms view description TipTap Editor", function () {
           .and("have.attr", "alt", "Test image")
           .and("have.css", "width", "250px");
       });
-    cy.checkFinalState();
   });
 
   it("edit image", function () {
@@ -183,7 +182,6 @@ describe("Rooms view description TipTap Editor", function () {
           .and("have.attr", "alt", "Test image 2")
           .and("have.css", "width", "300px");
       });
-    cy.checkFinalState();
   });
 
   it("delete image", function () {
@@ -237,7 +235,6 @@ describe("Rooms view description TipTap Editor", function () {
       .within(() => {
         cy.get("img").should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("add link", function () {
@@ -351,7 +348,6 @@ describe("Rooms view description TipTap Editor", function () {
       const selectedText = selection.toString();
       expect(selectedText).to.eq("Room description");
     });
-    cy.checkFinalState();
   });
 
   it("edit link", function () {
@@ -451,7 +447,6 @@ describe("Rooms view description TipTap Editor", function () {
           .and("have.text", "Test Link")
           .click();
       });
-    cy.checkFinalState();
   });
 
   it("delete link", function () {
@@ -517,7 +512,6 @@ describe("Rooms view description TipTap Editor", function () {
         cy.get("a").should("not.exist");
         cy.get("p").should("have.text", "Test Link");
       });
-    cy.checkFinalState();
   });
 
   it("change source code", function () {
@@ -586,6 +580,5 @@ describe("Rooms view description TipTap Editor", function () {
         cy.get("p").should("have.text", "Room description");
         cy.get("h1").should("have.text", "Additional room description");
       });
-    cy.checkFinalState();
   });
 });

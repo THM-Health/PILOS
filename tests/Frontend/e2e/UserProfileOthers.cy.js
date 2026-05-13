@@ -55,7 +55,6 @@ describe("User Profile Others", function () {
 
     // Check that the changes are shown
     cy.get("#bbb_skip_check_audio").should("be.checked");
-    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -151,6 +150,5 @@ describe("User Profile Others", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

@@ -23,7 +23,6 @@ describe("Admin roles edit", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/roles/2/edit");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to edit roles", function () {
@@ -46,7 +45,6 @@ describe("Admin roles edit", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/roles/2/edit");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("edit role", function () {
@@ -524,7 +522,6 @@ describe("Admin roles edit", function () {
         "include.text",
         'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
       );
-    cy.checkFinalState();
   });
 
   it("edit role with different room limits", function () {
@@ -745,7 +742,6 @@ describe("Admin roles edit", function () {
     // Check that role page is shown
     cy.url().should("include", "/admin/roles/2");
     cy.url().should("not.include", "/edit");
-    cy.checkFinalState();
   });
 
   it("check permission list with different permission dependencies", function () {
@@ -997,7 +993,6 @@ describe("Admin roles edit", function () {
             cy.checkPermissionGroup(4, "serverPools.delete", true, true, false);
           });
       });
-    cy.checkFinalState();
   });
 
   it("check permission list with restricted permissions", function () {
@@ -1393,7 +1388,6 @@ describe("Admin roles edit", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("edit role errors", function () {
@@ -1684,7 +1678,6 @@ describe("Admin roles edit", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load permissions errors", function () {
@@ -1765,7 +1758,6 @@ describe("Admin roles edit", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load role errors", function () {
@@ -1851,7 +1843,6 @@ describe("Admin roles edit", function () {
     cy.url().should("include", "/login?redirect=/admin/roles/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("check button visibility without delete permission", function () {
@@ -1884,7 +1875,6 @@ describe("Admin roles edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.save");
-    cy.checkFinalState();
   });
 
   it("check view for user that is superuser", function () {
@@ -2048,7 +2038,6 @@ describe("Admin roles edit", function () {
     cy.checkPermissionGroup(30, "serverPools.update", true, true, true);
     cy.checkPermissionGroup(31, "serverPools.create", true, true, true);
     cy.checkPermissionGroup(32, "serverPools.delete", true, true, true);
-    cy.checkFinalState();
   });
 
   it("check view for user that is no superuser", function () {
@@ -2213,6 +2202,5 @@ describe("Admin roles edit", function () {
     cy.checkPermissionGroup(30, "serverPools.update", true, true, true);
     cy.checkPermissionGroup(31, "serverPools.create", true, true, true);
     cy.checkPermissionGroup(32, "serverPools.delete", true, true, true);
-    cy.checkFinalState();
   });
 });

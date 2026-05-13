@@ -1,3 +1,24 @@
+const originalIt = window.it;
+
+window.it = function (title, fn) {
+  if (typeof fn !== "function") {
+    return originalIt(title, fn);
+  }
+
+  return originalIt(title, function () {
+    fn();
+    cy.checkFinalState();
+  });
+};
+
+window.it.only = function (title, fn) {
+  return originalIt.only(title, function () {
+    fn();
+  });
+};
+
+window.it.skip = originalIt.skip;
+
 /**
  * Override for visit
  * Checks final state before performing the visit, to make sure that unexpected errors that may have happened previously are caught.

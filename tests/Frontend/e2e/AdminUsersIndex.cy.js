@@ -29,7 +29,6 @@ describe("Admin users index", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/users");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to view users", function () {
@@ -49,7 +48,6 @@ describe("Admin users index", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/users");
     cy.get("h1").should("be.visible").and("contain", "home.title");
-    cy.checkFinalState();
   });
 
   it("load users", function () {
@@ -301,7 +299,6 @@ describe("Admin users index", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("load users errors", function () {
@@ -467,7 +464,6 @@ describe("Admin users index", function () {
     cy.url().should("include", "/login?redirect=/admin/users");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load users page out of bounds", function () {
@@ -546,7 +542,6 @@ describe("Admin users index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("load roles errors", function () {
@@ -730,7 +725,6 @@ describe("Admin users index", function () {
     cy.url().should("include", "/login?redirect=/admin/users");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("user search", function () {
@@ -907,7 +901,6 @@ describe("Admin users index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("filter users", function () {
@@ -1234,7 +1227,6 @@ describe("Admin users index", function () {
       .should("include.text", "admin.users.role_filter");
 
     cy.get('[data-test="clear-roles-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("sort users", function () {
@@ -1542,7 +1534,6 @@ describe("Admin users index", function () {
       .eq(5)
       .should("have.attr", "data-p-sorted", "true")
       .and("have.attr", "aria-sort", "ascending");
-    cy.checkFinalState();
   });
 
   it("check button visibility with view permission", function () {
@@ -1609,7 +1600,6 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check button visibility with update permission", function () {
@@ -1735,7 +1725,6 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check button visibility with add permission", function () {
@@ -1876,7 +1865,6 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -1956,7 +1944,6 @@ describe("Admin users index", function () {
           "be.visible",
         );
       });
-    cy.checkFinalState();
   });
 
   it("check button visibility for user that is no superuser", function () {
@@ -2033,7 +2020,6 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
       });
-    cy.checkFinalState();
   });
 
   it("check loading state during reload", function () {

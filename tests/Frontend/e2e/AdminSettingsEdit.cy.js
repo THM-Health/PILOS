@@ -359,7 +359,6 @@ describe("Admin settings with edit permission", function () {
       "Europe/Berlin",
     );
     cy.get("#no-welcome-page").should("not.be.checked");
-    cy.checkFinalState();
   });
 
   it("change theme settings that do not trigger reload", function () {
@@ -707,7 +706,6 @@ describe("Admin settings with edit permission", function () {
 
     // Check that page was not reloaded (settingsReloadRequest was not called)
     cy.get("@settingsReloadRequest").should("be.null");
-    cy.checkFinalState();
   });
 
   it("change theme favicon setting", function () {
@@ -832,7 +830,6 @@ describe("Admin settings with edit permission", function () {
       .find('[data-test="settings-image-preview"]')
       .should("have.attr", "src")
       .and("include", "/images/favicon3.ico");
-    cy.checkFinalState();
   });
 
   it("change theme favicon dark setting", function () {
@@ -959,7 +956,6 @@ describe("Admin settings with edit permission", function () {
       .find('[data-test="settings-image-preview"]')
       .should("have.attr", "src")
       .and("include", "/images/favicon-dark3.ico");
-    cy.checkFinalState();
   });
 
   it("change theme custom css setting", function () {
@@ -1084,7 +1080,6 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="settings-file-view-button"]').should("not.exist");
     });
-    cy.checkFinalState();
   });
 
   it("change banner settings", function () {
@@ -1767,7 +1762,6 @@ describe("Admin settings with edit permission", function () {
           .should("not.have.class", "selected");
       }
     });
-    cy.checkFinalState();
   });
 
   it("change room settings", function () {
@@ -2268,7 +2262,6 @@ describe("Admin settings with edit permission", function () {
     );
     cy.get("#room-file-terms-of-use").should("have.value", "");
     cy.get("#room-hide-owner").should("not.be.checked");
-    cy.checkFinalState();
   });
 
   it("change user settings", function () {
@@ -2331,7 +2324,6 @@ describe("Admin settings with edit permission", function () {
 
     // Check that settings are shown correctly
     cy.get("#password-change-allowed").should("not.be.checked");
-    cy.checkFinalState();
   });
 
   it("change recording and statistics settings", function () {
@@ -2726,7 +2718,6 @@ describe("Admin settings with edit permission", function () {
       "have.text",
       "admin.settings.one_week",
     );
-    cy.checkFinalState();
   });
 
   it("change bbb settings", function () {
@@ -3110,7 +3101,6 @@ describe("Admin settings with edit permission", function () {
 
     // Check that config is loaded
     cy.wait("@configRequest");
-    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -3629,6 +3619,5 @@ describe("Admin settings with edit permission", function () {
     cy.url().should("include", "/login?redirect=/admin/settings");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

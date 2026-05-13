@@ -94,7 +94,6 @@ describe("Admin servers view server actions", function () {
 
     // Check that dialog is closed
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("delete server errors", function () {
@@ -181,7 +180,6 @@ describe("Admin servers view server actions", function () {
     cy.url().should("include", "/login?redirect=/admin/servers/1");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("check connection", function () {
@@ -296,7 +294,6 @@ describe("Admin servers view server actions", function () {
       "not.include.text",
       "admin.servers.offline_reason",
     );
-    cy.checkFinalState();
   });
 
   it("check connection errors", function () {
@@ -343,7 +340,6 @@ describe("Admin servers view server actions", function () {
     cy.url().should("include", "/login?redirect=/admin/servers/1");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("panic", function () {
@@ -419,7 +415,6 @@ describe("Admin servers view server actions", function () {
 
     // Check that panic button is hidden (missing permissions)
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("panic errors", function () {
@@ -486,7 +481,6 @@ describe("Admin servers view server actions", function () {
       'app.flash.model_not_found.title_{"model":"app.model.server"}',
       'app.flash.model_not_found.details_{"ids":"1"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("switch between edit and view", function () {
@@ -659,6 +653,5 @@ describe("Admin servers view server actions", function () {
     cy.get('[data-test="servers-save-button"]')
       .should("be.visible")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 });

@@ -495,7 +495,6 @@ describe("User Profile Base", function () {
     cy.get('[data-test="default-profile-image-preview"]')
       .should("be.visible")
       .and("include.text", "LR");
-    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -641,7 +640,6 @@ describe("User Profile Base", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("view without users.updateOwnAttributes permission", function () {
@@ -684,7 +682,6 @@ describe("User Profile Base", function () {
         "true",
       );
     });
-    cy.checkFinalState();
   });
 
   it("view as external user", function () {
@@ -743,7 +740,6 @@ describe("User Profile Base", function () {
         "true",
       );
     });
-    cy.checkFinalState();
   });
 
   it("load timezones error", function () {
@@ -834,6 +830,5 @@ describe("User Profile Base", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

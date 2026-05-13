@@ -104,7 +104,6 @@ describe("User Profile Email", function () {
     cy.get("#email")
       .should("have.value", "john.doe@example.com")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -189,7 +188,6 @@ describe("User Profile Email", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("view without users.updateOwnAttributes permission", function () {
@@ -210,7 +208,6 @@ describe("User Profile Email", function () {
       .and("have.value", "JohnDoe@domain.tld");
 
     cy.get('[data-test="user-tab-email-save-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("view as external user", function () {
@@ -239,6 +236,5 @@ describe("User Profile Email", function () {
       .and("have.value", "JohnDoe@domain.tld");
 
     cy.get('[data-test="user-tab-email-save-button"]').should("not.exist");
-    cy.checkFinalState();
   });
 });

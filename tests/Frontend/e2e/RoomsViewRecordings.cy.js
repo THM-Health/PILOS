@@ -307,8 +307,6 @@ describe("Rooms view recordings", function () {
       .eq(0)
       .find('button[data-test="room-recordings-delete-button"]')
       .should("not.be.disabled");
-
-    cy.checkFinalState();
   });
 
   it("load recordings with access code", function () {
@@ -393,7 +391,6 @@ describe("Rooms view recordings", function () {
       .should("be.visible")
       .and("include.text", "rooms.recordings.retention_period.title")
       .and("include.text", "rooms.recordings.retention_period.unlimited");
-    cy.checkFinalState();
   });
 
   it("load recordings with access code errors", function () {
@@ -540,7 +537,6 @@ describe("Rooms view recordings", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("not.exist");
     cy.get("#access-code").should("have.value", "");
-    cy.checkFinalState();
   });
 
   it("load recordings with personalized link", function () {
@@ -613,7 +609,6 @@ describe("Rooms view recordings", function () {
       .should("be.visible")
       .and("include.text", "rooms.recordings.retention_period.title")
       .and("include.text", "rooms.recordings.retention_period.unlimited");
-    cy.checkFinalState();
   });
 
   it("load recordings with personalized link errors", function () {
@@ -706,7 +701,6 @@ describe("Rooms view recordings", function () {
     cy.url()
       .should("not.include", "/rooms/abc-def-123")
       .and("not.include", "/rooms");
-    cy.checkFinalState();
   });
 
   it("load recordings errors", function () {
@@ -922,7 +916,6 @@ describe("Rooms view recordings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("load recordings page out of range", function () {
@@ -996,7 +989,6 @@ describe("Rooms view recordings", function () {
         page: "1",
       });
     });
-    cy.checkFinalState();
   });
 
   it("view with different permissions", function () {
@@ -1504,7 +1496,6 @@ describe("Rooms view recordings", function () {
         "include.text",
         'rooms.recordings.retention_period.days_{"days":365}',
       );
-    cy.checkFinalState();
   });
 
   it("search recordings", function () {
@@ -1685,7 +1676,6 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("filter recordings", function () {
@@ -1942,7 +1932,6 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("sort recordings", function () {
@@ -2157,6 +2146,5 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 });

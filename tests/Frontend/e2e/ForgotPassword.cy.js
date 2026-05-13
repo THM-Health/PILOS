@@ -27,7 +27,6 @@ describe("Forgot password", function () {
     cy.visit("/forgot_password");
 
     cy.url().should("include", "/404").and("not.include", "/forgot_password");
-    cy.checkFinalState();
   });
 
   it("check with password change forbidden", function () {
@@ -44,7 +43,6 @@ describe("Forgot password", function () {
     cy.visit("/forgot_password");
 
     cy.url().should("include", "/404").and("not.include", "/forgot_password");
-    cy.checkFinalState();
   });
 
   it("visit with logged in user", function () {
@@ -61,7 +59,6 @@ describe("Forgot password", function () {
     // Check that user is redirected to home page
     cy.url().should("not.include", "/forgot_password");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("forgot password", function () {
@@ -129,7 +126,6 @@ describe("Forgot password", function () {
     // Check that user is redirected to home page
     cy.url().should("not.include", "/forgot_password");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("forgot password errors", function () {
@@ -178,6 +174,5 @@ describe("Forgot password", function () {
     cy.get('[data-test="email-field"]')
       .should("be.visible")
       .and("not.include.text", "The email fiel is required.");
-    cy.checkFinalState();
   });
 });

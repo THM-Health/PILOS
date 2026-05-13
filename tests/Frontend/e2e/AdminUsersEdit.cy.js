@@ -32,7 +32,6 @@ describe("Admin users edit", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/users/2/edit");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to edit users", function () {
@@ -57,7 +56,6 @@ describe("Admin users edit", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/users/2/edit");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("check visiting edit user page of a superuser", function () {
@@ -128,7 +126,6 @@ describe("Admin users edit", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
-    cy.checkFinalState();
   });
 
   it("visit edit user page", function () {
@@ -193,7 +190,6 @@ describe("Admin users edit", function () {
     cy.get('[data-test="email-tab-button"]').should("be.visible");
     cy.get('[data-test="security-tab-button"]').should("be.visible");
     cy.get('[data-test="others-tab-button"]').should("be.visible");
-    cy.checkFinalState();
   });
 
   it("check button visibility with delete permission", function () {
@@ -232,7 +228,6 @@ describe("Admin users edit", function () {
     cy.get('[data-test="user-tab-profile-save-button"]')
       .should("be.visible")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("visit edit user page errors", function () {
@@ -312,6 +307,5 @@ describe("Admin users edit", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

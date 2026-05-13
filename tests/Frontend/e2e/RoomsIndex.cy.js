@@ -8,7 +8,6 @@ describe("Room Index", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/rooms");
-    cy.checkFinalState();
   });
 
   it("check list of rooms and opening room view", function () {
@@ -172,7 +171,6 @@ describe("Room Index", function () {
       });
 
     cy.url().should("include", "/rooms/abc-def-123");
-    cy.checkFinalState();
   });
 
   it("check list of rooms with rooms.filterAll permission", function () {
@@ -269,7 +267,6 @@ describe("Room Index", function () {
 
     // Check if rooms are shown
     cy.get('[data-test="room-card"]').should("have.length", 3);
-    cy.checkFinalState();
   });
 
   it("click on room card to open room view", function () {
@@ -298,7 +295,6 @@ describe("Room Index", function () {
     cy.wait("@roomRequest");
 
     cy.get('[data-test="no-room-overlay"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("sorting", function () {
@@ -451,7 +447,6 @@ describe("Room Index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("search", function () {
@@ -629,7 +624,6 @@ describe("Room Index", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("filter room type", function () {
@@ -863,7 +857,6 @@ describe("Room Index", function () {
 
     // Check all rooms are shown
     cy.get('[data-test="room-card"]').should("have.length", 3);
-    cy.checkFinalState();
   });
 
   it("filter without viewAll permission", function () {
@@ -1050,7 +1043,6 @@ describe("Room Index", function () {
     cy.get('[data-test="rooms-filter-button"]')
       .eq(0)
       .should("have.attr", "aria-pressed", "false");
-    cy.checkFinalState();
   });
 
   it("filter with viewAll permission", function () {
@@ -1322,7 +1314,6 @@ describe("Room Index", function () {
       .eq(2)
       .should("have.text", "rooms.index.show_public")
       .and("have.attr", "aria-pressed", "true");
-    cy.checkFinalState();
   });
 
   it("show favorites", function () {
@@ -1516,7 +1507,6 @@ describe("Room Index", function () {
     cy.get('[data-test="room-card"]')
       .should("have.length", 1)
       .and("include.text", "Meeting One");
-    cy.checkFinalState();
   });
 
   it("trigger favorites button", function () {
@@ -1942,7 +1932,6 @@ describe("Room Index", function () {
         page: "1",
       });
     });
-    cy.checkFinalState();
   });
 
   it("trigger favorites button errors (room card)", function () {
@@ -2144,8 +2133,6 @@ describe("Room Index", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("trigger favorites button errors (room info dialog)", function () {
@@ -2397,8 +2384,6 @@ describe("Room Index", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-
-    cy.checkFinalState();
   });
 
   it("error loading rooms", function () {
@@ -2624,7 +2609,6 @@ describe("Room Index", function () {
     cy.url().should("include", "/login");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("error loading room types", function () {
@@ -2703,6 +2687,5 @@ describe("Room Index", function () {
     cy.url().should("include", "/login?redirect=/rooms");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

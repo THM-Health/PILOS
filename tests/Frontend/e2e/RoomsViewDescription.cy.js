@@ -130,7 +130,6 @@ describe("Rooms view description", function () {
     cy.get('[data-test="room-description-edit-button"]')
       .should("have.text", "app.edit")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("edit description", function () {
@@ -388,7 +387,6 @@ describe("Rooms view description", function () {
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
     cy.get('[data-test="room-description-edit-button"]').should("be.visible");
-    cy.checkFinalState();
   });
 
   it("edit description errors", function () {
@@ -496,7 +494,6 @@ describe("Rooms view description", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("description changes", function () {
@@ -578,7 +575,6 @@ describe("Rooms view description", function () {
           .and("be.visible");
       });
     cy.get('[data-test="tip-tap-editor"]').should("not.exist");
-    cy.checkFinalState();
   });
 
   it("open external link", function () {
@@ -653,7 +649,6 @@ describe("Rooms view description", function () {
         `${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b`,
         "_blank",
       );
-    cy.checkFinalState();
   });
 
   it("sanitize html", function () {
@@ -726,6 +721,5 @@ describe("Rooms view description", function () {
             `${Cypress.expose("redirectBaseUrl")}/?foo=a&bar=b`,
           );
       });
-    cy.checkFinalState();
   });
 });

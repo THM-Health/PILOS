@@ -571,7 +571,6 @@ describe("Admin users edit base", function () {
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
-    cy.checkFinalState();
   });
 
   it("save changes errors", function () {
@@ -758,7 +757,6 @@ describe("Admin users edit base", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("view as external user", function () {
@@ -817,7 +815,6 @@ describe("Admin users edit base", function () {
         "true",
       );
     });
-    cy.checkFinalState();
   });
 
   it("load timezones error", function () {
@@ -907,6 +904,5 @@ describe("Admin users edit base", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

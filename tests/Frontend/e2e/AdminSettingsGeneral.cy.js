@@ -20,7 +20,6 @@ describe("Admin settings general", function () {
 
   it("visit with user that is not logged in", function () {
     cy.testVisitWithoutCurrentUser("/admin/settings");
-    cy.checkFinalState();
   });
 
   it("visit with user without permission to view settings", function () {
@@ -39,7 +38,6 @@ describe("Admin settings general", function () {
     // Check if welcome page is shown
     cy.url().should("not.include", "/admin/room_types/3/edit");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
-    cy.checkFinalState();
   });
 
   it("check loading only view", function () {
@@ -81,7 +79,6 @@ describe("Admin settings general", function () {
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
       .should("include.text", "admin.breadcrumbs.settings");
-    cy.checkFinalState();
   });
 
   it("check loading with edit permission", function () {
@@ -115,7 +112,6 @@ describe("Admin settings general", function () {
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
       .should("include.text", "admin.breadcrumbs.settings");
-    cy.checkFinalState();
   });
 
   it("load settings errors", function () {
@@ -159,7 +155,6 @@ describe("Admin settings general", function () {
     cy.url().should("include", "/login?redirect=/admin/settings");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 
   it("load timezones error", function () {
@@ -247,6 +242,5 @@ describe("Admin settings general", function () {
     cy.url().should("include", "/login?redirect=/admin/settings");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-    cy.checkFinalState();
   });
 });

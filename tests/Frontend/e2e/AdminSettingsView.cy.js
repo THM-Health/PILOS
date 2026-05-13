@@ -166,7 +166,6 @@ describe("Admin settings with edit permission", function () {
               .and("be.disabled");
           });
       });
-    cy.checkFinalState();
   });
 
   it("check theme settings with only view permission", function () {
@@ -237,7 +236,6 @@ describe("Admin settings with edit permission", function () {
       .within(() => {
         cy.checkSettingsFileSelectorOnlyView("");
       });
-    cy.checkFinalState();
   });
 
   it("check banner settings with only view permission", function () {
@@ -513,7 +511,6 @@ describe("Admin settings with edit permission", function () {
           .should("have.value", "#ef4444")
           .and("be.disabled");
       });
-    cy.checkFinalState();
   });
 
   it("check room settings with only view permission", function () {
@@ -715,7 +712,6 @@ describe("Admin settings with edit permission", function () {
       .within(() => {
         cy.get("#room-hide-owner").should("be.checked").and("be.disabled");
       });
-    cy.checkFinalState();
   });
 
   it("check user settings with only view permission", function () {
@@ -731,7 +727,6 @@ describe("Admin settings with edit permission", function () {
           .should("be.checked")
           .and("be.disabled");
       });
-    cy.checkFinalState();
   });
 
   it("check recording and statistics settings with only view permission", function () {
@@ -837,7 +832,6 @@ describe("Admin settings with edit permission", function () {
             );
           });
       });
-    cy.checkFinalState();
   });
 
   it("check bbb settings with only view permission", function () {
@@ -917,6 +911,5 @@ describe("Admin settings with edit permission", function () {
       .within(() => {
         cy.checkSettingsFileSelectorOnlyView("/files/testFile.txt");
       });
-    cy.checkFinalState();
   });
 });

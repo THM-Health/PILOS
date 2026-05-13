@@ -127,7 +127,6 @@ describe("Rooms view personalized links", function () {
         'rooms.personalized_links.expires_at_{"date":"10/20/2021, 11:17"}',
       )
       .should("include.text", "rooms.roles.moderator");
-    cy.checkFinalState();
   });
 
   it("load personalized links errors", function () {
@@ -535,7 +534,6 @@ describe("Rooms view personalized links", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("load personalized links page out of range", function () {
@@ -610,7 +608,6 @@ describe("Rooms view personalized links", function () {
         page: "1",
       });
     });
-    cy.checkFinalState();
   });
 
   it("view with different permissions", function () {
@@ -835,7 +832,6 @@ describe("Rooms view personalized links", function () {
           "be.visible",
         );
       });
-    cy.checkFinalState();
   });
 
   it("search personalized links", function () {
@@ -1031,7 +1027,6 @@ describe("Rooms view personalized links", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 
   it("filter personalized links", function () {
@@ -1281,7 +1276,6 @@ describe("Rooms view personalized links", function () {
       "have.text",
       "rooms.personalized_links.filter.all",
     );
-    cy.checkFinalState();
   });
 
   it("sort personalized links", function () {
@@ -1512,6 +1506,5 @@ describe("Rooms view personalized links", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
-    cy.checkFinalState();
   });
 });

@@ -364,7 +364,6 @@ describe("Rooms view settings", function () {
           .should("have.text", "rooms.settings.advanced.visibility.public")
           .and("have.attr", "aria-pressed", "true");
       });
-    cy.checkFinalState();
   });
 
   it("load settings errors", function () {
@@ -447,7 +446,6 @@ describe("Rooms view settings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("load settings with different permissions", function () {
@@ -868,7 +866,6 @@ describe("Rooms view settings", function () {
       .should("have.text", "rooms.settings.advanced.visibility.public")
       .and("have.attr", "aria-pressed", "true")
       .and("not.be.disabled");
-    cy.checkFinalState();
   });
 
   it("change settings", function () {
@@ -1269,7 +1266,6 @@ describe("Rooms view settings", function () {
       "have.text",
       "rooms.settings.expert_mode.activate",
     );
-    cy.checkFinalState();
   });
 
   it("change settings with GL3 access code", function () {
@@ -1337,7 +1333,6 @@ describe("Rooms view settings", function () {
 
     // Check that settings are shown correctly
     cy.get("#room-setting-name").should("have.value", "Meeting Two");
-    cy.checkFinalState();
   });
 
   it("change settings errors", function () {
@@ -1717,7 +1712,6 @@ describe("Rooms view settings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 
   it("delete room", function () {
@@ -1774,7 +1768,6 @@ describe("Rooms view settings", function () {
     cy.wait("@roomDeleteRequest");
 
     cy.url().should("include", "/rooms").and("not.include", "/abc-def-123");
-    cy.checkFinalState();
   });
 
   it("delete room errors", function () {
@@ -1863,7 +1856,6 @@ describe("Rooms view settings", function () {
       "api/v1/rooms/abc-def-123",
       "settings",
     );
-    cy.checkFinalState();
   });
 
   it("transfer ownership", function () {
@@ -2178,7 +2170,6 @@ describe("Rooms view settings", function () {
 
     // Check that access code overlay is shown
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
-    cy.checkFinalState();
   });
 
   it("transfer ownership errors", function () {
@@ -2389,6 +2380,5 @@ describe("Rooms view settings", function () {
       'app.flash.model_not_found.title_{"model":"app.model.room"}',
       'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
-    cy.checkFinalState();
   });
 });
