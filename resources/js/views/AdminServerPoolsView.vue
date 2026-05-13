@@ -232,7 +232,7 @@ const formErrors = useFormErrors();
 const api = useApi();
 const confirm = useConfirm();
 const router = useRouter();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const props = defineProps({
   id: {
@@ -254,7 +254,7 @@ const name = ref("");
 watch(
   () => name.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       name: name.value,
     };
   },

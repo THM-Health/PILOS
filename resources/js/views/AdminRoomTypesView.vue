@@ -1533,7 +1533,7 @@ const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
 const colors = useColors();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const { t } = useI18n();
 
@@ -1602,7 +1602,7 @@ const name = ref("");
 watch(
   () => name.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       name: name.value,
     };
   },

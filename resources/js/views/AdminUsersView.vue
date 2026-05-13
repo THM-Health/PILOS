@@ -66,7 +66,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 const isBusy = ref(false);
 const isLoadingAction = ref(false);
 
@@ -92,7 +92,7 @@ const lastname = computed(() => {
 watch(
   () => firstname.value + " " + lastname.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       firstname: firstname.value,
       lastname: lastname.value,
     };
