@@ -42,10 +42,13 @@
         ></LoadingRetryButton>
       </template>
 
-      <form
+      <Form
         :aria-hidden="modelLoadingError"
         class="flex flex-col gap-4"
-        @submit.prevent="saveServerPool"
+        :disabled="
+          isBusy || modelLoadingError || serversLoadingError || serversLoading
+        "
+        @submit="saveServerPool"
       >
         <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{
@@ -55,6 +58,7 @@
             <InputText
               id="name"
               v-model="model.name"
+              required
               class="w-full"
               type="text"
               :invalid="formErrors.fieldInvalid('name')"
@@ -191,7 +195,7 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
     <ConfirmDialog
       data-test="stale-server-pool-dialog"

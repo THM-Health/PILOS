@@ -1,6 +1,11 @@
 <template>
   <div>
-    <form v-if="model" class="flex flex-col gap-4" @submit="save">
+    <Form
+      v-if="model"
+      :disabled="isBusy || rolesLoadingError || rolesLoading || disabled"
+      class="flex flex-col gap-4"
+      @submit="save"
+    >
       <div class="field grid grid-cols-12 gap-4" data-test="roles-field">
         <label
           id="roles-label"
@@ -23,7 +28,7 @@
             @loading-error="(value) => (rolesLoadingError = value)"
             @busy="(value) => (rolesLoading = value)"
           />
-          <FormError :errors="formErrors.fieldError('roles')" />
+          <FormError :errors="formErrors.fieldError('roles', true)" />
         </div>
       </div>
       <div class="flex justify-end">
@@ -37,7 +42,7 @@
           data-test="users-roles-save-button"
         />
       </div>
-    </form>
+    </Form>
   </div>
 </template>
 

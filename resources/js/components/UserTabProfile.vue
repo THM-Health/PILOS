@@ -1,7 +1,16 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.base_data')">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form
+        class="flex flex-col gap-4"
+        :disabled="
+          isBusy ||
+          timezonesLoading ||
+          timezonesLoadingError ||
+          imageToBlobLoading
+        "
+        @submit="save"
+      >
         <div class="field grid grid-cols-12 gap-4" data-test="firstname-field">
           <label
             for="firstname"
@@ -158,7 +167,7 @@
             data-test="user-tab-profile-save-button"
           />
         </div>
-      </form>
+      </Form>
     </AdminPanel>
   </div>
 </template>

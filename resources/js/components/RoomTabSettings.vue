@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form :aria-hidden="loadingError" @submit="save">
+    <Form :aria-hidden="loadingError" :disabled="disabled" @submit="save">
       <OverlayComponent :show="isBusy || loadingError">
         <template #overlay>
           <LoadingRetryButton :error="loadingError" @reload="load" />
@@ -106,7 +106,7 @@
           type="submit"
         />
       </div>
-    </form>
+    </Form>
   </div>
 </template>
 
@@ -356,12 +356,8 @@ const form = computed(() => {
 /**
  * Save room settings
  *
- *  @param event
  */
-function save(event) {
-  // Prevent default form submit
-  event.preventDefault();
-
+function save() {
   // Set busy indicator
   isBusy.value = true;
 

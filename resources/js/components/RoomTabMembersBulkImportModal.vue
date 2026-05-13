@@ -25,11 +25,12 @@
         class="flex w-full flex-col justify-end gap-2 sm:flex-row"
       >
         <Button
-          :disabled="rawList.length === 0 || isLoadingAction"
+          :disabled="isLoadingAction"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
           data-test="dialog-continue-button"
-          @click="importUsers(true)"
+          form="room-members-bulk-import-form"
+          type="submit"
         />
       </div>
 
@@ -74,8 +75,12 @@
       </div>
     </template>
 
-    <div v-if="step === 0">
-      <div class="mt-6 flex flex-col gap-2">
+    <Form
+      id="room-members-bulk-import-form"
+      :disabled="isLoadingAction"
+      @submit="importUsers(true)"
+    >
+      <div class="field mt-6 flex flex-col gap-2">
         <label for="user-emails">{{
           $t("rooms.members.modals.bulk_import.label")
         }}</label>
@@ -83,6 +88,7 @@
           id="user-emails"
           v-model="rawList"
           autofocus
+          required
           aria-describedby="user-emails-help"
           :disabled="isLoadingAction"
           :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
@@ -95,7 +101,7 @@
         <FormError :errors="formErrors.fieldError('user_emails')" />
       </div>
       <!-- select role -->
-      <div class="mt-6 flex flex-col gap-2">
+      <div class="field mt-6 flex flex-col gap-2">
         <fieldset class="flex w-full flex-col gap-2">
           <legend>{{ $t("rooms.role") }}</legend>
 
@@ -104,6 +110,8 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="participant-role"
+              :invalid="formErrors.fieldInvalid('role')"
+              pt:input:required="required"
               name="role"
               :value="1"
             />
@@ -117,6 +125,8 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="moderator-role"
+              pt:input:required="required"
+              :invalid="formErrors.fieldInvalid('role')"
               name="role"
               :value="2"
             />
@@ -130,6 +140,8 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="co_owner-role"
+              pt:input:required="required"
+              :invalid="formErrors.fieldInvalid('role')"
               name="role"
               :value="3"
             />
@@ -141,7 +153,7 @@
           <FormError :errors="formErrors.fieldError('role')" />
         </fieldset>
       </div>
-    </div>
+    </Form>
 
     <div v-if="step === 1">
       <RoomTabMembersBulkImportList
@@ -206,7 +218,7 @@ const emit = defineEmits(["imported"]);
 
 const step = ref(0);
 const rawList = ref("");
-const newUsersRole = ref(1);
+const newUsersRole = ref(null);
 const modalVisible = ref(false);
 
 const validUsers = ref([]);

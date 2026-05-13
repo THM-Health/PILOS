@@ -1,7 +1,17 @@
 <template>
   <div>
     <OverlayComponent :show="isBusy">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form
+        class="flex flex-col gap-4"
+        :disabled="
+          isBusy ||
+          rolesLoadingError ||
+          timezonesLoadingError ||
+          rolesLoading ||
+          timezonesLoading
+        "
+        @submit="save"
+      >
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <div
             class="field grid grid-cols-12 gap-4"
@@ -209,7 +219,7 @@
             data-test="users-new-save-button"
           />
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
   </div>
 </template>

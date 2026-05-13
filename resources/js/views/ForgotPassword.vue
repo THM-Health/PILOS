@@ -7,8 +7,8 @@
         <Card>
           <template #title> {{ $t("auth.reset_password") }} </template>
           <template #content>
-            <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2" data-test="email-field">
+            <Form @submit="submit">
+              <div class="field flex flex-col gap-2" data-test="email-field">
                 <label for="email">{{ $t("app.email") }}</label>
                 <InputText
                   id="email"
@@ -29,7 +29,7 @@
                 :label="$t('auth.send_password_reset_link')"
                 data-test="send-reset-link-button"
               />
-            </form>
+            </Form>
           </template>
         </Card>
       </div>

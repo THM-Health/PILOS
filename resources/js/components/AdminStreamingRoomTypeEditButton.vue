@@ -44,7 +44,8 @@
           :loading="isLoadingAction"
           :disabled="isLoadingAction || loadingError"
           data-test="dialog-save-button"
-          @click="save"
+          form="admin-streaming-room-type-edit-form"
+          type="submit"
         />
       </div>
     </template>
@@ -58,9 +59,15 @@
         <LoadingRetryButton :error="loadingError" @reload="loadSettings()" />
       </template>
 
-      <form v-if="settings != null" class="flex flex-col gap-4">
+      <Form
+        v-if="settings != null"
+        id="admin-streaming-room-type-edit-form"
+        :disabled="isLoadingAction || loadingError"
+        class="flex flex-col gap-4"
+        @submit="save"
+      >
         <div
-          class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
+          class="field col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
           data-test="streaming-enabled-field"
         >
           <label for="streaming-enabled" class="flex items-center">
@@ -77,7 +84,7 @@
         </div>
 
         <fieldset
-          class="grid-rows grid gap-2"
+          class="field grid-rows grid gap-2"
           data-test="streaming-default-pause-image-field"
         >
           <legend
@@ -106,7 +113,7 @@
             <small>{{ $t("rooms.streaming.config.pause_image_format") }}</small>
           </div>
         </fieldset>
-      </form>
+      </Form>
     </OverlayComponent>
   </Dialog>
 </template>

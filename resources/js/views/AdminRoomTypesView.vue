@@ -39,7 +39,19 @@
           @reload="loadRoomType"
         ></LoadingRetryButton>
       </template>
-      <form class="flex flex-col gap-4" @submit.prevent="saveRoomType">
+      <Form
+        id="admin-room-types-form"
+        class="flex flex-col gap-4"
+        :disabled="
+          isBusy ||
+          modelLoadingError ||
+          serverPoolsLoadingError ||
+          serverPoolsLoading ||
+          rolesLoading ||
+          rolesLoadingError
+        "
+        @submit="saveRoomType"
+      >
         <!-- General room type settings -->
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <!-- Room type name -->
@@ -58,6 +70,7 @@
                 v-model="model.name"
                 class="w-full"
                 type="text"
+                required
                 :invalid="formErrors.fieldInvalid('name')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
@@ -110,6 +123,7 @@
                 v-model="model.color"
                 class="w-full"
                 type="text"
+                required
                 :invalid="formErrors.fieldInvalid('color')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
@@ -156,6 +170,7 @@
                   :show-no-results="false"
                   :show-labels="false"
                   :options="serverPools"
+                  :required="true"
                   :disabled="
                     isBusy ||
                     modelLoadingError ||
@@ -258,6 +273,7 @@
               <RoleSelect
                 v-model="model.roles"
                 aria-labelledby="roles-label"
+                required
                 :invalid="formErrors.fieldInvalid('roles')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 @busy="(value) => (rolesLoading = value)"
@@ -546,6 +562,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
+                      pt:input:required="required"
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="0"
                       name="lobby"
@@ -559,6 +576,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
+                      pt:input:required="required"
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="1"
                       name="lobby"
@@ -572,6 +590,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
+                      pt:input:required="required"
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="2"
                       name="lobby"
@@ -1492,7 +1511,7 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
     <ConfirmDialog
       data-test="stale-room-type-dialog"

@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.email')">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form class="flex flex-col gap-4" @submit="save">
         <div
           v-if="
             !viewOnly &&
@@ -78,7 +78,7 @@
             }}
           </Message>
         </div>
-      </form>
+      </Form>
     </AdminPanel>
   </div>
 </template>

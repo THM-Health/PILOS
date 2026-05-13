@@ -48,77 +48,87 @@
           :label="$t('app.save')"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
-          @click="save"
+          form="room-recordings-edit-form"
+          type="submit"
         />
       </div>
     </template>
 
-    <!-- description -->
-    <div class="flex flex-col gap-2" data-test="description-field">
-      <label for="description">{{ $t("rooms.recordings.description") }}</label>
-      <Textarea
-        id="description"
-        v-model="newDescription"
-        autofocus
-        :disabled="isLoadingAction"
-        :invalid="formErrors.fieldInvalid('description')"
-        :maxlength="
-          settingsStore.getSetting('recording.recording_description_limit')
-        "
-      />
-      <FormError :errors="formErrors.fieldError('description')" />
-      <small>
-        {{ $t("app.char_counter", { chars: charactersLeftDescription }) }}
-      </small>
-    </div>
-
-    <!-- available formats -->
-    <div class="mt-6 flex flex-col gap-2" data-test="available-formats-field">
-      <label>{{ $t("rooms.recordings.available_formats") }}</label>
-      <div
-        v-for="format in newFormats"
-        :key="format.id"
-        class="flex items-center"
-        :data-test="'format-' + format.id + '-field'"
-      >
-        <ToggleSwitch
-          v-model="format.disabled"
-          :input-id="'format-' + format.id"
-          :disabled="isLoadingAction"
-          :true-value="false"
-          :false-value="true"
-        />
-        <label :for="'format-' + format.id" class="ml-2">{{
-          $t("rooms.recordings.format_types." + format.format)
+    <Form id="room-recordings-edit-form" @submit="save">
+      <!-- description -->
+      <div class="field flex flex-col gap-2" data-test="description-field">
+        <label for="description">{{
+          $t("rooms.recordings.description")
         }}</label>
+        <Textarea
+          id="description"
+          v-model="newDescription"
+          autofocus
+          :disabled="isLoadingAction"
+          :invalid="formErrors.fieldInvalid('description')"
+          :maxlength="
+            settingsStore.getSetting('recording.recording_description_limit')
+          "
+        />
+        <FormError :errors="formErrors.fieldError('description')" />
+        <small>
+          {{ $t("app.char_counter", { chars: charactersLeftDescription }) }}
+        </small>
       </div>
-      <FormError :errors="formErrors.fieldError('formats', true)" />
-    </div>
 
-    <!-- access -->
-    <div class="mt-6 flex flex-col gap-2" data-test="access-field">
-      <fieldset class="flex w-full flex-col gap-2">
-        <label>{{ $t("rooms.recordings.access") }}</label>
+      <!-- available formats -->
+      <div
+        class="field mt-6 flex flex-col gap-2"
+        data-test="available-formats-field"
+      >
+        <label>{{ $t("rooms.recordings.available_formats") }}</label>
         <div
-          v-for="accessType in accessTypes"
-          :key="accessType"
+          v-for="format in newFormats"
+          :key="format.id"
           class="flex items-center"
-          :data-test="'access-' + accessType + '-field'"
+          :data-test="'format-' + format.id + '-field'"
         >
-          <RadioButton
-            v-model="newAccess"
+          <ToggleSwitch
+            v-model="format.disabled"
+            :input-id="'format-' + format.id"
             :disabled="isLoadingAction"
-            :input-id="'access-' + accessType"
-            name="access"
-            :value="accessType"
+            :true-value="false"
+            :false-value="true"
           />
-          <label :for="'access-' + accessType" class="ml-2"
-            ><RoomRecordingAccessBadge :access="accessType"
-          /></label>
+          <label :for="'format-' + format.id" class="ml-2">{{
+            $t("rooms.recordings.format_types." + format.format)
+          }}</label>
         </div>
-        <FormError :errors="formErrors.fieldError('access')" />
-      </fieldset>
-    </div>
+        <FormError :errors="formErrors.fieldError('formats', true)" />
+      </div>
+
+      <!-- access -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="access-field">
+        <fieldset class="flex w-full flex-col gap-2">
+          <label>{{ $t("rooms.recordings.access") }}</label>
+          <div
+            v-for="accessType in accessTypes"
+            :key="accessType"
+            class="flex items-center"
+            :data-test="'access-' + accessType + '-field'"
+          >
+            <RadioButton
+              v-model="newAccess"
+              :disabled="isLoadingAction"
+              pt:input:required="required"
+              :invalid="formErrors.fieldInvalid('access')"
+              :input-id="'access-' + accessType"
+              name="access"
+              :value="accessType"
+            />
+            <label :for="'access-' + accessType" class="ml-2"
+              ><RoomRecordingAccessBadge :access="accessType"
+            /></label>
+          </div>
+          <FormError :errors="formErrors.fieldError('access')" />
+        </fieldset>
+      </div>
+    </Form>
   </Dialog>
 </template>
 <script setup>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.bbb')">
-      <form v-if="model" class="flex flex-col gap-4" @submit="save">
+      <Form v-if="model" class="flex flex-col gap-4" @submit="save">
         <div
           class="field grid grid-cols-12 gap-4"
           data-test="bbb-skip-check-audio-field"
@@ -35,7 +35,7 @@
             data-test="user-tab-others-save-button"
           />
         </div>
-      </form>
+      </Form>
     </AdminPanel>
   </div>
 </template>

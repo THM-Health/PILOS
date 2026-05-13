@@ -46,10 +46,11 @@
         ></LoadingRetryButton>
       </template>
 
-      <form
+      <Form
         :aria-hidden="modelLoadingError || permissionsLoadingError"
+        :disabled="formFieldsDisabled"
         class="flex flex-col gap-4"
-        @submit.prevent="saveRole"
+        @submit="saveRole"
       >
         <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4">{{
@@ -61,6 +62,7 @@
               v-model="model.name"
               class="w-full"
               type="text"
+              required
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="formFieldsDisabled"
             />
@@ -92,6 +94,7 @@
               :data-test="'room-limit-mode-' + option.value + '-field'"
             >
               <RadioButton
+                pt:input:required="required"
                 v-model="roomLimitMode"
                 :input-id="option.value"
                 :value="option.value"
@@ -106,6 +109,7 @@
               class="w-full"
               input-id="room-limit"
               mode="decimal"
+              required
               show-buttons
               :min="0"
               :invalid="formErrors.fieldInvalid('room_limit')"
@@ -227,7 +231,7 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
 
     <ConfirmDialog

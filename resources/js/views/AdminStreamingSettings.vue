@@ -9,9 +9,13 @@
 
       <div class="flex flex-col gap-6">
         <AdminPanel :title="$t('admin.streaming.general.title')">
-          <form class="flex flex-col gap-6" @submit.prevent="updateSettings">
+          <Form
+            class="flex flex-col gap-6"
+            :disabled="disabled"
+            @submit="updateSettings"
+          >
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="default-pause-image-field"
             >
               <legend
@@ -39,7 +43,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="css-file-field"
             >
               <legend
@@ -108,7 +112,7 @@
                 />
               </div>
             </div>
-          </form>
+          </Form>
         </AdminPanel>
 
         <AdminPanel :title="$t('admin.streaming.room_types.title')">

@@ -36,16 +36,18 @@
         </div>
       </div>
 
-      <div v-else>
-        <TipTapEditor
-          v-model="newContent"
-          :class="{
-            'is-invalid': formErrors.fieldInvalid('description') === false,
-          }"
-          :disabled="isBusy"
-        />
-        <FormError :errors="formErrors.fieldError('description')" />
-      </div>
+      <Form v-else id="room-description-form" :disabled="isBusy" @submit="save">
+        <div class="field">
+          <TipTapEditor
+            v-model="newContent"
+            :class="{
+              'is-invalid': formErrors.fieldInvalid('description') === false,
+            }"
+            :disabled="isBusy"
+          />
+          <FormError :errors="formErrors.fieldError('description')" />
+        </div>
+      </Form>
     </OverlayComponent>
     <div class="mt-2 flex justify-end">
       <Button
@@ -54,7 +56,8 @@
         icon="fa-solid fa-save"
         :label="$t('rooms.description.save')"
         data-test="room-description-save-button"
-        @click="save"
+        form="room-description-form"
+        type="submit"
       />
     </div>
   </div>

@@ -41,10 +41,11 @@
         ></LoadingRetryButton>
       </template>
 
-      <form
+      <Form
         :aria-hidden="modelLoadingError"
+        :disabled="isBusy || modelLoadingError"
         class="flex flex-col gap-4"
-        @submit.prevent="saveServer"
+        @submit="saveServer"
       >
         <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label class="col-span-12 md:col-span-4 md:mb-0" for="name">{{
@@ -53,6 +54,7 @@
           <div class="col-span-12 md:col-span-8">
             <InputText
               id="name"
+              required
               v-model="model.name"
               :disabled="isBusy || modelLoadingError || viewOnly"
               :invalid="formErrors.fieldInvalid('name')"
@@ -103,6 +105,7 @@
             <InputText
               id="base_url"
               v-model="model.base_url"
+              required
               autocomplete="off"
               placeholder="https://bbb01.example.com/bigbluebutton/"
               :disabled="isBusy || modelLoadingError || viewOnly"
@@ -122,6 +125,7 @@
               v-model="model.secret"
               fluid
               input-id="secret"
+              required
               :input-props="{ autocomplete: 'off' }"
               :disabled="isBusy || modelLoadingError || viewOnly"
               :invalid="formErrors.fieldInvalid('secret')"
@@ -142,6 +146,7 @@
             <Rating
               v-model="model.strength"
               :cancel="false"
+              required
               :disabled="isBusy || modelLoadingError || viewOnly"
               :invalid="formErrors.fieldInvalid('strength')"
               :stars="10"
@@ -173,6 +178,7 @@
                 data-test="status-dropdown"
                 :options="serverStatusOptions"
                 option-label="name"
+                required
                 option-value="value"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 :invalid="formErrors.fieldInvalid('status')"
@@ -232,7 +238,7 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
       <div
         v-if="
           !modelLoadingError && viewOnly && !isDisabled && model.id !== null

@@ -35,70 +35,77 @@
           :label="$t('app.save')"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
-          @click="save"
+          form="room-personalized-links-add-form"
+          type="submit"
         />
       </div>
     </template>
 
-    <!-- first name -->
-    <div class="mt-6 flex flex-col gap-2" data-test="firstname-field">
-      <label for="firstname">{{ $t("app.firstname") }}</label>
-      <InputText
-        id="firstname"
-        v-model.trim="firstname"
-        autofocus
-        :disabled="isLoadingAction"
-        :invalid="formErrors.fieldInvalid('firstname')"
-      />
-      <FormError :errors="formErrors.fieldError('firstname')" />
-    </div>
+    <Form id="room-personalized-links-add-form" @submit="save">
+      <!-- first name -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="firstname-field">
+        <label for="firstname">{{ $t("app.firstname") }}</label>
+        <InputText
+          id="firstname"
+          v-model.trim="firstname"
+          autofocus
+          :disabled="isLoadingAction"
+          :invalid="formErrors.fieldInvalid('firstname')"
+        />
+        <FormError :errors="formErrors.fieldError('firstname')" />
+      </div>
 
-    <!-- last name -->
-    <div class="mt-6 flex flex-col gap-2" data-test="lastname-field">
-      <label for="lastname">{{ $t("app.lastname") }}</label>
-      <InputText
-        id="lastname"
-        v-model.trim="lastname"
-        :disabled="isLoadingAction"
-        :invalid="formErrors.fieldInvalid('lastname')"
-      />
-      <FormError :errors="formErrors.fieldError('lastname')" />
-    </div>
+      <!-- last name -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="lastname-field">
+        <label for="lastname">{{ $t("app.lastname") }}</label>
+        <InputText
+          id="lastname"
+          v-model.trim="lastname"
+          :disabled="isLoadingAction"
+          :invalid="formErrors.fieldInvalid('lastname')"
+        />
+        <FormError :errors="formErrors.fieldError('lastname')" />
+      </div>
 
-    <!-- select role -->
-    <div class="mt-6 flex flex-col gap-2">
-      <fieldset class="flex w-full flex-col gap-2">
-        <legend>{{ $t("rooms.role") }}</legend>
+      <!-- select role -->
+      <div class="field mt-6 flex flex-col gap-2">
+        <fieldset class="flex w-full flex-col gap-2">
+          <legend>{{ $t("rooms.role") }}</legend>
 
-        <div class="flex items-center" data-test="participant-role-group">
-          <RadioButton
-            v-model="role"
-            :disabled="isLoadingAction"
-            input-id="participant-role"
-            name="role"
-            :value="1"
-          />
-          <label for="participant-role" class="ml-2"
-            ><RoomRoleBadge :role="1"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="participant-role-group">
+            <RadioButton
+              v-model="role"
+              :disabled="isLoadingAction"
+              input-id="participant-role"
+              pt:input:required="required"
+              name="role"
+              :invalid="formErrors.fieldInvalid('role')"
+              :value="1"
+            />
+            <label for="participant-role" class="ml-2"
+              ><RoomRoleBadge :role="1"
+            /></label>
+          </div>
 
-        <div class="flex items-center" data-test="moderator-role-group">
-          <RadioButton
-            v-model="role"
-            :disabled="isLoadingAction"
-            input-id="moderator-role"
-            name="role"
-            :value="2"
-          />
-          <label for="moderator-role" class="ml-2"
-            ><RoomRoleBadge :role="2"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="moderator-role-group">
+            <RadioButton
+              v-model="role"
+              :disabled="isLoadingAction"
+              :invalid="formErrors.fieldInvalid('role')"
+              pt:input:required="required"
+              input-id="moderator-role"
+              name="role"
+              :value="2"
+            />
+            <label for="moderator-role" class="ml-2"
+              ><RoomRoleBadge :role="2"
+            /></label>
+          </div>
 
-        <FormError :errors="formErrors.fieldError('role')" />
-      </fieldset>
-    </div>
+          <FormError :errors="formErrors.fieldError('role')" />
+        </fieldset>
+      </div>
+    </Form>
   </Dialog>
 </template>
 

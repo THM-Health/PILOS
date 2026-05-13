@@ -1,6 +1,10 @@
 <template>
   <div>
-    <form class="flex flex-col gap-4" @submit="changePassword">
+    <Form
+      :disabled="isBusy || disabled"
+      class="flex flex-col gap-4"
+      @submit="changePassword"
+    >
       <div
         v-if="isOwnUser"
         class="field grid grid-cols-12 gap-4"
@@ -82,7 +86,7 @@
           data-test="change-password-save-button"
         />
       </div>
-    </form>
+    </Form>
   </div>
 </template>
 

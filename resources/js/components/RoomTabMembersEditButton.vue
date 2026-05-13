@@ -40,58 +40,67 @@
           :label="$t('app.save')"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
-          @click="save"
+          form="room-members-edit-form"
+          type="submit"
         />
       </div>
     </template>
 
-    <!-- select role -->
-    <div class="mt-6 flex flex-col gap-2">
-      <fieldset class="flex w-full flex-col gap-2">
-        <legend>{{ $t("rooms.role") }}</legend>
+    <Form id="room-members-edit-form" @submit="save">
+      <!-- select role -->
+      <div class="field mt-6 flex flex-col gap-2">
+        <fieldset class="flex w-full flex-col gap-2">
+          <legend>{{ $t("rooms.role") }}</legend>
 
-        <div class="flex items-center" data-test="participant-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="participant-role"
-            name="role"
-            :value="1"
-          />
-          <label for="participant-role" class="ml-2"
-            ><RoomRoleBadge :role="1"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="participant-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              input-id="participant-role"
+              pt:input:required="required"
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="1"
+            />
+            <label for="participant-role" class="ml-2"
+              ><RoomRoleBadge :role="1"
+            /></label>
+          </div>
 
-        <div class="flex items-center" data-test="moderator-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="moderator-role"
-            name="role"
-            :value="2"
-          />
-          <label for="moderator-role" class="ml-2"
-            ><RoomRoleBadge :role="2"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="moderator-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              input-id="moderator-role"
+              pt:input:required="required"
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="2"
+            />
+            <label for="moderator-role" class="ml-2"
+              ><RoomRoleBadge :role="2"
+            /></label>
+          </div>
 
-        <div class="flex items-center" data-test="co-owner-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="co_owner-role"
-            name="role"
-            :value="3"
-          />
-          <label for="co_owner-role" class="ml-2"
-            ><RoomRoleBadge :role="3"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="co-owner-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              input-id="co_owner-role"
+              pt:input:required="required"
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="3"
+            />
+            <label for="co_owner-role" class="ml-2"
+              ><RoomRoleBadge :role="3"
+            /></label>
+          </div>
 
-        <FormError :errors="formErrors.fieldError('role')" />
-      </fieldset>
-    </div>
+          <FormError :errors="formErrors.fieldError('role')" />
+        </fieldset>
+      </div>
+    </Form>
   </Dialog>
 </template>
 <script setup>
