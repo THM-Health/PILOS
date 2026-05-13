@@ -363,7 +363,7 @@ const confirm = useConfirm();
 const { t } = useI18n();
 const api = useApi();
 const router = useRouter();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const props = defineProps({
   id: {
@@ -389,7 +389,7 @@ const name = ref("");
 watch(
   () => name.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       name: name.value,
     };
   },

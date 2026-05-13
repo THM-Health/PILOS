@@ -50,8 +50,8 @@ import { computed, provide, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 
-const breakcrumbLabelData = ref({});
-provide("breakcrumbLabelData", breakcrumbLabelData);
+const breadcrumbLabelData = ref({});
+provide("breadcrumbLabelData", breadcrumbLabelData);
 
 const route = useRoute();
 const { t } = useI18n();
@@ -76,14 +76,14 @@ const breadcrumbs = computed(() => {
       previous: "admin.users",
     },
     "admin.users.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.users.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.users.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.users",
     },
     "admin.users.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.users.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.users.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.users",
     },
@@ -96,14 +96,14 @@ const breadcrumbs = computed(() => {
       previous: "admin.roles",
     },
     "admin.roles.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.roles.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.roles.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.roles",
     },
     "admin.roles.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.roles.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.roles.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.roles",
     },
@@ -116,14 +116,14 @@ const breadcrumbs = computed(() => {
       previous: "admin.room_types",
     },
     "admin.room_types.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.room_types.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.room_types.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.room_types",
     },
     "admin.room_types.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.room_types.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.room_types.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.room_types",
     },
@@ -136,14 +136,14 @@ const breadcrumbs = computed(() => {
       previous: "admin.servers",
     },
     "admin.servers.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.servers.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.servers.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.servers",
     },
     "admin.servers.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.servers.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.servers.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.servers",
     },
@@ -156,14 +156,14 @@ const breadcrumbs = computed(() => {
       previous: "admin.server_pools",
     },
     "admin.server_pools.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.server_pools.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.server_pools.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.server_pools",
     },
     "admin.server_pools.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breadcrumbs.server_pools.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.server_pools.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.server_pools",
     },
@@ -197,6 +197,6 @@ function isEmpty(obj) {
 }
 
 watch(route, () => {
-  breakcrumbLabelData.value = {};
+  breadcrumbLabelData.value = {};
 });
 </script>
