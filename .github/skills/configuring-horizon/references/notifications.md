@@ -3,7 +3,6 @@
 ## Where to Find It
 
 Search with `search-docs`:
-
 - `"horizon notifications"` for Horizon's built-in notification routing helpers
 - `"horizon long wait detected"` for LongWaitDetected event details
 

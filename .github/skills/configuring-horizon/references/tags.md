@@ -3,7 +3,6 @@
 ## Where to Find It
 
 Search with `search-docs`:
-
 - `"horizon tags"` for the tagging API and auto-tagging behaviour
 - `"horizon silenced jobs"` for the `silenced` and `silenced_tags` config options
 

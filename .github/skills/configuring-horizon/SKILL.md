@@ -3,7 +3,7 @@ name: configuring-horizon
 description: "Use this skill whenever the user mentions Horizon by name in a Laravel context. Covers the full Horizon lifecycle: installing Horizon (horizon:install, Sail setup), configuring config/horizon.php (supervisor blocks, queue assignments, balancing strategies, minProcesses/maxProcesses), fixing the dashboard (authorization via Gate::define viewHorizon, blank metrics, horizon:snapshot scheduling), and troubleshooting production issues (worker crashes, timeout chain ordering, LongWaitDetected notifications, waits config). Also covers job tagging and silencing. Do not use for generic Laravel queues without Horizon, SQS or database drivers, standalone Redis setup, Linux supervisord, Telescope, or job batching."
 license: MIT
 metadata:
-    author: laravel
+  author: laravel
 ---
 
 # Horizon Configuration
@@ -32,7 +32,6 @@ vendor/bin/sail artisan horizon:install
 Define supervisors in `config/horizon.php`. The `environments` array merges into `defaults` and does not replace the whole supervisor block:
 
 <!-- Supervisor Config -->
-
 ```php
 'defaults' => [
     'supervisor-1' => [
@@ -60,7 +59,6 @@ Define supervisors in `config/horizon.php`. The `environments` array merges into
 Restrict access in `App\Providers\HorizonServiceProvider`:
 
 <!-- Dashboard Gate -->
-
 ```php
 protected function gate(): void
 {

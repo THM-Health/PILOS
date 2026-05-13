@@ -3,7 +3,6 @@
 ## Where to Find It
 
 Search with `search-docs` before writing any supervisor config, as option names and defaults change between Horizon versions:
-
 - `"horizon supervisor configuration"` for the full options list
 - `"horizon balancing strategies"` for auto, simple, and false modes
 - `"horizon autoscaling workers"` for autoScalingStrategy details

@@ -3,7 +3,7 @@ name: pulse-development
 description: "Handles Laravel Pulse setup, configuration, and custom card development. Activates when installing Pulse; configuring the dashboard or authorization gate; setting up recorders and filtering; building custom Livewire cards; optimizing with Redis ingest or sampling; or when the user mentions /pulse, pulse:check, pulse:work, Pulse::record(), or application monitoring."
 license: MIT
 metadata:
-    author: laravel
+  author: laravel
 ---
 
 # Laravel Pulse Development
@@ -22,14 +22,13 @@ vendor/bin/sail artisan vendor:publish --provider="Laravel\Pulse\PulseServicePro
 vendor/bin/sail artisan migrate
 ```
 
-The dashboard is available at `/pulse`.
+The dashboard is available at `/pulse`. 
 
 ## Dashboard Authorization
 
 Define the `viewPulse` gate in `AppServiceProvider::boot()` to enable production access:
 
 <!-- Pulse Dashboard Authorization -->
-
 ```php
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -45,23 +44,22 @@ Without this gate, the dashboard is inaccessible in all non-local environments.
 
 All 10 built-in recorders are configurable in `config/pulse.php`:
 
-| Recorder               | Key Config Options                                                         |
-| ---------------------- | -------------------------------------------------------------------------- |
-| `CacheInteractions`    | `sample_rate`, `ignore`, `groups` (regex find/replace)                     |
-| `Exceptions`           | `sample_rate`, `ignore`, `location`                                        |
-| `Queues`               | `sample_rate`, `ignore`                                                    |
-| `SlowJobs`             | `threshold` (ms, per-job regex map), `sample_rate`, `ignore`               |
-| `SlowOutgoingRequests` | `threshold` (ms, per-URL regex map), `sample_rate`, `ignore`, `groups`     |
-| `SlowQueries`          | `threshold` (ms, per-query regex map), `sample_rate`, `ignore`, `location` |
-| `SlowRequests`         | `threshold` (ms, per-route regex map), `sample_rate`, `ignore`             |
-| `Servers`              | `PULSE_SERVER_NAME` env var, monitored disk paths                          |
-| `UserJobs`             | `sample_rate`, `ignore`                                                    |
-| `UserRequests`         | `sample_rate`, `ignore`                                                    |
+| Recorder | Key Config Options |
+|---|---|
+| `CacheInteractions` | `sample_rate`, `ignore`, `groups` (regex find/replace) |
+| `Exceptions` | `sample_rate`, `ignore`, `location` |
+| `Queues` | `sample_rate`, `ignore` |
+| `SlowJobs` | `threshold` (ms, per-job regex map), `sample_rate`, `ignore` |
+| `SlowOutgoingRequests` | `threshold` (ms, per-URL regex map), `sample_rate`, `ignore`, `groups` |
+| `SlowQueries` | `threshold` (ms, per-query regex map), `sample_rate`, `ignore`, `location` |
+| `SlowRequests` | `threshold` (ms, per-route regex map), `sample_rate`, `ignore` |
+| `Servers` | `PULSE_SERVER_NAME` env var, monitored disk paths |
+| `UserJobs` | `sample_rate`, `ignore` |
+| `UserRequests` | `sample_rate`, `ignore` |
 
 Per-route and per-job threshold overrides use a regex-keyed map with a `default` fallback:
 
 <!-- Per-Route Threshold Override -->
-
 ```php
 Recorders\SlowRequests::class => [
     'threshold' => [
@@ -78,7 +76,6 @@ The `Servers` recorder requires `pulse:check` running as a persistent daemon (Su
 Use `Pulse::filter()` in `AppServiceProvider::boot()` to exclude entries globally. Return `true` to record, `false` to skip:
 
 <!-- Pulse Entry Filter -->
-
 ```php
 use Laravel\Pulse\Entry;
 use Laravel\Pulse\Facades\Pulse;
@@ -122,7 +119,6 @@ Custom cards are Livewire components extending Pulse's base `Card` class.
 Call `Pulse::record()` from a recorder, listener, or observer. Chain aggregation methods (`avg`, `count`, `max`, `min`, `sum`) in a single call:
 
 <!-- Record Pulse Entry -->
-
 ```php
 use Laravel\Pulse\Facades\Pulse;
 
@@ -136,7 +132,6 @@ When the entry is tied to the authenticated user, use `Pulse::resolveAuthenticat
 ### Card Component
 
 <!-- Custom Pulse Card -->
-
 ```php
 namespace App\Livewire\Pulse;
 
@@ -170,7 +165,6 @@ class TopSellers extends Card
 A recorder is a plain class with a `$listen` array of Laravel events:
 
 <!-- Custom Pulse Recorder -->
-
 ```php
 class SaleRecorder
 {

@@ -1,9 +1,9 @@
 ---
 name: fortify-development
-description: "ACTIVATE when the user works on authentication in Laravel. This includes login, registration, password reset, email verification, two-factor authentication (2FA/TOTP/QR codes/recovery codes), passkeys, profile updates, password confirmation, or any auth-related routes and controllers. Activate when the user mentions Fortify, auth, authentication, login, register, signup, forgot password, verify email, 2FA, passkeys, WebAuthn, or references app/Actions/Fortify/, CreateNewUser, UpdateUserProfileInformation, FortifyServiceProvider, config/fortify.php, or auth guards. Fortify is the frontend-agnostic authentication backend for Laravel that registers all auth routes and controllers. Also activate when building SPA or headless authentication, customizing login redirects, overriding response contracts like LoginResponse, or configuring login throttling. Do NOT activate for Laravel Passport (OAuth2 API tokens), Socialite (OAuth social login), or non-auth Laravel features."
+description: 'ACTIVATE when the user works on authentication in Laravel. This includes login, registration, password reset, email verification, two-factor authentication (2FA/TOTP/QR codes/recovery codes), passkeys, profile updates, password confirmation, or any auth-related routes and controllers. Activate when the user mentions Fortify, auth, authentication, login, register, signup, forgot password, verify email, 2FA, passkeys, WebAuthn, or references app/Actions/Fortify/, CreateNewUser, UpdateUserProfileInformation, FortifyServiceProvider, config/fortify.php, or auth guards. Fortify is the frontend-agnostic authentication backend for Laravel that registers all auth routes and controllers. Also activate when building SPA or headless authentication, customizing login redirects, overriding response contracts like LoginResponse, or configuring login throttling. Do NOT activate for Laravel Passport (OAuth2 API tokens), Socialite (OAuth social login), or non-auth Laravel features.'
 license: MIT
 metadata:
-    author: laravel
+  author: laravel
 ---
 
 # Laravel Fortify Development
@@ -127,25 +127,25 @@ Configure via `fortify.limiters.login` in config. Default configuration throttle
 
 ## Key Endpoints
 
-| Feature                 | Method   | Endpoint                                    |
-| ----------------------- | -------- | ------------------------------------------- |
-| Login                   | POST     | `/login`                                    |
-| Logout                  | POST     | `/logout`                                   |
-| Register                | POST     | `/register`                                 |
-| Password Reset Request  | POST     | `/forgot-password`                          |
-| Password Reset          | POST     | `/reset-password`                           |
-| Email Verify Notice     | GET      | `/email/verify`                             |
-| Resend Verification     | POST     | `/email/verification-notification`          |
-| Password Confirm        | POST     | `/user/confirm-password`                    |
-| Enable 2FA              | POST     | `/user/two-factor-authentication`           |
-| Confirm 2FA             | POST     | `/user/confirmed-two-factor-authentication` |
-| 2FA Challenge           | POST     | `/two-factor-challenge`                     |
-| Get QR Code             | GET      | `/user/two-factor-qr-code`                  |
-| Recovery Codes          | GET/POST | `/user/two-factor-recovery-codes`           |
-| Passkey Login Options   | GET      | `/passkeys/login/options`                   |
-| Passkey Login           | POST     | `/passkeys/login`                           |
-| Passkey Confirm Options | GET      | `/passkeys/confirm/options`                 |
-| Passkey Confirm         | POST     | `/passkeys/confirm`                         |
-| Passkey Options         | GET      | `/user/passkeys/options`                    |
-| Register Passkey        | POST     | `/user/passkeys`                            |
-| Delete Passkey          | DELETE   | `/user/passkeys/{passkey}`                  |
+| Feature                | Method   | Endpoint                                    |
+|------------------------|----------|---------------------------------------------|
+| Login                  | POST     | `/login`                                    |
+| Logout                 | POST     | `/logout`                                   |
+| Register               | POST     | `/register`                                 |
+| Password Reset Request | POST     | `/forgot-password`                          |
+| Password Reset         | POST     | `/reset-password`                           |
+| Email Verify Notice    | GET      | `/email/verify`                             |
+| Resend Verification    | POST     | `/email/verification-notification`          |
+| Password Confirm       | POST     | `/user/confirm-password`                    |
+| Enable 2FA             | POST     | `/user/two-factor-authentication`           |
+| Confirm 2FA            | POST     | `/user/confirmed-two-factor-authentication` |
+| 2FA Challenge          | POST     | `/two-factor-challenge`                     |
+| Get QR Code            | GET      | `/user/two-factor-qr-code`                  |
+| Recovery Codes         | GET/POST | `/user/two-factor-recovery-codes`           |
+| Passkey Login Options  | GET      | `/passkeys/login/options`                   |
+| Passkey Login          | POST     | `/passkeys/login`                           |
+| Passkey Confirm Options| GET      | `/passkeys/confirm/options`                 |
+| Passkey Confirm        | POST     | `/passkeys/confirm`                         |
+| Passkey Options        | GET      | `/user/passkeys/options`                    |
+| Register Passkey       | POST     | `/user/passkeys`                            |
+| Delete Passkey         | DELETE   | `/user/passkeys/{passkey}`                  |
