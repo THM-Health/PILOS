@@ -5,6 +5,11 @@ declare(strict_types=1);
 return [
     'access_code' => 'کد دسترسی',
     'auth_throttled' => 'تعداد دفعات تلاش بیش از حد مجاز است. لطفاً پس از :try_again ثانیه مجدداً تلاش کنید.',
+    'bbb_error_message' => [
+        'guestDeniedAccess' => 'ورود به جلسه ناموفق: بر اساس سیاست مهمان جلسه، دسترسی شما به این جلسه رد شده است.',
+        'maxParticipantsReached' => 'ورود به جلسه ناموفق: تعداد شرکت کنندگان مجاز برای این جلسه تکمیل شده است.',
+        'meetingForciblyEnded' => 'ورود به جلسه ناموفق: جلسه دیگر در حال اجرا نیست.',
+    ],
     'become_member' => 'عضو شوید',
     'change_type' => [
         'changing_settings' => 'تغییرات زیر در تنظیمات اتاق اعمال خواهد شد',
@@ -138,6 +143,7 @@ return [
     'first_and_lastname' => 'نام و نام خانوادگی',
     'flash' => [
         'access_code_invalid' => 'کد دسترسی نامعتبر است.',
+        'auth_token_invalid' => 'توکن احراز هویت نامعتبر است.',
         'file_forbidden' => 'دسترسی به فایل درخواستی ممنوع است.',
         'file_gone' => 'فایل در این مدت حذف شده است.',
         'no_new_room' => 'شما مجوز لازم برای ایجاد اتاق جدید را ندارید.',
@@ -159,6 +165,7 @@ return [
             'never_started' => 'قبلاً هرگز اجرا نشده است',
             'open' => 'باز کردن',
             'running_since' => 'در حال اجرا از تاریخ :date',
+            'show_details' => 'نمایش جزئیات اتاق',
         ],
         'show_all' => 'تمام اتاق‌ها',
         'show_own' => 'اتاق‌های من',
@@ -174,6 +181,12 @@ return [
     'invalid_personalized_link' => 'این لینک شخصی‌سازی شده اتاق نامعتبر است.',
     'invitation' => [
         'code' => 'کد دسترسی',
+        'copied_code' => 'کد دسترسی به کلیپ بورد کپی شد',
+        'copied_message' => 'پیام دعوت به کلیپ بورد کپی شد',
+        'copied_url' => 'لینک اتاق به کلیپ بورد کپی شد',
+        'copy_code' => 'کپی کد دسترسی',
+        'copy_message' => 'کپی پیام دعوت',
+        'copy_url' => 'کپی لینک اتاق',
         'link' => 'لینک',
         'room' => 'پیوستن به ":roomname" با :platform',
         'share' => 'اشتراک‌گذاری',
@@ -370,6 +383,7 @@ return [
         'loading_error' => 'خطایی در بارگذاری انواع اتاق رخ داد.',
         'reload' => 'بارگذاری مجدد انواع اتاق',
     ],
+    'search' => 'جستجو بر اساس نام اتاق یا مالک...',
     'settings' => [
         'advanced' => [
             'title' => 'پیشرفته',

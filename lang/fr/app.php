@@ -66,6 +66,10 @@ return [
     'flash' => [
         'client_error' => 'Une erreur inconnue s\'est produite dans l\'application !',
         'guests_only' => 'La demande ne peut être faite que par les invités !',
+        'model_not_found' => [
+            'details' => 'ID : :ids',
+            'title' => 'Le :model n\'a pas été trouvé !',
+        ],
         'server_error' => [
             'empty_message' => 'Une erreur s\'est produite sur le serveur lors de la requête !',
             'error_code' => 'Code d\'erreur: :statusCode',
@@ -97,10 +101,20 @@ return [
         'fr' => 'Français',
     ],
     'model' => [
+        'meeting' => 'Réunion',
+        'recording' => 'Enregistrement',
+        'recording_format' => 'Format d\'enregistrement',
+        'role' => 'Rôle',
         'roles' => 'rôle',
+        'room_file' => 'Fichier de salle',
+        'room_personalized_link' => 'Lien personnalisé de la salle',
+        'room_type' => 'type de salle',
         'room_types' => 'type de salle',
+        'server' => 'Serveur',
+        'server_pool' => 'Groupe de serveurs',
         'server_pools' => 'groupe de serveurs',
         'servers' => 'serveur',
+        'user' => 'Utilisateur',
         'users' => 'utilisateur',
     ],
     'model_name' => 'Nom',
