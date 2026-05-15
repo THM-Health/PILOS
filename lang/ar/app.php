@@ -66,6 +66,10 @@ return [
     'flash' => [
         'client_error' => 'حدث خطأ غير معروف في التطبيق!',
         'guests_only' => 'هذا الطلب متاح للضيوف فقط!',
+        'model_not_found' => [
+            'details' => 'المعرف: :ids',
+            'title' => 'لم يتم العثور على :model!',
+        ],
         'server_error' => [
             'empty_message' => 'حدث خطأ في الخادم أثناء معالجة الطلب!',
             'error_code' => 'رمز الخطأ: :statusCode',
@@ -97,10 +101,20 @@ return [
         'fr' => 'الفرنسية',
     ],
     'model' => [
+        'meeting' => 'اجتماع',
+        'recording' => 'التسجيل',
+        'recording_format' => 'صيغة التسجيل',
+        'role' => 'الدور',
         'roles' => 'دور',
+        'room_file' => 'ملف الغرفة',
+        'room_personalized_link' => 'رابط الغرفة المخصص',
+        'room_type' => 'نوع الغرفة',
         'room_types' => 'نوع غرفة',
+        'server' => 'الخوادم',
+        'server_pool' => 'مجموعة خوادم',
         'server_pools' => 'مجموعة خوادم',
         'servers' => 'خادم',
+        'user' => 'المستخدم',
         'users' => 'مستخدم',
     ],
     'model_name' => 'الاسم',

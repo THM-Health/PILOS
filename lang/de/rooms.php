@@ -427,7 +427,7 @@ return [
             'title' => 'Teilnehmer',
         ],
         'recordings' => [
-            'auto_start_recording' => 'Automatischer Aufnahmestart',
+            'auto_start_recording' => 'Automatischer Aufzeichnungsstart',
             'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
             'record_video_conference' => 'Videokonferenz aufzeichnen',
             'title' => 'Aufzeichnungen',

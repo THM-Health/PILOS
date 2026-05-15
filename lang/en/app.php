@@ -67,8 +67,8 @@ return [
         'client_error' => 'An unknown error occurred in the application!',
         'guests_only' => 'The request can only be made by guests!',
         'model_not_found' => [
-            'title' => 'The :model was not found!',
             'details' => 'ID: :ids',
+            'title' => 'The :model was not found!',
         ],
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
