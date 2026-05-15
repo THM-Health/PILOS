@@ -36,7 +36,7 @@
         </div>
       </div>
 
-      <Form v-else id="room-description-form" :disabled="isBusy" @submit="save">
+      <div v-else class="form">
         <div class="field">
           <TipTapEditor
             v-model="newContent"
@@ -47,7 +47,7 @@
           />
           <FormError :errors="formErrors.fieldError('description')" />
         </div>
-      </Form>
+      </div>
     </OverlayComponent>
     <div class="mt-2 flex justify-end">
       <Button
@@ -56,8 +56,7 @@
         icon="fa-solid fa-save"
         :label="$t('rooms.description.save')"
         data-test="room-description-save-button"
-        form="room-description-form"
-        type="submit"
+        @click="save"
       />
     </div>
   </div>

@@ -40,7 +40,7 @@ async function scrollToFirstError() {
     return;
   }
 
-  const formElement = selfDomElement.closest("form");
+  const formElement = selfDomElement.closest(".form");
   if (formElement == null) {
     return;
   }

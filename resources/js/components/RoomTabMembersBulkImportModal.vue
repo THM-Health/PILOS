@@ -76,6 +76,7 @@
     </template>
 
     <Form
+      v-if="step === 0"
       id="room-members-bulk-import-form"
       :disabled="isLoadingAction"
       @submit="importUsers(true)"
