@@ -5,7 +5,11 @@ on:
     branches:
       - develop
       - "[0-9].x"
+    paths-ignore:
+      - "docs/**"
   pull_request:
+    paths-ignore:
+      - "docs/**"
 
 env:
   PHP_VERSION: 8.5
