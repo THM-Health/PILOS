@@ -7,24 +7,24 @@ return [
     'description_intro' => 'Die universelle Plattform für Videokonferenzen, basierend auf BigBlueButton™.',
     'features' => [
         'collaboration' => [
-            'description' => 'Teilen Sie Ihren Bildschirm, nutzen Sie das interaktive Multi-User-Whiteboard und arbeiten Sie zusammen in Breakout-Räumen.',
-            'title' => 'Zusammenarbeit',
+            'description' => 'Teilen Sie Ihren Bildschirm, nutzen Sie das interaktive Multi-User-Whiteboard und arbeiten Sie gemeinsam in Breakout-Räumen.',
+            'title' => 'Kollaboration',
         ],
         'communication' => [
-            'description' => 'Hochwertige Video- und Audioqualität, um ein persönliches und ansprechendes Erlebnis zu schaffen.',
+            'description' => 'Hochwertiges Video und Audio zur Förderung einer persönlicheren und ansprechenderen Erfahrung.',
             'title' => 'Video und Audio',
         ],
         'description' => 'Erfahren Sie, warum PILOS die perfekte Lösung für Ihre nächste Videokonferenz ist und wie Sie Ihr Publikum auf ansprechende und interaktive Weise erreichen können.',
         'engagement' => [
             'description' => 'Binden Sie Ihr Publikum mit interaktiven Tools wie Chat, Emojis, Umfragen und vielem mehr ein.',
-            'title' => 'Interaktion',
+            'title' => 'Engagement',
         ],
         'recording' => [
-            'description' => 'Zeichnen Sie Ihre Videokonferenzen auf und stellen Sie Aufzeichnugen mit einer fein abgestuften Berechtigungen zur Verfügung.',
+            'description' => 'Nehmen Sie Ihre Videokonferenzen auf und stellen Sie sie mit feingranularer Berechtigungssteuerung zur Verfügung.',
             'title' => 'Aufzeichnung',
         ],
         'security' => [
-            'description' => 'Alle Kommunikationsdaten werden während der Übertragung mit dem WebRTC-Protokoll sicher verschlüsselt.',
+            'description' => 'Alle Kommunikationsdaten werden während der Übertragung sicher mit dem WebRTC-Protokoll verschlüsselt.',
             'title' => 'Sicherheit',
         ],
         'statistics' => [
