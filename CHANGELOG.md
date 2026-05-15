@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.15.0] - 2026-05-15
+
+### Added
+
+- Docs: Import of existing Greenlight v2/v3 recordings ([#2877], [#3034])
+
+### Changed
+
+- Improved error handling when a room requires an access code but none was provided ([#3035], [#3128])
+- Login URL and external login redirect URLs now support authenticated users and honor the redirect query parameter ([#3078], [#3079])
+- Improved 404 error messages for better readability and clarity ([#86], [#3036])
+- Standardized 404 error handling on admin pages ([#1676], [#3036])
+- Improved and standardized room not found error handling in the room view ([#3036])
+- Greenlight v2/v3 import commands now prepares import of existing recordings ([#2877], ([#3034])
+- Bump base PHP image to 8.5 ([#2814])
+
+### Fixed
+
+- Buttons insufficiently disabled during loading actions ([#1811])
+
 ## [v4.14.2] - 2026-04-10
 
 ### Fixed
@@ -540,6 +560,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
 [#77]: https://github.com/THM-Health/PILOS/issues/77
+[#86]: https://github.com/THM-Health/PILOS/issues/86
 [#300]: https://github.com/THM-Health/PILOS/issues/300
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
@@ -636,6 +657,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1636]: https://github.com/THM-Health/PILOS/issues/1636
 [#1651]: https://github.com/THM-Health/PILOS/issues/1651
 [#1675]: https://github.com/THM-Health/PILOS/issues/1675
+[#1676]: https://github.com/THM-Health/PILOS/issues/1676
 [#1677]: https://github.com/THM-Health/PILOS/issues/1677
 [#1678]: https://github.com/THM-Health/PILOS/pull/1678
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
@@ -658,6 +680,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1795]: https://github.com/THM-Health/PILOS/pull/1795
 [#1801]: https://github.com/THM-Health/PILOS/pull/1801
 [#1802]: https://github.com/THM-Health/PILOS/pull/1802
+[#1811]: https://github.com/THM-Health/PILOS/pull/1811
 [#1824]: https://github.com/THM-Health/PILOS/issues/1824
 [#1825]: https://github.com/THM-Health/PILOS/pull/1825
 [#1827]: https://github.com/THM-Health/PILOS/issues/1827
@@ -743,6 +766,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2789]: https://github.com/THM-Health/PILOS/pull/2789
 [#2798]: https://github.com/THM-Health/PILOS/pull/2798
 [#2809]: https://github.com/THM-Health/PILOS/pull/2809
+[#2814]: https://github.com/THM-Health/PILOS/pull/2814
 [#2843]: https://github.com/THM-Health/PILOS/issues/2843
 [#2844]: https://github.com/THM-Health/PILOS/pull/2844
 [#2851]: https://github.com/THM-Health/PILOS/issues/2851
@@ -752,6 +776,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2857]: https://github.com/THM-Health/PILOS/pull/2857
 [#2873]: https://github.com/THM-Health/PILOS/issues/2873
 [#2874]: https://github.com/THM-Health/PILOS/pull/2874
+[#2877]: https://github.com/THM-Health/PILOS/issues/2877
 [#2879]: https://github.com/THM-Health/PILOS/issues/2879
 [#2880]: https://github.com/THM-Health/PILOS/pull/2880
 [#2901]: https://github.com/THM-Health/PILOS/pull/2901
@@ -769,9 +794,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3014]: https://github.com/THM-Health/PILOS/pull/3014
 [#3028]: https://github.com/THM-Health/PILOS/issues/3028
 [#3029]: https://github.com/THM-Health/PILOS/pull/3029
+[#3034]: https://github.com/THM-Health/PILOS/pull/3034
+[#3035]: https://github.com/THM-Health/PILOS/pull/3035
+[#3036]: https://github.com/THM-Health/PILOS/pull/3036
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.2...develop
+[#3078]: https://github.com/THM-Health/PILOS/issues/3078
+[#3079]: https://github.com/THM-Health/PILOS/pull/3079
+[#3128]: https://github.com/THM-Health/PILOS/pull/3128
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.15.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -798,3 +829,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.14.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.0
 [v4.14.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.1
 [v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2
+[v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0

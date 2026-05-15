@@ -12,6 +12,7 @@ describe("Admin users edit email", function () {
         "users.view",
         "users.update",
         "users.create",
+        "users.delete",
         "roles.viewAny",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
@@ -376,6 +377,29 @@ describe("Admin users edit email", function () {
         .click();
 
       // Check loading
+      // Check that tab buttons are disabled
+      cy.get('[data-test="base-tab-button"]').should("be.disabled");
+      cy.get('[data-test="email-tab-button"]').should("be.disabled");
+      cy.get('[data-test="security-tab-button"]').should("be.disabled");
+      cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+      // Check that header buttons are disabled
+      cy.get('button[data-test="users-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-reset-password-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
+      // Check that input fields and buttons are disabled
+      cy.get("#new_password").should("be.disabled");
+      cy.get("#new_password_confirmation").should("be.disabled");
+
+      cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
       cy.get('[data-test="role-dropdown"]').should(
         "have.class",
         "multiselect--disabled",
@@ -563,7 +587,9 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2 ", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -578,8 +604,8 @@ describe("Admin users edit email", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again
@@ -631,8 +657,34 @@ describe("Admin users edit email", function () {
         .click();
 
       // Check loading
+      // Check that tab buttons are disabled
+      cy.get('[data-test="base-tab-button"]').should("be.disabled");
+      cy.get('[data-test="email-tab-button"]').should("be.disabled");
+      cy.get('[data-test="security-tab-button"]').should("be.disabled");
+      cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+      // Check that header buttons are disabled
+      cy.get('button[data-test="users-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-reset-password-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
+      // Check that input fields and buttons are disabled
       cy.get("#new_password").should("be.disabled");
-      cy.get("#new_password_confirmation")
+      cy.get("#new_password_confirmation").should("be.disabled");
+
+      cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
+      cy.get('[data-test="role-dropdown"]').should(
+        "have.class",
+        "multiselect--disabled",
+      );
+      cy.get('[data-test="users-roles-save-button"]')
         .should("be.disabled")
         .then(() => {
           saveChangesRequest.sendResponse();
@@ -742,7 +794,9 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2/password", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -757,8 +811,8 @@ describe("Admin users edit email", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again

@@ -234,28 +234,26 @@
           <Column :style="{ width: '100px' }" :header="$t('app.actions')">
             <template #body="slotProps">
               <div class="flex justify-between">
-                <router-link
+                <Button
+                  v-tooltip="
+                    $t('meetings.view_room', {
+                      name: slotProps.data.room.name,
+                    })
+                  "
                   :to="{
                     name: 'rooms.view',
                     params: { id: slotProps.data.room.id },
                   }"
-                  :disabled="true"
                   data-test="meeting-view-room-button"
-                >
-                  <Button
-                    v-tooltip="
-                      $t('meetings.view_room', {
-                        name: slotProps.data.room.name,
-                      })
-                    "
-                    :aria-label="
-                      $t('meetings.view_room', {
-                        name: slotProps.data.room.name,
-                      })
-                    "
-                    icon="fa-solid fa-eye"
-                  />
-                </router-link>
+                  :as="isBusy ? 'button' : 'router-link'"
+                  :disabled="isBusy"
+                  :aria-label="
+                    $t('meetings.view_room', {
+                      name: slotProps.data.room.name,
+                    })
+                  "
+                  icon="fa-solid fa-eye"
+                />
               </div>
             </template>
           </Column>

@@ -100,7 +100,7 @@ class LdapLoginTest extends TestCase
         config(['ldap.mapping' => json_decode($this->ldapMapping)]);
 
         Container::getConnection('default')->getConfiguration()->set('use_tls', false);
-        Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
+        Container::getConnection('default')->getConfiguration()->set('use_starttls', false);
         $fake = DirectoryEmulator::setup('default');
 
         $this->ldapUser = LdapUser::create([
@@ -174,6 +174,42 @@ class LdapLoginTest extends TestCase
             'password' => 'secret',
         ]);
 
+        $response->assertUnprocessable();
+        $this->assertGuest();
+    }
+
+    public function test_login_rate_limiting()
+    {
+        $this->assertGuest($this->guard);
+
+        $credentials = [
+            'username' => 'testuser',
+            'password' => 'secret',
+        ];
+
+        // Allow 5 attempts, then lock out for 1 minute
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), $credentials);
+            $response->assertUnprocessable();
+            $this->assertGuest();
+        }
+
+        // Check request gets blocked
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), $credentials);
+        $response->assertStatus(429);
+        $this->assertGuest();
+
+        // Check request for other user is still permitted
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => 'other_user@example.org',
+            'password' => 'foo',
+        ]);
+        $response->assertUnprocessable();
+        $this->assertGuest();
+
+        // Check if rate limit is reset after 1 minute
+        $this->travel(1)->minute();
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), $credentials);
         $response->assertUnprocessable();
         $this->assertGuest();
     }

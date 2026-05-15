@@ -102,6 +102,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-enabled"]')
           .eq(3)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     cy.get('[data-test="room-recording-item"]')
@@ -134,6 +144,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-disabled"]')
           .eq(3)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     cy.get('[data-test="room-recording-item"]')
@@ -163,6 +183,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-disabled"]')
           .eq(1)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     cy.get('[data-test="room-recording-item"]')
@@ -192,6 +222,16 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-enabled"]')
           .eq(1)
           .should("include.text", "rooms.recordings.format_types.screenshare");
+
+        cy.get('a[data-test="room-recordings-download-button"]')
+          .should(
+            "have.attr",
+            "href",
+            Cypress.config("baseUrl") +
+              "/download/recording/" +
+              "f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775",
+          )
+          .and("have.attr", "target", "_blank");
       });
 
     // Check if retention period message is shown correctly
@@ -199,6 +239,74 @@ describe("Rooms view recordings", function () {
       .should("be.visible")
       .and("include.text", "rooms.recordings.retention_period.title")
       .and("include.text", "rooms.recordings.retention_period.unlimited");
+
+    // Reload recording list
+    const roomRecordingReloadRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/rooms/abc-def-123/recordings*",
+      { fixture: "roomRecordings.json" },
+      "roomRecordingsReloadRequest",
+    );
+
+    cy.get('[data-test="room-recordings-reload-button"]').click();
+
+    // Check loading overlay shown during loading
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check buttons are disabled during loading
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-view-button"]')
+      .should("be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-download-button"]')
+      .should("be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-edit-button"]')
+      .should("be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-delete-button"]')
+      .should("be.disabled")
+      .then(() => {
+        roomRecordingReloadRequest.sendResponse();
+      });
+
+    // Check overlay is hidden after reload
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check buttons are enabled again after loading
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-view-button"]')
+      .should("not.be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('a[data-test="room-recordings-download-button"]')
+      .should(
+        "have.attr",
+        "href",
+        Cypress.config("baseUrl") +
+          "/download/recording/" +
+          "e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+      )
+      .and("have.attr", "target", "_blank");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-edit-button"]')
+      .should("not.be.disabled");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('button[data-test="room-recordings-delete-button"]')
+      .should("not.be.disabled");
   });
 
   it("load recordings with access code", function () {
@@ -392,9 +500,8 @@ describe("Rooms view recordings", function () {
         "roomRequest",
       );
 
-      cy.get('[data-test="room-login-button"]').click();
-
-      cy.wait("@roomAuthRequest");
+      // Reload room (without setting room auth token)
+      cy.get('[data-test="reload-room-button"]').click();
 
       cy.fixture("room.json").then((room2) => {
         room2.data.owner = { id: 2, name: "Max Doe" };
@@ -415,10 +522,8 @@ describe("Rooms view recordings", function () {
 
     cy.wait("@roomRecordingsRequest").then((interception) => {
       // Check that params are set
-      expect(interception.request.query).to.contain({
-        room_auth_token: "roomAuthToken",
-        room_auth_token_type: "0",
-      });
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
     // Check that room auth token is reset
@@ -428,9 +533,10 @@ describe("Rooms view recordings", function () {
     });
 
     // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.access_code_invalid");
+    cy.checkToastMessage("rooms.require_access_code");
 
-    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+    cy.contains("rooms.flash.access_code_invalid").should("not.exist");
+    cy.get("#access-code").should("have.value", "");
   });
 
   it("load recordings with personalized link", function () {
@@ -760,6 +866,56 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+
+    // Check with 404 error (room not found) as authenticated user
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomRecordingsRequest");
+
+    // Reload page
+    cy.reload();
+
+    cy.wait("@roomRecordingsRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+
+    // Check with 404 error (room not found) as guest
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.fixture("room.json").then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+
+      cy.visit("/rooms/abc-def-123#tab=recordings");
+
+      cy.wait("@roomRecordingsRequest");
+    });
+
+    // Check that redirect to 404 page worked and error message is shown
+    cy.url().should("include", "/404").and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load recordings page out of range", function () {

@@ -13,6 +13,7 @@ describe("Admin room types edit", function () {
         "roomTypes.view",
         "roomTypes.update",
         "roomTypes.create",
+        "roomTypes.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -74,13 +75,14 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check that correct buttons are shown
-    cy.get('[data-test="room-types-cancel-edit-button"]')
+    cy.get('a[data-test="room-types-cancel-edit-button"]')
       .should("be.visible")
-      .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/room_types/3");
     cy.get('[data-test="room-types-edit-button"]').should("not.exist");
-    cy.get('[data-test="room-types-delete-button"]').should("not.exist");
+    cy.get('[data-test="room-types-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
     cy.get('[data-test="room-types-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")
@@ -829,6 +831,13 @@ describe("Admin room types edit", function () {
         .should("be.disabled");
       cy.get('[data-test="visibility-enforced"]').should("be.disabled");
 
+      cy.get('button[data-test="room-types-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="room-types-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
       cy.get('[data-test="room-types-save-button"]')
         .should("be.disabled")
         .then(() => {
@@ -1139,6 +1148,13 @@ describe("Admin room types edit", function () {
         "have.class",
         "multiselect--disabled",
       );
+
+      cy.get('button[data-test="room-types-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="room-types-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
 
       cy.get('[data-test="room-types-save-button"]')
         .should("be.disabled")
@@ -2067,7 +2083,9 @@ describe("Admin room types edit", function () {
     cy.intercept("PUT", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("saveChangesRequest");
 
@@ -2082,8 +2100,8 @@ describe("Admin room types edit", function () {
     cy.wait("@roomTypesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Reload
@@ -2148,7 +2166,9 @@ describe("Admin room types edit", function () {
     cy.intercept("GET", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("roomTypeRequest");
 
@@ -2163,8 +2183,8 @@ describe("Admin room types edit", function () {
     cy.wait("@roomTypesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Reload page with 401 error
@@ -2182,7 +2202,7 @@ describe("Admin room types edit", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("check button visibility with delete permission", function () {
+  it("check button visibility without delete permission", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
@@ -2191,7 +2211,6 @@ describe("Admin room types edit", function () {
         "roomTypes.view",
         "roomTypes.update",
         "roomTypes.create",
-        "roomTypes.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -2209,9 +2228,7 @@ describe("Admin room types edit", function () {
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/room_types/3");
     cy.get('[data-test="room-types-edit-button"]').should("not.exist");
-    cy.get('[data-test="room-types-delete-button"]')
-      .should("be.visible")
-      .and("not.be.disabled");
+    cy.get('[data-test="room-types-delete-button"]').should("not.exist");
     cy.get('[data-test="room-types-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")

@@ -11,6 +11,7 @@ return [
         'title' => 'Login with Email',
     ],
     'error' => [
+        'invalid_request' => 'Authentication failed due to an invalid request.',
         'login_failed' => 'Login failed',
         'missing_attributes' => 'Attributes for authentication are missing.',
         'openid_connect_exception' => 'Authentication failed due to an error.',

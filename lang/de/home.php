@@ -21,7 +21,7 @@ return [
         ],
         'recording' => [
             'description' => 'Zeichnen Sie Ihre Videokonferenzen auf und stellen Sie Aufzeichnugen mit einer fein abgestuften Berechtigungen zur Verfügung.',
-            'title' => 'Aufnahme',
+            'title' => 'Aufzeichnung',
         ],
         'security' => [
             'description' => 'Alle Kommunikationsdaten werden während der Übertragung mit dem WebRTC-Protokoll sicher verschlüsselt.',

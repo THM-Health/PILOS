@@ -71,11 +71,22 @@ describe("User Profile Security", function () {
         .click();
 
       // Check loading
+      // Check that tab buttons are disabled
+      cy.get('[data-test="base-tab-button"]').should("be.disabled");
+      cy.get('[data-test="email-tab-button"]').should("be.disabled");
+      cy.get('[data-test="security-tab-button"]').should("be.disabled");
+      cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+      // Check that input fields and buttons are disabled
       cy.get('[data-test="security-tab-current-password-field"]')
         .find("#current_password")
         .should("be.disabled");
       cy.get("#new_password").should("be.disabled");
-      cy.get("#new_password_confirmation")
+      cy.get("#new_password_confirmation").should("be.disabled");
+
+      cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
+      cy.get('[data-test="logout-all-sessions-button"]')
         .should("be.disabled")
         .then(() => {
           saveChangesRequest.sendResponse();
@@ -146,6 +157,21 @@ describe("User Profile Security", function () {
       .click();
 
     // Check loading
+    // Check that tab buttons are disabled
+    cy.get('[data-test="base-tab-button"]').should("be.disabled");
+    cy.get('[data-test="email-tab-button"]').should("be.disabled");
+    cy.get('[data-test="security-tab-button"]').should("be.disabled");
+    cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+    // Check that input fields and buttons are disabled
+    cy.get('[data-test="security-tab-current-password-field"]')
+      .find("#current_password")
+      .should("be.disabled");
+    cy.get("#new_password").should("be.disabled");
+    cy.get("#new_password_confirmation").should("be.disabled");
+
+    cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
     cy.get('[data-test="logout-all-sessions-button"]')
       .should("be.disabled")
       .then(() => {

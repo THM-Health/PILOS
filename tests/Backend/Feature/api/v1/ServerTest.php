@@ -250,7 +250,12 @@ class ServerTest extends TestCase
         $server->save();
         $server->delete();
         $this->actingAs($this->user)->getJson(route('api.v1.servers.show', ['server' => $server->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
     }
 
     /**
@@ -293,8 +298,12 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertJsonValidationErrors(['base_url']);
 
+        $newServer = Server::first();
+        $newServer->status = ServerStatus::DISABLED;
+        $newServer->save();
+        $newServer->delete();
+
         // Test that missing trailing slash is automatically appended
-        $data['name'] = $this->faker->unique()->word;
         $data['base_url'] = 'https://test-new.notld/bigbluebutton';
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertSuccessful()
@@ -397,7 +406,12 @@ class ServerTest extends TestCase
         $server->save();
         $server->delete();
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
     }
 
     /**
@@ -446,7 +460,12 @@ class ServerTest extends TestCase
 
         // Test delete again
         $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
 
         $this->assertDatabaseMissing('servers', ['id' => $server->id]);
     }
@@ -549,5 +568,22 @@ class ServerTest extends TestCase
 
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
         $this->assertNull($meeting->end);
+
+        // Test deleted
+        $server->status = ServerStatus::DISABLED;
+        $server->save();
+
+        $meeting->end = date('Y-m-d H:i:s');
+        $meeting->save();
+
+        $server->delete();
+
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server->id]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
     }
 }

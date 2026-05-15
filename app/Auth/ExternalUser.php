@@ -98,6 +98,8 @@ abstract class ExternalUser
     /**
      * Validate the required attributes.
      * Throws a MissingAttributeException if the attribute is not set.
+     *
+     * @throws MissingAttributeException
      */
     public function validate()
     {

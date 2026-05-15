@@ -85,8 +85,10 @@
           :room-auth-token="roomAuthToken"
           :room="props.room"
           @invalid-room-auth-token="$emit('invalidRoomAuthToken')"
+          @require-code="$emit('requireCode')"
           @guests-not-allowed="$emit('guestsNotAllowed')"
           @settings-changed="$emit('settingsChanged')"
+          @transferred-ownership="$emit('transferredOwnership')"
         />
       </div>
     </template>
@@ -146,7 +148,13 @@ import { useUrlSearchParams } from "@vueuse/core";
 import { useSettingsStore } from "../stores/settings.js";
 import RoomTabStreaming from "./RoomTabStreaming.vue";
 
-defineEmits(["invalidRoomAuthToken", "guestsNotAllowed", "settingsChanged"]);
+defineEmits([
+  "invalidRoomAuthToken",
+  "requireCode",
+  "guestsNotAllowed",
+  "settingsChanged",
+  "transferredOwnership",
+]);
 
 const props = defineProps({
   room: {

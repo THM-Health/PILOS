@@ -11,6 +11,7 @@ return [
         'title' => 'Mit einer E-Mail anmelden',
     ],
     'error' => [
+        'invalid_request' => 'Die Anmeldung ist aufgrund einer ungültigen Anfrage fehlgeschlagen.',
         'login_failed' => 'Anmeldung fehlgeschlagen',
         'missing_attributes' => 'Es fehlen Attribute für die Authentifizierung.',
         'openid_connect_exception' => 'Die Anmeldung ist aufgrund eines Fehlers fehlgeschlagen.',

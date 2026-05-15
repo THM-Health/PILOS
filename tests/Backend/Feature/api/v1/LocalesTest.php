@@ -216,7 +216,7 @@ class LocalesTest extends TestCase
     public function test_default_locale_set_automatically_for_ldap_users_on_login()
     {
         Container::getConnection('default')->getConfiguration()->set('use_tls', false);
-        Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
+        Container::getConnection('default')->getConfiguration()->set('use_starttls', false);
         $fake = DirectoryEmulator::setup('default');
 
         $externalUser = LdapUser::create([

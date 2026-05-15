@@ -4,7 +4,7 @@
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           :disabled="isBusy"
           :to="{ name: 'admin.server_pools.view', params: { id: model.id } }"
           severity="secondary"
@@ -14,7 +14,7 @@
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           :disabled="isBusy"
           :to="{ name: 'admin.server_pools.edit', params: { id: model.id } }"
           severity="info"
@@ -26,7 +26,9 @@
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
           :name="name"
+          :disabled="isBusy"
           @deleted="$router.push({ name: 'admin.server_pools' })"
+          @not-found="$router.push({ name: 'admin.server_pools' })"
         >
         </SettingsServerPoolsDeleteButton>
       </div>
@@ -230,7 +232,7 @@ const formErrors = useFormErrors();
 const api = useApi();
 const confirm = useConfirm();
 const router = useRouter();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const props = defineProps({
   id: {
@@ -252,7 +254,7 @@ const name = ref("");
 watch(
   () => name.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       name: name.value,
     };
   },

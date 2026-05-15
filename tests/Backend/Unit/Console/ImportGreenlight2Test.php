@@ -6,6 +6,7 @@ namespace Tests\Backend\Unit\Console;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Models\Meeting;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -99,7 +100,7 @@ class ImportGreenlight2Test extends TestCase
                             ->with('deleted', false)
                             ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($rooms) {
                                 $mock->shouldReceive('get')
-                                    ->with(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code'])
+                                    ->with(['id', 'uid', 'bbb_id', 'user_id', 'name', 'room_settings', 'access_code'])
                                     ->andReturn($rooms);
                             }));
                     }));
@@ -238,17 +239,17 @@ class ImportGreenlight2Test extends TestCase
 
         // Create fake rooms
         $rooms = [];
-        $rooms[] = new Greenlight2Room(1, $users[0]->id, 'Test Room 1', 'abc-def-xyz-123');
-        $rooms[] = new Greenlight2Room(2, $users[1]->id, 'Test Room 2', 'abc-def-xyz-234');
-        $rooms[] = new Greenlight2Room(3, $users[2]->id, 'Test Room 3', 'abc-def-xyz-345');
-        $rooms[] = new Greenlight2Room(4, $users[3]->id, 'Test Room 4', 'abc-def-xyz-456');
-        $rooms[] = new Greenlight2Room(5, $users[4]->id, 'Test Room 5', 'abc-def-xyz-567');
-        $rooms[] = new Greenlight2Room(6, $users[5]->id, 'Test Room 6', 'abc-def-xyz-678');
+        $rooms[] = new Greenlight2Room(1, 'abc-def-xyz-123', 'thue5aivaiyohreetu1zaipe4iez7eengoopoohi', 'Test Room 1', $users[0]->id);
+        $rooms[] = new Greenlight2Room(2, 'abc-def-xyz-234', 'aef9eiquoo8oph9oon4oovit8oid9ree7caigahw', 'Test Room 2', $users[1]->id);
+        $rooms[] = new Greenlight2Room(3, 'abc-def-xyz-345', 'iekoongaicahhaivah0xaud3tha3iem8eathoaxu', 'Test Room 3', $users[2]->id);
+        $rooms[] = new Greenlight2Room(4, 'abc-def-xyz-456', 'oeph7ohhoochoy7ruoshae9uephie0tha8aup3oo', 'Test Room 4', $users[3]->id);
+        $rooms[] = new Greenlight2Room(5, 'abc-def-xyz-567', 'eecae0kugoo3aes2aiquaif8aeraiy1aiva2ohje', 'Test Room 5', $users[4]->id);
+        $rooms[] = new Greenlight2Room(6, 'abc-def-xyz-678', 'eizaipaikohheizohvaehiech5ach3el9haech5g', 'Test Room 6', $users[5]->id);
 
-        $rooms[] = new Greenlight2Room(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', '012345', ['muteOnStart' => false, 'requireModeratorApproval' => true, 'anyoneCanStart' => false, 'joinModerator' => true]);
-        $rooms[] = new Greenlight2Room(8, $users[0]->id, 'Test Room 8', 'hij-klm-xyz-234', null, ['muteOnStart' => true, 'requireModeratorApproval' => false, 'anyoneCanStart' => true, 'joinModerator' => false]);
-        $rooms[] = new Greenlight2Room(9, 99, 'Test Room 9', 'hij-klm-xyz-456', '012345');
-        $rooms[] = new Greenlight2Room(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
+        $rooms[] = new Greenlight2Room(7, 'hij-klm-xyz-123', 'aebaoj6phak4eaghoizeiwaecudei6hishochua7', 'Test Room 7', $users[0]->id, '012345', ['muteOnStart' => false, 'requireModeratorApproval' => true, 'anyoneCanStart' => false, 'joinModerator' => true]);
+        $rooms[] = new Greenlight2Room(8, 'hij-klm-xyz-234', 'aicha2vahw1zei7aecoo1ainoph1ietei3nei4la', 'Test Room 8', $users[0]->id, null, ['muteOnStart' => true, 'requireModeratorApproval' => false, 'anyoneCanStart' => true, 'joinModerator' => false]);
+        $rooms[] = new Greenlight2Room(9, 'hij-klm-xyz-456', 'quohseseey2aheicoc3eedaedei4kif8zo4xaiki', 'Test Room 9', 99, '012345');
+        $rooms[] = new Greenlight2Room(10, $existingRoom->id, 'aima0eiv6uyaif6ien8ahchoothohkeiphaegh0u', 'Test Room 10', $users[0]->id);
 
         // Create fake presentations
         $presentations = [];
@@ -286,6 +287,7 @@ class ImportGreenlight2Test extends TestCase
 
         // check amount of rooms and users
         $this->assertCount(9, Room::all());
+        $this->assertCount(8, Meeting::all());
         $this->assertCount(2, User::where('authenticator', 'local')->get());
         $this->assertCount(2, User::where('authenticator', 'ldap')->get());
         $this->assertCount(1, User::where('authenticator', 'shibboleth')->get());
@@ -295,6 +297,21 @@ class ImportGreenlight2Test extends TestCase
         $this->assertEqualsCanonicalizing(
             [$existingRoom->id, 'abc-def-xyz-123', 'abc-def-xyz-234', 'abc-def-xyz-345', 'abc-def-xyz-456', 'abc-def-xyz-567', 'abc-def-xyz-678', 'hij-klm-xyz-123', 'hij-klm-xyz-234'],
             Room::all()->pluck('id')->toArray()
+        );
+
+        // check if all meetings are created
+        $this->assertEqualsCanonicalizing(
+            [
+                'thue5aivaiyohreetu1zaipe4iez7eengoopoohi',
+                'aef9eiquoo8oph9oon4oovit8oid9ree7caigahw',
+                'iekoongaicahhaivah0xaud3tha3iem8eathoaxu',
+                'oeph7ohhoochoy7ruoshae9uephie0tha8aup3oo',
+                'eecae0kugoo3aes2aiquaif8aeraiy1aiva2ohje',
+                'eizaipaikohheizohvaehiech5ach3el9haech5g',
+                'aebaoj6phak4eaghoizeiwaecudei6hishochua7',
+                'aicha2vahw1zei7aecoo1ainoph1ietei3nei4la',
+            ],
+            Meeting::all()->pluck('id')->toArray()
         );
 
         // check if allow guest setting is correct
@@ -398,11 +415,7 @@ class ImportGreenlight2Test extends TestCase
                 ->expectsOutput('Importing rooms')
                 ->expectsOutput('8 created, 1 skipped (already existed)')
                 ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
-                ->expectsOutput('+-------------+-----------------+-------------+')
-                ->expectsOutput('| Name        | ID              | Access code |')
-                ->expectsOutput('+-------------+-----------------+-------------+')
-                ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |')
-                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsTable(['Name', 'ID', 'Access code'], [['Test Room 9', 'hij-klm-xyz-456', '012345']])
                 ->expectsOutput('Importing presentations for rooms')
                 ->expectsOutput('2 created, 1 skipped (file not found)')
                 ->expectsOutput('Importing shared room accesses')
@@ -430,11 +443,7 @@ class ImportGreenlight2Test extends TestCase
                 ->expectsOutput('Importing rooms')
                 ->expectsOutput('8 created, 1 skipped (already existed)')
                 ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
-                ->expectsOutput('+-------------+-----------------+-------------+')
-                ->expectsOutput('| Name        | ID              | Access code |')
-                ->expectsOutput('+-------------+-----------------+-------------+')
-                ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |')
-                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsTable(['Name', 'ID', 'Access code'], [['Test Room 9', 'hij-klm-xyz-456', '012345']])
                 ->expectsOutput('Importing presentations for rooms')
                 ->expectsOutput('2 created, 1 skipped (file not found)')
                 ->expectsOutput('Importing shared room accesses')
@@ -478,11 +487,7 @@ class ImportGreenlight2Test extends TestCase
                 ->expectsOutput('Importing rooms')
                 ->expectsOutput('8 created, 1 skipped (already existed)')
                 ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
-                ->expectsOutput('+-------------+-----------------+-------------+')
-                ->expectsOutput('| Name        | ID              | Access code |')
-                ->expectsOutput('+-------------+-----------------+-------------+')
-                ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 012345      |')
-                ->expectsOutput('+-------------+-----------------+-------------+')
+                ->expectsTable(['Name', 'ID', 'Access code'], [['Test Room 9', 'hij-klm-xyz-456', '012345']])
                 ->expectsOutput('Importing presentations for rooms')
                 ->expectsOutput('2 created, 1 skipped (file not found)')
                 ->expectsOutput('Importing shared room accesses')

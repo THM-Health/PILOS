@@ -101,7 +101,7 @@
                 :disable-reload="authThrottledFor > 0"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
-                @reload="reload"
+                @reload="reload(true)"
               />
               <Divider />
 
@@ -171,12 +171,13 @@
                 :details-inline="true"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
-                @reload="reload"
+                @reload="reload(true)"
                 @invalid-room-auth-token="handleInvalidRoomAuthToken"
                 @joined-membership="
                   roomAuthToken = null;
-                  reload();
+                  reload(true);
                 "
+                @left-membership="reload"
               />
             </template>
             <template #content>
@@ -204,8 +205,12 @@
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
+                    @require-code="
+                      handleRequireCode();
+                      reload();
+                    "
                     @guests-not-allowed="handleGuestsNotAllowed"
-                    @changed="reload"
+                    @changed="reload(true)"
                   />
                   <RoomBrowserNotification
                     :room-name="room.name"
@@ -223,8 +228,13 @@
             :room-auth-token="roomAuthToken"
             :room="room"
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
+            @require-code="
+              handleRequireCode();
+              reload();
+            "
             @guests-not-allowed="handleGuestsNotAllowed"
-            @settings-changed="reload"
+            @settings-changed="reload(true)"
+            @transferred-ownership="reload"
           />
         </div>
       </div>
@@ -326,6 +336,7 @@ function startAutoRefresh() {
     reloadInterval.value = setInterval(
       reload,
       getRandomRefreshInterval() * 1000,
+      true,
     );
   }
 }
@@ -398,6 +409,21 @@ function handleInvalidCode() {
 }
 
 /**
+ * Reset access code error states and access code input and display error message
+ */
+function handleRequireCode() {
+  // Reset access code error states to prevent confusing error state
+  accessCodeInvalid.value = null;
+  formErrors.clear();
+
+  // Reset access code input
+  accessCodeInput.value = "";
+
+  // Show error message
+  toast.error(t("rooms.require_access_code"));
+}
+
+/**
  * Reset room due to personalized link error
  */
 function handleInvalidPersonalizedLink() {
@@ -439,12 +465,6 @@ function load() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
-          return;
-        }
-
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
@@ -463,7 +483,9 @@ function load() {
         }
       }
 
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -481,8 +503,9 @@ watch(authThrottledFor, (value) => {
 
 /**
  * Reload the room details/settings
+ * @param {boolean} [checkForRequireCodeError=false]
  */
-function reload() {
+function reload(checkForRequireCodeError = false) {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
@@ -501,6 +524,15 @@ function reload() {
   api
     .call(url, config)
     .then((response) => {
+      // Room was authenticated but now requires an access code
+      if (
+        checkForRequireCodeError &&
+        room.value?.authenticated &&
+        !response.data.data.authenticated
+      ) {
+        handleRequireCode();
+      }
+
       room.value = response.data.data;
 
       setPageTitle(room.value.name);
@@ -515,12 +547,6 @@ function reload() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
-          return;
-        }
-
         // Room auth token is invalid
         if (
           error.response.status === env.HTTP_UNAUTHORIZED &&
@@ -537,7 +563,9 @@ function reload() {
           return handleGuestsNotAllowed();
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -582,7 +610,7 @@ function login() {
   authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
     if (success) {
       // Reload room details after authentication
-      reload();
+      reload(true);
     }
   });
 }
@@ -674,7 +702,9 @@ function authenticate(type, codeOrToken) {
             return;
           }
         }
-        api.error(error, { redirectOnUnauthenticated: false });
+        api.error(error, {
+          redirectOnUnauthenticated: false,
+        });
       })
       .finally(() => {
         authLoading.value = false;

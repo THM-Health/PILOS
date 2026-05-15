@@ -287,6 +287,38 @@ describe("Admin room types view room type actions", function () {
       "Replacement room type required! Rooms are still assigned to this room type.",
     );
 
+    // Check with 404 error
+    cy.intercept("DELETE", "api/v1/roomTypes/3", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
+      },
+    }).as("deleteRoomTypeRequest");
+
+    cy.interceptAdminRoomTypesIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteRoomTypeRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/room_types").and("not.include", "/3");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
+    ]);
+
+    // Reload view and open delete dialog again
+    cy.visit("/admin/room_types/3");
+
+    cy.wait("@roomTypeRequest");
+
+    cy.get('[data-test="room-types-delete-button"]').click();
+    cy.get('[data-test="room-types-delete-dialog"]').should("be.visible");
+
     // Check with 401 error
     cy.intercept("DELETE", "api/v1/roomTypes/3", {
       statusCode: 401,

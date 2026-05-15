@@ -88,7 +88,7 @@
           <RoomTransferOwnershipButton
             :disabled="disabled"
             :room="room"
-            @transferred-ownership="emit('settingsChanged')"
+            @transferred-ownership="emit('transferredOwnership')"
           />
           <RoomTabSettingsExpertModeButton
             :disabled="disabled"
@@ -139,7 +139,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["settingsChanged"]);
+const emit = defineEmits(["settingsChanged", "transferredOwnership"]);
 
 const settings = ref({
   expert_mode: false,

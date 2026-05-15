@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Enums\RecordingAccess;
 use App\Jobs\ProcessRecording;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
@@ -36,6 +37,15 @@ class ImportRecordingsCommand extends Command
             }
 
             ProcessRecording::dispatch($file);
+        }
+
+        $files = Storage::disk('recordings-spool')->files('public');
+        foreach ($files as $file) {
+            if (! Str::endsWith($file, '.tar')) {
+                continue;
+            }
+
+            ProcessRecording::dispatch($file, RecordingAccess::EVERYONE);
         }
     }
 }

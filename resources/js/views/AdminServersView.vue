@@ -4,7 +4,7 @@
       <div v-if="model.id !== null && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           :disabled="isBusy"
           :to="{ name: 'admin.servers.view', params: { id: model.id } }"
           severity="secondary"
@@ -14,7 +14,7 @@
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           :disabled="isBusy"
           :to="{ name: 'admin.servers.edit', params: { id: model.id } }"
           severity="info"
@@ -26,7 +26,9 @@
           v-if="userPermissions.can('delete', model) && isDisabled"
           :id="model.id"
           :name="name"
+          :disabled="isBusy"
           @deleted="$router.push({ name: 'admin.servers' })"
+          @not-found="$router.push({ name: 'admin.servers' })"
         ></SettingsServersDeleteButton>
       </div>
     </div>
@@ -393,7 +395,7 @@ const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
 const { t } = useI18n();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const props = defineProps({
   id: {
@@ -415,7 +417,7 @@ const name = ref("");
 watch(
   () => name.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       name: name.value,
     };
   },
@@ -475,6 +477,9 @@ function panic() {
       }
     })
     .catch((error) => {
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        router.push({ name: "admin.servers" });
+      }
       api.error(error);
     })
     .finally(() => {
@@ -516,6 +521,7 @@ function testConnection() {
     .catch((error) => {
       health.value = null;
       offlineReason.value = null;
+
       api.error(error);
     })
     .finally(() => {
