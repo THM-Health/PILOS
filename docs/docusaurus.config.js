@@ -62,9 +62,7 @@ const config = {
       removeLegacyPostBuildHeadAttribute: true,
       useCssCascadeLayers: true,
     },
-    experimental_faster: {
-      ssgWorkerThreads: true,
-    },
+    faster: true,
   },
 
   themeConfig:
