@@ -10,6 +10,8 @@ on:
     branches:
       - develop
       - "[0-9].x"
+    paths-ignore:
+      - 'docs/**'
 
 permissions:
   contents: read
