@@ -66,6 +66,10 @@ return [
     'flash' => [
         'client_error' => 'یک خطای ناشناخته در برنامه رخ داد!',
         'guests_only' => 'این درخواست فقط می‌تواند توسط مهمانان انجام شود!',
+        'model_not_found' => [
+            'details' => 'شناسه: :ids',
+            'title' => 'مدل یافت نشد!',
+        ],
         'server_error' => [
             'empty_message' => 'در حین درخواست خطایی در سرور رخ داد!',
             'error_code' => 'کد خطا: :statusCode',
@@ -97,10 +101,20 @@ return [
         'fr' => 'فرانسوی',
     ],
     'model' => [
+        'meeting' => 'جلسه',
+        'recording' => 'ضبط',
+        'recording_format' => 'فرمت ضبط',
+        'role' => 'نقش',
         'roles' => 'نقش',
+        'room_file' => 'فایل اتاق',
+        'room_personalized_link' => 'لینک شخصی اتاق',
+        'room_type' => 'نوع اتاق',
         'room_types' => 'نوع اتاق',
+        'server' => 'سرورها',
+        'server_pool' => 'استخر سرور',
         'server_pools' => 'مخزن سرور',
         'servers' => 'سرور',
+        'user' => 'کاربر',
         'users' => 'کاربر',
     ],
     'model_name' => 'نام',

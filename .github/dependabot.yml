@@ -55,3 +55,17 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Europe/Berlin"
+  # Docs dependencies for npm
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    cooldown:
+      default-days: 7
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Berlin"
+    groups:
+      docs:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]

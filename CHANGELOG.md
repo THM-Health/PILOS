@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.15.0] - 2026-05-15
+
 ### Added
 
 - Docs: Import of existing Greenlight v2/v3 recordings ([#2877], [#3034])
@@ -800,7 +802,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3078]: https://github.com/THM-Health/PILOS/issues/3078
 [#3079]: https://github.com/THM-Health/PILOS/pull/3079
 [#3128]: https://github.com/THM-Health/PILOS/pull/3128
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.14.2...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.15.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -827,3 +829,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.14.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.0
 [v4.14.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.1
 [v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2
+[v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0

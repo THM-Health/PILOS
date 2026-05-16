@@ -8,6 +8,10 @@ ARG WWWUSER=82
 ARG PLAYBACK_PLAYER_VERSION=5.4.6
 ARG VITE_COVERAGE="false"
 
+# Invalidate cache daily (YYYYMMDD format)
+ARG BUILD_DATE
+RUN echo "Build date: $BUILD_DATE"
+
 WORKDIR /var/www/html
 
 ENV TZ=UTC \

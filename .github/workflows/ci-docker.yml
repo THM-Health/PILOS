@@ -2,12 +2,16 @@ name: CI Docker build
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # Nightly
   release:
     types: [published]
   push:
     branches:
       - develop
       - "[0-9].x"
+    paths-ignore:
+      - "docs/**"
 
 permissions:
   contents: read
@@ -62,5 +66,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=pilos/pilos:buildcache
-          cache-to: type=registry,ref=pilos/pilos:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          no-cache: ${{ github.event_name == 'schedule' }}
+          pull: ${{ github.event_name == 'schedule' }}
