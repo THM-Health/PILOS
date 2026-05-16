@@ -1,22 +1,31 @@
+// Override for window.it used for all tests, to check the final state after each test, to make sure that unexpected errors
+// or states that may have happened during the test are caught.
+
 const originalIt = window.it;
 
-window.it = function (title, fn) {
-  if (typeof fn !== "function") {
-    return originalIt(title, fn);
+window.it = function (title, optionsOrFunction, fn) {
+  // Determine test function and options based on the arguments passed to it
+  const testFn =
+    typeof optionsOrFunction === "function" ? optionsOrFunction : fn;
+  const testOptions =
+    typeof optionsOrFunction === "object" ? { ...optionsOrFunction } : {};
+
+  if (typeof testFn !== "function") {
+    // Call the original it function with the provided arguments
+    // This is necessary to make it.skip work correctly
+    return originalIt(title, optionsOrFunction, fn);
   }
 
-  return originalIt(title, function () {
-    fn();
+  // Call the original it function with the modified test function and options
+  return originalIt(title, testOptions, function () {
+    testFn();
     cy.checkFinalState();
   });
 };
 
-window.it.only = function (title, fn) {
-  return originalIt.only(title, function () {
-    fn();
-  });
-};
-
+// Add the original it.only and it.skip methods to the window object
+// originalIt.only and originalIt.skip will use the overridden window.it function
+window.it.only = originalIt.only;
 window.it.skip = originalIt.skip;
 
 /**
@@ -30,8 +39,9 @@ Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
       cy.checkFinalState();
     })
     .then(() => {
-      cy.log(`Visit ${url}`);
-      return originalFn(url, options);
+      cy.log(`Visit ${url}`).then(() => {
+        return originalFn(url, options);
+      });
     });
 });
 
@@ -46,7 +56,8 @@ Cypress.Commands.overwrite("reload", (originalFn, options) => {
       cy.checkFinalState();
     })
     .then(() => {
-      cy.log("Reload page");
-      return originalFn(options);
+      cy.log("Reload").then(() => {
+        return originalFn(options);
+      });
     });
 });

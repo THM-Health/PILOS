@@ -11,6 +11,7 @@ Cypress.Commands.add("checkFinalState", () => {
     const baseOrigin = new URL(Cypress.config().baseUrl).origin;
 
     if (currentOrigin === baseOrigin) {
+      cy.log("Check final state");
       // Check that all toasts that maybe have been created during the test have been removed
       // This makes sure that unexpected error toasts that are not handled in the test will cause the test to fail,
       // which makes sure that we don't miss any unexpected errors in the tests
