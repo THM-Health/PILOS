@@ -33,11 +33,11 @@ window.it.skip = originalIt.skip;
  * Checks final state before performing the visit, to make sure that unexpected errors that may have happened previously are caught.
  */
 Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
-  cy.checkFinalState();
-
-  cy.log(`Visit ${url}`).then(() => {
-    return originalFn(url, options);
-  });
+  return cy
+    .wrap(null, { log: false })
+    .then(() => cy.checkFinalState())
+    .then(() => cy.log(`Visit ${url}`))
+    .then(() => originalFn(url, options));
 });
 
 /**
@@ -45,9 +45,9 @@ Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
  * Checks final state before performing the reload, to make sure that unexpected errors that may have happened previously are caught.
  */
 Cypress.Commands.overwrite("reload", (originalFn, options) => {
-  cy.checkFinalState();
-
-  cy.log("Reload").then(() => {
-    return originalFn(options);
-  });
+  return cy
+    .wrap(null, { log: false })
+    .then(() => cy.checkFinalState())
+    .then(() => cy.log("Reload"))
+    .then(() => originalFn(options));
 });
