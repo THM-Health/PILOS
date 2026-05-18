@@ -40,7 +40,6 @@
         ></LoadingRetryButton>
       </template>
       <Form
-        id="admin-room-types-form"
         class="flex flex-col gap-4"
         :disabled="
           isBusy ||

@@ -32,6 +32,7 @@
           id="url"
           v-model.trim="link"
           autofocus
+          required
           :invalid="urlInvalid"
         />
         <p v-if="urlInvalid" class="text-red-500" role="alert">

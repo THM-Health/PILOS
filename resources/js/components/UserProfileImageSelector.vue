@@ -107,24 +107,20 @@
           :label="$t('admin.users.image.save')"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
-          form="user-profile-image-form"
-          type="submit"
+          @click="save"
         />
       </div>
     </template>
-
-    <Form id="user-profile-image-form" @submit="save">
-      <VueCropper
-        v-show="selectedFile"
-        ref="cropperRef"
-        class="my-2"
-        :auto-crop-area="1"
-        :aspect-ratio="1"
-        :view-mode="1"
-        :src="selectedFile"
-        :alt="$t('admin.users.image.title')"
-      />
-    </Form>
+    <VueCropper
+      v-show="selectedFile"
+      ref="cropperRef"
+      class="my-2"
+      :auto-crop-area="1"
+      :aspect-ratio="1"
+      :view-mode="1"
+      :src="selectedFile"
+      :alt="$t('admin.users.image.title')"
+    />
   </Dialog>
 </template>
 

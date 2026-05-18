@@ -32,6 +32,7 @@
           id="src"
           v-model.trim="src"
           autofocus
+          required
           :invalid="srcInvalid"
         />
         <p v-if="srcInvalid" class="text-red-500" role="alert">
