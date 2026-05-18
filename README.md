@@ -38,6 +38,7 @@ This project is actively used and trusted by a growing number of academic instit
 - Goethe-Universität Frankfurt
 - Universität Innsbruck
 - Hochschule für nachhaltige Entwicklung Eberswalde
+- Hochschule der Polizei des Landes Brandenburg
 - Kompetenzzentrum für Telemedizin und E-Health Hessen (KTE Hessen)
 - IT-Dienstleistungszentrum des Freistaats Bayern (LDBV)
 - infra.run Service GmbH
