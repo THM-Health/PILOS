@@ -41,7 +41,7 @@
           <TipTapEditor
             v-model="newContent"
             :class="{
-              'is-invalid': formErrors.fieldInvalid('description') === false,
+              'is-invalid': formErrors.fieldInvalid('description'),
             }"
             :disabled="isBusy"
           />
