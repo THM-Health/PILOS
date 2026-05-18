@@ -80,6 +80,7 @@ function submit() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
         return;
       }
       api.error(error);

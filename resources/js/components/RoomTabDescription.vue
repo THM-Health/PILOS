@@ -224,6 +224,7 @@ function save() {
       // Description couldn't be saved due to validation errors
       if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
         return;
       }
       // Description couldn't be saved due to missing permission, close the editor
