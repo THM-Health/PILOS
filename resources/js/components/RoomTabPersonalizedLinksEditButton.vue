@@ -77,7 +77,7 @@
             <RadioButton
               v-model="newRole"
               :disabled="isLoadingAction"
-              pt:input:required="required"
+              pt:input:required
               input-id="participant-role"
               :invalid="formErrors.fieldInvalid('role')"
               name="role"
@@ -92,7 +92,7 @@
             <RadioButton
               v-model="newRole"
               :disabled="isLoadingAction"
-              pt:input:required="required"
+              pt:input:required
               input-id="moderator-role"
               :invalid="formErrors.fieldInvalid('role')"
               name="role"

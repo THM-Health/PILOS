@@ -561,7 +561,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
-                      pt:input:required="required"
+                      pt:input:required
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="0"
                       name="lobby"
@@ -575,7 +575,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
-                      pt:input:required="required"
+                      pt:input:required
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="1"
                       name="lobby"
@@ -589,7 +589,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
-                      pt:input:required="required"
+                      pt:input:required
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="2"
                       name="lobby"

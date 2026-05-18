@@ -115,7 +115,7 @@
             <RadioButton
               v-model="newAccess"
               :disabled="isLoadingAction"
-              pt:input:required="required"
+              pt:input:required
               :invalid="formErrors.fieldInvalid('access')"
               :input-id="'access-' + accessType"
               name="access"

@@ -201,7 +201,7 @@
                   >
                     <RadioButton
                       v-model="toastLifetimeMode"
-                      pt:input:required="required"
+                      pt:input:required
                       input-id="toast-lifetime-mode-unlimited"
                       name="toast-lifetime-mode"
                       value="unlimited"
@@ -226,7 +226,7 @@
                       input-id="toast-lifetime-mode-custom"
                       name="toast-lifetime-mode"
                       value="custom"
-                      pt:input:required="required"
+                      pt:input:required
                       :disabled="disabled"
                       :pt="{
                         input: {
@@ -806,7 +806,7 @@
                     <RadioButton
                       v-model="roomLimitMode"
                       input-id="room-limit-mode-unlimited"
-                      pt:input:required="required"
+                      pt:input:required
                       name="room-limit-mode"
                       value="unlimited"
                       :disabled="disabled"
@@ -828,7 +828,7 @@
                     <RadioButton
                       v-model="roomLimitMode"
                       input-id="room-limit-mode-custom"
-                      pt:input:required="required"
+                      pt:input:required
                       name="room-limit-mode"
                       value="custom"
                       :disabled="disabled"

@@ -84,7 +84,7 @@
             <RadioButton
               v-model="newRoleInRoom"
               :disabled="isLoadingAction"
-              pt:input:required="required"
+              pt:input:required
               input-id="participant-role"
               :invalid="formErrors.fieldInvalid('role')"
               name="role"
@@ -99,7 +99,7 @@
             <RadioButton
               v-model="newRoleInRoom"
               :disabled="isLoadingAction"
-              pt:input:required="required"
+              pt:input:required
               input-id="moderator-role"
               :invalid="formErrors.fieldInvalid('role')"
               name="role"
@@ -114,7 +114,7 @@
             <RadioButton
               v-model="newRoleInRoom"
               :disabled="isLoadingAction"
-              pt:input:required="required"
+              pt:input:required
               input-id="co-owner-role"
               :invalid="formErrors.fieldInvalid('role')"
               name="role"
@@ -131,7 +131,7 @@
             <div class="flex items-center">
               <RadioButton
                 v-model="newRoleInRoom"
-                pt:input:required="required"
+                pt:input:required
                 :disabled="isLoadingAction"
                 input-id="no-role"
                 :invalid="formErrors.fieldInvalid('role')"

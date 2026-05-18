@@ -77,7 +77,7 @@
               v-model="role"
               :disabled="isLoadingAction"
               input-id="participant-role"
-              pt:input:required="required"
+              pt:input:required
               name="role"
               :invalid="formErrors.fieldInvalid('role')"
               :value="1"
@@ -92,7 +92,7 @@
               v-model="role"
               :disabled="isLoadingAction"
               :invalid="formErrors.fieldInvalid('role')"
-              pt:input:required="required"
+              pt:input:required
               input-id="moderator-role"
               name="role"
               :value="2"

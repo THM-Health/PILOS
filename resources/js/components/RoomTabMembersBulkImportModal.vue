@@ -112,7 +112,7 @@
               :disabled="isLoadingAction"
               input-id="participant-role"
               :invalid="formErrors.fieldInvalid('role')"
-              pt:input:required="required"
+              pt:input:required
               name="role"
               :value="1"
             />
@@ -126,7 +126,7 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="moderator-role"
-              pt:input:required="required"
+              pt:input:required
               :invalid="formErrors.fieldInvalid('role')"
               name="role"
               :value="2"
@@ -141,7 +141,7 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="co_owner-role"
-              pt:input:required="required"
+              pt:input:required
               :invalid="formErrors.fieldInvalid('role')"
               name="role"
               :value="3"

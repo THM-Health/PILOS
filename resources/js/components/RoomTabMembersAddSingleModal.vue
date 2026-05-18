@@ -94,7 +94,7 @@
               :disabled="isLoadingAction"
               input-id="participant-role"
               name="role"
-              pt:input:required="required"
+              pt:input:required
               :invalid="formErrors.fieldInvalid('role')"
               :value="1"
             />
@@ -109,7 +109,7 @@
               :disabled="isLoadingAction"
               input-id="moderator-role"
               name="role"
-              pt:input:required="required"
+              pt:input:required
               :invalid="formErrors.fieldInvalid('role')"
               :value="2"
             />
@@ -124,7 +124,7 @@
               :disabled="isLoadingAction"
               input-id="co_owner-role"
               name="role"
-              pt:input:required="required"
+              pt:input:required
               :invalid="formErrors.fieldInvalid('role')"
               :value="3"
             />
