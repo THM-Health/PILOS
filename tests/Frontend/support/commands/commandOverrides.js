@@ -44,10 +44,10 @@ Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
  * Override for reload
  * Checks final state before performing the reload, to make sure that unexpected errors that may have happened previously are caught.
  */
-Cypress.Commands.overwrite("reload", (originalFn, options) => {
+Cypress.Commands.overwrite("reload", (originalFn, ...args) => {
   return cy
     .wrap(null, { log: false })
     .then(() => cy.checkFinalState())
     .then(() => cy.log("Reload"))
-    .then(() => originalFn(options));
+    .then(() => originalFn(...args));
 });
