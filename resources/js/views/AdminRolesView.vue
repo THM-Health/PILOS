@@ -94,8 +94,8 @@
               :data-test="'room-limit-mode-' + option.value + '-field'"
             >
               <RadioButton
-                pt:input:required
                 v-model="roomLimitMode"
+                pt:input:required
                 :input-id="option.value"
                 :value="option.value"
                 :disabled="formFieldsDisabled || model.superuser"

@@ -54,8 +54,8 @@
           <div class="col-span-12 md:col-span-8">
             <InputText
               id="name"
-              required
               v-model="model.name"
+              required
               :disabled="isBusy || modelLoadingError || viewOnly"
               :invalid="formErrors.fieldInvalid('name')"
               class="w-full"

@@ -15,7 +15,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <form novalidate @submit.prevent="onSubmit" class="form">
+  <form novalidate class="form" @submit.prevent="onSubmit">
     <slot></slot>
   </form>
 </template>
