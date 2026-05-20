@@ -3,7 +3,7 @@
  * This should be called at the end of every test to make sure that unexpected errors aren't missed in the tests.
  * @memberof cy
  * @method checkFinalState
- * @returns void
+ * @returns {Cypress.Chainable<void>}
  */
 Cypress.Commands.add("checkFinalState", () => {
   return cy.url({ log: false }).then((currentUrl) => {
