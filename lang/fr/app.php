@@ -106,6 +106,7 @@ return [
         'recording_format' => 'Format d\'enregistrement',
         'role' => 'Rôle',
         'roles' => 'rôle',
+        'room' => 'Salle',
         'room_file' => 'Fichier de salle',
         'room_personalized_link' => 'Lien personnalisé de la salle',
         'room_type' => 'type de salle',
