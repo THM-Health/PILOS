@@ -57,7 +57,7 @@
           :max-height="150"
           :show-no-results="true"
           :show-labels="false"
-          :invalid="formErrors.fieldInvalid('user')"
+          :class="{ 'is-invalid': formErrors.fieldInvalid('user') }"
           @search-change="asyncFind"
         >
           <template #noResult>
