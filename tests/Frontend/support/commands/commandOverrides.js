@@ -37,27 +37,31 @@ Cypress.Commands.overwrite("visit", (originalFn, urlOrOptions, options) => {
     // Determine url and options based on the arguments passed to visit
     // Add log: false to options to prevent logging the original visit command
     const url = typeof urlOrOptions === "string" ? urlOrOptions : undefined;
-    const optionsWithoutLogs =
-      typeof urlOrOptions === "object"
-        ? { log: false, ...urlOrOptions }
-        : { log: false, ...options };
+    const visitOptions =
+      typeof urlOrOptions === "object" ? urlOrOptions : options;
 
-    // Log the visit command with the modified url and options
+    // Log the visit command with url and options
     Cypress.log({
       name: "visit",
-      message: url ? url : optionsWithoutLogs.url,
+      message: url ? url : visitOptions.url,
       consoleProps: () => {
         return {
-          Options: optionsWithoutLogs,
+          Options: visitOptions,
         };
       },
     });
 
     // Call the original visit function with the modified url and options
     if (url !== undefined) {
-      return originalFn(url, optionsWithoutLogs);
+      return originalFn(url, {
+        log: false,
+        ...visitOptions,
+      });
     } else {
-      return originalFn(optionsWithoutLogs);
+      return originalFn({
+        log: false,
+        ...visitOptions,
+      });
     }
   });
 });
@@ -77,10 +81,10 @@ Cypress.Commands.overwrite(
           ? forceReloadOrOptions
           : undefined;
 
-      const optionsWithoutLogs =
+      const reloadOptions =
         typeof forceReloadOrOptions === "object"
-          ? { log: false, ...forceReloadOrOptions }
-          : { log: false, ...options };
+          ? forceReloadOrOptions
+          : options;
 
       // Log the reload command with the modified forceReload and options
       Cypress.log({
@@ -89,16 +93,22 @@ Cypress.Commands.overwrite(
         consoleProps: () => {
           return {
             "Force reload": forceReload !== undefined ? forceReload : undefined,
-            Options: optionsWithoutLogs,
+            Options: reloadOptions,
           };
         },
       });
 
       // Call the original reload function with the modified forceReload and options
       if (forceReload !== undefined) {
-        return originalFn(forceReload, optionsWithoutLogs);
+        return originalFn(forceReload, {
+          log: false,
+          ...reloadOptions,
+        });
       } else {
-        return originalFn(optionsWithoutLogs);
+        return originalFn({
+          log: false,
+          ...reloadOptions,
+        });
       }
     });
   },
