@@ -13,7 +13,7 @@
             }}
           </template>
           <template #content>
-            <Form id="password-reset-form" @submit="submit">
+            <Form @submit="submit">
               <div
                 class="field flex flex-col gap-2"
                 data-test="new-password-field"
