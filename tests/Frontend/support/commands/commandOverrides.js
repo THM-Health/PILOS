@@ -32,22 +32,74 @@ window.it.skip = originalIt.skip;
  * Override for visit
  * Checks final state before performing the visit, to make sure that unexpected errors that may have happened previously are caught.
  */
-Cypress.Commands.overwrite("visit", (originalFn, url, options) => {
-  return cy
-    .wrap(null, { log: false })
-    .then(() => cy.checkFinalState())
-    .then(() => cy.log(`Visit ${url}`))
-    .then(() => originalFn(url, options));
+Cypress.Commands.overwrite("visit", (originalFn, urlOrOptions, options) => {
+  return cy.checkFinalState().then(() => {
+    // Determine url and options based on the arguments passed to visit
+    // Add log: false to options to prevent logging the original visit command
+    const url = typeof urlOrOptions === "string" ? urlOrOptions : undefined;
+    const optionsWithoutLogs =
+      typeof urlOrOptions === "object"
+        ? { log: false, ...urlOrOptions }
+        : { log: false, ...options };
+
+    // Log the visit command with the modified url and options
+    Cypress.log({
+      name: "visit",
+      message: url ? url : optionsWithoutLogs.url,
+      consoleProps: () => {
+        return {
+          Options: optionsWithoutLogs,
+        };
+      },
+    });
+
+    // Call the original visit function with the modified url and options
+    if (url !== undefined) {
+      return originalFn(url, optionsWithoutLogs);
+    } else {
+      return originalFn(optionsWithoutLogs);
+    }
+  });
 });
 
 /**
  * Override for reload
  * Checks final state before performing the reload, to make sure that unexpected errors that may have happened previously are caught.
  */
-Cypress.Commands.overwrite("reload", (originalFn, ...args) => {
-  return cy
-    .wrap(null, { log: false })
-    .then(() => cy.checkFinalState())
-    .then(() => cy.log("Reload"))
-    .then(() => originalFn(...args));
-});
+Cypress.Commands.overwrite(
+  "reload",
+  (originalFn, forceReloadOrOptions, options) => {
+    return cy.checkFinalState().then(() => {
+      // Determine forceReload and options based on the arguments passed to reload
+      // Add log: false to options to prevent logging the original reload command
+      const forceReload =
+        typeof forceReloadOrOptions === "boolean"
+          ? forceReloadOrOptions
+          : undefined;
+
+      const optionsWithoutLogs =
+        typeof forceReloadOrOptions === "object"
+          ? { log: false, ...forceReloadOrOptions }
+          : { log: false, ...options };
+
+      // Log the reload command with the modified forceReload and options
+      Cypress.log({
+        name: "reload",
+        message: "",
+        consoleProps: () => {
+          return {
+            "Force reload": forceReload !== undefined ? forceReload : undefined,
+            Options: optionsWithoutLogs,
+          };
+        },
+      });
+
+      // Call the original reload function with the modified forceReload and options
+      if (forceReload !== undefined) {
+        return originalFn(forceReload, optionsWithoutLogs);
+      } else {
+        return originalFn(optionsWithoutLogs);
+      }
+    });
+  },
+);
