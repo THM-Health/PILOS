@@ -11,7 +11,7 @@
         <AdminPanel :title="$t('admin.streaming.general.title')">
           <Form
             class="flex flex-col gap-6"
-            :disabled="disabled"
+            :disabled="disabled || isBusy"
             @submit="updateSettings"
           >
             <fieldset

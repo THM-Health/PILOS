@@ -53,7 +53,11 @@
       </div>
     </template>
 
-    <Form id="room-members-bulk-edit-form" @submit="save">
+    <Form
+      id="room-members-bulk-edit-form"
+      @submit="save"
+      :disabled="isLoadingAction"
+    >
       <!-- select role -->
       <div class="field mt-6 flex flex-col gap-2">
         <fieldset class="flex w-full flex-col gap-2">

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="p-card-title">{{ props.title }}</h1>
-    <Form @submit="submit">
+    <Form @submit="submit" :disabled="props.loading">
       <div class="field flex flex-col gap-2" data-test="username-field">
         <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>
         <InputText

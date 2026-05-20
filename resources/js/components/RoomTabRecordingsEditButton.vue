@@ -54,7 +54,11 @@
       </div>
     </template>
 
-    <Form id="room-recordings-edit-form" @submit="save">
+    <Form
+      id="room-recordings-edit-form"
+      @submit="save"
+      :disabled="isLoadingAction"
+    >
       <!-- description -->
       <div class="field flex flex-col gap-2" data-test="description-field">
         <label for="description">{{

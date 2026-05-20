@@ -1,7 +1,9 @@
 <template>
   <div>
     <Form
-      :disabled="disabled || timezonesLoadingError || timezonesLoading"
+      :disabled="
+        isBusy || disabled || timezonesLoadingError || timezonesLoading
+      "
       @submit="updateSettings"
     >
       <OverlayComponent :show="isBusy || modelLoadingError" :no-center="true">

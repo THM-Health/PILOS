@@ -42,7 +42,11 @@
       </div>
     </template>
 
-    <Form id="room-personalized-links-edit-form" @submit="save">
+    <Form
+      id="room-personalized-links-edit-form"
+      @submit="save"
+      :disabled="isLoadingAction"
+    >
       <!-- first name -->
       <div class="field mt-6 flex flex-col gap-2" data-test="firstname-field">
         <label for="firstname">{{ $t("app.firstname") }}</label>

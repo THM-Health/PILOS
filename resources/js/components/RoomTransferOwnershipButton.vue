@@ -22,7 +22,11 @@
     :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
-    <Form id="room-transfer-ownership-form" @submit="transferOwnership">
+    <Form
+      id="room-transfer-ownership-form"
+      @submit="transferOwnership"
+      :disabled="isLoadingAction"
+    >
       <!--select new owner-->
       <!-- select user -->
       <div class="field relative mt-2 flex flex-col gap-2 overflow-visible">
