@@ -32,6 +32,11 @@ final class LaravelHTTPClient implements TransportInterface
         return Http::timeout(config('bigbluebutton.server_timeout'))
             ->connectTimeout(config('bigbluebutton.server_connect_timeout'))
             ->retry(config('bigbluebutton.server_retry'), config('bigbluebutton.server_retry_sleep'), function (Throwable $exception, PendingRequest $request) {
+                Log::error('BigBlueButton API request to url {url} failed with a connection error.', [
+                    'url' => $request->getUrl(),
+                    'message' => $exception->getMessage(),
+                ]);
+
                 return $exception instanceof ConnectionException;
             });
     }

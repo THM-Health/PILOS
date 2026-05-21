@@ -11,6 +11,10 @@ on:
     paths-ignore:
       - "docs/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
 env:
   PHP_VERSION: 8.5
   CYPRESS_PROJECT_ID: w8t3fx
@@ -156,7 +160,7 @@ jobs:
           path: tests/System/screenshots
       - name: Upload laravel logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: failure()
+        if: always()
         with:
           name: laravel-system-tests.log
           path: storage/logs/laravel.log
