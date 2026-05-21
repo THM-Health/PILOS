@@ -17,6 +17,9 @@ return [
     'user_search_limit' => (int) env('USER_SEARCH_LIMIT', 10),
     'server_timeout' => (int) env('BBB_SERVER_TIMEOUT', 10),
     'server_connect_timeout' => (int) env('BBB_SERVER_CONNECT_TIMEOUT', 20),
+    'server_retry' => (int) env('BBB_SERVER_RETRY', 1),
+    'server_retry_sleep' => (int) env('BBB_SERVER_RETRY', 100),
+
     'room_refresh_rate' => (int) env('ROOM_REFRESH_RATE', 30),
     'server_online_threshold' => (int) env('BBB_SERVER_ONLINE_THRESHOLD', 3),
     'server_offline_threshold' => (int) env('BBB_SERVER_OFFLINE_THRESHOLD', 3),

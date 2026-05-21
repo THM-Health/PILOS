@@ -13,6 +13,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Allows to send requests to the BBB server with a Laravel HTTP Client contract implementation.
@@ -28,7 +29,11 @@ final class LaravelHTTPClient implements TransportInterface
 
     public static function httpClient(): PendingRequest
     {
-        return Http::timeout(config('bigbluebutton.server_timeout'))->connectTimeout(config('bigbluebutton.server_connect_timeout'));
+        return Http::timeout(config('bigbluebutton.server_timeout'))
+            ->connectTimeout(config('bigbluebutton.server_connect_timeout'))
+            ->retry(config('bigbluebutton.server_retry'), config('bigbluebutton.server_retry_sleep'), function (Throwable $exception, PendingRequest $request) {
+                return $exception instanceof ConnectionException;
+            });
     }
 
     /**
