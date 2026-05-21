@@ -32,6 +32,9 @@ final class LaravelHTTPClient implements TransportInterface
     {
         return Http::timeout(config('bigbluebutton.server_timeout'))
             ->connectTimeout(config('bigbluebutton.server_connect_timeout'))
+            ->withOptions([
+                'debug' => true
+            ])
             ->retry(config('bigbluebutton.server_retry'), config('bigbluebutton.server_retry_sleep'), function (Throwable $exception, PendingRequest $request) {
                 $request->beforeSending(function (Request $request) use ($exception) {
                     Log::warning('BigBlueButton API request to url {url} failed with a connection error. Retrying', [
@@ -50,6 +53,7 @@ final class LaravelHTTPClient implements TransportInterface
     public function request(TransportRequest $request): TransportResponse
     {
         try {
+            ob_start();
             if ('' !== $payload = $request->getPayload()) {
                 $httpResponse = $this->httpClient
                     ->withBody($payload)
@@ -60,18 +64,26 @@ final class LaravelHTTPClient implements TransportInterface
                     ->get($request->getUrl());
             }
         } catch (ConnectionException $e) {
+            $debug = ob_get_contents();
+            ob_end_clean();
+
             Log::error('BigBlueButton API request to url {url} failed with a connection error.', [
                 'url' => $request->getUrl(),
                 'message' => $e->getMessage(),
+                'debug' => $debug,
             ]);
 
             throw new RuntimeException(sprintf('HTTP request failed: %s', $e->getMessage()), 0, $e);
+        } finally {
+            $debug = ob_get_contents();
+            ob_end_clean();
         }
 
         if ($httpResponse->failed()) {
             Log::error('BigBlueButton API request to url {url} failed with status {status}.', [
                 'url' => $request->getUrl(),
                 'status' => $httpResponse->status(),
+                'debug' => $debug,
             ]);
 
             throw new NetworkException('Bad response.', $httpResponse->status());
