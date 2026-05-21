@@ -11,6 +11,7 @@ use BigBlueButton\Http\Transport\TransportRequest;
 use BigBlueButton\Http\Transport\TransportResponse;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -32,10 +33,12 @@ final class LaravelHTTPClient implements TransportInterface
         return Http::timeout(config('bigbluebutton.server_timeout'))
             ->connectTimeout(config('bigbluebutton.server_connect_timeout'))
             ->retry(config('bigbluebutton.server_retry'), config('bigbluebutton.server_retry_sleep'), function (Throwable $exception, PendingRequest $request) {
-                Log::error('BigBlueButton API request to url {url} failed with a connection error.', [
-                    'url' => $request->getUrl(),
-                    'message' => $exception->getMessage(),
-                ]);
+                $request->beforeSending(function (Request $request) use ($exception) {
+                    Log::warning('BigBlueButton API request to url {url} failed with a connection error. Retrying', [
+                        'url' => $request->url(),
+                        'message' => $exception->getMessage(),
+                    ]);
+                });
 
                 return $exception instanceof ConnectionException;
             }, throw: false);
