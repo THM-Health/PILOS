@@ -13,7 +13,7 @@
             }}
           </template>
           <template #content>
-            <Form @submit="submit" :disabled="loading">
+            <Form :disabled="loading" @submit="submit">
               <div
                 class="field flex flex-col gap-2"
                 data-test="new-password-field"

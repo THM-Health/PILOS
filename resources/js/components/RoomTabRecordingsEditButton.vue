@@ -56,8 +56,8 @@
 
     <Form
       id="room-recordings-edit-form"
-      @submit="save"
       :disabled="isLoadingAction"
+      @submit="save"
     >
       <!-- description -->
       <div class="field flex flex-col gap-2" data-test="description-field">

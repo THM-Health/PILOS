@@ -43,7 +43,7 @@
       </div>
     </template>
 
-    <Form id="room-files-edit-form" @submit="save" :disabled="isLoadingAction">
+    <Form id="room-files-edit-form" :disabled="isLoadingAction" @submit="save">
       <div class="field grid grid-cols-12 gap-4" data-test="download-field">
         <label for="download" class="col-span-12 mb-2 md:col-span-6 md:mb-0">
           {{ $t("rooms.files.downloadable") }}

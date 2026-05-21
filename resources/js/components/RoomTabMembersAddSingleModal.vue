@@ -33,8 +33,8 @@
 
     <Form
       id="room-members-add-single-form"
-      @submit="save"
       :disabled="isLoadingAction"
+      @submit="save"
     >
       <!-- select user -->
       <div class="field relative mt-2 flex flex-col gap-2 overflow-visible">

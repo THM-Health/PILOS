@@ -24,8 +24,8 @@
   >
     <Form
       id="room-transfer-ownership-form"
-      @submit="transferOwnership"
       :disabled="isLoadingAction"
+      @submit="transferOwnership"
     >
       <!--select new owner-->
       <!-- select user -->

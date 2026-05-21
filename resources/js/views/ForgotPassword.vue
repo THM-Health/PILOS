@@ -7,7 +7,7 @@
         <Card>
           <template #title> {{ $t("auth.reset_password") }} </template>
           <template #content>
-            <Form @submit="submit" :disabled="loading">
+            <Form :disabled="loading" @submit="submit">
               <div class="field flex flex-col gap-2" data-test="email-field">
                 <label for="email">{{ $t("app.email") }}</label>
                 <InputText

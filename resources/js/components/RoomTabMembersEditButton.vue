@@ -48,8 +48,8 @@
 
     <Form
       id="room-members-edit-form"
-      @submit="save"
       :disabled="isLoadingAction"
+      @submit="save"
     >
       <!-- select role -->
       <div class="field mt-6 flex flex-col gap-2">
