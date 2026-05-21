@@ -643,6 +643,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("hide shibboleth login if disabled", function () {
@@ -823,6 +824,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("hide oidc login if disabled", function () {
