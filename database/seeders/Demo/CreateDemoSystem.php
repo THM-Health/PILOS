@@ -175,7 +175,7 @@ class CreateDemoSystem extends Command
         $introduction->path = 'abc-def-123/anatomy-introduction.pdf';
         $introduction->filename = 'anatomy-introduction.pdf';
         $introduction->download = true;
-        $introduction->use_in_meeting = true;
+        $introduction->use_in_meeting = false;
         $introduction->default = false;
         $introduction->room()->associate($anatomyRoom);
         $introduction->save();
@@ -184,8 +184,8 @@ class CreateDemoSystem extends Command
         $foot->path = 'abc-def-123/anatomy-foot.pdf';
         $foot->filename = 'anatomy-foot.pdf';
         $foot->download = false;
-        $foot->use_in_meeting = true;
-        $foot->default = true;
+        $foot->use_in_meeting = false;
+        $foot->default = false;
         $foot->room()->associate($anatomyRoom);
         $foot->save();
 
