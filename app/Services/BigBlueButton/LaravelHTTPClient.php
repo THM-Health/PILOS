@@ -38,7 +38,7 @@ final class LaravelHTTPClient implements TransportInterface
                 ]);
 
                 return $exception instanceof ConnectionException;
-            });
+            }, throw: false);
     }
 
     /**
