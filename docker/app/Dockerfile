@@ -5,7 +5,7 @@ LABEL description="Development and production container for PILOS, compatible wi
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
-ARG PLAYBACK_PLAYER_VERSION=5.4.6
+ARG PLAYBACK_PLAYER_VERSION=5.4.7
 ARG VITE_COVERAGE="false"
 
 # Invalidate cache daily (YYYYMMDD format)
