@@ -1,14 +1,14 @@
 <template>
   <Dialog
     ref="dialog"
-    @show="onModalShow"
-    @hide="onModalHide"
     :pt:header:data-scroll-shaddow="
       !dialogContentScrollable || arrivedState.top ? 'false' : 'true'
     "
     :pt:footer:data-scroll-shaddow="
       !dialogContentScrollable || arrivedState.bottom ? 'false' : 'true'
     "
+    @show="onModalShow"
+    @hide="onModalHide"
   >
     <template v-for="(_, slotName) in $slots" #[slotName]>
       <slot :name="slotName" />
