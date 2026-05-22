@@ -153,6 +153,7 @@ describe("Password reset", function () {
     cy.intercept("POST", "api/v1/password/reset", {
       statusCode: 422,
       body: {
+        message: "The New password field is required. (and 1 more error)",
         errors: {
           password: ["The New password field is required."],
           password_confirmation: [
@@ -177,10 +178,16 @@ describe("Password reset", function () {
       "The New password confirmation field is required.",
     );
 
+    // Check toast
+    cy.checkToastMessage(
+      "The New password field is required. (and 1 more error)",
+    );
+
     // Check with other 422 errors
     cy.intercept("POST", "api/v1/password/reset", {
       statusCode: 422,
       body: {
+        message: "The Email field is required. (and 1 more error)",
         errors: {
           email: ["The Email field is required."],
           token: ["The Token field is required."],
@@ -208,6 +215,9 @@ describe("Password reset", function () {
     // Check that new error messages are shown
     cy.contains("The Email field is required.").should("be.visible");
     cy.contains("The Token field is required.").should("be.visible");
+
+    // Check toast
+    cy.checkToastMessage("The Email field is required. (and 1 more error)");
 
     // Check with 500 error
     cy.intercept("POST", "api/v1/password/reset", {

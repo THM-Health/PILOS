@@ -36,15 +36,17 @@
         </div>
       </div>
 
-      <div v-else>
-        <TipTapEditor
-          v-model="newContent"
-          :class="{
-            'is-invalid': formErrors.fieldInvalid('description') === false,
-          }"
-          :disabled="isBusy"
-        />
-        <FormError :errors="formErrors.fieldError('description')" />
+      <div v-else class="form">
+        <div class="field">
+          <TipTapEditor
+            v-model="newContent"
+            :class="{
+              'is-invalid': formErrors.fieldInvalid('description'),
+            }"
+            :disabled="isBusy"
+          />
+          <FormError :errors="formErrors.fieldError('description')" />
+        </div>
       </div>
     </OverlayComponent>
     <div class="mt-2 flex justify-end">
@@ -222,6 +224,7 @@ function save() {
       // Description couldn't be saved due to validation errors
       if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
         return;
       }
       // Description couldn't be saved due to missing permission, close the editor

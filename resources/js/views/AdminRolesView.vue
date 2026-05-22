@@ -46,10 +46,11 @@
         ></LoadingRetryButton>
       </template>
 
-      <form
+      <Form
         :aria-hidden="modelLoadingError || permissionsLoadingError"
+        :disabled="formFieldsDisabled"
         class="flex flex-col gap-4"
-        @submit.prevent="saveRole"
+        @submit="saveRole"
       >
         <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4">{{
@@ -61,6 +62,7 @@
               v-model="model.name"
               class="w-full"
               type="text"
+              required
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="formFieldsDisabled"
             />
@@ -93,6 +95,7 @@
             >
               <RadioButton
                 v-model="roomLimitMode"
+                pt:input:required
                 :input-id="option.value"
                 :value="option.value"
                 :disabled="formFieldsDisabled || model.superuser"
@@ -106,6 +109,7 @@
               class="w-full"
               input-id="room-limit"
               mode="decimal"
+              required
               show-buttons
               :min="0"
               :invalid="formErrors.fieldInvalid('room_limit')"
@@ -227,7 +231,7 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
 
     <ConfirmDialog
@@ -355,7 +359,6 @@ import { useI18n } from "vue-i18n";
 import * as _ from "lodash-es";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
-
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
@@ -613,6 +616,7 @@ function saveRole() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (
         error.response &&
         error.response.status === env.HTTP_STALE_MODEL

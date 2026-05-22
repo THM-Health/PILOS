@@ -89,6 +89,10 @@ export class Api {
     }
   }
 
+  validationError(error) {
+    this.toast.error(error.response.data.message);
+  }
+
   getErrorMessage(error) {
     return error.response && error.response.data
       ? error.response.data.message

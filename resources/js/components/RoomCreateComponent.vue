@@ -28,22 +28,29 @@
           {{ $t("rooms.create.title") }}
         </h2>
       </template>
-      <div>
+      <Form
+        id="room-create-form"
+        :disabled="
+          roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy
+        "
+        @submit="handleOk"
+      >
         <!-- Room name -->
-        <div class="mt-6 flex flex-col gap-2">
+        <div class="field mt-6 flex flex-col gap-2">
           <label for="room-name">{{ $t("rooms.name") }}</label>
           <InputText
             id="room-name"
             v-model="room.name"
             :disabled="isLoadingAction"
             autofocus
+            required
             :invalid="formErrors.fieldInvalid('name')"
           />
           <FormError :errors="formErrors.fieldError('name')" />
         </div>
 
         <!-- Room type -->
-        <div class="flex flex-col gap-2">
+        <div class="field flex flex-col gap-2">
           <label id="room-type-label">{{
             $t("rooms.settings.general.type")
           }}</label>
@@ -58,7 +65,7 @@
           />
           <FormError :errors="formErrors.fieldError('room_type')" />
         </div>
-      </div>
+      </Form>
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button
@@ -77,7 +84,8 @@
               isLoadingAction ||
               roomTypeSelectBusy
             "
-            @click="handleOk"
+            form="room-create-form"
+            type="submit"
           />
         </div>
       </template>

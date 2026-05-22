@@ -128,6 +128,7 @@ describe("User Profile Email", function () {
     cy.intercept("PUT", "api/v1/users/1/email", {
       statusCode: 422,
       body: {
+        message: "The email field is required. (and 1 more error)",
         errors: {
           email: ["The email field is required."],
           current_password: ["The current password is incorrect."],
@@ -137,6 +138,9 @@ describe("User Profile Email", function () {
 
     cy.get("#current_password").type("secretPassword123#");
     cy.get('[data-test="user-tab-email-save-button"]').click();
+
+    // Check error messages
+    cy.checkToastMessage("The email field is required. (and 1 more error)");
 
     cy.get('[data-test="email-tab-current-password-field"]').should(
       "include.text",

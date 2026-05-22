@@ -420,6 +420,11 @@ describe("Rooms view description", function () {
       "The Description must not be greater than 65000 characters.",
     ).should("be.visible");
 
+    // Check toast
+    cy.checkToastMessage(
+      "The Description must not be greater than 65000 characters",
+    );
+
     // Check saving with 500 error
     cy.intercept("PUT", "api/v1/rooms/abc-def-123/description", {
       statusCode: 500,

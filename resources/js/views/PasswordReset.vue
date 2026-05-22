@@ -13,8 +13,11 @@
             }}
           </template>
           <template #content>
-            <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2" data-test="new-password-field">
+            <Form :disabled="loading" @submit="submit">
+              <div
+                class="field flex flex-col gap-2"
+                data-test="new-password-field"
+              >
                 <label for="new_password">{{ $t("auth.new_password") }}</label>
                 <InputText
                   id="new_password"
@@ -60,7 +63,7 @@
                 "
                 data-test="reset-password-button"
               />
-            </form>
+            </Form>
           </template>
         </Card>
       </div>
@@ -137,6 +140,7 @@ function submit() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else {
         api.error(error);
       }

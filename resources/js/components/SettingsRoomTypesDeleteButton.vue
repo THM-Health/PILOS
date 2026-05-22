@@ -25,7 +25,10 @@
       {{ $t("admin.room_types.delete.confirm", { name: props.name }) }}
     </span>
     <Divider />
-    <div class="flex flex-col gap-2" data-test="replacement-room-type-field">
+    <div
+      class="field flex flex-col gap-2"
+      data-test="replacement-room-type-field"
+    >
       <label for="replacement-room-type">{{
         $t("admin.room_types.delete.replacement")
       }}</label>

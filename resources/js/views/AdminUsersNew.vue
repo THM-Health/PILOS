@@ -1,7 +1,17 @@
 <template>
   <div>
     <OverlayComponent :show="isBusy">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form
+        class="flex flex-col gap-4"
+        :disabled="
+          isBusy ||
+          rolesLoadingError ||
+          timezonesLoadingError ||
+          rolesLoading ||
+          timezonesLoading
+        "
+        @submit="save"
+      >
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <div
             class="field grid grid-cols-12 gap-4"
@@ -209,7 +219,7 @@
             data-test="users-new-save-button"
           />
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
   </div>
 </template>
@@ -228,7 +238,6 @@ const api = useApi();
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
 const router = useRouter();
-
 const isBusy = ref(false);
 const showPassword = ref(false);
 const model = reactive({
@@ -298,6 +307,7 @@ function save() {
         error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else {
         api.error(error);
       }

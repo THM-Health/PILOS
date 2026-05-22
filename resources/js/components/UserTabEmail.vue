@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.email')">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form class="flex flex-col gap-4" :disabled="isBusy" @submit="save">
         <div
           v-if="
             !viewOnly &&
@@ -78,7 +78,7 @@
             }}
           </Message>
         </div>
-      </form>
+      </Form>
     </AdminPanel>
   </div>
 </template>
@@ -168,6 +168,7 @@ function save(event) {
         emit("notFoundError", error);
       } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {
         toast.error(t("auth.throttle_email"));
       } else {

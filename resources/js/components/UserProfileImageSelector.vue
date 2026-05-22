@@ -111,7 +111,6 @@
         />
       </div>
     </template>
-
     <VueCropper
       v-show="selectedFile"
       ref="cropperRef"

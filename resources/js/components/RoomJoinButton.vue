@@ -39,7 +39,7 @@
     <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-    <form ref="joinForm" @submit.prevent="getJoinUrl">
+    <Form :disabled="isLoadingAction || loadingError" @submit="getJoinUrl">
       <OverlayComponent :show="isLoadingAction || loadingError" :opacity="0">
         <template #overlay>
           <LoadingRetryButton
@@ -165,7 +165,7 @@
           type="submit"
         />
       </div>
-    </form>
+    </Form>
   </Dialog>
 </template>
 <script setup>
@@ -410,6 +410,7 @@ function getJoinUrl() {
         // Form validation error
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
+
           loadStartJoinRequirements();
           return;
         }

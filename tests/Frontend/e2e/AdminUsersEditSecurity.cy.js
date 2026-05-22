@@ -498,6 +498,7 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2", {
       statusCode: 422,
       body: {
+        message: "The roles field is required.",
         errors: {
           roles: ["The roles field is required."],
         },
@@ -507,6 +508,9 @@ describe("Admin users edit email", function () {
     cy.get('[data-test="users-roles-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error message
+    cy.checkToastMessage("The roles field is required.");
 
     cy.get('[data-test="roles-field"]').should(
       "include.text",
@@ -722,6 +726,7 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2/password", {
       statusCode: 422,
       body: {
+        message: "The New password field is required. (and 1 more error)",
         errors: {
           new_password: ["The New password field is required."],
           new_password_confirmation: [
@@ -734,6 +739,11 @@ describe("Admin users edit email", function () {
     cy.get('[data-test="change-password-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error messages
+    cy.checkToastMessage(
+      "The New password field is required. (and 1 more error)",
+    );
 
     cy.get('[data-test="new-password-field"]').should(
       "include.text",
