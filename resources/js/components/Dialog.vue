@@ -32,6 +32,7 @@ function onModalShow() {
 
 function onModalHide() {
   dialogContentRef.value = null;
+  dialogContentScrollable.value = false;
 }
 
 useResizeObserver(dialogContentRef, (entries) => {
