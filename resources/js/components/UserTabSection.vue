@@ -4,68 +4,26 @@
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadUser" />
       </template>
-      <Tabs v-if="!isBusy && user" value="base" scrollable lazy>
+      <Tabs v-if="!isBusy && user" v-model:value="currentTab" scrollable lazy>
         <TabList>
           <Tab
-            value="base"
-            data-test="base-tab-button"
-            :disabled="isLoadingAction"
-            ><i class="fa-solid fa-user mr-2" />
-            {{ $t("admin.users.base_data") }}</Tab
+            v-for="tab in availableTabs"
+            :key="tab.key"
+            :value="tab.key"
+            :data-test="tab.key + '-tab-button'"
           >
-          <Tab
-            value="email"
-            data-test="email-tab-button"
-            :disabled="isLoadingAction"
-            ><i class="fa-solid fa-envelope mr-2" /> {{ $t("app.email") }}</Tab
-          >
-          <Tab
-            value="security"
-            data-test="security-tab-button"
-            :disabled="isLoadingAction"
-            ><i class="fa-solid fa-user-shield mr-2" />
-            {{ $t("app.security") }}</Tab
-          >
-          <Tab
-            value="others"
-            data-test="others-tab-button"
-            :disabled="isLoadingAction"
-            ><i class="fa-solid fa-user-gear mr-2" />
-            {{ $t("admin.users.other_settings") }}</Tab
-          >
+            <i :class="tab.icon" />
+            {{ tab.label }}
+          </Tab>
         </TabList>
         <TabPanels class="px-0">
-          <TabPanel value="base">
-            <UserTabProfile
-              :user="user"
-              :view-only="viewOnly"
-              @update-user="updateUser"
-              @stale-error="handleStaleError"
-              @not-found-error="handleNotFoundError"
-              @busy="(state) => (isLoadingAction = state)"
-            />
-          </TabPanel>
-          <TabPanel value="email">
-            <UserTabEmail
-              :user="user"
-              :view-only="viewOnly"
-              @update-user="updateUser"
-              @not-found-error="handleNotFoundError"
-              @busy="(state) => (isLoadingAction = state)"
-            />
-          </TabPanel>
-          <TabPanel value="security">
-            <UserTabSecurity
-              :user="user"
-              :view-only="viewOnly"
-              @update-user="updateUser"
-              @stale-error="handleStaleError"
-              @not-found-error="handleNotFoundError"
-              @busy="(state) => (isLoadingAction = state)"
-            />
-          </TabPanel>
-          <TabPanel value="others">
-            <UserTabOtherSettings
+          <TabPanel
+            v-for="tab in availableTabs"
+            :key="tab.key"
+            :value="tab.key"
+          >
+            <component
+              :is="tab.component"
               :user="user"
               :view-only="viewOnly"
               @update-user="updateUser"
@@ -108,10 +66,16 @@
 
 <script setup>
 import env from "../env";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useUrlSearchParams } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
+import UserTabProfile from "./UserTabProfile.vue";
+import UserTabEmail from "./UserTabEmail.vue";
+import UserTabSecurity from "./UserTabSecurity.vue";
+import UserTabOtherSettings from "./UserTabOtherSettings.vue";
 
 const props = defineProps({
   id: {
@@ -133,11 +97,24 @@ const loadingError = ref(false);
 const staleError = ref({});
 const modalVisible = ref(false);
 
+const currentTab = defineModel("currentTab", {
+  type: String,
+  default: "base",
+});
+
 const api = useApi();
 const router = useRouter();
 const userPermissions = useUserPermissions();
+const { t } = useI18n();
+const hashParams = useUrlSearchParams("hash-params");
 
 onMounted(() => {
+  if (
+    hashParams.tab &&
+    availableTabs.value.some((tab) => tab.key === hashParams.tab)
+  ) {
+    currentTab.value = hashParams.tab;
+  }
   loadUser();
 });
 
@@ -147,6 +124,10 @@ watch(isBusy, () => {
 });
 watch(isLoadingAction, () => {
   emit("loadingAction", isLoadingAction.value);
+});
+
+watch(currentTab, (tab) => {
+  hashParams.tab = tab;
 });
 
 function handleNotFoundError(error) {
@@ -206,9 +187,42 @@ function loadUser() {
     });
 }
 
+const availableTabs = computed(() => {
+  return [
+    {
+      key: "base",
+      label: t("admin.users.base_data"),
+      icon: "fa-solid fa-user",
+      component: UserTabProfile,
+    },
+    {
+      key: "email",
+      label: t("app.email"),
+      icon: "fa-solid fa-envelope",
+      component: UserTabEmail,
+    },
+    {
+      key: "security",
+      label: t("app.security"),
+      icon: "fa-solid fa-user-shield",
+      component: UserTabSecurity,
+    },
+    {
+      key: "others",
+      label: t("admin.users.other_settings"),
+      icon: "fa-solid fa-user-gear",
+      component: UserTabOtherSettings,
+    },
+  ];
+});
+
 watch(user, (user) => {
   if (!userPermissions.can("update", user) && !props.viewOnly) {
-    router.push({ name: "admin.users.view", params: { id: user.id } });
+    router.push({
+      name: "admin.users.view",
+      params: { id: user.id },
+      hash: "#tab=" + currentTab.value,
+    });
   }
 });
 </script>
