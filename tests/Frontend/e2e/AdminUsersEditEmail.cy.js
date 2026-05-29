@@ -40,6 +40,9 @@ describe("Admin users edit email", function () {
 
     cy.contains("admin.users.email").should("be.visible");
 
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2/edit#tab=email");
+
     // Check that fields are shown correctly and try to change email setting
     cy.get('[data-test="email-tab-current-password-field"]').should(
       "not.exist",
@@ -113,18 +116,16 @@ describe("Admin users edit email", function () {
     });
 
     // Check that redirect to user view worked
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=email");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
   });
 
   it("save changes errors", function () {
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/users/2/email", {
@@ -200,10 +201,8 @@ describe("Admin users edit email", function () {
     ]);
 
     // Visit edit page again
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=email");
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check with 401 error
     cy.intercept("PUT", "api/v1/users/2/email", {
@@ -231,11 +230,9 @@ describe("Admin users edit email", function () {
       }).as("userRequest");
     });
 
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check that email setting is disabled and save button is hidden
     cy.get('[data-test="email-tab-current-password-field"]').should(

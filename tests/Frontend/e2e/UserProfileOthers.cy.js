@@ -13,6 +13,9 @@ describe("User Profile Others", function () {
 
     cy.get('[data-test="others-tab-button"]').click();
 
+    // Check that tab hash is set
+    cy.url().should("include", "/profile#tab=others");
+
     cy.contains("admin.users.bbb").should("be.visible");
 
     cy.get('[data-test="bbb-skip-check-audio-field"]')
@@ -58,11 +61,9 @@ describe("User Profile Others", function () {
   });
 
   it("save changes errors", function () {
-    cy.visit("/profile");
+    cy.visit("/profile#tab=others");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
 
     // Check with 422 error
     cy.intercept("POST", "api/v1/users/1", {

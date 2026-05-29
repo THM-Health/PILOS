@@ -84,7 +84,7 @@ describe("Admin users edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/users/2");
+      .and("have.attr", "href", "/admin/users/2#tab=base");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
@@ -122,7 +122,7 @@ describe("Admin users edit", function () {
     cy.wait("@userRequest");
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
@@ -166,7 +166,7 @@ describe("Admin users edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/users/2");
+      .and("have.attr", "href", "/admin/users/2#tab=base");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
@@ -217,7 +217,7 @@ describe("Admin users edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/users/2");
+      .and("have.attr", "href", "/admin/users/2#tab=base");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")

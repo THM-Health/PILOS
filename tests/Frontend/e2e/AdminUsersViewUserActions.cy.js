@@ -389,7 +389,7 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
@@ -418,7 +418,7 @@ describe("Admin users view user actions", function () {
     // Switch to edit again
     cy.get('[data-test="users-edit-button"]').click();
 
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=base");
 
     cy.wait("@userRequest");
 
@@ -459,6 +459,7 @@ describe("Admin users view user actions", function () {
 
     // Check email tab
     cy.get('[data-test="email-tab-button"]').click();
+    cy.url().should("include", "/admin/users/2/edit#tab=email");
 
     // Change value of email field
     cy.get("#email").should("have.value", "LauraWRivera@domain.tld").type("e");
@@ -472,14 +473,12 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=email");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
 
-    // Switch to email tab and check that changes are not saved
-    cy.get('[data-test="email-tab-button"]').click();
-
+    // Check that changes are not saved
     cy.get("#email")
       .should("have.value", "LauraWRivera@domain.tld")
       .should("be.disabled");
@@ -491,11 +490,9 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-edit-button"]').click();
 
     // Check if redirected to edit page
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check that original values are shown
     cy.get("#email")
@@ -509,6 +506,7 @@ describe("Admin users view user actions", function () {
 
     // Check security tab
     cy.get('[data-test="security-tab-button"]').click();
+    cy.url().should("include", "/admin/users/2/edit#tab=security");
 
     // Change value of role field
     cy.get('[data-test="role-dropdown"]')
@@ -573,12 +571,10 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page and check that changes are not saved
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=security");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.get('[data-test="role-dropdown"]')
       .should("have.class", "multiselect--disabled")
@@ -608,11 +604,9 @@ describe("Admin users view user actions", function () {
     // Switch back to edit page
     cy.get('[data-test="users-edit-button"]').click();
 
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check that original values are shown
     cy.get('[data-test="role-dropdown"]')
@@ -642,8 +636,9 @@ describe("Admin users view user actions", function () {
       .should("be.visible")
       .and("not.be.disabled");
 
-    // Check other tab
+    // Check others tab
     cy.get('[data-test="others-tab-button"]').click();
+    cy.url().should("include", "/admin/users/2/edit#tab=others");
 
     // Change value of bbb_skip_check_audio
     cy.get("#bbb_skip_check_audio").click();
@@ -657,14 +652,12 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=others");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
 
-    // Switch to others tab and check if changes are not saved
-    cy.get('[data-test="others-tab-button"]').click();
-
+    // Check that changes are not saved
     cy.get("#bbb_skip_check_audio")
       .should("not.be.checked")
       .should("be.disabled");
@@ -676,11 +669,9 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-edit-button"]').click();
 
     // Check if redirected to edit page
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=others");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
 
     // Check that original value is shown
     cy.get("#bbb_skip_check_audio")
