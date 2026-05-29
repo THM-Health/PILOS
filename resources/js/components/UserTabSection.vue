@@ -9,6 +9,7 @@
           <Tab
             v-for="tab in availableTabs"
             :key="tab.key"
+            :disabled="isLoadingAction"
             :value="tab.key"
             :data-test="tab.key + '-tab-button'"
           >
