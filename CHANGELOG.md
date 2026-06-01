@@ -7,14 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Toast notification for form validation errors in non-dialog forms ([#3056])
+- Auto-scroll to the first form validation error ([#3038], [#3056])
+- Required attribute to more form fields to improve accessibility ([#3056])
+
+### Changed
+
+- Form validation error handling ([#3056])
+- Add several users to room dialog no longer has a role preselected ([#3056])
+
 ## [v4.15.0] - 2026-05-15
 
 ### Added
 
 - Docs: Import of existing Greenlight v2/v3 recordings ([#2877], [#3034])
-- Toast notification for form validation errors in non-dialog forms ([#3056])
-- Auto-scroll to the first form validation error ([#3038], [#3056])
-- Required attribute to more form fields to improve accessibility ([#3056])
 
 ### Changed
 
@@ -25,8 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved and standardized room not found error handling in the room view ([#3036])
 - Greenlight v2/v3 import commands now prepares import of existing recordings ([#2877], ([#3034])
 - Bump base PHP image to 8.5 ([#2814])
-- Form validation error handling ([#3056])
-- Add several users to room dialog no longer has a role preselected ([#3056])
 
 ### Fixed
 
