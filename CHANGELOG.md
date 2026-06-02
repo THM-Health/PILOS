@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Form validation error handling ([#3056])
 - Add several users to room dialog no longer has a role preselected ([#3056])
+- User settings page now keeps the selected tab when reloading the page, saving changes or switching between edit and view mode ([#3169], [#3194])
 
 ## [v4.15.0] - 2026-05-15
 
@@ -815,6 +816,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3078]: https://github.com/THM-Health/PILOS/issues/3078
 [#3079]: https://github.com/THM-Health/PILOS/pull/3079
 [#3128]: https://github.com/THM-Health/PILOS/pull/3128
+[#3169]: https://github.com/THM-Health/PILOS/issues/3169
+[#3194]: https://github.com/THM-Health/PILOS/pull/3194
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.15.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
