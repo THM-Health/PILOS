@@ -63,6 +63,7 @@ jobs:
         with:
           file: docker/app/Dockerfile
           context: .
+          sbom: true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
