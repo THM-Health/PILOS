@@ -4,7 +4,13 @@
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadUser" />
       </template>
-      <Tabs v-if="!isBusy && user" v-model:value="currentTab" scrollable lazy>
+      <Tabs
+        v-if="!isBusy && user"
+        :value="activeTab"
+        scrollable
+        lazy
+        @update:value="onActiveTabChanged"
+      >
         <TabList>
           <Tab
             v-for="tab in availableTabs"
@@ -89,7 +95,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["updateUser", "busy", "loadingAction"]);
+const emit = defineEmits([
+  "updateUser",
+  "busy",
+  "loadingAction",
+  "activeTabChanged",
+]);
 
 const user = ref(null);
 const isBusy = ref(false);
@@ -97,11 +108,7 @@ const isLoadingAction = ref(false);
 const loadingError = ref(false);
 const staleError = ref({});
 const modalVisible = ref(false);
-
-const currentTab = defineModel("currentTab", {
-  type: String,
-  default: "base",
-});
+const activeTab = ref("base");
 
 const api = useApi();
 const router = useRouter();
@@ -114,7 +121,8 @@ onMounted(() => {
     hashParams.tab &&
     availableTabs.value.some((tab) => tab.key === hashParams.tab)
   ) {
-    currentTab.value = hashParams.tab;
+    activeTab.value = hashParams.tab;
+    emit("activeTabChanged", activeTab.value);
   }
   loadUser();
 });
@@ -125,10 +133,6 @@ watch(isBusy, () => {
 });
 watch(isLoadingAction, () => {
   emit("loadingAction", isLoadingAction.value);
-});
-
-watch(currentTab, (tab) => {
-  hashParams.tab = tab;
 });
 
 function handleNotFoundError(error) {
@@ -188,6 +192,12 @@ function loadUser() {
     });
 }
 
+function onActiveTabChanged(newActiveTab) {
+  activeTab.value = newActiveTab;
+  hashParams.tab = newActiveTab;
+  emit("activeTabChanged", newActiveTab);
+}
+
 const availableTabs = computed(() => {
   return [
     {
@@ -222,7 +232,7 @@ watch(user, (user) => {
     router.push({
       name: "admin.users.view",
       params: { id: user.id },
-      hash: "#tab=" + currentTab.value,
+      hash: "#tab=" + activeTab.value,
     });
   }
 });

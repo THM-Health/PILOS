@@ -57,11 +57,11 @@
 
     <UserTabSection
       :id="id"
-      v-model:current-tab="currentUserTab"
       :view-only="viewOnly"
       @update-user="updateUser"
       @busy="(state) => (isBusy = state)"
       @loading-action="(state) => (isLoadingAction = state)"
+      @active-tab-changed="(tab) => (currentUserTab = tab)"
     />
   </div>
 </template>
