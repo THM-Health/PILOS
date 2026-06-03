@@ -100,8 +100,11 @@
           />
         </div>
       </template>
-
-      {{ staleError.message }}
+      {{
+        $t("app.errors.stale_model", {
+          model: $t("app.model." + _.snakeCase(user.model_name)),
+        })
+      }}
     </Dialog>
   </div>
 </template>
@@ -112,6 +115,7 @@ import { onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import * as _ from "lodash-es";
 
 const props = defineProps({
   id: {
