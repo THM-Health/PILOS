@@ -75,11 +75,11 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { computed, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 import { useUrlSearchParams } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import UserTabProfile from "./UserTabProfile.vue";
@@ -184,7 +184,7 @@ function loadUser() {
       emit("updateUser", user.value);
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         router.push({ name: "admin.users" });
       }
 

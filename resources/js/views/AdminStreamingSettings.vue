@@ -129,12 +129,12 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { computed, onMounted, ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import AdminPanel from "../components/AdminPanel.vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const defaultPauseImage = ref(null);
 const defaultPauseImageDeleted = ref(false);
@@ -227,7 +227,7 @@ function updateSettings() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);
