@@ -49,8 +49,8 @@
             />
           </div>
 
-          <div class="mt-2 flex flex-row items-center">
-            <InputGroup v-if="room.access_code">
+          <div v-if="room.access_code" class="mt-2 flex flex-row items-center">
+            <InputGroup>
               <InputGroupAddon
                 class="min-w-5 border-none px-0 dark:bg-surface-900"
               >
