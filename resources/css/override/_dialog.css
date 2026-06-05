@@ -1,0 +1,35 @@
+.p-dialog-header[data-scroll-shadow="true"] {
+    box-shadow: 0 5px 20px rgba(3, 7, 18, 0.4);
+}
+.p-dialog-footer[data-scroll-shadow="true"] {
+    box-shadow: 0 -5px 20px rgba(3, 7, 18, 0.4);
+}
+
+/* Dark mode */
+.dark {
+    .p-dialog-header[data-scroll-shadow="true"] {
+        box-shadow: 0 5px 20px rgba(3, 7, 18);
+    }
+    .p-dialog-footer[data-scroll-shadow="true"] {
+        box-shadow: 0 -5px 20px rgba(3, 7, 18);
+    }
+}
+
+.p-dialog-header,
+.p-dialog-footer {
+    @apply z-60 transition-shadow duration-150 ease-in-out;
+}
+
+.p-dialog-footer {
+    @apply pt-5;
+}
+
+.p-dialog {
+    overflow: hidden;
+}
+
+.p-dialog:has(.p-dialog-footer) {
+    .p-dialog-content {
+        @apply pb-0;
+    }
+}
