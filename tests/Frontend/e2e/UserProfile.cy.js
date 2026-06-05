@@ -57,6 +57,16 @@ describe("User Profile", function () {
     cy.get('[data-test="others-tab-button"]').should("be.visible");
   });
 
+  it("open user profile with invalid tab hash", function () {
+    cy.visit("/profile#tab=invalid");
+
+    // Check that base tab is shown
+    cy.get("#firstname").should("be.visible");
+
+    // Check that invalid tab hash stays in the hash
+    cy.url().should("include", "/profile#tab=invalid");
+  });
+
   it("open user profile errors", function () {
     cy.intercept("GET", "api/v1/users/1", {
       statusCode: 500,

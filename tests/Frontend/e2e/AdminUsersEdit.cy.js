@@ -230,6 +230,38 @@ describe("Admin users edit", function () {
       .and("not.be.disabled");
   });
 
+  it("visit edit user page with invalid tab hash", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/2/edit#tab=invalid");
+
+    cy.wait("@userRequest");
+
+    // Check that base tab is shown
+    cy.get("#firstname").should("be.visible");
+
+    // Check that cancel edit button contains base tab as hash parameter
+    cy.get('[data-test="users-cancel-edit-button"]')
+      .should("be.visible")
+      .and("have.attr", "href", "/admin/users/2#tab=base");
+
+    // Check that invalid tab stays in the hash
+    cy.url().should("include", "/admin/users/2/edit#tab=invalid");
+  });
+
   it("visit edit user page errors", function () {
     cy.intercept("GET", "api/v1/users/2", {
       statusCode: 500,
