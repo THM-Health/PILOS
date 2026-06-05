@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add several users to room dialog no longer has a role preselected ([#3056])
 - User settings page now keeps the selected tab when reloading the page, saving changes or switching between edit and view mode ([#3169], [#3194])
 
+### Fixed
+
+- UX: Buttons in start/join dialog not immediately visible on small screens ([#2333])
+- UX: Cropped dialog content on small screens (illusion of completeness) ([#2333])
+
 ## [v4.15.0] - 2026-05-15
 
 ### Added
@@ -735,6 +740,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
 [#2321]: https://github.com/THM-Health/PILOS/pull/2321
 [#2325]: https://github.com/THM-Health/PILOS/pull/2325
+[#2333]: https://github.com/THM-Health/PILOS/pull/2333
 [#2345]: https://github.com/THM-Health/PILOS/issues/2345
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
