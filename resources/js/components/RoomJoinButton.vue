@@ -162,14 +162,12 @@
           data-test="dialog-cancel-button"
           :disabled="isLoadingAction"
           severity="secondary"
-          size="small"
           @click="modalVisible = false"
         />
         <Button
           :label="$t('app.continue')"
           data-test="dialog-continue-button"
           :disabled="isLoadingAction || loadingError"
-          size="small"
           type="submit"
           form="startJoinForm"
         />
