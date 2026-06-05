@@ -1,11 +1,11 @@
 <template>
   <Dialog
     ref="dialog"
-    :pt:header:data-scroll-shaddow="
-      !dialogContentScrollable || arrivedState.top ? 'false' : 'true'
+    :pt:header:data-scroll-shadow="
+      dialogContentScrollable && !arrivedState.top ? 'true' : 'false'
     "
-    :pt:footer:data-scroll-shaddow="
-      !dialogContentScrollable || arrivedState.bottom ? 'false' : 'true'
+    :pt:footer:data-scroll-shadow="
+      dialogContentScrollable && !arrivedState.bottom ? 'true' : 'false'
     "
     @show="onModalShow"
     @hide="onModalHide"
