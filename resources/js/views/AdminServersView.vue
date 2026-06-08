@@ -393,6 +393,7 @@ import ConfirmDialog from "primevue/confirmdialog";
 import { useI18n } from "vue-i18n";
 import { computed, inject, onMounted, ref, watch } from "vue";
 import { useToast } from "../composables/useToast.js";
+import * as _ from "lodash-es";
 
 const toast = useToast();
 const userPermissions = useUserPermissions();
@@ -615,7 +616,9 @@ function saveServer() {
 
 function handleStaleError(staleError) {
   confirm.require({
-    message: staleError.message,
+    message: t("app.errors.stale_model", {
+      model: t("app.model." + _.snakeCase(model.value.model_name)),
+    }),
     header: t("app.errors.stale_error"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {

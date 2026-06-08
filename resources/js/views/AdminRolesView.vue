@@ -656,7 +656,9 @@ function roomLimitModeChanged(value) {
 
 function handleStaleError(staleError) {
   confirm.require({
-    message: staleError.message,
+    message: t("app.errors.stale_model", {
+      model: t("app.model." + _.snakeCase(model.value.model_name)),
+    }),
     header: t("app.errors.stale_error"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {
