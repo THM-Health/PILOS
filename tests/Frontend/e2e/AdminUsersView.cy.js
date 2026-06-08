@@ -178,6 +178,9 @@ describe("Admin users view", function () {
     // Email tab
     cy.get('[data-test="email-tab-button"]').click();
 
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2#tab=email");
+
     cy.get('[data-test="email-tab-current-password-field"]').should(
       "not.exist",
     );
@@ -196,6 +199,9 @@ describe("Admin users view", function () {
 
     // Security tab
     cy.get('[data-test="security-tab-button"]').click();
+
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2#tab=security");
 
     cy.get('[data-test="roles-field"]')
       .should("be.visible")
@@ -238,6 +244,10 @@ describe("Admin users view", function () {
 
     // Check others tab
     cy.get('[data-test="others-tab-button"]').click();
+
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2#tab=others");
+
     cy.get('[data-test="bbb-skip-check-audio-field"]')
       .should("be.visible")
       .and("include.text", "admin.users.skip_check_audio")
@@ -338,7 +348,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -371,7 +381,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -407,7 +417,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -441,7 +451,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -478,7 +488,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -511,6 +521,38 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]').should("not.exist");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
+  });
+
+  it("visit with invalid tab hash", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/2#tab=invalid");
+
+    cy.wait("@userRequest");
+
+    // Check that base tab is shown
+    cy.get("#firstname").should("be.visible");
+
+    // Check that edit button contains base tab as hash parameter
+    cy.get('[data-test="users-edit-button"]')
+      .should("be.visible")
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
+
+    // Check that invalid tab stays in the hash
+    cy.url().should("include", "/admin/users/2#tab=invalid");
   });
 
   it("open view errors", function () {
