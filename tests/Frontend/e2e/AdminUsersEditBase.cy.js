@@ -446,7 +446,7 @@ describe("Admin users edit base", function () {
     });
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     // Check that breadcrumbs are shown correctly
@@ -567,7 +567,7 @@ describe("Admin users edit base", function () {
     });
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");

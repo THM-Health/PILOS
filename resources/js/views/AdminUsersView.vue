@@ -5,7 +5,11 @@
         <Button
           v-if="!viewOnly && userPermissions.can('view', user)"
           :as="isBusy || isLoadingAction ? 'button' : 'router-link'"
-          :to="{ name: 'admin.users.view', params: { id: user.id } }"
+          :to="{
+            name: 'admin.users.view',
+            params: { id: user.id },
+            hash: tabHash,
+          }"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
           severity="secondary"
@@ -16,7 +20,11 @@
           v-if="viewOnly && userPermissions.can('update', user)"
           :as="isBusy || isLoadingAction ? 'button' : 'router-link'"
           class="p-button p-button-secondary"
-          :to="{ name: 'admin.users.edit', params: { id: user.id } }"
+          :to="{
+            name: 'admin.users.edit',
+            params: { id: user.id },
+            hash: tabHash,
+          }"
           :label="$t('app.edit')"
           icon="fa-solid fa-edit"
           severity="info"
@@ -53,6 +61,7 @@
       @update-user="updateUser"
       @busy="(state) => (isBusy = state)"
       @loading-action="(state) => (isLoadingAction = state)"
+      @active-tab-changed="(tab) => (currentUserTab = tab)"
     />
   </div>
 </template>
@@ -69,6 +78,7 @@ const settingsStore = useSettingsStore();
 const breadcrumbLabelData = inject("breadcrumbLabelData");
 const isBusy = ref(false);
 const isLoadingAction = ref(false);
+const currentUserTab = ref("base");
 
 defineProps({
   id: {
@@ -89,6 +99,10 @@ const lastname = computed(() => {
   return user.value ? user.value.lastname : "";
 });
 
+const tabHash = computed(() => {
+  return "#tab=" + currentUserTab.value;
+});
+
 watch(
   () => firstname.value + " " + lastname.value,
   () => {
@@ -101,7 +115,11 @@ watch(
 
 function updateUser(newUser) {
   if (user.value) {
-    router.push({ name: "admin.users.view", params: { id: newUser.id } });
+    router.push({
+      name: "admin.users.view",
+      params: { id: newUser.id },
+      hash: tabHash.value,
+    });
   }
   user.value = newUser;
 }
