@@ -13,6 +13,9 @@ describe("User Profile Email", function () {
 
     cy.get('[data-test="email-tab-button"]').click();
 
+    // Check that tab hash was set
+    cy.url().should("include", "/profile#tab=email");
+
     cy.contains("admin.users.email").should("be.visible");
 
     // Check that fields are shown correctly and try to change email setting
@@ -107,11 +110,9 @@ describe("User Profile Email", function () {
   });
 
   it("save changes errors", function () {
-    cy.visit("/profile");
+    cy.visit("/profile#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     cy.get("#current_password").type("secretPassword123#");
 
@@ -197,11 +198,9 @@ describe("User Profile Email", function () {
   it("view without users.updateOwnAttributes permission", function () {
     cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
 
-    cy.visit("/profile");
+    cy.visit("/profile#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check that email setting is disabled and save button is hidden
     cy.get('[data-test="email-tab-current-password-field"]').should(
@@ -225,11 +224,9 @@ describe("User Profile Email", function () {
       }).as("userRequest");
     });
 
-    cy.visit("/profile");
+    cy.visit("/profile#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check that email setting is disabled and save button is hidden
     cy.get('[data-test="email-tab-current-password-field"]').should(
