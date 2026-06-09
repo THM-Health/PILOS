@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 #[ObservedBy([RoomObserver::class])]
@@ -439,9 +440,25 @@ class Room extends Model
     {
         $meetings = $this->meetings()
             ->whereNotNull('end')
-            ->orderBy('end', 'desc')
-            ->limit($limit)
-            ->pluck('id');
+            ->whereNotNull('start')
+            ->limit($limit);
+
+        $db = DB::connection()->getConfig();
+
+        // Get only meetings that lasted at least 10 min.
+        switch ($db['driver']) {
+            case 'mariadb':
+            case 'mysql':
+                $meetings->whereRaw('end > start + INTERVAL 10 MINUTE');
+                break;
+            case 'pgsql':
+                $meetings->whereRaw("end - start > INTERVAL '10 minutes'");
+                break;
+            default:
+                throw new \Exception('Database driver not supported');
+        }
+
+        $meetings = $meetings->pluck('id');
 
         if ($meetings->isEmpty()) {
             return null;
