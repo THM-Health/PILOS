@@ -10,6 +10,7 @@ use App\Enums\RoomVisibility;
 use App\Observers\RoomObserver;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
+use HiFolks\Statistics\Stat;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -429,5 +430,39 @@ class Room extends Model
                 'enabled_for_current_meeting' => false,
             ]
         )->chaperone('room');
+    }
+
+    /**
+     * Get the estimated max participants of the room based on the last x meetings.
+     */
+    public function getEstimatedMaxParticipants(int $limit = 10): ?int
+    {
+        $meetings = $this->meetings()
+            ->whereNotNull('end')
+            ->orderBy('end', 'desc')
+            ->limit($limit)
+            ->pluck('id');
+
+        if ($meetings->isEmpty()) {
+            return null;
+        }
+
+        $maxParticipants = MeetingStat::whereIn('meeting_id', $meetings)
+            ->groupBy('meeting_id')
+            ->selectRaw('max(participant_count) as max_participants')
+            ->orderBy('created_at')
+            ->pluck('max_participants');
+
+        if ($maxParticipants->isEmpty()) {
+            return null;
+        }
+
+        // Calculate weighted median
+        // Using median over average to compensate outliners
+        // Use a weighted median to give more weight to newer meetings, as they are more relevant for the future than older meetings
+        $weights = range(1, $maxParticipants->count());
+        $weightedMedian = Stat::weightedMedian($maxParticipants->toArray(), $weights);
+
+        return (int) ceil($weightedMedian);
     }
 }
