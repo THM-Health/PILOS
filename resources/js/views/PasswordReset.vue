@@ -72,13 +72,13 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { useAuthStore } from "../stores/auth";
 import { ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useRouter } from "vue-router";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   token: {
@@ -137,7 +137,7 @@ function submit() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);

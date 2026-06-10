@@ -58,11 +58,14 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
-import { HTTP_ROOM_INVALID_AUTH_TOKEN } from "../constants/httpCustomErrorMessages.js";
+import { HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN } from "../constants/httpCustomErrorMessages.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_UNAUTHORIZED,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -120,14 +123,14 @@ function joinMembership() {
     .catch((error) => {
       // Access code invalid
       if (
-        error.response.status === env.HTTP_UNAUTHORIZED &&
-        error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
+        error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+        error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
       ) {
         return emit("invalidRoomAuthToken");
       }
 
       // Membership is disabled
-      if (error.response.status === env.HTTP_FORBIDDEN) {
+      if (error.response.status === HTTP_STATUS_FORBIDDEN) {
         emit("membershipDisabled");
       }
 

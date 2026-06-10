@@ -47,13 +47,17 @@
 </template>
 
 <script setup>
-import env from "../env";
 import * as _ from "lodash-es";
 import { computed, onBeforeMount, ref, watch } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useAuthStore } from "../stores/auth.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   viewOnly: {
@@ -135,17 +139,17 @@ function save(event) {
       emit("updateUser", response.data.data);
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         emit("notFoundError", error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         // Stale error
         emit("staleError", error.response.data);

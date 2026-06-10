@@ -492,6 +492,7 @@ describe("Admin server pools edit", function () {
         statusCode: 428,
         body: {
           new_model: serverPool.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -506,6 +507,10 @@ describe("Admin server pools edit", function () {
     cy.get('[data-test="stale-server-pool-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server_pool"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -550,6 +555,7 @@ describe("Admin server pools edit", function () {
         statusCode: 428,
         body: {
           new_model: serverPool.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -564,6 +570,10 @@ describe("Admin server pools edit", function () {
     cy.get('[data-test="stale-server-pool-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server_pool"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

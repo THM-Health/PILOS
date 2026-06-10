@@ -84,7 +84,7 @@ describe("Admin users edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/users/2");
+      .and("have.attr", "href", "/admin/users/2#tab=base");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
@@ -122,7 +122,7 @@ describe("Admin users edit", function () {
     cy.wait("@userRequest");
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
@@ -166,7 +166,7 @@ describe("Admin users edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/users/2");
+      .and("have.attr", "href", "/admin/users/2#tab=base");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
@@ -217,7 +217,7 @@ describe("Admin users edit", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
-      .and("have.attr", "href", "/admin/users/2");
+      .and("have.attr", "href", "/admin/users/2#tab=base");
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
@@ -228,6 +228,38 @@ describe("Admin users edit", function () {
     cy.get('[data-test="user-tab-profile-save-button"]')
       .should("be.visible")
       .and("not.be.disabled");
+  });
+
+  it("visit edit user page with invalid tab hash", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/2/edit#tab=invalid");
+
+    cy.wait("@userRequest");
+
+    // Check that base tab is shown
+    cy.get("#firstname").should("be.visible");
+
+    // Check that cancel edit button contains base tab as hash parameter
+    cy.get('[data-test="users-cancel-edit-button"]')
+      .should("be.visible")
+      .and("have.attr", "href", "/admin/users/2#tab=base");
+
+    // Check that invalid tab stays in the hash
+    cy.url().should("include", "/admin/users/2/edit#tab=invalid");
   });
 
   it("visit edit user page errors", function () {

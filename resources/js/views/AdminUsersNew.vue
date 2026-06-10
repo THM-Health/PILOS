@@ -224,7 +224,6 @@
   </div>
 </template>
 <script setup>
-import env from "../env.js";
 import "cropperjs/dist/cropper.css";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
@@ -232,6 +231,7 @@ import { useSettingsStore } from "../stores/settings";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
@@ -304,7 +304,7 @@ function save() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);
