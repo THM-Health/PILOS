@@ -79,6 +79,12 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should("not.exist");
         cy.get("#room-setting-access_code").should("have.value", "123456789");
+
+        // Check that buttons are shown correctly
+        cy.get('[data-test="clear-access-code-button"]').should("be.visible");
+        cy.get('[data-test="generate-access-code-button"]').should(
+          "be.visible",
+        );
       });
 
     cy.get('[data-test="room-setting-allow_guests"]')
@@ -1359,6 +1365,12 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]');
         cy.get("#room-setting-access_code").should("have.value", "");
+
+        // Check that buttons are shown / hidden correctly (access code is enforced)
+        cy.get('[data-test="clear-access-code-button"]').should("not.exist");
+        cy.get('[data-test="generate-access-code-button"]').should(
+          "be.visible",
+        );
       });
 
     // Save settings and respond with 422 errors
@@ -1516,6 +1528,15 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]');
         cy.get("#room-setting-access_code").should("have.value", "123456789");
+
+        // Check that buttons are shown / hidden correctly (access code is prohibited)
+        cy.get('[data-test="clear-access-code-button"]').should("be.visible");
+        cy.get('[data-test="generate-access-code-button"]').should("not.exist");
+
+        cy.get('[data-test="clear-access-code-button"]').click();
+        cy.get("#room-setting-access_code").should("have.value", "");
+        cy.get('[data-test="clear-access-code-button"]').should("not.exist");
+        cy.get('[data-test="generate-access-code-button"]').should("not.exist");
       });
 
     // Check that 422 error messages are hidden
