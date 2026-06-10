@@ -44,7 +44,7 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
-import env from "../env.js";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const api = useApi();
 
@@ -90,7 +90,7 @@ function deleteServer() {
       emit("deleted");
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         modalVisible.value = false;
         emit("notFound");
       }

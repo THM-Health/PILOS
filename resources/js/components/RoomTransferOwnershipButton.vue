@@ -183,11 +183,11 @@
 
 <script setup>
 import { Multiselect } from "vue-multiselect";
-import env from "../env";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -245,7 +245,7 @@ function transferOwnership() {
       // transferring failed
       if (error.response) {
         // failed due to validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

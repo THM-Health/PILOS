@@ -383,7 +383,6 @@
   </div>
 </template>
 <script setup>
-import env from "../env.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -393,6 +392,11 @@ import ConfirmDialog from "primevue/confirmdialog";
 import { useI18n } from "vue-i18n";
 import { computed, inject, onMounted, ref, watch } from "vue";
 import { useToast } from "../composables/useToast.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 import * as _ from "lodash-es";
 
 const toast = useToast();
@@ -484,7 +488,7 @@ function panic() {
       }
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         router.push({ name: "admin.servers" });
       }
       api.error(error);
@@ -555,7 +559,7 @@ function load() {
         offlineReason.value = null;
       })
       .catch((error) => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
           router.push({ name: "admin.servers" });
         } else {
           modelLoadingError.value = true;
@@ -592,18 +596,18 @@ function saveServer() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         // handle stale errors
         handleStaleError(error.response.data);
       } else {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
           router.push({ name: "admin.servers" });
         }
         api.error(error);
