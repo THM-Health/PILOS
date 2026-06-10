@@ -79,7 +79,7 @@
     "vue-cropperjs": "^5.0.0",
     "vue-i18n": "^11.4",
     "vue-multiselect": "^3.5.0",
-    "vue-router": "^5.0.7"
+    "vue-router": "^5.1.0"
   },
   "engines": {
     "node": ">=20.0.0"
