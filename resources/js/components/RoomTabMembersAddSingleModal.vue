@@ -145,10 +145,10 @@
 </template>
 <script setup>
 import Multiselect from "vue-multiselect";
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -247,7 +247,7 @@ function save() {
       // adding failed
       if (error.response) {
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

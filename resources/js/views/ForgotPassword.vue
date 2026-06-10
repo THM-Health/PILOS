@@ -43,7 +43,7 @@ import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
-import env from "../env.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const email = ref(null);
 const loading = ref(false);
@@ -77,7 +77,7 @@ function submit() {
       // failed due to form validation errors
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);

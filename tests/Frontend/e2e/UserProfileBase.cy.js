@@ -595,7 +595,7 @@ describe("User Profile Base", function () {
       cy.intercept("POST", "api/v1/users/1", {
         statusCode: 428,
         body: {
-          message: " The user entity was updated in the meanwhile!",
+          message: "stale_model",
           new_model: newModel,
         },
       }).as("saveChangesRequest");
@@ -609,7 +609,10 @@ describe("User Profile Base", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-user-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user entity was updated in the meanwhile!");
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 

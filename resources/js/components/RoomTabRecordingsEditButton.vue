@@ -136,7 +136,6 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { computed, ref } from "vue";
@@ -145,6 +144,10 @@ import { useSettingsStore } from "../stores/settings.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { RECORDING } from "../constants/modelNames.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   recordingId: {
@@ -252,7 +255,7 @@ function save() {
       if (error.response) {
         // recording not found
         if (
-          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
           error.response.data?.model === RECORDING
         ) {
           toast.error(t("rooms.flash.recording_gone"));
@@ -261,7 +264,7 @@ function save() {
           return;
         }
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

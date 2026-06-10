@@ -96,7 +96,6 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { useSettingsStore } from "../stores/settings";
 import { useAuthStore } from "../stores/auth";
 import { computed, ref, reactive, onMounted } from "vue";
@@ -104,6 +103,10 @@ import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useApi } from "../composables/useApi";
 import { useToast } from "../composables/useToast.js";
+import {
+  HTTP_STATUS_TOO_MANY_REQUESTS,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const settingsStore = useSettingsStore();
 const router = useRouter();
@@ -186,13 +189,13 @@ async function handleLogin({ data, id }) {
   } catch (error) {
     if (
       error.response !== undefined &&
-      error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
     ) {
       errors[id] = error.response.data.errors;
     } else {
       if (
         error.response !== undefined &&
-        error.response.status === env.HTTP_TOO_MANY_REQUESTS
+        error.response.status === HTTP_STATUS_TOO_MANY_REQUESTS
       ) {
         const retryAfter = error.response.headers["retry-after"];
         if (data.username) {
