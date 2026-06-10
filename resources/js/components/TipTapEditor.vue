@@ -12,7 +12,6 @@ import TextAlign from "@tiptap/extension-text-align";
 import { Color, TextStyle } from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
-
 import { onBeforeMount, onUnmounted, ref } from "vue";
 
 const props = defineProps({

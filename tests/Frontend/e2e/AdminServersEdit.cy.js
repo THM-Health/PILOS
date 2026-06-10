@@ -500,6 +500,7 @@ describe("Admin servers edit", function () {
         statusCode: 428,
         body: {
           new_model: server.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -514,6 +515,10 @@ describe("Admin servers edit", function () {
     cy.get('[data-test="stale-server-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -572,6 +577,7 @@ describe("Admin servers edit", function () {
         statusCode: 428,
         body: {
           new_model: server.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -586,6 +592,10 @@ describe("Admin servers edit", function () {
     cy.get('[data-test="stale-server-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

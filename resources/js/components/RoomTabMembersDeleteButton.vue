@@ -53,12 +53,12 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { USER } from "../constants/modelNames.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -112,7 +112,7 @@ function deleteMember() {
       if (error.response) {
         // user not found
         if (
-          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
           error.response.data?.model === USER
         ) {
           toast.error(t("app.errors.not_member_of_room"));

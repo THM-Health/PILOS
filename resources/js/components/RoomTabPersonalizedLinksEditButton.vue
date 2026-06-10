@@ -118,10 +118,13 @@
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
-import env from "../env.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { ROOM_PERSONALIZED_LINK } from "../constants/modelNames.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -202,7 +205,7 @@ function save() {
       if (error.response) {
         // token not found
         if (
-          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
           error.response.data?.model === ROOM_PERSONALIZED_LINK
         ) {
           toast.error(t("rooms.flash.personalized_link_gone"));
@@ -211,7 +214,7 @@ function save() {
           return;
         }
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }
