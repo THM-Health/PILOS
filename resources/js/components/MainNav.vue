@@ -151,10 +151,10 @@ import { useBreakpoints, useDark, useToggle } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 import { useLoadingStore } from "../stores/loading.js";
 import UserAvatar from "./UserAvatar.vue";
-import env from "../env.js";
 import { useLocaleStore } from "../stores/locale.js";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const menuBreakpoint = 1023;
 
@@ -422,7 +422,7 @@ async function changeLocale(locale) {
   } catch (error) {
     if (
       error.response !== undefined &&
-      error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
     ) {
       toast.error(error.response.data.errors.locale.join(" "));
     } else {

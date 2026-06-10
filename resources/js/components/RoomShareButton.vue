@@ -17,61 +17,69 @@
           {{ $t("rooms.invitation.title") }}
         </legend>
         <div class="grow">
-          <InputGroup>
-            <InputGroupAddon class="min-w-5 border-none px-0">
-              <i
-                v-tooltip="$t('rooms.invitation.link')"
-                class="fa-solid fa-link"
+          <div class="mt-2 flex flex-row items-center">
+            <InputGroup>
+              <InputGroupAddon
+                class="min-w-5 border-none px-0 dark:bg-surface-900"
+              >
+                <i
+                  v-tooltip="$t('rooms.invitation.link')"
+                  class="fa-solid fa-link"
+                  :aria-label="$t('rooms.invitation.link')"
+                />
+              </InputGroupAddon>
+              <InputText
+                id="invitationLink"
+                class="w-full border-none text-ellipsis shadow-none dark:bg-surface-900"
                 :aria-label="$t('rooms.invitation.link')"
+                readonly
+                :value="roomUrl"
+                @focus="$event.target.select()"
               />
-            </InputGroupAddon>
-            <InputText
-              id="invitationLink"
-              class="w-full border-surface-0 text-ellipsis shadow-none dark:border-surface-900"
-              :aria-label="$t('rooms.invitation.link')"
-              readonly
-              :value="roomUrl"
-              @focus="$event.target.select()"
-            />
-            <InputGroupAddon class="border-none">
-              <Button
-                v-tooltip="$t('rooms.invitation.copy_url')"
-                data-test="room-invitation-copy-link-button"
-                :aria-label="$t('rooms.invitation.copy_url')"
-                icon="fa-solid fa-copy"
-                severity="secondary"
-                @click="copyUrl"
-              />
-            </InputGroupAddon>
-          </InputGroup>
+            </InputGroup>
 
-          <InputGroup v-if="room.access_code" class="mt-2">
-            <InputGroupAddon class="min-w-5 border-none px-0">
-              <i
-                v-tooltip="$t('rooms.invitation.code')"
-                class="fa-solid fa-key"
-                :aria-label="$t('rooms.invitation.code')"
-              />
-            </InputGroupAddon>
-            <InputText
-              id="invitationCode"
-              class="w-full border-surface-0 shadow-none dark:border-surface-900"
-              :aria-label="$t('rooms.invitation.code')"
-              readonly
-              :value="formattedAccessCode"
-              @focus="$event.target.select()"
+            <Button
+              v-tooltip="$t('rooms.invitation.copy_url')"
+              data-test="room-invitation-copy-link-button"
+              class="shrink-0"
+              :aria-label="$t('rooms.invitation.copy_url')"
+              icon="fa-solid fa-copy"
+              severity="secondary"
+              @click="copyUrl"
             />
-            <InputGroupAddon class="border-none">
-              <Button
-                v-tooltip="$t('rooms.invitation.copy_code')"
-                data-test="room-invitation-copy-code-button"
-                :aria-label="$t('rooms.invitation.copy_code')"
-                icon="fa-solid fa-copy"
-                severity="secondary"
-                @click="copyCode"
+          </div>
+
+          <div v-if="room.access_code" class="mt-2 flex flex-row items-center">
+            <InputGroup>
+              <InputGroupAddon
+                class="min-w-5 border-none px-0 dark:bg-surface-900"
+              >
+                <i
+                  v-tooltip="$t('rooms.invitation.code')"
+                  class="fa-solid fa-key"
+                  :aria-label="$t('rooms.invitation.code')"
+                />
+              </InputGroupAddon>
+              <InputText
+                id="invitationCode"
+                class="w-full border-none shadow-none dark:bg-surface-900"
+                :aria-label="$t('rooms.invitation.code')"
+                readonly
+                :value="formattedAccessCode"
+                @focus="$event.target.select()"
               />
-            </InputGroupAddon>
-          </InputGroup>
+            </InputGroup>
+
+            <Button
+              v-tooltip="$t('rooms.invitation.copy_code')"
+              data-test="room-invitation-copy-code-button"
+              class="shrink-0"
+              :aria-label="$t('rooms.invitation.copy_code')"
+              icon="fa-solid fa-copy"
+              severity="secondary"
+              @click="copyCode"
+            />
+          </div>
         </div>
       </fieldset>
       <divider class="m-0" />

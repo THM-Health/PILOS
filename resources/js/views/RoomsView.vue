@@ -242,7 +242,6 @@
   </div>
 </template>
 <script setup>
-import env from "../env.js";
 import { useAuthStore } from "../stores/auth";
 import { useSettingsStore } from "../stores/settings";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
@@ -261,11 +260,17 @@ import {
 } from "../constants/roomAuthTokenTypes.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import {
-  HTTP_GUESTS_NOT_ALLOWED,
-  HTTP_ROOM_INVALID_CODE,
-  HTTP_ROOM_INVALID_PERSONALIZED_LINK,
-  HTTP_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ERROR_GUESTS_NOT_ALLOWED,
+  HTTP_ERROR_ROOM_INVALID_CODE,
+  HTTP_ERROR_ROOM_INVALID_PERSONALIZED_LINK,
+  HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN,
 } from "../constants/httpCustomErrorMessages.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_TOO_MANY_REQUESTS,
+  HTTP_STATUS_UNAUTHORIZED,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   id: {
@@ -467,16 +472,16 @@ function load() {
       if (error.response) {
         // Room auth token is invalid
         if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
+          error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+          error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
         ) {
           return handleInvalidRoomAuthToken();
         }
 
         // Forbidden, guests not allowed
         if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
+          error.response.status === HTTP_STATUS_FORBIDDEN &&
+          error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
         ) {
           guestsNotAllowed.value = true;
           return;
@@ -549,16 +554,16 @@ function reload(checkForRequireCodeError = false) {
       if (error.response) {
         // Room auth token is invalid
         if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
+          error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+          error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
         ) {
           return handleInvalidRoomAuthToken();
         }
 
         // Forbidden, guests not allowed
         if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
+          error.response.status === HTTP_STATUS_FORBIDDEN &&
+          error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
         ) {
           return handleGuestsNotAllowed();
         }
@@ -662,7 +667,7 @@ function authenticate(type, codeOrToken) {
         resolve(false);
         if (error.response) {
           // Validation errors
-          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
             if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
               handleInvalidPersonalizedLink();
             } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
@@ -672,31 +677,32 @@ function authenticate(type, codeOrToken) {
           }
           // Room auth rate limit reached (throttled)
           if (
-            error.response.status === env.HTTP_TOO_MANY_REQUESTS &&
+            error.response.status === HTTP_STATUS_TOO_MANY_REQUESTS &&
             error.response.data?.limit === "room_auth"
           ) {
             authThrottledFor.value = error.response.data.retry_after;
           }
           // Room token is invalid
           if (
-            error.response.status === env.HTTP_UNAUTHORIZED &&
-            error.response.data.message === HTTP_ROOM_INVALID_PERSONALIZED_LINK
+            error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+            error.response.data.message ===
+              HTTP_ERROR_ROOM_INVALID_PERSONALIZED_LINK
           ) {
             handleInvalidPersonalizedLink();
             return;
           }
           // Access code is invalid
           if (
-            error.response.status === env.HTTP_UNAUTHORIZED &&
-            error.response.data.message === HTTP_ROOM_INVALID_CODE
+            error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+            error.response.data.message === HTTP_ERROR_ROOM_INVALID_CODE
           ) {
             handleInvalidCode();
             return;
           }
           // Forbidden, guests not allowed
           if (
-            error.response.status === env.HTTP_FORBIDDEN &&
-            error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
+            error.response.status === HTTP_STATUS_FORBIDDEN &&
+            error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
           ) {
             handleGuestsNotAllowed();
             return;

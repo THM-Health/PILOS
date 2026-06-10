@@ -1739,6 +1739,7 @@ describe("Admin room types edit", function () {
         statusCode: 428,
         body: {
           new_model: roomType.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1753,6 +1754,10 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="stale-room-type-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.room_type"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -1950,6 +1955,7 @@ describe("Admin room types edit", function () {
         statusCode: 428,
         body: {
           new_model: roomType.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1964,6 +1970,10 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="stale-room-type-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.room_type"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

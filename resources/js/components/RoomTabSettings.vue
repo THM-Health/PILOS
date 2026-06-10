@@ -111,7 +111,6 @@
 </template>
 
 <script setup>
-import env from "../env.js";
 import * as _ from "lodash-es";
 import { useSettingsStore } from "../stores/settings";
 import { useApi } from "../composables/useApi.js";
@@ -131,6 +130,7 @@ import RoomTabSettingsRadioGroup from "./RoomTabSettingsRadioGroup.vue";
 import RoomTabSettingsSelectButton from "./RoomTabSettingsSelectButton.vue";
 import RoomTabSettingsRoomTypeSelect from "./RoomTabSettingsRoomTypeSelect.vue";
 import RoomTabSettingsAccessCodeInput from "./RoomTabSettingsAccessCodeInput.vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -384,7 +384,7 @@ function save() {
     })
     .catch((error) => {
       // Settings couldn't be saved
-      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);
         return;

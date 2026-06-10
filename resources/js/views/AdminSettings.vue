@@ -1536,7 +1536,6 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { useSettingsStore } from "../stores/settings";
 import { computed, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
@@ -1546,6 +1545,7 @@ import { useColors } from "../composables/useColors.js";
 import { useI18n } from "vue-i18n";
 import { updateTheme } from "../composables/useTheme";
 import AdminPanel from "../components/AdminPanel.vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const roomLimitMode = ref("custom");
 const toastLifetimeMode = ref("custom");
@@ -1771,7 +1771,7 @@ function updateSettings() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);

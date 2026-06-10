@@ -93,10 +93,13 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import RoomTabStreamingConfigButton from "./RoomTabStreamingConfigButton.vue";
-import env from "../env.js";
 import { useSettingsStore } from "../stores/settings.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useI18n } from "vue-i18n";
+import {
+  HTTP_STATUS_PRECONDITION_FAILED,
+  HTTP_STATUS_ROOM_NOT_RUNNING,
+} from "../constants/httpStatusCodes.js";
 
 const streamingState = ref("stopped");
 const streamingEnabled = ref(false);
@@ -163,11 +166,11 @@ async function streamingCommand(command) {
       streamingEnabled.value = response.data.data.enabled_for_current_meeting;
     })
     .catch((error) => {
-      if (error.response.status === env.HTTP_PRECONDITION_FAILED) {
+      if (error.response.status === HTTP_STATUS_PRECONDITION_FAILED) {
         emit("settingsChanged");
         streamingCommand("status");
       }
-      if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
+      if (error.response.status === HTTP_STATUS_ROOM_NOT_RUNNING) {
         emit("settingsChanged");
       }
       api.error(error);

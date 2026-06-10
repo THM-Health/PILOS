@@ -38,6 +38,9 @@ describe("Admin users edit others", function () {
 
     cy.get('[data-test="others-tab-button"]').click();
 
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2/edit#tab=others");
+
     cy.contains("admin.users.bbb").should("be.visible");
 
     cy.get('[data-test="bbb-skip-check-audio-field"]')
@@ -103,18 +106,16 @@ describe("Admin users edit others", function () {
     });
 
     // Check that redirect to user view worked
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=others");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
   });
 
   it("save changes errors", function () {
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=others");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
 
     // Check with 422 error
     cy.intercept("POST", "api/v1/users/2", {
@@ -171,7 +172,7 @@ describe("Admin users edit others", function () {
       cy.intercept("POST", "api/v1/users/2", {
         statusCode: 428,
         body: {
-          message: " The user entity was updated in the meanwhile!",
+          message: "stale_model",
           new_model: user.data,
         },
       }).as("saveChangesRequest");
@@ -190,7 +191,10 @@ describe("Admin users edit others", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-user-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user entity was updated in the meanwhile!");
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 
@@ -201,8 +205,7 @@ describe("Admin users edit others", function () {
     cy.wait("@userRequest");
 
     // Visit edit page again
-    cy.visit("/admin/users/2/edit");
-    cy.get('[data-test="others-tab-button"]').click();
+    cy.visit("/admin/users/2/edit#tab=others");
 
     // Check with 404 error
     cy.interceptAdminUsersIndexRequests();
@@ -230,10 +233,8 @@ describe("Admin users edit others", function () {
     ]);
 
     // Visit edit page again
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=others");
     cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
 
     // Check with 401 error
     cy.intercept("POST", "api/v1/users/2", {

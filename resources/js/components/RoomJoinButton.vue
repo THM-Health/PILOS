@@ -180,7 +180,6 @@ import { ref, computed, onUnmounted } from "vue";
 import { useAuthStore } from "../stores/auth.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
-import env from "../env.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
@@ -188,10 +187,17 @@ import EventBus from "../services/EventBus.js";
 import { useDark } from "@vueuse/core";
 import { ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK } from "../constants/roomAuthTokenTypes.js";
 import {
-  HTTP_GUESTS_NOT_ALLOWED,
-  HTTP_ROOM_INVALID_AUTH_TOKEN,
-  HTTP_ROOM_REQUIRE_CODE,
+  HTTP_ERROR_GUESTS_NOT_ALLOWED,
+  HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ERROR_ROOM_REQUIRE_CODE,
 } from "../constants/httpCustomErrorMessages.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_ROOM_ALREADY_RUNNING,
+  HTTP_STATUS_ROOM_NOT_RUNNING,
+  HTTP_STATUS_UNAUTHORIZED,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -415,7 +421,7 @@ function getJoinUrl() {
         }
 
         // Form validation error
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
 
           loadStartJoinRequirements();
@@ -423,7 +429,7 @@ function getJoinUrl() {
         }
 
         // Room is not running, update running status
-        if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
+        if (error.response.status === HTTP_STATUS_ROOM_NOT_RUNNING) {
           toast.error(t("app.errors.not_running"));
           modalVisible.value = false;
           emit("changed");
@@ -431,7 +437,7 @@ function getJoinUrl() {
         }
 
         // Room is running cannot be started a second time, update running status
-        if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
+        if (error.response.status === HTTP_STATUS_ROOM_ALREADY_RUNNING) {
           emit("changed");
           showRunningMessage.value = true;
           action.value = "join";
@@ -452,8 +458,8 @@ function getJoinUrl() {
 function handleError(error) {
   // Access code is required
   if (
-    error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === HTTP_ROOM_REQUIRE_CODE
+    error.response.status === HTTP_STATUS_FORBIDDEN &&
+    error.response.data.message === HTTP_ERROR_ROOM_REQUIRE_CODE
   ) {
     emit("requireCode");
     modalVisible.value = false;
@@ -462,8 +468,8 @@ function handleError(error) {
 
   // Room auth token is invalid
   if (
-    error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
+    error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+    error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
   ) {
     emit("invalidRoomAuthToken");
     modalVisible.value = false;
@@ -472,8 +478,8 @@ function handleError(error) {
 
   // Forbidden, guests not allowed
   if (
-    error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === HTTP_GUESTS_NOT_ALLOWED
+    error.response.status === HTTP_STATUS_FORBIDDEN &&
+    error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
   ) {
     emit("guestsNotAllowed");
     modalVisible.value = false;
@@ -481,7 +487,7 @@ function handleError(error) {
   }
 
   // Forbidden, use can't start the room
-  if (error.response.status === env.HTTP_FORBIDDEN) {
+  if (error.response.status === HTTP_STATUS_FORBIDDEN) {
     // Show error message
     toast.error(t("rooms.flash.start_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
