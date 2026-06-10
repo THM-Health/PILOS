@@ -383,6 +383,7 @@ return [
     'room_type_attribute_default' => 'تنظیم پیش‌فرض برای :attribute',
     'room_type_attribute_enforced' => 'وضعیت اجرایی :attribute',
     'same' => 'فیلد :attribute و :other باید مطابقت داشته باشند.',
+    'several_errors' => '(و :count خطاهای بیشتر)',
     'size' => [
         'array' => 'فیلد :attribute باید شامل :size آیتم باشد.',
         'file' => 'فیلد :attribute باید :size کیلوبایت باشد.',
