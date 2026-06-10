@@ -354,6 +354,7 @@ return [
     'not_in' => 'Der gewählte Wert für :attribute ist ungültig.',
     'not_regex' => ':attribute hat ein ungültiges Format.',
     'numeric' => ':attribute muss eine Zahl sein.',
+    'one_more_error' => '(und einen weiteren Fehler)',
     'password' => 'Das Passwort ist falsch.',
     'password.letters' => ':attribute muss mindestens einen Buchstaben beinhalten.',
     'password.mixed' => ':attribute muss mindestens einen Großbuchstaben und einen Kleinbuchstaben beinhalten.',
@@ -383,6 +384,7 @@ return [
     'room_type_attribute_default' => 'Standardeinstellung für :attribute',
     'room_type_attribute_enforced' => 'Erzwungener Status von :attribute',
     'same' => ':attribute und :other müssen übereinstimmen.',
+    'several_errors' => '(und :count weitere Fehler)',
     'size' => [
         'array' => ':attribute muss genau :size Elemente haben.',
         'file' => ':attribute muss :size Kilobyte groß sein.',

@@ -383,6 +383,7 @@ return [
     'room_type_attribute_default' => 'الإعداد الافتراضي لـ :attribute',
     'room_type_attribute_enforced' => 'حالة الإجبار لـ :attribute',
     'same' => ':attribute و :other يجب أن يتطابقا.',
+    'several_errors' => '(و :count أخطاء أخرى)',
     'size' => [
         'array' => ':attribute يجب أن يحتوي على :size عناصر.',
         'file' => ':attribute يجب أن يكون :size كيلوبايت.',
