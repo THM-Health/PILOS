@@ -1,5 +1,4 @@
 import axios from "axios";
-import env from "../env";
 import { useToast } from "../composables/useToast";
 import i18n from "../i18n";
 import { useAuthStore } from "../stores/auth";
@@ -7,6 +6,15 @@ import { useRouter } from "vue-router";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
 import EventBus from "./EventBus.js";
 import { ROOM } from "../constants/modelNames.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_GUESTS_ONLY,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_PAYLOAD_TOO_LARGE,
+  HTTP_STATUS_SERVICE_UNAVAILABLE,
+  HTTP_STATUS_TOO_MANY_REQUESTS,
+  HTTP_STATUS_UNAUTHORIZED,
+} from "../constants/httpStatusCodes.js";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
@@ -53,32 +61,32 @@ export class Api {
     const statusCode = this.getErrorStatusCode(error);
     const message = this.getErrorMessage(error);
 
-    if (statusCode === env.HTTP_UNAUTHORIZED) {
+    if (statusCode === HTTP_STATUS_UNAUTHORIZED) {
       // 401 => unauthorized, redirect and show error messages as flash!
       this.handleUnauthorized(error, options);
     } else if (
-      statusCode === env.HTTP_FORBIDDEN &&
+      statusCode === HTTP_STATUS_FORBIDDEN &&
       message === "This action is unauthorized."
     ) {
       // 403 => unauthorized, show error messages as flash!
       this.handleForbidden(error, options);
-    } else if (statusCode === env.HTTP_NOT_FOUND) {
+    } else if (statusCode === HTTP_STATUS_NOT_FOUND) {
       // 404 => not found, show error messages as flash!
       if (message === "model_not_found") {
         this.handleModelNotFound(error, options);
       } else {
         this.handleOtherServerError(error, options);
       }
-    } else if (statusCode === env.HTTP_GUESTS_ONLY) {
+    } else if (statusCode === HTTP_STATUS_GUESTS_ONLY) {
       // 420 => only for guests, redirect to home route
       this.handleGuestsOnly(error, options);
-    } else if (statusCode === env.HTTP_PAYLOAD_TOO_LARGE) {
+    } else if (statusCode === HTTP_STATUS_PAYLOAD_TOO_LARGE) {
       // 413 => payload to large
       this.handlePayloadTooLarge(error, options);
-    } else if (statusCode === env.HTTP_TOO_MANY_REQUESTS) {
+    } else if (statusCode === HTTP_STATUS_TOO_MANY_REQUESTS) {
       // 429 => too many requests
       this.handleTooManyRequests(error, options);
-    } else if (statusCode === env.HTTP_SERVICE_UNAVAILABLE) {
+    } else if (statusCode === HTTP_STATUS_SERVICE_UNAVAILABLE) {
       // 503 => maintenance mode
       this.handleMaintenance(error, options);
     } else if (statusCode !== undefined) {

@@ -69,7 +69,10 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
-import env from "../env.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+} from "../constants/httpStatusCodes.js";
 
 const api = useApi();
 
@@ -117,12 +120,12 @@ function deleteServerPool() {
       emit("deleted");
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+      if (error.response && error.response.status === HTTP_STATUS_STALE_MODEL) {
         deleteFailedRoomTypes.value = error.response.data.room_types;
         return;
       } else if (
         error.response &&
-        error.response.status === env.HTTP_NOT_FOUND
+        error.response.status === HTTP_STATUS_NOT_FOUND
       ) {
         modalVisible.value = false;
         emit("notFound");

@@ -84,7 +84,6 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { useAuthStore } from "../stores/auth";
 import { computed, onBeforeMount, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
@@ -93,6 +92,11 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import AdminPanel from "./AdminPanel.vue";
+import {
+  HTTP_STATUS_EMAIL_CHANGE_THROTTLE,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   user: {
@@ -164,12 +168,12 @@ function save(event) {
       }
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         emit("notFoundError", error);
-      } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      } else if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
         api.validationError(error);
-      } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {
+      } else if (error.response.status === HTTP_STATUS_EMAIL_CHANGE_THROTTLE) {
         toast.error(t("auth.throttle_email"));
       } else {
         api.error(error);

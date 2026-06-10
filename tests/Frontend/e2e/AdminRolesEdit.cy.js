@@ -1471,6 +1471,7 @@ describe("Admin roles edit", function () {
         statusCode: 428,
         body: {
           new_model: role.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1484,7 +1485,11 @@ describe("Admin roles edit", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-role-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.errors.stale_error")
+      .should("include.text", "app.errors.stale_error")
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.role"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -1571,6 +1576,7 @@ describe("Admin roles edit", function () {
         statusCode: 428,
         body: {
           new_model: role.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1584,7 +1590,11 @@ describe("Admin roles edit", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-role-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.errors.stale_error")
+      .should("include.text", "app.errors.stale_error")
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.role"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

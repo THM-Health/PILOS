@@ -48,12 +48,12 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { ROOM_FILE } from "../constants/modelNames.js";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -103,7 +103,7 @@ function deleteFile() {
       if (error.response) {
         // file not found
         if (
-          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
           error.response.data?.model === ROOM_FILE
         ) {
           toast.error(t("rooms.flash.file_gone"));

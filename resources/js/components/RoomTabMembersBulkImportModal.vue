@@ -197,12 +197,12 @@
 
 <script setup>
 import * as _ from "lodash-es";
-import env from "../env";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { ref } from "vue";
 import { useApi } from "../composables/useApi.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -317,7 +317,7 @@ function importUsers(firstRound = false) {
     .catch((error) => {
       // adding failed
       if (error.response) {
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           // check for role errors
           if (error.response.data.errors.role) {
             formErrors.set(error.response.data.errors);

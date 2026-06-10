@@ -110,10 +110,13 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import env from "../env.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useI18n } from "vue-i18n";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
@@ -204,12 +207,12 @@ function deleteRoomType() {
       // failed due to form validation errors
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         return;
       }
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         modalVisible.value = false;
         emit("notFound");
       }
