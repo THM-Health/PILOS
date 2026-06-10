@@ -65,8 +65,11 @@
           />
         </div>
       </template>
-
-      {{ staleError.message }}
+      {{
+        $t("app.errors.stale_model", {
+          model: $t("app.model." + _.snakeCase(user.model_name)),
+        })
+      }}
     </Dialog>
   </div>
 </template>
@@ -83,6 +86,7 @@ import UserTabProfile from "./UserTabProfile.vue";
 import UserTabEmail from "./UserTabEmail.vue";
 import UserTabSecurity from "./UserTabSecurity.vue";
 import UserTabOtherSettings from "./UserTabOtherSettings.vue";
+import * as _ from "lodash-es";
 
 const props = defineProps({
   id: {
