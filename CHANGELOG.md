@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UX: Buttons in start/join dialog not immediately visible on small screens ([#2333])
 - UX: Cropped dialog content on small screens (illusion of completeness) ([#2333])
 - Styling inconsistencies in the room share popover ([#3145], [#3198])
+- Clear / Generate access code buttons not hidden in room settings when access code is enforced or prohibited ([#3130], [#3215])
 
 ## [v4.15.0] - 2026-05-15
 
@@ -824,11 +825,13 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3078]: https://github.com/THM-Health/PILOS/issues/3078
 [#3079]: https://github.com/THM-Health/PILOS/pull/3079
 [#3128]: https://github.com/THM-Health/PILOS/pull/3128
+[#3130]: https://github.com/THM-Health/PILOS/issues/3130
 [#3145]: https://github.com/THM-Health/PILOS/issues/3145
 [#3169]: https://github.com/THM-Health/PILOS/issues/3169
 [#3194]: https://github.com/THM-Health/PILOS/pull/3194
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
+[#3215]: https://github.com/THM-Health/PILOS/pull/3215
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.15.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
