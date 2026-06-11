@@ -10,6 +10,7 @@ use App\Enums\RoomVisibility;
 use App\Observers\RoomObserver;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
+use HiFolks\Statistics\Stat;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 #[ObservedBy([RoomObserver::class])]
@@ -429,5 +431,55 @@ class Room extends Model
                 'enabled_for_current_meeting' => false,
             ]
         )->chaperone('room');
+    }
+
+    /**
+     * Get the estimated max participants of the room based on the last x meetings.
+     */
+    public function getEstimatedMaxParticipants(int $limit = 10): ?int
+    {
+        $meetings = $this->meetings()
+            ->whereNotNull('end')
+            ->whereNotNull('start')
+            ->limit($limit);
+
+        $db = DB::connection()->getConfig();
+
+        // Get only meetings that lasted at least 10 min.
+        switch ($db['driver']) {
+            case 'mariadb':
+            case 'mysql':
+                $meetings->whereRaw('end > start + INTERVAL 10 MINUTE');
+                break;
+            case 'pgsql':
+                $meetings->whereRaw("end - start > INTERVAL '10 minutes'");
+                break;
+            default:
+                throw new \Exception('Database driver not supported');
+        }
+
+        $meetings = $meetings->pluck('id');
+
+        if ($meetings->isEmpty()) {
+            return null;
+        }
+
+        $maxParticipants = MeetingStat::whereIn('meeting_id', $meetings)
+            ->groupBy('meeting_id')
+            ->selectRaw('max(participant_count) as max_participants')
+            ->orderBy('created_at')
+            ->pluck('max_participants');
+
+        if ($maxParticipants->isEmpty()) {
+            return null;
+        }
+
+        // Calculate weighted median
+        // Using median over average to compensate outliners
+        // Use a weighted median to give more weight to newer meetings, as they are more relevant for the future than older meetings
+        $weights = range(1, $maxParticipants->count());
+        $weightedMedian = Stat::weightedMedian($maxParticipants->toArray(), $weights);
+
+        return (int) ceil($weightedMedian);
     }
 }

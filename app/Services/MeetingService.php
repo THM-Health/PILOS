@@ -107,6 +107,11 @@ class MeetingService
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
 
+        $estimatedMax = $this->meeting->room->getEstimatedMaxParticipants(config('bigbluebutton.meeting_size_hint_meetings_count'));
+        if ($estimatedMax !== null) {
+            $meetingParams->addMeta('bbb-meeting-size-hint', (string) $estimatedMax);
+        }
+
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {

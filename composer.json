@@ -17,6 +17,7 @@
     "ext-zip": "*",
     "directorytree/ldaprecord-laravel": "^4.0",
     "guzzlehttp/guzzle": "^7.0.1",
+    "hi-folks/statistics": "^1.5",
     "laravel/fortify": "^1.36",
     "laravel/framework": "^13.2",
     "laravel/horizon": "^5.21",
