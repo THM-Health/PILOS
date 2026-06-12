@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.16.0] - 2026-06-12
+
 ### Added
 
 - Toast notification for form validation errors in non-dialog forms ([#3056])
@@ -832,7 +834,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.15.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -860,3 +862,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.14.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.1
 [v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2
 [v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0
+[v4.16.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.16.0
