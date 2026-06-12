@@ -413,7 +413,7 @@ describe("Admin server pools edit", function () {
     cy.intercept("PUT", "api/v1/serverPools/1", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The Name field is required. (and 2 more errors)",
         errors: {
           name: ["The Name field is required."],
           description: [
@@ -429,6 +429,8 @@ describe("Admin server pools edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that error messages are shown
+    cy.checkToastMessage("The Name field is required. (and 2 more errors)");
+
     cy.get('[data-test="name-field"]').should(
       "include.text",
       "The Name field is required.",
@@ -490,6 +492,7 @@ describe("Admin server pools edit", function () {
         statusCode: 428,
         body: {
           new_model: serverPool.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -504,6 +507,10 @@ describe("Admin server pools edit", function () {
     cy.get('[data-test="stale-server-pool-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server_pool"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -548,6 +555,7 @@ describe("Admin server pools edit", function () {
         statusCode: 428,
         body: {
           new_model: serverPool.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -562,6 +570,10 @@ describe("Admin server pools edit", function () {
     cy.get('[data-test="stale-server-pool-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server_pool"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

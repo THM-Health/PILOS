@@ -1405,6 +1405,7 @@ describe("Admin roles edit", function () {
     cy.intercept("PUT", "api/v1/roles/2", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 2 more errors)",
         errors: {
           name: ["The Name field is required."],
           room_limit: ["The Room limit must be at least -1."],
@@ -1420,6 +1421,8 @@ describe("Admin roles edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 2 more errors)");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "The Name field is required.");
@@ -1468,6 +1471,7 @@ describe("Admin roles edit", function () {
         statusCode: 428,
         body: {
           new_model: role.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1481,7 +1485,11 @@ describe("Admin roles edit", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-role-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.errors.stale_error")
+      .should("include.text", "app.errors.stale_error")
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.role"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -1568,6 +1576,7 @@ describe("Admin roles edit", function () {
         statusCode: 428,
         body: {
           new_model: role.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1581,7 +1590,11 @@ describe("Admin roles edit", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-role-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.errors.stale_error")
+      .should("include.text", "app.errors.stale_error")
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.role"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

@@ -13,6 +13,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
+import "./commands/commandOverrides.js";
 import "./commands/generalCommands.js";
 import "./commands/roomCommands.js";
 import "./commands/interceptCommands.js";

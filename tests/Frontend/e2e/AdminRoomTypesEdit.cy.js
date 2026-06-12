@@ -1222,7 +1222,7 @@ describe("Admin room types edit", function () {
     cy.intercept("PUT", "api/v1/roomTypes/3", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The name field is required. (and 39 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -1334,6 +1334,8 @@ describe("Admin room types edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 39 more errors)");
+
     cy.get('[data-test="room-type-name-field"]').should(
       "include.text",
       "The name field is required.",
@@ -1737,6 +1739,7 @@ describe("Admin room types edit", function () {
         statusCode: 428,
         body: {
           new_model: roomType.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1751,6 +1754,10 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="stale-room-type-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.room_type"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -1948,6 +1955,7 @@ describe("Admin room types edit", function () {
         statusCode: 428,
         body: {
           new_model: roomType.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1962,6 +1970,10 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="stale-room-type-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.room_type"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

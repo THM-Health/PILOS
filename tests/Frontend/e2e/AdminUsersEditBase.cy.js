@@ -446,7 +446,7 @@ describe("Admin users edit base", function () {
     });
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     // Check that breadcrumbs are shown correctly
@@ -567,7 +567,7 @@ describe("Admin users edit base", function () {
     });
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
@@ -591,6 +591,7 @@ describe("Admin users edit base", function () {
     cy.intercept("POST", "api/v1/users/2", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 3 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
@@ -605,6 +606,10 @@ describe("Admin users edit base", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that error messages are shown
+    cy.checkToastMessage(
+      "The firstname field is required. (and 3 more errors)",
+    );
+
     cy.get('[data-test="firstname-field"]').should(
       "include.text",
       "The firstname field is required.",
@@ -673,7 +678,7 @@ describe("Admin users edit base", function () {
       cy.intercept("POST", "api/v1/users/2", {
         statusCode: 428,
         body: {
-          message: " The user entity was updated in the meanwhile!",
+          message: "stale_model",
           new_model: user.data,
         },
       }).as("saveChangesRequest");
@@ -692,7 +697,10 @@ describe("Admin users edit base", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-user-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user entity was updated in the meanwhile!");
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 

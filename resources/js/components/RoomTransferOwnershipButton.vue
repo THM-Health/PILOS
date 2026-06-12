@@ -22,128 +22,142 @@
     :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
-    <!--select new owner-->
-    <!-- select user -->
-    <div class="relative mt-2 flex flex-col gap-2 overflow-visible">
-      <label id="user-label">{{ $t("app.user") }}</label>
-      <multiselect
-        v-model="newOwner"
-        aria-labelledby="user-label"
-        autofocus
-        data-test="new-owner-dropdown"
-        :disabled="isLoadingAction"
-        label="lastname"
-        track-by="id"
-        :placeholder="$t('app.user_name')"
-        open-direction="bottom"
-        :options="users"
-        :multiple="false"
-        :searchable="true"
-        :loading="isLoadingSearch"
-        :internal-search="false"
-        :clear-on-select="false"
-        :preserve-search="true"
-        :close-on-select="true"
-        :options-limit="300"
-        :max-height="600"
-        :show-no-results="true"
-        :show-labels="false"
-        :invalid="formErrors.fieldInvalid('user')"
-        @search-change="asyncFind"
-      >
-        <template #noResult>
-          <span v-if="tooManyResults" class="whitespace-normal">
-            {{ $t("rooms.members.modals.add.too_many_results") }}
-          </span>
-          <span v-else>
-            {{ $t("rooms.members.modals.add.no_result") }}
-          </span>
-        </template>
-        <template #noOptions>
-          {{ $t("rooms.members.modals.add.no_options") }}
-        </template>
-        <template #option="{ option }">
-          {{ option.firstname }} {{ option.lastname }}<br /><small>{{
-            option.email
-          }}</small>
-        </template>
-        <template #singleLabel="{ option }">
-          {{ option.firstname }} {{ option.lastname }}
-        </template>
-      </multiselect>
-      <FormError :errors="formErrors.fieldError('user')" />
-    </div>
+    <Form
+      id="room-transfer-ownership-form"
+      :disabled="isLoadingAction"
+      @submit="transferOwnership"
+    >
+      <!--select new owner-->
+      <!-- select user -->
+      <div class="field relative mt-2 flex flex-col gap-2 overflow-visible">
+        <label id="user-label">{{ $t("app.user") }}</label>
+        <multiselect
+          v-model="newOwner"
+          aria-labelledby="user-label"
+          autofocus
+          data-test="new-owner-dropdown"
+          :disabled="isLoadingAction"
+          label="lastname"
+          track-by="id"
+          :placeholder="$t('app.user_name')"
+          open-direction="bottom"
+          :options="users"
+          :multiple="false"
+          :searchable="true"
+          :loading="isLoadingSearch"
+          :internal-search="false"
+          :clear-on-select="false"
+          :preserve-search="true"
+          :close-on-select="true"
+          :options-limit="300"
+          :max-height="600"
+          :show-no-results="true"
+          :show-labels="false"
+          :class="{ 'is-invalid': formErrors.fieldInvalid('user') }"
+          @search-change="asyncFind"
+        >
+          <template #noResult>
+            <span v-if="tooManyResults" class="whitespace-normal">
+              {{ $t("rooms.members.modals.add.too_many_results") }}
+            </span>
+            <span v-else>
+              {{ $t("rooms.members.modals.add.no_result") }}
+            </span>
+          </template>
+          <template #noOptions>
+            {{ $t("rooms.members.modals.add.no_options") }}
+          </template>
+          <template #option="{ option }">
+            {{ option.firstname }} {{ option.lastname }}<br /><small>{{
+              option.email
+            }}</small>
+          </template>
+          <template #singleLabel="{ option }">
+            {{ option.firstname }} {{ option.lastname }}
+          </template>
+        </multiselect>
+        <FormError :errors="formErrors.fieldError('user')" />
+      </div>
 
-    <!--select new role with which the current owner should be added as a member of the room -->
-    <div class="mt-6 flex flex-col gap-2">
-      <fieldset class="flex w-full flex-col gap-2">
-        <legend>{{ $t("rooms.modals.transfer_ownership.new_role") }}</legend>
+      <!--select new role with which the current owner should be added as a member of the room -->
+      <div class="field mt-6 flex flex-col gap-2">
+        <fieldset class="flex w-full flex-col gap-2">
+          <legend>{{ $t("rooms.modals.transfer_ownership.new_role") }}</legend>
 
-        <div class="flex items-center" data-test="participant-role-group">
-          <RadioButton
-            v-model="newRoleInRoom"
-            :disabled="isLoadingAction"
-            input-id="participant-role"
-            name="role"
-            :value="1"
-          />
-          <label for="participant-role" class="ml-2"
-            ><RoomRoleBadge :role="1"
-          /></label>
-        </div>
-
-        <div class="flex items-center" data-test="moderator-role-group">
-          <RadioButton
-            v-model="newRoleInRoom"
-            :disabled="isLoadingAction"
-            input-id="moderator-role"
-            name="role"
-            :value="2"
-          />
-          <label for="moderator-role" class="ml-2"
-            ><RoomRoleBadge :role="2"
-          /></label>
-        </div>
-
-        <div class="flex items-center" data-test="co-owner-role-group">
-          <RadioButton
-            v-model="newRoleInRoom"
-            :disabled="isLoadingAction"
-            input-id="co-owner-role"
-            name="role"
-            :value="3"
-          />
-          <label for="co-owner-role" class="ml-2"
-            ><RoomRoleBadge :role="3"
-          /></label>
-        </div>
-
-        <Divider />
-        <!--option to not add the current user as a member of the room-->
-        <div data-test="no-role-group">
-          <div class="flex items-center">
+          <div class="flex items-center" data-test="participant-role-group">
             <RadioButton
               v-model="newRoleInRoom"
               :disabled="isLoadingAction"
-              input-id="no-role"
+              pt:input:required
+              input-id="participant-role"
+              :invalid="formErrors.fieldInvalid('role')"
               name="role"
-              :value="-1"
-              :pt="{
-                input: {
-                  'aria-describedby': 'no-role-warning',
-                },
-              }"
+              :value="1"
             />
-            <label for="no-role" class="ml-2"><RoomRoleBadge /></label>
+            <label for="participant-role" class="ml-2"
+              ><RoomRoleBadge :role="1"
+            /></label>
           </div>
-          <small id="no-role-warning">{{
-            $t("rooms.modals.transfer_ownership.warning")
-          }}</small>
-        </div>
 
-        <FormError :errors="formErrors.fieldError('role')" />
-      </fieldset>
-    </div>
+          <div class="flex items-center" data-test="moderator-role-group">
+            <RadioButton
+              v-model="newRoleInRoom"
+              :disabled="isLoadingAction"
+              pt:input:required
+              input-id="moderator-role"
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="2"
+            />
+            <label for="moderator-role" class="ml-2"
+              ><RoomRoleBadge :role="2"
+            /></label>
+          </div>
+
+          <div class="flex items-center" data-test="co-owner-role-group">
+            <RadioButton
+              v-model="newRoleInRoom"
+              :disabled="isLoadingAction"
+              pt:input:required
+              input-id="co-owner-role"
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="3"
+            />
+            <label for="co-owner-role" class="ml-2"
+              ><RoomRoleBadge :role="3"
+            /></label>
+          </div>
+
+          <Divider />
+          <!--option to not add the current user as a member of the room-->
+          <div data-test="no-role-group">
+            <div class="flex items-center">
+              <RadioButton
+                v-model="newRoleInRoom"
+                pt:input:required
+                :disabled="isLoadingAction"
+                input-id="no-role"
+                :invalid="formErrors.fieldInvalid('role')"
+                name="role"
+                :value="-1"
+                :pt="{
+                  input: {
+                    'aria-describedby': 'no-role-warning',
+                  },
+                }"
+              />
+              <label for="no-role" class="ml-2"><RoomRoleBadge /></label>
+            </div>
+            <small id="no-role-warning">{{
+              $t("rooms.modals.transfer_ownership.warning")
+            }}</small>
+          </div>
+
+          <FormError :errors="formErrors.fieldError('role')" />
+        </fieldset>
+      </div>
+    </Form>
 
     <template #footer>
       <div class="flex justify-end gap-2">
@@ -159,7 +173,8 @@
           severity="danger"
           :loading="isLoadingAction"
           data-test="dialog-continue-button"
-          @click="transferOwnership"
+          form="room-transfer-ownership-form"
+          type="submit"
         />
       </div>
     </template>
@@ -168,11 +183,11 @@
 
 <script setup>
 import { Multiselect } from "vue-multiselect";
-import env from "../env";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -230,7 +245,7 @@ function transferOwnership() {
       // transferring failed
       if (error.response) {
         // failed due to validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

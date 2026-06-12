@@ -46,10 +46,11 @@
         ></LoadingRetryButton>
       </template>
 
-      <form
+      <Form
         :aria-hidden="modelLoadingError || permissionsLoadingError"
+        :disabled="formFieldsDisabled"
         class="flex flex-col gap-4"
-        @submit.prevent="saveRole"
+        @submit="saveRole"
       >
         <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4">{{
@@ -61,6 +62,7 @@
               v-model="model.name"
               class="w-full"
               type="text"
+              required
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="formFieldsDisabled"
             />
@@ -93,6 +95,7 @@
             >
               <RadioButton
                 v-model="roomLimitMode"
+                pt:input:required
                 :input-id="option.value"
                 :value="option.value"
                 :disabled="formFieldsDisabled || model.superuser"
@@ -106,6 +109,7 @@
               class="w-full"
               input-id="room-limit"
               mode="decimal"
+              required
               show-buttons
               :min="0"
               :invalid="formErrors.fieldInvalid('room_limit')"
@@ -227,7 +231,7 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
 
     <ConfirmDialog
@@ -344,7 +348,6 @@
 </template>
 
 <script setup>
-import env from "../env.js";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useRouter } from "vue-router";
@@ -355,7 +358,11 @@ import { useI18n } from "vue-i18n";
 import * as _ from "lodash-es";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
-
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
@@ -483,7 +490,7 @@ function load() {
               : "custom";
       })
       .catch((error) => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
           router.push({ name: "admin.roles" });
         } else {
           modelLoadingError.value = true;
@@ -610,16 +617,17 @@ function saveRole() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         handleStaleError(error.response.data);
       } else {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
           router.push({ name: "admin.roles" });
         }
 
@@ -652,7 +660,9 @@ function roomLimitModeChanged(value) {
 
 function handleStaleError(staleError) {
   confirm.require({
-    message: staleError.message,
+    message: t("app.errors.stale_model", {
+      model: t("app.model." + _.snakeCase(model.value.model_name)),
+    }),
     header: t("app.errors.stale_error"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {

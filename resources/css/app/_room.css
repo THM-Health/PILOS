@@ -54,6 +54,12 @@
         padding: 0 1rem;
     }
 }
+.is-invalid {
+    .ProseMirror:not(:focus) {
+        @apply outline;
+        outline-color: var(--p-form-field-invalid-border-color) !important;
+    }
+}
 
 .room-description {
     img {

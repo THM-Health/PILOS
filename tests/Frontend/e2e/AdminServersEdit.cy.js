@@ -363,6 +363,7 @@ describe("Admin servers edit", function () {
     cy.intercept("PUT", "api/v1/servers/1", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 5 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -379,6 +380,8 @@ describe("Admin servers edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 5 more errors)");
+
     cy.get('[data-test="name-field"]').should(
       "include.text",
       "The name field is required.",
@@ -497,6 +500,7 @@ describe("Admin servers edit", function () {
         statusCode: 428,
         body: {
           new_model: server.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -511,6 +515,10 @@ describe("Admin servers edit", function () {
     cy.get('[data-test="stale-server-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -569,6 +577,7 @@ describe("Admin servers edit", function () {
         statusCode: 428,
         body: {
           new_model: server.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -583,6 +592,10 @@ describe("Admin servers edit", function () {
     cy.get('[data-test="stale-server-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.server"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')

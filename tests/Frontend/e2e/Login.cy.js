@@ -359,6 +359,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 422,
       body: {
+        message: "Password or Email wrong!",
         errors: {
           email: ["Password or Email wrong!"],
         },
@@ -386,6 +387,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 422,
       body: {
+        message: "The Password field is required",
         errors: {
           password: ["The Password field is required."],
         },
@@ -489,6 +491,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/ldap", {
       statusCode: 422,
       body: {
+        message: "These credentials do not match our records.",
         errors: {
           username: ["These credentials do not match our records."],
         },
@@ -516,6 +519,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/ldap", {
       statusCode: 422,
       body: {
+        message: "The Password field is required",
         errors: {
           password: ["The Password field is required."],
         },
@@ -643,6 +647,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("hide shibboleth login if disabled", function () {
@@ -823,6 +828,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("hide oidc login if disabled", function () {

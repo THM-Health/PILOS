@@ -79,6 +79,12 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should("not.exist");
         cy.get("#room-setting-access_code").should("have.value", "123456789");
+
+        // Check that buttons are shown correctly
+        cy.get('[data-test="clear-access-code-button"]').should("be.visible");
+        cy.get('[data-test="generate-access-code-button"]').should(
+          "be.visible",
+        );
       });
 
     cy.get('[data-test="room-setting-allow_guests"]')
@@ -1359,12 +1365,20 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]');
         cy.get("#room-setting-access_code").should("have.value", "");
+
+        // Check that buttons are shown / hidden correctly (access code is enforced)
+        cy.get('[data-test="clear-access-code-button"]').should("not.exist");
+        cy.get('[data-test="generate-access-code-button"]').should(
+          "be.visible",
+        );
       });
 
     // Save settings and respond with 422 errors
     cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
       statusCode: 422,
       body: {
+        message:
+          "The room requires an access code because of its room type. (and 17 more errors)",
         errors: {
           access_code: [
             "The room requires an access code because of its room type.",
@@ -1405,6 +1419,10 @@ describe("Rooms view settings", function () {
     cy.wait("@roomSettingsSaveRequest");
 
     // Check that error messages are set
+    cy.checkToastMessage(
+      "The room requires an access code because of its room type. (and 17 more errors)",
+    );
+
     cy.get('[data-test="room-setting-access_code"]').should(
       "include.text",
       "The room requires an access code because of its room type.",
@@ -1510,6 +1528,15 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]');
         cy.get("#room-setting-access_code").should("have.value", "123456789");
+
+        // Check that buttons are shown / hidden correctly (access code is prohibited)
+        cy.get('[data-test="clear-access-code-button"]').should("be.visible");
+        cy.get('[data-test="generate-access-code-button"]').should("not.exist");
+
+        cy.get('[data-test="clear-access-code-button"]').click();
+        cy.get("#room-setting-access_code").should("have.value", "");
+        cy.get('[data-test="clear-access-code-button"]').should("not.exist");
+        cy.get('[data-test="generate-access-code-button"]').should("not.exist");
       });
 
     // Check that 422 error messages are hidden
@@ -1590,6 +1617,8 @@ describe("Rooms view settings", function () {
     cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
       statusCode: 422,
       body: {
+        message:
+          "The room requires an access code because of its room type. (and 4 more errors)",
         errors: {
           access_code: [
             "The room requires an access code because of its room type.",
@@ -1609,6 +1638,10 @@ describe("Rooms view settings", function () {
     cy.wait("@roomSettingsSaveRequest");
 
     // Check that error messages are set
+    cy.checkToastMessage(
+      "The room requires an access code because of its room type. (and 4 more errors)",
+    );
+
     cy.get('[data-test="room-setting-access_code"]').should(
       "include.text",
       "The room requires an access code because of its room type.",
@@ -2268,6 +2301,7 @@ describe("Rooms view settings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },
@@ -2290,6 +2324,7 @@ describe("Rooms view settings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
       statusCode: 422,
       body: {
+        message: "The selected user can not own rooms.",
         errors: {
           user: ["The selected user can not own rooms."],
         },

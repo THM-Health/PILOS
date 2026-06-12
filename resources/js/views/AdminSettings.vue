@@ -1,6 +1,11 @@
 <template>
   <div>
-    <form @submit.prevent="updateSettings">
+    <Form
+      :disabled="
+        isBusy || disabled || timezonesLoadingError || timezonesLoading
+      "
+      @submit="updateSettings"
+    >
       <OverlayComponent :show="isBusy || modelLoadingError" :no-center="true">
         <template #overlay>
           <div class="mt-6 flex justify-center">
@@ -14,7 +19,7 @@
         <div class="flex flex-col gap-6">
           <AdminPanel :title="$t('admin.settings.application')">
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="application-name-field"
             >
               <label
@@ -38,7 +43,10 @@
                 <FormError :errors="formErrors.fieldError('general_name')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4" data-test="help-url-field">
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="help-url-field"
+            >
               <label for="help-url" class="col-span-12 md:col-span-4 md:mb-0">{{
                 $t("admin.settings.help_url.title")
               }}</label>
@@ -60,7 +68,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="legal-notice-url-field"
             >
               <label
@@ -86,7 +94,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="privacy-policy-url-field"
             >
               <label
@@ -114,7 +122,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="accessibility-statement-url-field"
             >
               <label
@@ -148,7 +156,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="pagination-page-size-field"
             >
               <label
@@ -181,7 +189,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="toast-lifetime-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -195,6 +203,7 @@
                   >
                     <RadioButton
                       v-model="toastLifetimeMode"
+                      pt:input:required
                       input-id="toast-lifetime-mode-unlimited"
                       name="toast-lifetime-mode"
                       value="unlimited"
@@ -219,6 +228,7 @@
                       input-id="toast-lifetime-mode-custom"
                       name="toast-lifetime-mode"
                       value="custom"
+                      pt:input:required
                       :disabled="disabled"
                       :pt="{
                         input: {
@@ -242,6 +252,7 @@
                   min="1"
                   max="30"
                   type="number"
+                  required
                   :invalid="formErrors.fieldInvalid('general_toast_lifetime')"
                   :disabled="disabled"
                   aria-labelledby="toast-lifetime-custom-label"
@@ -257,7 +268,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="default-timezone-field"
             >
               <label
@@ -282,7 +293,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="no-welcome-page-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -309,7 +320,10 @@
           </AdminPanel>
 
           <AdminPanel :title="$t('admin.settings.theme.title')">
-            <fieldset class="grid grid-cols-12 gap-4" data-test="favicon-field">
+            <fieldset
+              class="field grid grid-cols-12 gap-4"
+              data-test="favicon-field"
+            >
               <legend
                 id="favicon-label"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -336,7 +350,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="favicon-dark-field"
             >
               <legend
@@ -366,7 +380,10 @@
                 />
               </div>
             </fieldset>
-            <fieldset class="grid grid-cols-12 gap-4" data-test="logo-field">
+            <fieldset
+              class="field grid grid-cols-12 gap-4"
+              data-test="logo-field"
+            >
               <legend id="logo-label" class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.logo.title") }}
               </legend>
@@ -390,7 +407,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="logo-dark-field"
             >
               <legend
@@ -421,7 +438,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="primary-color-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -441,6 +458,7 @@
                   id="theme-primary-color"
                   v-model="settings.theme_primary_color"
                   type="text"
+                  required
                   :invalid="formErrors.fieldInvalid('theme_primary_color')"
                   :disabled="disabled"
                 />
@@ -450,7 +468,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="theme-rounded-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -471,7 +489,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="theme-custom-css-field"
             >
               <legend
@@ -499,7 +517,7 @@
 
           <AdminPanel :title="$t('admin.settings.banner.title')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-enabled-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -520,7 +538,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-preview-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -541,7 +559,10 @@
                 />
               </div>
             </fieldset>
-            <div class="grid grid-cols-12 gap-4" data-test="banner-title-field">
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="banner-title-field"
+            >
               <label
                 for="banner-title"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -558,7 +579,10 @@
                 <FormError :errors="formErrors.fieldError('banner_title')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4" data-test="banner-icon-field">
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="banner-icon-field"
+            >
               <label
                 for="banner-icon"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -580,7 +604,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-message-field"
             >
               <label
@@ -599,7 +623,10 @@
                 <FormError :errors="formErrors.fieldError('banner_message')" />
               </div>
             </div>
-            <div class="grid grid-cols-12 gap-4" data-test="banner-link-field">
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="banner-link-field"
+            >
               <label
                 for="banner-link"
                 class="col-span-12 md:col-span-4 md:mb-0"
@@ -617,7 +644,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-link-text-field"
             >
               <label
@@ -639,7 +666,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-link-style-field"
             >
               <label
@@ -673,7 +700,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-link-target-field"
             >
               <label
@@ -707,7 +734,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-color-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -734,7 +761,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="banner-background-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -766,7 +793,7 @@
 
           <AdminPanel :title="$t('app.rooms')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-limit-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -781,6 +808,7 @@
                     <RadioButton
                       v-model="roomLimitMode"
                       input-id="room-limit-mode-unlimited"
+                      pt:input:required
                       name="room-limit-mode"
                       value="unlimited"
                       :disabled="disabled"
@@ -802,6 +830,7 @@
                     <RadioButton
                       v-model="roomLimitMode"
                       input-id="room-limit-mode-custom"
+                      pt:input:required
                       name="room-limit-mode"
                       value="custom"
                       :disabled="disabled"
@@ -828,6 +857,7 @@
                   min="0"
                   max="100"
                   type="number"
+                  required
                   :invalid="formErrors.fieldInvalid('room_limit')"
                   :disabled="disabled"
                   aria-labelledby="room-limit-mode-custom-label"
@@ -840,7 +870,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-personalized-link-expiration-field"
             >
               <label
@@ -890,7 +920,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-auto-delete-deadline-period-field"
             >
               <label
@@ -938,7 +968,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-auto-delete-inactive-period-field"
             >
               <label
@@ -986,7 +1016,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-auto-delete-never-used-period-field"
             >
               <label
@@ -1037,7 +1067,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-file-terms-of-use-field"
             >
               <label
@@ -1064,7 +1094,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="room-hide-owner-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1092,7 +1122,7 @@
 
           <AdminPanel :title="$t('app.users')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="password-change-allowed-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1126,7 +1156,7 @@
             :title="$t('admin.settings.recording_and_statistics_title')"
           >
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-servers-enabled-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1155,7 +1185,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-servers-retention-period-field"
             >
               <label
@@ -1200,7 +1230,7 @@
               </div>
             </div>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-meetings-enabled-field"
             >
               <legend class="col-span-12 md:col-span-4 md:mb-0">
@@ -1229,7 +1259,7 @@
               </div>
             </fieldset>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="statistics-meetings-retention-period-field"
             >
               <label
@@ -1276,7 +1306,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="attendance-retention-period-field"
             >
               <label
@@ -1320,7 +1350,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="recording-retention-period-field"
             >
               <label
@@ -1366,7 +1396,7 @@
 
           <AdminPanel :title="$t('admin.settings.bbb.title')">
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="bbb-logo-field"
             >
               <legend
@@ -1396,7 +1426,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="bbb-logo-dark-field"
             >
               <legend
@@ -1427,7 +1457,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="bbb-style-field"
             >
               <legend
@@ -1452,7 +1482,7 @@
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="default-presentation-field"
             >
               <legend
@@ -1501,12 +1531,11 @@
           />
         </div>
       </div>
-    </form>
+    </Form>
   </div>
 </template>
 
 <script setup>
-import env from "../env";
 import { useSettingsStore } from "../stores/settings";
 import { computed, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
@@ -1516,6 +1545,7 @@ import { useColors } from "../composables/useColors.js";
 import { useI18n } from "vue-i18n";
 import { updateTheme } from "../composables/useTheme";
 import AdminPanel from "../components/AdminPanel.vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const roomLimitMode = ref("custom");
 const toastLifetimeMode = ref("custom");
@@ -1741,9 +1771,10 @@ function updateSettings() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else {
         api.error(error);
       }

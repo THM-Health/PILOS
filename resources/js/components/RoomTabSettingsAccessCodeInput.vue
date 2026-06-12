@@ -3,8 +3,8 @@
     :data-test="'room-setting-' + setting"
     :class="
       fullWidth
-        ? 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
-        : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
+        ? 'field col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
+        : 'field col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
   >
     <div class="mb-2 flex flex-col justify-end">
@@ -19,7 +19,13 @@
       <InputGroup>
         <!-- Generate random access code -->
         <Button
-          v-if="!disabled"
+          v-if="
+            !disabled &&
+            !(
+              model.room_type.has_access_code_enforced &&
+              !model.room_type.has_access_code_default
+            )
+          "
           v-tooltip="$t('rooms.settings.general.generate_access_code')"
           data-test="generate-access-code-button"
           :aria-label="$t('rooms.settings.general.generate_access_code')"
@@ -37,7 +43,14 @@
         />
         <!-- Clear access code -->
         <Button
-          v-if="model[setting] && !disabled"
+          v-if="
+            model[setting] &&
+            !disabled &&
+            !(
+              model.room_type.has_access_code_enforced &&
+              model.room_type.has_access_code_default
+            )
+          "
           v-tooltip="$t('rooms.settings.general.delete_access_code')"
           :aria-label="$t('rooms.settings.general.delete_access_code')"
           icon="fa-solid fa-trash"

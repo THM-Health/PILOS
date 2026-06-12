@@ -13,6 +13,9 @@ describe("User Profile Security", function () {
 
     cy.get('[data-test="security-tab-button"]').click();
 
+    // Check that tab hash is set
+    cy.url().should("include", "/profile#tab=security");
+
     cy.contains("admin.users.roles_and_permissions").should("be.visible");
 
     // Check that role-select is disabled and shows the correct roles
@@ -205,11 +208,9 @@ describe("User Profile Security", function () {
       });
     });
 
-    cy.visit("/profile");
+    cy.visit("/profile#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.contains("admin.users.roles_and_permissions").should("be.visible");
 
@@ -268,11 +269,9 @@ describe("User Profile Security", function () {
       }).as("userRequest");
     });
 
-    cy.visit("/profile");
+    cy.visit("/profile#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.contains("admin.users.roles_and_permissions").should("be.visible");
 
@@ -321,11 +320,9 @@ describe("User Profile Security", function () {
   });
 
   it("change settings errors", function () {
-    cy.visit("/profile");
+    cy.visit("/profile#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.get('[data-test="security-tab-current-password-field"]')
       .find("#current_password")
@@ -340,6 +337,7 @@ describe("User Profile Security", function () {
     cy.intercept("PUT", "api/v1/users/1/password", {
       statusCode: 422,
       body: {
+        message: "The Current password field is required. (and 2 more errors)",
         errors: {
           current_password: ["The Current password field is required."],
           new_password: ["The New password field is required."],
@@ -353,6 +351,11 @@ describe("User Profile Security", function () {
     cy.get('[data-test="change-password-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error messages
+    cy.checkToastMessage(
+      "The Current password field is required. (and 2 more errors)",
+    );
 
     cy.get('[data-test="security-tab-current-password-field"]').should(
       "include.text",
@@ -443,11 +446,9 @@ describe("User Profile Security", function () {
 
     cy.checkToastMessage("app.flash.unauthenticated");
 
-    cy.visit("/profile");
+    cy.visit("/profile#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check 500 error when deleting sessions
     cy.intercept("DELETE", "api/v1/sessions", {
@@ -494,11 +495,9 @@ describe("User Profile Security", function () {
       "getSessionsRequest",
     );
 
-    cy.visit("/profile");
+    cy.visit("/profile#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check loading
     cy.get('[data-test="session-panel"]').should("have.length", 0);

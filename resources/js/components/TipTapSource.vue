@@ -17,13 +17,15 @@
     :draggable="false"
     data-test="tip-tap-source-dialog"
   >
-    <Textarea
-      v-model="source"
-      autofocus
-      class="mt-2 w-full"
-      rows="5"
-      data-test="source-textarea"
-    />
+    <Form id="tip-tap-source-form" @submit="save">
+      <Textarea
+        v-model="source"
+        autofocus
+        class="mt-2 w-full"
+        rows="5"
+        data-test="source-textarea"
+      />
+    </Form>
 
     <template #footer>
       <div class="flex w-full justify-end gap-2">
@@ -36,7 +38,8 @@
         <Button
           :label="$t('app.save')"
           data-test="dialog-save-button"
-          @click="save"
+          form="tip-tap-source-form"
+          type="submit"
         />
       </div>
     </template>

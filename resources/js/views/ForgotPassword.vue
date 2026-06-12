@@ -7,8 +7,8 @@
         <Card>
           <template #title> {{ $t("auth.reset_password") }} </template>
           <template #content>
-            <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2" data-test="email-field">
+            <Form :disabled="loading" @submit="submit">
+              <div class="field flex flex-col gap-2" data-test="email-field">
                 <label for="email">{{ $t("app.email") }}</label>
                 <InputText
                   id="email"
@@ -29,7 +29,7 @@
                 :label="$t('auth.send_password_reset_link')"
                 data-test="send-reset-link-button"
               />
-            </form>
+            </Form>
           </template>
         </Card>
       </div>
@@ -43,7 +43,7 @@ import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
-import env from "../env.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const email = ref(null);
 const loading = ref(false);
@@ -77,9 +77,10 @@ function submit() {
       // failed due to form validation errors
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
         return;
       }
       api.error(error);

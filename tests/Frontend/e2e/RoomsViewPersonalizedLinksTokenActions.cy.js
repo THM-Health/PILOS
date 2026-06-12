@@ -157,6 +157,7 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 2 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
@@ -481,6 +482,7 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 2 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],

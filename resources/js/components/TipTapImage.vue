@@ -21,28 +21,40 @@
     :draggable="false"
     data-test="tip-tap-image-dialog"
   >
-    <div class="mt-6 flex flex-col gap-2" data-test="src-field">
-      <label for="src">{{ $t("rooms.description.modals.image.src") }}</label>
-      <InputText id="src" v-model.trim="src" autofocus :invalid="srcInvalid" />
-      <p v-if="srcInvalid" class="text-red-500" role="alert">
-        {{ $t("rooms.description.modals.image.invalid_src") }}
-      </p>
-    </div>
+    <Form
+      id="tip-tap-image-form"
+      :disabled="srcInvalid !== false"
+      @submit="save"
+    >
+      <div class="field mt-6 flex flex-col gap-2" data-test="src-field">
+        <label for="src">{{ $t("rooms.description.modals.image.src") }}</label>
+        <InputText
+          id="src"
+          v-model.trim="src"
+          autofocus
+          required
+          :invalid="srcInvalid"
+        />
+        <p v-if="srcInvalid" class="text-red-500" role="alert">
+          {{ $t("rooms.description.modals.image.invalid_src") }}
+        </p>
+      </div>
 
-    <div class="mt-6 flex flex-col gap-2" data-test="width-field">
-      <label for="width">{{
-        $t("rooms.description.modals.image.width")
-      }}</label>
-      <InputText id="width" v-model="width" aria-describedby="width-help" />
-      <small id="width-help">{{
-        $t("rooms.description.modals.image.width_description")
-      }}</small>
-    </div>
+      <div class="field mt-6 flex flex-col gap-2" data-test="width-field">
+        <label for="width">{{
+          $t("rooms.description.modals.image.width")
+        }}</label>
+        <InputText id="width" v-model="width" aria-describedby="width-help" />
+        <small id="width-help">{{
+          $t("rooms.description.modals.image.width_description")
+        }}</small>
+      </div>
 
-    <div class="mt-6 flex flex-col gap-2" data-test="alt-field">
-      <label for="alt">{{ $t("rooms.description.modals.image.alt") }}</label>
-      <InputText id="alt" v-model="alt" />
-    </div>
+      <div class="field mt-6 flex flex-col gap-2" data-test="alt-field">
+        <label for="alt">{{ $t("rooms.description.modals.image.alt") }}</label>
+        <InputText id="alt" v-model="alt" />
+      </div>
+    </Form>
 
     <template #footer>
       <div class="flex w-full justify-between gap-2">
@@ -66,7 +78,8 @@
             :disabled="srcInvalid !== false"
             :label="$t('app.save')"
             data-test="dialog-save-button"
-            @click="save"
+            form="tip-tap-image-form"
+            type="submit"
           />
         </div>
       </div>

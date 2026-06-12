@@ -267,7 +267,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/files", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The File must be a file of type: pdf, doc.",
         errors: {
           file: ["The File must be a file of type: pdf, doc."],
         },
@@ -731,6 +731,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/2", {
       statusCode: 422,
       body: {
+        message: "The Downloadable field is required. (and 2 more errors)",
         errors: {
           download: ["The Downloadable field is required."],
           use_in_meeting: ["The Use in the next meeting field is required."],

@@ -46,6 +46,7 @@ describe("Admin room types new", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/room_types");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkToastMessage("app.flash.unauthorized");
   });
 
   it("add new room type", function () {
@@ -1085,7 +1086,7 @@ describe("Admin room types new", function () {
     cy.intercept("POST", "api/v1/roomTypes", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The name field is required. (and 29 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -1197,6 +1198,8 @@ describe("Admin room types new", function () {
     cy.wait("@newRoomTypeRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 29 more errors)");
+
     cy.get('[data-test="room-type-name-field"]').should(
       "include.text",
       "The name field is required.",

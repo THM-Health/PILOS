@@ -1,7 +1,16 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.base_data')">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form
+        class="flex flex-col gap-4"
+        :disabled="
+          isBusy ||
+          timezonesLoading ||
+          timezonesLoadingError ||
+          imageToBlobLoading
+        "
+        @submit="save"
+      >
         <div class="field grid grid-cols-12 gap-4" data-test="firstname-field">
           <label
             for="firstname"
@@ -158,13 +167,12 @@
             data-test="user-tab-profile-save-button"
           />
         </div>
-      </form>
+      </Form>
     </AdminPanel>
   </div>
 </template>
 
 <script setup>
-import env from "../env";
 import * as _ from "lodash-es";
 import { useAuthStore } from "../stores/auth";
 import { ref, computed, watch, onBeforeMount } from "vue";
@@ -172,6 +180,11 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import AdminPanel from "./AdminPanel.vue";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   viewOnly: {
@@ -276,17 +289,18 @@ function save() {
       imageDeleted.value = false;
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         emit("notFoundError", error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         // Validation error
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         // Stale error
         emit("staleError", error.response.data);

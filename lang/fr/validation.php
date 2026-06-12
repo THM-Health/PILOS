@@ -357,6 +357,7 @@ return [
     'not_in' => 'Le champ :attribute sélectionné est invalide.',
     'not_regex' => 'Le champ :attribute a un format invalid.',
     'numeric' => 'Le champ :attribute doit être un nombre.',
+    'one_more_error' => '(et une erreur en plus)',
     'password' => 'Le mot de passe est incorrect.',
     'password.letters' => 'Le champ « :attribute » doit contenir au moins une lettre.',
     'password.mixed' => 'Le champ « :attribute » doit contenir au moins une lettre majuscule et minuscule.',
@@ -386,6 +387,7 @@ return [
     'room_type_attribute_default' => 'Paramètre par défaut pour « :attribute »',
     'room_type_attribute_enforced' => 'Statut de verrouillage de « :attribute »',
     'same' => 'Le champ :attribute et :other doivent correspondre.',
+    'several_errors' => '(et :count erreurs supplémentaires)',
     'size' => [
         'array' => 'Le champ :attribute doit contenir :size éléments.',
         'file' => 'Le champ :attribute doit être de :size Ko.',

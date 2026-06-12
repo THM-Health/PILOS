@@ -801,11 +801,12 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains("rooms.members.bulk_import_users");
+        // Check continue button
+        cy.get('[data-test="dialog-continue-button"]').should(
+          "have.text",
+          "rooms.members.modals.add.add",
+        );
 
-        // Check that continue button is disabled and shows the correct text
-        cy.get('[data-test="dialog-continue-button"]')
-          .should("have.text", "rooms.members.modals.add.add")
-          .and("be.disabled");
         // Check that textarea is empty and enter users
         cy.get("#user-emails")
           .should("have.value", "")
@@ -816,15 +817,12 @@ describe("Rooms view members bulk actions", function () {
           )
           .type("LauraWRivera@domain.tld\nLauraMWalter@domain.tld");
 
-        // Check that button is enabled
-        cy.get('[data-test="dialog-continue-button"]').should(
-          "not.be.disabled",
-        );
-
         // Check that roles are shown correctly
         cy.get('[data-test="participant-role-group"]').within(() => {
           cy.contains("rooms.roles.participant");
-          cy.get("#participant-role").should("be.checked").and("have.value", 1);
+          cy.get("#participant-role")
+            .should("not.be.checked")
+            .and("have.value", 1);
         });
 
         cy.get('[data-test="moderator-role-group"]').within(() => {
@@ -1386,6 +1384,7 @@ describe("Rooms view members bulk actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 422,
       body: {
+        message: "The user emails field is required.",
         errors: {
           user_emails: ["The user emails field is required."],
         },
@@ -1408,6 +1407,7 @@ describe("Rooms view members bulk actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },

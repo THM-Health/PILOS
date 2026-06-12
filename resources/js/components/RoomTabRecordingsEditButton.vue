@@ -48,81 +48,94 @@
           :label="$t('app.save')"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
-          @click="save"
+          form="room-recordings-edit-form"
+          type="submit"
         />
       </div>
     </template>
 
-    <!-- description -->
-    <div class="flex flex-col gap-2" data-test="description-field">
-      <label for="description">{{ $t("rooms.recordings.description") }}</label>
-      <Textarea
-        id="description"
-        v-model="newDescription"
-        autofocus
-        :disabled="isLoadingAction"
-        :invalid="formErrors.fieldInvalid('description')"
-        :maxlength="
-          settingsStore.getSetting('recording.recording_description_limit')
-        "
-      />
-      <FormError :errors="formErrors.fieldError('description')" />
-      <small>
-        {{ $t("app.char_counter", { chars: charactersLeftDescription }) }}
-      </small>
-    </div>
-
-    <!-- available formats -->
-    <div class="mt-6 flex flex-col gap-2" data-test="available-formats-field">
-      <label>{{ $t("rooms.recordings.available_formats") }}</label>
-      <div
-        v-for="format in newFormats"
-        :key="format.id"
-        class="flex items-center"
-        :data-test="'format-' + format.id + '-field'"
-      >
-        <ToggleSwitch
-          v-model="format.disabled"
-          :input-id="'format-' + format.id"
-          :disabled="isLoadingAction"
-          :true-value="false"
-          :false-value="true"
-        />
-        <label :for="'format-' + format.id" class="ml-2">{{
-          $t("rooms.recordings.format_types." + format.format)
+    <Form
+      id="room-recordings-edit-form"
+      :disabled="isLoadingAction"
+      @submit="save"
+    >
+      <!-- description -->
+      <div class="field flex flex-col gap-2" data-test="description-field">
+        <label for="description">{{
+          $t("rooms.recordings.description")
         }}</label>
+        <Textarea
+          id="description"
+          v-model="newDescription"
+          autofocus
+          :disabled="isLoadingAction"
+          :invalid="formErrors.fieldInvalid('description')"
+          :maxlength="
+            settingsStore.getSetting('recording.recording_description_limit')
+          "
+        />
+        <FormError :errors="formErrors.fieldError('description')" />
+        <small>
+          {{ $t("app.char_counter", { chars: charactersLeftDescription }) }}
+        </small>
       </div>
-      <FormError :errors="formErrors.fieldError('formats', true)" />
-    </div>
 
-    <!-- access -->
-    <div class="mt-6 flex flex-col gap-2" data-test="access-field">
-      <fieldset class="flex w-full flex-col gap-2">
-        <label>{{ $t("rooms.recordings.access") }}</label>
+      <!-- available formats -->
+      <div
+        class="field mt-6 flex flex-col gap-2"
+        data-test="available-formats-field"
+      >
+        <label>{{ $t("rooms.recordings.available_formats") }}</label>
         <div
-          v-for="accessType in accessTypes"
-          :key="accessType"
+          v-for="format in newFormats"
+          :key="format.id"
           class="flex items-center"
-          :data-test="'access-' + accessType + '-field'"
+          :data-test="'format-' + format.id + '-field'"
         >
-          <RadioButton
-            v-model="newAccess"
+          <ToggleSwitch
+            v-model="format.disabled"
+            :input-id="'format-' + format.id"
             :disabled="isLoadingAction"
-            :input-id="'access-' + accessType"
-            name="access"
-            :value="accessType"
+            :true-value="false"
+            :false-value="true"
           />
-          <label :for="'access-' + accessType" class="ml-2"
-            ><RoomRecordingAccessBadge :access="accessType"
-          /></label>
+          <label :for="'format-' + format.id" class="ml-2">{{
+            $t("rooms.recordings.format_types." + format.format)
+          }}</label>
         </div>
-        <FormError :errors="formErrors.fieldError('access')" />
-      </fieldset>
-    </div>
+        <FormError :errors="formErrors.fieldError('formats', true)" />
+      </div>
+
+      <!-- access -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="access-field">
+        <fieldset class="flex w-full flex-col gap-2">
+          <label>{{ $t("rooms.recordings.access") }}</label>
+          <div
+            v-for="accessType in accessTypes"
+            :key="accessType"
+            class="flex items-center"
+            :data-test="'access-' + accessType + '-field'"
+          >
+            <RadioButton
+              v-model="newAccess"
+              :disabled="isLoadingAction"
+              pt:input:required
+              :invalid="formErrors.fieldInvalid('access')"
+              :input-id="'access-' + accessType"
+              name="access"
+              :value="accessType"
+            />
+            <label :for="'access-' + accessType" class="ml-2"
+              ><RoomRecordingAccessBadge :access="accessType"
+            /></label>
+          </div>
+          <FormError :errors="formErrors.fieldError('access')" />
+        </fieldset>
+      </div>
+    </Form>
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { computed, ref } from "vue";
@@ -131,6 +144,10 @@ import { useSettingsStore } from "../stores/settings.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { RECORDING } from "../constants/modelNames.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   recordingId: {
@@ -238,7 +255,7 @@ function save() {
       if (error.response) {
         // recording not found
         if (
-          error.response.status === env.HTTP_NOT_FOUND &&
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
           error.response.data?.model === RECORDING
         ) {
           toast.error(t("rooms.flash.recording_gone"));
@@ -247,7 +264,7 @@ function save() {
           return;
         }
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

@@ -93,6 +93,7 @@ describe("General", function () {
     cy.intercept("POST", "/api/v1/locale", {
       statusCode: 422,
       body: {
+        message: "Test",
         errors: {
           locale: ["Test"],
         },

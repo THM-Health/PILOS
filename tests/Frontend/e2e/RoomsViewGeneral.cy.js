@@ -540,7 +540,7 @@ describe("Room View general", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The Access code field is required.",
         errors: {
           access_code: ["The Access code field is required."],
         },
@@ -1521,7 +1521,7 @@ describe("Room View general", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The Access token field is required.",
         errors: {
           personalized_link_token: ["The Access token field is required."],
         },

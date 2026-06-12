@@ -8,6 +8,7 @@
       :model-value="selectedRoles"
       track-by="id"
       open-direction="bottom"
+      :required="required"
       :multiple="true"
       :searchable="false"
       :internal-search="false"
@@ -114,6 +115,10 @@ const props = defineProps({
     default: false,
   },
   disabled: {
+    type: Boolean,
+    default: false,
+  },
+  required: {
     type: Boolean,
     default: false,
   },

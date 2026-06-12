@@ -648,7 +648,7 @@ describe("Admin users new", function () {
     cy.intercept("POST", "api/v1/users", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The Firstname field is required. (and 8 more errors)",
         errors: {
           firstname: ["The Firstname field is required."],
           lastname: ["The Lastname field is required."],
@@ -670,6 +670,11 @@ describe("Admin users new", function () {
     cy.get('[data-test="users-new-save-button"]').click();
 
     cy.wait("@newUserRequest");
+
+    // Check error messages
+    cy.checkToastMessage(
+      "The Firstname field is required. (and 8 more errors)",
+    );
 
     cy.get('[data-test="firstname-field"]').should(
       "include.text",

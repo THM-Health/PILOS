@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.16.0] - 2026-06-12
+
+### Added
+
+- Toast notification for form validation errors in non-dialog forms ([#3056])
+- Auto-scroll to the first form validation error ([#3038], [#3056])
+- Required attribute to more form fields to improve accessibility ([#3056])
+- Settings cache in production environments ([#3196])
+
+### Changed
+
+- Form validation error handling ([#3056])
+- Add several users to room dialog no longer has a role preselected ([#3056])
+- User settings page now keeps the selected tab when reloading the page, saving changes or switching between edit and view mode ([#3169], [#3194])
+
+### Fixed
+
+- UX: Buttons in start/join dialog not immediately visible on small screens ([#2333])
+- UX: Cropped dialog content on small screens (illusion of completeness) ([#2333])
+- Styling inconsistencies in the room share popover ([#3145], [#3198])
+- Clear / Generate access code buttons not hidden in room settings when access code is enforced or prohibited ([#3130], [#3215])
+
 ## [v4.15.0] - 2026-05-15
 
 ### Added
@@ -722,6 +744,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2319]: https://github.com/THM-Health/PILOS/pull/2319
 [#2321]: https://github.com/THM-Health/PILOS/pull/2321
 [#2325]: https://github.com/THM-Health/PILOS/pull/2325
+[#2333]: https://github.com/THM-Health/PILOS/pull/2333
 [#2345]: https://github.com/THM-Health/PILOS/issues/2345
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
@@ -797,12 +820,21 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3034]: https://github.com/THM-Health/PILOS/pull/3034
 [#3035]: https://github.com/THM-Health/PILOS/pull/3035
 [#3036]: https://github.com/THM-Health/PILOS/pull/3036
+[#3038]: https://github.com/THM-Health/PILOS/issues/3038
 [#3039]: https://github.com/THM-Health/PILOS/issues/3039
 [#3040]: https://github.com/THM-Health/PILOS/pull/3040
+[#3056]: https://github.com/THM-Health/PILOS/pull/3056
 [#3078]: https://github.com/THM-Health/PILOS/issues/3078
 [#3079]: https://github.com/THM-Health/PILOS/pull/3079
 [#3128]: https://github.com/THM-Health/PILOS/pull/3128
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.15.0...develop
+[#3130]: https://github.com/THM-Health/PILOS/issues/3130
+[#3145]: https://github.com/THM-Health/PILOS/issues/3145
+[#3169]: https://github.com/THM-Health/PILOS/issues/3169
+[#3194]: https://github.com/THM-Health/PILOS/pull/3194
+[#3196]: https://github.com/THM-Health/PILOS/pull/3196
+[#3198]: https://github.com/THM-Health/PILOS/pull/3198
+[#3215]: https://github.com/THM-Health/PILOS/pull/3215
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -830,3 +862,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.14.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.1
 [v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2
 [v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0
+[v4.16.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.16.0

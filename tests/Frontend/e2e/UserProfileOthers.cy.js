@@ -13,6 +13,9 @@ describe("User Profile Others", function () {
 
     cy.get('[data-test="others-tab-button"]').click();
 
+    // Check that tab hash is set
+    cy.url().should("include", "/profile#tab=others");
+
     cy.contains("admin.users.bbb").should("be.visible");
 
     cy.get('[data-test="bbb-skip-check-audio-field"]')
@@ -58,16 +61,15 @@ describe("User Profile Others", function () {
   });
 
   it("save changes errors", function () {
-    cy.visit("/profile");
+    cy.visit("/profile#tab=others");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
 
     // Check with 422 error
     cy.intercept("POST", "api/v1/users/1", {
       statusCode: 422,
       body: {
+        message: "The bbb skip check audio field is required.",
         errors: {
           bbb_skip_check_audio: ["The bbb skip check audio field is required."],
         },
@@ -79,6 +81,9 @@ describe("User Profile Others", function () {
     cy.wait("@saveChangesRequest");
 
     cy.get("#bbb_skip_check_audio").should("not.be.checked");
+
+    // Check error message
+    cy.checkToastMessage("The bbb skip check audio field is required.");
 
     cy.get('[data-test="bbb-skip-check-audio-field"]').should(
       "include.text",
@@ -116,7 +121,7 @@ describe("User Profile Others", function () {
       cy.intercept("POST", "api/v1/users/1", {
         statusCode: 428,
         body: {
-          message: " The user entity was updated in the meanwhile!",
+          message: "stale_model",
           new_model: newModel,
         },
       }).as("saveChangesRequest");
@@ -130,7 +135,10 @@ describe("User Profile Others", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-user-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user entity was updated in the meanwhile!");
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 

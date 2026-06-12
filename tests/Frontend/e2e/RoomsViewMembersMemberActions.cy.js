@@ -372,7 +372,7 @@ describe("Rooms view members member actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The user is already member of the room.",
         errors: {
           user: ["The user is already member of the room."],
         },
@@ -624,6 +624,7 @@ describe("Rooms view members member actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/member/6", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },
