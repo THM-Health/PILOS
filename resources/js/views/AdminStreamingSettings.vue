@@ -31,14 +31,14 @@
                   v-model:file-deleted="defaultPauseImageDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="5000000"
+                  :max-file-size="5_000_000"
                   show-delete
                   :allowed-extensions="['jpg', 'jpeg', 'png', 'gif']"
                   :file-invalid="formErrors.fieldInvalid('default_pause_image')"
                   :file-error="formErrors.fieldError('default_pause_image')"
                 />
-                <small>{{
-                  $t("rooms.streaming.config.pause_image_format")
+                <small class="block">{{
+                  $t("rooms.streaming.config.pause_image_resolution")
                 }}</small>
               </div>
             </fieldset>
@@ -59,13 +59,15 @@
                   v-model:file-deleted="cssFileDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="500000"
+                  :max-file-size="5_000_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('css_file')"
                   :file-error="formErrors.fieldError('css_file')"
                 />
-                <small>{{ $t("admin.streaming.css_file_description") }}</small>
+                <small class="block">{{
+                  $t("admin.streaming.css_file_description")
+                }}</small>
               </div>
             </fieldset>
 
@@ -93,9 +95,9 @@
                       : 'userdata-bbb_show_public_chat_on_login=false\nuserdata-bbb_show_participants_on_login=false'
                   "
                 />
-                <p id="join-parameters-help">
+                <small id="join-parameters-help" class="block">
                   {{ $t("admin.streaming.join_parameters_description") }}
-                </p>
+                </small>
                 <FormError :errors="formErrors.fieldError('join_parameters')" />
               </div>
             </div>

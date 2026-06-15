@@ -867,7 +867,7 @@ class SettingsTest extends TestCase
         $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
         $this->user->roles()->attach($role);
 
-        config(['bigbluebutton.allowed_file_mimes' => 'pdf,jpg']);
+        config(['bigbluebutton.allowed_file_mimes' => ['pdf', 'jpg']]);
         config(['bigbluebutton.max_filesize' => 5]);
         config(['recording.max_retention_period' => -1]);
 

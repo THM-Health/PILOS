@@ -4,7 +4,7 @@ import { isElementInViewport } from "../utils/viewport";
 
 const props = defineProps({
   errors: {
-    type: [Object, null],
+    type: [Array, null],
     required: true,
     default: null,
   },
@@ -13,7 +13,7 @@ const props = defineProps({
 const formError = ref(null);
 
 const hasError = computed(() => {
-  return props.errors != null && Object.keys(props.errors).length > 0;
+  return props.errors != null && props.errors.length > 0;
 });
 
 async function scrollToFirstError() {

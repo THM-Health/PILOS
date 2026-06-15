@@ -505,7 +505,7 @@
                   v-model:file-deleted="themeCustomCssDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="500000"
+                  :max-file-size="500_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('theme_custom_css')"
@@ -1473,7 +1473,7 @@
                   v-model:file-deleted="bbbStyleDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="500000"
+                  :max-file-size="500_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('bbb_style')"
@@ -1499,13 +1499,11 @@
                   :disabled="disabled"
                   :readonly="viewOnly"
                   :max-file-size="
-                    settingsStore.getSetting('bbb.max_filesize') * 1000000
+                    settingsStore.getSetting('bbb.max_filesize') * 1_000_000
                   "
                   show-delete
                   :allowed-extensions="
-                    String(settingsStore.getSetting('bbb.file_mimes')).split(
-                      ',',
-                    )
+                    settingsStore.getSetting('bbb.file_mimes')
                   "
                   :file-invalid="
                     formErrors.fieldInvalid('bbb_default_presentation')

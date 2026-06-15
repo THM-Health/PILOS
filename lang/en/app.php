@@ -151,7 +151,9 @@ return [
     'user' => 'User',
     'user_name' => 'Name',
     'users' => 'Users',
-    'validation' => [
+    'file' => [
+        'allowed_formats' => 'Allowed file formats: :formats',
+        'max_size' => 'Max. file size: :size',
         'invalid_type' => 'The file type is not allowed.',
         'too_large' => 'The selected file is too large.',
     ],
