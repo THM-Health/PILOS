@@ -287,6 +287,14 @@ return [
             'title' => 'Banner for messages',
         ],
         'bbb' => [
+            'client_settings' => [
+                'title' => 'Custom Client Settings',
+                'description' => 'Overrides the client settings. The format must be valid JSON. See https://docs.bigbluebutton.org/development/api/#clientsettingsoverride',
+            ],
+            'default_welcome_message' => [
+                'title' => 'Default Welcome Message',
+                'description' => 'Can be overridden in the room settings',
+            ],
             'logo' => [
                 'alt' => 'Logo preview',
                 'hint' => 'https://domain.tld/path/logo.svg',

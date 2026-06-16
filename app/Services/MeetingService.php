@@ -124,9 +124,18 @@ class MeetingService
             $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
         }
 
+        // Set default welcome message
+        $meetingParams->setWelcome(app(BigBlueButtonSettings::class)->default_welcome_message);
+
         // Set welcome message if expert mode is activated
-        if ($this->meeting->room->expert_mode) {
+        if ($this->meeting->room->expert_mode && $this->meeting->room->welcome) {
             $meetingParams->setWelcome($this->meeting->room->welcome);
+        }
+
+        // Set client settings
+        if (app(BigBlueButtonSettings::class)->client_settings) {
+            $meetingParams->setAllowOverrideClientSettingsOnCreateCall(true);
+            $meetingParams->setClientSettingsOverride(app(BigBlueButtonSettings::class)->client_settings);
         }
 
         // set guest policy

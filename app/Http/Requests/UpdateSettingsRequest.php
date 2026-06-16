@@ -90,6 +90,8 @@ class UpdateSettingsRequest extends FormRequest
 
             'bbb_style' => ['bail', 'nullable', 'file', 'max:500', 'extensions:css', new Antivirus],
             'bbb_default_presentation' => ['bail', 'nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes'), new Antivirus],
+            'bbb_client_settings' => ['bail', 'nullable', 'string', 'max:65000', 'json'],
+            'bbb_default_welcome_message' => ['bail', 'nullable', 'max:'.config('bigbluebutton.welcome_message_limit'), 'string'],
         ];
     }
 }

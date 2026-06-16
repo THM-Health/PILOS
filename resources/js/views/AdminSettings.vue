@@ -1080,6 +1080,7 @@
                   id="room-file-terms-of-use"
                   v-model="settings.room_file_terms_of_use"
                   rows="3"
+                  auto-resize
                   :invalid="formErrors.fieldInvalid('room_file_terms_of_use')"
                   :disabled="disabled"
                   aria-describedby="room-file-terms-of-use-help"
@@ -1516,6 +1517,64 @@
                 />
               </div>
             </fieldset>
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="bbb-client-settings-field"
+            >
+              <label
+                for="bbb-client-settings"
+                class="col-span-12 md:col-span-4 md:mb-0"
+                >{{ $t("admin.settings.bbb.client_settings.title") }}</label
+              >
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <Textarea
+                  id="bbb-client-settings"
+                  v-model="settings.bbb_client_settings"
+                  rows="3"
+                  auto-resize
+                  :invalid="formErrors.fieldInvalid('bbb_client_settings')"
+                  :disabled="disabled"
+                  aria-describedby="bbb-client-settings-help"
+                />
+                <small id="bbb-client-settings-help">{{
+                  $t("admin.settings.bbb.client_settings.description")
+                }}</small>
+                <FormError
+                  :errors="formErrors.fieldError('bbb_client_settings')"
+                />
+              </div>
+            </div>
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="bbb-default-welcome-message-field"
+            >
+              <label
+                for="bbb-client-settings"
+                class="col-span-12 md:col-span-4 md:mb-0"
+                >{{
+                  $t("admin.settings.bbb.default_welcome_message.title")
+                }}</label
+              >
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <Textarea
+                  id="bbb-default-welcome-message"
+                  v-model="settings.bbb_default_welcome_message"
+                  rows="3"
+                  auto-resize
+                  :invalid="
+                    formErrors.fieldInvalid('bbb_default_welcome_message')
+                  "
+                  :disabled="disabled"
+                  aria-describedby="bbb-default-welcome-message-help"
+                />
+                <small id="bbb-default-welcome-message-help">{{
+                  $t("admin.settings.bbb.default_welcome_message.description")
+                }}</small>
+                <FormError
+                  :errors="formErrors.fieldError('bbb_default_welcome_message')"
+                />
+              </div>
+            </div>
           </AdminPanel>
         </div>
       </OverlayComponent>

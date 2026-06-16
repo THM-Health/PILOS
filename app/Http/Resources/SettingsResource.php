@@ -80,6 +80,8 @@ class SettingsResource extends JsonResource
             'bbb_logo_dark' => $bigBlueButtonSettings->logo_dark,
             'bbb_style' => $bigBlueButtonSettings->style,
             'bbb_default_presentation' => $bigBlueButtonSettings->default_presentation,
+            'bbb_client_settings' => $bigBlueButtonSettings->client_settings,
+            'bbb_default_welcome_message' => $bigBlueButtonSettings->default_welcome_message,
         ];
     }
 }
