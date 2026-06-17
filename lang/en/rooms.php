@@ -24,6 +24,7 @@ return [
         'detached' => 'Connection to ongoing video conference lost, recovery failed.',
         'reconnecting' => 'Connection to ongoing video conference lost, trying to reconnect.',
     ],
+    'continue_as_guest' => 'Continue as guest',
     'create' => [
         'ok' => 'Create',
         'title' => 'Create room',

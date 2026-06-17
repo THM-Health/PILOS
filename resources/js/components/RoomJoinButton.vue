@@ -56,19 +56,6 @@
           v-if="!isLoadingAction && !loadingError"
           class="flex flex-col gap-2"
         >
-          <!-- Ask guests for their first and lastname -->
-          <div v-if="requiresGuestName" class="flex flex-col gap-2">
-            <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
-            <InputText
-              id="guest-name"
-              v-model="name"
-              autofocus
-              :placeholder="$t('rooms.placeholder_name')"
-              :invalid="formErrors.fieldInvalid('name')"
-            />
-            <FormError :errors="formErrors.fieldError('name')" />
-          </div>
-
           <div
             v-if="features.attendance_recording"
             class="flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
@@ -177,7 +164,6 @@
 </template>
 <script setup>
 import { ref, computed, onUnmounted } from "vue";
-import { useAuthStore } from "../stores/auth.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
@@ -185,7 +171,6 @@ import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import { useDark } from "@vueuse/core";
-import { ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK } from "../constants/roomAuthTokenTypes.js";
 import {
   HTTP_ERROR_GUESTS_NOT_ALLOWED,
   HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN,
@@ -218,6 +203,10 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  guestName: {
+    type: String,
+    default: null,
+  },
 });
 
 const emit = defineEmits([
@@ -227,7 +216,6 @@ const emit = defineEmits([
   "changed",
 ]);
 
-const authStore = useAuthStore();
 const isDark = useDark();
 
 const modalVisible = ref(false);
@@ -238,7 +226,6 @@ const showRunningMessage = ref(false);
 const recordAgreement = ref(false);
 const recordVideoAgreement = ref(false);
 const streamingAgreement = ref(false);
-const name = ref(""); // Name of guest
 const action = ref("join");
 
 const api = useApi();
@@ -315,18 +302,7 @@ function loadStartJoinRequirements() {
   });
 }
 
-const requiresGuestName = computed(() => {
-  return (
-    !authStore.isAuthenticated &&
-    props.roomAuthToken?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
-  );
-});
-
 const autoJoin = computed(() => {
-  if (requiresGuestName.value) {
-    return false;
-  }
-
   if (features.value.attendance_recording) {
     return false;
   }
@@ -379,7 +355,7 @@ function getJoinUrl() {
   const config = {
     method: "post",
     data: {
-      name: !requiresGuestName.value ? null : name.value,
+      name: props.guestName ? props.guestName : null,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,

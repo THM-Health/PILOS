@@ -78,89 +78,35 @@
       </div>
       <div v-else>
         <div v-if="!room.authenticated" class="mt-20 flex justify-center">
-          <Card
-            style="width: 500px; max-width: 90vw"
-            :pt="{ header: { class: 'flex justify-center' } }"
-            data-test="room-access-code-overlay"
-          >
-            <template #header>
-              <Badge
-                severity="danger"
-                class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
-              >
-                <i class="fa-solid fa-lock text-2xl text-white"></i>
-              </Badge>
-            </template>
-            <template #content>
-              <RoomHeader
-                :room="room"
-                :loading="loading || authLoading"
-                :details-inline="false"
-                :hide-favorites="true"
-                :hide-membership="true"
-                :disable-reload="authThrottledFor > 0"
-                :bbb-errors="bbbErrors"
-                :bbb-reason="bbbReason"
-                @reload="reload(true)"
-              />
-              <Divider />
-
-              <span class="font-bold">
-                {{ $t("rooms.require_access_code") }}
-              </span>
-
-              <div
-                class="mt-6 flex w-full flex-col gap-2"
-                data-test="room-access-code"
-              >
-                <label for="access-code">{{ $t("rooms.access_code") }}</label>
-                <InputGroup>
-                  <InputMask
-                    id="access-code"
-                    v-model="accessCodeInput"
-                    autofocus
-                    :mask="room.legacy_code ? '******' : '999-999-999'"
-                    :placeholder="room.legacy_code ? '123abc' : '123-456-789'"
-                    :invalid="
-                      accessCodeInvalid ||
-                      formErrors.fieldInvalid('access_code')
-                    "
-                    :disabled="authThrottledFor > 0"
-                    class="text-center"
-                    @keydown.enter="login"
-                  />
-                  <Button
-                    :loading="loading || authLoading"
-                    icon="fa-solid fa-lock"
-                    :label="$t('rooms.login')"
-                    data-test="room-login-button"
-                    :disabled="authThrottledFor > 0 || loading || authLoading"
-                    @click="login"
-                  />
-                </InputGroup>
-                <FormError :errors="formErrors.fieldError('access_code')" />
-                <p
-                  v-if="authThrottledFor > 0"
-                  class="mt-1 text-red-500"
-                  role="alert"
-                >
-                  {{
-                    $t("rooms.auth_throttled", { try_again: authThrottledFor })
-                  }}
-                </p>
-
-                <p
-                  v-else-if="accessCodeInvalid"
-                  class="mt-1 text-red-500"
-                  role="alert"
-                >
-                  {{ $t("rooms.flash.access_code_invalid") }}
-                </p>
-              </div>
-            </template>
-          </Card>
+          <RoomAccessCodeOverlay
+            v-model:access-code="accessCodeInput"
+            v-model:guest-name="guestName"
+            :loading="loading || authLoading"
+            :room="room"
+            :auth-throttled-for="authThrottledFor"
+            :access-code-invalid="accessCodeInvalid"
+            :form-errors="formErrors"
+            :bbb-errors="bbbErrors"
+            :bbb-reason="bbbReason"
+            @submit="login"
+            @reload="reload(true)"
+          />
         </div>
-        <div v-else>
+        <div v-else class="flex flex-col gap-4">
+          <RoomGuestWelcomeCard
+            v-if="
+              (roomAuthToken?.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK ||
+                guestName) !== ''
+            "
+            :guest-name="
+              roomAuthToken?.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
+                ? room.username
+                : guestName
+            "
+            :allow-name-change="
+              roomAuthToken?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
+            "
+          />
           <Card>
             <template #header>
               <RoomHeader
@@ -204,6 +150,7 @@
                     :disabled="room.room_type_invalid"
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
+                    :guest-name="guestName !== '' ? guestName : null"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
                     @require-code="
                       handleRequireCode();
@@ -296,6 +243,7 @@ const loading = ref(false); // Room settings/details loading
 const room = ref(null); // Room object
 const roomAuthToken = ref(null); // Room authentication token
 const authLoading = ref(false); // Room authentication loading
+const guestName = ref("");
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const roomLoading = ref(false); // Room loading indicator for initial load
