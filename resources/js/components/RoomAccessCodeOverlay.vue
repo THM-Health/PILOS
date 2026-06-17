@@ -30,7 +30,7 @@
       <!--      </span>-->
 
       <div
-        v-if="!authStore.isAuthenticated"
+        v-if="!authStore.isAuthenticated && !room.authenticated"
         class="mt-2 flex w-full flex-col gap-2"
       >
         <Button
@@ -53,9 +53,19 @@
           <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
           <InputText
             id="guest-name"
-            v-model="guestName"
+            v-model="guestNameInput"
             :disabled="authThrottledFor > 0"
           />
+
+          <div class="flex items-center gap-2">
+            <Checkbox
+              v-model="rememberGuestName"
+              input-id="remember-guest-name"
+              binary
+            />
+            <label for="remember-guest-name"> Remember guest name </label>
+          </div>
+
           <div
             v-if="guestNameInvalid"
             ref="formError"
@@ -74,13 +84,14 @@
         </div>
 
         <div
+          v-if="!room.authenticated"
           class="field mt-4 flex flex-col gap-2"
           data-test="access-code-field"
         >
           <label for="access-code">{{ $t("rooms.access_code") }}</label>
           <InputMask
             id="access-code"
-            v-model="accessCode"
+            v-model="accessCodeInput"
             autofocus
             :mask="room.legacy_code ? '******' : '999-999-999'"
             :placeholder="room.legacy_code ? '123abc' : '123-456-789'"
@@ -147,7 +158,7 @@
 <script setup>
 import RoomHeader from "./RoomHeader.vue";
 import { useAuthStore } from "../stores/auth.js";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const emit = defineEmits(["submit", "reload"]);
 const props = defineProps({
@@ -192,15 +203,24 @@ const guestName = defineModel("guestName", {
 });
 
 const guestNameInvalid = ref(false);
+const guestNameInput = ref("");
+const accessCodeInput = ref("");
+const rememberGuestName = ref(false);
 
 const authStore = useAuthStore();
 
+onMounted(() => {
+  guestNameInput.value = guestName.value;
+  accessCodeInput.value = accessCode.value;
+});
+
 function submit() {
-  if (!authStore.isAuthenticated && guestName.value.trim().length === 0) {
+  if (!authStore.isAuthenticated && guestNameInput.value.trim().length === 0) {
     guestNameInvalid.value = true;
   } else {
-    guestNameInvalid.value = false;
-    emit("submit");
+    accessCode.value = accessCodeInput.value;
+    guestName.value = guestNameInput.value;
+    emit("submit", rememberGuestName.value);
   }
 }
 </script>

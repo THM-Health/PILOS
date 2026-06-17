@@ -77,7 +77,7 @@
         </div>
       </div>
       <div v-else>
-        <div v-if="!room.authenticated" class="mt-20 flex justify-center">
+        <div v-if="showAccessCodeOverlay" class="mt-20 flex justify-center">
           <RoomAccessCodeOverlay
             v-model:access-code="accessCodeInput"
             v-model:guest-name="guestName"
@@ -88,24 +88,16 @@
             :form-errors="formErrors"
             :bbb-errors="bbbErrors"
             :bbb-reason="bbbReason"
-            @submit="login"
+            @submit="(remember) => login(remember)"
             @reload="reload(true)"
           />
         </div>
-        <div v-else class="flex flex-col gap-4">
+        <div v-else class="flex flex-col gap-6">
           <RoomGuestWelcomeCard
-            v-if="
-              (roomAuthToken?.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK ||
-                guestName) !== ''
-            "
-            :guest-name="
-              roomAuthToken?.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
-                ? room.username
-                : guestName
-            "
-            :allow-name-change="
-              roomAuthToken?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
-            "
+            v-if="!authStore.isAuthenticated"
+            :guest-name="room.username ? room.username : guestName"
+            :allow-name-change="room.username === undefined"
+            @guest-name-changed="(newGuestName) => (guestName = newGuestName)"
           />
           <Card>
             <template #header>
@@ -191,7 +183,7 @@
 <script setup>
 import { useAuthStore } from "../stores/auth";
 import { useSettingsStore } from "../stores/settings";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useToast } from "../composables/useToast.js";
 import { useRouter } from "vue-router";
@@ -218,15 +210,12 @@ import {
   HTTP_STATUS_UNAUTHORIZED,
   HTTP_STATUS_UNPROCESSABLE_ENTITY,
 } from "../constants/httpStatusCodes.js";
+import { useUrlSearchParams } from "@vueuse/core";
 
 const props = defineProps({
   id: {
     type: String,
     required: true,
-  },
-  token: {
-    type: String,
-    default: null,
   },
   bbbReason: {
     type: String,
@@ -246,6 +235,7 @@ const authLoading = ref(false); // Room authentication loading
 const guestName = ref("");
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
+const personalizedLink = ref(null);
 const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
@@ -259,13 +249,45 @@ const { t } = useI18n();
 const toast = useToast();
 const router = useRouter();
 const api = useApi();
+const hashParams = useUrlSearchParams("hash-params");
 
-onMounted(() => {
-  // Prevent authenticated users from using a room token
-  if (props.token && authStore.isAuthenticated) {
-    toast.info(t("app.flash.guests_only"));
-    router.replace({ name: "home" });
-    return;
+onMounted(async () => {
+  if (hashParams.accessCode) {
+    accessCodeInput.value = hashParams.accessCode;
+  }
+
+  if (hashParams.personalizedLink) {
+    // Prevent authenticated users from using a personalized link
+    if (authStore.isAuthenticated) {
+      toast.error(t("rooms.flash.personalized_link_already_used"));
+      router.replace({ name: "home" });
+      return;
+    }
+    personalizedLink.value = hashParams.personalizedLink;
+  }
+
+  await nextTick();
+
+  hashParams.personalizedLink = null;
+  hashParams.accessCode = null;
+
+  const savedAccessCode = sessionStorage.getItem("roomAccessCode_" + props.id);
+  const savedPersonalizedLink = sessionStorage.getItem(
+    "roomPersonalizedLink_" + props.id,
+  );
+
+  if (accessCodeInput.value === "" && savedAccessCode) {
+    accessCodeInput.value = savedAccessCode;
+  }
+
+  if (personalizedLink.value === "" && savedPersonalizedLink) {
+    personalizedLink.value = savedPersonalizedLink;
+  }
+
+  const savedGuestName = localStorage.getItem("pilos_guest_name");
+
+  if (savedGuestName) {
+    guestName.value = savedGuestName;
   }
 
   EventBus.on(EVENT_FORBIDDEN, reload);
@@ -531,8 +553,17 @@ function reload(checkForRequireCodeError = false) {
  * loading of the room
  */
 function initializeRoomView() {
-  if (props.token && !roomAuthToken.value) {
-    authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
+  if (personalizedLink.value && !roomAuthToken.value) {
+    authenticate(
+      ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK,
+      personalizedLink.value,
+    ).then((success) => {
+      if (success) {
+        load();
+      }
+    });
+  } else if (accessCodeInput.value !== "" && !roomAuthToken.value) {
+    authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCodeInput.value).then(
       (success) => {
         if (success) {
           load();
@@ -555,17 +586,30 @@ function setPageTitle(roomName) {
 /**
  * Handle login with access code
  */
-function login() {
+function login(remember = false) {
   // Remove dashes from the access code
   const accessCode = accessCodeInput.value.replace(/[-]/g, "");
 
-  // Retrieve room auth token
-  authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
-    if (success) {
-      // Reload room details after authentication
-      reload(true);
+  if (accessCode !== "") {
+    // Retrieve room auth token
+    authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
+      if (success) {
+        if (guestName.value !== "" && remember) {
+          // ToDo remove saved guest name if one is saved and remember is set to false
+          localStorage.setItem("pilos_guest_name", guestName.value);
+        }
+
+        // Reload room details after authentication
+        reload(true);
+      }
+    });
+  } else {
+    if (guestName.value !== "" && remember) {
+      // ToDo remove saved guest name if one is saved and remember is set to false
+      localStorage.setItem("pilos_guest_name", guestName.value);
     }
-  });
+    reload(true);
+  }
 }
 
 /**
@@ -607,6 +651,18 @@ function authenticate(type, codeOrToken) {
         if (response.status !== 204) {
           // Set room auth token for further requests if response is not empty
           roomAuthToken.value = response.data.data;
+
+          // Save personalized link token or access code in session storage
+          if (
+            roomAuthToken.value.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
+          ) {
+            sessionStorage.setItem(
+              "roomPersonalizedLink_" + props.id,
+              codeOrToken,
+            );
+          } else if (roomAuthToken.value.type === ROOM_AUTH_TOKEN_TYPE_CODE) {
+            sessionStorage.setItem("roomAccessCode_" + props.id, codeOrToken);
+          }
         }
 
         resolve(true);
@@ -679,5 +735,14 @@ const running = computed(() => {
  */
 const viewInvitation = computed(() => {
   return userPermissions.can("viewInvitation", room.value);
+});
+
+const showAccessCodeOverlay = computed(() => {
+  return (
+    !room.value.authenticated ||
+    (!authStore.isAuthenticated &&
+      roomAuthToken.value?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK &&
+      guestName.value === "")
+  );
 });
 </script>

@@ -143,14 +143,13 @@ export const routes = [
     },
   },
   {
-    path: "/rooms/:id/:token?",
+    path: "/rooms/:id",
     name: "rooms.view",
     component: RoomView,
     meta: { redirectBackAfterLogin: true },
     props: (route) => {
       return {
         id: route.params.id,
-        token: route.params.token,
         bbbReason: route.query.reason,
         bbbErrors: route.query.errors,
       };
