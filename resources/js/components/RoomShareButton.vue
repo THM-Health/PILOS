@@ -121,7 +121,7 @@ const op = ref();
 const triggerButton = ref(null);
 
 const toggle = (event) => {
-  triggerButton.value = event.target;
+  triggerButton.value = event.currentTarget;
   op.value.toggle(event);
 };
 

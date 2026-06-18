@@ -86,7 +86,7 @@ const downloadUrl = computed(() => {
 });
 
 function toggleTermsOfUsePopover(event) {
-  triggerButton.value = event.target;
+  triggerButton.value = event.currentTarget;
   op.value.toggle(event);
 }
 
