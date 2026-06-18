@@ -25,9 +25,20 @@
   />
 
   <Popover ref="op" class="max-w-96" data-test="terms-of-use-required-info">
-    <InlineNote severity="info">{{
+    <div class="flex w-full justify-between gap-4">
+    <InlineNote tabindex="-1" autofocus severity="info">{{
       $t("rooms.files.terms_of_use.required")
     }}</InlineNote>
+      <Button
+        class="popover-close-button"
+        @click="closePopover"
+        :aria-label="$t('app.close')"
+        text
+        rounded
+        severity="secondary"
+        icon="fas fa-xmark"
+      />
+    </div>
   </Popover>
 </template>
 <script setup>
@@ -58,6 +69,7 @@ const props = defineProps({
 });
 
 const op = ref();
+const triggerButton = ref(null);
 
 const downloadUrl = computed(() => {
   let url = props.fileUrl;
@@ -73,6 +85,14 @@ const downloadUrl = computed(() => {
 });
 
 function toggleTermsOfUsePopover(event) {
+  triggerButton.value = event.target;
   op.value.toggle(event);
+}
+
+function closePopover() {
+  op.value.hide();
+  if (triggerButton.value != null) {
+    triggerButton.value.focus();
+  }
 }
 </script>
