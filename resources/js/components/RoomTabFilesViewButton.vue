@@ -26,9 +26,9 @@
 
   <Popover ref="op" class="max-w-96" data-test="terms-of-use-required-info">
     <div class="flex w-full justify-between gap-4">
-    <InlineNote tabindex="-1" autofocus severity="info">{{
-      $t("rooms.files.terms_of_use.required")
-    }}</InlineNote>
+      <InlineNote tabindex="-1" autofocus severity="info">{{
+        $t("rooms.files.terms_of_use.required")
+      }}</InlineNote>
       <Button
         class="popover-close-button"
         data-test="popover-close-button"
