@@ -31,12 +31,13 @@
     }}</InlineNote>
       <Button
         class="popover-close-button"
-        @click="closePopover"
+        data-test="popover-close-button"
         :aria-label="$t('app.close')"
         text
         rounded
         severity="secondary"
         icon="fas fa-xmark"
+        @click="closePopover"
       />
     </div>
   </Popover>

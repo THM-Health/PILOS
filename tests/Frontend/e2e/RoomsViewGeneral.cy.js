@@ -1196,6 +1196,15 @@ describe("Room View general", function () {
     cy.get('[data-test="room-invitation-copy-code-button"]').should(
       "not.exist",
     );
+
+    // Focus on close button
+    cy.press(Cypress.Keyboard.Keys.TAB);
+    cy.get('[data-test="popover-close-button"]').should("have.focus");
+    cy.get('[data-test="popover-close-button"]').click();
+    cy.get("#invitationLink").should("not.exist");
+
+    // Focus should be back on the share button
+    cy.get('[data-test="room-share-button"]').should("have.focus");
   });
 
   it("room view as co-owner", function () {
