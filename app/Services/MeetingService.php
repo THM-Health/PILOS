@@ -134,8 +134,7 @@ class MeetingService
 
         // Set client settings
         if (app(BigBlueButtonSettings::class)->client_settings) {
-            $meetingParams->setAllowOverrideClientSettingsOnCreateCall(true);
-            $meetingParams->setClientSettingsOverride(app(BigBlueButtonSettings::class)->client_settings);
+            $meetingParams->setClientSettingsOverrideJsonUrl(route('client_settings_override'));
         }
 
         // set guest policy
