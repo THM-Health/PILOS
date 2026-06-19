@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Accessibility: Screen reader only button to close popover dialogs ([#2971])
+
 ## [v4.16.0] - 2026-06-12
 
 ### Added
@@ -809,6 +813,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2911]: https://github.com/THM-Health/PILOS/pull/2911
 [#2912]: https://github.com/THM-Health/PILOS/issues/2912
 [#2913]: https://github.com/THM-Health/PILOS/pull/2913
+[#2971]: https://github.com/THM-Health/PILOS/pull/2971
 [#2997]: https://github.com/THM-Health/PILOS/issues/2997
 [#2998]: https://github.com/THM-Health/PILOS/issues/2998
 [#2999]: https://github.com/THM-Health/PILOS/pull/2999
