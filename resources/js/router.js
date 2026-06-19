@@ -155,6 +155,28 @@ export const routes = [
       };
     },
   },
+  /**
+   * Legacy personalized link compatibility route.
+   *
+   * Old links used /rooms/:id/:token. Redirect them to the current hash-based
+   * format so RoomsView can handle authentication through the regular flow.
+   */
+  {
+    path: "/rooms/:id/:token",
+    redirect: (route) => {
+      // Parse hash parameters
+      const searchParams = new URLSearchParams(route.hash.substring(1));
+
+      // Append or overwrite personalizedLink parameter
+      searchParams.set("personalizedLink", route.params.token);
+
+      return {
+        name: "rooms.view",
+        params: { id: route.params.id },
+        hash: "#" + searchParams.toString(),
+      };
+    },
+  },
   {
     path: "/meetings",
     component: MeetingsIndex,
