@@ -2,7 +2,7 @@
   <Card
     style="width: 500px; max-width: 90vw"
     :pt="{ header: { class: 'flex justify-center' } }"
-    data-test="room-access-code-overlay"
+    data-test="room-access-overlay"
   >
     <template #header>
       <Badge
@@ -25,12 +25,8 @@
         @reload="emit('reload')"
       />
 
-      <!--      <span class="font-bold">-->
-      <!--        {{ $t("rooms.require_access_code") }}-->
-      <!--      </span>-->
-
       <div
-        v-if="!authStore.isAuthenticated && !room.authenticated"
+        v-if="!authStore.isAuthenticated"
         class="mt-2 flex w-full flex-col gap-2"
       >
         <Button
@@ -63,7 +59,9 @@
               input-id="remember-guest-name"
               binary
             />
-            <label for="remember-guest-name"> Remember guest name </label>
+            <label for="remember-guest-name">
+              {{ $t("rooms.remember_guest_name") }}
+            </label>
           </div>
 
           <div
@@ -161,7 +159,7 @@ import { useAuthStore } from "../stores/auth.js";
 import { onMounted, ref } from "vue";
 
 const emit = defineEmits(["submit", "reload"]);
-const props = defineProps({
+defineProps({
   room: {
     type: Object,
     required: true,
@@ -202,10 +200,14 @@ const guestName = defineModel("guestName", {
   default: "",
 });
 
+const rememberGuestName = defineModel("rememberGuestName", {
+  type: Boolean,
+  default: false,
+});
+
 const guestNameInvalid = ref(false);
 const guestNameInput = ref("");
 const accessCodeInput = ref("");
-const rememberGuestName = ref(false);
 
 const authStore = useAuthStore();
 
@@ -220,7 +222,7 @@ function submit() {
   } else {
     accessCode.value = accessCodeInput.value;
     guestName.value = guestNameInput.value;
-    emit("submit", rememberGuestName.value);
+    emit("submit");
   }
 }
 </script>

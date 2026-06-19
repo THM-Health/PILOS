@@ -78,9 +78,10 @@
       </div>
       <div v-else>
         <div v-if="showAccessCodeOverlay" class="mt-20 flex justify-center">
-          <RoomAccessCodeOverlay
+          <RoomAccessOverlay
             v-model:access-code="accessCodeInput"
             v-model:guest-name="guestName"
+            v-model:remember-guest-name="rememberGuestName"
             :loading="loading || authLoading"
             :room="room"
             :auth-throttled-for="authThrottledFor"
@@ -88,16 +89,18 @@
             :form-errors="formErrors"
             :bbb-errors="bbbErrors"
             :bbb-reason="bbbReason"
-            @submit="(remember) => login(remember)"
+            @submit="login"
             @reload="reload(true)"
           />
         </div>
         <div v-else class="flex flex-col gap-6">
           <RoomGuestWelcomeCard
             v-if="!authStore.isAuthenticated"
+            v-model:remember-guest-name="rememberGuestName"
             :guest-name="room.username ? room.username : guestName"
             :allow-name-change="room.username === undefined"
-            @guest-name-changed="(newGuestName) => (guestName = newGuestName)"
+            :room-role="currentRoomRole"
+            @guest-name-changed="updateGuestName"
           />
           <Card>
             <template #header>
@@ -233,9 +236,10 @@ const room = ref(null); // Room object
 const roomAuthToken = ref(null); // Room authentication token
 const authLoading = ref(false); // Room authentication loading
 const guestName = ref("");
+const rememberGuestName = ref(false);
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
-const personalizedLink = ref(null);
+const personalizedLink = ref(null); // Personalized link token from url or session storage
 const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
@@ -251,45 +255,7 @@ const router = useRouter();
 const api = useApi();
 const hashParams = useUrlSearchParams("hash-params");
 
-onMounted(async () => {
-  if (hashParams.accessCode) {
-    accessCodeInput.value = hashParams.accessCode;
-  }
-
-  if (hashParams.personalizedLink) {
-    // Prevent authenticated users from using a personalized link
-    if (authStore.isAuthenticated) {
-      toast.error(t("rooms.flash.personalized_link_already_used"));
-      router.replace({ name: "home" });
-      return;
-    }
-    personalizedLink.value = hashParams.personalizedLink;
-  }
-
-  await nextTick();
-
-  hashParams.personalizedLink = null;
-  hashParams.accessCode = null;
-
-  const savedAccessCode = sessionStorage.getItem("roomAccessCode_" + props.id);
-  const savedPersonalizedLink = sessionStorage.getItem(
-    "roomPersonalizedLink_" + props.id,
-  );
-
-  if (accessCodeInput.value === "" && savedAccessCode) {
-    accessCodeInput.value = savedAccessCode;
-  }
-
-  if (personalizedLink.value === "" && savedPersonalizedLink) {
-    personalizedLink.value = savedPersonalizedLink;
-  }
-
-  const savedGuestName = localStorage.getItem("pilos_guest_name");
-
-  if (savedGuestName) {
-    guestName.value = savedGuestName;
-  }
-
+onMounted(() => {
   EventBus.on(EVENT_FORBIDDEN, reload);
   EventBus.on(EVENT_UNAUTHORIZED, reload);
 
@@ -552,8 +518,12 @@ function reload(checkForRequireCodeError = false) {
  * Initialize room view, authenticate if personalized link is provided and initial
  * loading of the room
  */
-function initializeRoomView() {
+async function initializeRoomView() {
+  await loadSavedAccessParameters();
+
   if (personalizedLink.value && !roomAuthToken.value) {
+    // Personalized link is set and currently no room auth token is present,
+    // authenticate without waiting for manual room login
     authenticate(
       ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK,
       personalizedLink.value,
@@ -562,7 +532,13 @@ function initializeRoomView() {
         load();
       }
     });
-  } else if (accessCodeInput.value !== "" && !roomAuthToken.value) {
+  } else if (
+    accessCodeInput.value !== "" &&
+    (guestName.value !== "" || authStore.isAuthenticated) &&
+    !roomAuthToken.value
+  ) {
+    // All necessary parameters for guest access are set and currently no room auth token is present,
+    // authenticate without waiting for manual room login
     authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCodeInput.value).then(
       (success) => {
         if (success) {
@@ -571,6 +547,9 @@ function initializeRoomView() {
       },
     );
   } else {
+    // Missing some access parameters necessary for automatic authentication, no access parameters provided or room auth token already present,
+    // Load room details without automatic authentication, if authentication is required, the access code overlay will be shown
+    // to allow a manual room login
     load();
   }
 }
@@ -584,30 +563,23 @@ function setPageTitle(roomName) {
 }
 
 /**
- * Handle login with access code
+ * Log in to the room, if authentication is required authenticate, else store guest name and reload room
  */
-function login(remember = false) {
+function login() {
   // Remove dashes from the access code
   const accessCode = accessCodeInput.value.replace(/[-]/g, "");
 
-  if (accessCode !== "") {
-    // Retrieve room auth token
+  if (!room.value.authenticated) {
+    // Try to authenticate if authentication is required
     authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
       if (success) {
-        if (guestName.value !== "" && remember) {
-          // ToDo remove saved guest name if one is saved and remember is set to false
-          localStorage.setItem("pilos_guest_name", guestName.value);
-        }
-
+        syncGuestNameStorage();
         // Reload room details after authentication
         reload(true);
       }
     });
   } else {
-    if (guestName.value !== "" && remember) {
-      // ToDo remove saved guest name if one is saved and remember is set to false
-      localStorage.setItem("pilos_guest_name", guestName.value);
-    }
+    syncGuestNameStorage();
     reload(true);
   }
 }
@@ -722,6 +694,69 @@ function authenticate(type, codeOrToken) {
   });
 }
 
+// ToDo think about splitting and further refactoring this function
+async function loadSavedAccessParameters() {
+  // Load Access Parameters stored in hash params
+  if (hashParams.accessCode) {
+    accessCodeInput.value = hashParams.accessCode;
+  }
+
+  if (hashParams.personalizedLink) {
+    // Prevent authenticated users from using a personalized link
+    if (authStore.isAuthenticated) {
+      toast.error(t("rooms.flash.personalized_link_already_used"));
+      router.replace({ name: "home" });
+      return;
+    }
+    personalizedLink.value = hashParams.personalizedLink;
+  }
+
+  // Clear hash params
+  await nextTick();
+  hashParams.personalizedLink = null;
+  hashParams.accessCode = null;
+
+  // Load Access Parameters stored in session storage only if parameters are not already set by hash params
+  const savedAccessCode = sessionStorage.getItem("roomAccessCode_" + props.id);
+  const savedPersonalizedLink = sessionStorage.getItem(
+    "roomPersonalizedLink_" + props.id,
+  );
+
+  if (accessCodeInput.value === "" && savedAccessCode) {
+    accessCodeInput.value = savedAccessCode;
+  }
+
+  if (!personalizedLink.value && savedPersonalizedLink) {
+    personalizedLink.value = savedPersonalizedLink;
+  }
+
+  // Load Guest Name from local storage
+  const savedGuestName = localStorage.getItem("pilos_guest_name");
+
+  if (savedGuestName) {
+    // Set guest name if present in local storage and
+    // enable remember guest name checkbox
+    rememberGuestName.value = true;
+    guestName.value = savedGuestName;
+  }
+}
+
+/**
+ * Sync guest name with local storage based on remember guest name setting
+ */
+function syncGuestNameStorage() {
+  if (rememberGuestName.value && guestName.value !== "") {
+    localStorage.setItem("pilos_guest_name", guestName.value);
+  } else {
+    localStorage.removeItem("pilos_guest_name");
+  }
+}
+
+function updateGuestName(newGuestName) {
+  guestName.value = newGuestName;
+  syncGuestNameStorage();
+}
+
 const running = computed(() => {
   return (
     room.value.last_meeting != null &&
@@ -744,5 +779,22 @@ const showAccessCodeOverlay = computed(() => {
       roomAuthToken.value?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK &&
       guestName.value === "")
   );
+});
+
+// ToDo check if this can be moved somewhere else
+const currentRoomRole = computed(() => {
+  if (room.value?.is_co_owner) {
+    return 3;
+  }
+
+  if (room.value?.is_moderator) {
+    return 2;
+  }
+
+  if (room.value?.is_member) {
+    return 1;
+  }
+
+  return 0;
 });
 </script>

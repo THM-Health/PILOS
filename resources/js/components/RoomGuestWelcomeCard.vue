@@ -1,8 +1,9 @@
 <template>
   <Card :pt:body:class="'p-3'">
     <template #content>
+      <!-- ToDo test alternative layouts-->
       <div class="mx-4 grid grid-cols-3 items-center">
-        <Tag severity="info" class="justify-self-start"> Guest </Tag>
+        <RoomRoleBadge class="justify-self-start" :role="roomRole" />
         <div class="text-center">
           Hello
           {{ guestName }}!
@@ -10,9 +11,9 @@
         <Button
           v-if="allowNameChange"
           icon="fa-solid fa-user-edit"
-          label="Change name"
+          :label="$t('rooms.change_guest_name')"
           class="justify-self-end"
-          @click="changeNameModalVisible = true"
+          @click="showChangeNameModal"
         />
       </div>
     </template>
@@ -22,7 +23,7 @@
     v-model:visible="changeNameModalVisible"
     data-test="room-change-name-dialog"
     modal
-    header="Change Name"
+    :header="$t('rooms.change_guest_name')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -32,6 +33,16 @@
       <div class="field flex flex-col gap-2" data-test="guest-name-field">
         <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
         <InputText id="guest-name" v-model="newGuestName" />
+        <div class="flex items-center gap-2">
+          <Checkbox
+            v-model="rememberGuestNameInput"
+            input-id="remember-guest-name"
+            binary
+          />
+          <label for="remember-guest-name">
+            {{ $t("rooms.remember_guest_name") }}
+          </label>
+        </div>
         <div
           v-if="newGuestNameInvalid"
           ref="formError"
@@ -58,8 +69,8 @@
           @click="changeNameModalVisible = false"
         />
         <Button
-          :label="$t('app.continue')"
-          data-test="dialog-continue-button"
+          :label="$t('app.save')"
+          data-test="dialog-save-button"
           type="submit"
           form="changeNameForm"
         />
@@ -68,7 +79,7 @@
   </Dialog>
 </template>
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const emit = defineEmits(["guestNameChanged"]);
 
@@ -81,17 +92,42 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  roomRole: {
+    type: Number,
+    default: 0,
+  },
+});
+
+const rememberGuestName = defineModel("rememberGuestName", {
+  type: Boolean,
+  default: false,
 });
 
 const changeNameModalVisible = ref(false);
-const newGuestName = ref(props.guestName);
+const newGuestName = ref("");
 const newGuestNameInvalid = ref(false);
+const rememberGuestNameInput = ref(false);
+
+onMounted(() => {
+  newGuestName.value = props.guestName;
+  rememberGuestNameInput.value = rememberGuestName.value;
+});
+
+function showChangeNameModal() {
+  newGuestName.value = props.guestName;
+  newGuestNameInvalid.value = false;
+  rememberGuestNameInput.value = rememberGuestName.value;
+
+  changeNameModalVisible.value = true;
+}
 
 function changeGuestName() {
   if (newGuestName.value.trim().length === 0) {
     newGuestNameInvalid.value = true;
   } else {
+    rememberGuestName.value = rememberGuestNameInput.value;
     emit("guestNameChanged", newGuestName.value);
+
     changeNameModalVisible.value = false;
   }
 }
