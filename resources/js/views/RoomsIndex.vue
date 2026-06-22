@@ -310,8 +310,8 @@
                 class="grid grid-cols-12 gap-4 py-1"
               >
                 <RoomCard
-                  v-for="(room, index) in slotProps.items"
-                  :key="index"
+                  v-for="room in slotProps.items"
+                  :key="room.id"
                   :room="room"
                   class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
                   @favorites-changed="loadRooms()"
