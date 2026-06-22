@@ -113,7 +113,11 @@ describe("Room Index", function () {
         cy.get('[data-test="room-info-button"]').should("not.exist");
         cy.get('[data-test="room-favorites-button"]')
           .should("be.visible")
-          .and("have.attr", "aria-label", "rooms.favorites.add");
+          .and(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting Three"}',
+          );
       });
 
     cy.get('[data-test="room-card"]')
@@ -133,7 +137,11 @@ describe("Room Index", function () {
         cy.get('[data-test="room-info-button"]').should("not.exist");
         cy.get('[data-test="room-favorites-button"]')
           .should("be.visible")
-          .and("have.attr", "aria-label", "rooms.favorites.remove");
+          .and(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting Two"}',
+          );
       });
 
     cy.get('[data-test="room-card"]')
@@ -149,7 +157,11 @@ describe("Room Index", function () {
         cy.get("a").should("have.attr", "href", "/rooms/abc-def-123");
         cy.get('[data-test="room-favorites-button"]')
           .should("be.visible")
-          .and("have.attr", "aria-label", "rooms.favorites.add");
+          .and(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting One"}',
+          );
 
         // Open room info dialog for this room
         cy.get('[data-test="room-info-button"]').click();
@@ -1571,7 +1583,7 @@ describe("Room Index", function () {
         cy.get('[data-test="room-favorites-button"]').should(
           "have.attr",
           "aria-label",
-          "rooms.favorites.remove",
+          'rooms.favorites.remove_for_{"room":"Meeting One"}',
         );
       });
 
@@ -1640,7 +1652,7 @@ describe("Room Index", function () {
         cy.get('[data-test="room-favorites-button"]').should(
           "have.attr",
           "aria-label",
-          "rooms.favorites.add",
+          'rooms.favorites.add_for_{"room":"Meeting Two"}',
         );
       });
 
@@ -1678,7 +1690,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting Two"}',
+          )
           .click();
       });
 
@@ -1724,7 +1740,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting Two"}',
+          )
           .click();
       });
 
@@ -1749,7 +1769,7 @@ describe("Room Index", function () {
         cy.get('[data-test="room-favorites-button"]').should(
           "have.attr",
           "aria-label",
-          "rooms.favorites.add",
+          'rooms.favorites.add_for_{"room":"Meeting Two"}',
         );
         cy.get('[data-test="dialog-cancel-button"]').click();
       });
@@ -1963,7 +1983,11 @@ describe("Room Index", function () {
       .eq(0)
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@addFavoritesRequest");
@@ -1985,7 +2009,11 @@ describe("Room Index", function () {
       .eq(0)
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@addFavoritesRequest");
@@ -2015,7 +2043,11 @@ describe("Room Index", function () {
       .eq(0)
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting One"}',
+          )
           .click();
       });
 
@@ -2064,7 +2096,11 @@ describe("Room Index", function () {
       .eq(0)
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@deleteFavoritesRequest");
@@ -2086,7 +2122,11 @@ describe("Room Index", function () {
       .eq(0)
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@addFavoritesRequest");
@@ -2116,7 +2156,11 @@ describe("Room Index", function () {
       .eq(0)
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting One"}',
+          )
           .click();
       });
 
@@ -2174,7 +2218,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@addFavoritesRequest");
@@ -2204,7 +2252,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@addFavoritesRequest");
@@ -2242,7 +2294,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.add")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.add_for_{"room":"Meeting One"}',
+          )
           .click();
       });
 
@@ -2299,7 +2355,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@deleteFavoritesRequest");
@@ -2329,7 +2389,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting One"}',
+          )
           .click();
 
         cy.wait("@addFavoritesRequest");
@@ -2367,7 +2431,11 @@ describe("Room Index", function () {
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="room-favorites-button"]')
-          .should("have.attr", "aria-label", "rooms.favorites.remove")
+          .should(
+            "have.attr",
+            "aria-label",
+            'rooms.favorites.remove_for_{"room":"Meeting One"}',
+          )
           .click();
       });
 

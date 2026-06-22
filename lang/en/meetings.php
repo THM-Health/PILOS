@@ -45,6 +45,6 @@ return [
     ],
     'video_count' => 'Participant with video',
     'view_meeting_stats' => 'Show utilisation',
-    'view_room' => 'Show room ":name"',
+    'view_room' => 'Show room: :name',
     'voice_participant_count' => 'Participant with microphone',
 ];
