@@ -1,7 +1,6 @@
 <template>
   <!-- room card-->
   <li
-    tabindex="0"
     data-test="room-card"
     class="room-card relative h-full rounded-border border border-surface shadow-none hover:bg-emphasis"
   >
