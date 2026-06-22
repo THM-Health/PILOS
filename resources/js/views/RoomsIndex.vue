@@ -69,6 +69,7 @@
                 data-test="only-favorites-button"
                 :severity="onlyShowFavorites ? 'contrast' : 'secondary'"
                 :disabled="loadingRooms"
+                :aria-pressed="onlyShowFavorites"
                 icon="fa-solid fa-star"
                 :label="$t('rooms.index.only_favorites')"
                 @click="
