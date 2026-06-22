@@ -5,7 +5,7 @@
       <template #title>
         <div class="flex justify-between">
           <div>
-            <h1 class="text-3xl" tabindex="-1">
+            <h1 ref="mainHeading" class="text-3xl" tabindex="-1">
               {{ $t("app.rooms") }}
             </h1>
           </div>
@@ -340,6 +340,8 @@ const { t } = useI18n();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 
+const mainHeading = ref(null);
+
 const toggleMobileMenu = ref(false);
 const loadingRooms = ref(false);
 const loadingRoomsError = ref(false);
@@ -477,7 +479,7 @@ function loadRoomTypes() {
  */
 function loadRooms(page = null, moveFocus = true) {
   if (moveFocus) {
-    document.getElementsByTagName("h1")[0].focus();
+    mainHeading.value.focus();
   }
 
   loadingRooms.value = true;
