@@ -171,7 +171,7 @@ return [
             'running_since' => 'Running since :date',
             'short_description' => 'Short description',
             'show_details' => 'Show room details',
-            'show_details_for' => 'Show details for room ":room"',
+            'show_details_for' => 'Show details for room: :room',
         ],
         'show_all' => 'All rooms',
         'show_own' => 'Own rooms',

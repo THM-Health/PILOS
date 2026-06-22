@@ -62,20 +62,29 @@
       :draggable="false"
       data-test="room-info-dialog"
     >
-      <div class="mt-2 flex items-start justify-between">
-        <RoomTypeBadge :room-type="props.room.type" />
-        <div class="room-card-buttons shrink-0">
-          <RoomFavoriteButton
-            :room="props.room"
-            :redirect-on-room-model-not-found="false"
-            @favorites-changed="$emit('favoritesChanged')"
-          />
+      <div class="flex flex-col">
+        <h1
+          class="text-break order-1 mb-4 text-2xl font-semibold"
+          style="width: 100%"
+        >
+          {{ props.room.name }}
+        </h1>
+        <div class="order-0 mt-2 flex items-start justify-between">
+          <RoomTypeBadge :room-type="props.room.type" />
+          <div class="room-card-buttons shrink-0">
+            <RoomFavoriteButton
+              :room="props.room"
+              :redirect-on-room-model-not-found="false"
+              @favorites-changed="$emit('favoritesChanged')"
+            />
+          </div>
         </div>
+        <RoomDetailsList
+          class="order-2"
+          :room="props.room"
+          :show-description="true"
+        />
       </div>
-      <h1 class="text-break mb-4 text-2xl font-semibold" style="width: 100%">
-        {{ props.room.name }}
-      </h1>
-      <RoomDetailsList :room="props.room" :show-description="true" />
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button
