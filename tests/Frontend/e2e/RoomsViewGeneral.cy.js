@@ -2690,7 +2690,11 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.add")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.add_for_{"room":"Meeting One"}',
+      )
       .click();
     cy.get('[data-test="room-favorites-button"]')
       .should("be.disabled")
@@ -2705,7 +2709,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-favorites-button"]').should(
       "have.attr",
       "aria-label",
-      "rooms.favorites.remove",
+      'rooms.favorites.remove_for_{"room":"Meeting One"}',
     );
 
     // Test remove room from favorites
@@ -2746,7 +2750,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-favorites-button"]').should(
       "have.attr",
       "aria-label",
-      "rooms.favorites.add",
+      'rooms.favorites.add_for_{"room":"Meeting One"}',
     );
   });
 
@@ -2804,7 +2808,11 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.add")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.add_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@addFavoritesRequest");
@@ -2891,7 +2899,11 @@ describe("Room View general", function () {
     }).as("deleteFavoritesRequest");
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.remove")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.remove_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@deleteFavoritesRequest");
@@ -2922,7 +2934,11 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.remove")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.remove_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@deleteFavoritesRequest");
@@ -2970,7 +2986,11 @@ describe("Room View general", function () {
     }).as("deleteFavoritesRequest");
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.remove")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.remove_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@deleteFavoritesRequest");
