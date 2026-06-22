@@ -5,7 +5,7 @@
       <template #title>
         <div class="flex justify-between">
           <div>
-            <h1 class="text-3xl">
+            <h1 class="text-3xl" tabindex="-1">
               {{ $t("app.rooms") }}
             </h1>
           </div>
@@ -414,7 +414,7 @@ onMounted(() => {
       perPage.value = 6;
   }
 
-  reload();
+  reload(false);
 });
 
 /**
@@ -445,9 +445,9 @@ const filterOptions = computed(() => {
 /**
  *  Reload rooms
  */
-function reload() {
+function reload(moveFocus = true) {
   loadRoomTypes();
-  loadRooms();
+  loadRooms(null, moveFocus);
 }
 
 /**
@@ -474,7 +474,11 @@ function loadRoomTypes() {
 /**
  * Load the rooms of the current user based on the given inputs
  */
-function loadRooms(page = null) {
+function loadRooms(page = null, moveFocus = true) {
+  if (moveFocus) {
+    document.getElementsByTagName("h1")[0].focus();
+  }
+
   loadingRooms.value = true;
 
   api
