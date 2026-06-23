@@ -214,6 +214,7 @@ import {
   HTTP_STATUS_UNPROCESSABLE_ENTITY,
 } from "../constants/httpStatusCodes.js";
 import { useUrlSearchParams } from "@vueuse/core";
+import { getCurrentRoomRole } from "../composables/useRoomHelpers.js";
 
 const props = defineProps({
   id: {
@@ -694,13 +695,12 @@ function authenticate(type, codeOrToken) {
   });
 }
 
-// ToDo think about splitting and further refactoring this function
+/**
+ * Load the saved access parameters from the url or session storage
+ * Priority: personalized link from hash params > access code from hash params > personalized link from session storage > access code from session storage
+ */
 async function loadSavedAccessParameters() {
-  // Load Access Parameters stored in hash params
-  if (hashParams.accessCode) {
-    accessCodeInput.value = hashParams.accessCode;
-  }
-
+  // Load personalized link from hash params
   if (hashParams.personalizedLink) {
     // Prevent authenticated users from using a personalized link
     if (authStore.isAuthenticated) {
@@ -709,35 +709,51 @@ async function loadSavedAccessParameters() {
       return;
     }
     personalizedLink.value = hashParams.personalizedLink;
+
+    // Clear hash params
+    await nextTick();
+    hashParams.personalizedLink = null;
+    return;
   }
 
-  // Clear hash params
-  await nextTick();
-  hashParams.personalizedLink = null;
-  hashParams.accessCode = null;
+  // Load Access Parameters stored in hash params
+  if (hashParams.accessCode) {
+    accessCodeInput.value = hashParams.accessCode;
+
+    // Clear hash params
+    await nextTick();
+    hashParams.accessCode = null;
+  }
 
   // Load Access Parameters stored in session storage only if parameters are not already set by hash params
-  const savedAccessCode = sessionStorage.getItem("roomAccessCode_" + props.id);
-  const savedPersonalizedLink = sessionStorage.getItem(
-    "roomPersonalizedLink_" + props.id,
-  );
+  if (accessCodeInput.value === "") {
+    const savedPersonalizedLink = sessionStorage.getItem(
+      "roomPersonalizedLink_" + props.id,
+    );
+    if (savedPersonalizedLink) {
+      personalizedLink.value = savedPersonalizedLink;
+      return;
+    }
 
-  if (accessCodeInput.value === "" && savedAccessCode) {
-    accessCodeInput.value = savedAccessCode;
+    const savedAccessCode = sessionStorage.getItem(
+      "roomAccessCode_" + props.id,
+    );
+
+    if (savedAccessCode) {
+      accessCodeInput.value = savedAccessCode;
+    }
   }
 
-  if (!personalizedLink.value && savedPersonalizedLink) {
-    personalizedLink.value = savedPersonalizedLink;
-  }
+  // Load Guest Name from local storage for guests
+  if (!authStore.isAuthenticated) {
+    const savedGuestName = localStorage.getItem("pilos_guest_name");
 
-  // Load Guest Name from local storage
-  const savedGuestName = localStorage.getItem("pilos_guest_name");
-
-  if (savedGuestName) {
-    // Set guest name if present in local storage and
-    // enable remember guest name checkbox
-    rememberGuestName.value = true;
-    guestName.value = savedGuestName;
+    if (savedGuestName) {
+      // Set guest name if present in local storage and
+      // enable remember guest name checkbox
+      rememberGuestName.value = true;
+      guestName.value = savedGuestName;
+    }
   }
 }
 
@@ -781,20 +797,7 @@ const showAccessCodeOverlay = computed(() => {
   );
 });
 
-// ToDo check if this can be moved somewhere else
 const currentRoomRole = computed(() => {
-  if (room.value?.is_co_owner) {
-    return 3;
-  }
-
-  if (room.value?.is_moderator) {
-    return 2;
-  }
-
-  if (room.value?.is_member) {
-    return 1;
-  }
-
-  return 0;
+  return getCurrentRoomRole(room.value);
 });
 </script>
