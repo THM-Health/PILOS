@@ -136,6 +136,10 @@
     white-space: normal;
     color: #fff;
 
+    &.room-role-guest {
+        background-color: var(--p-slate-500);
+    }
+
     &.room-role-participant {
         background-color: var(--p-emerald-500);
     }

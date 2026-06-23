@@ -1,23 +1,11 @@
 <template>
-  <Card :pt:body:class="'p-3'">
-    <template #content>
-      <!-- ToDo test alternative layouts-->
-      <div class="mx-4 grid grid-cols-3 items-center">
-        <RoomRoleBadge class="justify-self-start" :role="roomRole" />
-        <div class="text-center">
-          Hello
-          {{ guestName }}!
-        </div>
-        <Button
-          v-if="allowNameChange"
-          icon="fa-solid fa-user-edit"
-          :label="$t('rooms.change_guest_name')"
-          class="justify-self-end"
-          @click="showChangeNameModal"
-        />
-      </div>
-    </template>
-  </Card>
+  <Button
+    icon="fa-solid fa-user-edit"
+    :label="$t('rooms.change_guest_name')"
+    class="justify-self-end"
+    severity="secondary"
+    @click="showChangeNameModal"
+  />
 
   <Dialog
     v-model:visible="changeNameModalVisible"
@@ -91,10 +79,6 @@ const props = defineProps({
   allowNameChange: {
     type: Boolean,
     default: false,
-  },
-  roomRole: {
-    type: Number,
-    default: 0,
   },
 });
 

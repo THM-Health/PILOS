@@ -11,7 +11,7 @@ return [
         'meetingForciblyEnded' => 'Failed to join meeting: The meeting is no longer running.',
     ],
     'become_member' => 'Become member',
-    'change_guest_name' => 'Change guest name',
+    'change_guest_name' => 'Change name',
     'change_type' => [
         'changing_settings' => 'The following changes will be made to the room settings',
         'current_setting' => 'Current setting',
@@ -500,4 +500,5 @@ return [
     'streaming_hint' => 'If you prefer not to have your voice or video streamed, please keep your microphone muted and your camera off.',
     'streaming_info' => 'This room may be streamed.',
     'try_again' => 'Try again',
+    'welcome' => 'You are using this room as '
 ];

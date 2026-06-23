@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4">
     <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
     <div class="flex flex-col-reverse gap-2 md:flex-row">

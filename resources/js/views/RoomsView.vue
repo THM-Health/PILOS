@@ -94,14 +94,6 @@
           />
         </div>
         <div v-else class="flex flex-col gap-6">
-          <RoomGuestWelcomeCard
-            v-if="!authStore.isAuthenticated"
-            v-model:remember-guest-name="rememberGuestName"
-            :guest-name="room.username ? room.username : guestName"
-            :allow-name-change="room.username === undefined"
-            :room-role="currentRoomRole"
-            @guest-name-changed="updateGuestName"
-          />
           <Card>
             <template #header>
               <RoomHeader
@@ -120,6 +112,15 @@
                 "
                 @left-membership="reload"
               />
+
+              <div v-if="!authStore.isAuthenticated" class="mt-2 px-6">
+                <RoomRoleBadge
+                  class="mr-2 justify-self-start"
+                  :role="currentRoomRole"
+                />
+                {{ $t("rooms.welcome") }}
+                <b>{{ room.username ? room.username : guestName }}</b>
+              </div>
             </template>
             <template #content>
               <div v-if="room.can_start && room.room_type_invalid" class="mb-4">
@@ -153,6 +154,14 @@
                     "
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload(true)"
+                  />
+                  <RoomGuestChangeNameButton
+                    v-if="
+                      !authStore.isAuthenticated && room.username === undefined
+                    "
+                    v-model:remember-guest-name="rememberGuestName"
+                    :guest-name="room.username ? room.username : guestName"
+                    @guest-name-changed="updateGuestName"
                   />
                   <RoomBrowserNotification
                     :room-name="room.name"
