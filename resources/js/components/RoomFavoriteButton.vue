@@ -9,8 +9,8 @@
     :severity="props.room.is_favorite ? 'contrast' : 'secondary'"
     :aria-label="
       props.room.is_favorite
-        ? $t('rooms.favorites.remove')
-        : $t('rooms.favorites.add')
+        ? $t('rooms.favorites.remove_for', { room: props.room.name })
+        : $t('rooms.favorites.add_for', { room: props.room.name })
     "
     :icon="isLoading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-star'"
     :disabled="isLoading"

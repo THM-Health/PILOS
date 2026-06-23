@@ -173,3 +173,15 @@
         background-color: var(--p-amber-500);
     }
 }
+
+.room-card:focus-within {
+    @apply ring;
+}
+
+.room-card:focus-within a:focus {
+    outline: none;
+}
+
+.room-card:has(button:focus) {
+    @apply ring-0;
+}

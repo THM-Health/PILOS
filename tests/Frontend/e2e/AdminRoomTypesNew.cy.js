@@ -129,7 +129,7 @@ describe("Admin room types new", function () {
       .within(() => {
         cy.get('[data-test="room-type-badge"]')
           .should("have.css", "background-color", "rgb(239, 68, 68)")
-          .and("have.text", "Exam 01");
+          .and("have.text", "rooms.index.room_component.room_type:Exam 01");
       });
 
     cy.get(".multiselect__content").should("not.exist");

@@ -5,7 +5,7 @@
       <template #title>
         <div class="flex justify-between">
           <div>
-            <h1 class="text-3xl">
+            <h1 ref="mainHeading" class="text-3xl" tabindex="-1">
               {{ $t("app.rooms") }}
             </h1>
           </div>
@@ -69,6 +69,7 @@
                 data-test="only-favorites-button"
                 :severity="onlyShowFavorites ? 'contrast' : 'secondary'"
                 :disabled="loadingRooms"
+                :aria-pressed="onlyShowFavorites"
                 icon="fa-solid fa-star"
                 :label="$t('rooms.index.only_favorites')"
                 @click="
@@ -304,18 +305,18 @@
             </template>
 
             <template #list="slotProps">
-              <div
+              <ul
                 v-if="!loadingRooms && !loadingRoomsError"
                 class="grid grid-cols-12 gap-4 py-1"
               >
-                <div
-                  v-for="(room, index) in slotProps.items"
-                  :key="index"
+                <RoomCard
+                  v-for="room in slotProps.items"
+                  :key="room.id"
+                  :room="room"
                   class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
-                >
-                  <RoomCard :room="room" @favorites-changed="loadRooms()" />
-                </div>
-              </div>
+                  @favorites-changed="loadRooms()"
+                />
+              </ul>
             </template>
           </DataView>
         </OverlayComponent>
@@ -338,6 +339,8 @@ const api = useApi();
 const { t } = useI18n();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
+
+const mainHeading = ref(null);
 
 const toggleMobileMenu = ref(false);
 const loadingRooms = ref(false);
@@ -414,7 +417,7 @@ onMounted(() => {
       perPage.value = 6;
   }
 
-  reload();
+  reload(false);
 });
 
 /**
@@ -445,9 +448,9 @@ const filterOptions = computed(() => {
 /**
  *  Reload rooms
  */
-function reload() {
+function reload(moveFocus = true) {
   loadRoomTypes();
-  loadRooms();
+  loadRooms(null, moveFocus);
 }
 
 /**
@@ -474,7 +477,11 @@ function loadRoomTypes() {
 /**
  * Load the rooms of the current user based on the given inputs
  */
-function loadRooms(page = null) {
+function loadRooms(page = null, moveFocus = true) {
+  if (moveFocus) {
+    mainHeading.value.focus();
+  }
+
   loadingRooms.value = true;
 
   api

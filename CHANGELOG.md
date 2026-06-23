@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Accessibility: Screen reader only button to close popover dialogs ([#2971])
+- Accessibility: Clearer screen reader context for buttons and attributes on the room index page ([#2970])
+- Accessibility: aria-pressed state to indicate the active status of the "show only favorites" filter on room index page ([#2970])
+
+### Changed
+
+- Accessibility: Converted room names on the room index page to `<h2>` anchor links to improve screen reader navigation ([#2970])
+- Accessibility: Move focus automatically back to the main `<h1>` heading when filters change on the room index page ([#2970])
+- Accessibility: Announcement order to read the room name before the room type on screen readers ([#2970])
 
 ## [v4.16.0] - 2026-06-12
 
@@ -813,6 +821,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2911]: https://github.com/THM-Health/PILOS/pull/2911
 [#2912]: https://github.com/THM-Health/PILOS/issues/2912
 [#2913]: https://github.com/THM-Health/PILOS/pull/2913
+[#2970]: https://github.com/THM-Health/PILOS/pull/2970
 [#2971]: https://github.com/THM-Health/PILOS/pull/2971
 [#2997]: https://github.com/THM-Health/PILOS/issues/2997
 [#2998]: https://github.com/THM-Health/PILOS/issues/2998
