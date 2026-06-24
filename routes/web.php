@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Auth\OIDC\OIDCController;
 use App\Auth\Shibboleth\ShibbolethController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\BBBClientSettingsController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\RecordingController;
@@ -39,6 +40,8 @@ Route::middleware('enable_if_config:services.shibboleth.enabled')->group(functio
     Route::get('auth/shibboleth/callback', [ShibbolethController::class, 'callback'])->name('auth.shibboleth.callback');
     Route::match(['get', 'post'], 'auth/shibboleth/logout', [ShibbolethController::class, 'logout'])->name('auth.shibboleth.logout');
 });
+
+Route::get('bbb/client_settings', BBBClientSettingsController::class)->name('bbb.client_settings');
 
 Route::middleware('enable_if_config:services.oidc.enabled')->group(function () {
     Route::get('auth/oidc/redirect', [OIDCController::class, 'redirect'])->name('auth.oidc.redirect');
