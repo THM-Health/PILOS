@@ -29,7 +29,7 @@
           :link-target="settingsStore.getSetting('banner.link_target')"
         />
         <header>
-          <MainNav @route-changed="onRouteChanged()" />
+          <MainNav @route-changed="moveFocus()" />
         </header>
       </div>
       <main id="main" tabindex="-1" :class="routeClass">
@@ -65,12 +65,21 @@ const routeClass = computed(() => {
 watch(
   () => route.path,
   () => {
-    onRouteChanged();
+    moveFocus();
   },
 );
 
-async function onRouteChanged() {
+watch(
+  () => loadingStore.loadingCounter,
+  (newValue) => {
+    if (newValue === 0) {
+      moveFocus();
+    }
+  },
+);
+
+async function moveFocus() {
   await nextTick();
-  app.value.focus();
+  app.value?.focus();
 }
 </script>
