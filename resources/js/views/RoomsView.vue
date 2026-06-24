@@ -713,7 +713,7 @@ async function loadSavedAccessParameters() {
   if (hashParams.personalizedLink) {
     // Prevent authenticated users from using a personalized link
     if (authStore.isAuthenticated) {
-      toast.error(t("rooms.flash.personalized_link_already_used"));
+      toast.error(t("app.flash.guests_only"));
       router.replace({ name: "home" });
       return;
     }
@@ -728,6 +728,9 @@ async function loadSavedAccessParameters() {
   // Load Access Parameters stored in hash params
   if (hashParams.accessCode) {
     accessCodeInput.value = hashParams.accessCode;
+    // Set access code param in session storage to make sure that access code
+    // stays set if the user decides to log in (navigates to login page)
+    sessionStorage.setItem("roomAccessCode_" + props.id, hashParams.accessCode);
 
     // Clear hash params
     await nextTick();
