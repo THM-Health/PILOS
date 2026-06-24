@@ -27,7 +27,7 @@
 
       <div
         v-if="!authStore.isAuthenticated"
-        class="mt-2 flex w-full flex-col gap-2"
+        class="mt-4 flex w-full flex-col gap-2"
       >
         <Button
           data-test="login-room-button"

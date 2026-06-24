@@ -275,6 +275,7 @@ return [
         ],
     ],
     'name' => 'Room name',
+    'name_in_video_conference' => 'Name in video conference: ',
     'no_rooms_available' => 'No rooms available',
     'no_rooms_found' => 'No rooms found',
     'not_running' => 'This room is not started yet.',
@@ -500,5 +501,4 @@ return [
     'streaming_hint' => 'If you prefer not to have your voice or video streamed, please keep your microphone muted and your camera off.',
     'streaming_info' => 'This room may be streamed.',
     'try_again' => 'Try again',
-    'welcome' => 'You are using this room as '
 ];

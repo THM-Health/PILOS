@@ -97,7 +97,7 @@
           <Card>
             <template #header>
               <RoomHeader
-                class="mx-6 mt-6"
+                class="mx-5 mt-6"
                 :room="room"
                 :loading="loading"
                 :room-auth-token="roomAuthToken"
@@ -112,32 +112,68 @@
                 "
                 @left-membership="reload"
               />
-
-              <div v-if="!authStore.isAuthenticated" class="mt-2 px-6">
-                <RoomRoleBadge
-                  class="mr-2 justify-self-start"
-                  :role="currentRoomRole"
-                />
-                {{ $t("rooms.welcome") }}
-                <b>{{ room.username ? room.username : guestName }}</b>
-              </div>
             </template>
             <template #content>
-              <div v-if="room.can_start && room.room_type_invalid" class="mb-4">
-                <Message
+              <div class="flex flex-col gap-2">
+                <InlineNote
+                  v-if="room.last_meeting?.detached"
                   severity="warn"
-                  icon="fa-solid fa-unlink"
+                  :class="
+                    room.can_start && room.room_type_invalid ? '' : 'mb-5'
+                  "
+                  icon="fa-solid fa-triangle-exclamation"
                   :closable="false"
                 >
-                  {{
-                    $t("rooms.room_type_invalid_alert", {
-                      roomTypeName: room.type.name,
-                    })
-                  }}
-                </Message>
-              </div>
-              <!-- Room join/start -->
+                  {{ $t("rooms.connection_error.detached") }}
+                </InlineNote>
 
+                <InlineNote
+                  v-else-if="room.last_meeting?.server_connection_issues"
+                  :class="
+                    room.can_start && room.room_type_invalid ? '' : 'mb-5'
+                  "
+                  severity="warn"
+                  icon="fa-solid fa-triangle-exclamation"
+                  :closable="false"
+                >
+                  {{ $t("rooms.connection_error.reconnecting") }}
+                </InlineNote>
+
+                <div
+                  v-if="room.can_start && room.room_type_invalid"
+                  class="mb-5"
+                >
+                  <Message
+                    severity="warn"
+                    icon="fa-solid fa-unlink"
+                    :closable="false"
+                  >
+                    {{
+                      $t("rooms.room_type_invalid_alert", {
+                        roomTypeName: room.type.name,
+                      })
+                    }}
+                  </Message>
+                </div>
+              </div>
+
+              <!-- Room guest / personalized link name used in video conference-->
+              <div
+                v-if="!authStore.isAuthenticated"
+                class="mb-4 flex justify-start"
+              >
+                <div class="room-details__icon">
+                  <i class="fa-solid fa-address-card" />
+                </div>
+                <div class="room-details__text">
+                  <span>
+                    {{ $t("rooms.name_in_video_conference") }}
+                    <b>{{ room.username ? room.username : guestName }}</b>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Room join/start -->
               <div class="flex items-start justify-between gap-2">
                 <div class="flex justify-start gap-2">
                   <RoomJoinButton
@@ -223,7 +259,6 @@ import {
   HTTP_STATUS_UNPROCESSABLE_ENTITY,
 } from "../constants/httpStatusCodes.js";
 import { useUrlSearchParams } from "@vueuse/core";
-import { getCurrentRoomRole } from "../composables/useRoomHelpers.js";
 
 const props = defineProps({
   id: {
@@ -807,9 +842,5 @@ const showAccessCodeOverlay = computed(() => {
       roomAuthToken.value?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK &&
       guestName.value === "")
   );
-});
-
-const currentRoomRole = computed(() => {
-  return getCurrentRoomRole(room.value);
 });
 </script>

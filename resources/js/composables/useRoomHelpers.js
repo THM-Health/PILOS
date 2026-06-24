@@ -2,22 +2,6 @@ import { watch } from "vue";
 import * as _ from "lodash-es";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
 
-export function getCurrentRoomRole(room) {
-  if (room?.is_co_owner) {
-    return 3;
-  }
-
-  if (room?.is_moderator) {
-    return 2;
-  }
-
-  if (room?.is_member) {
-    return 1;
-  }
-
-  return 0;
-}
-
 export function onRoomHasChanged(room, callback) {
   watch(room, (newRoom, oldRoom) => {
     if (newRoom?.owner?.id !== oldRoom?.owner?.id) {
