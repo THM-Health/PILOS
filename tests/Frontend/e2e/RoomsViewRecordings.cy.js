@@ -5,6 +5,10 @@ describe("Rooms view recordings", function () {
     cy.init();
     cy.interceptRoomViewRequests();
     cy.interceptRoomRecordingsRequests();
+
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
   });
 
   it("load recordings", function () {
@@ -310,34 +314,6 @@ describe("Rooms view recordings", function () {
   });
 
   it("load recordings with access code", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.fixture("roomRecordings.json").then((roomRecordings) => {
-      roomRecordings.data = roomRecordings.data.slice(0, 1);
-      roomRecordings.meta.total = 1;
-      roomRecordings.meta.total_no_filter = 1;
-      roomRecordings.meta.to = 1;
-
-      cy.intercept("api/v1/rooms/abc-def-123/recordings*", {
-        statusCode: 200,
-        body: roomRecordings,
-      }).as("roomRecordingsRequest");
-    });
-
-    cy.visit("/rooms/abc-def-123#tab=recordings");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
       body: {
@@ -357,7 +333,19 @@ describe("Rooms view recordings", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    cy.fixture("roomRecordings.json").then((roomRecordings) => {
+      roomRecordings.data = roomRecordings.data.slice(0, 1);
+      roomRecordings.meta.total = 1;
+      roomRecordings.meta.total_no_filter = 1;
+      roomRecordings.meta.to = 1;
+
+      cy.intercept("api/v1/rooms/abc-def-123/recordings*", {
+        statusCode: 200,
+        body: roomRecordings,
+      }).as("roomRecordingsRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -394,28 +382,12 @@ describe("Rooms view recordings", function () {
   });
 
   it("load recordings with access code errors", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
     cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
       statusCode: 401,
       body: {
         message: "invalid_auth_token",
       },
     }).as("roomRecordingsRequest");
-
-    cy.visit("/rooms/abc-def-123#tab=recordings");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
 
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
@@ -440,7 +412,7 @@ describe("Rooms view recordings", function () {
         "roomRequest",
       );
 
-      cy.get('[data-test="room-login-button"]').click();
+      cy.visit("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
       cy.wait("@roomAuthRequest");
 
       cy.fixture("room.json").then((room2) => {
@@ -574,7 +546,7 @@ describe("Rooms view recordings", function () {
     });
 
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR#tab=recordings",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
     );
 
     cy.wait("@roomAuthRequest");
@@ -647,7 +619,7 @@ describe("Rooms view recordings", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR#tab=recordings",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
     );
 
     cy.wait("@roomAuthRequest").then(() => {

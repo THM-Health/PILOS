@@ -30,7 +30,7 @@
         class="mt-4 flex w-full flex-col gap-2"
       >
         <Button
-          data-test="login-room-button"
+          data-test="room-login-as-user-button"
           icon="fa-solid fa-right-to-bracket"
           :label="$t('auth.offer_login')"
           as="router-link"

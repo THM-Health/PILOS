@@ -8,6 +8,9 @@ describe("Rooms view description", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
   });
 
   it("view with different permissions", function () {

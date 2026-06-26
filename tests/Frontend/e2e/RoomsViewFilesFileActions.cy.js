@@ -7,6 +7,10 @@ describe("Rooms view files file actions", function () {
     cy.init();
     cy.interceptRoomViewRequests();
     cy.interceptRoomFilesRequest(true);
+
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
   });
 
   it("upload file", function () {
@@ -911,24 +915,6 @@ describe("Rooms view files file actions", function () {
   });
 
   it("download file with access code errors", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.interceptRoomFilesRequest();
-
-    cy.visit("/rooms/abc-def-123");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
       body: {
@@ -948,7 +934,9 @@ describe("Rooms view files file actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    cy.interceptRoomFilesRequest();
+
+    cy.visit("/rooms/abc-def-123#accessCode=123456789");
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -1053,7 +1041,7 @@ describe("Rooms view files file actions", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest");
@@ -1240,6 +1228,13 @@ describe("Rooms view files file actions", function () {
 
       // Check that room and files are reloaded (because of changes in the room (current_user))
       cy.wait("@reloadRoomRequest");
+
+      // Enter guest name
+      cy.get('[data-test="room-access-overlay"]').should("be.visible");
+      cy.get("#guest-name").type("Max Doe");
+      cy.get('[data-test="room-login-button"]').click();
+      cy.get('[data-test="room-access-overlay"]').should("not.exist");
+
       cy.wait("@roomFilesRequest");
 
       // Check that file list was updated again

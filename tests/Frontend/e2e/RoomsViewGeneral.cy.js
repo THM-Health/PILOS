@@ -14,7 +14,7 @@ describe("Room View general", function () {
       room.data.allow_membership = true;
       room.data.current_user = null;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -24,12 +24,55 @@ describe("Room View general", function () {
 
     cy.title().should("eq", "Meeting One - PILOS Test");
 
+    // Check that access overlay is shown
+    cy.get('[data-test="room-access-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that header is shown
+        cy.contains("Meeting One").should("be.visible");
+        cy.contains("John Doe").should("be.visible");
+        cy.contains("rooms.index.room_component.never_started").should(
+          "be.visible",
+        );
+
+        // Check that login button is shown
+        cy.get('[data-test="room-login-as-user-button"]')
+          .should("be.visible")
+          .and("have.text", "auth.offer_login")
+          .and("have.attr", "href", "/login?redirect=/rooms/abc-def-123");
+
+        // Check that guest name input is shown
+        cy.get('[data-test="guest-name-field"]')
+          .should("be.visible")
+          .within(() => {
+            cy.contains("rooms.first_and_lastname").should("be.visible");
+            cy.get("#guest-name").should("be.visible").and("have.value", "");
+            cy.contains("rooms.remember_guest_name").should("be.visible");
+            cy.get("#remember-guest-name").and("not.be.checked");
+          });
+
+        // Check that access code input is not shown
+        cy.get('[data-test="access-code-field"]').should("not.exist");
+
+        // Enter guest name
+        cy.get("#guest-name").type("Max Doe");
+
+        cy.get('[data-test="room-login-button"]')
+          .should("have.text", "rooms.continue_as_guest")
+          .click();
+      });
+
+    // Check that room access overlay is hidden
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
+
     // Check that room Header is shown correctly
     cy.contains("Meeting One").should("be.visible");
     cy.contains("John Doe").should("be.visible");
     cy.contains("rooms.index.room_component.never_started").should(
       "be.visible",
     );
+
+    // ToDo check that welcome message is shown
 
     // Check that buttons are shown correctly
     cy.get('[data-test="reload-room-button"]').should("be.visible");
@@ -125,16 +168,30 @@ describe("Room View general", function () {
 
     cy.title().should("eq", "Meeting One - PILOS Test");
 
-    // Check that access code input is shown correctly
-    cy.get('[data-test="room-access-code-overlay"]')
+    // Check that access code overlay is shown correctly
+    cy.get('[data-test="room-access-overlay"]')
       .should("be.visible")
       .within(() => {
+        // Check header is shown
         cy.contains("Meeting One").should("be.visible");
         cy.contains("Max Doe").should("be.visible");
         cy.contains("rooms.index.room_component.never_started").should(
           "be.visible",
         );
-        cy.contains("rooms.require_access_code").should("be.visible");
+
+        // Check that login button is hidden
+        cy.get('[data-test="room-login-as-user-button"]').should("not.exist");
+
+        // Check that guest name input is hidden
+        cy.get('[data-test="guest-name-field"]').should("not.exist");
+
+        // Check that access code input is shown
+        cy.get('[data-test="access-code-field"]')
+          .should("be.visible")
+          .within(() => {
+            cy.contains("rooms.access_code").should("be.visible");
+            cy.get("#access-code").should("be.visible").and("have.value", "");
+          });
 
         // Try to submit with correct access code
         cy.get("#access-code").type("123456789");
@@ -193,7 +250,7 @@ describe("Room View general", function () {
       });
     });
 
-    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
 
     // Check that room Header is shown correctly
     cy.contains("Meeting One").should("be.visible");
@@ -239,11 +296,15 @@ describe("Room View general", function () {
       }).as("roomRequest");
     });
 
+    cy.window().then((win) => {
+      win.sessionStorage.removeItem("roomAccessCode_abc-def-123");
+    });
+
     cy.reload();
 
     cy.wait("@roomRequest");
 
-    cy.get('[data-test="room-access-code-overlay"]')
+    cy.get('[data-test="room-access-overlay"]')
       .should("be.visible")
       .within(() => {
         // Try to submit with correct access code
@@ -290,7 +351,7 @@ describe("Room View general", function () {
       });
     });
 
-    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
 
     // Reload with invalid access code
     const errorReloadRoomRequest = interceptIndefinitely(
@@ -347,10 +408,10 @@ describe("Room View general", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
 
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
     // Retry with valid access code but no access code needed anymore
-    cy.get('[data-test="room-access-code-overlay"]')
+    cy.get('[data-test="room-access-overlay"]')
       .should("be.visible")
       .within(() => {
         // Try to submit with correct access code
@@ -390,7 +451,7 @@ describe("Room View general", function () {
       expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
-    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
   });
 
   it("room view with legacy access code", function () {
@@ -417,7 +478,7 @@ describe("Room View general", function () {
     cy.title().should("eq", "Meeting One - PILOS Test");
 
     // Check that access code input is shown correctly
-    cy.get('[data-test="room-access-code-overlay"]')
+    cy.get('[data-test="room-access-overlay"]')
       .should("be.visible")
       .within(() => {
         cy.contains("Meeting One").should("be.visible");
@@ -425,7 +486,6 @@ describe("Room View general", function () {
         cy.contains("rooms.index.room_component.never_started").should(
           "be.visible",
         );
-        cy.contains("rooms.require_access_code").should("be.visible");
 
         // Submit valid access code
         cy.get("#access-code").type("012abc");
@@ -472,7 +532,7 @@ describe("Room View general", function () {
       });
     });
 
-    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
 
     // Check that room Header is shown correctly
     cy.contains("Meeting One").should("be.visible");
@@ -522,8 +582,8 @@ describe("Room View general", function () {
 
     cy.title().should("eq", "Meeting One - PILOS Test");
 
-    // Check that access code input is shown correctly
-    cy.get('[data-test="room-access-code-overlay"]')
+    // Check that access overlay is shown correctly
+    cy.get('[data-test="room-access-overlay"]')
       .should("be.visible")
       .within(() => {
         cy.contains("Meeting One").should("be.visible");
@@ -531,8 +591,6 @@ describe("Room View general", function () {
         cy.contains("rooms.index.room_component.never_started").should(
           "be.visible",
         );
-        cy.contains("rooms.require_access_code").should("be.visible");
-
         // Try to submit without access code
       });
 
@@ -551,7 +609,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomAuthRequest");
 
-    cy.get('[data-test="room-access-code-overlay"]')
+    cy.get('[data-test="room-access-overlay"]')
       .should("be.visible")
       .within(() => {
         cy.contains("The Access code field is required.").should("be.visible");
@@ -670,8 +728,8 @@ describe("Room View general", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that access code overlay is still shown and not disabled
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    // Check that access overlay is still shown and not disabled
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.get("#access-code").should("not.be.disabled");
     cy.get('[data-test="room-login-button"]').should("not.be.disabled");
 
@@ -691,8 +749,8 @@ describe("Room View general", function () {
     // Check that the error message is shown
     cy.contains("rooms.only_used_by_authenticated_users").should("be.visible");
 
-    // Check that access code overlay is hidden
-    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    // Check that access overlay is hidden
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
 
     // Check with 404 error (room not found) as authenticated user
     cy.interceptRoomIndexRequests();
@@ -739,6 +797,8 @@ describe("Room View general", function () {
     cy.visit("/rooms/abc-def-123");
 
     cy.wait("@roomRequest");
+
+    cy.get("#guest-name").type("Max Doe");
 
     cy.get('[data-test="room-login-button"]').click();
 
@@ -848,7 +908,7 @@ describe("Room View general", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
 
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
     // Check with 500 error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -891,7 +951,7 @@ describe("Room View general", function () {
     ]);
 
     // Check that access code overlay is still shown and not disabled
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.get("#access-code").should("not.be.disabled");
     cy.get('[data-test="room-login-button"]').should("not.be.disabled");
   });
@@ -1023,7 +1083,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-share-button"]').click();
     cy.get("#invitationLink").should(
       "have.value",
-      Cypress.config("baseUrl") + "/rooms/abc-def-123",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=508307005",
     );
     cy.get("#invitationCode").should("have.value", "508-307-005");
 
@@ -1035,7 +1095,7 @@ describe("Room View general", function () {
         expect(text).to.eq(
           'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
             Cypress.config("baseUrl") +
-            "/rooms/abc-def-123\nrooms.invitation.code: 508-307-005",
+            "/rooms/abc-def-123#accessCode=508307005\nrooms.invitation.code: 508-307-005",
         );
       });
     });
@@ -1046,7 +1106,9 @@ describe("Room View general", function () {
     cy.checkToastMessage("rooms.invitation.copied_url");
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
-        expect(text).to.eq(Cypress.config("baseUrl") + "/rooms/abc-def-123");
+        expect(text).to.eq(
+          Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=508307005",
+        );
       });
     });
 
@@ -1080,7 +1142,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-share-button"]').click();
     cy.get("#invitationLink").should(
       "have.value",
-      Cypress.config("baseUrl") + "/rooms/abc-def-123",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=012345",
     );
     cy.get("#invitationCode").should("have.value", "012345");
 
@@ -1092,7 +1154,7 @@ describe("Room View general", function () {
         expect(text).to.eq(
           'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
             Cypress.config("baseUrl") +
-            "/rooms/abc-def-123\nrooms.invitation.code: 012345",
+            "/rooms/abc-def-123#accessCode=012345\nrooms.invitation.code: 012345",
         );
       });
     });
@@ -1127,7 +1189,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-share-button"]').click();
     cy.get("#invitationLink").should(
       "have.value",
-      Cypress.config("baseUrl") + "/rooms/abc-def-123",
+      Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=012abc",
     );
     cy.get("#invitationCode").should("have.value", "012abc");
 
@@ -1139,7 +1201,7 @@ describe("Room View general", function () {
         expect(text).to.eq(
           'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
             Cypress.config("baseUrl") +
-            "/rooms/abc-def-123\nrooms.invitation.code: 012abc",
+            "/rooms/abc-def-123#accessCode=012abc\nrooms.invitation.code: 012abc",
         );
       });
     });
@@ -1339,7 +1401,7 @@ describe("Room View general", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.get("[data-test='room-loading-spinner']")
@@ -1446,7 +1508,7 @@ describe("Room View general", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.title().should("eq", "Meeting One - PILOS Test");
@@ -2084,6 +2146,7 @@ describe("Room View general", function () {
     cy.get('[data-test="dialog-close-button"]').click();
   });
 
+  // ToDo debug this and check why access code does not stay if visited with access code
   it("membership button", function () {
     cy.fixture("room.json").then((room) => {
       room.data.owner = {
@@ -2104,7 +2167,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomRequest");
 
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.get("#access-code").type("123456789");
 
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -2230,7 +2293,7 @@ describe("Room View general", function () {
       expect(interception.request.query.room_auth_token_type).to.be.undefined;
     });
 
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.get("#access-code").should("have.value", "123-456-789");
 
     // Check that no error message is shown even though room request returned authenticated false again
@@ -2258,7 +2321,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomRequest");
 
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.get("#access-code").type("123456789");
 
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -2353,7 +2416,7 @@ describe("Room View general", function () {
     });
 
     // Check if error message is shown
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.checkToastMessage("rooms.flash.access_code_invalid");
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
@@ -2567,7 +2630,7 @@ describe("Room View general", function () {
       room.data.allow_membership = true;
       room.data.description = "<p>Test</p>";
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
         body: room,
       }).as("roomRequest");
@@ -2594,7 +2657,7 @@ describe("Room View general", function () {
     cy.contains("auth.login").should("be.visible");
 
     // Check that access code overlay is shown
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
     // Reload room with user being a member of the room
     cy.fixture("room.json").then((room) => {
@@ -2951,7 +3014,7 @@ describe("Room View general", function () {
     cy.contains("auth.login").should("be.visible");
 
     // Check that access code overlay is shown
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
     // Reload room but room is already not in favorites
     cy.fixture("room.json").then((room) => {
@@ -3046,7 +3109,7 @@ describe("Room View general", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     // Check that error message is shown and user is redirected to the home page
@@ -3422,7 +3485,7 @@ describe("Room View general", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
 
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
   });
 
   it("reload with personalized link errors", function () {
@@ -3569,6 +3632,23 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="reload-room-button"]').click();
+
+    // Check that access overlay is shown
+    cy.get('[data-test="room-access-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        // Check that login button is shown
+        cy.get('[data-test="room-login-as-user-button"]').should("be.visible");
+
+        // Check that guest name input is shown and enter name
+        cy.get("#guest-name").should("be.visible").type("Max Doe");
+
+        // Check that access code input is hidden
+        cy.get('[data-test="access-code-field"]').should("not.exist");
+
+        // Login
+        cy.get('[data-test="room-login-button"]').click();
+      });
 
     // Check that tabs are shown correctly
     cy.get("#tab-description").should("not.exist");

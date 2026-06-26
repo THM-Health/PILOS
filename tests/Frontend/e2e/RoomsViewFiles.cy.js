@@ -5,6 +5,10 @@ describe("Rooms View Files", function () {
     cy.init();
     cy.interceptRoomViewRequests();
     cy.interceptRoomFilesRequest(true);
+
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
   });
 
   it("load files", function () {
@@ -182,24 +186,6 @@ describe("Rooms View Files", function () {
   });
 
   it("load files with access code", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.interceptRoomFilesRequest();
-
-    cy.visit("/rooms/abc-def-123");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
       body: {
@@ -219,7 +205,9 @@ describe("Rooms View Files", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    cy.interceptRoomFilesRequest();
+
+    cy.visit("/rooms/abc-def-123#accessCode=123456789");
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -288,29 +276,6 @@ describe("Rooms View Files", function () {
   });
 
   it("load files with access code errors", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
-      statusCode: 401,
-      body: {
-        message: "invalid_auth_token",
-      },
-    }).as("roomFilesRequest");
-
-    cy.visit("/rooms/abc-def-123");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
       body: {
@@ -334,7 +299,8 @@ describe("Rooms View Files", function () {
         "roomRequest",
       );
 
-      cy.get('[data-test="room-login-button"]').click();
+      cy.visit("/rooms/abc-def-123#accessCode=123456789");
+      cy.wait("@roomAuthRequest");
 
       cy.fixture("room.json").then((room2) => {
         room2.data.owner = { id: 2, name: "Max Doe" };
@@ -351,7 +317,13 @@ describe("Rooms View Files", function () {
       });
     });
 
-    cy.wait("@roomAuthRequest");
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      statusCode: 401,
+      body: {
+        message: "invalid_auth_token",
+      },
+    }).as("roomFilesRequest");
+
     cy.wait("@roomRequest");
 
     cy.wait("@roomFilesRequest").then((interception) => {
@@ -459,7 +431,7 @@ describe("Rooms View Files", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest");
@@ -563,7 +535,7 @@ describe("Rooms View Files", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then(() => {
@@ -919,6 +891,7 @@ describe("Rooms View Files", function () {
 
     cy.visit("/rooms/abc-def-123");
     cy.wait("@roomRequest");
+
     cy.wait("@roomFilesRequest");
 
     cy.get('[data-test="room-files-upload-button"]').should("not.exist");
@@ -1084,6 +1057,7 @@ describe("Rooms View Files", function () {
 
     cy.reload();
     cy.wait("@roomRequest");
+
     cy.wait("@roomFilesRequest");
 
     cy.get('[data-test="room-files-upload-button"]').should("not.exist");
