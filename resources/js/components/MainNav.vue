@@ -3,6 +3,7 @@
     <div class="container flex flex-row justify-between">
       <Menubar
         id="mainmenu"
+        tabindex="-1"
         :breakpoint="menuBreakpoint + 'px'"
         :model="mainMenuItems"
         :aria-label="$t('app.aria.main_menu')"
@@ -83,6 +84,7 @@
       <Menubar
         v-if="!isMobile"
         id="usermenu"
+        tabindex="-1"
         :model="userMenuItems"
         :aria-label="$t('app.aria.user_menu')"
         :pt="{

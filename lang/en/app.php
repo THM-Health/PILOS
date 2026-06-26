@@ -18,10 +18,12 @@ return [
         'warn' => 'Warning',
     ],
     'aria' => [
+        'skip_links' => 'Skip Links',
         'main' => 'Main content',
         'main_menu' => 'Main menu',
         'user_menu' => 'User menu',
         'footer' => 'Footer',
+        'footer_navigation' => 'Footer navigation',
         'navigated_to_page' => 'Navigated to page :page',
     ],
     'cancel' => 'Cancel',
