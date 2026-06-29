@@ -8,7 +8,7 @@ const { t } = useI18n();
 function scrollAndMoveFocus(target) {
   const element = document.getElementById(target);
   if (element) {
-    element.scrollIntoView({ behavior: "smooth" });
+    element.scrollIntoView({ behavior: "auto" });
     element.focus();
   }
 }
