@@ -43,7 +43,7 @@ const links = computed(() => {
 <template>
   <nav :aria-label="t('app.aria.skip_links')">
     <ul
-      class="border-rounded absolute top-0 left-[50%] z-50 flex translate-x-[-50%] -translate-y-full transform flex-col gap-2 border bg-surface-0 p-4 px-4 py-2 transition focus-within:translate-y-0 dark:bg-surface-950"
+      class="border-rounded absolute -top-1 left-[50%] z-50 flex translate-x-[-50%] -translate-y-full transform flex-col gap-2 border bg-surface-0 p-4 px-4 py-2 transition focus-within:top-0 focus-within:translate-y-0 dark:bg-surface-950"
     >
       <li v-for="link in links" :key="link.id">
         <Button
