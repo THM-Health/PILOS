@@ -67,7 +67,7 @@ describe("Room Join with lobby settings", function () {
 
     // Find join button and click it, join as guest
     cy.get('[data-test="room-join-button"]').click();
-    cy.get("#guest-name").type("John Doe");
+    cy.get("#participant-name").type("John Doe");
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
@@ -141,7 +141,7 @@ describe("Room Join with lobby settings", function () {
 
     // Find join button and click it, join as guest
     cy.get('[data-test="room-join-button"]').click();
-    cy.get("#guest-name").type("John Doe");
+    cy.get("#participant-name").type("John Doe");
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
@@ -215,7 +215,7 @@ describe("Room Join with lobby settings", function () {
 
     // Find join button and click it, join as guest
     cy.get('[data-test="room-join-button"]').click();
-    cy.get("#guest-name").type("John Doe");
+    cy.get("#participant-name").type("John Doe");
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {

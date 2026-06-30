@@ -32,7 +32,8 @@
       "file_mimes": "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png",
       "max_filesize": 30,
       "welcome_message_limit": 500,
-      "room_name_limit": 50
+      "room_name_limit": 50,
+      "allowed_name_characters": "\\w ,.'\\-+\\/&()"
     },
     "user": {
       "password_change_allowed": true

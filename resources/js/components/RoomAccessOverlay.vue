@@ -44,30 +44,32 @@
         <div
           v-if="!authStore.isAuthenticated"
           class="field flex flex-col gap-2"
-          data-test="guest-name-field"
+          data-test="participant-name-field"
         >
-          <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
+          <label for="participant-name">{{
+            $t("rooms.first_and_lastname")
+          }}</label>
           <InputText
-            id="guest-name"
-            v-model="guestNameInput"
+            id="participant-name"
+            v-model="participantNameInput"
             :disabled="authThrottledFor > 0"
-            :invalid="guestNameInvalid"
+            :invalid="participantNameInvalid"
           />
 
           <div class="flex items-center gap-2">
             <Checkbox
-              v-model="rememberGuestName"
-              input-id="remember-guest-name"
+              v-model="rememberParticipantName"
+              input-id="remember-participant-name"
               :disabled="authThrottledFor > 0"
               binary
             />
-            <label for="remember-guest-name">
-              {{ $t("rooms.remember_guest_name") }}
+            <label for="remember-participant-name">
+              {{ $t("rooms.remember_participant_name") }}
             </label>
           </div>
 
           <div
-            v-if="guestNameInvalid"
+            v-if="participantNameInvalid"
             ref="formError"
             tabindex="-1"
             class="form-error mt-2 flex flex-col font-semibold text-red-500 dark:text-red-300"
@@ -78,7 +80,7 @@
                 class="fas fa-exclamation-circle shrink-0 grow-0"
                 aria-hidden="true"
               ></i>
-              <span>{{ guestNameErrorMessage }}</span>
+              <span>{{ participantNameErrorMessage }}</span>
             </div>
           </div>
         </div>
@@ -160,8 +162,8 @@ import RoomHeader from "./RoomHeader.vue";
 import { useAuthStore } from "../stores/auth.js";
 import { computed, onMounted, ref, watch } from "vue";
 import {
-  getGuestNameValidationErrorMessage,
-  validateGuestName,
+  getParticipantNameValidationErrorMessage,
+  validateParticipantName,
 } from "../composables/useRoomHelpers.js";
 
 const emit = defineEmits(["submit", "reload"]);
@@ -201,54 +203,60 @@ const accessCode = defineModel("accessCode", {
   default: "",
 });
 
-const guestName = defineModel("guestName", {
+const participantName = defineModel("participantName", {
   type: String,
   default: "",
 });
 
-const rememberGuestName = defineModel("rememberGuestName", {
+const rememberParticipantName = defineModel("rememberParticipantName", {
   type: Boolean,
   default: false,
 });
 
-const guestNameValidation = ref({
+const participantNameValidation = ref({
   valid: true,
   reason: null,
   invalidChars: "",
 });
-const guestNameInput = ref("");
+const participantNameInput = ref("");
 const accessCodeInput = ref("");
 
 const authStore = useAuthStore();
-const guestNameInvalid = computed(() => !guestNameValidation.value.valid);
+const participantNameInvalid = computed(
+  () => !participantNameValidation.value.valid,
+);
 
 onMounted(() => {
-  guestNameInput.value = guestName.value;
+  participantNameInput.value = participantName.value;
   accessCodeInput.value = accessCode.value;
 });
 
 function submit() {
-  const validation = validateGuestName(guestNameInput.value);
+  const validation = validateParticipantName(participantNameInput.value);
 
   if (!authStore.isAuthenticated && validation.valid === false) {
-    guestNameValidation.value = validation;
+    participantNameValidation.value = validation;
   } else {
-    guestNameValidation.value = {
+    participantNameValidation.value = {
       valid: true,
       reason: null,
       invalidChars: "",
     };
     accessCode.value = accessCodeInput.value;
-    guestName.value = guestNameInput.value;
+    participantName.value = participantNameInput.value;
     emit("submit");
   }
 }
 
-watch(guestNameInput, () => {
-  guestNameValidation.value = validateGuestName(guestNameInput.value);
+watch(participantNameInput, () => {
+  participantNameValidation.value = validateParticipantName(
+    participantNameInput.value,
+  );
 });
 
-const guestNameErrorMessage = computed(() => {
-  return getGuestNameValidationErrorMessage(guestNameValidation.value);
+const participantNameErrorMessage = computed(() => {
+  return getParticipantNameValidationErrorMessage(
+    participantNameValidation.value,
+  );
 });
 </script>

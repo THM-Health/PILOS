@@ -80,8 +80,8 @@
         <div v-if="showAccessCodeOverlay" class="mt-20 flex justify-center">
           <RoomAccessOverlay
             v-model:access-code="accessCodeInput"
-            v-model:guest-name="guestName"
-            v-model:remember-guest-name="rememberGuestName"
+            v-model:participant-name="guestName"
+            v-model:remember-participant-name="rememberGuestName"
             :loading="loading || authLoading"
             :room="room"
             :auth-throttled-for="authThrottledFor"
@@ -182,7 +182,7 @@
                     :disabled="room.room_type_invalid"
                     :can-start="room.can_start"
                     :room-auth-token="roomAuthToken"
-                    :guest-name="guestName !== '' ? guestName : null"
+                    :participant-name="guestName !== '' ? guestName : null"
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
                     @require-code="
                       handleRequireCode();
@@ -191,13 +191,15 @@
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload(true)"
                   />
-                  <RoomGuestChangeNameButton
+                  <RoomParticipantNameChangeButton
                     v-if="
                       !authStore.isAuthenticated && room.username === undefined
                     "
-                    v-model:remember-guest-name="rememberGuestName"
-                    :guest-name="room.username ? room.username : guestName"
-                    @guest-name-changed="updateGuestName"
+                    v-model:remember-participant-name="rememberGuestName"
+                    :participant-name="
+                      room.username ? room.username : guestName
+                    "
+                    @participant-name-changed="updateGuestName"
                   />
                   <RoomBrowserNotification
                     :room-name="room.name"

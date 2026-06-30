@@ -11,7 +11,7 @@ return [
         'meetingForciblyEnded' => 'Failed to join meeting: The meeting is no longer running.',
     ],
     'become_member' => 'Become member',
-    'change_guest_name' => 'Change name',
+    'change_participant_name' => 'Change name',
     'change_type' => [
         'changing_settings' => 'The following changes will be made to the room settings',
         'current_setting' => 'Current setting',
@@ -370,7 +370,7 @@ return [
         'title' => 'Recordings',
         'view_recording' => 'View recording',
     ],
-    'remember_guest_name' => 'Remember guest name for next time',
+    'remember_participant_name' => 'Remember name for next time',
     'require_access_code' => 'An access code is required to join this room',
     'role' => 'Role',
     'roles' => [

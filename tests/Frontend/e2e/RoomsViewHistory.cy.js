@@ -332,7 +332,7 @@ describe("Rooms view history", function () {
 
     // Enter guest name
     cy.get('[data-test="room-access-overlay"]').should("be.visible");
-    cy.get("#guest-name").type("Max Doe");
+    cy.get("#participant-name").type("Max Doe");
     cy.get('[data-test="room-login-button"]').click();
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
 

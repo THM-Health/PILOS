@@ -209,7 +209,7 @@ const props = defineProps({
     type: Object,
     default: null,
   },
-  guestName: {
+  participantName: {
     type: String,
     default: null,
   },
@@ -361,7 +361,7 @@ function getJoinUrl() {
   const config = {
     method: "post",
     data: {
-      name: props.guestName ? props.guestName : null,
+      name: props.participantName ? props.participantName : null,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,

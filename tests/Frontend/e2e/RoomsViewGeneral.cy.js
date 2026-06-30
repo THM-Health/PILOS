@@ -41,21 +41,23 @@ describe("Room View general", function () {
           .and("have.text", "auth.offer_login")
           .and("have.attr", "href", "/login?redirect=/rooms/abc-def-123");
 
-        // Check that guest name input is shown
-        cy.get('[data-test="guest-name-field"]')
+        // Check that participant name input is shown
+        cy.get('[data-test="participant-name-field"]')
           .should("be.visible")
           .within(() => {
             cy.contains("rooms.first_and_lastname").should("be.visible");
-            cy.get("#guest-name").should("be.visible").and("have.value", "");
-            cy.contains("rooms.remember_guest_name").should("be.visible");
-            cy.get("#remember-guest-name").and("not.be.checked");
+            cy.get("#participant-name")
+              .should("be.visible")
+              .and("have.value", "");
+            cy.contains("rooms.remember_participant_name").should("be.visible");
+            cy.get("#remember-participant-name").and("not.be.checked");
           });
 
         // Check that access code input is not shown
         cy.get('[data-test="access-code-field"]').should("not.exist");
 
         // Enter guest name
-        cy.get("#guest-name").type("Max Doe");
+        cy.get("#participant-name").type("Max Doe");
 
         cy.get('[data-test="room-login-button"]')
           .should("have.text", "rooms.continue_as_guest")
@@ -182,8 +184,8 @@ describe("Room View general", function () {
         // Check that login button is hidden
         cy.get('[data-test="room-login-as-user-button"]').should("not.exist");
 
-        // Check that guest name input is hidden
-        cy.get('[data-test="guest-name-field"]').should("not.exist");
+        // Check that participant name input is hidden
+        cy.get('[data-test="participant-name-field"]').should("not.exist");
 
         // Check that access code input is shown
         cy.get('[data-test="access-code-field"]')
@@ -798,7 +800,7 @@ describe("Room View general", function () {
 
     cy.wait("@roomRequest");
 
-    cy.get("#guest-name").type("Max Doe");
+    cy.get("#participant-name").type("Max Doe");
 
     cy.get('[data-test="room-login-button"]').click();
 
@@ -3641,7 +3643,7 @@ describe("Room View general", function () {
         cy.get('[data-test="room-login-as-user-button"]').should("be.visible");
 
         // Check that guest name input is shown and enter name
-        cy.get("#guest-name").should("be.visible").type("Max Doe");
+        cy.get("#participant-name").should("be.visible").type("Max Doe");
 
         // Check that access code input is hidden
         cy.get('[data-test="access-code-field"]').should("not.exist");

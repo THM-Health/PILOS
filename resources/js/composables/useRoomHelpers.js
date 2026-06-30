@@ -64,12 +64,15 @@ export function resetSetting(
   }
 }
 
-export function validateGuestName(guestName) {
+export function validateParticipantName(participantName) {
   const minLength = 2;
   const maxLength = 50;
 
   // Required
-  if (typeof guestName !== "string" || guestName.trim().length === 0) {
+  if (
+    typeof participantName !== "string" ||
+    participantName.trim().length === 0
+  ) {
     return {
       valid: false,
       reason: "required",
@@ -77,7 +80,7 @@ export function validateGuestName(guestName) {
     };
   }
 
-  const guestNameLength = Array.from(guestName).length;
+  const guestNameLength = Array.from(participantName).length;
 
   // Min length
   if (guestNameLength < minLength) {
@@ -127,7 +130,10 @@ export function validateGuestName(guestName) {
   try {
     invalidChars = Array.from(
       new Set(
-        guestName.replace(new RegExp(`[${allowedNameCharacters}]+`, "gu"), ""),
+        participantName.replace(
+          new RegExp(`[${allowedNameCharacters}]+`, "gu"),
+          "",
+        ),
       ),
     ).join("");
   } catch {
@@ -145,7 +151,7 @@ export function validateGuestName(guestName) {
   };
 }
 
-export function getGuestNameValidationErrorMessage(validation) {
+export function getParticipantNameValidationErrorMessage(validation) {
   const { t } = useI18n();
   const attribute = t("rooms.first_and_lastname");
 
