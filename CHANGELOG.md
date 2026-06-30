@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility: Screen reader only button to close popover dialogs ([#2971])
 - Accessibility: Clearer screen reader context for buttons and attributes on the room index page ([#2970])
 - Accessibility: aria-pressed state to indicate the active status of the "show only favorites" filter on room index page ([#2970])
+- Hints in admin UI file uploads indicating supported file types and maximum allowed file size ([#3235])
 
 ### Changed
 
@@ -848,6 +849,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
+[#3235]: https://github.com/THM-Health/PILOS/pull/3235
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
