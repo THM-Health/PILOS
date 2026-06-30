@@ -370,7 +370,7 @@ return [
         'title' => 'Recordings',
         'view_recording' => 'View recording',
     ],
-    'remember_guest_name' => "Remember guest name for next time",
+    'remember_guest_name' => 'Remember guest name for next time',
     'require_access_code' => 'An access code is required to join this room',
     'role' => 'Role',
     'roles' => [

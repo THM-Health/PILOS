@@ -20,7 +20,11 @@
     <Form id="changeNameForm" @submit="changeGuestName">
       <div class="field flex flex-col gap-2" data-test="guest-name-field">
         <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
-        <InputText id="guest-name" v-model="newGuestName" />
+        <InputText
+          id="guest-name"
+          v-model="newGuestName"
+          :invalid="newGuestNameInvalid"
+        />
         <div class="flex items-center gap-2">
           <Checkbox
             v-model="rememberGuestNameInput"
@@ -43,7 +47,7 @@
               class="fas fa-exclamation-circle shrink-0 grow-0"
               aria-hidden="true"
             ></i>
-            <span>{{ $t("rooms.flash.guest_name_invalid") }}</span>
+            <span>{{ guestNameErrorMessage }}</span>
           </div>
         </div>
       </div>
@@ -67,7 +71,11 @@
   </Dialog>
 </template>
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import {
+  getGuestNameValidationErrorMessage,
+  validateGuestName,
+} from "../composables/useRoomHelpers.js";
 
 const emit = defineEmits(["guestNameChanged"]);
 
@@ -89,8 +97,14 @@ const rememberGuestName = defineModel("rememberGuestName", {
 
 const changeNameModalVisible = ref(false);
 const newGuestName = ref("");
-const newGuestNameInvalid = ref(false);
+const newGuestNameValidation = ref({
+  valid: true,
+  reason: null,
+  invalidChars: "",
+});
 const rememberGuestNameInput = ref(false);
+
+const newGuestNameInvalid = computed(() => !newGuestNameValidation.value.valid);
 
 onMounted(() => {
   newGuestName.value = props.guestName;
@@ -99,20 +113,39 @@ onMounted(() => {
 
 function showChangeNameModal() {
   newGuestName.value = props.guestName;
-  newGuestNameInvalid.value = false;
+  newGuestNameValidation.value = {
+    valid: true,
+    reason: null,
+    invalidChars: "",
+  };
   rememberGuestNameInput.value = rememberGuestName.value;
 
   changeNameModalVisible.value = true;
 }
 
 function changeGuestName() {
-  if (newGuestName.value.trim().length === 0) {
-    newGuestNameInvalid.value = true;
+  const validation = validateGuestName(newGuestName.value);
+
+  if (validation.valid === false) {
+    newGuestNameValidation.value = validation;
   } else {
+    newGuestNameValidation.value = {
+      valid: true,
+      reason: null,
+      invalidChars: "",
+    };
     rememberGuestName.value = rememberGuestNameInput.value;
     emit("guestNameChanged", newGuestName.value);
 
     changeNameModalVisible.value = false;
   }
 }
+
+watch(newGuestName, () => {
+  newGuestNameValidation.value = validateGuestName(newGuestName.value);
+});
+
+const guestNameErrorMessage = computed(() => {
+  return getGuestNameValidationErrorMessage(newGuestNameValidation.value);
+});
 </script>

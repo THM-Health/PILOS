@@ -36,6 +36,12 @@
     :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
+    <Message
+      v-if="formErrors.fieldInvalid('name')"
+      class="mb-4"
+      severity="error"
+      >{{ formErrors.fieldError("name")[0] }}</Message
+    >
     <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>

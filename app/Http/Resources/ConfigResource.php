@@ -75,6 +75,7 @@ class ConfigResource extends JsonResource
                 'max_filesize' => config('bigbluebutton.max_filesize'),
                 'room_name_limit' => config('bigbluebutton.room_name_limit'),
                 'welcome_message_limit' => config('bigbluebutton.welcome_message_limit'),
+                'allowed_name_characters' => config('bigbluebutton.allowed_name_characters'),
             ],
             'monitor' => [
                 'horizon' => true,
