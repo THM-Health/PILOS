@@ -94,7 +94,7 @@
           />
         </div>
         <div v-else class="flex flex-col gap-6">
-          <Card>
+          <Card :pt:body:class="'pt-4'">
             <template #header>
               <RoomHeader
                 class="mx-5 mt-6"
@@ -119,7 +119,7 @@
                   v-if="room.last_meeting?.detached"
                   severity="warn"
                   :class="
-                    room.can_start && room.room_type_invalid ? '' : 'mb-5'
+                    room.can_start && room.room_type_invalid ? '' : 'mb-4'
                   "
                   icon="fa-solid fa-triangle-exclamation"
                   :closable="false"
@@ -130,7 +130,7 @@
                 <InlineNote
                   v-else-if="room.last_meeting?.server_connection_issues"
                   :class="
-                    room.can_start && room.room_type_invalid ? '' : 'mb-5'
+                    room.can_start && room.room_type_invalid ? '' : 'mb-4'
                   "
                   severity="warn"
                   icon="fa-solid fa-triangle-exclamation"
@@ -141,7 +141,7 @@
 
                 <div
                   v-if="room.can_start && room.room_type_invalid"
-                  class="mb-5"
+                  class="mb-4"
                 >
                   <Message
                     severity="warn"
