@@ -400,6 +400,7 @@ function handleInvalidCode() {
 function handleRequireCode() {
   // Reset access code error states to prevent confusing error state
   accessCodeInvalid.value = null;
+  sessionStorage.removeItem("roomAccessCode_" + props.id);
   formErrors.clear();
 
   // Reset access code input
