@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use BigBlueButton\Enum\HashingAlgorithm;
 
-$allowedFileMimes = array_values(array_unique(array_filter(array_map('trim',explode(',', env('BBB_ALLOWED_FILE_MIMES', ''))))));
+$allowedFileMimes = array_values(array_unique(array_filter(array_map('trim', explode(',', env('BBB_ALLOWED_FILE_MIMES', ''))))));
 $allowedFileMimesFallback = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'odt', 'ods', 'odp', 'odg', 'odc', 'odi', 'jpg', 'jpeg', 'png'];
 
 return [
