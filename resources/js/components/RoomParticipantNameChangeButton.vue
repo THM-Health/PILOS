@@ -2,6 +2,7 @@
   <Button
     icon="fa-solid fa-user-edit"
     :label="$t('rooms.change_participant_name')"
+    data-test="change-participant-name-button"
     class="justify-self-end"
     severity="secondary"
     @click="showChangeNameModal"
@@ -78,6 +79,7 @@ import {
   getParticipantNameValidationErrorMessage,
   validateParticipantName,
 } from "../composables/useRoomHelpers.js";
+import { useI18n } from "vue-i18n";
 
 const emit = defineEmits(["participantNameChanged"]);
 
@@ -93,6 +95,7 @@ const rememberParticipantName = defineModel("rememberParticipantName", {
   default: false,
 });
 
+const { t } = useI18n();
 const changeNameModalVisible = ref(false);
 const newParticipantName = ref("");
 const newParticipantNameValidation = ref({
@@ -152,6 +155,7 @@ watch(newParticipantName, () => {
 const participantNameErrorMessage = computed(() => {
   return getParticipantNameValidationErrorMessage(
     newParticipantNameValidation.value,
+    t,
   );
 });
 </script>

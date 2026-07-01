@@ -51,7 +51,7 @@
               icon="fa-solid fa-lock"
               :label="$t('auth.login')"
               as="router-link"
-              :to="{ name: 'login', query: { redirect: $route.fullPath } }"
+              :to="{ name: 'login', query: { redirect: $route.path } }"
             />
           </div>
         </template>

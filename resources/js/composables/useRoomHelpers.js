@@ -2,7 +2,6 @@ import { watch } from "vue";
 import * as _ from "lodash-es";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
 import { useSettingsStore } from "../stores/settings.js";
-import { useI18n } from "vue-i18n";
 
 export function onRoomHasChanged(room, callback) {
   watch(room, (newRoom, oldRoom) => {
@@ -151,8 +150,7 @@ export function validateParticipantName(participantName) {
   };
 }
 
-export function getParticipantNameValidationErrorMessage(validation) {
-  const { t } = useI18n();
+export function getParticipantNameValidationErrorMessage(validation, t) {
   const attribute = t("rooms.first_and_lastname");
 
   if (validation.reason === "required") {

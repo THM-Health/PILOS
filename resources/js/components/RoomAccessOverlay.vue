@@ -34,7 +34,7 @@
           icon="fa-solid fa-right-to-bracket"
           :label="$t('auth.offer_login')"
           as="router-link"
-          :to="{ name: 'login', query: { redirect: $route.fullPath } }"
+          :to="{ name: 'login', query: { redirect: $route.path } }"
         />
 
         <Divider class="m-1">{{ $t("app.or").toUpperCase() }}</Divider>
@@ -165,6 +165,7 @@ import {
   getParticipantNameValidationErrorMessage,
   validateParticipantName,
 } from "../composables/useRoomHelpers.js";
+import { useI18n } from "vue-i18n";
 
 const emit = defineEmits(["submit", "reload"]);
 defineProps({
@@ -222,6 +223,7 @@ const participantNameInput = ref("");
 const accessCodeInput = ref("");
 
 const authStore = useAuthStore();
+const { t } = useI18n();
 const participantNameInvalid = computed(
   () => !participantNameValidation.value.valid,
 );
@@ -257,6 +259,7 @@ watch(participantNameInput, () => {
 const participantNameErrorMessage = computed(() => {
   return getParticipantNameValidationErrorMessage(
     participantNameValidation.value,
+    t,
   );
 });
 </script>
