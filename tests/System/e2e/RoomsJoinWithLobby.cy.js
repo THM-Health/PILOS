@@ -63,12 +63,13 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="navbar-user"]').click();
     cy.get('[data-test="navbar-user-logout"]').click();
 
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "John Doe");
+    });
     cy.visit("/rooms/abc-def-123");
 
     // Find join button and click it, join as guest
     cy.get('[data-test="room-join-button"]').click();
-    cy.get("#participant-name").type("John Doe");
-    cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="audioModal"]', { timeout: 30000 }).should(
@@ -137,12 +138,13 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="navbar-user"]').click();
     cy.get('[data-test="navbar-user-logout"]').click();
 
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "John Doe");
+    });
     cy.visit("/rooms/abc-def-123");
 
     // Find join button and click it, join as guest
     cy.get('[data-test="room-join-button"]').click();
-    cy.get("#participant-name").type("John Doe");
-    cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
@@ -211,12 +213,13 @@ describe("Room Join with lobby settings", function () {
     cy.get('[data-test="navbar-user"]').click();
     cy.get('[data-test="navbar-user-logout"]').click();
 
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "John Doe");
+    });
     cy.visit("/rooms/abc-def-123");
 
     // Find join button and click it, join as guest
     cy.get('[data-test="room-join-button"]').click();
-    cy.get("#participant-name").type("John Doe");
-    cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.origin(`${Cypress.expose("BBB_TEST_SERVER_HOST")}`, () => {
       cy.get('[data-test="guestMessage"]', { timeout: 30000 }).should(
