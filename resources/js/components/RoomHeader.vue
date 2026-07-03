@@ -5,9 +5,7 @@
     <div class="flex flex-col-reverse gap-2 md:flex-row">
       <div class="flex grow flex-col items-start">
         <!-- Display room type, name and owner  -->
-        <h1 class="order-2 my-2 text-3xl text-color">
-          {{ props.room.name }}
-        </h1>
+        <PageTitle :title="props.room.name" class="order-2 my-2" />
 
         <RoomTypeBadge class="order-1" :room-type="props.room.type" />
         <RoomDetailsList

@@ -24,7 +24,21 @@ export default (mode) => {
       laravel({
         input: ["resources/js/app.js", "resources/css/app.css"],
       }),
-      vue(),
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: function (tag) {
+              const NEW_HTML_TAGS = ["search"];
+
+              if (NEW_HTML_TAGS.includes(tag)) {
+                return true;
+              }
+
+              return false;
+            },
+          },
+        },
+      }),
       Components({
         dirs: ["resources/js", "resources/custom/js"],
         allowOverrides: true,
