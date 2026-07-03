@@ -84,4 +84,11 @@ watch(
   filter: blur(8px);
   position: absolute;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-enter-active,
+  .flip-leave-active {
+    transition: none;
+  }
+}
 </style>
