@@ -8,6 +8,7 @@ export const useSettingsStore = defineStore("settings", {
   state: () => {
     return {
       settings: null,
+      frontendVersion: null,
     };
   },
   getters: {
@@ -29,6 +30,15 @@ export const useSettingsStore = defineStore("settings", {
         this.settings.theme.primary_color,
         this.settings.theme.rounded,
       );
+    },
+
+    setFrontendVersion(version) {
+      this.frontendVersion = version;
+    },
+
+    setupAxiosInterceptors() {
+      const api = useApi();
+      api.setupAxiosInterceptors(this);
     },
   },
 });

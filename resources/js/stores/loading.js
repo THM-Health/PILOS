@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useAuthStore } from "./auth";
 import { useSettingsStore } from "./settings";
+import { useApi } from "../composables/useApi.js";
 
 export const useLoadingStore = defineStore("loading", {
   state: () => {
@@ -23,11 +24,14 @@ export const useLoadingStore = defineStore("loading", {
   },
   actions: {
     async initialize() {
+      const api = useApi();
       const auth = useAuthStore();
       const settings = useSettingsStore();
 
       this.setLoading();
       await settings.getSettings();
+
+      settings.setupAxiosInterceptors();
 
       await auth.getCurrentUser();
 

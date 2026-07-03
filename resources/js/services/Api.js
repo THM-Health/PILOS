@@ -27,6 +27,17 @@ export class Api {
     this.t = i18n.global.t;
   }
 
+  setupAxiosInterceptors(settingsStore) {
+    // Add a response interceptor
+    axios.interceptors.response.use(function onFulfilled(response) {
+      const frontendHash = response.headers["x-frontend-version"];
+      if (frontendHash !== undefined)
+        settingsStore.setFrontendVersion(frontendHash);
+
+      return response;
+    });
+  }
+
   /**
    * Makes a request with the passed params.
    *

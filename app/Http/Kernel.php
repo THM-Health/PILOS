@@ -8,6 +8,7 @@ use App\Auth\Shibboleth\ShibbolethSessionMiddleware;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnsureModelNotStale;
+use App\Http\Middleware\FrontendVersion;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\LoggedInUser;
 use App\Http\Middleware\PreventRequestForgery;
@@ -88,6 +89,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             SetApplicationLocale::class,
             LogContext::class,
+            FrontendVersion::class,
         ],
     ];
 

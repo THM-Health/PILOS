@@ -36,6 +36,7 @@ return [
     'error' => 'An error occurred',
     'errors' => [
         'attendance_agreement_missing' => 'Consent to record attendance is required.',
+        'frontend_outdated' => 'Your version of the application is outdated. Please reload to continue.',
         'join_failed' => 'Joining the room has failed because a connection error has occurred.',
         'meeting_attendance_disabled' => 'Attendance logging was not active at this meeting.',
         'meeting_attendance_not_ended' => 'The attendance logs are not yet available for this meeting as it has not yet ended.',
