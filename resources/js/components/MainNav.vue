@@ -2,6 +2,7 @@
   <div class="border-b border-surface bg-white py-2 dark:bg-surface-900">
     <div class="container flex flex-row justify-between">
       <Menubar
+        v-if="isMobile || authStore.isAuthenticated"
         id="mainmenu"
         tabindex="-1"
         :breakpoint="menuBreakpoint + 'px'"
@@ -18,24 +19,7 @@
         }"
       >
         <template #start>
-          <RouterLink
-            v-if="settingsStore.getSetting('theme.logo')"
-            :to="{ name: 'home' }"
-            class="mr-12"
-            data-test="navbar-home"
-            :aria-label="$t('app.home')"
-          >
-            <img
-              style="height: 2rem"
-              aria-hidden="true"
-              :src="
-                isDark
-                  ? settingsStore.getSetting('theme.logo_dark')
-                  : settingsStore.getSetting('theme.logo')
-              "
-              alt="Logo"
-            />
-          </RouterLink>
+          <MainNavLogo />
         </template>
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link
@@ -88,7 +72,9 @@
         :model="userMenuItems"
         :aria-label="$t('app.aria.user_menu')"
         :pt="{
-          root: 'main-menu-right shrink-0 m-0 border-0',
+          root: authStore.isAuthenticated
+            ? 'main-menu-right shrink-0 m-0 border-0'
+            : 'main-menu-right shrink-0 m-0 border-0 w-full justify-between',
           menu: {
             class: 'gap-1 px-2',
           },
@@ -101,6 +87,9 @@
           },
         }"
       >
+        <template v-if="!authStore.isAuthenticated" #start>
+          <MainNavLogo />
+        </template>
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link
             v-if="item.route"

@@ -2,8 +2,10 @@
 import { isMobile } from "../composables/useMenu.js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useAuthStore } from "../stores/auth.js";
 
 const { t } = useI18n();
+const authStore = useAuthStore();
 
 function scrollAndMoveFocus(target) {
   const element = document.getElementById(target);
@@ -19,10 +21,13 @@ const links = computed(() => {
     id: "main",
     label: t("app.aria.main"),
   });
-  links.push({
-    id: "mainmenu",
-    label: t("app.aria.main_menu"),
-  });
+
+  if (isMobile.value || authStore.isAuthenticated) {
+    links.push({
+      id: "mainmenu",
+      label: t("app.aria.main_menu"),
+    });
+  }
 
   if (!isMobile.value) {
     links.push({
