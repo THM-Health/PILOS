@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility: Move focus automatically back to the main `<h1>` heading when filters change on the room index page ([#2970])
 - Accessibility: Announcement order to read the room name before the room type on screen readers ([#2970])
 - Accessibility: Move keyboard focus to page start on page change ([#3264])
+- Accessibility: Reduced flipping words animation on loading page for browsers with reduced-motion set ([#3277])
 
 ## [v4.16.0] - 2026-06-12
 
@@ -853,6 +854,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
+[#3277]: https://github.com/THM-Health/PILOS/pull/3277
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
