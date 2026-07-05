@@ -326,9 +326,7 @@ describe("Rooms view members", function () {
 
     // Check that file tab is shown
     cy.wait("@roomFilesRequest");
-    // ToDo fix implementation so that this works again?
-    // cy.url().should("not.include", "#tab=members");
-    // cy.url().should("include", "/rooms/abc-def-123#tab=files");
+    cy.url().should("not.include", "#tab=members");
 
     // Check that error message is shown
     cy.checkToastMessage("app.flash.unauthenticated");

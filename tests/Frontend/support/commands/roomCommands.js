@@ -168,9 +168,7 @@ Cypress.Commands.add(
     // Check that file tab is shown
     cy.wait("@roomFilesRequestAuthErrorsLoadingTab");
 
-    // ToDo fix implementation so that this works again?
-    // cy.url().should("not.include", "#tab=" + roomTabName);
-    // cy.url().should("include", "/rooms/abc-def-123#tab=files");
+    cy.url().should("not.include", "#tab=" + roomTabName);
 
     // Check that toast message is shown and user is logged out
     cy.checkToastMessage("app.flash.unauthenticated");
@@ -181,7 +179,6 @@ Cypress.Commands.add(
       fixture: "room.json",
     }).as("roomRequestAuthErrorsLoadingTab");
 
-    // ToDo fix implementation so that this works again without resetting the hash here
     cy.visit("/rooms/abc-def-123#tab=files");
     cy.reload();
     cy.wait("@roomRequestAuthErrorsLoadingTab");
@@ -374,9 +371,7 @@ Cypress.Commands.add(
       default:
         // Check that file tab is shown
         cy.wait("@roomFilesRequestCheckRoomAuthErrors");
-      // ToDo fix implementation so that this works again?
-      // cy.url().should("not.include", "#tab=" + roomTabName);
-      // cy.url().should("include", "/rooms/abc-def-123#tab=files");
+        cy.url().should("not.include", "#tab=" + roomTabName);
     }
 
     // Check that toast message is shown and user is logged out
