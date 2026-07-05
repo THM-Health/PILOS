@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2020 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 name: Bug report
 about: Create a report to help us improve
 title: ""

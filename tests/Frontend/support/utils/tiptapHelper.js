@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 export function selectTiptapContent(limit = 5) {
   if (limit < 0) {
     throw new Error("Selecting the text failed");

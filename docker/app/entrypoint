@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# SPDX-FileCopyrightText: 2019 Taylor Otwell and Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # If there is a command line argument, run it as the www-data user
 if [ $# -gt 0 ]; then
     exec su-exec www-data "$@"

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 /**
  * Mixin that provides methods to get error states and error messages for form inputs in edit or create views.
  */

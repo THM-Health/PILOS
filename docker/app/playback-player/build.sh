@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
 # This script is used to download and build the playback player
 
 # Version tag passed as argument

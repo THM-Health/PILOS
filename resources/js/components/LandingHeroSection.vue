@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <template>
   <div class="mx-auto max-w-7xl px-6 pt-16 pb-0 sm:pt-30 lg:px-8 lg:pt-16">
     <div

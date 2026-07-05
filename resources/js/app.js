@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { createApp, h, Fragment, markRaw } from "vue";
 import { createPinia } from "pinia";
 import App from "./components/App.vue";

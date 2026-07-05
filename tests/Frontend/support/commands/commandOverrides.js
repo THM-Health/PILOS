@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // Override for window.it used for all tests, to check the final state after each test, to make sure that unexpected errors
 // or states that may have happened during the test are caught.
 

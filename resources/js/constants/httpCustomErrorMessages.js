@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 export const HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN = "invalid_auth_token";
 export const HTTP_ERROR_ROOM_INVALID_CODE = "invalid_code";
 export const HTTP_ERROR_ROOM_REQUIRE_CODE = "require_code";

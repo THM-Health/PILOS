@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2023 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 title: External Authentication
 description: Guide how to connect PILOS to external authentication systems like LDAP, Shibboleth and OpenID Connect.
 ---

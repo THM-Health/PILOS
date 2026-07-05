@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <img src="https://raw.githubusercontent.com/THM-Health/PILOS/4.x/public/images/logo.svg" width="250px"></img>
 
 ![Status](https://github.com/THM-Health/PILOS/actions/workflows/ci.yml/badge.svg?branch=4.x)

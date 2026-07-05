@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 

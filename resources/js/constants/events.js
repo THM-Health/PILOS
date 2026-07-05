@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 export const EVENT_UNAUTHORIZED = "unauthorized";
 
 export const EVENT_FORBIDDEN = "forbidden";

@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 title: Locales
 description: Contribute to the translation of PILOS and add custom locales
 ---
