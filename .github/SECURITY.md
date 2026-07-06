@@ -11,7 +11,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 We actively support PILOS through the matrix chat and through security updates.
 
 | Version | Supported          |
-| ------- | ------------------ |
+|---------| ------------------ |
+| 5.x     | :x:                |
 | 4.x     | :white_check_mark: |
 | 3.x     | :x:                |
 | 2.x     | :x:                |
@@ -19,4 +20,4 @@ We actively support PILOS through the matrix chat and through security updates.
 
 ## Reporting a Vulnerability
 
-If you believe you have found a security vunerability in PILOS please let us know directly by using GitHub's "Report a vulnerability" functionality on https://github.com/THM-Health/PILOS/security/advisories
+If you believe you have found a security vulnerability in PILOS please let us know directly by using GitHub's "Report a vulnerability" functionality on https://github.com/THM-Health/PILOS/security/advisories
