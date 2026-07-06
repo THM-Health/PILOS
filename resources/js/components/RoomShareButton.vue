@@ -168,7 +168,7 @@ async function copyInvitationMessage() {
         }),
       }),
     ]);
-  } catch (e) {
+  } catch {
     await navigator.clipboard.writeText(plainTextInvitationMessage());
   }
   toast.success(t("rooms.invitation.copied_message"));
@@ -187,7 +187,7 @@ async function copyUrl() {
         }),
       }),
     ]);
-  } catch (e) {
+  } catch {
     await navigator.clipboard.writeText(roomUrl.value);
   }
 
