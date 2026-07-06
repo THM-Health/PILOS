@@ -123,7 +123,7 @@ function sanitizeCss(node) {
   };
 
   // Loop through each style property of the node
-  for (let i = node.style.length; i--; ) {
+  for (let i = node.style.length; i--;) {
     const name = node.style[i];
     // If the property is not in the allowlist, remove it
     if (!Object.prototype.hasOwnProperty.call(cssAllowlist, name)) {
