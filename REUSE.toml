@@ -13,7 +13,7 @@ SPDX-FileCopyrightText = "2026 Technische Hochschule Mittelhessen (THM)"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
-path = ["tests/**/fixtures/**/*", "tests/**/Fixtures/**/*", "database/seeders/Demo/storage/abc-def-123/*", "docker/**/*", "*.js","*.json","*.lock","*.yml","*.toml","*.md","*.txt","*.xml",".babelrc", ".prettierrc", ".vscode/*", "docs/**/*.json"]
+path = ["tests/**/fixtures/**/*", "tests/**/Fixtures/**/*", "database/seeders/Demo/storage/abc-def-123/*", "docker/**/*", "*.js","*.json","*.lock","*.yml","*.toml","*.md","*.txt","*.xml",".babelrc", ".prettierrc", ".vscode/*", "docs/**/*.json", "**/.gitignore"]
 SPDX-FileCopyrightText = "2026 Technische Hochschule Mittelhessen (THM) and PILOS contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
