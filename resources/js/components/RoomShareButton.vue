@@ -132,20 +132,48 @@ const props = defineProps({
   },
 });
 
-function copyInvitationMessage() {
+function plainTextInvitationMessage() {
   let message =
     t("rooms.invitation.room", {
       roomname: props.room.name,
       platform: settingsStore.getSetting("general.name"),
     }) + "\n";
-  message += t("rooms.invitation.link") + ": " + roomUrl.value;
+  message += `${t("rooms.invitation.link")} : ${roomUrl.value}`;
   // If room has access code, include access code in the message
   if (props.room.access_code) {
     message +=
-      "\n" + t("rooms.invitation.code") + ": " + formattedAccessCode.value;
+      `\n${t("rooms.invitation.code")} : ${formattedAccessCode.value}`;
   }
-  navigator.clipboard.writeText(message);
-  toast.success(t("rooms.invitation.copied_message"));
+  return message;
+}
+
+function htmlInvitationMessage() {
+  let message =
+    t("rooms.invitation.room", {
+      roomname: props.room.name,
+      platform: settingsStore.getSetting("general.name"),
+    }) + "<br>";
+  message += `${t("rooms.invitation.link")} : <a href="${roomUrl.value}">${roomUrl.value}</a>`;
+  // If room has access code, include access code in the message
+  if (props.room.access_code) {
+    message +=
+      `<br>${t("rooms.invitation.code")} : ${formattedAccessCode.value}`;
+  }
+  return message;
+}
+
+async function copyInvitationMessage() {
+   try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': new Blob([htmlInvitationMessage()], { type: 'text/html' }),
+          'text/plain': new Blob([plainTextInvitationMessage()], { type: 'text/plain' })
+        })
+      ]);
+    } catch (e) {
+      await navigator.clipboard.writeText(plain);
+    }
+    toast.success(t("rooms.invitation.copied_message"));
 }
 
 function copyUrl() {
