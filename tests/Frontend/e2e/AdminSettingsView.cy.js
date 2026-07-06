@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 describe("Admin settings with edit permission", function () {
   beforeEach(function () {
     cy.init();

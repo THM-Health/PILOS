@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 export function _arrayBufferToBase64(buffer) {
   let binary = "";
   const bytes = new Uint8Array(buffer);

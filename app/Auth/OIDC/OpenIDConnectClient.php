@@ -2,33 +2,10 @@
 
 declare(strict_types=1);
 
-/**
- * Heavily inspired by https://github.com/jumbojett/OpenID-Connect-PHP/pull/488
- *
- * Optimized for Laravel and removed all features that are not needed for:
- * - Authorization Code Flow
- * - Back-channel logout
- * - RP-initiated logout
- *
- * ----
- *
- * Copyright MITRE 2020
- *
- * OpenIDConnectClient for PHP7+
- * Author: Michael Jett <mjett@mitre.org>
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- */
+// Copyright 2020 MITRE
+// SPDX-FileCopyrightText: 2025 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
 namespace App\Auth\OIDC;
 

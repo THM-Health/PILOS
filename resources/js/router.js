@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "./views/Login.vue";
 import ExternalLogin from "./views/ExternalLogin.vue";

@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 title: ServerLoadCalculation
 description: Determines the load of a BigBlueButton server used by the load balancer.
 ---

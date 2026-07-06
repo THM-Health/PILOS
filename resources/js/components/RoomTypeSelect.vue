@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <template>
   <div v-if="modelLoadingError" class="flex flex-col items-start gap-2">
     <Message severity="error" :closable="false" class="w-full">

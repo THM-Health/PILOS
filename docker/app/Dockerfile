@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Taylor Otwell and Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 FROM php:8.5-fpm-alpine
 
 LABEL maintainer="Samuel Weirich"

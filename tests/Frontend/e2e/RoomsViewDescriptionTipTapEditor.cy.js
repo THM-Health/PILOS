@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { selectTiptapContent } from "../support/utils/tiptapHelper.js";
 
 describe("Rooms view description TipTap Editor", function () {

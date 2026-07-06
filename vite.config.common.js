@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
 import * as fs from "fs";

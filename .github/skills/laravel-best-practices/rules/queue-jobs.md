@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Queue & Job Best Practices
 
 ## Set `retry_after` Greater Than `timeout`

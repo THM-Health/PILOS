@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: 2026 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+version = 1
+SPDX-PackageName = "PILOS"
+SPDX-PackageDownloadLocation = "https://github.com/THM-Health/PILOS"
+
+[[annotations]]
+path = [".opencode/**/*.jpg", "public/images/*", "docs/static/img/*", "logo.svg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Technische Hochschule Mittelhessen (THM)"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["tests/**/fixtures/**/*", "tests/**/Fixtures/**/*", "database/seeders/Demo/storage/abc-def-123/*", "docker/**/*", "*.js","*.json","*.lock","*.yml","*.toml","*.md","*.txt","*.xml",".babelrc", ".prettierrc", ".vscode/*", "docs/**/*.json", "**/.gitignore"]
+SPDX-FileCopyrightText = "2026 Technische Hochschule Mittelhessen (THM) and PILOS contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["lang/**/*"]
+SPDX-FileCopyrightText = "2026 Technische Hochschule Mittelhessen (THM) and PILOS translators"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["lang/fa/*", "lang/fr/*", "lang/ar/*"]
+SPDX-FileCopyrightText = "2026 Technische Hochschule Mittelhessen (THM) and PILOS translators"
+SPDX-License-Identifier = "LGPL-2.1-only"
+
+[[annotations]]
+path = "resources/fonts/open-sans/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 The Open Sans Project Authors <https://github.com/googlefonts/opensans>"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = ["public/images/hero/hero1.jpg", "tests/Backend/Fixtures/profileImage-1.jpg", "tests/Frontend/fixtures/files/profileImage.jpg", "tests/Frontend/fixtures/files/profileImagePreview.jpg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Liza Summer <https://www.pexels.com/photo/young-concentrated-student-taking-notes-while-using-laptop-6348134/>"
+SPDX-License-Identifier = "LicenseRef-Pexels"
+
+[[annotations]]
+path = "public/images/hero/hero2.jpg"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2017 Brooke Cagle <https://unsplash.com/photos/woman-sitting-on-brown-wooden-chair-while-using-silver-laptop-computer-in-room-WHWYBmtn3_0>"
+SPDX-License-Identifier = "LicenseRef-Unsplash"
+
+[[annotations]]
+path = ["public/images/hero/hero3.jpg", "tests/Backend/Fixtures/profileImage-2.jpg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 AI25.Studio Studio <https://www.pexels.com/photo/man-in-black-suit-jacket-holding-white-paper-5467596/>"
+SPDX-License-Identifier = "LicenseRef-Pexels"
+
+[[annotations]]
+path = "public/images/hero/hero4.jpg"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Sora Shimazaki <https://www.pexels.com/photo/positive-ethnic-boss-using-laptop-in-light-office-5668878/>"
+SPDX-License-Identifier = "LicenseRef-Pexels"
+
+[[annotations]]
+path = "public/images/hero/hero5.jpg"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Katerina Holmes <https://www.pexels.com/photo/happy-black-woman-using-laptop-for-online-work-5905713/>"
+SPDX-License-Identifier = "LicenseRef-Pexels"
+
+[[annotations]]
+path = "database/seeders/Demo/storage/public/profile_images/angela-jones.jpg"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2017 Andrea Piacquadio <https://www.pexels.com/photo/closeup-photo-of-woman-with-brown-coat-and-gray-top-733872/>"
+SPDX-License-Identifier = "LicenseRef-Pexels"
+
+[[annotations]]
+path = "database/seeders/Demo/storage/public/profile_images/daniel-osorio.jpg"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019 Italo Melo <https://www.pexels.com/photo/closeup-photo-of-woman-with-brown-coat-and-gray-top-733872/>"
+SPDX-License-Identifier = "LicenseRef-Pexels"
+
+[[annotations]]
+path = "database/seeders/Demo/storage/public/profile_images/john-doe.jpg"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018 Chloë Geraghty <https://www.pexels.com/photo/man-in-white-dress-shirt-holding-suit-jacket-1043474/>"
+SPDX-License-Identifier = "LicenseRef-Pexels"
+
+[[annotations]]
+path = "resources/audio/notification.mp3"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Universfield <https://pixabay.com/sound-effects/film-special-effects-new-notification-138807/>"
+SPDX-License-Identifier = "LicenseRef-PixabayContentLicense"
+
+[[annotations]]
+path = ["public/images/livestream_avatar.png", "docs/static/img/laptop-code-solid.svg", "docs/static/img/toolbox-solid.svg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Fonticons, Inc."
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
+path = ["public/vendor/horizon/**/*", "public/vendor/telescope/**/*", "artisan", "bootstrap/**/*", "docker/sail/bin/sail", "tests/Utils/create-mariadb-testing-database.sh", "tests/Utils/create-postgres-testing-database.sql"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Taylor Otwell"
+SPDX-License-Identifier = "MIT"

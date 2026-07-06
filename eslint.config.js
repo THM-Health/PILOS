@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import vueI18n from "@intlify/eslint-plugin-vue-i18n";
 import pluginMocha from "eslint-plugin-mocha";
 import pluginCypress from "eslint-plugin-cypress";

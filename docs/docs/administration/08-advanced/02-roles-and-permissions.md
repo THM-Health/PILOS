@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2025 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 title: Roles and permissions
 description: Guide how to properly configure roles and permissions
 ---

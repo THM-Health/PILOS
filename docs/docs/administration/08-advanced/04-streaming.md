@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2025 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 title: Streaming
 description: Guide to setting up livestreaming with PILOS
 ---

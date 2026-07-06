@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 /**
  * Check that the final state of the test is correct, e.g. that there are no unexpected error toasts.
  * This should be called at the end of every test to make sure that unexpected errors aren't missed in the tests.

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 Technische Hochschule Mittelhessen (THM) and PILOS contributors
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <template>
   <div class="flex w-full flex-col gap-4" data-test="room-type-details">
     <h3><RoomTypeBadge :room-type="roomType" class="w-full text-base" /></h3>
