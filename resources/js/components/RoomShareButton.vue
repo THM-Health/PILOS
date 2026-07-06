@@ -137,9 +137,9 @@ function plainTextInvitationMessage() {
     roomname: props.room.name,
     platform: settingsStore.getSetting("general.name"),
   });
-  const link = `\n${t("rooms.invitation.link")} : ${roomUrl.value}`;
+  const link = `\n${t("rooms.invitation.link")}: ${roomUrl.value}`;
   const code = props.room.access_code
-    ? `\n${t("rooms.invitation.code")} : ${formattedAccessCode.value}`
+    ? `\n${t("rooms.invitation.code")}: ${formattedAccessCode.value}`
     : "";
 
   return `${intro}${link}${code}`;
@@ -150,9 +150,9 @@ function htmlInvitationMessage() {
     roomname: props.room.name,
     platform: settingsStore.getSetting("general.name"),
   });
-  const link = `<br>${t("rooms.invitation.link")} : <a href="${roomUrl.value}">${roomUrl.value}</a>`;
+  const link = `<br>${t("rooms.invitation.link")}: <a href="${roomUrl.value}">${roomUrl.value}</a>`;
   const code = props.room.access_code
-    ? `<br>${t("rooms.invitation.code")} : ${formattedAccessCode.value}`
+    ? `<br>${t("rooms.invitation.code")}: ${formattedAccessCode.value}`
     : "";
 
   return `<p>${intro}${link}${code}</p>`;
