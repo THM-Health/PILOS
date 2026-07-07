@@ -1090,9 +1090,10 @@ describe("Rooms View access", function () {
       }).as("roomRequest");
     });
 
+    cy.setValidRememberedParticipantName("Laura Rivera");
+
     cy.window().then((win) => {
       win.sessionStorage.clear();
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
     });
 
     cy.reload();
@@ -1161,12 +1162,15 @@ describe("Rooms View access", function () {
       }).as("roomRequest");
     });
 
+    cy.setValidRememberedParticipantName("Laura Rivera");
+
     cy.window().then((win) => {
       win.sessionStorage.setItem("roomAccessCode_abc-def-123", "123456789");
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
     });
 
     cy.reload();
+
+    cy.wait("@checkParticipantNameRequest");
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
@@ -3116,102 +3120,62 @@ describe("Rooms View access", function () {
     // Check that access code input is not shown
     cy.get('[data-test="access-code-field"]').should("not.exist");
 
-    // Check that required error is not visible before an input was made
-    cy.get('[data-test="participant-name-field"]')
-      .contains('validation.required_{"attribute":"rooms.first_and_lastname"}')
-      .should("not.exist");
+    // Check with 422 error
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 422,
+      body: {
+        errors: {
+          name: ['Name contains the following non-permitted characters: <>";'],
+        },
+      },
+    }).as("checkParticipantNameRequest");
 
-    // Enter guest name that is too short
-    cy.get("#participant-name").type("L");
-
-    cy.get('[data-test="participant-name-field"]').contains(
-      'validation.min.string_{"attribute":"rooms.first_and_lastname","min":2}',
-    );
+    cy.get("#participant-name").type('<script>alert("HI");</script>');
 
     // Click login button
     cy.get('[data-test="room-login-button"]')
       .should("have.text", "rooms.continue_as_guest")
       .click();
 
-    // Check that access code overlay is still shown and error message is still there
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: '<script>alert("HI");</script>',
+      });
+    });
+
+    // Check that access overlay is still shown and error message is shown
     cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
     cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.min.string_{"attribute":"rooms.first_and_lastname","min":2}',
-      )
+      .contains('Name contains the following non-permitted characters: <>";')
       .should("be.visible");
 
-    // Enter characters to reach the required min length
-    cy.get("#participant-name").type("a");
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("checkParticipantNameRequest");
 
-    // Check that error message is gone
-    cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.min.string_{"attribute":"rooms.first_and_lastname","min":2}',
-      )
-      .should("not.exist");
-
-    // Enter invalid character
-    cy.get("#participant-name").type("<");
-
-    // Check that error message is shown again
-    cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.validname_{"attribute":"rooms.first_and_lastname","chars":"<"}',
-      )
-      .should("be.visible");
-
-    // Enter another invalid character
-    cy.get("#participant-name").type(">");
-
-    // Check that error message is updated
-    cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.validname_{"attribute":"rooms.first_and_lastname","chars":"<>"}',
-      )
-      .should("be.visible");
-
-    // Clear input
     cy.get("#participant-name").clear();
+    cy.get("#participant-name").type("Laura Rivera");
 
-    // Check that error message is updated
-    cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.validname_{"attribute":"rooms.first_and_lastname","chars":"<>"}',
-      )
-      .should("not.exist");
+    cy.get('[data-test="room-login-button"]').click();
 
-    cy.get('[data-test="participant-name-field"]')
-      .contains('validation.required_{"attribute":"rooms.first_and_lastname"}')
-      .should("be.visible");
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
 
-    // Enter name that is valid and has the max length
-    cy.get("#participant-name").type("A".repeat(50));
+    // Check that access overlay stays open and error message is shown
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
-    cy.get('[data-test="participant-name-field"]')
-      .contains('validation.required_{"attribute":"rooms.first_and_lastname"}')
-      .should("not.exist");
-
-    cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.max.string_{"attribute":"rooms.first_and_lastname","max":50}',
-      )
-      .should("not.exist");
-
-    // Enter one mor character to exceed allowed max length
-    cy.get("#participant-name").type("A");
-
-    // Check that error message is updated
-    cy.get('[data-test="participant-name-field"]')
-      .contains('validation.required_{"attribute":"rooms.first_and_lastname"}')
-      .should("not.exist");
-
-    cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.max.string_{"attribute":"rooms.first_and_lastname","max":50}',
-      )
-      .should("be.visible");
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
 
     // Check as guest user (room requires an access code)
     cy.fixture("room.json").then((room) => {
@@ -3244,17 +3208,14 @@ describe("Rooms View access", function () {
     // Check that access code input is shown
     cy.get('[data-test="access-code-field"]').should("be.visible");
 
-    // Check that required error is not visible before an input was made
-    cy.get('[data-test="participant-name-field"]')
-      .contains('validation.required_{"attribute":"rooms.first_and_lastname"}')
-      .should("not.exist");
-
-    // Enter guest name that is too short
-    cy.get("#participant-name").type("L");
-
-    cy.get('[data-test="participant-name-field"]').contains(
-      'validation.min.string_{"attribute":"rooms.first_and_lastname","min":2}',
-    );
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 422,
+      body: {
+        errors: {
+          name: ['Name contains the following non-permitted characters: <>";'],
+        },
+      },
+    }).as("checkParticipantNameRequest");
 
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 422,
@@ -3266,18 +3227,24 @@ describe("Rooms View access", function () {
       },
     }).as("roomAuthRequest");
 
+    cy.get("#participant-name").type('<script>alert("HI");</script>');
+
     // Click login button
     cy.get('[data-test="room-login-button"]')
       .should("have.text", "rooms.continue_as_guest")
       .click();
 
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: '<script>alert("HI");</script>',
+      });
+    });
+
     // Check that access code overlay is still shown and error message is still there
     cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
     cy.get('[data-test="participant-name-field"]')
-      .contains(
-        'validation.min.string_{"attribute":"rooms.first_and_lastname","min":2}',
-      )
+      .contains('Name contains the following non-permitted characters: <>";')
       .should("be.visible");
 
     // Check that room auth request was not sent and access code error is not shown
@@ -3286,6 +3253,107 @@ describe("Rooms View access", function () {
     cy.get('[data-test="access-code-field"]')
       .contains("The Access code field is required.")
       .should("not.exist");
+  });
+
+  it("rooms view with invalid remembered participant name in localStorage", function () {
+    cy.intercept("GET", "api/v1/currentUser", {});
+    cy.interceptRoomFilesRequest();
+
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.window().then((win) => {
+      win.localStorage.setItem(
+        "pilos_guest_name",
+        '<script>alert("HI");</script>',
+      );
+    });
+
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 422,
+      body: {
+        errors: {
+          name: ['Name contains the following non-permitted characters: <>";'],
+        },
+      },
+    }).as("checkParticipantNameRequest");
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: '<script>alert("HI");</script>',
+      });
+    });
+    cy.wait("@roomRequest");
+
+    // Check that access overlay is shown
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
+
+    cy.get('[data-test="participant-name-field"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#participant-name")
+          .should("be.visible")
+          .and("have.value", '<script>alert("HI");</script>');
+        cy.contains(
+          'Name contains the following non-permitted characters: <>";',
+        ).should("be.visible");
+      });
+
+    // Check that localStorage was cleared
+    cy.window().then((win) => {
+      expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
+    });
+
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
+
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("checkParticipantNameRequest");
+
+    cy.reload();
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
+    cy.wait("@roomRequest");
+
+    // Check that access overlay is shown
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
+
+    cy.get('[data-test="participant-name-field"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#participant-name")
+          .should("be.visible")
+          .and("have.value", "Laura Rivera");
+      });
+
+    cy.window().then((win) => {
+      expect(win.localStorage.getItem("pilos_guest_name")).to.eq(
+        "Laura Rivera",
+      );
+    });
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
   });
 
   it("change participant name as guest", function () {
@@ -3452,9 +3520,7 @@ describe("Rooms View access", function () {
       });
 
     // Reload room with guest name set in localStorage
-    cy.window().then((win) => {
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
-    });
+    cy.setValidRememberedParticipantName("Laura Rivera");
 
     cy.reload();
 
@@ -3674,9 +3740,7 @@ describe("Rooms View access", function () {
       });
 
     // Reload room with guest name set in localStorage
-    cy.window().then((win) => {
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
-    });
+    cy.setValidRememberedParticipantName("Laura Rivera");
 
     cy.reload();
 
@@ -3752,9 +3816,7 @@ describe("Rooms View access", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
-    cy.window().then((win) => {
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
-    });
+    cy.setValidRememberedParticipantName("Laura Rivera");
 
     cy.fixture("room.json").then((room) => {
       room.data.allow_membership = true;
@@ -3767,6 +3829,9 @@ describe("Rooms View access", function () {
     });
 
     cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@checkParticipantNameRequest");
+    cy.wait("@roomRequest");
 
     // Check that room access overlay is hidden
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
@@ -3792,115 +3857,49 @@ describe("Rooms View access", function () {
       .should("be.visible")
       .click();
 
-    cy.get('[data-test="room-change-participant-name-dialog"]')
+    cy.get('[data-test="room-change-participant-name-dialog"]').should(
+      "be.visible",
+    );
+
+    // Change name with 422 error
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 422,
+      body: {
+        errors: {
+          name: ['Name contains the following non-permitted characters: <>";'],
+        },
+      },
+    }).as("checkParticipantNameRequest");
+
+    cy.get('[data-test="participant-name-field"]')
       .should("be.visible")
       .within(() => {
-        cy.get('[data-test="participant-name-field"]')
+        cy.get("#participant-name")
           .should("be.visible")
-          .within(() => {
-            cy.get("#participant-name")
-              .should("be.visible")
-              .and("have.value", "Laura Rivera");
-            cy.contains("rooms.remember_participant_name").should("be.visible");
-            cy.get("#remember-participant-name").and("be.checked");
-          });
-
-        // Change name to a name too short
-        cy.get("#participant-name").clear();
-        cy.get("#participant-name").type("M");
-
-        cy.get('[data-test="participant-name-field"]').contains(
-          'validation.min.string_{"attribute":"rooms.first_and_lastname","min":2}',
-        );
-
-        // Enter characters to reach the required min length
-        cy.get("#participant-name").type("a");
-
-        // Check that error message is gone
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.min.string_{"attribute":"rooms.first_and_lastname","min":2}',
-          )
-          .should("not.exist");
-
-        // Enter invalid character
-        cy.get("#participant-name").type("<");
-
-        // Check that error message is shown again
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.validname_{"attribute":"rooms.first_and_lastname","chars":"<"}',
-          )
-          .should("be.visible");
-
-        // Enter another invalid character
-        cy.get("#participant-name").type(">");
-
-        // Check that error message is updated
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.validname_{"attribute":"rooms.first_and_lastname","chars":"<>"}',
-          )
-          .should("be.visible");
-
-        // Clear input
-        cy.get("#participant-name").clear();
-
-        // Check that error message is updated
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.validname_{"attribute":"rooms.first_and_lastname","chars":"<>"}',
-          )
-          .should("not.exist");
-
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.required_{"attribute":"rooms.first_and_lastname"}',
-          )
-          .should("be.visible");
-
-        // Enter name that is valid and has the max length
-        cy.get("#participant-name").type("A".repeat(50));
-
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.required_{"attribute":"rooms.first_and_lastname"}',
-          )
-          .should("not.exist");
-
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.max.string_{"attribute":"rooms.first_and_lastname","max":50}',
-          )
-          .should("not.exist");
-
-        // Enter one mor character to exceed allowed max length
-        cy.get("#participant-name").type("A");
-
-        // Check that error message is updated
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.required_{"attribute":"rooms.first_and_lastname"}',
-          )
-          .should("not.exist");
-
-        cy.get('[data-test="participant-name-field"]')
-          .contains(
-            'validation.max.string_{"attribute":"rooms.first_and_lastname","max":50}',
-          )
-          .should("be.visible");
-
-        // Try to save invalid name
-        cy.get('[data-test="dialog-save-button"]').click();
+          .and("have.value", "Laura Rivera");
+        cy.contains("rooms.remember_participant_name").should("be.visible");
+        cy.get("#remember-participant-name").and("be.checked");
       });
 
-    // Check that dialog stays open and error message is still shown
+    cy.get("#participant-name").clear();
+    cy.get("#participant-name").type('<script>alert("HI");</script>');
+
+    // Try to save invalid name
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: '<script>alert("HI");</script>',
+      });
+    });
+
+    // Check that dialog stays open and error message is shown
     cy.get('[data-test="room-change-participant-name-dialog"]')
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="participant-name-field"]')
           .contains(
-            'validation.max.string_{"attribute":"rooms.first_and_lastname","max":50}',
+            'Name contains the following non-permitted characters: <>";',
           )
           .should("be.visible");
 
@@ -3932,6 +3931,32 @@ describe("Rooms View access", function () {
           .and("have.value", "Laura Rivera");
         cy.get("#remember-participant-name").and("be.checked");
       });
+
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("checkParticipantNameRequest");
+
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
+
+    // Check dialog stays open and error message is shown
+    cy.get('[data-test="room-change-participant-name-dialog"]').should(
+      "be.visible",
+    );
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
   });
 
   it("saved access parameter priority", function () {
@@ -3960,8 +3985,9 @@ describe("Rooms View access", function () {
       },
     }).as("roomAuthRequest");
 
+    cy.setValidRememberedParticipantName("Laura Rivera");
+
     cy.window().then((win) => {
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
       win.sessionStorage.setItem("roomAccessCode_abc-def-123", "123456789");
       win.sessionStorage.setItem(
         "roomPersonalizedLink_abc-def-123",

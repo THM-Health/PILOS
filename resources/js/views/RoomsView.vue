@@ -285,6 +285,7 @@ const roomAuthToken = ref(null); // Room authentication token
 const authLoading = ref(false); // Room authentication loading
 const guestName = ref("");
 const rememberGuestName = ref(false);
+const rememberedGuestNameInvalid = ref(false);
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const personalizedLink = ref(null); // Personalized link token from url or session storage
@@ -584,7 +585,8 @@ async function initializeRoomView() {
     });
   } else if (
     accessCodeInput.value !== "" &&
-    (guestName.value !== "" || authStore.isAuthenticated) &&
+    ((guestName.value !== "" && !rememberedGuestNameInvalid.value) ||
+      authStore.isAuthenticated) &&
     !roomAuthToken.value
   ) {
     // All necessary parameters for guest access are set and currently no room auth token is present,
@@ -617,6 +619,8 @@ function setPageTitle(roomName, announce = true) {
  * Log in to the room, if authentication is required authenticate, else store guest name and reload room
  */
 function login() {
+  rememberedGuestNameInvalid.value = false;
+
   // Remove dashes from the access code
   const accessCode = accessCodeInput.value.replace(/[-]/g, "");
 
@@ -797,15 +801,45 @@ async function loadSavedAccessParameters() {
     }
   }
 
-  // Load Guest Name from local storage for guests
+  await loadSavedGuestName();
+}
+
+async function loadSavedGuestName() {
   if (!authStore.isAuthenticated) {
     const savedGuestName = localStorage.getItem("pilos_guest_name");
 
     if (savedGuestName) {
-      // Set guest name if present in local storage and
-      // enable remember guest name checkbox
+      // Enable remember guest name checkbox if guest name is present in local storage
       rememberGuestName.value = true;
-      guestName.value = savedGuestName;
+      formErrors.clear();
+
+      // Validate guest name and set guest name if valid
+      try {
+        await api.call("participantName/check", {
+          method: "post",
+          data: {
+            name: savedGuestName,
+          },
+        });
+
+        // Set guest name
+        guestName.value = savedGuestName;
+      } catch (error) {
+        // Guest name is invalid, set guest name but require manual confirmation
+        guestName.value = savedGuestName;
+        rememberedGuestNameInvalid.value = true;
+
+        if (
+          error.response &&
+          error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
+        ) {
+          localStorage.removeItem("pilos_guest_name");
+          formErrors.set(error.response.data.errors);
+          return;
+        }
+
+        api.error(error);
+      }
     }
   }
 }
@@ -846,7 +880,7 @@ const showAccessCodeOverlay = computed(() => {
     !room.value.authenticated ||
     (!authStore.isAuthenticated &&
       roomAuthToken.value?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK &&
-      guestName.value === "")
+      (guestName.value === "" || rememberedGuestNameInvalid.value))
   );
 });
 </script>

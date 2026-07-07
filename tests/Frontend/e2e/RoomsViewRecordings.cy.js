@@ -6,9 +6,7 @@ describe("Rooms view recordings", function () {
     cy.interceptRoomViewRequests();
     cy.interceptRoomRecordingsRequests();
 
-    cy.window().then((win) => {
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
-    });
+    cy.setValidRememberedParticipantName("Laura Rivera");
   });
 
   it("load recordings", function () {

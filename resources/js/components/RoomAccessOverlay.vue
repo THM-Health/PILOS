@@ -15,7 +15,7 @@
     <template #content>
       <RoomHeader
         :room="room"
-        :loading="loading"
+        :loading="loading || isLoadingAction"
         :details-inline="false"
         :hide-favorites="true"
         :hide-membership="true"
@@ -53,7 +53,7 @@
             id="participant-name"
             v-model="participantNameInput"
             :disabled="authThrottledFor > 0"
-            :invalid="participantNameInvalid"
+            :invalid="formErrors.fieldInvalid('name')"
           />
 
           <div class="flex items-center gap-2">
@@ -68,21 +68,7 @@
             </label>
           </div>
 
-          <div
-            v-if="participantNameInvalid"
-            ref="formError"
-            tabindex="-1"
-            class="form-error mt-2 flex flex-col font-semibold text-red-500 dark:text-red-300"
-            role="alert"
-          >
-            <div class="flex items-baseline gap-1">
-              <i
-                class="fas fa-exclamation-circle shrink-0 grow-0"
-                aria-hidden="true"
-              ></i>
-              <span>{{ participantNameErrorMessage }}</span>
-            </div>
-          </div>
+          <FormError :errors="formErrors.fieldError('name')" />
         </div>
 
         <div
@@ -143,14 +129,14 @@
         <Button
           class="mt-6 w-full"
           type="submit"
-          :loading="loading"
+          :loading="loading || isLoadingAction"
           :label="
             authStore.isAuthenticated
               ? $t('app.continue')
               : $t('rooms.continue_as_guest')
           "
           data-test="room-login-button"
-          :disabled="authThrottledFor > 0 || loading"
+          :disabled="authThrottledFor > 0 || loading || isLoadingAction"
         />
       </Form>
     </template>
@@ -160,15 +146,12 @@
 <script setup>
 import RoomHeader from "./RoomHeader.vue";
 import { useAuthStore } from "../stores/auth.js";
-import { computed, onMounted, ref, watch } from "vue";
-import {
-  getParticipantNameValidationErrorMessage,
-  validateParticipantName,
-} from "../composables/useRoomHelpers.js";
-import { useI18n } from "vue-i18n";
+import { onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const emit = defineEmits(["submit", "reload"]);
-defineProps({
+const props = defineProps({
   room: {
     type: Object,
     required: true,
@@ -213,20 +196,12 @@ const rememberParticipantName = defineModel("rememberParticipantName", {
   type: Boolean,
   default: false,
 });
-
-const participantNameValidation = ref({
-  valid: true,
-  reason: null,
-  invalidChars: "",
-});
 const participantNameInput = ref("");
 const accessCodeInput = ref("");
+const isLoadingAction = ref(false);
 
 const authStore = useAuthStore();
-const { t } = useI18n();
-const participantNameInvalid = computed(
-  () => !participantNameValidation.value.valid,
-);
+const api = useApi();
 
 onMounted(() => {
   participantNameInput.value = participantName.value;
@@ -234,32 +209,40 @@ onMounted(() => {
 });
 
 function submit() {
-  const validation = validateParticipantName(participantNameInput.value);
-
-  if (!authStore.isAuthenticated && validation.valid === false) {
-    participantNameValidation.value = validation;
-  } else {
-    participantNameValidation.value = {
-      valid: true,
-      reason: null,
-      invalidChars: "",
-    };
+  if (authStore.isAuthenticated) {
     accessCode.value = accessCodeInput.value;
-    participantName.value = participantNameInput.value;
     emit("submit");
+    return;
   }
+
+  props.formErrors.clear();
+  isLoadingAction.value = true;
+
+  api
+    .call("participantName/check", {
+      method: "post",
+      data: {
+        name: participantNameInput.value,
+      },
+    })
+    .then(() => {
+      accessCode.value = accessCodeInput.value;
+      participantName.value = participantNameInput.value;
+      emit("submit");
+    })
+    .catch((error) => {
+      if (
+        error.response &&
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
+      ) {
+        props.formErrors.set(error.response.data.errors);
+        return;
+      }
+
+      api.error(error);
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
 }
-
-watch(participantNameInput, () => {
-  participantNameValidation.value = validateParticipantName(
-    participantNameInput.value,
-  );
-});
-
-const participantNameErrorMessage = computed(() => {
-  return getParticipantNameValidationErrorMessage(
-    participantNameValidation.value,
-    t,
-  );
-});
 </script>

@@ -8,9 +8,7 @@ describe("Rooms view files file actions", function () {
     cy.interceptRoomViewRequests();
     cy.interceptRoomFilesRequest(true);
 
-    cy.window().then((win) => {
-      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
-    });
+    cy.setValidRememberedParticipantName("Laura Rivera");
   });
 
   it("upload file", function () {

@@ -533,3 +533,13 @@ Cypress.Commands.add(
     cy.checkToastMessage("app.flash.unauthorized");
   },
 );
+
+Cypress.Commands.add("setValidRememberedParticipantName", (name) => {
+  cy.intercept("POST", "api/v1/participantName/check", {
+    statusCode: 204,
+  }).as("checkParticipantNameRequest");
+
+  cy.window().then((win) => {
+    win.localStorage.setItem("pilos_guest_name", name);
+  });
+});

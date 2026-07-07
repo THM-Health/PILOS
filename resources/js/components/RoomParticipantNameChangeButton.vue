@@ -26,11 +26,13 @@
         <InputText
           id="participant-name"
           v-model="newParticipantName"
-          :invalid="newParticipantNameInvalid"
+          :disabled="loading"
+          :invalid="formErrors.fieldInvalid('name')"
         />
         <div class="flex items-center gap-2">
           <Checkbox
             v-model="rememberParticipantNameInput"
+            :disabled="loading"
             input-id="remember-participant-name"
             binary
           />
@@ -38,27 +40,14 @@
             {{ $t("rooms.remember_participant_name") }}
           </label>
         </div>
-        <div
-          v-if="newParticipantNameInvalid"
-          ref="formError"
-          tabindex="-1"
-          class="form-error mt-2 flex flex-col font-semibold text-red-500 dark:text-red-300"
-          role="alert"
-        >
-          <div class="flex items-baseline gap-1">
-            <i
-              class="fas fa-exclamation-circle shrink-0 grow-0"
-              aria-hidden="true"
-            ></i>
-            <span>{{ participantNameErrorMessage }}</span>
-          </div>
-        </div>
+        <FormError :errors="formErrors.fieldError('name')" />
       </div>
     </Form>
     <template #footer>
       <div class="flex shrink-0 justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
+          :disabled="loading"
           data-test="dialog-cancel-button"
           severity="secondary"
           @click="changeNameModalVisible = false"
@@ -67,6 +56,7 @@
           :label="$t('app.save')"
           data-test="dialog-save-button"
           type="submit"
+          :loading="loading"
           form="changeNameForm"
         />
       </div>
@@ -74,12 +64,10 @@
   </Dialog>
 </template>
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import {
-  getParticipantNameValidationErrorMessage,
-  validateParticipantName,
-} from "../composables/useRoomHelpers.js";
-import { useI18n } from "vue-i18n";
+import { onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const emit = defineEmits(["participantNameChanged"]);
 
@@ -95,19 +83,12 @@ const rememberParticipantName = defineModel("rememberParticipantName", {
   default: false,
 });
 
-const { t } = useI18n();
+const api = useApi();
+const formErrors = useFormErrors();
 const changeNameModalVisible = ref(false);
 const newParticipantName = ref("");
-const newParticipantNameValidation = ref({
-  valid: true,
-  reason: null,
-  invalidChars: "",
-});
 const rememberParticipantNameInput = ref(false);
-
-const newParticipantNameInvalid = computed(
-  () => !newParticipantNameValidation.value.valid,
-);
+const loading = ref(false);
 
 onMounted(() => {
   newParticipantName.value = props.participantName;
@@ -115,47 +96,42 @@ onMounted(() => {
 });
 
 function showChangeNameModal() {
+  formErrors.clear();
   newParticipantName.value = props.participantName;
-  newParticipantNameValidation.value = {
-    valid: true,
-    reason: null,
-    invalidChars: "",
-  };
   rememberParticipantNameInput.value = rememberParticipantName.value;
-
   changeNameModalVisible.value = true;
 }
 
 function changeParticipantName() {
-  const participantNameValidation = validateParticipantName(
-    newParticipantName.value,
-  );
+  loading.value = true;
+  formErrors.clear();
 
-  if (participantNameValidation.valid === false) {
-    newParticipantNameValidation.value = participantNameValidation;
-  } else {
-    newParticipantNameValidation.value = {
-      valid: true,
-      reason: null,
-      invalidChars: "",
-    };
-    rememberParticipantName.value = rememberParticipantNameInput.value;
-    emit("participantNameChanged", newParticipantName.value);
+  api
+    .call("participantName/check", {
+      method: "post",
+      data: {
+        name: newParticipantName.value,
+      },
+    })
+    .then(() => {
+      rememberParticipantName.value = rememberParticipantNameInput.value;
+      emit("participantNameChanged", newParticipantName.value);
 
-    changeNameModalVisible.value = false;
-  }
+      changeNameModalVisible.value = false;
+    })
+    .catch((error) => {
+      if (
+        error.response &&
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+        return;
+      }
+
+      api.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
-
-watch(newParticipantName, () => {
-  newParticipantNameValidation.value = validateParticipantName(
-    newParticipantName.value,
-  );
-});
-
-const participantNameErrorMessage = computed(() => {
-  return getParticipantNameValidationErrorMessage(
-    newParticipantNameValidation.value,
-    t,
-  );
-});
 </script>
