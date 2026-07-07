@@ -105,7 +105,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  fileError: {
+  fileErrors: {
     type: Array,
     required: true,
   },

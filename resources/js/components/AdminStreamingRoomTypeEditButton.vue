@@ -107,8 +107,8 @@
               input-id="pause-image"
               :url-invalid="formErrors.fieldInvalid('default_pause_image')"
               :file-invalid="formErrors.fieldInvalid('default_pause_image')"
-              :url-error="formErrors.fieldError('default_pause_image')"
-              :file-error="formErrors.fieldError('default_pause_image')"
+              :url-errors="formErrors.fieldError('default_pause_image')"
+              :file-errors="formErrors.fieldError('default_pause_image')"
             />
             <small class="block">{{
               $t("rooms.streaming.config.pause_image_resolution")

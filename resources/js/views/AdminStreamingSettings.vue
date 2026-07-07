@@ -35,7 +35,7 @@
                   show-delete
                   :allowed-extensions="['jpg', 'jpeg', 'png', 'gif']"
                   :file-invalid="formErrors.fieldInvalid('default_pause_image')"
-                  :file-error="formErrors.fieldError('default_pause_image')"
+                  :file-errors="formErrors.fieldError('default_pause_image')"
                 />
                 <small class="block">{{
                   $t("rooms.streaming.config.pause_image_resolution")
@@ -63,7 +63,7 @@
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('css_file')"
-                  :file-error="formErrors.fieldError('css_file')"
+                  :file-errors="formErrors.fieldError('css_file')"
                 />
                 <small class="block">{{
                   $t("admin.streaming.css_file_description")

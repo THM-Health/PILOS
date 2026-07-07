@@ -151,7 +151,7 @@
               :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
               input-id="pause-image"
               :file-invalid="formErrors.fieldInvalid('pause_image')"
-              :file-error="formErrors.fieldError('pause_image')"
+              :file-errors="formErrors.fieldError('pause_image')"
             />
             <small class="block">{{
               $t("rooms.streaming.config.pause_image_resolution")

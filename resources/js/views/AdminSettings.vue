@@ -344,8 +344,8 @@
                   input-id="favicon"
                   :url-invalid="formErrors.fieldInvalid('theme_favicon')"
                   :file-invalid="formErrors.fieldInvalid('theme_favicon_file')"
-                  :url-error="formErrors.fieldError('theme_favicon')"
-                  :file-error="formErrors.fieldError('theme_favicon_file')"
+                  :url-errors="formErrors.fieldError('theme_favicon')"
+                  :file-errors="formErrors.fieldError('theme_favicon_file')"
                 />
               </div>
             </fieldset>
@@ -375,7 +375,7 @@
                   :file-invalid="
                     formErrors.fieldInvalid('theme_favicon_dark_file')
                   "
-                  :url-error="formErrors.fieldError('theme_favicon_dark')"
+                  :url-errors="formErrors.fieldError('theme_favicon_dark')"
                   :file-error="formErrors.fieldError('theme_favicon_dark_file')"
                 />
               </div>
@@ -401,8 +401,8 @@
                   input-id="logo"
                   :url-invalid="formErrors.fieldInvalid('theme_logo')"
                   :file-invalid="formErrors.fieldInvalid('theme_logo_file')"
-                  :url-error="formErrors.fieldError('theme_logo')"
-                  :file-error="formErrors.fieldError('theme_logo_file')"
+                  :url-errors="formErrors.fieldError('theme_logo')"
+                  :file-errors="formErrors.fieldError('theme_logo_file')"
                 />
               </div>
             </fieldset>
@@ -432,8 +432,8 @@
                   :file-invalid="
                     formErrors.fieldInvalid('theme_logo_dark_file')
                   "
-                  :url-error="formErrors.fieldError('theme_logo_dark')"
-                  :file-error="formErrors.fieldError('theme_logo_dark_file')"
+                  :url-errors="formErrors.fieldError('theme_logo_dark')"
+                  :file-errors="formErrors.fieldError('theme_logo_dark_file')"
                 />
               </div>
             </fieldset>
@@ -509,7 +509,7 @@
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('theme_custom_css')"
-                  :file-error="formErrors.fieldError('theme_custom_css')"
+                  :file-errors="formErrors.fieldError('theme_custom_css')"
                 />
               </div>
             </fieldset>
@@ -1420,8 +1420,8 @@
                   input-id="bbb-logo"
                   :url-invalid="formErrors.fieldInvalid('bbb_logo')"
                   :file-invalid="formErrors.fieldInvalid('bbb_logo_file')"
-                  :url-error="formErrors.fieldError('bbb_logo')"
-                  :file-error="formErrors.fieldError('bbb_logo_file')"
+                  :url-errors="formErrors.fieldError('bbb_logo')"
+                  :file-errors="formErrors.fieldError('bbb_logo_file')"
                 />
               </div>
             </fieldset>
@@ -1451,8 +1451,8 @@
                   input-id="bbb-logo-dark"
                   :url-invalid="formErrors.fieldInvalid('bbb_logo_dark')"
                   :file-invalid="formErrors.fieldInvalid('bbb_logo_dark_file')"
-                  :url-error="formErrors.fieldError('bbb_logo_dark')"
-                  :file-error="formErrors.fieldError('bbb_logo_dark_file')"
+                  :url-errors="formErrors.fieldError('bbb_logo_dark')"
+                  :file-errors="formErrors.fieldError('bbb_logo_dark_file')"
                 />
               </div>
             </fieldset>
@@ -1477,7 +1477,7 @@
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('bbb_style')"
-                  :file-error="formErrors.fieldError('bbb_style')"
+                  :file-errors="formErrors.fieldError('bbb_style')"
                 />
               </div>
             </fieldset>
@@ -1508,7 +1508,7 @@
                   :file-invalid="
                     formErrors.fieldInvalid('bbb_default_presentation')
                   "
-                  :file-error="
+                  :file-errors="
                     formErrors.fieldError('bbb_default_presentation')
                   "
                 />

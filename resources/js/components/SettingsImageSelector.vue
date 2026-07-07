@@ -134,11 +134,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  urlError: {
+  urlErrors: {
     type: Array,
     default: () => [],
   },
-  fileError: {
+  fileErrors: {
     type: Array,
     required: true,
   },
