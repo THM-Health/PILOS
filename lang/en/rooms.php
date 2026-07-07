@@ -371,6 +371,7 @@ return [
         'view_recording' => 'View recording',
     ],
     'remember_participant_name' => 'Remember name for next time',
+    'request_participant_name_change' => "Please change your name to join the room.",
     'require_access_code' => 'An access code is required to join this room',
     'role' => 'Role',
     'roles' => [

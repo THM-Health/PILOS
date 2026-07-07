@@ -40,8 +40,10 @@
       v-if="formErrors.fieldInvalid('name')"
       class="mb-4"
       severity="error"
-      >{{ formErrors.fieldError("name")[0] }}</Message
     >
+      <div>{{ t("rooms.request_participant_name_change") }}</div>
+      <div>{{ formErrors.fieldError("name")[0] }}</div>
+    </Message>
     <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
