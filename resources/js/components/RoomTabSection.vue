@@ -1,12 +1,12 @@
 <template>
-  <Card>
+  <Card :pt:body:class="'pt-4 px-6'">
     <template #header>
       <!-- Tab header -->
       <div
         class="mb-5 flex flex-row justify-between border-b border-surface px-6 py-4"
       >
         <!-- Current tab -->
-        <div class="flex flex-row items-center gap-2 px-2 text-xl">
+        <div class="flex flex-row items-center gap-2 text-xl">
           <i :class="activeTab?.icon" />
           <h2 class="m-0">{{ activeTab?.label }}</h2>
         </div>

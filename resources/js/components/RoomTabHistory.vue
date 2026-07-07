@@ -168,7 +168,7 @@
 
     <Message
       id="retentionPeriodInfo"
-      class="mt-2"
+      class="mx-2 mt-2"
       severity="secondary"
       aria-live="off"
       role="presentation"
