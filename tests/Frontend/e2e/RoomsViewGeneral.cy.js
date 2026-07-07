@@ -124,6 +124,7 @@ describe("Room View general", function () {
     cy.interceptRoomFilesRequest();
 
     cy.fixture("room.json").then((room) => {
+      room.data.name = 'Meeting One <script>alert("XSS")</script>';
       room.data.short_description = "Room short description";
       room.data.allow_membership = true;
       room.data.legacy_code = false;
@@ -137,7 +138,10 @@ describe("Room View general", function () {
 
     cy.visit("/rooms/abc-def-123");
 
-    cy.title().should("eq", "Meeting One - PILOS Test");
+    cy.title().should(
+      "eq",
+      'Meeting One <script>alert("XSS")</script> - PILOS Test',
+    );
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').click();
@@ -153,10 +157,34 @@ describe("Room View general", function () {
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
-          'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
-            Cypress.config("baseUrl") +
-            "/rooms/abc-def-123#accessCode=508307005\nrooms.invitation.code: 508-307-005",
+          `rooms.invitation.room_{"roomname":"Meeting One <script>alert(\\"XSS\\")</script>","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005\nrooms.invitation.code: 508-307-005`,
         );
+      });
+
+      win.navigator.clipboard.read().then((clipboardItems) => {
+        const clipboardItem = clipboardItems[0];
+        expect(clipboardItem.types).to.include("text/plain");
+        expect(clipboardItem.types).to.include("text/html");
+
+        // Check plaintext
+        clipboardItem
+          .getType("text/plain")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.eq(
+              `rooms.invitation.room_{"roomname":"Meeting One <script>alert(\\"XSS\\")</script>","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005\nrooms.invitation.code: 508-307-005`,
+            );
+          });
+
+        // Check html
+        clipboardItem
+          .getType("text/html")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.contain(
+              `<p>rooms.invitation.room_{"roomname":"Meeting One &lt;script&gt;alert(\\"XSS\\")&lt;/script&gt;","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005">${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005</a><br>rooms.invitation.code: 508-307-005</p>`,
+            );
+          });
       });
     });
 
@@ -167,8 +195,34 @@ describe("Room View general", function () {
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
-          Cypress.config("baseUrl") + "/rooms/abc-def-123#accessCode=508307005",
+          `${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005`,
         );
+      });
+
+      win.navigator.clipboard.read().then((clipboardItems) => {
+        const clipboardItem = clipboardItems[0];
+        expect(clipboardItem.types).to.include("text/plain");
+        expect(clipboardItem.types).to.include("text/html");
+
+        // Check plaintext
+        clipboardItem
+          .getType("text/plain")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.eq(
+              `${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005`,
+            );
+          });
+
+        // Check html
+        clipboardItem
+          .getType("text/html")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.contain(
+              `<a href="${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005">${Cypress.config("baseUrl")}/rooms/abc-def-123#accessCode=508307005</a>`,
+            );
+          });
       });
     });
 
@@ -310,6 +364,32 @@ describe("Room View general", function () {
             Cypress.config("baseUrl") +
             "/rooms/abc-def-123",
         );
+      });
+
+      win.navigator.clipboard.read().then((clipboardItems) => {
+        const clipboardItem = clipboardItems[0];
+        expect(clipboardItem.types).to.include("text/plain");
+        expect(clipboardItem.types).to.include("text/html");
+
+        // Check plaintext
+        clipboardItem
+          .getType("text/plain")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.eq(
+              `rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123`,
+            );
+          });
+
+        // Check html
+        clipboardItem
+          .getType("text/html")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.contain(
+              `<p>rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a></p>`,
+            );
+          });
       });
     });
 
