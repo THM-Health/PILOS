@@ -135,12 +135,12 @@ const props = defineProps({
     default: false,
   },
   urlError: {
-    type: [Object, null],
-    default: null,
+    type: Array,
+    default: () => [],
   },
   fileError: {
-    type: [Object, null],
-    default: null,
+    type: Array,
+    required: true,
   },
   disabled: {
     type: Boolean,

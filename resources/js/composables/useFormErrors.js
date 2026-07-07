@@ -32,18 +32,13 @@ class FormError {
   }
 
   /**
-   * Returns the error message for the passed field.
+   * Returns an array of error messages for the passed field.
    *
-   * Since a html list gets returned for the passed field the string cannot be used directly in the
-   * html code but the v-html tag must be used.
+   * The result should be passed to the FormError component to render
+   * the error list consistently and provide UX and A11y features
    *
    * @example
-   *    <b-form-group :state="fieldState('...')" ...>
-   *      <template #invalid-feedback><div v-html="fieldError('...')"></div></template>
-   *    </b-form-group>
-   *
-   *    <!-- or -->
-   *    <b-form-invalid-feedback :state="fieldState('...')" v-html="fieldError('...')"></b-form-invalid-feedback>
+   *    <FormError :errors="formErrors.fieldError('FIELD_NAME')" />
    *
    * @param {string} field Name of field to get the error message for.
    * @param {bool} [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
