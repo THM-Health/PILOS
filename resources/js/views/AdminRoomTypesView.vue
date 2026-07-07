@@ -249,7 +249,11 @@
                   input-id="restrict"
                   :invalid="formErrors.fieldInvalid('restrict')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
-                  aria-describedby="restrict-help"
+                  :pt="{
+                    input: {
+                      'aria-describedby': 'restrict-help',
+                    },
+                  }"
                 />
               </div>
               <FormError :errors="formErrors.fieldError('restrict')" />

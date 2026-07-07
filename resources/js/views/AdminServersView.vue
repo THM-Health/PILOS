@@ -138,6 +138,7 @@
         <fieldset
           class="field grid grid-cols-12 gap-4"
           data-test="strength-field"
+          aria-describedby="strength-help"
         >
           <legend class="col-span-12 md:col-span-4 md:mb-0">
             {{ $t("admin.servers.strength") }}
@@ -150,7 +151,6 @@
               :disabled="isBusy || modelLoadingError || viewOnly"
               :invalid="formErrors.fieldInvalid('strength')"
               :stars="10"
-              aria-describedby="strength-help"
               class="flex justify-between rounded-border border border-surface-300 px-6 py-3 dark:border-surface-600"
               data-test="strength-rating"
               :pt="{

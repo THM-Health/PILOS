@@ -49,7 +49,6 @@
           option-group-children="items"
           option-value="value"
           option-label="text"
-          aria-describedby="replacement-help"
           :pt="{
             listContainer: {
               'data-test': 'replacement-room-type-dropdown-items',
@@ -59,6 +58,7 @@
             },
             optionGroup: 'p-0',
             label: {
+              'aria-describedby': 'replacement-help',
               autofocus: true,
             },
           }"
