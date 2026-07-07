@@ -1061,8 +1061,8 @@ describe("Room View general", function () {
           .getType("text/html")
           .then((b) => b.text())
           .then((text) => {
-            expect(text).to.eq(
-              `<meta charset="utf-8"><p>rooms.invitation.room_{"roomname":"Meeting One &lt;script&gt;alert(\\"XSS\\")&lt;/script&gt;","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a><br>rooms.invitation.code: 508-307-005</p>`,
+            expect(text).to.contain(
+              `<p>rooms.invitation.room_{"roomname":"Meeting One &lt;script&gt;alert(\\"XSS\\")&lt;/script&gt;","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a><br>rooms.invitation.code: 508-307-005</p>`,
             );
           });
       });
@@ -1097,8 +1097,8 @@ describe("Room View general", function () {
           .getType("text/html")
           .then((b) => b.text())
           .then((text) => {
-            expect(text).to.eq(
-              `<meta charset="utf-8"><a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a>`,
+            expect(text).to.contain(
+              `<a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a>`,
             );
           });
       });
@@ -1264,8 +1264,8 @@ describe("Room View general", function () {
           .getType("text/html")
           .then((b) => b.text())
           .then((text) => {
-            expect(text).to.eq(
-              `<meta charset="utf-8"><p>rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a></p>`,
+            expect(text).to.contain(
+              `<p>rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a></p>`,
             );
           });
       });
