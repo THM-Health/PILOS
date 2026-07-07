@@ -1,11 +1,9 @@
 <template>
-  <div class="container mt-4 mb-8">
-    <Card :pt="{ content: { class: 'p-0' } }">
+  <div class="container mt-8 mb-8">
+    <Card>
       <template #header>
-        <div class="flex flex-col gap-2 border-b border-surface p-4">
-          <h1 class="text-3xl font-medium">
-            {{ $t("admin.title") }}
-          </h1>
+        <div class="flex flex-col gap-2 border-b border-surface p-5">
+          <PageTitle :title="$t('admin.title')" />
 
           <Breadcrumb
             v-if="breadcrumbs.length > 0"
@@ -46,15 +44,17 @@
   </div>
 </template>
 <script setup>
-import { computed, provide, ref, watch } from "vue";
+import { computed, onMounted, provide, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useRouteStore } from "../stores/route.js";
 
 const breadcrumbLabelData = ref({});
 provide("breadcrumbLabelData", breadcrumbLabelData);
 
 const route = useRoute();
 const { t } = useI18n();
+const routeStore = useRouteStore();
 
 const home = ref({
   icon: "fa-solid fa-home",
@@ -198,5 +198,26 @@ function isEmpty(obj) {
 
 watch(route, () => {
   breadcrumbLabelData.value = {};
+});
+
+onMounted(() => {
+  setPageTitle();
+});
+
+function setPageTitle() {
+  let title = `${t("admin.title")}`;
+
+  if (breadcrumbs.value.length > 0)
+    title = `${breadcrumbs.value
+      .filter((b) => b.label !== "")
+      .map((b) => b.label)
+      .reverse()
+      .join(" - ")} - ${title}`;
+
+  routeStore.setPageTitle(title);
+}
+
+watch(breadcrumbs, () => {
+  setPageTitle();
 });
 </script>

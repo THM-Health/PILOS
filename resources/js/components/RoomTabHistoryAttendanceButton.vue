@@ -76,15 +76,18 @@
     >
       <template #header>
         <div class="flex justify-between gap-2">
-          <IconField icon-position="left">
-            <InputIcon class="fa-solid fa-search"> </InputIcon>
-            <InputText
-              v-model="filters['global'].value"
-              autofocus
-              :placeholder="$t('app.search')"
-              data-test="room-history-attendance-search"
-            />
-          </IconField>
+          <search>
+            <IconField icon-position="left">
+              <InputIcon class="fa-solid fa-search"> </InputIcon>
+              <InputText
+                v-model="filters['global'].value"
+                autofocus
+                type="search"
+                :placeholder="$t('app.search')"
+                data-test="room-history-attendance-search"
+              />
+            </IconField>
+          </search>
 
           <Button
             v-tooltip:top="$t('meetings.attendance.download')"

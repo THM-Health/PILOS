@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
-      <div>
+      <search>
         <InputGroup data-test="role-search">
           <InputText
             v-model="filter"
             :disabled="isBusy"
+            type="search"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1)"
           />
@@ -18,7 +19,7 @@
             @click="loadData(1)"
           />
         </InputGroup>
-      </div>
+      </search>
 
       <Button
         v-if="userPermissions.can('create', 'RolePolicy')"

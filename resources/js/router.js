@@ -32,6 +32,7 @@ import { useToast } from "./composables/useToast";
 import i18n from "./i18n";
 import { useUserPermissions } from "./composables/useUserPermission.js";
 import { useApi } from "./composables/useApi.js";
+import { useRouteStore } from "./stores/route.js";
 
 const Home = Object.values(
   import.meta.glob(["../custom/js/views/Home.vue", "./views/Home.vue"], {
@@ -44,6 +45,7 @@ export const routes = [
     path: "/",
     name: "home",
     component: Home,
+    meta: { title: (t) => t("app.home") },
     beforeEnter: (to, from, next) => {
       if (useSettingsStore().getSetting("general.no_welcome_page")) {
         next({ name: "rooms.index" });
@@ -56,12 +58,13 @@ export const routes = [
     path: "/profile",
     name: "profile",
     component: Profile,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, title: (t) => t("app.profile") },
   },
   {
     path: "/login",
     name: "login",
     component: Login,
+    meta: { title: (t) => t("auth.login") },
   },
   {
     path: "/external_login",
@@ -78,7 +81,7 @@ export const routes = [
     path: "/logout",
     name: "logout",
     component: Logout,
-    meta: { guestsOnly: true },
+    meta: { guestsOnly: true, title: (t) => t("auth.logout") },
     props: (route) => {
       return {
         message: route.query.message,
@@ -131,7 +134,7 @@ export const routes = [
     path: "/rooms",
     name: "rooms.index",
     component: RoomsIndex,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, title: (t) => t("app.rooms") },
   },
   /**
    * Greenlight v3 compatibility
@@ -183,6 +186,7 @@ export const routes = [
     name: "meetings.index",
     meta: {
       requiresAuth: true,
+      title: (t) => t("meetings.currently_running"),
       accessPermitted: (userPermissions) =>
         Promise.resolve(userPermissions.can("viewAny", "MeetingPolicy")),
     },
@@ -635,7 +639,6 @@ export const routes = [
 export async function beforeEachRoute(router, to, from, next) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
-  const settings = useSettingsStore();
   const userPermissions = useUserPermissions();
   const toast = useToast();
   const { t } = i18n.global;
@@ -644,9 +647,6 @@ export async function beforeEachRoute(router, to, from, next) {
   if (!loading.initialized) {
     await loading.initialize();
   }
-
-  // Set the application name as title if loaded, otherwise the title from the html template is used
-  document.title = settings.getSetting("general.name");
 
   // Resolve all permission promises for the current route
   const recordsPermissions = await Promise.all(
@@ -714,6 +714,24 @@ export default function () {
   router.beforeEach((to, from, next) =>
     beforeEachRoute(router, to, from, next),
   );
+
+  router.afterEach((to, from) => {
+    const routeStore = useRouteStore();
+
+    // Do not update page title if only hash or query parameters change
+    if (from.path === to.path) {
+      return;
+    }
+
+    // Update page title if route has a static title
+    if (to.meta.title) {
+      const { t } = i18n.global;
+      routeStore.setPageTitle(to.meta.title(t));
+    } else {
+      // Route has no title or is set somewhere else, reset to default
+      routeStore.setPageTitle(null);
+    }
+  });
 
   router.onError((error) => {
     const api = useApi();

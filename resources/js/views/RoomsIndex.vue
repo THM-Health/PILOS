@@ -5,9 +5,7 @@
       <template #title>
         <div class="flex justify-between">
           <div>
-            <h1 ref="mainHeading" class="text-3xl" tabindex="-1">
-              {{ $t("app.rooms") }}
-            </h1>
+            <PageTitle :title="$t('app.rooms')" />
           </div>
           <div
             v-if="userPermissions.can('create', 'RoomPolicy')"
@@ -31,12 +29,15 @@
       <template #content>
         <!--  search, sorting, favorite-->
         <div class="grid grid-cols-12 gap-4">
-          <div class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3">
+          <search
+            class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
+          >
             <!--search-->
             <InputGroup class="mb-2" data-test="room-search">
               <InputText
                 ref="search"
                 v-model="rawSearchQuery"
+                type="search"
                 :disabled="loadingRooms"
                 :placeholder="$t('rooms.search')"
                 @keyup.enter="loadRooms(1)"
@@ -49,7 +50,7 @@
                 @click="loadRooms(1)"
               />
             </InputGroup>
-          </div>
+          </search>
           <div
             class="col-span-12 flex flex-col-reverse items-start justify-end gap-2 md:col-span-6 md:flex-row lg:col-span-8 2xl:col-span-9"
           >
@@ -340,8 +341,6 @@ const { t } = useI18n();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 
-const mainHeading = ref(null);
-
 const toggleMobileMenu = ref(false);
 const loadingRooms = ref(false);
 const loadingRoomsError = ref(false);
@@ -479,7 +478,7 @@ function loadRoomTypes() {
  */
 function loadRooms(page = null, moveFocus = true) {
   if (moveFocus) {
-    mainHeading.value.focus();
+    document.getElementById("page-title")?.focus();
   }
 
   loadingRooms.value = true;

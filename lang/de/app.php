@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 return [
     'actions' => 'Aktionen',
+    'aria' => [
+        'footer' => 'Fußzeile',
+        'main' => 'Hauptinhalt',
+        'main_menu' => 'Hauptmenü',
+        'navigated_to_page' => 'Zur Seite :page navigiert',
+        'skip_links' => 'Sprunglinks',
+        'user_menu' => 'Benutzermenü',
+    ],
     'back' => 'Zurück',
     'browse' => 'Durchsuchen',
     'button_styles' => [

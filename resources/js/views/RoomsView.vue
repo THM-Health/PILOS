@@ -16,9 +16,9 @@
           </Badge>
         </template>
         <template #content>
-          <span class="font-bold">
+          <h1 class="font-bold">
             {{ $t("rooms.invalid_personalized_link") }}
-          </span>
+          </h1>
         </template>
       </Card>
     </div>
@@ -40,9 +40,9 @@
         <template #content>
           <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
-          <span class="font-bold">
+          <h1 class="font-bold">
             {{ $t("rooms.only_used_by_authenticated_users") }}
-          </span>
+          </h1>
         </template>
         <template #footer>
           <div class="mt-4 flex w-full justify-start">
@@ -260,6 +260,7 @@ import {
   HTTP_STATUS_UNAUTHORIZED,
   HTTP_STATUS_UNPROCESSABLE_ENTITY,
 } from "../constants/httpStatusCodes.js";
+import { useRouteStore } from "../stores/route.js";
 import { useUrlSearchParams } from "@vueuse/core";
 
 const props = defineProps({
@@ -294,6 +295,7 @@ const authThrottledFor = ref(0); // Throttled for authentication (seconds until 
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
+const routeStore = useRouteStore();
 const userPermissions = useUserPermissions();
 const formErrors = useFormErrors();
 const { t } = useI18n();
@@ -524,7 +526,7 @@ function reload(checkForRequireCodeError = false) {
 
       room.value = response.data.data;
 
-      setPageTitle(room.value.name);
+      setPageTitle(room.value.name, false);
 
       startAutoRefresh();
 
@@ -605,9 +607,10 @@ async function initializeRoomView() {
 /**
  * Show room name in title
  * @param {string} roomName Name of the room
+ * @param announce
  */
-function setPageTitle(roomName) {
-  document.title = roomName + " - " + settingsStore.getSetting("general.name");
+function setPageTitle(roomName, announce = true) {
+  routeStore.setPageTitle(roomName, announce);
 }
 
 /**

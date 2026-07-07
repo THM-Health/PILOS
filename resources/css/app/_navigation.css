@@ -8,3 +8,13 @@
         @apply py-1;
     }
 }
+
+.horizontal-divider {
+    li:not(:first-child):before {
+        content: " | ";
+    }
+}
+
+[tabindex="-1"]:focus {
+    outline: none;
+}

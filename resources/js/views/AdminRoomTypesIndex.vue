@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
-      <div>
+      <search>
         <InputGroup data-test="room-type-search">
           <InputText
             v-model="nameSearch"
             :disabled="isBusy"
+            type="search"
             :placeholder="$t('app.search')"
             @keyup.enter="filters['name'].value = nameSearch"
           />
@@ -18,7 +19,7 @@
             @click="filters['name'].value = nameSearch"
           />
         </InputGroup>
-      </div>
+      </search>
       <Button
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
         v-tooltip="$t('admin.room_types.new')"
