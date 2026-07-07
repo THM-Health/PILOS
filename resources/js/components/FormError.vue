@@ -6,7 +6,6 @@ const props = defineProps({
   errors: {
     type: [Array, null],
     required: true,
-    default: null,
   },
 });
 

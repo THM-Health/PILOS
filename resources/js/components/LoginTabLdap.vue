@@ -61,7 +61,6 @@ const props = defineProps({
   errors: {
     type: [Object, null],
     required: true,
-    default: null,
   },
   id: {
     type: String,
