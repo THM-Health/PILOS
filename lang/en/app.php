@@ -69,6 +69,7 @@ return [
         'streaming_meeting_not_running' => 'The meeting is not running.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming is not enabled for the current meeting.',
     ],
+    'filter' => 'Filter',
     'filter_no_results' => 'No results found',
     'firstname' => 'Firstname',
     'flash' => [
@@ -143,6 +144,9 @@ return [
     'server_pool' => 'Server pool',
     'server_pools' => 'Server pools',
     'servers' => 'Server',
+    'sort_by' => 'Sort by',
+    'sort_ascending' => 'Sort ascending',
+    'sort_descending' => 'Sort descending',
     'streaming' => 'Streaming',
     'time_formats' => [
         'day' => 'Day',
