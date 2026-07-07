@@ -9,7 +9,7 @@
             <PageTitle :title="$t('auth.login')" />
           </template>
           <template #content>
-            <Tabs :lazy="true" :value="activeTab">
+            <Tabs :value="activeTab">
               <TabList>
                 <Tab
                   v-if="settingsStore.getSetting('auth.ldap')"
