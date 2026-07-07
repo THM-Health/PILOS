@@ -572,6 +572,26 @@ describe("Room View general", function () {
     cy.get('[data-test="room-share-button"]').should("exist");
   });
 
+  it("room view with invalid tab hash", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.short_description = "Room short description";
+      room.data.allow_membership = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=invalid");
+
+    // Check that description tab is shown
+    cy.contains("rooms.description.title").should("be.visible");
+
+    // Check that invalid tab hash is cleared
+    cy.url().should("not.include", "tab=invalid");
+  });
+
   it("room view streaming enabled", function () {
     // Enable streaming
     cy.fixture("config.json").then((config) => {
