@@ -54,7 +54,7 @@
       />
     </div>
     <div>
-      <FormError :errors="fileError" />
+      <FormError :errors="fileErrors" />
       <FormError :errors="frontendFileError" />
     </div>
     <small class="mt-2 block">{{
@@ -120,7 +120,7 @@ const props = defineProps({
 });
 
 const frontendFileError = computed(() => {
-  if (props.fileError.length > 0) {
+  if (props.fileErrors.length > 0) {
     return [];
   }
 

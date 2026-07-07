@@ -55,8 +55,8 @@
         />
       </div>
       <div>
-        <FormError :errors="fileError" />
-        <FormError :errors="urlError" />
+        <FormError :errors="fileErrors" />
+        <FormError :errors="urlErrors" />
         <FormError :errors="frontendFileError" />
       </div>
       <small class="mt-2 block">{{
@@ -173,7 +173,7 @@ function resetFileUpload() {
 }
 
 const frontendFileError = computed(() => {
-  if (props.fileError.length > 0) {
+  if (props.fileErrors.length > 0) {
     return [];
   }
 

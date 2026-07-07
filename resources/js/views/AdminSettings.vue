@@ -376,7 +376,9 @@
                     formErrors.fieldInvalid('theme_favicon_dark_file')
                   "
                   :url-errors="formErrors.fieldError('theme_favicon_dark')"
-                  :file-error="formErrors.fieldError('theme_favicon_dark_file')"
+                  :file-errors="
+                    formErrors.fieldError('theme_favicon_dark_file')
+                  "
                 />
               </div>
             </fieldset>
