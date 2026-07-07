@@ -14,7 +14,7 @@
         </Badge>
       </template>
       <template #content>
-        <p class="m-0 text-center text-2xl font-bold">{{ $t("app.error") }}</p>
+        <PageTitle :title="$t('app.error')" class="mb-4 text-center" />
         <p class="text-center text-lg">{{ $t("app.not_found") }}</p>
       </template>
     </Card>
