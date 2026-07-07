@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility: Announcement order to read the room name before the room type on screen readers ([#2970])
 - Accessibility: Move keyboard focus to page start on page change ([#3264])
 - Accessibility: Reduced flipping words animation on loading page for browsers with reduced-motion set ([#3277])
+- Room share dialog now copies the room link and invitation message to the clipboard in both plain text and HTML format ([#3296])
 
 ## [v4.16.0] - 2026-06-12
 
@@ -855,6 +856,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
 [#3277]: https://github.com/THM-Health/PILOS/pull/3277
+[#3296]: https://github.com/THM-Health/PILOS/pull/3296
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
