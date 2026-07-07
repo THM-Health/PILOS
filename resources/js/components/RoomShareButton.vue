@@ -145,9 +145,20 @@ function plainTextInvitationMessage() {
   return `${intro}${link}${code}`;
 }
 
+/**
+ * Escape all HTML characters in a string
+ * @param string
+ * @return {string}
+ */
+function escapeString(string) {
+  const el = document.createElement("div");
+  el.innerText = string;
+  return el.innerHTML;
+}
+
 function htmlInvitationMessage() {
   const intro = t("rooms.invitation.room", {
-    roomname: props.room.name,
+    roomname: escapeString(props.room.name),
     platform: settingsStore.getSetting("general.name"),
   });
   const link = `<br>${t("rooms.invitation.link")}: <a href="${roomUrl.value}">${roomUrl.value}</a>`;

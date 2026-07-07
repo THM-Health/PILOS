@@ -1004,6 +1004,7 @@ describe("Room View general", function () {
     cy.interceptRoomFilesRequest();
 
     cy.fixture("room.json").then((room) => {
+      room.data.name = 'Meeting One <script>alert("XSS")</script>';
       room.data.short_description = "Room short description";
       room.data.allow_membership = true;
       room.data.legacy_code = false;
@@ -1017,7 +1018,10 @@ describe("Room View general", function () {
 
     cy.visit("/rooms/abc-def-123");
 
-    cy.title().should("eq", "Meeting One - PILOS Test");
+    cy.title().should(
+      "eq",
+      'Meeting One <script>alert("XSS")</script> - PILOS Test',
+    );
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').click();
@@ -1033,7 +1037,7 @@ describe("Room View general", function () {
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
-          `rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123\nrooms.invitation.code: 508-307-005`,
+          `rooms.invitation.room_{"roomname":"Meeting One <script>alert(\\"XSS\\")</script>","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123\nrooms.invitation.code: 508-307-005`,
         );
       });
 
@@ -1048,7 +1052,7 @@ describe("Room View general", function () {
           .then((b) => b.text())
           .then((text) => {
             expect(text).to.eq(
-              `rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123\nrooms.invitation.code: 508-307-005`,
+              `rooms.invitation.room_{"roomname":"Meeting One <script>alert(\\"XSS\\")</script>","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123\nrooms.invitation.code: 508-307-005`,
             );
           });
 
@@ -1058,7 +1062,7 @@ describe("Room View general", function () {
           .then((b) => b.text())
           .then((text) => {
             expect(text).to.eq(
-              `<meta charset="utf-8"><p>rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a><br>rooms.invitation.code: 508-307-005</p>`,
+              `<meta charset="utf-8"><p>rooms.invitation.room_{"roomname":"Meeting One &lt;script&gt;alert(\\"XSS\\")&lt;/script&gt;","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a><br>rooms.invitation.code: 508-307-005</p>`,
             );
           });
       });
