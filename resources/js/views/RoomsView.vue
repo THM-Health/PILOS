@@ -766,6 +766,11 @@ async function loadSavedAccessParameters() {
     // Clear hash params
     await nextTick();
     hashParams.personalizedLink = null;
+
+    // Treat a personalized link from the hash as the selected credential
+    // discard any competing hash access code so it cannot win on a later reload when
+    // the personalized link is only stored in session storage
+    hashParams.accessCode = null;
     return;
   }
 
@@ -775,6 +780,11 @@ async function loadSavedAccessParameters() {
     // Set access code param in session storage to make sure that access code
     // stays set if the user decides to log in (navigates to login page)
     sessionStorage.setItem("roomAccessCode_" + props.id, hashParams.accessCode);
+
+    // Treat an access code from the hash as the selected credential
+    // discard any saved personalized link so it cannot win on a later reload when
+    // the access code is only stored in session storage
+    sessionStorage.removeItem("roomPersonalizedLink_" + props.id);
 
     // Clear hash params
     await nextTick();

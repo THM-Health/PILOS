@@ -4171,7 +4171,7 @@ describe("Rooms View access", function () {
     cy.get('[data-test="change-participant-name-button"]').should("not.exist");
     cy.contains("Laura Rivera").should("not.exist");
 
-    //Check that sessionStorage value for personalized link was updated to the value from hash
+    // Check that sessionStorage value for personalized link was updated to the value from hash
     cy.window().then((win) => {
       expect(win.sessionStorage.getItem("roomAccessCode_abc-def-123")).to.eq(
         "123456789",
@@ -4189,7 +4189,57 @@ describe("Rooms View access", function () {
       );
     });
 
+    // Check that the competing access code hash was removed and cannot win on a later reload
+    cy.url().should("not.include", "accessCode");
+
     // Reload without personalized link in hash
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+      room.data.is_member = true;
+      room.data.username = "Max Doe";
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 200,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.reload();
+
+    // Check that the access code from the previous hash was discarded and the personalized link is still used
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "1",
+      });
+    });
+
+    // Check that correct participant name is shown
+    cy.contains("rooms.name_in_video_conference").should("be.visible");
+    cy.contains("Max Doe").should("be.visible");
+    cy.get('[data-test="change-participant-name-button"]').should("not.exist");
+    cy.contains("Laura Rivera").should("not.exist");
+
+    // Reload without personalized link in hash, but with an explicit access code hash
     cy.fixture("room.json").then((room) => {
       room.data.allow_membership = true;
       room.data.current_user = null;
@@ -4239,22 +4289,14 @@ describe("Rooms View access", function () {
       expect(win.sessionStorage.getItem("roomAccessCode_abc-def-123")).to.eq(
         "987654321",
       );
-      expect(
-        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
-      ).to.eq(
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
-
-      // Reset access code to previous value
-      win.sessionStorage.setItem("roomAccessCode_abc-def-123", "123456789");
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
     });
 
     // Reload without access code in hash
     cy.fixture("room.json").then((room) => {
       room.data.allow_membership = true;
       room.data.current_user = null;
-      room.data.is_member = true;
-      room.data.username = "Max Doe";
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
@@ -4267,7 +4309,7 @@ describe("Rooms View access", function () {
       body: {
         data: {
           id: "roomAuthToken",
-          type: 1,
+          type: 0,
         },
       },
     }).as("roomAuthRequest");
@@ -4275,26 +4317,25 @@ describe("Rooms View access", function () {
     cy.visit("/rooms/abc-def-123");
     cy.reload();
 
-    // Check that auth was called with personalized link from sessionStorage
+    // Check that auth was called with access code from sessionStorage
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
+        access_code: "987654321",
+        type: 0,
       });
     });
 
     cy.wait("@roomRequest").then((interception) => {
       expect(interception.request.query).to.contain({
         room_auth_token: "roomAuthToken",
-        room_auth_token_type: "1",
+        room_auth_token_type: "0",
       });
     });
 
     // Check that correct participant name is shown
     cy.contains("rooms.name_in_video_conference").should("be.visible");
-    cy.contains("Max Doe").should("be.visible");
-    cy.get('[data-test="change-participant-name-button"]').should("not.exist");
-    cy.contains("Laura Rivera").should("not.exist");
+    cy.contains("Laura Rivera").should("be.visible");
+    cy.get('[data-test="change-participant-name-button"]').should("be.visible");
+    cy.contains("Max Doe").should("not.exist");
   });
 });
