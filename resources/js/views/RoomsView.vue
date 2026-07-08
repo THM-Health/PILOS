@@ -569,6 +569,12 @@ function reload(checkForRequireCodeError = false) {
  * loading of the room
  */
 async function initializeRoomView() {
+  if (authStore.isAuthenticated && hashParams.personalizedLink) {
+    toast.error(t("app.flash.guests_only"));
+    await router.replace({ name: "home" });
+    return;
+  }
+
   await loadSavedAccessParameters();
 
   if (personalizedLink.value && !roomAuthToken.value) {
@@ -755,12 +761,6 @@ function authenticate(type, codeOrToken) {
 async function loadSavedAccessParameters() {
   // Load personalized link from hash params
   if (hashParams.personalizedLink) {
-    // Prevent authenticated users from using a personalized link
-    if (authStore.isAuthenticated) {
-      toast.error(t("app.flash.guests_only"));
-      router.replace({ name: "home" });
-      return;
-    }
     personalizedLink.value = hashParams.personalizedLink;
 
     // Clear hash params

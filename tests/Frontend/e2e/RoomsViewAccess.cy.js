@@ -2732,10 +2732,9 @@ describe("Rooms View access", function () {
 
     // Check that error message is shown and user is redirected to the home page
     cy.checkToastMessage("app.flash.guests_only");
-    cy.url().should(
-      "not.include",
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-    );
+    cy.url().should("not.include", "/rooms/abc-def-123");
+
+    cy.get("@roomRequest").should("be.null");
   });
 
   it("reload with access code errors", function () {
