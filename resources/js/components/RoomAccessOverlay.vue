@@ -91,39 +91,7 @@
             @keydown.enter="submit"
           />
           <FormError :errors="formErrors.fieldError('access_code')" />
-          <div
-            v-if="authThrottledFor > 0"
-            ref="formError"
-            tabindex="-1"
-            class="form-error mt-2 flex flex-col font-semibold text-red-500 dark:text-red-300"
-            role="alert"
-          >
-            <div class="flex items-baseline gap-1">
-              <i
-                class="fas fa-exclamation-circle shrink-0 grow-0"
-                aria-hidden="true"
-              ></i>
-              <span>{{
-                $t("rooms.auth_throttled", { try_again: authThrottledFor })
-              }}</span>
-            </div>
-          </div>
-
-          <div
-            v-else-if="accessCodeInvalid"
-            ref="formError"
-            tabindex="-1"
-            class="form-error mt-2 flex flex-col font-semibold text-red-500 dark:text-red-300"
-            role="alert"
-          >
-            <div class="flex items-baseline gap-1">
-              <i
-                class="fas fa-exclamation-circle shrink-0 grow-0"
-                aria-hidden="true"
-              ></i>
-              <span>{{ $t("rooms.flash.access_code_invalid") }}</span>
-            </div>
-          </div>
+          <FormError :errors="accessCodeErrors" />
         </div>
 
         <Button
@@ -146,9 +114,10 @@
 <script setup>
 import RoomHeader from "./RoomHeader.vue";
 import { useAuthStore } from "../stores/auth.js";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
+import { useI18n } from "vue-i18n";
 
 const emit = defineEmits(["submit", "reload"]);
 const props = defineProps({
@@ -202,6 +171,19 @@ const isLoadingAction = ref(false);
 
 const authStore = useAuthStore();
 const api = useApi();
+const { t } = useI18n();
+
+const accessCodeErrors = computed(() => {
+  if (props.authThrottledFor > 0) {
+    return [t("rooms.auth_throttled", { try_again: props.authThrottledFor })];
+  }
+
+  if (props.accessCodeInvalid) {
+    return [t("rooms.flash.access_code_invalid")];
+  }
+
+  return [];
+});
 
 onMounted(() => {
   participantNameInput.value = participantName.value;
