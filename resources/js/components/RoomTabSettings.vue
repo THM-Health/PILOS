@@ -1,5 +1,5 @@
 <template>
-  <div class="px-2">
+  <div>
     <Form :aria-hidden="loadingError" :disabled="disabled" @submit="save">
       <OverlayComponent :show="isBusy || loadingError">
         <template #overlay>
