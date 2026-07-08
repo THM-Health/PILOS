@@ -12,7 +12,12 @@ class ValidateParticipantNameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['bail', 'required', 'min:2', 'max:50', new ValidName],
+            'name' => self::participantNameValidationRules(),
         ];
+    }
+
+    public static function participantNameValidationRules(): array
+    {
+        return ['bail', 'required', 'min:2', 'max:50', new ValidName];
     }
 }

@@ -94,7 +94,7 @@
           />
         </div>
         <div v-else class="flex flex-col gap-6">
-          <Card :pt:body:class="'pt-4 px-6'">
+          <Card pt:body:class="pt-4 px-6">
             <template #header>
               <RoomHeader
                 class="mx-6 mt-6"
