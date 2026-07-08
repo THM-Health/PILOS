@@ -274,10 +274,16 @@ describe("Rooms View access", function () {
         // Check remember me
         cy.get("#remember-participant-name").check();
 
+        cy.intercept("POST", "api/v1/participantName/check", {
+          statusCode: 204,
+        }).as("checkParticipantNameRequest");
+
         cy.get('[data-test="room-login-button"]')
           .should("have.text", "rooms.continue_as_guest")
           .click();
       });
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that room access overlay is hidden
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
@@ -874,6 +880,10 @@ describe("Rooms View access", function () {
         cy.get("#access-code").type("123456789");
       });
 
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 204,
+    }).as("checkParticipantNameRequest");
+
     const roomAuthRequest = interceptIndefinitely(
       "POST",
       "api/v1/rooms/abc-def-123/auth",
@@ -901,6 +911,8 @@ describe("Rooms View access", function () {
     });
 
     cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check loading
     cy.get("[data-test='reload-room-button']").should("be.disabled");
@@ -1673,8 +1685,13 @@ describe("Rooms View access", function () {
 
     cy.get("#participant-name").type("Max Doe");
 
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 204,
+    }).as("checkParticipantNameRequest");
+
     cy.get('[data-test="room-login-button"]').click();
 
+    cy.wait("@checkParticipantNameRequest");
     cy.wait("@roomAuthRequest");
 
     cy.window().then((win) => {
@@ -3114,12 +3131,18 @@ describe("Rooms View access", function () {
         // Check that guest name input is shown and enter name
         cy.get("#participant-name").should("be.visible").type("Max Doe");
 
+        cy.intercept("POST", "api/v1/participantName/check", {
+          statusCode: 204,
+        }).as("checkParticipantNameRequest");
+
         // Check that access code input is hidden
         cy.get('[data-test="access-code-field"]').should("not.exist");
 
         // Login
         cy.get('[data-test="room-login-button"]').click();
       });
+
+    cy.wait("@checkParticipantNameRequest");
 
     cy.window().then((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
@@ -3588,9 +3611,15 @@ describe("Rooms View access", function () {
         cy.get("#participant-name").clear();
         cy.get("#participant-name").type("Max Doe");
 
+        cy.intercept("POST", "api/v1/participantName/check", {
+          statusCode: 204,
+        }).as("checkParticipantNameRequest");
+
         // Save
         cy.get('[data-test="dialog-save-button"]').click();
       });
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that dialog was closed
     cy.get('[data-test="room-change-participant-name-dialog"]').should(
@@ -3668,6 +3697,8 @@ describe("Rooms View access", function () {
         cy.get('[data-test="dialog-save-button"]').click();
       });
 
+    cy.wait("@checkParticipantNameRequest");
+
     // Check that dialog was closed
     cy.get('[data-test="room-change-participant-name-dialog"]').should(
       "not.exist",
@@ -3721,9 +3752,15 @@ describe("Rooms View access", function () {
     // Enter guest name
     cy.get("#participant-name").type("Laura Rivera");
 
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 204,
+    }).as("checkParticipantNameRequest");
+
     cy.get('[data-test="room-login-button"]')
       .should("have.text", "rooms.continue_as_guest")
       .click();
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that room access overlay is hidden
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
@@ -3775,6 +3812,8 @@ describe("Rooms View access", function () {
       cy.get('[data-test="dialog-save-button"]').click();
     });
 
+    cy.wait("@checkParticipantNameRequest");
+
     // Check that dialog was closed
     cy.get('[data-test="room-change-participant-name-dialog"]').should(
       "not.exist",
@@ -3813,6 +3852,8 @@ describe("Rooms View access", function () {
       cy.get('[data-test="dialog-save-button"]').click();
     });
 
+    cy.wait("@checkParticipantNameRequest");
+
     // Check that dialog was closed
     cy.get('[data-test="room-change-participant-name-dialog"]').should(
       "not.exist",
@@ -3845,6 +3886,8 @@ describe("Rooms View access", function () {
     cy.setValidRememberedParticipantName("Laura Rivera");
 
     cy.reload();
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that room Header is shown correctly
     cy.contains("Meeting One").should("be.visible");
@@ -3884,6 +3927,8 @@ describe("Rooms View access", function () {
         // Save
         cy.get('[data-test="dialog-save-button"]').click();
       });
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that dialog was closed
     cy.get('[data-test="room-change-participant-name-dialog"]').should(

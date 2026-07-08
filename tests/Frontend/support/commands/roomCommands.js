@@ -162,7 +162,15 @@ Cypress.Commands.add(
     // Enter guest name
     cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.get("#participant-name").type("Max Doe");
+
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 204,
+    }).as("checkParticipantNameRequest");
+
     cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait("@checkParticipantNameRequest");
+
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
 
     // Check that file tab is shown
@@ -347,7 +355,15 @@ Cypress.Commands.add(
     // Check that access overlay is shown and enter guest name
     cy.get('[data-test="room-access-overlay"]').should("be.visible");
     cy.get("#participant-name").type("Max Doe");
+
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 204,
+    }).as("checkParticipantNameRequest");
+
     cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait("@checkParticipantNameRequest");
+
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
 
     cy.wait("@roomRequestCheckRoomAuthErrors");
