@@ -58,16 +58,6 @@ const config = {
     ["redocusaurus", {}],
   ],
 
-  future: {
-    v4: {
-      removeLegacyPostBuildHeadAttribute: true,
-      useCssCascadeLayers: true,
-    },
-    faster: {
-      ssgWorkerThreads: true,
-    },
-  },
-
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
