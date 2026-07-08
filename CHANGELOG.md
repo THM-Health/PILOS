@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility: Landmark role to all search fields ([#3264])
 - Accessibility: Skip links ([#3264])
 - Accessibility: Announce page change to screen readers ([#3264])
+- Guests can now choose to remember their name for future video conferences ([#2450], [#3275])
+- Room access is now preserved across page reloads after entering via an access code or personalized link ([#3275])
+- Login button inside room access overlay to allow users to log in instead of accessing the room as a guest ([#2450], [#3275])
 
 ### Changed
 
@@ -24,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility: Move keyboard focus to page start on page change ([#3264])
 - Accessibility: Reduced flipping words animation on loading page for browsers with reduced-motion set ([#3277])
 - Room share dialog now copies the room link and invitation message to the clipboard in both plain text and HTML format ([#3296])
+- Guest name input was moved from join dialog to room access overlay ([#2450], [#3275])
+- Room share link now includes the access code, so users no longer need to enter it manually when opening the link ([#3275])
+- Improved fallback behavior for invalid room and user tab links ([#3275])
 
 ## [v4.16.0] - 2026-06-12
 
@@ -767,6 +773,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2449]: https://github.com/THM-Health/PILOS/pull/2449
+[#2450]: https://github.com/THM-Health/PILOS/issues/2450
 [#2476]: https://github.com/THM-Health/PILOS/issues/2476
 [#2477]: https://github.com/THM-Health/PILOS/pull/2477
 [#2478]: https://github.com/THM-Health/PILOS/issues/2478
@@ -855,6 +862,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
+[#3275]: https://github.com/THM-Health/PILOS/pull/3275
 [#3277]: https://github.com/THM-Health/PILOS/pull/3277
 [#3296]: https://github.com/THM-Health/PILOS/pull/3296
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
