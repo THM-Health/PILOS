@@ -46,11 +46,9 @@ export const routes = [
     name: "home",
     component: Home,
     meta: { title: (t) => t("app.home") },
-    beforeEnter: (to, from, next) => {
+    beforeEnter: () => {
       if (useSettingsStore().getSetting("general.no_welcome_page")) {
-        next({ name: "rooms.index" });
-      } else {
-        next();
+        return { name: "rooms.index" };
       }
     },
   },
@@ -583,11 +581,9 @@ export const routes = [
         path: "streaming_settings",
         name: "admin.streaming_settings",
         component: AdminStreamingSettings,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: () => {
           if (!useSettingsStore().getSetting("streaming.enabled")) {
-            next({ name: "404" });
-          } else {
-            next();
+            return { name: "404" };
           }
         },
         meta: {
@@ -636,7 +632,7 @@ export const routes = [
  * If the meta `guestsOnly` is set for a matched route but the user is logged in, he will
  * be redirected to the home route with a error messsage.
  */
-export async function beforeEachRoute(router, to, from, next) {
+export async function beforeEachRoute(router, to, from) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
   const userPermissions = useUserPermissions();
@@ -669,8 +665,7 @@ export async function beforeEachRoute(router, to, from, next) {
       return false;
     })
   ) {
-    next({ name: "404" });
-    return;
+    return { name: "404" };
   }
 
   // Check if unauthenticated user tries to access a route that requires authentication
@@ -678,11 +673,10 @@ export async function beforeEachRoute(router, to, from, next) {
     to.matched.some((record) => record.meta.requiresAuth) &&
     !auth.isAuthenticated
   ) {
-    next({
+    return {
       name: "login",
       query: { redirect: to.fullPath },
-    });
-    return;
+    };
   }
 
   // Check if authenticated user tries to access a route that is only for guests
@@ -691,18 +685,14 @@ export async function beforeEachRoute(router, to, from, next) {
     auth.isAuthenticated
   ) {
     toast.error(t("app.flash.guests_only"));
-    next({ name: "home" });
-    return;
+    return { name: "home" };
   }
 
   // Check if user doesn't have permission to access a route
   if (!recordsPermissions.every((permission) => permission)) {
     toast.error(t("app.flash.unauthorized"));
-    next(from.matched.length !== 0 ? false : "/");
-    return;
+    return from.matched.length !== 0 ? false : "/";
   }
-
-  next();
 }
 
 export default function () {
@@ -711,9 +701,7 @@ export default function () {
     routes,
   });
 
-  router.beforeEach((to, from, next) =>
-    beforeEachRoute(router, to, from, next),
-  );
+  router.beforeEach((to, from) => beforeEachRoute(router, to, from));
 
   router.afterEach((to, from) => {
     const routeStore = useRouteStore();
