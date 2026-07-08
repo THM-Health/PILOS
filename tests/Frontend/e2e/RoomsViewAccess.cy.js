@@ -59,10 +59,28 @@ describe("Rooms View access", function () {
         // Enter guest name
         cy.get("#participant-name").type("Laura Rivera");
 
+        const checkParticipantNameRequest = interceptIndefinitely(
+          "POST",
+          "api/v1/participantName/check",
+          {
+            statusCode: 204,
+          },
+          "checkParticipantNameRequest",
+        );
+
         cy.get('[data-test="room-login-button"]')
           .should("have.text", "rooms.continue_as_guest")
           .click();
+
+        // Check loading state
+        cy.get('[data-test="room-login-button"]')
+          .should("be.disabled")
+          .then(() => {
+            checkParticipantNameRequest.sendResponse();
+          });
       });
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that room access overlay is hidden
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
@@ -1090,13 +1108,30 @@ describe("Rooms View access", function () {
       }).as("roomRequest");
     });
 
-    cy.setValidRememberedParticipantName("Laura Rivera");
+    const checkParticipantNameRequest = interceptIndefinitely(
+      "POST",
+      "api/v1/participantName/check",
+      {
+        statusCode: 204,
+      },
+      "checkParticipantNameRequest",
+    );
 
     cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
       win.sessionStorage.clear();
     });
 
     cy.reload();
+
+    // Check loading
+    cy.get('[data-test="room-loading-spinner"]')
+      .should("be.visible")
+      .then(() => {
+        checkParticipantNameRequest.sendResponse();
+      });
+
+    cy.wait("@checkParticipantNameRequest");
 
     cy.wait("@roomRequest");
 
@@ -1386,9 +1421,6 @@ describe("Rooms View access", function () {
       .should("be.visible")
       .within(() => {
         cy.contains("The Access code field is required.").should("be.visible");
-
-        // Try to submit with invalid access code
-        cy.get("#access-code").type("987654321");
       });
 
     // Check with invalid_code error
@@ -1398,8 +1430,6 @@ describe("Rooms View access", function () {
         message: "invalid_code",
       },
     }).as("roomAuthRequest");
-
-    cy.get('[data-test="room-login-button"]').click();
 
     // Intercept room request (reload room)
     cy.fixture("room.json").then((room) => {
@@ -1416,6 +1446,15 @@ describe("Rooms View access", function () {
         body: room,
       }).as("roomRequest");
     });
+
+    // Try to submit with invalid access code
+    cy.get('[data-test="room-access-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#access-code").type("987654321");
+      });
+
+    cy.get('[data-test="room-login-button"]').click();
 
     // Wait for room auth request and check if access code is set
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -1437,6 +1476,47 @@ describe("Rooms View access", function () {
     cy.checkToastMessage("rooms.flash.access_code_invalid");
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+
+    cy.get('[data-test="room-access-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#access-code").should("have.value", "987-654-321");
+      });
+
+    // Reload with invalid access code set in session storage
+    cy.window().then((win) => {
+      win.sessionStorage.setItem("roomAccessCode_abc-def-123", "987654321");
+    });
+
+    cy.reload();
+
+    // Wait for room auth request and check if access code is set
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        access_code: "987654321",
+        type: 0,
+      });
+    });
+
+    // Wait for room request
+    cy.wait("@roomRequest");
+
+    // Check that invalid access code in session storage was cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomAccessCode_abc-def-123")).to.be
+        .null;
+    });
+
+    // Check if error message is shown
+    cy.checkToastMessage("rooms.flash.access_code_invalid");
+
+    cy.contains("rooms.flash.access_code_invalid").should("be.visible");
+
+    cy.get('[data-test="room-access-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#access-code").should("have.value", "987-654-321");
+      });
 
     // Intercept room auth request and respond with rate limit error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -3381,9 +3461,31 @@ describe("Rooms View access", function () {
     // Enter guest name
     cy.get("#participant-name").type("Laura Rivera");
 
+    const checkParticipantNameRequest = interceptIndefinitely(
+      "POST",
+      "api/v1/participantName/check",
+      {
+        statusCode: 204,
+      },
+      "checkParticipantNameRequest",
+    );
+
     cy.get('[data-test="room-login-button"]')
       .should("have.text", "rooms.continue_as_guest")
       .click();
+
+    // Check loading
+    cy.get('[data-test="room-access-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="room-login-button"]')
+          .should("be.disabled")
+          .then(() => {
+            checkParticipantNameRequest.sendResponse();
+          });
+      });
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that room access overlay is hidden
     cy.get('[data-test="room-access-overlay"]').should("not.exist");

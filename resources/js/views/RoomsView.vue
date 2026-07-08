@@ -62,7 +62,7 @@
       <div v-if="!room">
         <div class="my-2 text-center" data-test="no-room-overlay">
           <i
-            v-if="roomLoading || authLoading"
+            v-if="roomLoading || authLoading || rememberedGuestNameValidating"
             class="fa-solid fa-circle-notch fa-spin text-3xl"
             data-test="room-loading-spinner"
           />
@@ -82,7 +82,7 @@
             v-model:access-code="accessCodeInput"
             v-model:participant-name="guestName"
             v-model:remember-participant-name="rememberGuestName"
-            :loading="loading || authLoading"
+            :loading="loading || authLoading || rememberedGuestNameValidating"
             :room="room"
             :auth-throttled-for="authThrottledFor"
             :access-code-invalid="accessCodeInvalid"
@@ -196,9 +196,7 @@
                       !authStore.isAuthenticated && room.username === undefined
                     "
                     v-model:remember-participant-name="rememberGuestName"
-                    :participant-name="
-                      room.username ? room.username : guestName
-                    "
+                    :participant-name="guestName"
                     @participant-name-changed="updateGuestName"
                   />
                   <RoomBrowserNotification
@@ -286,6 +284,7 @@ const authLoading = ref(false); // Room authentication loading
 const guestName = ref("");
 const rememberGuestName = ref(false);
 const rememberedGuestNameInvalid = ref(false);
+const rememberedGuestNameValidating = ref(false);
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const personalizedLink = ref(null); // Personalized link token from url or session storage
@@ -585,8 +584,7 @@ async function initializeRoomView() {
     });
   } else if (
     accessCodeInput.value !== "" &&
-    ((guestName.value !== "" && !rememberedGuestNameInvalid.value) ||
-      authStore.isAuthenticated) &&
+    (hasValidGuestName.value || authStore.isAuthenticated) &&
     !roomAuthToken.value
   ) {
     // All necessary parameters for guest access are set and currently no room auth token is present,
@@ -599,9 +597,8 @@ async function initializeRoomView() {
       },
     );
   } else {
-    // Missing some access parameters necessary for automatic authentication, no access parameters provided or room auth token already present,
-    // Load room details without automatic authentication, if authentication is required, the access code overlay will be shown
-    // to allow a manual room login
+    // No automatic authentication can or needs to be performed. Load the room details;
+    // if authentication is required, the access code overlay will allow manual room login.
     load();
   }
 }
@@ -702,6 +699,7 @@ function authenticate(type, codeOrToken) {
             if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
               handleInvalidPersonalizedLink();
             } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
+              sessionStorage.removeItem("roomAccessCode_" + props.id);
               formErrors.set(error.response.data.errors);
             }
             return;
@@ -713,7 +711,7 @@ function authenticate(type, codeOrToken) {
           ) {
             authThrottledFor.value = error.response.data.retry_after;
           }
-          // Room token is invalid
+          // Room personalized link is invalid
           if (
             error.response.status === HTTP_STATUS_UNAUTHORIZED &&
             error.response.data.message ===
@@ -727,6 +725,7 @@ function authenticate(type, codeOrToken) {
             error.response.status === HTTP_STATUS_UNAUTHORIZED &&
             error.response.data.message === HTTP_ERROR_ROOM_INVALID_CODE
           ) {
+            sessionStorage.removeItem("roomAccessCode_" + props.id);
             handleInvalidCode();
             return;
           }
@@ -801,45 +800,51 @@ async function loadSavedAccessParameters() {
     }
   }
 
-  await loadSavedGuestName();
+  if (!authStore.isAuthenticated) {
+    await loadSavedGuestName();
+  }
 }
 
+/**
+ * Load the saved guest name from local storage and validate it
+ */
 async function loadSavedGuestName() {
-  if (!authStore.isAuthenticated) {
-    const savedGuestName = localStorage.getItem("pilos_guest_name");
+  const savedGuestName = localStorage.getItem("pilos_guest_name");
 
-    if (savedGuestName) {
-      // Enable remember guest name checkbox if guest name is present in local storage
-      rememberGuestName.value = true;
-      formErrors.clear();
+  if (savedGuestName) {
+    // Enable remember guest name checkbox if guest name is present in local storage
+    rememberGuestName.value = true;
+    rememberedGuestNameValidating.value = true;
+    formErrors.clear();
 
-      // Validate guest name and set guest name if valid
-      try {
-        await api.call("participantName/check", {
-          method: "post",
-          data: {
-            name: savedGuestName,
-          },
-        });
+    // Validate guest name and set guest name
+    try {
+      await api.call("participantName/check", {
+        method: "post",
+        data: {
+          name: savedGuestName,
+        },
+      });
 
-        // Set guest name
-        guestName.value = savedGuestName;
-      } catch (error) {
-        // Guest name is invalid, set guest name but require manual confirmation
-        guestName.value = savedGuestName;
-        rememberedGuestNameInvalid.value = true;
+      guestName.value = savedGuestName;
+    } catch (error) {
+      // Guest name is invalid, set guest name but set invalid state to require manual confirmation
+      guestName.value = savedGuestName;
+      rememberedGuestNameInvalid.value = true;
 
-        if (
-          error.response &&
-          error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
-        ) {
-          localStorage.removeItem("pilos_guest_name");
-          formErrors.set(error.response.data.errors);
-          return;
-        }
-
-        api.error(error);
+      if (
+        error.response &&
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
+      ) {
+        // Clear invalid guest name from local storage and set error message
+        localStorage.removeItem("pilos_guest_name");
+        formErrors.set(error.response.data.errors);
+        return;
       }
+
+      api.error(error);
+    } finally {
+      rememberedGuestNameValidating.value = false;
     }
   }
 }
@@ -875,12 +880,20 @@ const viewInvitation = computed(() => {
   return userPermissions.can("viewInvitation", room.value);
 });
 
+const hasValidGuestName = computed(() => {
+  return guestName.value !== "" && !rememberedGuestNameInvalid.value;
+});
+
+const hasPersonalizedLinkAuthToken = computed(() => {
+  return roomAuthToken.value?.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK;
+});
+
 const showAccessCodeOverlay = computed(() => {
   return (
     !room.value.authenticated ||
     (!authStore.isAuthenticated &&
-      roomAuthToken.value?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK &&
-      (guestName.value === "" || rememberedGuestNameInvalid.value))
+      !hasPersonalizedLinkAuthToken.value &&
+      !hasValidGuestName.value)
   );
 });
 </script>

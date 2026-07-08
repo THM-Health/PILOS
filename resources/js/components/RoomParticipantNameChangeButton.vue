@@ -3,7 +3,6 @@
     icon="fa-solid fa-user-edit"
     :label="$t('rooms.change_participant_name')"
     data-test="change-participant-name-button"
-    class="justify-self-end"
     severity="secondary"
     @click="showChangeNameModal"
   />
@@ -25,7 +24,7 @@
         }}</label>
         <InputText
           id="participant-name"
-          v-model="newParticipantName"
+          v-model="participantNameInput"
           :disabled="loading"
           :invalid="formErrors.fieldInvalid('name')"
         />
@@ -86,18 +85,18 @@ const rememberParticipantName = defineModel("rememberParticipantName", {
 const api = useApi();
 const formErrors = useFormErrors();
 const changeNameModalVisible = ref(false);
-const newParticipantName = ref("");
+const participantNameInput = ref("");
 const rememberParticipantNameInput = ref(false);
 const loading = ref(false);
 
 onMounted(() => {
-  newParticipantName.value = props.participantName;
+  participantNameInput.value = props.participantName;
   rememberParticipantNameInput.value = rememberParticipantName.value;
 });
 
 function showChangeNameModal() {
   formErrors.clear();
-  newParticipantName.value = props.participantName;
+  participantNameInput.value = props.participantName;
   rememberParticipantNameInput.value = rememberParticipantName.value;
   changeNameModalVisible.value = true;
 }
@@ -110,12 +109,12 @@ function changeParticipantName() {
     .call("participantName/check", {
       method: "post",
       data: {
-        name: newParticipantName.value,
+        name: participantNameInput.value,
       },
     })
     .then(() => {
       rememberParticipantName.value = rememberParticipantNameInput.value;
-      emit("participantNameChanged", newParticipantName.value);
+      emit("participantNameChanged", participantNameInput.value);
 
       changeNameModalVisible.value = false;
     })

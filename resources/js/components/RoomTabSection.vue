@@ -1,5 +1,5 @@
 <template>
-  <Card :pt:body:class="'pt-4 px-6'">
+  <Card :pt:body:class="'pt-4 px-6'" class="mt-4">
     <template #header>
       <!-- Tab header -->
       <div
