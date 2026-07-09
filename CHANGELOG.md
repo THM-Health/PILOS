@@ -859,7 +859,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
 [#3277]: https://github.com/THM-Health/PILOS/pull/3277
 [#3296]: https://github.com/THM-Health/PILOS/pull/3296
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -888,3 +888,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2
 [v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0
 [v4.16.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.16.0
+[v4.17.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.17.0
