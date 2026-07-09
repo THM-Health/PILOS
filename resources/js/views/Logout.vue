@@ -5,9 +5,7 @@
         class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
       >
         <Card>
-          <template #title
-            ><h1>{{ $t("auth.logout") }}</h1></template
-          >
+          <template #title><PageTitle :title="$t('auth.logout')" /></template>
           <template #content>
             <Message
               v-if="props.message == null"

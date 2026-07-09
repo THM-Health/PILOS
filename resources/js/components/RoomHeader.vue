@@ -3,14 +3,13 @@
     <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
     <div class="flex flex-col-reverse gap-2 md:flex-row">
-      <div class="grow">
+      <div class="flex grow flex-col items-start">
         <!-- Display room type, name and owner  -->
-        <RoomTypeBadge :room-type="props.room.type" />
-        <h1 class="my-2 text-3xl text-color">
-          {{ props.room.name }}
-        </h1>
+        <PageTitle :title="props.room.name" class="order-2 my-2" />
 
+        <RoomTypeBadge class="order-1" :room-type="props.room.type" />
         <RoomDetailsList
+          class="order-3"
           :room="props.room"
           :show-description="true"
           :inline="detailsInline"

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.17.0] - 2026-07-09
+
+### Added
+
+- Accessibility: Screen reader only button to close popover dialogs ([#2971])
+- Accessibility: Clearer screen reader context for buttons and attributes on the room index page ([#2970])
+- Accessibility: aria-pressed state to indicate the active status of the "show only favorites" filter on room index page ([#2970])
+- Accessibility: Landmark role to all search fields ([#3264])
+- Accessibility: Skip links ([#3264])
+- Accessibility: Announce page change to screen readers ([#3264])
+
+### Changed
+
+- Accessibility: Converted room names on the room index page to `<h2>` anchor links to improve screen reader navigation ([#2970])
+- Accessibility: Move focus automatically back to the main `<h1>` heading when filters change on the room index page ([#2970])
+- Accessibility: Announcement order to read the room name before the room type on screen readers ([#2970])
+- Accessibility: Move keyboard focus to page start on page change ([#3264])
+- Accessibility: Reduced flipping words animation on loading page for browsers with reduced-motion set ([#3277])
+- Room share dialog now copies the room link and invitation message to the clipboard in both plain text and HTML format ([#3296])
+
 ## [v4.16.0] - 2026-06-12
 
 ### Added
@@ -809,6 +829,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2911]: https://github.com/THM-Health/PILOS/pull/2911
 [#2912]: https://github.com/THM-Health/PILOS/issues/2912
 [#2913]: https://github.com/THM-Health/PILOS/pull/2913
+[#2970]: https://github.com/THM-Health/PILOS/pull/2970
+[#2971]: https://github.com/THM-Health/PILOS/pull/2971
 [#2997]: https://github.com/THM-Health/PILOS/issues/2997
 [#2998]: https://github.com/THM-Health/PILOS/issues/2998
 [#2999]: https://github.com/THM-Health/PILOS/pull/2999
@@ -834,7 +856,10 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.16.0...develop
+[#3264]: https://github.com/THM-Health/PILOS/pull/3264
+[#3277]: https://github.com/THM-Health/PILOS/pull/3277
+[#3296]: https://github.com/THM-Health/PILOS/pull/3296
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -863,3 +888,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.14.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.14.2
 [v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0
 [v4.16.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.16.0
+[v4.17.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.17.0

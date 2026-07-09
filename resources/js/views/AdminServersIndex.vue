@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="flex flex-col justify-between md:flex-row">
-      <div>
+      <search>
         <InputGroup data-test="server-search">
           <InputText
             v-model="filter"
             :disabled="isBusy"
+            type="search"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1, false)"
           />
@@ -18,7 +19,7 @@
             @click="loadData(1, false)"
           />
         </InputGroup>
-      </div>
+      </search>
       <div class="mt-2 flex justify-between gap-2">
         <Button
           :disabled="isBusy"

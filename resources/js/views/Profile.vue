@@ -1,9 +1,7 @@
 <template>
   <div class="container mb-8 pt-8">
     <Card data-test="user-profile">
-      <template #title
-        ><h1 class="text-3xl">{{ $t("app.profile") }}</h1></template
-      >
+      <template #title><PageTitle :title="$t('app.profile')" /></template>
       <template #content>
         <OverlayComponent :show="!authStore.currentUser">
           <UserTabSection

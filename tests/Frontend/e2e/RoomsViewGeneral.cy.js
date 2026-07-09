@@ -1004,6 +1004,7 @@ describe("Room View general", function () {
     cy.interceptRoomFilesRequest();
 
     cy.fixture("room.json").then((room) => {
+      room.data.name = 'Meeting One <script>alert("XSS")</script>';
       room.data.short_description = "Room short description";
       room.data.allow_membership = true;
       room.data.legacy_code = false;
@@ -1017,7 +1018,10 @@ describe("Room View general", function () {
 
     cy.visit("/rooms/abc-def-123");
 
-    cy.title().should("eq", "Meeting One - PILOS Test");
+    cy.title().should(
+      "eq",
+      'Meeting One <script>alert("XSS")</script> - PILOS Test',
+    );
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').click();
@@ -1033,10 +1037,34 @@ describe("Room View general", function () {
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
-          'rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' +
-            Cypress.config("baseUrl") +
-            "/rooms/abc-def-123\nrooms.invitation.code: 508-307-005",
+          `rooms.invitation.room_{"roomname":"Meeting One <script>alert(\\"XSS\\")</script>","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123\nrooms.invitation.code: 508-307-005`,
         );
+      });
+
+      win.navigator.clipboard.read().then((clipboardItems) => {
+        const clipboardItem = clipboardItems[0];
+        expect(clipboardItem.types).to.include("text/plain");
+        expect(clipboardItem.types).to.include("text/html");
+
+        // Check plaintext
+        clipboardItem
+          .getType("text/plain")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.eq(
+              `rooms.invitation.room_{"roomname":"Meeting One <script>alert(\\"XSS\\")</script>","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123\nrooms.invitation.code: 508-307-005`,
+            );
+          });
+
+        // Check html
+        clipboardItem
+          .getType("text/html")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.contain(
+              `<p>rooms.invitation.room_{"roomname":"Meeting One &lt;script&gt;alert(\\"XSS\\")&lt;/script&gt;","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a><br>rooms.invitation.code: 508-307-005</p>`,
+            );
+          });
       });
     });
 
@@ -1046,7 +1074,33 @@ describe("Room View general", function () {
     cy.checkToastMessage("rooms.invitation.copied_url");
     cy.window().then((win) => {
       win.navigator.clipboard.readText().then((text) => {
-        expect(text).to.eq(Cypress.config("baseUrl") + "/rooms/abc-def-123");
+        expect(text).to.eq(`${Cypress.config("baseUrl")}/rooms/abc-def-123`);
+      });
+
+      win.navigator.clipboard.read().then((clipboardItems) => {
+        const clipboardItem = clipboardItems[0];
+        expect(clipboardItem.types).to.include("text/plain");
+        expect(clipboardItem.types).to.include("text/html");
+
+        // Check plaintext
+        clipboardItem
+          .getType("text/plain")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.eq(
+              `${Cypress.config("baseUrl")}/rooms/abc-def-123`,
+            );
+          });
+
+        // Check html
+        clipboardItem
+          .getType("text/html")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.contain(
+              `<a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a>`,
+            );
+          });
       });
     });
 
@@ -1189,6 +1243,32 @@ describe("Room View general", function () {
             "/rooms/abc-def-123",
         );
       });
+
+      win.navigator.clipboard.read().then((clipboardItems) => {
+        const clipboardItem = clipboardItems[0];
+        expect(clipboardItem.types).to.include("text/plain");
+        expect(clipboardItem.types).to.include("text/html");
+
+        // Check plaintext
+        clipboardItem
+          .getType("text/plain")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.eq(
+              `rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ${Cypress.config("baseUrl")}/rooms/abc-def-123`,
+            );
+          });
+
+        // Check html
+        clipboardItem
+          .getType("text/html")
+          .then((b) => b.text())
+          .then((text) => {
+            expect(text).to.contain(
+              `<p>rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}<br>rooms.invitation.link: <a href="${Cypress.config("baseUrl")}/rooms/abc-def-123">${Cypress.config("baseUrl")}/rooms/abc-def-123</a></p>`,
+            );
+          });
+      });
     });
 
     // Copy room access code should be missing
@@ -1196,6 +1276,15 @@ describe("Room View general", function () {
     cy.get('[data-test="room-invitation-copy-code-button"]').should(
       "not.exist",
     );
+
+    // Focus on close button
+    cy.press(Cypress.Keyboard.Keys.TAB);
+    cy.get('[data-test="popover-close-button"]').should("have.focus");
+    cy.get('[data-test="popover-close-button"]').click();
+    cy.get("#invitationLink").should("not.exist");
+
+    // Focus should be back on the share button
+    cy.get('[data-test="room-share-button"]').should("have.focus");
   });
 
   it("room view as co-owner", function () {
@@ -2681,7 +2770,11 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.add")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.add_for_{"room":"Meeting One"}',
+      )
       .click();
     cy.get('[data-test="room-favorites-button"]')
       .should("be.disabled")
@@ -2696,7 +2789,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-favorites-button"]').should(
       "have.attr",
       "aria-label",
-      "rooms.favorites.remove",
+      'rooms.favorites.remove_for_{"room":"Meeting One"}',
     );
 
     // Test remove room from favorites
@@ -2737,7 +2830,7 @@ describe("Room View general", function () {
     cy.get('[data-test="room-favorites-button"]').should(
       "have.attr",
       "aria-label",
-      "rooms.favorites.add",
+      'rooms.favorites.add_for_{"room":"Meeting One"}',
     );
   });
 
@@ -2795,7 +2888,11 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.add")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.add_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@addFavoritesRequest");
@@ -2882,7 +2979,11 @@ describe("Room View general", function () {
     }).as("deleteFavoritesRequest");
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.remove")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.remove_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@deleteFavoritesRequest");
@@ -2913,7 +3014,11 @@ describe("Room View general", function () {
     });
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.remove")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.remove_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@deleteFavoritesRequest");
@@ -2961,7 +3066,11 @@ describe("Room View general", function () {
     }).as("deleteFavoritesRequest");
 
     cy.get('[data-test="room-favorites-button"]')
-      .should("have.attr", "aria-label", "rooms.favorites.remove")
+      .should(
+        "have.attr",
+        "aria-label",
+        'rooms.favorites.remove_for_{"room":"Meeting One"}',
+      )
       .click();
 
     cy.wait("@deleteFavoritesRequest");

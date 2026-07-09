@@ -882,6 +882,18 @@ describe("Rooms view files file actions", function () {
       .should("be.visible")
       .and("have.text", "rooms.files.terms_of_use.required");
 
+    // Focus on close button
+    cy.press(Cypress.Keyboard.Keys.TAB);
+    cy.get('[data-test="popover-close-button"]').should("have.focus");
+    cy.get('[data-test="popover-close-button"]').click();
+    cy.get('[data-test="terms-of-use-required-info"]').should("not.exist");
+
+    // Focus should be back on the view button
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-view-button"]')
+      .should("have.focus");
+
     cy.get('[data-test="terms-of-use-message"]').find("#terms_of_use").click();
 
     cy.get('[data-test="terms-of-use-required-info"]').should("not.exist");

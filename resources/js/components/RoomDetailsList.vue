@@ -5,10 +5,13 @@
   >
     <!--owner name-->
     <div v-if="props.room.owner" class="flex">
-      <div class="room-details__icon">
+      <div class="room-details__icon" aria-hidden="true">
         <i class="fa-solid fa-user" />
       </div>
       <div class="room-details__text">
+        <span class="sr-only"
+          >{{ $t("rooms.index.room_component.owner") }}<raw-text>:</raw-text>
+        </span>
         <span>{{ props.room.owner.name }}</span>
       </div>
     </div>
@@ -17,10 +20,14 @@
       v-if="props.room.short_description && props.showDescription"
       class="flex"
     >
-      <div class="room-details__icon">
+      <div class="room-details__icon" aria-hidden="true">
         <i class="fa-solid fa-info-circle" />
       </div>
       <div class="room-details__text">
+        <span class="sr-only"
+          >{{ $t("rooms.index.room_component.short_description")
+          }}<raw-text>:</raw-text>
+        </span>
         <span style="word-break: break-word"
           >{{ props.room.short_description }}
         </span>
@@ -28,7 +35,7 @@
     </div>
     <!--last meeting info (never started, last ran till, running since)-->
     <div class="flex">
-      <div class="room-details__icon">
+      <div class="room-details__icon" aria-hidden="true">
         <i class="fa-solid fa-clock" />
       </div>
       <div class="room-details__text">
@@ -78,6 +85,8 @@
   </div>
 </template>
 <script setup>
+import RawText from "./RawText.vue";
+
 const props = defineProps({
   room: {
     type: Object,

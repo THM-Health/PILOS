@@ -2,17 +2,16 @@
   <div class="container mt-8 mb-8">
     <Card>
       <template #title
-        ><h1 class="m-0 text-3xl">
-          {{ $t("meetings.currently_running") }}
-        </h1></template
-      >
+        ><PageTitle :title="$t('meetings.currently_running')" />
+      </template>
 
       <template #content>
         <div class="flex justify-between">
-          <div>
+          <search>
             <InputGroup data-test="meeting-search">
               <InputText
                 v-model="search"
+                type="search"
                 :disabled="isBusy"
                 :placeholder="$t('app.search')"
                 @keyup.enter="loadData(1)"
@@ -23,7 +22,7 @@
                 @click="loadData(1)"
               />
             </InputGroup>
-          </div>
+          </search>
           <div>
             <Button
               v-tooltip="$t('app.reload')"

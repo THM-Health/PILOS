@@ -45,11 +45,12 @@
 
     <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
-        <div>
+        <search>
           <InputGroup data-test="room-files-search">
             <InputText
               v-model="search"
               :disabled="isBusy"
+              type="search"
               :placeholder="$t('app.search')"
               @keyup.enter="loadData(1)"
             />
@@ -61,7 +62,7 @@
               @click="loadData(1)"
             />
           </InputGroup>
-        </div>
+        </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
             <InputGroupAddon>

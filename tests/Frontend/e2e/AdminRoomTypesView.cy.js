@@ -126,7 +126,7 @@ describe("Admin room types view", function () {
       .within(() => {
         cy.get('[data-test="room-type-badge"]')
           .should("have.css", "background-color", "rgb(74, 92, 102)")
-          .and("have.text", "Exam");
+          .and("have.text", "rooms.index.room_component.room_type:Exam");
       });
 
     cy.get('[data-test="server-pool-field"]')

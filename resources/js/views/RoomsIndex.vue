@@ -5,9 +5,7 @@
       <template #title>
         <div class="flex justify-between">
           <div>
-            <h1 class="text-3xl">
-              {{ $t("app.rooms") }}
-            </h1>
+            <PageTitle :title="$t('app.rooms')" />
           </div>
           <div
             v-if="userPermissions.can('create', 'RoomPolicy')"
@@ -31,12 +29,15 @@
       <template #content>
         <!--  search, sorting, favorite-->
         <div class="grid grid-cols-12 gap-4">
-          <div class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3">
+          <search
+            class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
+          >
             <!--search-->
             <InputGroup class="mb-2" data-test="room-search">
               <InputText
                 ref="search"
                 v-model="rawSearchQuery"
+                type="search"
                 :disabled="loadingRooms"
                 :placeholder="$t('rooms.search')"
                 @keyup.enter="loadRooms(1)"
@@ -49,7 +50,7 @@
                 @click="loadRooms(1)"
               />
             </InputGroup>
-          </div>
+          </search>
           <div
             class="col-span-12 flex flex-col-reverse items-start justify-end gap-2 md:col-span-6 md:flex-row lg:col-span-8 2xl:col-span-9"
           >
@@ -69,6 +70,7 @@
                 data-test="only-favorites-button"
                 :severity="onlyShowFavorites ? 'contrast' : 'secondary'"
                 :disabled="loadingRooms"
+                :aria-pressed="onlyShowFavorites"
                 icon="fa-solid fa-star"
                 :label="$t('rooms.index.only_favorites')"
                 @click="
@@ -304,18 +306,18 @@
             </template>
 
             <template #list="slotProps">
-              <div
+              <ul
                 v-if="!loadingRooms && !loadingRoomsError"
                 class="grid grid-cols-12 gap-4 py-1"
               >
-                <div
-                  v-for="(room, index) in slotProps.items"
-                  :key="index"
+                <RoomCard
+                  v-for="room in slotProps.items"
+                  :key="room.id"
+                  :room="room"
                   class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
-                >
-                  <RoomCard :room="room" @favorites-changed="loadRooms()" />
-                </div>
-              </div>
+                  @favorites-changed="loadRooms()"
+                />
+              </ul>
             </template>
           </DataView>
         </OverlayComponent>
@@ -414,7 +416,7 @@ onMounted(() => {
       perPage.value = 6;
   }
 
-  reload();
+  reload(false);
 });
 
 /**
@@ -445,9 +447,9 @@ const filterOptions = computed(() => {
 /**
  *  Reload rooms
  */
-function reload() {
+function reload(moveFocus = true) {
   loadRoomTypes();
-  loadRooms();
+  loadRooms(null, moveFocus);
 }
 
 /**
@@ -474,7 +476,11 @@ function loadRoomTypes() {
 /**
  * Load the rooms of the current user based on the given inputs
  */
-function loadRooms(page = null) {
+function loadRooms(page = null, moveFocus = true) {
+  if (moveFocus) {
+    document.getElementById("page-title")?.focus();
+  }
+
   loadingRooms.value = true;
 
   api

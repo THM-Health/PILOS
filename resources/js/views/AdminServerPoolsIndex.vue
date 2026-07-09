@@ -1,10 +1,11 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
-      <div>
+      <search>
         <InputGroup data-test="server-pool-search">
           <InputText
             v-model="filter"
+            type="search"
             :disabled="isBusy"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1)"
@@ -18,7 +19,7 @@
             @click="loadData(1)"
           />
         </InputGroup>
-      </div>
+      </search>
       <Button
         v-if="userPermissions.can('create', 'ServerPoolPolicy')"
         v-tooltip="$t('admin.server_pools.new')"
