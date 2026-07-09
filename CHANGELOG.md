@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.17.0] - 2026-07-09
+
 ### Added
 
 - Accessibility: Screen reader only button to close popover dialogs ([#2971])
