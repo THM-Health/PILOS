@@ -103,6 +103,7 @@ class SettingsTest extends TestCase
         $this->bigBlueButtonSettings->logo = url('logo.png');
         $this->bigBlueButtonSettings->logo_dark = url('logo_dark.png');
         $this->bigBlueButtonSettings->default_presentation = url('presentation.pdf');
+        $this->bigBlueButtonSettings->default_welcome_message = 'Welcome Text';
         $this->bigBlueButtonSettings->save();
 
         config(['recording.max_retention_period' => 90]);
@@ -175,6 +176,7 @@ class SettingsTest extends TestCase
                     'bbb_logo' => url('logo.png'),
                     'bbb_logo_dark' => url('logo_dark.png'),
                     'bbb_default_presentation' => url('presentation.pdf'),
+                    'bbb_default_welcome_message' => 'Welcome Text',
                 ],
                 'meta' => [
                     'link_btn_styles' => array_column($linkStyles, 'value'),
@@ -236,6 +238,7 @@ class SettingsTest extends TestCase
 
             'bbb_logo' => 'bbblogo.png',
             'bbb_logo_dark' => 'bbblogo_dark.png',
+            'bbb_default_welcome_message' => 'Welcome Demo',
         ];
 
         // Unauthorized Test
@@ -299,6 +302,7 @@ class SettingsTest extends TestCase
 
                     'bbb_logo' => 'bbblogo.png',
                     'bbb_logo_dark' => 'bbblogo_dark.png',
+                    'bbb_default_welcome_message' => 'Welcome Demo',
                 ],
             ]);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->help_url);
@@ -311,6 +315,7 @@ class SettingsTest extends TestCase
         $payload['general_privacy_policy_url'] = '';
         $payload['general_accessibility_statement_url'] = '';
         $payload['room_file_terms_of_use'] = '';
+        $payload['bbb_default_welcome_message'] = '';
 
         $this->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
@@ -320,6 +325,7 @@ class SettingsTest extends TestCase
         $this->assertNull(app(GeneralSettings::class)->privacy_policy_url);
         $this->assertNull(app(GeneralSettings::class)->accessibility_statement_url);
         $this->assertNull(app(RoomSettings::class)->file_terms_of_use);
+        $this->assertNull(app(BigBlueButtonSettings::class)->default_welcome_message);
     }
 
     /**
@@ -742,6 +748,7 @@ class SettingsTest extends TestCase
         $this->user->roles()->attach($role);
 
         config(['recording.max_retention_period' => -1]);
+        config(['bigbluebutton.welcome_message_limit' => 100]);
 
         // inputs lower than allowed minimum
         $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), [
@@ -835,6 +842,8 @@ class SettingsTest extends TestCase
             'recording_meeting_usage_retention_period' => 366,
             'recording_attendance_retention_period' => 366,
             'recording_recording_retention_period' => 90,
+
+            'bbb_default_welcome_message' => str_repeat('a', 101),
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -849,6 +858,7 @@ class SettingsTest extends TestCase
                 'recording_meeting_usage_retention_period',
                 'recording_attendance_retention_period',
                 'recording_recording_retention_period',
+                'bbb_default_welcome_message',
             ]);
 
         // test setting recording retention period to a value higher than max allowed retention period
