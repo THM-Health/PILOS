@@ -28,7 +28,7 @@ return [
     'cancel' => 'Cancel',
     'cancel_editing' => 'Cancel editing',
     'change_locale' => 'Change language',
-    'char_counter' => 'Characters: :chars',
+    'char_counter' => 'Characters: :chars / :max',
     'close' => 'Close',
     'continue' => 'Continue',
     'dark_mode_disable' => 'Disable Dark mode',

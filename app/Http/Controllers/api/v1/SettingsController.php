@@ -208,6 +208,8 @@ class SettingsController extends Controller
         $recordingSettings->attendance_retention_period = $request->enum('recording_attendance_retention_period', TimePeriod::class);
         $recordingSettings->recording_retention_period = $request->enum('recording_recording_retention_period', TimePeriod::class);
 
+        $bigBlueButtonSettings->default_welcome_message = $request->input('bbb_default_welcome_message');
+
         $generalSettings->save();
         $themeSettings->save();
         $roomSettings->save();
