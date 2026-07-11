@@ -363,7 +363,7 @@ function getJoinUrl() {
   const config = {
     method: "post",
     data: {
-      name: props.participantName ? props.participantName : null,
+      name: props.participantName,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
