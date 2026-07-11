@@ -2259,7 +2259,7 @@ describe("Rooms View access", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
-    // 401 invalid personalize link
+    // 401 invalid personalize link with personalized link from hash
     // Intercept room auth request
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 401,
@@ -2270,27 +2270,54 @@ describe("Rooms View access", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123/E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
     });
 
     cy.window().then((win) => {
-      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
-        .be.null;
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
     });
 
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
-    // Reload and check with 422 error
+    // Reload and check that error stays even though personalized link now is loaded from the sessionStorage
+    cy.url().should("not.include", "#personalizedLink");
+    cy.reload();
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    cy.window().then((win) => {
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+    });
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    // Reload and check with 422 error with personalized link from hash
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 422,
       body: {
@@ -2303,27 +2330,54 @@ describe("Rooms View access", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123/E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
     });
 
     cy.window().then((win) => {
-      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
-        .be.null;
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
     });
 
     // Check that error message is shown
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
-    // Check with guests only error
+    // Reload and check that error stays even though personalized link now is loaded from the sessionStorage
+    cy.url().should("not.include", "#personalizedLink");
+    cy.reload();
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    cy.window().then((win) => {
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+    });
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    // Check with guests only error with personalized link from hash
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 420,
       body: {
@@ -2333,20 +2387,23 @@ describe("Rooms View access", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123/E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
     });
 
     cy.window().then((win) => {
-      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
-        .be.null;
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
     });
 
     cy.checkToastMessage("app.flash.guests_only");
@@ -2354,7 +2411,7 @@ describe("Rooms View access", function () {
       .should("not.include", "/rooms")
       .and("not.include", "rooms/abc-def-123");
 
-    // Check with 500 error
+    // Check with 500 error with personalized link from hash
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 500,
       body: {
@@ -2364,20 +2421,52 @@ describe("Rooms View access", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123/E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
     });
 
     cy.window().then((win) => {
-      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
-        .be.null;
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+    });
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that reload button is shown
+    cy.get('[data-test="reload-button"]').should("be.visible");
+
+    // Reload page and check that error stays even though personalized link now is loaded from the sessionStorage
+    cy.url().should("not.include", "#personalizedLink");
+    cy.reload();
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    cy.window().then((win) => {
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
     });
 
     // Check that error message is shown
@@ -2418,7 +2507,7 @@ describe("Rooms View access", function () {
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
     });
@@ -2434,7 +2523,7 @@ describe("Rooms View access", function () {
       expect(
         win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
       ).to.eq(
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
     });
 
@@ -2457,13 +2546,13 @@ describe("Rooms View access", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123/E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          "E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
         type: 1,
       });
     });
@@ -2735,6 +2824,66 @@ describe("Rooms View access", function () {
     cy.url().should("not.include", "/rooms/abc-def-123");
 
     cy.get("@roomRequest").should("be.null");
+  });
+
+  it("visit with personalized link in sessionStorage as authenticated user", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.owner = {
+        id: 2,
+        name: "Max Doe",
+      };
+      room.data.is_member = true;
+      room.data.is_moderator = true;
+      room.data.allow_membership = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.interceptRoomFilesRequest();
+
+    cy.window().then((win) => {
+      win.sessionStorage.setItem(
+        "roomPersonalizedLink_abc-def-123",
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+    });
+
+    // Visit room with personalized link in session storage
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query.room_auth_token).to.be.undefined;
+      expect(interception.request.query.room_auth_token_type).to.be.undefined;
+    });
+
+    // Check that room was loaded and no participant name is shown
+    cy.contains("Meeting One").should("be.visible");
+
+    // Check that participant name is not shown
+    cy.contains("rooms.name_in_video_conference").should("not.exist");
+    cy.get('[data-test="change-participant-name-button"]').should("not.exist");
+
+    // Check that sessionStorage was cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
+
+    // Check that auth request was not sent
+    cy.get("@roomAuthRequest").should("be.null");
   });
 
   it("reload with access code errors", function () {

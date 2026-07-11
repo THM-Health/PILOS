@@ -682,15 +682,10 @@ function authenticate(type, codeOrToken) {
           // Set room auth token for further requests if response is not empty
           roomAuthToken.value = response.data.data;
 
-          // Save personalized link token or access code in session storage
-          if (
-            roomAuthToken.value.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
-          ) {
-            sessionStorage.setItem(
-              "roomPersonalizedLink_" + props.id,
-              codeOrToken,
-            );
-          } else if (roomAuthToken.value.type === ROOM_AUTH_TOKEN_TYPE_CODE) {
+          // Save access code in session storage
+          // If auth token type is personalized link the personalized link is already set
+          // at this point and does not need to be set again after successful auth
+          if (roomAuthToken.value.type === ROOM_AUTH_TOKEN_TYPE_CODE) {
             sessionStorage.setItem("roomAccessCode_" + props.id, codeOrToken);
           }
         }
@@ -763,6 +758,11 @@ async function loadSavedAccessParameters() {
   if (hashParams.personalizedLink) {
     personalizedLink.value = hashParams.personalizedLink;
 
+    sessionStorage.setItem(
+      "roomPersonalizedLink_" + props.id,
+      hashParams.personalizedLink,
+    );
+
     // Clear hash params
     await nextTick();
     hashParams.personalizedLink = null;
@@ -797,8 +797,14 @@ async function loadSavedAccessParameters() {
       "roomPersonalizedLink_" + props.id,
     );
     if (savedPersonalizedLink) {
-      personalizedLink.value = savedPersonalizedLink;
-      return;
+      if (authStore.isAuthenticated) {
+        // User is authenticated and not allowed to use personalized link, remove it from session storage
+        // and continue without loading the existing personalized link
+        sessionStorage.removeItem("roomPersonalizedLink_" + props.id);
+      } else {
+        personalizedLink.value = savedPersonalizedLink;
+        return;
+      }
     }
 
     const savedAccessCode = sessionStorage.getItem(
