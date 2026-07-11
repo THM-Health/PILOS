@@ -6,6 +6,7 @@
   >
     <template #header>
       <Badge
+        v-if="!room.authenticated"
         severity="danger"
         class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
       >
