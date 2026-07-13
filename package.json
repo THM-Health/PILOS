@@ -43,7 +43,7 @@
     "@noble/hashes": "^2.2.0",
     "@primevue/auto-import-resolver": "^4.5.5",
     "@primevue/themes": "^4.5.4",
-    "@tailwindcss/vite": "^4.3.1",
+    "@tailwindcss/vite": "^4.3.2",
     "@tiptap/extension-highlight": "^3.27.1",
     "@tiptap/extension-image": "^3.27.1",
     "@tiptap/extension-text-align": "^3.27.1",
