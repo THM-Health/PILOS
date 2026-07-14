@@ -1522,7 +1522,7 @@
               data-test="bbb-default-welcome-message-field"
             >
               <label
-                for="bbb-client-settings"
+                for="bbb-default-welcome-message"
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{
                   $t("admin.settings.bbb.default_welcome_message.title")
