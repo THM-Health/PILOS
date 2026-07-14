@@ -287,6 +287,9 @@ return [
             'title' => 'Banner for messages',
         ],
         'bbb' => [
+            'default_welcome_message' => [
+                'title' => 'Default Welcome Message',
+            ],
             'logo' => [
                 'alt' => 'Logo preview',
                 'hint' => 'https://domain.tld/path/logo.svg',

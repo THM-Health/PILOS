@@ -2760,12 +2760,28 @@ describe("Admin settings with edit permission", function () {
         cy.checkSettingsFileSelector("", "testFile.txt", true);
       });
 
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":0,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "")
+          .and("be.not.disabled")
+          .type("Welcome to BBB");
+      });
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "include.text",
+      'app.char_counter_{"chars":14,"max":500}',
+    );
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = "/images/logo.svg";
       settings.data.bbb_logo_dark = "/images/logo-dark.svg";
       settings.data.bbb_style = "/files/bbb_style.css";
       settings.data.bbb_default_presentation = "/files/testFile.txt";
+      settings.data.bbb_default_welcome_message = "Welcome to BigBlueButton";
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -2843,6 +2859,10 @@ describe("Admin settings with edit permission", function () {
           expect(content).to.eql(base64);
         });
       });
+
+      expect(formData.get("bbb_default_welcome_message")).to.equal(
+        "Welcome to BBB",
+      );
     });
 
     // Check that config is loaded
@@ -2994,12 +3014,28 @@ describe("Admin settings with edit permission", function () {
         .click();
     });
 
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":24,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "Welcome to BigBlueButton")
+          .and("be.not.disabled")
+          .clear();
+      });
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "include.text",
+      'app.char_counter_{"chars":0,"max":500}',
+    );
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = null;
       settings.data.bbb_logo_dark = null;
       settings.data.bbb_style = null;
       settings.data.bbb_default_presentation = null;
+      settings.data.bbb_default_welcome_message = null;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -3022,6 +3058,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("bbb_logo_dark")).to.eql("");
       expect(formData.get("bbb_style")).to.eql("");
       expect(formData.get("bbb_default_presentation")).to.be.eql("");
+      expect(formData.get("bbb_default_welcome_message")).to.be.eql("");
     });
 
     // Check that config is loaded
@@ -3209,6 +3246,9 @@ describe("Admin settings with edit permission", function () {
           bbb_style: ["The bbb style field is required."],
           bbb_default_presentation: [
             "The bbb default presentation field is required.",
+          ],
+          bbb_default_welcome_message: [
+            "The bbb default welcome message must not be greater than 500 characters.",
           ],
         },
       },
@@ -3401,6 +3441,11 @@ describe("Admin settings with edit permission", function () {
       "The bbb default presentation field is required.",
     );
 
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "include.text",
+      "The bbb default welcome message must not be greater than 500 characters.",
+    );
+
     // Check with 500 error
     cy.intercept("POST", "api/v1/settings", {
       statusCode: 500,
@@ -3590,6 +3635,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="default-presentation-field"]').should(
       "not.include.text",
       "The bbb default presentation field is required.",
+    );
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "not.include.text",
+      "The bbb default welcome message must not be greater than 500 characters.",
     );
 
     // Check with 413 error (payload too large)

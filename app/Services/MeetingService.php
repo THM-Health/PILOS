@@ -124,8 +124,11 @@ class MeetingService
             $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
         }
 
+        // Set default welcome message
+        $meetingParams->setWelcome(app(BigBlueButtonSettings::class)->default_welcome_message);
+
         // Set welcome message if expert mode is activated
-        if ($this->meeting->room->expert_mode) {
+        if ($this->meeting->room->expert_mode && $this->meeting->room->welcome) {
             $meetingParams->setWelcome($this->meeting->room->welcome);
         }
 

@@ -100,10 +100,7 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-setting-short_description"]')
       .should("be.visible")
       .should("include.text", "rooms.settings.general.short_description")
-      .should(
-        "include.text",
-        'rooms.settings.general.chars_{"chars":"17 / 300"}',
-      )
+      .should("include.text", 'app.char_counter_{"chars":17,"max":300}')
       .find("#room-setting-short_description")
       .should("have.value", "Short description");
 
@@ -179,10 +176,7 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-setting-welcome"]')
       .should("be.visible")
       .should("include.text", "rooms.settings.video_conference.welcome_message")
-      .should(
-        "include.text",
-        'rooms.settings.general.chars_{"chars":"0 / 500"}',
-      )
+      .should("include.text", 'app.char_counter_{"chars":0,"max":500}')
       .find("#room-setting-welcome")
       .should("have.value", "");
 
