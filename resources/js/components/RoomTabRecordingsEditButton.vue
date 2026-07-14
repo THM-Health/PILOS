@@ -78,7 +78,7 @@
         <small>
           {{
             $t("app.char_counter", {
-              chars: newDescription.length,
+              chars: newDescription?.length || 0,
               max: settingsStore.getSetting(
                 "recording.recording_description_limit",
               ),
