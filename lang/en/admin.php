@@ -94,8 +94,10 @@ return [
                 'view_all' => 'Show all rooms',
             ],
             'server_pools' => [
+                'backup_servers' => 'Backup servers',
                 'create' => 'Create server pools',
                 'delete' => 'Delete server pools',
+                'select_server' => 'Select server',
                 'title' => 'Server pools',
                 'update' => 'Edit server pools',
                 'view' => 'Show server pools',
@@ -191,6 +193,8 @@ return [
         'view' => 'Detailed information for the room type :name',
     ],
     'server_pools' => [
+        'backup_servers' => 'Backup servers',
+        'backup_server_count' => 'Number of backup servers',
         'delete' => [
             'confirm' => 'Do you really want to delete the server pool :name?',
             'failed' => 'Server pool can\'t be deleted because the following room types still use it:',

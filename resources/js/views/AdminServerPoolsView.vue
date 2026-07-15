@@ -93,6 +93,7 @@
           <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <multiselect
+                id="servers"
                 ref="serversMultiselectRef"
                 v-model="model.servers"
                 data-test="server-dropdown"
@@ -179,6 +180,97 @@
             <FormError :errors="formErrors.fieldError('servers', true)" />
           </div>
         </div>
+        <!-- Begin server field for backup server -->
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="backup-server-field"
+        >
+          <label
+            id="backup-server-label"
+            class="col-span-12 md:col-span-4 md:mb-0"
+            >{{ $t("admin.server_pools.backup_servers") }}</label
+          >
+          <div class="col-span-12 md:col-span-8">
+            <InputGroup>
+              <multiselect
+                id="servers"
+                ref="backupServersMultiselectRef"
+                v-model="model.backup_servers"
+                data-test="backup-server-dropdown"
+                aria-labelledby="backup-servers-label"
+                :placeholder="$t('admin.server_pools.select_servers')"
+                track-by="id"
+                open-direction="bottom"
+                :multiple="true"
+                :searchable="false"
+                :internal-search="false"
+                :clear-on-select="false"
+                :close-on-select="false"
+                :show-no-results="false"
+                :show-labels="false"
+                :options="servers"
+                :disabled="
+                  isBusy ||
+                  modelLoadingError ||
+                  serversLoading ||
+                  serversLoadingError ||
+                  viewOnly
+                "
+                :loading="serversLoading"
+                :allow-empty="true"
+                :class="{
+                  'is-invalid': formErrors.fieldInvalid('backup_servers', true),
+                }"
+              >
+                <template #noOptions>
+                  {{ $t("admin.servers.no_data") }}
+                </template>
+                <template #option="{ option }">
+                  {{ option.name }}
+                </template>
+                <template #tag="{ option, remove }">
+                  <Chip :label="option.name" data-test="server-chip">
+                    <span>{{ option.name }}</span>
+                    <Button
+                      v-if="!viewOnly"
+                      severity="contrast"
+                      class="h-5 w-5 rounded-full text-sm"
+                      icon="fas fa-xmark"
+                      :aria-label="
+                        $t('admin.server_pools.remove_server', {
+                          name: option.name,
+                        })
+                      "
+                      data-test="remove-server-button"
+                      @click="remove(option)"
+                    />
+                  </Chip>
+                </template>
+                <template #afterList>
+                  <Button
+                    :disabled="serversLoading || serversCurrentPage === 1"
+                    outlined
+                    severity="secondary"
+                    icon="fa-solid fa-arrow-left"
+                    :label="$t('app.previous_page')"
+                    data-test="previous-page-button"
+                    @click="loadServers(Math.max(1, serversCurrentPage - 1))"
+                  />
+                  <Button
+                    :disabled="serversLoading || !serversHasNextPage"
+                    outlined
+                    severity="secondary"
+                    icon="fa-solid fa-arrow-right"
+                    :label="$t('app.next_page')"
+                    data-test="next-page-button"
+                    @click="loadServers(serversCurrentPage + 1)"
+                  />
+                </template>
+              </multiselect>
+            </InputGroup>
+          </div>
+        </div>
+        <!-- End server field for backup server -->
         <div v-if="!viewOnly">
           <div class="flex justify-end">
             <Button
@@ -256,6 +348,7 @@ const props = defineProps({
 
 const model = ref({
   servers: [],
+  backup_servers: [],
 });
 const name = ref("");
 
@@ -277,6 +370,7 @@ const serversCurrentPage = ref(1);
 const serversHasNextPage = ref(false);
 const serversLoadingError = ref(false);
 const serversMultiselectRef = ref(false);
+const backupServersMultiselectRef = ref(false);
 
 /**
  * Loads the server pool and servers from the backend
@@ -341,6 +435,7 @@ function loadServers(page = 1) {
     })
     .catch((error) => {
       serversMultiselectRef.value.deactivate();
+      backupServersMultiselectRef.value.deactivate();
       serversLoadingError.value = true;
       api.error(error);
     })
@@ -363,6 +458,9 @@ function saveServerPool() {
   };
 
   config.data.servers = config.data.servers.map((server) => server.id);
+  config.data.backup_servers = config.data.backup_servers.map(
+    (backupServer) => backupServer.id,
+  );
 
   api
     .call(

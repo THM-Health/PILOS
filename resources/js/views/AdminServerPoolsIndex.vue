@@ -100,6 +100,11 @@
         sortable
       ></Column>
       <Column
+        :header="$t('admin.server_pools.backup_server_count')"
+        field="backup_servers_count"
+        sortable
+      ></Column>
+      <Column
         v-if="actionColumn.visible"
         :header="$t('app.actions')"
         :class="actionColumn.classes"

@@ -69,7 +69,7 @@ class MeetingService
     /**
      * Start meeting with the properties saved for this meeting and room
      */
-    public function start(): ?CreateMeetingResponse
+    public function start(bool $isPreferredServer): ?CreateMeetingResponse
     {
         // Set meeting parameters
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
@@ -106,6 +106,12 @@ class MeetingService
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
+
+        /* @TODO, optionally show banner on backup-server
+        if (! $isPreferredServer) {
+            $meetingParams->setBannerText('Test');
+            $meetingParams->setBannerColor('#DF2721');
+        }*/
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
