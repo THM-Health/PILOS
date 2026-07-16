@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
 - System-wide default welcome message ([#3301])
 
+### Fixed
+
+- Select dropdown border styles ([#3314], [#3315])
+
 ## [v4.17.0] - 2026-07-09
 
 ### Added
@@ -867,6 +871,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3300]: https://github.com/THM-Health/PILOS/issues/3300
 [#3301]: https://github.com/THM-Health/PILOS/pull/3301
 [#3302]: https://github.com/THM-Health/PILOS/pull/3302
+[#3314]: https://github.com/THM-Health/PILOS/issues/3314
+[#3315]: https://github.com/THM-Health/PILOS/pull/3315
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
