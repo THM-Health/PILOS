@@ -8,28 +8,26 @@
     @click="toggle"
   />
   <OverlayPanel ref="op" aria-labelledby="room-join-by-phone-title">
-    <div class="flex w-min flex-col">
-      <div class="flex flex-col items-start gap-4 p-2">
-        <div class="flex justify-between gap-4">
-          <h2
-            id="room-join-by-phone-title"
-            tabindex="-1"
-            autofocus
-            class="block font-bold whitespace-nowrap"
-          >
-            {{ $t("rooms.phone.title") }}
-          </h2>
-          <Button
-            class="popover-close-button"
-            data-test="popover-close-button"
-            :aria-label="$t('app.close')"
-            text
-            rounded
-            severity="secondary"
-            icon="fas fa-xmark"
-            @click="closePopover"
-          />
-        </div>
+    <div class="flex w-min max-w-full min-w-sm flex-col p-2">
+      <div class="flex w-full justify-between gap-4">
+        <h2
+          id="room-join-by-phone-title"
+          tabindex="-1"
+          autofocus
+          class="block font-bold whitespace-nowrap"
+        >
+          {{ $t("rooms.phone.title") }}
+        </h2>
+        <Button
+          class="popover-close-button"
+          data-test="popover-close-button"
+          :aria-label="$t('app.close')"
+          text
+          rounded
+          severity="secondary"
+          icon="fas fa-xmark"
+          @click="closePopover"
+        />
       </div>
       <div class="grow">
         <div class="mt-2 flex flex-row items-center">
@@ -72,6 +70,8 @@
             />
           </InputGroup>
         </div>
+
+        <i>{{ $t("rooms.phone.note") }}</i>
       </div>
       <divider />
 
