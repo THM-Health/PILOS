@@ -19,6 +19,7 @@ class ServerRequest extends FormRequest
             'secret' => ['required', 'string', 'max:255'],
             'strength' => ['required', 'integer', 'min:1', 'max:10'],
             'status' => ['required', Rule::enum(ServerStatus::class)],
+            'health_check_enabled' => ['required', 'boolean'],
         ];
 
         if ($this->route('server')) {

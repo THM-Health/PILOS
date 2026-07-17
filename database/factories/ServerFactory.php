@@ -34,6 +34,7 @@ class ServerFactory extends Factory
             'version' => '2.4.5',
             'strength' => 1,
             'load' => 0,
+            'health_check_enabled' => true,
         ];
     }
 }

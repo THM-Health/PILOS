@@ -76,4 +76,29 @@ class ServerTest extends TestCase
 
         $this->assertEquals(ServerHealth::OFFLINE, $server->health);
     }
+
+    /**
+     * Test that health returns null when health_check_enabled is false
+     */
+    public function test_server_health_check_disabled()
+    {
+        config([
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
+        ]);
+
+        $server = Server::factory()->create(['health_check_enabled' => false]);
+        $server->error_count = 0;
+        $server->recover_count = config('bigbluebutton.server_online_threshold');
+        $server->save();
+
+        // Health should be null regardless of counters when health check is disabled
+        $this->assertNull($server->health);
+
+        $server->error_count = config('bigbluebutton.server_offline_threshold');
+        $server->recover_count = 0;
+        $server->save();
+
+        $this->assertNull($server->health);
+    }
 }

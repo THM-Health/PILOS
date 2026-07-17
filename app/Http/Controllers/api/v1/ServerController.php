@@ -107,13 +107,16 @@ class ServerController extends Controller
         $server->secret = $request->secret;
         $server->strength = $request->strength;
         $server->status = $request->status;
+        $server->health_check_enabled = $request->boolean('health_check_enabled');
 
         $server->error_count = 0;
         $server->recover_count = config('bigbluebutton.server_online_threshold');
 
         // Check if server is online/offline and update usage data
-        $serverService = new ServerService($server);
-        $serverService->updateUsage();
+        if ($server->health_check_enabled) {
+            $serverService = new ServerService($server);
+            $serverService->updateUsage();
+        }
 
         $server->save();
 
@@ -134,13 +137,16 @@ class ServerController extends Controller
         $server->secret = $request->secret;
         $server->strength = $request->strength;
         $server->status = $request->status;
+        $server->health_check_enabled = $request->boolean('health_check_enabled');
 
         $server->error_count = 0;
         $server->recover_count = config('bigbluebutton.server_online_threshold');
 
         // Check if server is online/offline and update usage data
-        $serverService = new ServerService($server);
-        $serverService->updateUsage();
+        if ($server->health_check_enabled) {
+            $serverService = new ServerService($server);
+            $serverService->updateUsage();
+        }
 
         $server->save();
 

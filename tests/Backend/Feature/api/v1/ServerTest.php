@@ -94,6 +94,7 @@ class ServerTest extends TestCase
                         'name',
                         'description',
                         'strength',
+                        'health_check_enabled',
                         'health',
                         'status',
                         'participant_count',
@@ -232,6 +233,7 @@ class ServerTest extends TestCase
                 'base_url' => $server->base_url,
                 'secret' => $server->secret,
                 'strength' => $server->strength,
+                'health_check_enabled' => $server->health_check_enabled,
                 'status' => $server->status,
                 'health' => $server->health->value,
                 'participant_count' => $server->participant_count,
@@ -271,6 +273,7 @@ class ServerTest extends TestCase
             'secret' => $server->secret,
             'strength' => 5,
             'status' => ServerStatus::ENABLED->value,
+            'health_check_enabled' => true,
         ];
 
         // Test guests
@@ -315,8 +318,9 @@ class ServerTest extends TestCase
         $data['secret'] = '';
         $data['strength'] = 1000;
         $data['status'] = 10;
+        $data['health_check_enabled'] = 'invalid';
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status', 'health_check_enabled']);
     }
 
     /**
@@ -334,6 +338,7 @@ class ServerTest extends TestCase
             'secret' => $server->secret,
             'strength' => $server->strength,
             'status' => ServerStatus::DISABLED->value,
+            'health_check_enabled' => true,
         ];
 
         // Test guests
@@ -397,9 +402,10 @@ class ServerTest extends TestCase
         $data['secret'] = '';
         $data['strength'] = 1000;
         $data['status'] = 10;
+        $data['health_check_enabled'] = 'invalid';
         $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status', 'health_check_enabled']);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;

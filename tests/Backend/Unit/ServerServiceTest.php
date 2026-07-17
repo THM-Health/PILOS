@@ -713,4 +713,81 @@ class ServerServiceTest extends TestCase
         $hash = hash('sha512', 'getMeetings'.$server->secret);
         $this->assertEquals($hash, $request->data()['checksum']);
     }
+
+    /**
+     * Test that health counters are not changed when health_check_enabled is false on API failure
+     */
+    public function test_health_check_disabled_on_api_failure()
+    {
+        config([
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out')),
+        ]);
+
+        $server = Server::factory()->create(['health_check_enabled' => false]);
+        $serverService = new ServerService($server);
+
+        $initialErrorCount = $server->error_count;
+        $initialRecoverCount = $server->recover_count;
+        $initialLoad = $server->load;
+
+        // Call multiple times - counters should not change
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
+        $this->assertEquals($initialLoad, $server->load);
+        $this->assertNull($server->health);
+
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
+        $this->assertEquals($initialLoad, $server->load);
+        $this->assertNull($server->health);
+    }
+
+    /**
+     * Test that health counters are not changed when health_check_enabled is false on successful API call
+     */
+    public function test_health_check_disabled_on_api_success()
+    {
+        config([
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
+        ]);
+
+        $server = Server::factory()->create(['health_check_enabled' => false, 'error_count' => 1, 'recover_count' => 0]);
+        $serverService = new ServerService($server);
+
+        $initialErrorCount = $server->error_count;
+        $initialRecoverCount = $server->recover_count;
+
+        // Call - counters should not change
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
+        $this->assertNull($server->health);
+
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
+        $this->assertNull($server->health);
+    }
 }

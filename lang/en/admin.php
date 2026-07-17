@@ -251,6 +251,8 @@ return [
         'status' => 'Status',
         'strength' => 'Server strength',
         'strength_description' => 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
+        'health_check_enabled' => 'Connection check',
+        'health_check_enabled_description' => 'If disabled, the server is always considered available for load balancing',
         'test_connection' => 'Test connection',
         'tile_description' => 'The servers provide the BBB infrastructure for the meetings.',
         'unhealthy' => 'Faulty',

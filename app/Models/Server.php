@@ -22,6 +22,7 @@ class Server extends Model
 
     protected $casts = [
         'strength' => 'integer',
+        'health_check_enabled' => 'boolean',
         'status' => ServerStatus::class,
         'participant_count' => 'integer',
         'listener_count' => 'integer',
@@ -80,7 +81,7 @@ class Server extends Model
 
     public function getHealthAttribute(): ?ServerHealth
     {
-        if ($this->status == ServerStatus::DISABLED) {
+        if ($this->status == ServerStatus::DISABLED || ! $this->health_check_enabled) {
             return null;
         }
 

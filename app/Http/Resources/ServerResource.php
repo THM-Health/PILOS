@@ -41,6 +41,7 @@ class ServerResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'strength' => $this->strength,
+            'health_check_enabled' => $this->health_check_enabled,
             'status' => $this->status,
             'health' => $this->health,
             'participant_count' => $this->participant_count,

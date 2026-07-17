@@ -200,6 +200,34 @@
 
         <div
           class="field grid grid-cols-12 gap-4"
+          data-test="health-check-enabled-field"
+        >
+          <label
+            for="health-check-enabled"
+            class="col-span-12 items-start md:col-span-4 md:mb-0"
+            >{{ $t("admin.servers.health_check_enabled") }}</label
+          >
+          <div class="col-span-12 md:col-span-8">
+            <div>
+              <ToggleSwitch
+                v-model="model.health_check_enabled"
+                input-id="health-check-enabled"
+                :invalid="formErrors.fieldInvalid('health_check_enabled')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                aria-describedby="health-check-enabled-help"
+              />
+            </div>
+            <FormError
+              :errors="formErrors.fieldError('health_check_enabled')"
+            />
+            <small id="health-check-enabled-help">{{
+              $t("admin.servers.health_check_enabled_description")
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="field grid grid-cols-12 gap-4"
           data-test="health-status-field"
         >
           <label class="col-span-12 md:col-span-4 md:mb-0" for="healthStatus">{{
@@ -422,6 +450,7 @@ const props = defineProps({
 
 const model = ref({
   id: null,
+  health_check_enabled: true,
 });
 const name = ref("");
 

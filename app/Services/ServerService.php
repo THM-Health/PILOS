@@ -87,6 +87,10 @@ class ServerService
      */
     public function handleApiCallFailed()
     {
+        if (! $this->server->health_check_enabled) {
+            return;
+        }
+
         if ($this->server->health != ServerHealth::OFFLINE) {
             $this->server->error_count++;
         }
@@ -103,6 +107,10 @@ class ServerService
 
     public function handleApiCallSuccessful()
     {
+        if (! $this->server->health_check_enabled) {
+            return;
+        }
+
         if ($this->server->health != ServerHealth::ONLINE) {
             $this->server->recover_count++;
         }
