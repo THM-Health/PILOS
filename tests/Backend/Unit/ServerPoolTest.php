@@ -25,9 +25,9 @@ class ServerPoolTest extends TestCase
             'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
-        $unhealthy = Server::factory()->create(['status' => ServerStatus::ENABLED]);
-        $unhealthy->error_count = 1;
-        $unhealthy->save();
+        $faulty = Server::factory()->create(['status' => ServerStatus::ENABLED]);
+        $faulty->error_count = 1;
+        $faulty->save();
         $offline = Server::factory()->create(['status' => ServerStatus::ENABLED]);
         $offline->error_count = 3;
         $offline->save();
@@ -37,7 +37,7 @@ class ServerPoolTest extends TestCase
         $heavyUsage = Server::factory()->create(['load' => 20, 'strength' => 1]);
 
         $serverPool = ServerPool::factory()->create();
-        $serverPool->servers()->sync([$unhealthy->id, $offline->id, $draining->id, $disabled->id, $offline->id, $lightUsage->id, $heavyUsage->id]);
+        $serverPool->servers()->sync([$faulty->id, $offline->id, $draining->id, $disabled->id, $offline->id, $lightUsage->id, $heavyUsage->id]);
         $loadBalancingService = new LoadBalancingService;
         $loadBalancingService->setServerPool($serverPool);
 
@@ -55,7 +55,7 @@ class ServerPoolTest extends TestCase
         $this->assertEquals($heavyUsage->id, $server->id);
 
         // Check server that should not be used for load balancing
-        $serverPool->servers()->sync([$unhealthy->id, $offline->id, $draining->id, $disabled->id, $offline->id]);
+        $serverPool->servers()->sync([$faulty->id, $offline->id, $draining->id, $disabled->id, $offline->id]);
         $serverPool->refresh();
         $loadBalancingService->setServerPool($serverPool);
         $server = $loadBalancingService->getLowestUsageServer();

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Enums\ServerStatus;
 use App\Observers\ServerObserver;
 use App\Traits\AddsModelNameTrait;
@@ -78,24 +78,24 @@ class Server extends Model
         return $this->name.' ('.$this->id.')';
     }
 
-    public function getHealthAttribute(): ?ServerHealth
+    public function getConnectionStatusAttribute(): ?ServerConnectionStatus
     {
         if ($this->status == ServerStatus::DISABLED) {
             return null;
         }
 
-        return self::calcHealth($this->recover_count, $this->error_count);
+        return self::calculateConnectionStatus($this->recover_count, $this->error_count);
     }
 
-    public static function calcHealth(int $recover_count, int $error_count): ServerHealth
+    public static function calculateConnectionStatus(int $recover_count, int $error_count): ServerConnectionStatus
     {
         if ($recover_count >= config('bigbluebutton.server_online_threshold')) {
-            return ServerHealth::ONLINE;
+            return ServerConnectionStatus::ONLINE;
         }
         if ($error_count >= config('bigbluebutton.server_offline_threshold')) {
-            return ServerHealth::OFFLINE;
+            return ServerConnectionStatus::OFFLINE;
         }
 
-        return ServerHealth::UNHEALTHY;
+        return ServerConnectionStatus::FAULTY;
     }
 }

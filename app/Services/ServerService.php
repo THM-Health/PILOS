@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Enums\ServerStatus;
 use App\Models\Meeting;
 use App\Models\MeetingStat;
@@ -87,7 +87,7 @@ class ServerService
      */
     public function handleApiCallFailed()
     {
-        if ($this->server->health != ServerHealth::OFFLINE) {
+        if ($this->server->connection_status != ServerConnectionStatus::OFFLINE) {
             $this->server->error_count++;
         }
 
@@ -96,18 +96,18 @@ class ServerService
         $this->server->timestamps = false;
         $this->server->save();
 
-        if ($this->server->health == ServerHealth::OFFLINE) {
+        if ($this->server->connection_status == ServerConnectionStatus::OFFLINE) {
             $this->setMeetingsDetached();
         }
     }
 
     public function handleApiCallSuccessful()
     {
-        if ($this->server->health != ServerHealth::ONLINE) {
+        if ($this->server->connection_status != ServerConnectionStatus::ONLINE) {
             $this->server->recover_count++;
         }
 
-        if ($this->server->health == ServerHealth::ONLINE) {
+        if ($this->server->connection_status == ServerConnectionStatus::ONLINE) {
             $this->server->error_count = 0;
         }
 
@@ -206,7 +206,7 @@ class ServerService
                 $this->server->stats()->save($serverStat);
             }
 
-            if ($this->server->health == ServerHealth::OFFLINE) {
+            if ($this->server->connection_status == ServerConnectionStatus::OFFLINE) {
                 // Clear current live server status
                 $this->server->participant_count = null;
                 $this->server->listener_count = null;

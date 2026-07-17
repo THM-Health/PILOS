@@ -221,6 +221,7 @@ return [
         'draining' => 'Draining',
         'edit' => 'Edit server :name',
         'enabled' => 'Enabled',
+        'faulty' => 'Faulty',
         'flash' => [
             'panic' => [
                 'description' => ':total meetings were found and :success were successfully stopped.',
@@ -253,7 +254,6 @@ return [
         'strength_description' => 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
         'test_connection' => 'Test connection',
         'tile_description' => 'The servers provide the BBB infrastructure for the meetings.',
-        'unhealthy' => 'Faulty',
         'unknown' => 'Unknown',
         'usage_info' => 'The usage (meetings, participants, videos) also contains meetings that are managed by other systems.',
         'version' => 'Version',

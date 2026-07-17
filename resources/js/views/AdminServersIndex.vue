@@ -146,10 +146,13 @@
           />
         </template>
       </Column>
-      <Column :header="$t('admin.servers.connection')" field="health">
+      <Column
+        :header="$t('admin.servers.connection')"
+        field="connection_status"
+      >
         <template #body="slotProps">
           <Tag
-            v-if="slotProps.data.health === -1"
+            v-if="slotProps.data.connection_status === -1"
             v-tooltip="$t('admin.servers.offline')"
             :aria-label="$t('admin.servers.offline')"
             class="p-2"
@@ -157,15 +160,15 @@
             icon="fa-solid fa-xmark"
           />
           <Tag
-            v-else-if="slotProps.data.health === 0"
-            v-tooltip="$t('admin.servers.unhealthy')"
-            :aria-label="$t('admin.servers.unhealthy')"
+            v-else-if="slotProps.data.connection_status === 0"
+            v-tooltip="$t('admin.servers.faulty')"
+            :aria-label="$t('admin.servers.faulty')"
             class="p-2"
             severity="warning"
             icon="fa-solid fa-triangle-exclamation"
           />
           <Tag
-            v-else-if="slotProps.data.health === 1"
+            v-else-if="slotProps.data.connection_status === 1"
             v-tooltip="$t('admin.servers.online')"
             :aria-label="$t('admin.servers.online')"
             class="p-2"

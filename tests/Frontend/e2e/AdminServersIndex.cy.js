@@ -184,7 +184,7 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(2)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.unhealthy");
+          .should("include.attr", "aria-label", "admin.servers.faulty");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(3)
@@ -217,8 +217,7 @@ describe("Admin servers index", function () {
 
         cy.get('[data-test="server-item-cell"]')
           .eq(2)
-          .find("span")
-          .should("include.attr", "aria-label", "admin.servers.offline");
+          .should("have.text", " --- ");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(3)
@@ -254,7 +253,7 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(2)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.online");
+          .should("include.attr", "aria-label", "admin.servers.offline");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(3)

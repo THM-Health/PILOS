@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Backend\Unit;
 
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Enums\ServerStatus;
 use App\Models\Server;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,7 +47,7 @@ class ServerTest extends TestCase
         $this->assertNull($server->version);
     }
 
-    public function test_server_health()
+    public function test_server_connection_status()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -60,20 +60,20 @@ class ServerTest extends TestCase
         $server->recover_count = config('bigbluebutton.server_online_threshold');
         $server->save();
 
-        $this->assertEquals(ServerHealth::ONLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $server->connection_status);
 
         // Check failing
         $server->error_count = 1;
         $server->recover_count = 0;
         $server->save();
 
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Check offline
         $server->error_count = config('bigbluebutton.server_offline_threshold');
         $server->recover_count = 0;
         $server->save();
 
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
     }
 }

@@ -42,7 +42,7 @@ class ServerResource extends JsonResource
             'description' => $this->description,
             'strength' => $this->strength,
             'status' => $this->status,
-            'health' => $this->health,
+            'connection_status' => $this->connection_status,
             'participant_count' => $this->participant_count,
             'listener_count' => $this->listener_count,
             'voice_participant_count' => $this->voice_participant_count,

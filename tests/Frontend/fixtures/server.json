@@ -7,7 +7,7 @@
     "secret": "123456789",
     "strength": 2,
     "status": 1,
-    "health": 1,
+    "connection_status": 1,
     "participant_count": 14,
     "listener_count": 7,
     "voice_participant_count": 7,

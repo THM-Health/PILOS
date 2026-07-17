@@ -160,11 +160,11 @@ describe("Admin servers view", function () {
             );
           });
       });
-    cy.get('[data-test="health-status-field"]')
+    cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
       .within(() => {
-        cy.get("#healthStatus")
+        cy.get("#connectionStatus")
           .should("have.value", "admin.servers.online")
           .and("be.disabled");
         cy.get('[data-test="servers-test-connection-button"]')
@@ -244,11 +244,11 @@ describe("Admin servers view", function () {
             );
           });
       });
-    cy.get('[data-test="health-status-field"]')
+    cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
       .within(() => {
-        cy.get("#healthStatus")
+        cy.get("#connectionStatus")
           .should("have.value", "admin.servers.online")
           .and("be.disabled");
         cy.get('[data-test="servers-test-connection-button"]')
@@ -270,7 +270,7 @@ describe("Admin servers view", function () {
   it("check serverView shown correctly (server disabled)", function () {
     cy.fixture("server.json").then((server) => {
       server.data.status = -1;
-      server.data.health = 0;
+      server.data.connection_status = null;
 
       cy.intercept("GET", "api/v1/servers/1", {
         statusCode: 200,
@@ -304,12 +304,12 @@ describe("Admin servers view", function () {
           });
       });
 
-    cy.get('[data-test="health-status-field"]')
+    cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
       .within(() => {
-        cy.get("#healthStatus")
-          .should("have.value", "admin.servers.unhealthy")
+        cy.get("#connectionStatus")
+          .should("have.value", "admin.servers.unknown")
           .and("be.disabled");
         cy.get('[data-test="servers-test-connection-button"]')
           .should("be.visible")
