@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('meetings', function (Blueprint $table) {
             $table->string('dial_number')->nullable();
-            $table->integer('voice_bridge')->nullable();
+            $table->string('voice_bridge')->nullable();
         });
     }
 
