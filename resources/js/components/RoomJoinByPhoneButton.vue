@@ -1,11 +1,10 @@
 <template>
-  <!-- If room is running, show join button -->
   <Button
     data-test="room-join-by-phone-button"
     :label="$t('rooms.phone.join_by_phone')"
     icon="fa-solid fa-phone"
     severity="secondary"
-    class="flex-shrink-0"
+    class="shrink-0"
     @click="toggle"
   />
   <OverlayPanel
