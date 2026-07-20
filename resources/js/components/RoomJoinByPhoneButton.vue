@@ -1,13 +1,18 @@
 <template>
   <!-- If room is running, show join button -->
   <Button
+    data-test="room-join-by-phone-button"
     :label="$t('rooms.phone.join_by_phone')"
     icon="fa-solid fa-phone"
     severity="secondary"
     class="flex-shrink-0"
     @click="toggle"
   />
-  <OverlayPanel ref="op" aria-labelledby="room-join-by-phone-title">
+  <OverlayPanel
+    ref="op"
+    data-test="room-join-by-phone-overlay"
+    aria-labelledby="room-join-by-phone-title"
+  >
     <div class="flex w-min max-w-full min-w-sm flex-col p-2">
       <div class="flex w-full justify-between gap-4">
         <h2
@@ -76,7 +81,11 @@
       <divider />
 
       <div class="flex flex-col items-center">
-        <img :src="qrcode" :alt="$t('rooms.phone.qrcode')" />
+        <img
+          :src="qrcode"
+          data-test="join-by-phone-qr-code"
+          :alt="$t('rooms.phone.qrcode')"
+        />
         <p class="text-center">
           {{ $t("rooms.phone.scan_qr_code") }}
         </p>
