@@ -213,7 +213,7 @@
                     @changed="reload(true)"
                   />
                   <RoomJoinByPhoneButton
-                    v-if="running && room.last_meeting.dial_in"
+                    v-if="running && room.last_meeting.dial_in?.number"
                     :number="room.last_meeting.dial_in.number"
                     :pin="room.last_meeting.dial_in.pin"
                   />
