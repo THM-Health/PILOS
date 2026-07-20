@@ -62,7 +62,7 @@
       <div v-if="!room">
         <div class="my-2 text-center" data-test="no-room-overlay">
           <i
-            v-if="roomLoading || authLoading || rememberedGuestNameValidating"
+            v-if="loadingRoom || authLoading || rememberedGuestNameValidating"
             class="fa-solid fa-circle-notch fa-spin text-3xl"
             data-test="room-loading-spinner"
           />
@@ -82,7 +82,9 @@
             v-model:access-code="accessCodeInput"
             v-model:participant-name="guestName"
             v-model:remember-participant-name="rememberGuestName"
-            :loading="loading || authLoading || rememberedGuestNameValidating"
+            :loading="
+              loadingRoom || authLoading || rememberedGuestNameValidating
+            "
             :room="room"
             :auth-throttled-for="authThrottledFor"
             :access-code-invalid="accessCodeInvalid"
@@ -90,7 +92,7 @@
             :bbb-errors="bbbErrors"
             :bbb-reason="bbbReason"
             @submit="login"
-            @reload="reload(true)"
+            @reload="loadRoom(true)"
           />
         </div>
         <div v-else class="flex flex-col gap-6">
@@ -99,18 +101,18 @@
               <RoomHeader
                 class="mx-6 mt-6"
                 :room="room"
-                :loading="loading"
+                :loading="loadingRoom"
                 :room-auth-token="roomAuthToken"
                 :details-inline="true"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
-                @reload="reload(true)"
+                @reload="loadRoom(true)"
                 @invalid-room-auth-token="handleInvalidRoomAuthToken"
                 @joined-membership="
                   roomAuthToken = null;
-                  reload(true);
+                  loadRoom(true);
                 "
-                @left-membership="reload"
+                @left-membership="loadRoom"
               />
             </template>
             <template #content>
@@ -186,10 +188,10 @@
                     @invalid-room-auth-token="handleInvalidRoomAuthToken"
                     @require-code="
                       handleRequireCode();
-                      reload();
+                      loadRoom();
                     "
                     @guests-not-allowed="handleGuestsNotAllowed"
-                    @changed="reload(true)"
+                    @changed="loadRoom(true)"
                   />
                   <RoomParticipantNameChangeButton
                     v-if="
@@ -217,11 +219,11 @@
             @invalid-room-auth-token="handleInvalidRoomAuthToken"
             @require-code="
               handleRequireCode();
-              reload();
+              loadRoom();
             "
             @guests-not-allowed="handleGuestsNotAllowed"
-            @settings-changed="reload(true)"
-            @transferred-ownership="reload"
+            @settings-changed="loadRoom(true)"
+            @transferred-ownership="loadRoom"
           />
         </div>
       </div>
@@ -277,7 +279,7 @@ const props = defineProps({
 });
 
 const reloadInterval = ref(null);
-const loading = ref(false); // Room settings/details loading
+const loadingRoom = ref(false);
 const room = ref(null); // Room object
 const roomAuthToken = ref(null); // Room authentication token
 const authLoading = ref(false); // Room authentication loading
@@ -288,7 +290,6 @@ const rememberedGuestNameValidating = ref(false);
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const personalizedLink = ref(null); // Personalized link token from url or session storage
-const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
 const authThrottledFor = ref(0); // Throttled for authentication (seconds until next try)
@@ -305,15 +306,19 @@ const api = useApi();
 const hashParams = useUrlSearchParams("hash-params");
 
 onMounted(() => {
-  EventBus.on(EVENT_FORBIDDEN, reload);
-  EventBus.on(EVENT_UNAUTHORIZED, reload);
+  EventBus.on(EVENT_FORBIDDEN, loadRoom);
+  EventBus.on(EVENT_UNAUTHORIZED, loadRoom);
+
+  window.addEventListener("hashchange", handleHashChange);
 
   initializeRoomView();
 });
 
 onUnmounted(() => {
-  EventBus.off(EVENT_UNAUTHORIZED, reload);
-  EventBus.off(EVENT_FORBIDDEN, reload);
+  EventBus.off(EVENT_UNAUTHORIZED, loadRoom);
+  EventBus.off(EVENT_FORBIDDEN, loadRoom);
+
+  window.removeEventListener("hashchange", handleHashChange);
 
   stopAutoRefresh();
 });
@@ -324,7 +329,7 @@ onUnmounted(() => {
 function startAutoRefresh() {
   if (reloadInterval.value === null) {
     reloadInterval.value = setInterval(
-      reload,
+      loadRoom,
       getRandomRefreshInterval() * 1000,
       true,
     );
@@ -351,6 +356,29 @@ function getRandomRefreshInterval() {
   const absoluteRange = base * percentageRange;
   // Calculate a random refresh internal between (base-range and base+range)
   return base - absoluteRange + Math.random() * absoluteRange * 2;
+}
+
+function handleHashChange() {
+  if (!hashParams.personalizedLink && !hashParams.accessCode) {
+    // Skip if no personalized link or access code is set in the hash params
+    return;
+  }
+
+  stopAutoRefresh();
+
+  // Clear current room state
+  roomAuthToken.value = null;
+  personalizedLink.value = null;
+  accessCodeInput.value = "";
+  room.value = null;
+
+  tokenInvalid.value = false;
+  guestsNotAllowed.value = false;
+  accessCodeInvalid.value = null;
+  formErrors.clear();
+
+  // Reinitialize the room view
+  initializeRoomView();
 }
 
 /**
@@ -395,7 +423,7 @@ function handleInvalidCode() {
 
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
-  reload();
+  loadRoom();
 }
 
 /**
@@ -426,79 +454,13 @@ function handleInvalidPersonalizedLink() {
 }
 
 /**
- * Initial loading of the room
- */
-function load() {
-  // Enable loading indicator
-  roomLoading.value = true;
-
-  // Build room api url, include access code if set
-  const config = {};
-
-  if (roomAuthToken.value) {
-    config.params = {
-      room_auth_token: roomAuthToken.value.id,
-      room_auth_token_type: roomAuthToken.value.type,
-    };
-  }
-
-  const url = "rooms/" + props.id;
-
-  // Load data
-  api
-    .call(url, config)
-    .then((response) => {
-      room.value = response.data.data;
-
-      setPageTitle(room.value.name);
-
-      startAutoRefresh();
-    })
-    .catch((error) => {
-      if (error.response) {
-        // Room auth token is invalid
-        if (
-          error.response.status === HTTP_STATUS_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
-        ) {
-          return handleInvalidRoomAuthToken();
-        }
-
-        // Forbidden, guests not allowed
-        if (
-          error.response.status === HTTP_STATUS_FORBIDDEN &&
-          error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
-        ) {
-          guestsNotAllowed.value = true;
-          return;
-        }
-      }
-
-      api.error(error, {
-        redirectOnUnauthenticated: false,
-      });
-    })
-    .finally(() => {
-      // Disable loading indicator
-      roomLoading.value = false;
-    });
-}
-
-watch(authThrottledFor, (value) => {
-  if (value > 0) {
-    setTimeout(() => {
-      authThrottledFor.value = value - 1;
-    }, 1000);
-  }
-});
-
-/**
- * Reload the room details/settings
+ * Load the room details/settings
  * @param {boolean} [checkForRequireCodeError=false]
  */
-function reload(checkForRequireCodeError = false) {
+function loadRoom(checkForRequireCodeError = false) {
   // Enable loading indicator
-  loading.value = true;
+  loadingRoom.value = true;
+
   // Build room api url, include access code if set
   const config = {};
 
@@ -515,6 +477,9 @@ function reload(checkForRequireCodeError = false) {
   api
     .call(url, config)
     .then((response) => {
+      const isInitialLoad = room.value === null;
+      const wasAuthenticatedUser = authStore.isAuthenticated;
+
       // Room was authenticated but now requires an access code
       if (
         checkForRequireCodeError &&
@@ -526,13 +491,25 @@ function reload(checkForRequireCodeError = false) {
 
       room.value = response.data.data;
 
-      setPageTitle(room.value.name, false);
+      // Set page title to room name, announce only on initial load
+      setPageTitle(room.value.name, isInitialLoad);
 
       startAutoRefresh();
 
       // Update current user, if logged in/out in another tab or session expired
       // to have the can/cannot component use the correct state
       authStore.setCurrentUser(room.value.current_user);
+
+      if (wasAuthenticatedUser && !authStore.isAuthenticated) {
+        // User was authenticated before but now is a guest
+        // -> load saved guest name from local storage
+        loadSavedGuestName();
+      } else if (!wasAuthenticatedUser && authStore.isAuthenticated) {
+        // User was guest before but now is authenticated
+        // -> clear loaded guest name
+        guestName.value = "";
+        rememberedGuestNameInvalid.value = false;
+      }
 
       guestsNotAllowed.value = false;
     })
@@ -560,9 +537,17 @@ function reload(checkForRequireCodeError = false) {
     })
     .finally(() => {
       // Disable loading indicator
-      loading.value = false;
+      loadingRoom.value = false;
     });
 }
+
+watch(authThrottledFor, (value) => {
+  if (value > 0) {
+    setTimeout(() => {
+      authThrottledFor.value = value - 1;
+    }, 1000);
+  }
+});
 
 /**
  * Initialize room view, authenticate if personalized link is provided and initial
@@ -585,7 +570,7 @@ async function initializeRoomView() {
       personalizedLink.value,
     ).then((success) => {
       if (success) {
-        load();
+        loadRoom();
       }
     });
   } else if (
@@ -598,14 +583,14 @@ async function initializeRoomView() {
     authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCodeInput.value).then(
       (success) => {
         if (success) {
-          load();
+          loadRoom();
         }
       },
     );
   } else {
     // No automatic authentication can or needs to be performed. Load the room details;
     // if authentication is required, the access code overlay will allow manual room login.
-    load();
+    loadRoom();
   }
 }
 
@@ -633,12 +618,12 @@ function login() {
       if (success) {
         syncGuestNameStorage();
         // Reload room details after authentication
-        reload(true);
+        loadRoom(true);
       }
     });
   } else {
     syncGuestNameStorage();
-    reload(true);
+    loadRoom(true);
   }
 }
 
@@ -702,6 +687,11 @@ function authenticate(type, codeOrToken) {
             } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
               sessionStorage.removeItem("roomAccessCode_" + props.id);
               formErrors.set(error.response.data.errors);
+
+              // Load room if room was not yet loaded
+              if (room.value === null) {
+                loadRoom();
+              }
             }
             return;
           }
@@ -711,6 +701,11 @@ function authenticate(type, codeOrToken) {
             error.response.data?.limit === "room_auth"
           ) {
             authThrottledFor.value = error.response.data.retry_after;
+
+            // Load room if room was not yet loaded
+            if (room.value === null) {
+              loadRoom();
+            }
           }
           // Room personalized link is invalid
           if (

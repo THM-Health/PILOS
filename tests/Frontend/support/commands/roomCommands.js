@@ -189,6 +189,7 @@ Cypress.Commands.add(
 
     cy.visit("/rooms/abc-def-123#tab=files");
     cy.reload();
+
     cy.wait("@roomRequestAuthErrorsLoadingTab");
     cy.wait("@roomFilesRequestAuthErrorsLoadingTab");
 

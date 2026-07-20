@@ -1049,6 +1049,8 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
+    cy.interceptRoomFilesRequest();
+
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
       statusCode: 200,
       body: {
@@ -1381,6 +1383,8 @@ describe("Rooms view meetings", function () {
         body: room,
       }).as("roomRequest");
     });
+
+    cy.interceptRoomFilesRequest();
 
     // Test guests not allowed
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/join", {
@@ -2611,6 +2615,8 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
+    cy.interceptRoomFilesRequest();
+
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {
       statusCode: 200,
       body: {
@@ -3012,6 +3018,8 @@ describe("Rooms view meetings", function () {
         body: room,
       }).as("roomRequest");
     });
+
+    cy.interceptRoomFilesRequest();
 
     // Test guests not allowed
     cy.intercept("OPTIONS", "api/v1/rooms/abc-def-123/start", {

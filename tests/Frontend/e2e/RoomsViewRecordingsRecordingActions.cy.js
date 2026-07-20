@@ -582,17 +582,6 @@ describe("Rooms view recordings recording actions", function () {
 
     // Check that room and recordings are reloaded (because of changes in the room (current_user))
     cy.wait("@reloadRoomRequest");
-
-    // Enter guest name
-    cy.get('[data-test="room-access-overlay"]').should("be.visible");
-    cy.get("#participant-name").type("Max Doe");
-
-    cy.intercept("POST", "api/v1/participantName/check", {
-      statusCode: 204,
-    }).as("checkParticipantNameRequest");
-
-    cy.get('[data-test="room-login-button"]').click();
-
     cy.wait("@checkParticipantNameRequest");
 
     cy.get('[data-test="room-access-overlay"]').should("not.exist");
