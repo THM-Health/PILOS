@@ -53,7 +53,7 @@
           <InputText
             id="participant-name"
             v-model="participantNameInput"
-            :disabled="authThrottledFor > 0"
+            :disabled="authThrottledFor > 0 || loading || isLoadingAction"
             :invalid="formErrors.fieldInvalid('name')"
           />
 
@@ -61,7 +61,7 @@
             <Checkbox
               v-model="rememberParticipantName"
               input-id="remember-participant-name"
-              :disabled="authThrottledFor > 0"
+              :disabled="authThrottledFor > 0 || loading || isLoadingAction"
               binary
             />
             <label for="remember-participant-name">
@@ -87,7 +87,7 @@
             :invalid="
               accessCodeInvalid || formErrors.fieldInvalid('access_code')
             "
-            :disabled="authThrottledFor > 0"
+            :disabled="authThrottledFor > 0 || loading || isLoadingAction"
             class="text-center"
             @keydown.enter="submit"
           />
@@ -115,7 +115,7 @@
 <script setup>
 import RoomHeader from "./RoomHeader.vue";
 import { useAuthStore } from "../stores/auth.js";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 import { useI18n } from "vue-i18n";
@@ -191,6 +191,10 @@ onMounted(() => {
   accessCodeInput.value = accessCode.value;
 });
 
+watch(participantName, (value) => {
+  participantNameInput.value = value;
+});
+
 function submit() {
   if (authStore.isAuthenticated) {
     accessCode.value = accessCodeInput.value;
@@ -201,16 +205,18 @@ function submit() {
   props.formErrors.clear();
   isLoadingAction.value = true;
 
+  const newParticipantName = participantNameInput.value;
+
   api
     .call("participantName/check", {
       method: "post",
       data: {
-        name: participantNameInput.value,
+        name: newParticipantName,
       },
     })
     .then(() => {
       accessCode.value = accessCodeInput.value;
-      participantName.value = participantNameInput.value;
+      participantName.value = newParticipantName;
       emit("submit");
     })
     .catch((error) => {

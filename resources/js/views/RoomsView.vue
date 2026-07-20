@@ -838,6 +838,7 @@ async function loadSavedGuestName() {
       });
 
       guestName.value = savedGuestName;
+      rememberedGuestNameInvalid.value = false;
     } catch (error) {
       // Guest name is invalid, set guest name but set invalid state to require manual confirmation
       guestName.value = savedGuestName;

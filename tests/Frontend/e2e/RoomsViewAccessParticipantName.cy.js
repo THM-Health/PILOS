@@ -181,6 +181,7 @@ describe("Rooms View access participant name", function () {
     cy.fixture("room.json").then((room) => {
       room.data.allow_membership = true;
       room.data.current_user = null;
+      room.data.authenticated = false;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
         statusCode: 200,
@@ -232,6 +233,31 @@ describe("Rooms View access participant name", function () {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 0,
+        },
+      },
+    }).as("unexpectedRoomAuthRequest");
+
+    // Reinitializing with an access code
+    cy.window().then((win) => {
+      win.location.hash = "accessCode=123456789";
+    });
+
+    cy.wait("@roomRequest");
+
+    cy.get("@unexpectedRoomAuthRequest").should("be.null");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
+    cy.get("#participant-name").should(
+      "have.value",
+      '<script>alert("HI");</script>',
+    );
+    cy.get("#access-code").should("have.value", "123-456-789");
+
     cy.window().then((win) => {
       win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
     });
@@ -273,6 +299,117 @@ describe("Rooms View access participant name", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 204,
+    }).as("checkParticipantNameRequest");
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 0,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+      room.data.authenticated = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.window().then((win) => {
+      win.location.hash = "accessCode=123456789";
+    });
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        access_code: "123456789",
+        type: 0,
+      });
+    });
+
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "0",
+      });
+    });
+
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
+    cy.contains("rooms.name_in_video_conference").should("be.visible");
+    cy.contains("Laura Rivera").should("be.visible");
+  });
+
+  it("rooms view with remembered participant name after logout", function () {
+    cy.interceptRoomFilesRequest();
+
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    const checkParticipantNameRequest = interceptIndefinitely(
+      "POST",
+      "api/v1/participantName/check",
+      {
+        statusCode: 204,
+      },
+      "checkParticipantNameRequest",
+    );
+
+    cy.fixture("room.json").then((room) => {
+      room.data.allow_membership = true;
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.get('[data-test="reload-room-button"]').click();
+
+    cy.wait("@roomRequest");
+
+    cy.checkToastMessage("rooms.require_access_code");
+
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
+    cy.get("#participant-name")
+      .should("have.value", "")
+      .and("be.disabled")
+      .then(() => {
+        checkParticipantNameRequest.sendResponse();
+      });
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
+
+    cy.get("#participant-name")
+      .should("have.value", "Laura Rivera")
+      .and("not.be.disabled");
+    cy.get("#remember-participant-name").should("be.checked");
+    cy.get('[data-test="access-code-field"]').should("be.visible");
   });
 
   it("change participant name as guest", function () {

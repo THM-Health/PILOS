@@ -16,6 +16,8 @@
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
     :dismissable-mask="false"
+    :close-on-escape="!loading"
+    :closable="!loading"
   >
     <Form id="changeNameForm" @submit="changeParticipantName">
       <div class="field flex flex-col gap-2" data-test="participant-name-field">
@@ -104,17 +106,18 @@ function showChangeNameModal() {
 function changeParticipantName() {
   loading.value = true;
   formErrors.clear();
+  const newParticipantName = participantNameInput.value;
 
   api
     .call("participantName/check", {
       method: "post",
       data: {
-        name: participantNameInput.value,
+        name: newParticipantName,
       },
     })
     .then(() => {
       rememberParticipantName.value = rememberParticipantNameInput.value;
-      emit("participantNameChanged", participantNameInput.value);
+      emit("participantNameChanged", newParticipantName);
 
       changeNameModalVisible.value = false;
     })

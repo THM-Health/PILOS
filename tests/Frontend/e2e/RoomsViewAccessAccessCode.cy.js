@@ -89,6 +89,7 @@ describe("Rooms View access access code", function () {
     cy.get('[data-test="room-login-button"]').click();
 
     // Check loading
+    cy.get("#access-code").should("be.disabled");
     cy.get("[data-test='reload-room-button']").should("be.disabled");
     cy.get('[data-test="room-login-button"]')
       .should("be.disabled")
@@ -509,9 +510,14 @@ describe("Rooms View access access code", function () {
         cy.get("#access-code").type("123456789");
       });
 
-    cy.intercept("POST", "api/v1/participantName/check", {
-      statusCode: 204,
-    }).as("checkParticipantNameRequest");
+    const participantNameRequest = interceptIndefinitely(
+      "POST",
+      "api/v1/participantName/check",
+      {
+        statusCode: 204,
+      },
+      "checkParticipantNameRequest",
+    );
 
     const roomAuthRequest = interceptIndefinitely(
       "POST",
@@ -541,9 +547,26 @@ describe("Rooms View access access code", function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
-    cy.wait("@checkParticipantNameRequest");
+    // Check loading while participant name is validated
+    cy.get("#participant-name").should("be.disabled");
+    cy.get("#remember-participant-name").should("be.disabled");
+    cy.get("#access-code").should("be.disabled");
+    cy.get('[data-test="room-login-button"]')
+      .should("be.disabled")
+      .then(() => {
+        participantNameRequest.sendResponse();
+      });
 
-    // Check loading
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
+
+    // Check loading while room access code is validated
+    cy.get("#participant-name").should("be.disabled");
+    cy.get("#remember-participant-name").should("be.disabled");
+    cy.get("#access-code").should("be.disabled");
     cy.get("[data-test='reload-room-button']").should("be.disabled");
     cy.get('[data-test="room-login-button"]')
       .should("be.disabled")
