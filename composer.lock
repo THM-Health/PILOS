@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ecc5d9539071da996f342f1503989263",
+    "content-hash": "526224e1bf2dff2a18e983daeb9384e5",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3014,137 +3014,6 @@
                 }
             ],
             "time": "2026-03-08T20:05:35+00:00"
-        },
-        {
-            "name": "littleredbutton/bigbluebutton-api-php",
-            "version": "6.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/littleredbutton/bigbluebutton-api-php.git",
-                "reference": "0178d70c05c2bcf35efbfe57a423e068c6edb15e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/0178d70c05c2bcf35efbfe57a423e068c6edb15e",
-                "reference": "0178d70c05c2bcf35efbfe57a423e068c6edb15e",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-mbstring": "*",
-                "ext-simplexml": "*",
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "nyholm/psr7": "^1.4",
-                "psr/http-client": "^1.0",
-                "psr/http-factory": "^1.0",
-                "psr/http-message": "^1.0 || ^2.0",
-                "symfony/dotenv": "^5.4|^6.4|^7.0",
-                "symfony/http-client": "^5.4|^6.4|^7.0",
-                "symfony/http-client-contracts": "^1.1|^2.0|^3.0",
-                "symfony/process": "^5.4|^6.4|^7.0"
-            },
-            "suggest": {
-                "psr/http-client-implementation": "To use the PsrHttpClientTransport.",
-                "psr/http-factory-implementation": "To use the PsrHttpClientTransport.",
-                "psr/http-message": "To use the PsrClientHttpTransport.",
-                "symfony/http-client": "To use the SymfonyHttpClientTransport.",
-                "symfony/http-client-contracts": "To use the SymfonyHttpClientTransport."
-            },
-            "type": "library",
-            "extra": {
-                "cotor": {
-                    "extensions": {
-                        "phpunit/phpunit": {
-                            "fakerphp/faker": "1.20.*"
-                        }
-                    },
-                    "vimeo/psalm": "^5.23",
-                    "rector/rector": "^1.0",
-                    "phpstan/phpstan": "^1.10",
-                    "phpunit/phpunit": "^9",
-                    "friendsofphp/php-cs-fixer": "^3.3",
-                    "brainmaestro/composer-git-hooks": "^2.8"
-                },
-                "hooks": {
-                    "pre-push": [
-                        "tools/phpunit --testsuite=\"BigBlueButton unit test suite,BigBlueButton integration test suite\"",
-                        "tools/psalm --threads=1",
-                        "tools/phpstan analyse",
-                        "tools/rector process --dry-run src/ tests/"
-                    ],
-                    "post-merge": "composer install",
-                    "pre-commit": [
-                        "tools/php-cs-fixer fix --dry-run --allow-risky=yes"
-                    ],
-                    "post-checkout": "composer install"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "BigBlueButton\\": [
-                        "src",
-                        "tests/integration"
-                    ]
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Ghazi Triki",
-                    "email": "ghazi.triki@riadvice.tn",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Klaus Herberth",
-                    "email": "klaus@jsxc.org",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Samuel Weirich",
-                    "email": "samuel@coding-space.de",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Jignesh Joisar",
-                    "email": "jigneshjoisar@gmail.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Pablo Ogando",
-                    "email": "pablo.ogando@teltek.es",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Alfonso Rodríguez",
-                    "email": "arodriguez@teltek.es",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Felix Jacobi",
-                    "email": "felix@jacobi-hamburg.net",
-                    "role": "Developer"
-                }
-            ],
-            "description": "BigBlueButton PHP API Library for PHP",
-            "homepage": "http://bigbluebutton.org/",
-            "keywords": [
-                "api",
-                "bbb",
-                "bigbluebutton"
-            ],
-            "support": {
-                "docs": "https://github.com/littleredbutton/bigbluebutton-api-php/blob/master/README.md",
-                "issues": "https://github.com/littleredbutton/bigbluebutton-api-php/issues",
-                "source": "https://github.com/littleredbutton/bigbluebutton-api-php/"
-            },
-            "time": "2025-11-17T12:30:55+00:00"
         },
         {
             "name": "livewire/livewire",
@@ -9652,6 +9521,137 @@
                 }
             ],
             "time": "2026-06-27T08:56:37+00:00"
+        },
+        {
+            "name": "thm-health/bigbluebutton-api-php",
+            "version": "7.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/THM-Health/bigbluebutton-api-php.git",
+                "reference": "016e2097a8b60e60af4ca47188f6e32212a9718a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/THM-Health/bigbluebutton-api-php/zipball/016e2097a8b60e60af4ca47188f6e32212a9718a",
+                "reference": "016e2097a8b60e60af4ca47188f6e32212a9718a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-simplexml": "*",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "nyholm/psr7": "^1.4",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.0 || ^2.0",
+                "symfony/dotenv": "^5.4|^6.4|^7.0",
+                "symfony/http-client": "^5.4|^6.4|^7.0",
+                "symfony/http-client-contracts": "^1.1|^2.0|^3.0",
+                "symfony/process": "^5.4|^6.4|^7.0"
+            },
+            "suggest": {
+                "psr/http-client-implementation": "To use the PsrHttpClientTransport.",
+                "psr/http-factory-implementation": "To use the PsrHttpClientTransport.",
+                "psr/http-message": "To use the PsrClientHttpTransport.",
+                "symfony/http-client": "To use the SymfonyHttpClientTransport.",
+                "symfony/http-client-contracts": "To use the SymfonyHttpClientTransport."
+            },
+            "type": "library",
+            "extra": {
+                "cotor": {
+                    "extensions": {
+                        "phpunit/phpunit": {
+                            "fakerphp/faker": "1.24.*"
+                        }
+                    },
+                    "vimeo/psalm": "^5.23",
+                    "rector/rector": "^1.0",
+                    "phpstan/phpstan": "^1.10",
+                    "phpunit/phpunit": "^10",
+                    "friendsofphp/php-cs-fixer": "^3.3",
+                    "brainmaestro/composer-git-hooks": "^2.8"
+                },
+                "hooks": {
+                    "pre-push": [
+                        "tools/phpunit --testsuite=\"BigBlueButton unit test suite,BigBlueButton integration test suite\"",
+                        "tools/psalm --threads=1",
+                        "tools/phpstan analyse",
+                        "tools/rector process --dry-run src/ tests/"
+                    ],
+                    "post-merge": "composer install",
+                    "pre-commit": [
+                        "tools/php-cs-fixer fix --dry-run --allow-risky=yes"
+                    ],
+                    "post-checkout": "composer install"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "BigBlueButton\\": [
+                        "src",
+                        "tests/integration"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Ghazi Triki",
+                    "email": "ghazi.triki@riadvice.tn",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Klaus Herberth",
+                    "email": "klaus@jsxc.org",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Samuel Weirich",
+                    "email": "samuel@coding-space.de",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Jignesh Joisar",
+                    "email": "jigneshjoisar@gmail.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Pablo Ogando",
+                    "email": "pablo.ogando@teltek.es",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Alfonso Rodríguez",
+                    "email": "arodriguez@teltek.es",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Felix Jacobi",
+                    "email": "felix@jacobi-hamburg.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "BigBlueButton PHP API Library for PHP",
+            "homepage": "http://bigbluebutton.org/",
+            "keywords": [
+                "api",
+                "bbb",
+                "bigbluebutton"
+            ],
+            "support": {
+                "docs": "https://github.com/littleredbutton/bigbluebutton-api-php/blob/master/README.md",
+                "issues": "https://github.com/littleredbutton/bigbluebutton-api-php/issues",
+                "source": "https://github.com/littleredbutton/bigbluebutton-api-php/"
+            },
+            "time": "2026-07-20T15:30:51+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
