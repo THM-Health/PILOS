@@ -49,7 +49,7 @@ class RoomServiceTest extends TestCase
         // Check dial-in number and voice-bridge (pin) are set
         $meeting = $this->room->latestMeeting;
         $this->assertEquals('613-555-1234', $meeting->dial_number);
-        $this->assertEquals(92443, $meeting->voice_bridge);
+        $this->assertEquals('02443', $meeting->voice_bridge);
 
         // Set meeting as ended
         $meetingService = new MeetingService($meeting);

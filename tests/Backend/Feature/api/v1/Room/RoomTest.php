@@ -1592,7 +1592,7 @@ class RoomTest extends TestCase
             ]);
 
         // Test with ended meeting
-        $meeting = Meeting::factory()->create(['room_id' => $room->id, 'dial_number' => '613-555-1234', 'voice_bridge' => '1234']);
+        $meeting = Meeting::factory()->create(['room_id' => $room->id, 'dial_number' => '613-555-1234', 'voice_bridge' => '01234']);
         $room->latestMeeting()->associate($meeting);
         $room->save();
 
@@ -1629,7 +1629,7 @@ class RoomTest extends TestCase
                         ],
                         'dial_in' => [
                             'number' => '613-555-1234',
-                            'pin' => '1234',
+                            'pin' => '01234',
                         ],
                     ],
                 ],
@@ -3895,7 +3895,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -3976,7 +3976,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4188,7 +4188,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4597,7 +4597,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4743,7 +4743,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4846,7 +4846,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4979,7 +4979,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -5101,7 +5101,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>

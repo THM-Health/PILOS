@@ -1740,7 +1740,7 @@ describe("Rooms view meetings", function () {
         end: null,
         dial_in: {
           number: "+49 123 456789",
-          pin: "123456",
+          pin: "01234",
         },
       };
 
@@ -1763,11 +1763,11 @@ describe("Rooms view meetings", function () {
       .should("be.visible")
       .within(() => {
         cy.get("#phone-number").should("have.value", "+49 123 456789");
-        cy.get("#phone-pin").should("have.value", "123456");
+        cy.get("#phone-pin").should("have.value", "01234");
 
         cy.get('[data-test="join-by-phone-call-button"]')
           .should("have.text", "rooms.phone.call")
-          .should("have.attr", "href", "tel:+49123456789,123456#");
+          .should("have.attr", "href", "tel:+49123456789,01234#");
 
         cy.fixture("files/dial-in-qr-code.png", "base64").then(
           (qrCodeImage) => {
