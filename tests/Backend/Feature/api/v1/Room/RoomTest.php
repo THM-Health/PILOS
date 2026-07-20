@@ -1592,7 +1592,7 @@ class RoomTest extends TestCase
             ]);
 
         // Test with ended meeting
-        $meeting = Meeting::factory()->create(['room_id' => $room->id]);
+        $meeting = Meeting::factory()->create(['room_id' => $room->id, 'dial_number' => '613-555-1234', 'voice_bridge' => '1234']);
         $room->latestMeeting()->associate($meeting);
         $room->save();
 
@@ -1608,9 +1608,10 @@ class RoomTest extends TestCase
                     ],
                 ],
             ])
+            ->assertJsonMissingPath('data.last_meeting.dial_in')
             ->assertJsonMissingPath('data.last_meeting.usage');
 
-        // Test with running meeting and usage statistics
+        // Test with running meeting, usage statistics and dial-in
         $meeting->end = null;
         $meeting->save();
 
@@ -1626,10 +1627,55 @@ class RoomTest extends TestCase
                         'usage' => [
                             'participant_count' => 10,
                         ],
+                        'dial_in' => [
+                            'number' => '613-555-1234',
+                            'pin' => '1234',
+                        ],
                     ],
                 ],
             ])
             ->assertJsonCount(1, 'data.last_meeting.usage');
+
+        // Test without dial-in
+        $meeting->dial_number = null;
+        $meeting->voice_bridge = null;
+        $meeting->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => null,
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                        'usage' => [
+                            'participant_count' => 10,
+                        ],
+                        'dial_in' => [
+                            'number' => null,
+                            'pin' => null,
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => null,
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                        'usage' => [
+                            'participant_count' => 10,
+                        ],
+                    ],
+                ],
+            ]);
 
         // Test with server with connection issues
         $meeting->server->error_count = 1;
