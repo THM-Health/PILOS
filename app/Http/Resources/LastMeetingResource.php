@@ -24,7 +24,7 @@ class LastMeetingResource extends JsonResource
             'usage' => $this->when($this->end == null, [
                 'participant_count' => $this->room->participant_count,
             ]),
-            'dial_in' => $this->when($this->end == null && ! in_array($this->dial_number, config('bigbluebutton.invalid_dial_numbers')), [
+            'dial_in' => $this->when($this->end == null, [
                 'number' => $this->dial_number,
                 'pin' => $this->voice_bridge,
             ]),

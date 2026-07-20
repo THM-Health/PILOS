@@ -106,8 +106,13 @@ class RoomService
             // but the api call has not been completed yet therefore the meeting will not be found on the server
             // and the server poller will mark the meeting as ended immediately
             $meeting->start = date('Y-m-d H:i:s');
-            $meeting->dial_number = $createMeetingResponse->getDialNumber();
-            $meeting->voice_bridge = $createMeetingResponse->getVoiceBridge();
+
+            // Store dial-in number and voice-bridge (pin) if valid
+            if (! in_array($createMeetingResponse->getDialNumber(), config('bigbluebutton.invalid_dial_numbers'))) {
+                $meeting->dial_number = $createMeetingResponse->getDialNumber();
+                $meeting->voice_bridge = $createMeetingResponse->getVoiceBridge();
+            }
+
             $meeting->save();
 
             // Change latest meeting or the room to newly created meeting
