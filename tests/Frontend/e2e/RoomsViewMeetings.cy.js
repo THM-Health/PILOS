@@ -1709,6 +1709,79 @@ describe("Rooms view meetings", function () {
     );
   });
 
+  it("join running meeting by phone", function () {
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+        dial_in: {
+          number: null,
+          pin: null,
+        },
+      };
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.wait("@roomRequest");
+
+    // Check if button is not shown, if no dial-number is set
+    cy.get('[data-test="room-join-by-phone-button"]').should("not.exist");
+
+    // Reload with dial-in
+    cy.fixture("room.json").then((room) => {
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+        dial_in: {
+          number: "+49 123 456789",
+          pin: "123456",
+        },
+      };
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get('[data-test="room-join-by-phone-button"]')
+      .should("exist")
+      .should("have.text", "rooms.phone.join_by_phone")
+      .click();
+
+    cy.get('[data-test="room-join-by-phone-overlay"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#phone-number").should("have.value", "+49 123 456789");
+        cy.get("#phone-pin").should("have.value", "123456");
+
+        cy.get('[data-test="join-by-phone-call-button"]')
+          .should("have.text", "rooms.phone.call")
+          .should("have.attr", "href", "tel:+49123456789,123456#");
+
+        cy.fixture("files/dial-in-qr-code.png", "base64").then(
+          (qrCodeImage) => {
+            cy.get('[data-test="join-by-phone-qr-code"]')
+              .should("be.visible")
+              .should("have.attr", "src")
+              .then((src) => {
+                expect(src).to.equal("data:image/png;base64," + qrCodeImage);
+              });
+          },
+        );
+      });
+  });
+
   it("start meeting", function () {
     const startRequest = interceptIndefinitely(
       "POST",
