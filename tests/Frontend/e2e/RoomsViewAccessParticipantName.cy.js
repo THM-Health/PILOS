@@ -252,10 +252,7 @@ describe("Rooms View access participant name", function () {
 
     cy.get("@unexpectedRoomAuthRequest").should("be.null");
     cy.get('[data-test="room-access-overlay"]').should("be.visible");
-    cy.get("#participant-name").should(
-      "have.value",
-      '<script>alert("HI");</script>',
-    );
+    cy.get("#participant-name").should("have.value", "");
     cy.get("#access-code").should("have.value", "123-456-789");
 
     cy.window().then((win) => {

@@ -364,21 +364,7 @@ function handleHashChange() {
     return;
   }
 
-  stopAutoRefresh();
-
-  // Clear current room state
-  roomAuthToken.value = null;
-  personalizedLink.value = null;
-  accessCodeInput.value = "";
-  room.value = null;
-
-  tokenInvalid.value = false;
-  guestsNotAllowed.value = false;
-  accessCodeInvalid.value = null;
-  formErrors.clear();
-
-  // Reinitialize the room view
-  initializeRoomView();
+  window.location.reload();
 }
 
 /**
