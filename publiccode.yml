@@ -14,10 +14,15 @@ categories:
   - video-conferencing
 usedBy:
   - Technische Hochschule Mittelhessen
+  - Universität Osnabrück
   - Goethe-Universität Frankfurt am Main
   - Universität Innsbruck
-  - Universität Osnabrück
+  - Hochschule für nachhaltige Entwicklung Eberswalde
+  - Hochschule der Polizei des Landes Brandenburg
   - Kompetenzzentrum für Telemedizin und E-Health Hessen (KTE Hessen)
+  - IT-Dienstleistungszentrum des Freistaats Bayern (LDBV)
+  - infra.run Service GmbH
+  - Hosterra SAS
 developmentStatus: stable
 softwareType: standalone/web
 maintenance:
