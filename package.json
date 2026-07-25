@@ -67,6 +67,7 @@
     "primeicons": "^7.0.0",
     "primelocale": "^2.4.0",
     "primevue": "^4.5.5",
+    "qrcode": "^1.5.4",
     "tailwindcss": "^4.1.14",
     "tailwindcss-primeui": "^0.6.1",
     "ua-parser-js": "^1.0.41",

@@ -128,7 +128,7 @@ class BigBlueButtonServerFaker
                     <internalMeetingID>5756487f8952a40879db59f8fe4085798cb79ccc-1695892370102</internalMeetingID>
                     <parentMeetingID>bbb-none</parentMeetingID>
                     <createTime>1695892370102</createTime>
-                    <voiceBridge>92443</voiceBridge>
+                    <voiceBridge>02443</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <createDate>Thu Sep 28 09:12:50 UTC 2023</createDate>
                     <hasUserJoined>false</hasUserJoined>

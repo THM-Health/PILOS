@@ -86,7 +86,10 @@ class RoomService
             $meetingService = new MeetingService($meeting);
 
             Log::info('Starting new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
-            if (! $meetingService->start()) {
+
+            $createMeetingResponse = $meetingService->start();
+
+            if (! $createMeetingResponse) {
                 // Creating Meeting failed, remove meeting
                 $meeting->forceDelete();
 
@@ -103,6 +106,13 @@ class RoomService
             // but the api call has not been completed yet therefore the meeting will not be found on the server
             // and the server poller will mark the meeting as ended immediately
             $meeting->start = date('Y-m-d H:i:s');
+
+            // Store dial-in number and voice-bridge (pin) if valid
+            if (! in_array($createMeetingResponse->getDialNumber(), config('bigbluebutton.invalid_dial_numbers'))) {
+                $meeting->dial_number = $createMeetingResponse->getDialNumber();
+                $meeting->voice_bridge = $createMeetingResponse->getVoiceBridge();
+            }
+
             $meeting->save();
 
             // Change latest meeting or the room to newly created meeting

@@ -25,7 +25,6 @@
     "laravel/sanctum": "^v4.0",
     "laravel/telescope": "^5.0",
     "laravel/tinker": "^3.0",
-    "littleredbutton/bigbluebutton-api-php": "^6.0",
     "maennchen/zipstream-php": "^3.1",
     "nunomaduro/collision": "^8.1",
     "phpoffice/phpspreadsheet": "^5.7",
@@ -37,6 +36,7 @@
     "spatie/laravel-ignition": "^2.0",
     "spatie/laravel-settings": "^3.3",
     "symfony/var-exporter": "8.0.14",
+    "thm-health/bigbluebutton-api-php": "^7.0",
     "web-token/jwt-framework": "^4.0"
   },
   "require-dev": {
