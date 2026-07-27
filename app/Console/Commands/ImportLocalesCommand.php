@@ -119,7 +119,7 @@ class ImportLocalesCommand extends Command
         }
 
         $this->info('Apply coding standards');
-        Process::run('composer run fix-cs '.$disk->path('/'));
+        Process::run(['composer', 'run', 'fix-cs', $disk->path('/')]);
     }
 
     /**

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'bar' => 'We\'ve send an email!',
+    'bar' => 'We\'ve sent an email!',
     'baz' => [
         'baz' => 'qux',
         'foo' => 'bar',
