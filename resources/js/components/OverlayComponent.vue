@@ -7,7 +7,7 @@
     <div
       v-if="props.show"
       data-test="overlay"
-      class="inset-0 backdrop-blur-sm"
+      class="inset-0 backdrop-blur-xs"
       :class="fixed ? 'fixed' : 'absolute'"
       :style="{ 'z-index': props.zIndex }"
     >

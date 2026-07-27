@@ -131,15 +131,15 @@ Cypress.Commands.add("interceptRoomHistoryRequests", () => {
 });
 
 /**
- * Intercept all requests that are needed when visiting the token/personalized links tab of a room (rooms/abc-def-123)
+ * Intercept all requests that are needed when visiting the personalized links tab of a room (rooms/abc-def-123)
  * @memberof cy
  * @method interceptRoomPersonalizedLinksRequests
  * @returns void
  */
 Cypress.Commands.add("interceptRoomPersonalizedLinksRequests", () => {
-  cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
-    fixture: "roomTokens.json",
-  }).as("roomTokensRequest");
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
+    fixture: "roomPersonalizedLinks.json",
+  }).as("roomPersonalizedLinksRequest");
 });
 
 /**

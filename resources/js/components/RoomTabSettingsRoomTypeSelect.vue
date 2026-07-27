@@ -3,8 +3,8 @@
     :data-test="'room-setting-' + setting"
     :class="
       fullWidth
-        ? 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
-        : 'col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
+        ? 'field col-span-12 row-span-2 grid grid-rows-subgrid gap-0'
+        : 'field col-span-12 row-span-2 grid grid-rows-subgrid gap-0 md:col-span-6 xl:col-span-3'
     "
   >
     <div class="mb-2 flex flex-col justify-end">
@@ -44,20 +44,28 @@
         :draggable="false"
         :dismissable-mask="false"
       >
-        <div class="flex flex-col gap-2">
-          <label id="room-type-label">{{
-            $t("rooms.settings.general.type")
-          }}</label>
-          <RoomTypeSelect
-            ref="roomTypeSelect"
-            v-model="newRoomType"
-            :room-id="room.id"
-            aria-labelledby="room-type-label"
-            :redirect-on-unauthenticated="false"
-            @loading-error="(value) => (roomTypeSelectLoadingError = value)"
-            @busy="(value) => (roomTypeSelectBusy = value)"
-          />
-        </div>
+        <Form
+          id="room-type-change-form"
+          :disabled="
+            roomTypeSelectLoadingError || !newRoomType || roomTypeSelectBusy
+          "
+          @submit="handleOk"
+        >
+          <div class="field flex flex-col gap-2">
+            <label id="room-type-label">{{
+              $t("rooms.settings.general.type")
+            }}</label>
+            <RoomTypeSelect
+              ref="roomTypeSelect"
+              v-model="newRoomType"
+              :room-id="room.id"
+              aria-labelledby="room-type-label"
+              :redirect-on-unauthenticated="false"
+              @loading-error="(value) => (roomTypeSelectLoadingError = value)"
+              @busy="(value) => (roomTypeSelectBusy = value)"
+            />
+          </div>
+        </Form>
 
         <template #footer>
           <div class="flex justify-end gap-2">
@@ -74,7 +82,8 @@
                 roomTypeSelectLoadingError || !newRoomType || roomTypeSelectBusy
               "
               data-test="dialog-save-button"
-              @click="handleOk"
+              form="room-type-change-form"
+              type="submit"
             />
           </div>
         </template>
@@ -94,7 +103,7 @@
 
 <script setup>
 import { ref } from "vue";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
 import { resetSetting } from "../composables/useRoomHelpers.js";
 const model = defineModel({ type: Object });

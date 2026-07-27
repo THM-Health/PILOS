@@ -1,17 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth;
 
 use App\Models\Role;
 use App\Models\User;
 use App\Settings\GeneralSettings;
-use Hash;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Log;
+use Illuminate\Support\Str;
 use Spatie\Image\Enums\Fit;
 use Spatie\Image\Image;
-use Str;
 
 /**
  * ExternalUser is an abstract class that represents an external user.
@@ -50,9 +53,9 @@ abstract class ExternalUser
      * Add a value to an attribute.
      *
      * @param  string  $name  The name of the attribute.
-     * @param  mixed  $value  The value to add to the attribute.
+     * @param  string|null  $value  The value to add to the attribute.
      */
-    public function addAttributeValue($name, $value)
+    public function addAttributeValue(string $name, ?string $value)
     {
         if (! isset($this->attributes[$name])) {
             $this->attributes[$name] = [];
@@ -95,6 +98,8 @@ abstract class ExternalUser
     /**
      * Validate the required attributes.
      * Throws a MissingAttributeException if the attribute is not set.
+     *
+     * @throws MissingAttributeException
      */
     public function validate()
     {
@@ -114,6 +119,9 @@ abstract class ExternalUser
         }
     }
 
+    /**
+     * @throws MissingAttributeException
+     */
     public function syncWithEloquentModel(User $eloquentUser, array $roles): User
     {
         // Validate attributes
@@ -142,27 +150,83 @@ abstract class ExternalUser
     public function syncImage($eloquentUser): void
     {
         $image = $this->getFirstAttributeValue('image');
-        if ($image) {
+        if ($image != null && $image !== '') {
             // External authenticator provided an image
 
+            // Path to store temporary image
+            $tempFile = tempnam(sys_get_temp_dir(), 'profile_image');
+
             try {
-                // Get hash of image
-                $imageHash = hash('sha256', $image);
+                // Check if image is a url or binary
+                if (Str::isUrl($image, ['https'])) {
+                    // Image is a URL
 
-                // Check if profile image is already set to the same file
-                if ($eloquentUser->external_image_hash == $imageHash) {
-                    return;
-                }
+                    $host = strtolower((string) parse_url($image, PHP_URL_HOST));
+                    $trustedHosts = array_filter(array_map('strtolower', config('services.oidc.profile_image_trusted_hosts')));
 
-                // Write image to temporary location
-                $tempFile = tempnam(sys_get_temp_dir(), 'profile_image');
-                file_put_contents($tempFile, $image);
+                    // If no trusted hosts are configured, reject all hosts
+                    if (empty($trustedHosts)) {
+                        throw new \Exception('Rejected host '.$host.'. No trusted hosts configured for profile images.');
+                    }
+                    // Check if host is in allowlist
+                    if (! in_array($host, $trustedHosts, true)) {
+                        throw new \Exception('Rejected host '.$host.'. Not in trusted hosts for profile images.');
+                    }
 
-                $uploadedImage = new UploadedFile($tempFile, 'profile_image.jpg');
+                    // Fetch image from URL
+                    $response = Http::sink($tempFile)->get($image)->throw();
 
-                // Validate image
-                if ($uploadedImage->getMimeType() != 'image/jpeg') {
-                    throw new \Exception('Invalid image type: '.$uploadedImage->getMimeType());
+                    // Get hash of image
+                    $imageHash = hash_file('sha256', $tempFile);
+
+                    // Check if the profile image is already set to the same file
+                    if ($eloquentUser->external_image_hash == $imageHash) {
+                        // Clean up temporary file
+                        unlink($tempFile);
+
+                        return;
+                    }
+
+                    // Check content type and determine file extension
+                    $contentType = $response->header('Content-Type');
+                    $fileExtension = match ($contentType) {
+                        'image/jpeg' => 'jpg',
+                        'image/png' => 'png',
+                        'image/gif' => 'gif',
+                        default => throw new \Exception('Unsupported image type: '.$contentType),
+                    };
+
+                    $uploadedImage = new UploadedFile($tempFile, 'profile_image.'.$fileExtension);
+
+                    // Validate file size
+                    $fileSize = $uploadedImage->getSize();
+                    $maxFileSize = config('services.oidc.profile_image_max_size') * 1_000_000; // MB to bytes
+                    if ($fileSize > $maxFileSize) {
+                        throw new \Exception('Image file size exceeds maximum allowed size. Actual: '.$fileSize.' bytes, Max. allowed: '.$maxFileSize.' bytes.');
+                    }
+                } else {
+                    // Image is a Binary string
+
+                    // Get hash of image
+                    $imageHash = hash('sha256', $image);
+
+                    // Check if the profile image is already set to the same file
+                    if ($eloquentUser->external_image_hash == $imageHash) {
+                        // Clean up temporary file
+                        unlink($tempFile);
+
+                        return;
+                    }
+
+                    // Write image to a temporary location
+                    file_put_contents($tempFile, $image);
+
+                    $uploadedImage = new UploadedFile($tempFile, 'profile_image.jpg');
+
+                    // Validate image
+                    if ($uploadedImage->getMimeType() != 'image/jpeg') {
+                        throw new \Exception('Invalid image type: '.$uploadedImage->getMimeType());
+                    }
                 }
 
                 // Save new image and crop it to 100x100
@@ -170,9 +234,6 @@ abstract class ExternalUser
                 Image::load(Storage::disk('public')->path($filename))
                     ->fit(fit: Fit::Crop, desiredWidth: 100, desiredHeight: 100)
                     ->save();
-
-                // Remove temporary file
-                unlink($tempFile);
 
                 // Clean up old image if exists
                 if ($eloquentUser->image) {
@@ -190,6 +251,12 @@ abstract class ExternalUser
                     'error' => $e->getMessage(),
                 ]);
             }
+
+            // Clean up temporary file if exists
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
         } else {
             // No image provided by external authenticator
 

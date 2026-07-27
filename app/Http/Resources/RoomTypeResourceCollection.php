@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources;
 
+use App\Models\RoomType;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-/** @see \App\Models\RoomType */
+/** @see RoomType */
 class RoomTypeResourceCollection extends ResourceCollection
 {
     private $withDefaultRoomSettings = false;
@@ -36,23 +40,22 @@ class RoomTypeResourceCollection extends ResourceCollection
     }
 
     /**
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'data' => $this->collection->map(function (\App\Models\RoomType $roomType) {
-                $resource = new RoomType($roomType);
+            'data' => $this->collection->map(function (RoomTypeResource $roomTypeResource) {
                 if ($this->withDefaultRoomSettings) {
-                    $resource->withDefaultRoomSettings();
+                    $roomTypeResource->withDefaultRoomSettings();
                 }
 
                 if ($this->withFeatures) {
-                    $resource->withFeatures();
+                    $roomTypeResource->withFeatures();
                 }
 
-                return $resource;
+                return $roomTypeResource;
             })->all(),
         ];
     }

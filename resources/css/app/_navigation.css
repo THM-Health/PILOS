@@ -1,0 +1,20 @@
+.p-menubar-mobile {
+    justify-content: space-between;
+    width: 100%;
+}
+
+.user-avatar {
+    .p-menubar-item-link {
+        @apply py-1;
+    }
+}
+
+.horizontal-divider {
+    li:not(:first-child):before {
+        content: " | ";
+    }
+}
+
+[tabindex="-1"]:focus {
+    outline: none;
+}

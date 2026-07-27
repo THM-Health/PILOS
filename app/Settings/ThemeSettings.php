@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Settings;
 
 use Spatie\LaravelSettings\Settings;
@@ -17,6 +19,8 @@ class ThemeSettings extends Settings
     public string $primary_color;
 
     public bool $rounded;
+
+    public ?string $custom_css;
 
     public static function group(): string
     {

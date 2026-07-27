@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'authenticator' => 'Authentificateur',
-    'authenticator_id' => 'Authentificateur-ID',
     'change_email' => 'Changer l\'adresse e-mail',
     'change_password' => 'Changer le mot de passe',
     'current_password' => 'Mot de passe actuel',
@@ -11,11 +11,16 @@ return [
         'title' => 'S\'identifier via son e-mail',
     ],
     'error' => [
+        'invalid_request' => 'Échec de l\'authentification en raison d\'une requête invalide.',
         'login_failed' => 'Connexion refusée',
         'missing_attributes' => 'Informations d\'identification manquantes.',
+        'openid_connect_exception' => 'Échec de l\'authentification due à une erreur.',
+        'openid_connect_network_exception' => 'Échec de la connexion au fournisseur d\'authentification.',
         'reason' => 'Cause de l\'erreur',
-        'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation. Veuillez vous connecter à nouveau.',
+        'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation.',
+        'try_again' => 'Reessayez de vous reconnecter ou contactez l\'assistance si le problème persiste.',
     ],
+    'external_user_id' => 'ID d\'utilisateur externe',
     'failed' => 'Ces informations d\'identification ne correspondent pas à nos enregistrements.',
     'flash' => [
         'login' => 'Connexion réussie',
@@ -37,6 +42,12 @@ return [
     'logout_success' => 'Déconnexion réussie',
     'new_password' => 'Nouveau mot de passe',
     'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
+    'oidc' => [
+        'logout_incomplete' => 'Vous êtes toujours connecté au fournisseur OpenID Connect.',
+        'redirect' => 'Connexion',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'Se connecter avec OpenID Connect',
+    ],
     'password' => 'Mot de passe',
     'reset_password' => 'Réinitialiser le mot de passe',
     'send_email_confirm_mail' => 'Un e-mail de vérification a été envoyé à :email. Veuillez confirmer la nouvelle adresse en cliquant sur le lien dans l\'e-mail.',

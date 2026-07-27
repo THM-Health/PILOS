@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\Session;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 
 class SessionTest extends TestCase
@@ -39,7 +42,7 @@ class SessionTest extends TestCase
         $this->currentSession->save();
 
         $this->otherSession = new Session;
-        $this->otherSession->id = \Str::random(40);
+        $this->otherSession->id = Str::random(40);
         $this->otherSession->user_agent = 'Agent 2';
         $this->otherSession->ip_address = $this->faker->ipv4;
         $this->otherSession->payload = '';
@@ -48,7 +51,7 @@ class SessionTest extends TestCase
         $this->otherSession->save();
 
         $this->otherUserSession = new Session;
-        $this->otherUserSession->id = \Str::random(40);
+        $this->otherUserSession->id = Str::random(40);
         $this->otherUserSession->user_agent = 'Agent 3';
         $this->otherUserSession->ip_address = $this->faker->ipv4;
         $this->otherUserSession->payload = '';

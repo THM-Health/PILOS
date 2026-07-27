@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateSettings;
-use App\Http\Resources\Config;
-use App\Http\Resources\Settings;
+use App\Http\Requests\UpdateSettingsRequest;
+use App\Http\Resources\ConfigResource;
+use App\Http\Resources\SettingsResource;
 use App\Settings\BannerSettings;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
@@ -17,6 +19,7 @@ use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SettingsController extends Controller
 {
@@ -29,7 +32,7 @@ class SettingsController extends Controller
             return ! in_array($style, LinkButtonStyle::getDeprecated());
         });
 
-        return (new Settings)->additional([
+        return (new SettingsResource)->additional([
             'meta' => [
                 'link_btn_styles' => $linkStyles,
                 'link_targets' => LinkTarget::cases(),
@@ -41,9 +44,9 @@ class SettingsController extends Controller
     /**
      * Update application config
      *
-     * @return Config
+     * @return ConfigResource
      */
-    public function update(UpdateSettings $request)
+    public function update(UpdateSettingsRequest $request)
     {
         $generalSettings = app(GeneralSettings::class);
         $themeSettings = app(ThemeSettings::class);
@@ -89,6 +92,29 @@ class SettingsController extends Controller
             $faviconDark = $request->input('theme_favicon_dark');
         }
 
+        // Custom CSS file
+        if ($request->has('theme_custom_css')) {
+            // Remove current file if existing
+            if ($themeSettings->custom_css !== null) {
+
+                $file_path = substr($themeSettings->custom_css, strlen('/storage/'));
+                Storage::disk('public')->delete($file_path);
+
+            }
+
+            if (! empty($request->file('theme_custom_css'))) {
+                // New file uploaded, create random file name and store file
+                $fileName = Str::random(40).'.css';
+                $path = $request->file('theme_custom_css')->storeAs('styles', $fileName, 'public');
+                $url = Storage::url($path);
+
+                $themeSettings->custom_css = $url;
+            } else {
+                // No file uploaded, set to null
+                $themeSettings->custom_css = null;
+            }
+        }
+
         // Default presentation for BBB
         if ($request->has('bbb_default_presentation')) {
             if ($bigBlueButtonSettings->default_presentation != null) {
@@ -108,7 +134,7 @@ class SettingsController extends Controller
             $path = $request->file('bbb_logo_file')->store('images', 'public');
             $url = Storage::url($path);
             $bigBlueButtonSettings->logo = url($url);
-        } elseif ($request->has('bbb_logo') && trim($request->input('bbb_logo') != '')) {
+        } elseif ($request->has('bbb_logo') && $request->input('bbb_logo') != '') {
             $bigBlueButtonSettings->logo = $request->input('bbb_logo');
         } else {
             $bigBlueButtonSettings->logo = null;
@@ -119,7 +145,7 @@ class SettingsController extends Controller
             $path = $request->file('bbb_logo_dark_file')->store('images', 'public');
             $url = Storage::url($path);
             $bigBlueButtonSettings->logo_dark = url($url);
-        } elseif ($request->has('bbb_logo_dark') && trim($request->input('bbb_logo_dark') != '')) {
+        } elseif ($request->has('bbb_logo_dark') && $request->input('bbb_logo_dark') != '') {
             $bigBlueButtonSettings->logo_dark = $request->input('bbb_logo_dark');
         } else {
             $bigBlueButtonSettings->logo_dark = null;
@@ -143,6 +169,7 @@ class SettingsController extends Controller
         $generalSettings->help_url = $request->input('general_help_url');
         $generalSettings->legal_notice_url = $request->input('general_legal_notice_url');
         $generalSettings->privacy_policy_url = $request->input('general_privacy_policy_url');
+        $generalSettings->accessibility_statement_url = $request->input('general_accessibility_statement_url');
         $generalSettings->toast_lifetime = $request->integer('general_toast_lifetime');
         $generalSettings->no_welcome_page = $request->boolean('general_no_welcome_page');
 
@@ -154,11 +181,12 @@ class SettingsController extends Controller
         $themeSettings->rounded = $request->boolean('theme_rounded');
 
         $roomSettings->limit = $request->integer('room_limit');
-        $roomSettings->token_expiration = $request->enum('room_token_expiration', TimePeriod::class);
+        $roomSettings->personalized_link_expiration = $request->enum('room_personalized_link_expiration', TimePeriod::class);
         $roomSettings->auto_delete_inactive_period = $request->enum('room_auto_delete_inactive_period', TimePeriod::class);
         $roomSettings->auto_delete_never_used_period = $request->enum('room_auto_delete_never_used_period', TimePeriod::class);
         $roomSettings->auto_delete_deadline_period = $request->enum('room_auto_delete_deadline_period', TimePeriod::class);
         $roomSettings->file_terms_of_use = $request->input('room_file_terms_of_use');
+        $roomSettings->hide_owner_from_guests = $request->boolean('room_hide_owner_from_guests');
 
         $userSettings->password_change_allowed = $request->boolean('user_password_change_allowed');
 
@@ -179,6 +207,8 @@ class SettingsController extends Controller
         $recordingSettings->meeting_usage_retention_period = $request->enum('recording_meeting_usage_retention_period', TimePeriod::class);
         $recordingSettings->attendance_retention_period = $request->enum('recording_attendance_retention_period', TimePeriod::class);
         $recordingSettings->recording_retention_period = $request->enum('recording_recording_retention_period', TimePeriod::class);
+
+        $bigBlueButtonSettings->default_welcome_message = $request->input('bbb_default_welcome_message');
 
         $generalSettings->save();
         $themeSettings->save();

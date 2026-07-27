@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Rules;
 
 use App\Rules\Antivirus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\InteractWithMetrics;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
 class AntivirusTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractWithMetrics, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -25,8 +27,10 @@ class AntivirusTest extends TestCase
 
     public function test_validation_skipped_if_disabled()
     {
-        Config::set('antivirus.enabled', false);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => false,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
 
         Http::fake();
 
@@ -40,12 +44,20 @@ class AntivirusTest extends TestCase
         $this->assertFalse($failCalled);
 
         Http::assertNothingSent();
+
+        // Check that the metrics are not changed
+        $metrics = $this->getMetrics();
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="clean"}']);
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="virus"}']);
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="error"}']);
     }
 
     public function test_validation_passes_for_clean_file()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         $file = UploadedFile::fake()->create('clean.txt');
         Http::fake([
             'http://clamav' => Http::response([], 200),
@@ -66,12 +78,20 @@ class AntivirusTest extends TestCase
                 && $data['filename'] === 'clean.txt';
 
         });
+
+        // Check that the metrics are updated
+        $metrics = $this->getMetrics();
+        $this->assertEquals(1, $metrics['pilos_virus_scan_total{result="clean"}']);
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="virus"}']);
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="error"}']);
     }
 
     public function test_validation_fails_for_infected_file()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         $file = UploadedFile::fake()->create('virus.txt');
         Http::fake([
             'http://clamav' => Http::response([
@@ -96,12 +116,20 @@ class AntivirusTest extends TestCase
                 && $log->context['file_path'] === $file->path()
                 && $log->context['request_url'] === url()->current()
         );
+
+        // Check that the metrics are updated
+        $metrics = $this->getMetrics();
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="clean"}']);
+        $this->assertEquals(1, $metrics['pilos_virus_scan_total{result="virus"}']);
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="error"}']);
     }
 
     public function test_validation_fails_for_clamav_error()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         $file = UploadedFile::fake()->create('virus.txt');
         Http::fake([
             'http://clamav' => Http::response([], 500),
@@ -121,12 +149,21 @@ class AntivirusTest extends TestCase
                 && $log->message == 'Virus scan failed'
                 && $log->context['status'] == '500'
         );
+
+        // Check that the metrics are updated
+        $metrics = $this->getMetrics();
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="clean"}']);
+        $this->assertEquals(0, $metrics['pilos_virus_scan_total{result="virus"}']);
+        $this->assertEquals(1, $metrics['pilos_virus_scan_total{result="error"}']);
     }
 
     public function test_validation_fails_on_exception()
     {
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
+
         $file = UploadedFile::fake()->create('virus.txt');
         Http::fake([
             'http://clamav' => Http::failedConnection('timeout'),

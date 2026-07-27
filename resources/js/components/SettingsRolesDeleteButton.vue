@@ -2,7 +2,7 @@
   <Button
     v-tooltip="$t('admin.roles.delete.item', { id: props.name })"
     :aria-label="$t('admin.roles.delete.item', { id: props.name })"
-    :disabled="isBusy"
+    :disabled="isBusy || props.disabled"
     severity="danger"
     icon="fa-solid fa-trash"
     data-test="roles-delete-button"
@@ -46,6 +46,7 @@
 <script setup>
 import { ref } from "vue";
 import { useApi } from "../composables/useApi.js";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const api = useApi();
 
@@ -58,9 +59,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 
 const modalVisible = ref(false);
 const isBusy = ref(false);
@@ -88,6 +93,10 @@ function deleteRole() {
       emit("deleted");
     })
     .catch((error) => {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
+        modalVisible.value = false;
+        emit("notFound");
+      }
       api.error(error);
     })
     .finally(() => {

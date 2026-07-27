@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
@@ -50,7 +52,7 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @return \App\Models\User
+     * @return User
      */
     protected function create(array $data)
     {

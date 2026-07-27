@@ -46,6 +46,7 @@ describe("Admin room types new", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/room_types");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkToastMessage("app.flash.unauthorized");
   });
 
   it("add new room type", function () {
@@ -59,8 +60,8 @@ describe("Admin room types new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
-      .should("include.text", "admin.breakcrumbs.room_types.new");
+      .should("include.text", "admin.breadcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.new");
 
     cy.get('[data-test="room-type-name-field"]')
       .should("be.visible")
@@ -72,8 +73,8 @@ describe("Admin room types new", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
-      .should("include.text", "admin.breakcrumbs.room_types.new");
+      .should("include.text", "admin.breadcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -95,10 +96,8 @@ describe("Admin room types new", function () {
           cy.get('[data-test="color-button"]')
             .eq(i)
             .should("have.attr", "role", "button")
-            .and(
-              "not.have.class",
-              "pointer-events-none cursor-not-allowed opacity-80",
-            )
+            .should("have.class", "cursor-pointer")
+            .and("not.have.class", "pointer-events-none opacity-80")
             .and(i === 0 ? "have.class" : "not.have.class", "selected");
         }
 
@@ -130,7 +129,7 @@ describe("Admin room types new", function () {
       .within(() => {
         cy.get('[data-test="room-type-badge"]')
           .should("have.css", "background-color", "rgb(239, 68, 68)")
-          .and("have.text", "Exam 01");
+          .and("have.text", "rooms.index.room_component.room_type:Exam 01");
       });
 
     cy.get(".multiselect__content").should("not.exist");
@@ -626,10 +625,8 @@ describe("Admin room types new", function () {
         cy.get('[data-test="color-button"]')
           .eq(i)
           .should("have.attr", "role", "button")
-          .and(
-            "have.class",
-            "pointer-events-none cursor-not-allowed opacity-80",
-          );
+          .and("have.class", "pointer-events-none opacity-80")
+          .and("not.have.class", "cursor-pointer");
       }
       cy.get("#custom-color").should("be.disabled");
       cy.get('[data-test="server-pool-dropdown"]').should(
@@ -740,10 +737,10 @@ describe("Admin room types new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
   });
 
@@ -1089,7 +1086,7 @@ describe("Admin room types new", function () {
     cy.intercept("POST", "api/v1/roomTypes", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The name field is required. (and 29 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -1201,6 +1198,8 @@ describe("Admin room types new", function () {
     cy.wait("@newRoomTypeRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 29 more errors)");
+
     cy.get('[data-test="room-type-name-field"]').should(
       "include.text",
       "The name field is required.",

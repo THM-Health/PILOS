@@ -12,6 +12,7 @@ describe("Admin users edit email", function () {
         "users.view",
         "users.update",
         "users.create",
+        "users.delete",
         "roles.viewAny",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
@@ -36,6 +37,9 @@ describe("Admin users edit email", function () {
     cy.wait("@userRequest");
 
     cy.get('[data-test="security-tab-button"]').click();
+
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2/edit#tab=security");
 
     cy.contains("admin.users.roles_and_permissions").should("be.visible");
 
@@ -94,11 +98,9 @@ describe("Admin users edit email", function () {
       }).as("userRequest");
     });
 
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check that role select is shown and enabled
     cy.get('[data-test="roles-field"]')
@@ -124,11 +126,9 @@ describe("Admin users edit email", function () {
   });
 
   it("change role", function () {
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.get('[data-test="role-chip"]').should("have.length", 2);
     cy.get('[data-test="role-chip"]')
@@ -376,6 +376,29 @@ describe("Admin users edit email", function () {
         .click();
 
       // Check loading
+      // Check that tab buttons are disabled
+      cy.get('[data-test="base-tab-button"]').should("be.disabled");
+      cy.get('[data-test="email-tab-button"]').should("be.disabled");
+      cy.get('[data-test="security-tab-button"]').should("be.disabled");
+      cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+      // Check that header buttons are disabled
+      cy.get('button[data-test="users-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-reset-password-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
+      // Check that input fields and buttons are disabled
+      cy.get("#new_password").should("be.disabled");
+      cy.get("#new_password_confirmation").should("be.disabled");
+
+      cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
       cy.get('[data-test="role-dropdown"]').should(
         "have.class",
         "multiselect--disabled",
@@ -394,7 +417,7 @@ describe("Admin users edit email", function () {
     });
 
     // Check that redirect to user view worked
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=security");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
@@ -417,11 +440,9 @@ describe("Admin users edit email", function () {
       });
     });
 
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.get('[data-test="role-dropdown"]').click();
 
@@ -464,16 +485,15 @@ describe("Admin users edit email", function () {
   });
 
   it("change role errors", function () {
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/users/2", {
       statusCode: 422,
       body: {
+        message: "The roles field is required.",
         errors: {
           roles: ["The roles field is required."],
         },
@@ -483,6 +503,9 @@ describe("Admin users edit email", function () {
     cy.get('[data-test="users-roles-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error message
+    cy.checkToastMessage("The roles field is required.");
 
     cy.get('[data-test="roles-field"]').should(
       "include.text",
@@ -523,7 +546,7 @@ describe("Admin users edit email", function () {
       cy.intercept("PUT", "api/v1/users/2", {
         statusCode: 428,
         body: {
-          message: " The user entity was updated in the meanwhile!",
+          message: "stale_model",
           new_model: user.data,
         },
       }).as("saveChangesRequest");
@@ -543,7 +566,10 @@ describe("Admin users edit email", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-user-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user entity was updated in the meanwhile!");
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 
@@ -554,16 +580,16 @@ describe("Admin users edit email", function () {
     cy.wait("@userRequest");
 
     // Visit edit page again
-    cy.visit("/admin/users/2/edit");
-
-    cy.get('[data-test="security-tab-button"]').click();
+    cy.visit("/admin/users/2/edit#tab=security");
 
     // Check with 404 error
     cy.interceptAdminUsersIndexRequests();
     cy.intercept("PUT", "api/v1/users/2 ", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -578,15 +604,13 @@ describe("Admin users edit email", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check with 401 error
     cy.intercept("PUT", "api/v1/users/2", {
@@ -604,11 +628,9 @@ describe("Admin users edit email", function () {
   });
 
   it("change password", function () {
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Type in new password and confirmation
     cy.get("#new_password").type("secretPassword123#");
@@ -631,8 +653,34 @@ describe("Admin users edit email", function () {
         .click();
 
       // Check loading
+      // Check that tab buttons are disabled
+      cy.get('[data-test="base-tab-button"]').should("be.disabled");
+      cy.get('[data-test="email-tab-button"]').should("be.disabled");
+      cy.get('[data-test="security-tab-button"]').should("be.disabled");
+      cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+      // Check that header buttons are disabled
+      cy.get('button[data-test="users-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-reset-password-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
+      // Check that input fields and buttons are disabled
       cy.get("#new_password").should("be.disabled");
-      cy.get("#new_password_confirmation")
+      cy.get("#new_password_confirmation").should("be.disabled");
+
+      cy.get('[data-test="change-password-save-button"]').should("be.disabled");
+
+      cy.get('[data-test="role-dropdown"]').should(
+        "have.class",
+        "multiselect--disabled",
+      );
+      cy.get('[data-test="users-roles-save-button"]')
         .should("be.disabled")
         .then(() => {
           saveChangesRequest.sendResponse();
@@ -650,18 +698,16 @@ describe("Admin users edit email", function () {
     cy.checkToastMessage("auth.flash.password_changed");
 
     // Check that redirect to user view worked
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=security");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
   });
 
   it("change password errors", function () {
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.get('[data-test="new-password-field"]').type(" ");
     cy.get('[data-test="new-password-confirmation-field"]').type(" ");
@@ -670,6 +716,7 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2/password", {
       statusCode: 422,
       body: {
+        message: "The New password field is required. (and 1 more error)",
         errors: {
           new_password: ["The New password field is required."],
           new_password_confirmation: [
@@ -682,6 +729,11 @@ describe("Admin users edit email", function () {
     cy.get('[data-test="change-password-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error messages
+    cy.checkToastMessage(
+      "The New password field is required. (and 1 more error)",
+    );
 
     cy.get('[data-test="new-password-field"]').should(
       "include.text",
@@ -742,7 +794,9 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2/password", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -757,15 +811,13 @@ describe("Admin users edit email", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check 401 error
     cy.get('[data-test="new-password-field"]')
@@ -804,11 +856,9 @@ describe("Admin users edit email", function () {
       "rolesRequest",
     );
 
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check loading
     cy.get('[data-test="users-roles-save-button"]').should("be.disabled");
@@ -888,8 +938,6 @@ describe("Admin users edit email", function () {
 
     cy.reload();
 
-    cy.get('[data-test="security-tab-button"]').click();
-
     cy.wait("@rolesRequest");
 
     // Check that redirect worked and error message is shown
@@ -902,12 +950,9 @@ describe("Admin users edit email", function () {
       fixture: "roles.json",
     }).as("rolesRequest");
 
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
-
     cy.wait("@rolesRequest");
 
     cy.get('[data-test="role-dropdown"]').click();

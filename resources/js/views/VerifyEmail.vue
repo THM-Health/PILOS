@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="mb-8 mt-6 grid grid-cols-12 gap-4">
+    <div class="mt-6 mb-8 grid grid-cols-12 gap-4">
       <div
         class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
       >
@@ -20,7 +20,7 @@
                 </Message>
                 <Message
                   v-else-if="
-                    verificationError === env.HTTP_UNPROCESSABLE_ENTITY
+                    verificationError === HTTP_STATUS_UNPROCESSABLE_ENTITY
                   "
                   severity="error"
                   icon="fa-solid fa-triangle-exclamation"
@@ -48,9 +48,9 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { onMounted, ref } from "vue";
 import { useApi } from "../composables/useApi.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   token: {
@@ -90,7 +90,7 @@ function verifyEmail() {
     .catch((error) => {
       if (error.response) {
         verificationError.value = error.response.status;
-        if (error.response.status !== env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status !== HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           api.error(error);
         }
       }

@@ -1,16 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
+use App\Observers\ServerObserver;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([ServerObserver::class])]
 class Server extends Model
 {
     use AddsModelNameTrait, HasFactory;
@@ -27,82 +32,6 @@ class Server extends Model
         'recover_count' => 'integer',
         'load' => 'integer',
     ];
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::updating(function (self $model) {
-
-            /**
-             * If status is changed and new status is disabled, reset live usage data
-             */
-            if ($model->status != $model->getOriginal('status')) {
-                if ($model->status == ServerStatus::DISABLED) {
-                    $model->version = null;
-                    $model->participant_count = null;
-                    $model->listener_count = null;
-                    $model->voice_participant_count = null;
-                    $model->video_count = null;
-                    $model->meeting_count = null;
-                }
-            }
-        });
-        static::updated(function (self $model) {
-            // Check if server is failing (error count increased or recover count decreased)
-            if ($model->error_count > $model->getOriginal('error_count') || $model->recover_count < $model->getOriginal('recover_count')) {
-                \Log::error('Server {server} failing', [
-                    'server' => $model->getLogLabel(),
-                    'error_count' => $model->error_count,
-                    'old_error_count' => $model->getOriginal('error_count'),
-                ]);
-            }
-
-            // Check if server is recovering (recover count increased)
-            if ($model->recover_count > $model->getOriginal('recover_count')) {
-                \Log::notice('Server {server} recovering', [
-                    'server' => $model->getLogLabel(),
-                    'recover_count' => $model->recover_count,
-                    'old_recover_count' => $model->getOriginal('recover_count'),
-                ]);
-            }
-
-            // Check if server health changed
-            $newHealth = self::calcHealth($model->recover_count, $model->error_count);
-            $previousHealth = self::calcHealth($model->getOriginal('recover_count'), $model->getOriginal('error_count'));
-            if ($newHealth != $previousHealth) {
-                if ($newHealth == ServerHealth::OFFLINE) {
-                    \Log::error('Server {server} health changed to offline', [
-                        'server' => $model->getLogLabel(),
-                        'old_health' => $previousHealth->name,
-                    ]);
-                }
-
-                if ($newHealth == ServerHealth::UNHEALTHY) {
-                    \Log::warning('Server {server} health changed to unhealthy', [
-                        'server' => $model->getLogLabel(),
-                        'old_health' => $previousHealth->name,
-                    ]);
-                }
-
-                if ($newHealth == ServerHealth::ONLINE) {
-                    \Log::notice('Server {server} health changed to healthy', [
-                        'server' => $model->getLogLabel(),
-                        'old_health' => $previousHealth->name,
-                    ]);
-                }
-            }
-        });
-        static::deleting(function (self $model) {
-            // Delete Server, only possible if no meetings from this system are running and the server is disabled
-            if ($model->status != ServerStatus::DISABLED || $model->meetings()->whereNull('end')->count() != 0) {
-                return false;
-            }
-        });
-    }
 
     /**
      * Meetings that (have) run on this server
@@ -139,7 +68,7 @@ class Server extends Model
      * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    public function scopeWithName(Builder $query, string $name)
     {
         return $query->whereLike('name', '%'.$name.'%');
     }
@@ -158,7 +87,7 @@ class Server extends Model
         return self::calcHealth($this->recover_count, $this->error_count);
     }
 
-    private static function calcHealth(int $recover_count, int $error_count): ServerHealth
+    public static function calcHealth(int $recover_count, int $error_count): ServerHealth
     {
         if ($recover_count >= config('bigbluebutton.server_online_threshold')) {
             return ServerHealth::ONLINE;

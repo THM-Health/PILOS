@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Actions',
     'back' => 'Retour',
@@ -43,6 +45,7 @@ return [
         'no_server_available' => 'Actuellement, il n\'y a pas de serveurs disponibles.',
         'not_member_of_room' => 'Cette personne n\'est pas (plus) membre de cette salle.',
         'not_running' => 'Accès échoué ! La salle est actuellement fermée.',
+        'personalized_link_not_found' => 'Le lien de la salle personnalisée est introuvable.',
         'record_agreement_missing' => 'Le consentement à l\'enregistrement est requis.',
         'role_delete_linked_users' => 'Ce rôle est associé à certains utilisateurs et ne peut donc pas être supprimé !',
         'role_update_permission_lost' => 'Ces modifications du rôle vous feraient perdre vos permissions d\'accès et de modification des rôles !',
@@ -57,14 +60,16 @@ return [
         'streaming_error' => 'Erreur de connection au serveur de streaming. Merci de retenter plus tard.',
         'streaming_meeting_not_running' => 'La conférence n\'est pas démarrée.',
         'streaming_not_enabled_for_current_meeting_error' => 'Le streaming n\'est pas activité pour cette conférence.',
-        'token_not_found' => 'Le lien de la salle personnalisée est introuvable.',
     ],
     'filter_no_results' => 'Aucun résultat trouvé',
     'firstname' => 'Prénom',
     'flash' => [
         'client_error' => 'Une erreur inconnue s\'est produite dans l\'application !',
         'guests_only' => 'La demande ne peut être faite que par les invités !',
-        'popup_blocked' => 'Votre navigateur a bloqué une nouvelle fenêtre. Merci d\'autoriser les pop-ups à s\'ouvrir pour cette page puis réessayez.',
+        'model_not_found' => [
+            'details' => 'ID : :ids',
+            'title' => 'Le :model n\'a pas été trouvé !',
+        ],
         'server_error' => [
             'empty_message' => 'Une erreur s\'est produite sur le serveur lors de la requête !',
             'error_code' => 'Code d\'erreur: :statusCode',
@@ -76,6 +81,7 @@ return [
         'unauthorized' => 'Vous n\'avez pas les droits nécessaires pour continuer !',
     ],
     'footer' => [
+        'accessibility' => 'Déclaration d\'accessibilité',
         'legal_notice' => 'Mentions légales',
         'privacy_policy' => 'Politique de confidentialité',
     ],
@@ -88,17 +94,24 @@ return [
         'self' => 'Ouvrir dans l\'onglet actuel',
     ],
     'locales' => [
+        'ar' => 'Arabe',
         'de' => 'Allemand',
         'en' => 'Anglais',
         'fa' => 'Persan',
         'fr' => 'Français',
     ],
     'model' => [
-        'roles' => 'rôle',
-        'room_types' => 'type de salle',
-        'server_pools' => 'groupe de serveurs',
-        'servers' => 'serveur',
-        'users' => 'utilisateur',
+        'meeting' => 'Réunion',
+        'recording' => 'Enregistrement',
+        'recording_format' => 'Format d\'enregistrement',
+        'role' => 'Rôle',
+        'room' => 'Salle',
+        'room_file' => 'Fichier de salle',
+        'room_personalized_link' => 'Lien personnalisé de la salle',
+        'room_type' => 'type de salle',
+        'server' => 'Serveur',
+        'server_pool' => 'Groupe de serveurs',
+        'user' => 'Utilisateur',
     ],
     'model_name' => 'Nom',
     'next' => 'Suivant',

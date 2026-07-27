@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="mb-8 mt-6 grid grid-cols-12 gap-4">
+    <div class="mt-6 mb-8 grid grid-cols-12 gap-4">
       <div
         class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
       >
@@ -13,8 +13,11 @@
             }}
           </template>
           <template #content>
-            <form @submit.prevent="submit">
-              <div class="flex flex-col gap-2" data-test="new-password-field">
+            <Form :disabled="loading" @submit="submit">
+              <div
+                class="field flex flex-col gap-2"
+                data-test="new-password-field"
+              >
                 <label for="new_password">{{ $t("auth.new_password") }}</label>
                 <InputText
                   id="new_password"
@@ -60,7 +63,7 @@
                 "
                 data-test="reset-password-button"
               />
-            </form>
+            </Form>
           </template>
         </Card>
       </div>
@@ -69,13 +72,13 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { useAuthStore } from "../stores/auth";
 import { ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useRouter } from "vue-router";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   token: {
@@ -134,9 +137,10 @@ function submit() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else {
         api.error(error);
       }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'اقدامات',
     'back' => 'بازگشت',
@@ -43,6 +45,7 @@ return [
         'no_server_available' => 'در حال حاضر هیچ سروری در دسترس نیست.',
         'not_member_of_room' => 'این شخص عضو این اتاق نیست (یا دیگر نیست).',
         'not_running' => 'ورود به اتاق ناموفق بود زیرا در حال حاضر بسته است.',
+        'personalized_link_not_found' => 'لینک شخصی‌سازی‌شده اتاق یافت نشد.',
         'record_agreement_missing' => 'رضایت به ضبط مورد نیاز است.',
         'role_delete_linked_users' => 'نقش به کاربران پیوند خورده است و بنابراین نمی‌توان آن را حذف کرد!',
         'role_update_permission_lost' => 'تغییرات نقش منجر به از دست دادن مجوزهای مشاهده و به‌روزرسانی نقش‌ها برای شما می‌شود!',
@@ -57,14 +60,16 @@ return [
         'streaming_error' => 'خطا در برقراری ارتباط با سرور استریم.لطفا بعدا مجدد تلاش کنید.',
         'streaming_meeting_not_running' => 'جلسه در حال برگزاری نیست.',
         'streaming_not_enabled_for_current_meeting_error' => 'پخش زنده برای جلسه جاری فعال نیست.',
-        'token_not_found' => 'لینک شخصی‌سازی‌شده اتاق یافت نشد.',
     ],
     'filter_no_results' => 'نتیجه‌ای یافت نشد',
     'firstname' => 'نام',
     'flash' => [
         'client_error' => 'یک خطای ناشناخته در برنامه رخ داد!',
         'guests_only' => 'این درخواست فقط می‌تواند توسط مهمانان انجام شود!',
-        'popup_blocked' => 'مرورگر شما باز کردن پنجره جدید را مسدود کرده است. لطفاً اجازه نمایش پنجره‌های بازشو را برای این صفحه بدهید و دوباره امتحان کنید.',
+        'model_not_found' => [
+            'details' => 'شناسه: :ids',
+            'title' => 'مدل یافت نشد!',
+        ],
         'server_error' => [
             'empty_message' => 'در حین درخواست خطایی در سرور رخ داد!',
             'error_code' => 'کد خطا: :statusCode',
@@ -76,6 +81,7 @@ return [
         'unauthorized' => 'شما مجوزهای لازم برای دسترسی به مسیر فراخوانی‌شده را ندارید!',
     ],
     'footer' => [
+        'accessibility' => 'بیانیه دسترسی‌پذیری',
         'legal_notice' => 'اطلاعیه قانونی',
         'privacy_policy' => 'سیاست حفظ حریم خصوصی',
     ],
@@ -88,17 +94,24 @@ return [
         'self' => 'باز کردن در تب فعلی',
     ],
     'locales' => [
+        'ar' => 'عربی',
         'de' => 'آلمانی',
         'en' => 'انگلیسی',
         'fa' => 'فارسی',
         'fr' => 'فرانسوی',
     ],
     'model' => [
-        'roles' => 'نقش',
-        'room_types' => 'نوع اتاق',
-        'server_pools' => 'مخزن سرور',
-        'servers' => 'سرور',
-        'users' => 'کاربر',
+        'meeting' => 'جلسه',
+        'recording' => 'ضبط',
+        'recording_format' => 'فرمت ضبط',
+        'role' => 'نقش',
+        'room' => 'اتاق',
+        'room_file' => 'فایل اتاق',
+        'room_personalized_link' => 'لینک شخصی اتاق',
+        'room_type' => 'نوع اتاق',
+        'server' => 'سرورها',
+        'server_pool' => 'استخر سرور',
+        'user' => 'کاربر',
     ],
     'model_name' => 'نام',
     'next' => 'بعدی',

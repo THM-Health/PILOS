@@ -30,7 +30,6 @@ defineProps({
     rounded
     :severity="enabled ? 'success' : 'secondary'"
     :data-test="dataTest"
-  >
-    <span :class="icon" />
-  </Tag>
+    :icon="icon"
+  />
 </template>

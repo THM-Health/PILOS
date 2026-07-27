@@ -1,57 +1,54 @@
 <template>
-  <div class="h-full">
-    <!-- room card-->
-    <div
-      tabindex="0"
-      data-test="room-card"
-      class="relative h-full border shadow-none border-surface rounded-border hover:bg-emphasis"
-      @click="open"
-      @keyup.enter="open"
-    >
-      <span v-if="running" class="absolute -right-1.5 -top-1.5 flex h-3 w-3">
-        <span
-          class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"
-        ></span>
-        <span
-          class="relative inline-flex h-3 w-3 rounded-full bg-green-500"
-        ></span>
-      </span>
-      <div class="h-100 p-4">
-        <div class="h-100 flex flex-col">
-          <div class="grow">
-            <div class="flex items-start justify-between">
-              <RoomTypeBadge :room-type="props.room.type" />
-              <div class="relative z-10 flex shrink-0 gap-2">
-                <Button
-                  v-if="props.room.short_description != null"
-                  severity="secondary"
-                  class="h-8 w-8 p-0 text-sm"
-                  icon="fa-solid fa-info"
-                  data-test="room-info-button"
-                  @click.stop="modalVisible = true"
-                />
-                <RoomFavoriteButton
-                  :room="props.room"
-                  class="h-8 w-8 p-0 text-sm"
-                  @favorites-changed="$emit('favoritesChanged')"
-                />
-              </div>
-            </div>
-            <p
-              class="text-break mb-4 mt-2 font-bold text-color"
-              style="width: 100%"
-            >
-              {{ props.room.name }}
-            </p>
+  <!-- room card-->
+  <li
+    data-test="room-card"
+    class="room-card relative h-full rounded-border border border-surface shadow-none hover:bg-emphasis"
+  >
+    <span v-if="running" class="absolute -top-1.5 -right-1.5 flex h-3 w-3">
+      <span
+        class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"
+      ></span>
+      <span
+        class="relative inline-flex h-3 w-3 rounded-full bg-green-500"
+      ></span>
+    </span>
+    <div class="p-4">
+      <div class="flex grow flex-col">
+        <router-link class="stretched-link order-1" :to="link">
+          <h2
+            class="text-break mt-2 mb-4 font-bold text-color"
+            style="width: 100%"
+          >
+            {{ props.room.name }}
+          </h2>
+        </router-link>
+        <RoomTypeBadge class="sr-only" :room-type="props.room.type" />
+        <RoomDetailsList class="order-2" :room="props.room" />
+        <div class="order-0 flex items-start justify-between">
+          <RoomTypeBadge aria-hidden="true" :room-type="props.room.type" />
+          <div class="relative z-10 flex shrink-0 gap-2">
+            <Button
+              v-if="props.room.short_description != null"
+              v-tooltip="$t('rooms.index.room_component.show_details')"
+              severity="secondary"
+              class="room-card-button h-8 w-8 p-0 text-sm"
+              icon="fa-solid fa-info"
+              data-test="room-info-button"
+              :aria-label="
+                $t('rooms.index.room_component.show_details_for', {
+                  room: props.room.name,
+                })
+              "
+              @click.stop="modalVisible = true"
+            />
+            <RoomFavoriteButton
+              :room="props.room"
+              class="room-card-button h-8 w-8 p-0 text-sm"
+              :redirect-on-room-model-not-found="false"
+              @favorites-changed="$emit('favoritesChanged')"
+            />
           </div>
-          <RoomDetailsList :room="props.room" />
         </div>
-        <router-link
-          tabindex="-1"
-          class="stretched-link"
-          :to="link"
-          aria-hidden="true"
-        />
       </div>
     </div>
 
@@ -65,19 +62,29 @@
       :draggable="false"
       data-test="room-info-dialog"
     >
-      <div class="mt-2 flex items-start justify-between">
-        <RoomTypeBadge :room-type="props.room.type" />
-        <div class="room-card-buttons shrink-0">
-          <RoomFavoriteButton
-            :room="props.room"
-            @favorites-changed="$emit('favoritesChanged')"
-          />
+      <div class="flex flex-col">
+        <h1
+          class="text-break order-1 mb-4 text-2xl font-semibold"
+          style="width: 100%"
+        >
+          {{ props.room.name }}
+        </h1>
+        <div class="order-0 mt-2 flex items-start justify-between">
+          <RoomTypeBadge :room-type="props.room.type" />
+          <div class="room-card-buttons shrink-0">
+            <RoomFavoriteButton
+              :room="props.room"
+              :redirect-on-room-model-not-found="false"
+              @favorites-changed="$emit('favoritesChanged')"
+            />
+          </div>
         </div>
+        <RoomDetailsList
+          class="order-2"
+          :room="props.room"
+          :show-description="true"
+        />
       </div>
-      <h1 class="text-break mb-4 text-2xl font-semibold" style="width: 100%">
-        {{ props.room.name }}
-      </h1>
-      <RoomDetailsList :room="props.room" :show-description="true" />
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button
@@ -95,7 +102,7 @@
         </div>
       </template>
     </Dialog>
-  </div>
+  </li>
 </template>
 <script setup>
 import { useRouter } from "vue-router";
@@ -135,10 +142,6 @@ const running = computed(() => {
  * Details modal
  */
 const modalVisible = ref(false);
-
-function open() {
-  router.push(link.value);
-}
 
 function handleCancel() {
   modalVisible.value = false;

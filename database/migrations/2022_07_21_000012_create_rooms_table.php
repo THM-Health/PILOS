@@ -1,5 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Enums\RoomLobby;
+use App\Enums\RoomUserRole;
+use App\Enums\RoomVisibility;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -30,8 +35,8 @@ return new class extends Migration
             $table->boolean('lock_settings_lock_on_join')->default(true);
             $table->boolean('lock_settings_hide_user_list')->default(false);
             $table->boolean('allow_guests')->default(false);
-            $table->integer('default_role')->default(\App\Enums\RoomUserRole::USER);
-            $table->integer('lobby')->default(\App\Enums\RoomLobby::DISABLED);
+            $table->integer('default_role')->default(RoomUserRole::USER);
+            $table->integer('lobby')->default(RoomLobby::DISABLED);
             $table->boolean('allow_membership')->default(false);
             $table->boolean('everyone_can_start')->default(false);
             $table->boolean('everyone_moderator')->default(false);
@@ -45,7 +50,7 @@ return new class extends Migration
             $table->integer('listener_count')->nullable();
             $table->integer('voice_participant_count')->nullable();
             $table->integer('video_count')->nullable();
-            $table->integer('visibility')->default(\App\Enums\RoomVisibility::PRIVATE);
+            $table->integer('visibility')->default(RoomVisibility::PRIVATE);
 
             $table->boolean('record_attendance')->default(false);
             $table->boolean('record')->default(false);

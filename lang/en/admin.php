@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'Edit :name',
             'index' => 'Roles',
@@ -190,7 +192,7 @@ return [
     ],
     'server_pools' => [
         'delete' => [
-            'confirm' => 'Are you really want to delete the server pool :name?',
+            'confirm' => 'Do you really want to delete the server pool :name?',
             'failed' => 'Server pool can\'t be deleted because the following room types still use it:',
             'item' => 'Delete server pool :name',
             'title' => 'Delete server pool?',
@@ -259,6 +261,10 @@ return [
         'view' => 'Detailed information for the server :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'If not set, no accessibility statement link will be displayed in the footer.',
+            'title' => 'URL to the accessibility statement',
+        ],
         'application' => 'Application',
         'attendance' => [
             'retention_period_title' => 'Retention period of the attendance logging in days',
@@ -281,6 +287,9 @@ return [
             'title' => 'Banner for messages',
         ],
         'bbb' => [
+            'default_welcome_message' => [
+                'title' => 'Default Welcome Message',
+            ],
             'logo' => [
                 'alt' => 'Logo preview',
                 'hint' => 'https://domain.tld/path/logo.svg',
@@ -344,7 +353,7 @@ return [
         'no_welcome_page' => 'Hide welcome page',
         'one_day' => '1 Day (24 Hours)',
         'one_month' => '1 Month (30 Days)',
-        'one_week' => '1 Week (7 Day)',
+        'one_week' => '1 Week (7 Days)',
         'one_year' => '1 Year (365 Days)',
         'pagination_page_size' => [
             'description' => 'Number of records displayed simultaneously in tables',
@@ -380,12 +389,13 @@ return [
             'description' => 'Users must agree to the terms of use in order to download files. If the field is empty, no consent is required.',
             'title' => 'Terms of use for file download',
         ],
+        'room_hide_owner_from_guests' => 'Hide room owner from unauthenticated users',
         'room_limit' => [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
         ],
-        'room_token_expiration' => [
-            'description' => 'Time period since last usage, after which personalized room links gets automatically removed.',
+        'room_personalized_link_expiration' => [
+            'description' => 'Time period since last usage, after which personalized room links get automatically removed.',
             'title' => 'Expiration time for personalized room links',
         ],
         'six_month' => '6 Months (180 Days)',
@@ -401,6 +411,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Custom color',
+            'custom_css' => 'Custom CSS style file',
             'primary_color' => 'Primary color',
             'rounded' => 'Rounded corners',
             'title' => 'Theme',
@@ -414,7 +425,7 @@ return [
             'title' => 'Display duration of pop-up messages',
         ],
         'two_weeks' => '2 Weeks (14 Days)',
-        'two_years' => '2 Year (730 Days)',
+        'two_years' => '2 Years (730 Days)',
         'user_settings' => 'User settings',
     ],
     'streaming' => [
@@ -441,13 +452,14 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Local',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Authentication Type',
+            'title' => 'Login method',
         ],
         'base_data' => 'Base data',
         'bbb' => 'BigBlueButton',
         'delete' => [
-            'confirm' => 'Are you really want to delete the user :firstname :lastname?',
+            'confirm' => 'Do you really want to delete the user :firstname :lastname?',
             'item' => 'Delete user :firstname :lastname',
             'title' => 'Delete user?',
         ],

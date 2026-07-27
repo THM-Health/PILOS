@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Meeting;
+use App\Settings\StreamingSettings;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Support\Facades\Http;
@@ -18,7 +21,7 @@ class StreamingService
 
     public function getJoinUrl(): string
     {
-        $settings = app(\App\Settings\StreamingSettings::class);
+        $settings = app(StreamingSettings::class);
 
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, 'Livestream', Role::MODERATOR);
 
@@ -114,7 +117,7 @@ class StreamingService
 
             // Fallback to default pause image from system settings
             if ($pauseImageUrl === null) {
-                $streamingSettings = app(\App\Settings\StreamingSettings::class);
+                $streamingSettings = app(StreamingSettings::class);
                 $pauseImageUrl = $streamingSettings->default_pause_image;
             }
         }

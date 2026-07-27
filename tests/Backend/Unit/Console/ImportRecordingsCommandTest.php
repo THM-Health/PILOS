@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Console;
 
+use App\Enums\RecordingAccess;
+use App\Jobs\ProcessRecording;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Queue;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 
 class ImportRecordingsCommandTest extends TestCase
@@ -14,10 +19,48 @@ class ImportRecordingsCommandTest extends TestCase
     public function test_import_recording()
     {
         Queue::fake();
+        Storage::fake('recordings-spool');
 
-        config(['filesystems.disks.recordings-spool.root' => 'tests/Backend/Fixtures/Recordings']);
+        copy(base_path('tests/Backend/Fixtures/Recordings/invalid-recording.tar'), Storage::disk('recordings-spool')->path('invalid-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/multiple.tar'), Storage::disk('recordings-spool')->path('multiple.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/notes.tar'), Storage::disk('recordings-spool')->path('notes.tar'));
 
         $this->artisan('import:recordings')->assertSuccessful();
+
+        Queue::assertPushed(ProcessRecording::class, function ($job) {
+            return $job->getFile() === 'invalid-recording.tar' && $job->getAccess() === RecordingAccess::OWNER;
+        });
+        Queue::assertPushed(ProcessRecording::class, function ($job) {
+            return $job->getFile() === 'multiple.tar' && $job->getAccess() === RecordingAccess::OWNER;
+        });
+        Queue::assertPushed(ProcessRecording::class, function ($job) {
+            return $job->getFile() === 'notes.tar' && $job->getAccess() === RecordingAccess::OWNER;
+        });
+
+        Queue::assertCount(3);
+    }
+
+    public function test_import_public_recording()
+    {
+        Queue::fake();
+        Storage::fake('recordings-spool');
+        Storage::disk('recordings-spool')->makeDirectory('public');
+
+        copy(base_path('tests/Backend/Fixtures/Recordings/invalid-recording.tar'), Storage::disk('recordings-spool')->path('invalid-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/multiple.tar'), Storage::disk('recordings-spool')->path('public/multiple.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/notes.tar'), Storage::disk('recordings-spool')->path('public/notes.tar'));
+
+        $this->artisan('import:recordings')->assertSuccessful();
+
+        Queue::assertPushed(ProcessRecording::class, function ($job) {
+            return $job->getFile() === 'invalid-recording.tar' && $job->getAccess() === RecordingAccess::OWNER;
+        });
+        Queue::assertPushed(ProcessRecording::class, function ($job) {
+            return $job->getFile() === 'public/multiple.tar' && $job->getAccess() === RecordingAccess::EVERYONE;
+        });
+        Queue::assertPushed(ProcessRecording::class, function ($job) {
+            return $job->getFile() === 'public/notes.tar' && $job->getAccess() === RecordingAccess::EVERYONE;
+        });
 
         Queue::assertCount(3);
     }
@@ -26,7 +69,11 @@ class ImportRecordingsCommandTest extends TestCase
     {
         Queue::fake();
 
-        config(['filesystems.disks.recordings-spool.root' => 'tests/Backend/Fixtures/Recordings']);
+        Storage::fake('recordings-spool');
+
+        copy(base_path('tests/Backend/Fixtures/Recordings/invalid-recording.tar'), Storage::disk('recordings-spool')->path('invalid-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/multiple.tar'), Storage::disk('recordings-spool')->path('multiple.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/notes.tar'), Storage::disk('recordings-spool')->path('notes.tar'));
 
         // Import hook command to write "OK" to a temp file
         $tempFile = tempnam(sys_get_temp_dir(), 'recording-import-hook-test');
@@ -47,7 +94,11 @@ class ImportRecordingsCommandTest extends TestCase
     {
         Queue::fake();
 
-        config(['filesystems.disks.recordings-spool.root' => 'tests/Backend/Fixtures/Recordings']);
+        Storage::fake('recordings-spool');
+
+        copy(base_path('tests/Backend/Fixtures/Recordings/invalid-recording.tar'), Storage::disk('recordings-spool')->path('invalid-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/multiple.tar'), Storage::disk('recordings-spool')->path('multiple.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/notes.tar'), Storage::disk('recordings-spool')->path('notes.tar'));
 
         // Import hook command to write "OK" to a file that does not exist
         $file = '/invalidPath/invalidFile';

@@ -1,34 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Observers\ServerPoolObserver;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([ServerPoolObserver::class])]
 class ServerPool extends Model
 {
     use AddsModelNameTrait, HasFactory;
 
     protected $fillable = ['name', 'description'];
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::deleting(function (self $model) {
-            // Delete server pool only possible if no room types associated
-            if ($model->roomTypes()->count() != 0) {
-                return false;
-            }
-        });
-    }
 
     /**
      * Servers that are port of this server pool
@@ -55,7 +45,7 @@ class ServerPool extends Model
      * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopeWithName(Builder $query, $name)
+    public function scopeWithName(Builder $query, string $name)
     {
         return $query->whereLike('name', '%'.$name.'%');
     }

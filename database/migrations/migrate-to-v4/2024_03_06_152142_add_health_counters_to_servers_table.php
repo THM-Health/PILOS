@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Enums\ServerStatus;
+use App\Models\Server;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,26 +21,26 @@ return new class extends Migration
         });
 
         // Migrate the status column to health counters and status
-        foreach (\App\Models\Server::all() as $server) {
+        foreach (Server::all() as $server) {
 
             switch ($server->getRawOriginal('status')) {
                 // Disabled
                 case -1:
-                    $server->status = \App\Enums\ServerStatus::DISABLED;
+                    $server->status = ServerStatus::DISABLED;
                     break;
                     // Offline
                 case 0:
                     // Server is unhealthy, but not offline yet
                     $server->recover_count = 0;
                     $server->error_count = 0;
-                    $server->status = \App\Enums\ServerStatus::ENABLED;
+                    $server->status = ServerStatus::ENABLED;
                     break;
                     // Online
                 case 1:
                     // Server is healthy
                     $server->recover_count = config('bigbluebutton.server_online_threshold');
                     $server->error_count = 0;
-                    $server->status = \App\Enums\ServerStatus::ENABLED;
+                    $server->status = ServerStatus::ENABLED;
                     break;
             }
 

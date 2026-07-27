@@ -12,6 +12,14 @@ For the development environment the same docker containers as for the production
 However, the `docker-compose-dev.yml` file is optimized for development and a helper command line tool called `sail` is provided.
 It is a script created by Laravel to wrap common docker compose commands and has been adjusted for PILOS.
 
+## IDE Support
+
+PILOS is built on the [Laravel framework](https://laravel.com) and aims to remain compatible with Laravel’s development tooling whenever possible.
+Development environments based on VS Code benefit from great support via the official [Laravel VS Code Extension](https://marketplace.visualstudio.com/items?itemName=laravel.vscode-laravel).
+PhpStorm by JetBrains also provides native support for Laravel.
+
+For additional details, see Laravel’s official documentation on [IDE Support](https://laravel.com/docs/12.x/installation#ide-support).
+
 ## Installation
 
 First clone the repository to your preferred directory (for Windows inside of WSL).
@@ -102,11 +110,11 @@ To run a local PostgreSQL using docker you have to adjust the `docker-compose-de
 
 ```yml
 db:
-    image: postgres:14.6-alpine3.17
+    image: postgres:18-alpine
     container_name: postgres
     restart: unless-stopped
     volumes:
-        - postgres:/var/lib/postgresql/data
+        - postgres:/var/lib/postgresql
         - "./tests/Utils/create-postgres-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql"
     environment:
         PGPASSWORD: "${DB_PASSWORD}"
@@ -218,7 +226,7 @@ Then the attribute and role mapping must be configured by creating a file in the
             ]
         },
         {
-            "name": "admin",
+            "name": "superuser",
             "disabled": false,
             "all": true,
             "rules": [
@@ -232,7 +240,7 @@ Then the attribute and role mapping must be configured by creating a file in the
 }
 ```
 
-This role mapping gives users of the group students the user role and users of the group staff the admin role.
+This role mapping gives users of the group students the user role and users of the group staff the superuser role.
 
 There are three user accounts (see `docker/openldap/bootstrap.ldif`)
 
@@ -269,3 +277,16 @@ However, for development it is recommended to use the development server for hot
 
 For the development you can use any editor of your choice but please do not check in any configuration files for your editor. In this case you may want to
 extend the `.gitignore` with yours editor config files.
+
+## AI Assistants
+
+With [Laravel Boost](https://laravel.com/ai/boost), PILOS can provide richer context to AI assistants and expose an MCP server that allows them to run commands and interact with the codebase.
+Laravel Boost comes preinstalled with PILOS.
+
+To configure it for your IDE and AI assistant, run:
+
+```
+./sail artisan boost:install
+```
+
+Then follow the instructions in the Laravel Boost documentation to enable it in your IDE.

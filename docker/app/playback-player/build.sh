@@ -32,7 +32,7 @@ if unzip -q -d "$temporaryDirectory" "$downloadFileName"; then
         exit 2
     fi
     npm install
-    REACT_APP_MEDIA_ROOT_URL=/recording/presentation npm run build
+    npm run build
 
     # clear old public folder
     echo "Clearing old player..."

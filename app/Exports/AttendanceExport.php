@@ -1,21 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exports;
 
 use App\Models\Meeting;
 use App\Services\MeetingService;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Class AttendanceExport
  */
-class AttendanceExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
+class AttendanceExport
 {
     /**
      * @var Meeting Meeting the attendance should be exported for
@@ -41,23 +42,29 @@ class AttendanceExport implements FromCollection, ShouldAutoSize, WithHeadings, 
 
     /**
      * Collection of the data to export into the excel file
-     *
-     * @return \Illuminate\Database\Eloquent\Collection|Collection
      */
-    public function collection()
+    public function collection(): \Illuminate\Database\Eloquent\Collection|Collection
     {
-        return (new MeetingService($this->meeting))->attendance();
+        return new MeetingService($this->meeting)->attendance();
     }
 
     /**
      * Set style of the excel sheet
      */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): void
     {
         // set heading of the attendance table to bold text
         $sheet->getStyle('5')->getFont()->setBold(true);
         // enable multiple lines for the session column
         $sheet->getStyle('D')->getAlignment()->setWrapText(true);
+
+        $sheet->getStyle('A:D')->getAlignment()->setVertical('top');
+        $sheet->getStyle('A')->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+
+        $sheet->getColumnDimension('A')->setAutoSize(true);
+        $sheet->getColumnDimension('B')->setAutoSize(true);
+        $sheet->getColumnDimension('C')->setAutoSize(true);
+        $sheet->getColumnDimension('D')->setAutoSize(true);
     }
 
     /**
@@ -107,5 +114,47 @@ class AttendanceExport implements FromCollection, ShouldAutoSize, WithHeadings, 
             __('meetings.attendance.duration_minute', ['duration' => $row['duration']]),
             implode(PHP_EOL, $sessions),
         ];
+    }
+
+    public function toSpreadsheet(): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet;
+
+        $spreadsheet->getProperties()
+            ->setTitle(__('meetings.attendance.spreadsheet.title', ['room' => $this->meeting->room->name]))
+            ->setCreator(config('app.name'))
+            ->setLastModifiedBy(config('app.name'))
+            ->setCreated(now()->timestamp)
+            ->setModified(now()->timestamp);
+
+        $activeSheet = $spreadsheet->getActiveSheet();
+
+        $activeSheet->setTitle(__('meetings.attendance.spreadsheet.worksheet'));
+
+        $headings = $this->headings();
+        $offset = count($headings);
+
+        $activeSheet->fromArray($headings);
+
+        $rows = $this->collection()->map(function ($row) {
+            return $this->map($row);
+        })->toArray();
+
+        $activeSheet->fromArray($rows, null, 'A'.($offset + 1));
+
+        $this->styles($activeSheet);
+
+        return $spreadsheet;
+    }
+
+    public function toResponse(): BinaryFileResponse
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'attendance_export');
+        $fileName = __('meetings.attendance.filename').'.xlsx';
+
+        $writer = new Xlsx($this->toSpreadsheet());
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName)->deleteFileAfterSend();
     }
 }

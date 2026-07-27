@@ -10,7 +10,6 @@ docker-compose.override.yml
 npm-debug.log
 yarn-error.log
 /.idea
-/.vscode
 .DS_Store
 /public/build
 /public/fonts
@@ -24,3 +23,25 @@ components.d.ts
 public/playback-player
 tests/Frontend/screenshots
 tests/Frontend/videos
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+tests/Visual/.happo-tmp
+
+# AI-Tools and helper files
+boost.json
+.claude
+.cursor
+.gemini
+.agents
+.codex
+.amp
+.opencode
+.kiro
+.junie
+opencode.json
+.mcp.json
+GEMINI.md
+CLAUDE.md
+
+

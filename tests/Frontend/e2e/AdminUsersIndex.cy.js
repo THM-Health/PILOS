@@ -111,7 +111,7 @@ describe("Admin users index", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index");
+      .should("include.text", "admin.breadcrumbs.users.index");
 
     // Check that headers are displayed correctly
     cy.get('[data-test="user-header-cell"]').should("have.length", 9);
@@ -2019,6 +2019,104 @@ describe("Admin users index", function () {
         cy.get('[data-test="users-edit-button"]').should("not.exist");
         cy.get('[data-test="users-delete-button"]').should("not.exist");
         cy.get('[data-test="users-reset-password-button"]').should("not.exist");
+      });
+  });
+
+  it("check loading state during reload", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.delete",
+        "users.update",
+        "users.create",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users");
+    cy.wait("@usersRequest");
+
+    const reloadUsersRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/users*",
+      { fixture: "users.json" },
+      "reloadUsersRequest",
+    );
+
+    // Trigger reload by triggering search
+    cy.get('[data-test="user-search"] > button').click();
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check loading state during reload
+    cy.get('[data-test="user-search"]').within(() => {
+      cy.get("input").should("be.visible").and("be.disabled");
+      cy.get("button").should("be.visible").and("be.disabled");
+    });
+
+    cy.get('[data-test="users-add-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="role-dropdown"]').should(
+      "have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="user-item"]')
+      .eq(1)
+      .within(() => {
+        cy.get('button[data-test="users-view-button"]').should("be.disabled");
+        cy.get('button[data-test="users-edit-button"]').should("be.disabled");
+        cy.get('[data-test="users-delete-button"]').should("be.disabled");
+        cy.get('[data-test="users-reset-password-button"]')
+          .should("be.disabled")
+          .then(() => {
+            reloadUsersRequest.sendResponse();
+          });
+      });
+
+    cy.wait("@reloadUsersRequest");
+
+    // Check that overlay is hidden after reload
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check loading state after reload
+
+    cy.get('[data-test="user-search"]').within(() => {
+      cy.get("input").should("be.visible").and("not.be.disabled");
+      cy.get("button").should("be.visible").and("not.be.disabled");
+    });
+
+    cy.get('[data-test="users-add-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="role-dropdown"]').should(
+      "not.have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="user-item"]')
+      .eq(1)
+      .within(() => {
+        cy.get('a[data-test="users-view-button"]').should(
+          "have.attr",
+          "href",
+          "/admin/users/2",
+        );
+        cy.get('a[data-test="users-edit-button"]').should(
+          "have.attr",
+          "href",
+          "/admin/users/2/edit",
+        );
+        cy.get('[data-test="users-delete-button"]').should("not.be.disabled");
+        cy.get('[data-test="users-reset-password-button"]').should(
+          "not.be.disabled",
+        );
       });
   });
 });

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'attendance' => [
         'download' => 'Download',
@@ -13,6 +15,10 @@ return [
         'retention_period' => 'The attendance is stored for :days days.',
         'retention_period_unlimited' => 'The attendance is stored indefinitely.',
         'sessions' => 'Sessions',
+        'spreadsheet' => [
+            'title' => 'Attendance for :room',
+            'worksheet' => 'Attendance list',
+        ],
         'view' => 'Show attendance',
     ],
     'currently_running' => 'Running meetings',
@@ -39,6 +45,6 @@ return [
     ],
     'video_count' => 'Participant with video',
     'view_meeting_stats' => 'Show utilisation',
-    'view_room' => 'Show room ":name"',
+    'view_room' => 'Show room: :name',
     'voice_participant_count' => 'Participant with microphone',
 ];

@@ -56,7 +56,7 @@ describe("Admin roles index", function () {
       cy.get("button").should("be.visible").and("be.disabled");
     });
 
-    cy.get('[data-test="roles-add-buton"]').should("not.exist");
+    cy.get('[data-test="roles-add-button"]').should("not.exist");
 
     cy.get('[data-test="overlay"]')
       .should("be.visible")
@@ -74,12 +74,12 @@ describe("Admin roles index", function () {
       cy.get("button").should("be.visible").and("not.be.disabled");
     });
 
-    cy.get('[data-test="roles-add-buton"]').should("not.exist");
+    cy.get('[data-test="roles-add-button"]').should("not.exist");
 
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index");
+      .should("include.text", "admin.breadcrumbs.roles.index");
 
     // Check that table headers are shown correctly
     cy.get('[data-test="role-header-cell"]').should("have.length", 1);
@@ -986,6 +986,86 @@ describe("Admin roles index", function () {
           .should("be.visible")
           .and("have.attr", "href", "/admin/roles/3/edit");
         cy.get('[data-test="roles-delete-button"]').should("be.visible");
+      });
+  });
+
+  it("check loading state during reload", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.superuser = false;
+      currentUser.data.permissions = [
+        "admin.view",
+        "roles.viewAny",
+        "roles.view",
+        "roles.update",
+        "roles.create",
+        "roles.delete",
+      ];
+
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/roles");
+    cy.wait("@rolesRequest");
+
+    const rolesReloadRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roles*",
+      { fixture: "roles.json" },
+      "rolesReloadRequest",
+    );
+
+    // Trigger reload by triggering search
+    cy.get('[data-test="role-search"] > button').click();
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check loading state during reload
+    cy.get('[data-test="role-search"]').within(() => {
+      cy.get("input").should("be.visible").and("be.disabled");
+      cy.get("button").should("be.visible").and("be.disabled");
+    });
+
+    cy.get('[data-test="roles-add-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="role-item"]')
+      .eq(1)
+      .within(() => {
+        cy.get('button[data-test="roles-view-button"]').should("be.disabled");
+        cy.get('button[data-test="roles-edit-button"]').should("be.disabled");
+        cy.get('[data-test="roles-delete-button"]')
+          .should("be.disabled")
+          .then(() => {
+            rolesReloadRequest.sendResponse();
+          });
+      });
+
+    cy.wait("@rolesReloadRequest");
+
+    // Check that overlay is hidden after reload
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check loading state after reload
+    cy.get('[data-test="role-search"]').within(() => {
+      cy.get("input").should("be.visible").and("not.be.disabled");
+      cy.get("button").should("be.visible").and("not.be.disabled");
+    });
+
+    cy.get('[data-test="roles-add-button"]').should("not.be.disabled");
+
+    cy.get('[data-test="role-item"]')
+      .eq(1)
+      .within(() => {
+        cy.get('a[data-test="roles-view-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/roles/2");
+        cy.get('a[data-test="roles-edit-button"]')
+          .should("be.visible")
+          .and("have.attr", "href", "/admin/roles/2/edit");
+        cy.get('[data-test="roles-delete-button"]').should("not.be.disabled");
       });
   });
 });

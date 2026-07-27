@@ -1,19 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Rules;
 
+use App\Prometheus\Counter;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class Antivirus implements ValidationRule
 {
     /**
      * Run the validation rule.
      *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -39,12 +43,14 @@ class Antivirus implements ValidationRule
 
             // File is clean
             if ($response->status() === 200) {
+                Counter::get('virus_scan_total')->inc('clean');
+
                 return;
             }
 
             // Infected file
             if ($response->status() === 406) {
-
+                Counter::get('virus_scan_total')->inc('virus');
                 $description = $response->json('0.Description');
 
                 Log::warning('Virus {virus_description} detected', [
@@ -58,6 +64,8 @@ class Antivirus implements ValidationRule
 
                 return;
             }
+
+            Counter::get('virus_scan_total')->inc('error');
 
             // Other clamav errors
             Log::log('error', 'Virus scan failed', ['status' => $response->status()]);

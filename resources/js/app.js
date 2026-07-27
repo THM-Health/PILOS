@@ -1,4 +1,4 @@
-import { createApp, h, Fragment } from "vue";
+import { createApp, h, Fragment, markRaw } from "vue";
 import { createPinia } from "pinia";
 import App from "./components/App.vue";
 import createRouter from "./router";
@@ -30,7 +30,7 @@ const setupApp = (app) => {
       options: {
         cssLayer: {
           name: "primevue",
-          order: "tailwind-base, primevue, tailwind-utilities",
+          order: "theme, base, primevue",
         },
         darkModeSelector: ".dark",
       },
@@ -52,6 +52,10 @@ const setupApp = (app) => {
   app.provide("$router", app.config.globalProperties.$router);
   app.provide("$route", app.config.globalProperties.$route);
 
+  pinia.use(({ store }) => {
+    store.primevue = markRaw(app.config.globalProperties.$primevue);
+  });
+
   app.mount("#app");
 };
 
@@ -69,4 +73,13 @@ if (
 } else {
   app = createApp(App);
   setupApp(app);
+}
+
+// preventing iOS input auto zooming
+if (navigator.userAgent.indexOf("iPhone") > -1) {
+  const viewportMetaTag = document.querySelector("[name=viewport]");
+  viewportMetaTag.setAttribute(
+    "content",
+    viewportMetaTag.getAttribute("content") + ", maximum-scale=1",
+  );
 }

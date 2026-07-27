@@ -10,7 +10,7 @@ fi
 echo "Checking SSL files"
 if [ -e /local/certs/fullchain.pem -a -e /local/certs/privkey.pem ]; then
     echo "Files found, enabling SSL"
-    ln -s /etc/nginx/snippets-available/ssl /etc/nginx/snippets/ssl
+    ln -s /etc/nginx/snippets-available/ssl.conf /etc/nginx/snippets/ssl.conf
 else
     echo "Files not found, skipping SSL"
 fi

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Auth\ExternalUser;
 use App\Auth\MissingAttributeException;
 use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;

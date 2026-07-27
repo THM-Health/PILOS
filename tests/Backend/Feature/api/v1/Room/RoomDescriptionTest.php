@@ -1,23 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
+use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomAuthToken;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\SessionHelpers;
 
 /**
  * General room api feature tests
  */
 class RoomDescriptionTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, SessionHelpers, WithFaker;
 
     protected $user;
 
@@ -49,7 +54,7 @@ class RoomDescriptionTest extends TestCase
 
         $room = Room::factory()->create(['description' => $description, 'allow_guests' => true]);
 
-        // Test anoymous user
+        // Test anonymous user
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJson([
@@ -76,13 +81,25 @@ class RoomDescriptionTest extends TestCase
 
         $room = Room::factory()->create(['description' => $description, 'allow_guests' => true, 'access_code' => $this->createAccessCode()]);
 
-        // Test anoymous user without access code
+        // Test anonymous user without room auth token
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonMissingPath('data.description');
 
-        // Test anoymous user with access code
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        // Test anonymous user with room auth token
+        $currentSession = $this->startNewSession();
+
+        $roomAuthToken = RoomAuthToken::factory()->create([
+            'session_id' => $currentSession->id,
+            'room_id' => $room->id,
+            'type' => RoomAuthTokenType::CODE,
+        ]);
+
+        $this->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
@@ -90,7 +107,6 @@ class RoomDescriptionTest extends TestCase
                     'description' => $room->description,
                 ],
             ]);
-        $this->flushHeaders();
 
         // Test regular user without access code
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -98,7 +114,11 @@ class RoomDescriptionTest extends TestCase
             ->assertJsonMissingPath('data.description');
 
         // Test regular user with access code
-        $this->withHeaders(['Access-Code' => $room->access_code])->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', [
+            'room' => $room,
+            'room_auth_token' => $roomAuthToken->id,
+            'room_auth_token_type' => RoomAuthTokenType::CODE->value,
+        ]))
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
@@ -106,7 +126,6 @@ class RoomDescriptionTest extends TestCase
                     'description' => $room->description,
                 ],
             ]);
-        $this->flushHeaders();
 
         // Test room member without access code
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -283,5 +302,16 @@ class RoomDescriptionTest extends TestCase
             ->assertUnprocessable();
         $room->refresh();
         $this->assertNull($room->description);
+
+        // Test deleted room
+        $room->delete();
+
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => $this->faker->text(100)])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 }

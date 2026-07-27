@@ -1,0 +1,93 @@
+:root {
+    --action-column-button-gap: 0.5rem;
+    --padding-action-column: 1rem;
+}
+
+th.action-column {
+    .p-column-header-content {
+        justify-content: end;
+    }
+}
+
+td.action-column > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    gap: var(--action-column-button-gap);
+}
+
+/* biome-ignore lint/correctness/noUnknownFunction: Tailwind resolves theme() tokens at build time */
+@media (width < theme(--breakpoint-lg)) {
+    .table-auto {
+        table-layout: auto;
+
+        th.id-column {
+            width: 1px;
+        }
+
+        th.picture-column {
+            width: 1px;
+        }
+
+        th.action-column {
+            width: 1px;
+        }
+    }
+}
+
+/* biome-ignore lint/correctness/noUnknownFunction: Tailwind resolves theme() tokens at build time */
+@media (width >= theme(--breakpoint-lg)) {
+    .lg\:table-fixed {
+        th.action-column-1 {
+            width: 8rem;
+        }
+
+        th.action-column-2 {
+            width: calc(
+                2 * var(--p-button-icon-only-width) +
+                    var(--action-column-button-gap) + 2 *
+                    var(--padding-action-column)
+            );
+        }
+
+        th.action-column-3 {
+            width: calc(
+                3 * var(--p-button-icon-only-width) +
+                    (2 * var(--action-column-button-gap)) + 2 *
+                    var(--padding-action-column)
+            );
+        }
+
+        th.action-column-4 {
+            width: calc(
+                4 * var(--p-button-icon-only-width) +
+                    (3 * var(--action-column-button-gap)) + 2 *
+                    var(--padding-action-column)
+            );
+        }
+
+        th.action-column-5 {
+            width: calc(
+                5 * var(--p-button-icon-only-width) +
+                    (4 * var(--action-column-button-gap)) + 2 *
+                    var(--padding-action-column)
+            );
+        }
+
+        th.action-column-6 {
+            width: calc(
+                6 * var(--p-button-icon-only-width) +
+                    (5 * var(--action-column-button-gap)) + 2 *
+                    var(--padding-action-column)
+            );
+        }
+
+        th.id-column {
+            width: 5rem;
+        }
+
+        th.picture-column {
+            width: 5rem;
+        }
+    }
+}

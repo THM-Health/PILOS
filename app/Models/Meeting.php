@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Ramsey\Uuid\Uuid;
 
 class Meeting extends Model
@@ -51,7 +55,7 @@ class Meeting extends Model
     /**
      * Server the meeting is/should be running on
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function server()
     {
@@ -61,7 +65,7 @@ class Meeting extends Model
     /**
      * Room this meeting belongs to
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function room()
     {
@@ -71,7 +75,7 @@ class Meeting extends Model
     /**
      * Statistical data of this meeting
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function stats()
     {
@@ -81,7 +85,7 @@ class Meeting extends Model
     /**
      * Attendees of this meeting
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function attendees()
     {

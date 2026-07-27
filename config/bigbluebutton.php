@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use BigBlueButton\Enum\HashingAlgorithm;
+
 return [
     'test_server' => [
         'host' => env('BBB_TEST_SERVER_HOST'),
@@ -21,4 +25,11 @@ return [
     'load_new_meeting_min_user_interval' => (int) env('BBB_LOAD_MIN_USER_INTERVAL', 15),
 
     'allowed_name_characters' => env('BBB_ALLOWED_NAME_CHARACTERS', "\w ,.'\-+\/&()"),
+
+    'server_hashing_algorithm' => match (strtoupper(env('BBB_SERVER_HASHING_ALGORITHM', 'SHA1'))) {
+        'SHA256' => HashingAlgorithm::SHA_256,
+        'SHA384' => HashingAlgorithm::SHA_384,
+        'SHA512' => HashingAlgorithm::SHA_512,
+        default => HashingAlgorithm::SHA_1,
+    },
 ];

@@ -96,6 +96,7 @@
       "help_url": "https://help.bbb.example.biz",
       "legal_notice_url": "https://legal.bbb.example.biz",
       "privacy_policy_url": "https://privacy.bbb.example.biz",
+      "accessibility_statement_url": "https://accessibility.bbb.example.biz",
       "default_timezone": "Europe/Berlin"
     },
     "recording": {

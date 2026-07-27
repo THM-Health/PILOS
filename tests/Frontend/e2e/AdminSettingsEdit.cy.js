@@ -18,11 +18,24 @@ describe("Admin settings with edit permission", function () {
         body: currentUser,
       });
     });
+
+    cy.fixture("config.json").then((config) => {
+      // Add favicon settings to config because otherwise page will always
+      // be reloaded if settings are saved
+      config.data.theme.favicon = "/images/favicon.ico";
+      config.data.theme.favicon_dark = "/images/favicon-dark.ico";
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      }).as("configRequest");
+    });
   });
 
   it("change application settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.application");
@@ -66,6 +79,19 @@ describe("Admin settings with edit permission", function () {
         cy.get("#privacy-policy-url")
           .should("have.value", "")
           .type("http://www.pilos.com/privacy_policy");
+      });
+
+    cy.get('[data-test="accessibility-statement-url-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.accessibility_statement_url.title")
+      .and(
+        "include.text",
+        "admin.settings.accessibility_statement_url.description",
+      )
+      .within(() => {
+        cy.get("#accessibility-statement-url")
+          .should("have.value", "")
+          .type("http://www.pilos.com/accessibility");
       });
 
     cy.get('[data-test="pagination-page-size-field"]')
@@ -169,6 +195,8 @@ describe("Admin settings with edit permission", function () {
         "http://www.pilos.com/legal_notice";
       settings.data.general_privacy_policy_url =
         "http://www.pilos.com/privacy_policy";
+      settings.data.general_accessibility_statement_url =
+        "http://www.pilos.com/accessibility";
       settings.data.general_pagination_page_size = 3;
       settings.data.general_toast_lifetime = 10;
       settings.data.general_default_timezone = "Europe/Berlin";
@@ -213,6 +241,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_privacy_policy_url")).to.equal(
         "http://www.pilos.com/privacy_policy",
       );
+      expect(formData.get("general_accessibility_statement_url")).to.equal(
+        "http://www.pilos.com/accessibility",
+      );
       expect(formData.get("general_pagination_page_size")).to.equal("3");
       expect(formData.get("general_toast_lifetime")).to.equal("10");
       expect(formData.get("general_default_timezone")).to.equal(
@@ -220,6 +251,9 @@ describe("Admin settings with edit permission", function () {
       );
       expect(formData.get("general_no_welcome_page")).to.equal("0");
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
@@ -235,6 +269,10 @@ describe("Admin settings with edit permission", function () {
     cy.get("#privacy-policy-url").should(
       "have.value",
       "http://www.pilos.com/privacy_policy",
+    );
+    cy.get("#accessibility-statement-url").should(
+      "have.value",
+      "http://www.pilos.com/accessibility",
     );
     cy.get("#pagination-page-size").should("have.value", "3");
     cy.get("#toast-lifetime-mode-unlimited")
@@ -257,6 +295,7 @@ describe("Admin settings with edit permission", function () {
     cy.get("#help-url").clear();
     cy.get("#legal-notice-url").clear();
     cy.get("#privacy-policy-url").clear();
+    cy.get("#accessibility-statement-url").clear();
 
     cy.get("#toast-lifetime-mode-unlimited").click();
     cy.get('[data-test="toast-lifetime-custom-input"]').should("not.exist");
@@ -289,6 +328,7 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_help_url")).to.equal("");
       expect(formData.get("general_legal_notice_url")).to.equal("");
       expect(formData.get("general_privacy_policy_url")).to.equal("");
+      expect(formData.get("general_accessibility_statement_url")).to.equal("");
       expect(formData.get("general_pagination_page_size")).to.equal("3");
       expect(formData.get("general_toast_lifetime")).to.equal("0");
       expect(formData.get("general_default_timezone")).to.equal(
@@ -297,11 +337,15 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("general_no_welcome_page")).to.equal("0");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that settings are shown correctly
     cy.get("#application-name").should("have.value", "PILOS test application");
     cy.get("#help-url").should("have.value", "");
     cy.get("#legal-notice-url").should("have.value", "");
     cy.get("#privacy-policy-url").should("have.value", "");
+    cy.get("#accessibility-statement-url").should("have.value", "");
     cy.get("#pagination-page-size").should("have.value", "3");
     cy.get("#toast-lifetime-mode-unlimited")
       .should("be.checked")
@@ -317,35 +361,20 @@ describe("Admin settings with edit permission", function () {
     cy.get("#no-welcome-page").should("not.be.checked");
   });
 
-  it("change theme settings", function () {
+  it("change theme settings that do not trigger reload", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
+
+    // Intercept settings request again to be able to check that it is not called again
+    cy.intercept("GET", "api/v1/settings", {
+      fixture: "settings.json",
+    }).as("settingsReloadRequest");
 
     cy.contains("admin.settings.theme.title");
 
-    cy.get('[data-test="favicon-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.settings.favicon.title")
-      .within(() => {
-        cy.checkSettingsImageSelector(
-          "/images/favicon.ico",
-          "favicon.ico",
-          false,
-        );
-      });
-
-    cy.get('[data-test="favicon-dark-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.settings.favicon_dark.title")
-      .within(() => {
-        cy.checkSettingsImageSelector(
-          "/images/favicon-dark.ico",
-          "favicon-dark.ico",
-          false,
-        );
-      });
-
+    // Change settings
     cy.get('[data-test="logo-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.logo.title")
@@ -393,7 +422,7 @@ describe("Admin settings with edit permission", function () {
             .should("not.have.class", "selected");
         }
 
-        // Set custom color and check that color buttons is selected
+        // Set custom color and check that color button is selected
         cy.get("#theme-primary-color").type("#14b8a6");
 
         for (let i = 0; i < 10; i++) {
@@ -412,12 +441,12 @@ describe("Admin settings with edit permission", function () {
 
     // Save changes
     cy.fixture("settings.json").then((settings) => {
-      settings.data.theme_favicon = "/images/favicon2.ico";
-      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
       settings.data.theme_logo = "/images/logo2.svg";
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
+      // Respond with custom css set to check that it is handled correctly in the next request
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -448,30 +477,13 @@ describe("Admin settings with edit permission", function () {
         interception.request.headers,
       );
 
-      const uploadedFavicon = formData.get("theme_favicon_file");
+      expect(formData.get("theme_favicon_file")).to.eql(null);
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon.ico");
 
-      expect(uploadedFavicon.name).to.eql("favicon.ico");
-      expect(uploadedFavicon.type).to.eql("image/vnd.microsoft.icon");
-      cy.fixture("files/favicon.ico", "base64").then((content) => {
-        uploadedFavicon.arrayBuffer().then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          expect(base64).to.eql(content);
-        });
-      });
-
-      expect(formData.get("theme_favicon")).to.eql(null);
-
-      const uploadedFaviconDark = formData.get("theme_favicon_dark_file");
-      expect(uploadedFaviconDark.name).to.eql("favicon-dark.ico");
-      expect(uploadedFaviconDark.type).to.eql("image/vnd.microsoft.icon");
-      cy.fixture("files/favicon-dark.ico", "base64").then((content) => {
-        uploadedFaviconDark.arrayBuffer().then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          expect(content).to.eql(base64);
-        });
-      });
-
-      expect(formData.get("theme_favicon_dark")).to.eql(null);
+      expect(formData.get("theme_favicon_dark_file")).to.eql(null);
+      expect(formData.get("theme_favicon_dark")).to.eql(
+        "/images/favicon-dark.ico",
+      );
 
       const uploadedLogo = formData.get("theme_logo_file");
       expect(uploadedLogo.name).to.eql("logo.svg");
@@ -499,21 +511,18 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
+
+      expect(formData.get("theme_custom_css")).to.eql(null);
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
 
     // Check that settings are shown correctly
-    cy.get('[data-test="favicon-field"]')
-      .find('[data-test="settings-image-preview"]')
-      .should("have.attr", "src")
-      .and("include", "/images/favicon2.ico");
-    cy.get('[data-test="favicon-dark-field"]')
-      .find('[data-test="settings-image-preview"]')
-      .should("have.attr", "src")
-      .and("include", "/images/favicon-dark2.ico");
     cy.get('[data-test="logo-field"]')
       .find('[data-test="settings-image-preview"]')
       .should("have.attr", "src")
@@ -522,6 +531,7 @@ describe("Admin settings with edit permission", function () {
       .find('[data-test="settings-image-preview"]')
       .should("have.attr", "src")
       .and("include", "/images/logo-dark2.svg");
+
     cy.get('[data-test="primary-color-field"]').within(() => {
       for (let i = 0; i < 10; i++) {
         cy.get('[data-test="color-button"]')
@@ -533,10 +543,11 @@ describe("Admin settings with edit permission", function () {
     });
     cy.get("#theme-rounded").should("not.be.checked");
 
-    // Save changes again
+    // Check that page was not reloaded (settingsReloadRequest was not called)
+    cy.get("@settingsReloadRequest").should("be.null");
+
+    // Save changes again (no new changes)
     cy.fixture("settings.json").then((settings) => {
-      settings.data.theme_favicon = "/images/favicon2.ico";
-      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
       settings.data.theme_logo = "/images/logo2.svg";
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
@@ -559,11 +570,11 @@ describe("Admin settings with edit permission", function () {
       );
 
       expect(formData.get("theme_favicon_file")).to.eql(null);
-      expect(formData.get("theme_favicon")).to.eql("/images/favicon2.ico");
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon.ico");
 
       expect(formData.get("theme_favicon_dark_file")).to.eql(null);
       expect(formData.get("theme_favicon_dark")).to.eql(
-        "/images/favicon-dark2.ico",
+        "/images/favicon-dark.ico",
       );
 
       expect(formData.get("theme_logo_file")).to.eql(null);
@@ -574,12 +585,507 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
+
+      // Make sure that custom css is still null, even though it was set
+      // after the previous request (was not changed by the user)
+      expect(formData.get("theme_custom_css")).to.eql(null);
+    });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo2.svg");
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo-dark2.svg");
+
+    cy.get('[data-test="primary-color-field"]').within(() => {
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-test="color-button"]')
+          .eq(i)
+          .should(i === 3 ? "have.class" : "not.have.class", "selected");
+      }
+
+      cy.get("#theme-primary-color").should("have.value", "#14b8a6");
+    });
+    cy.get("#theme-rounded").should("not.be.checked");
+
+    // Check that page was not reloaded (settingsReloadRequest was not called)
+    cy.get("@settingsReloadRequest").should("be.null");
+
+    // Change logo urls
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/logo2.svg")
+      .clear();
+
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/logo3.svg");
+
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/logo-dark2.svg")
+      .clear();
+
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/logo-dark3.svg");
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_logo = "/images/logo3.svg";
+      settings.data.theme_logo_dark = "/images/logo-dark3.svg";
+      settings.data.theme_primary_color = "#14b8a6";
+      settings.data.theme_rounded = false;
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_favicon_file")).to.eql(null);
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon.ico");
+
+      expect(formData.get("theme_favicon_dark_file")).to.eql(null);
+      expect(formData.get("theme_favicon_dark")).to.eql(
+        "/images/favicon-dark.ico",
+      );
+
+      expect(formData.get("theme_logo_file")).to.eql(null);
+      expect(formData.get("theme_logo")).to.eql("/images/logo3.svg");
+
+      expect(formData.get("theme_logo_dark_file")).to.eql(null);
+      expect(formData.get("theme_logo_dark")).to.eql("/images/logo-dark3.svg");
+
+      expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
+      expect(formData.get("theme_rounded")).to.equal("0");
+
+      expect(formData.get("theme_custom_css")).to.eql(null);
+    });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="logo-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo3.svg");
+    cy.get('[data-test="logo-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/logo-dark3.svg");
+
+    cy.get('[data-test="primary-color-field"]').within(() => {
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-test="color-button"]')
+          .eq(i)
+          .should(i === 3 ? "have.class" : "not.have.class", "selected");
+      }
+
+      cy.get("#theme-primary-color").should("have.value", "#14b8a6");
+    });
+    cy.get("#theme-rounded").should("not.be.checked");
+
+    // Check that page was not reloaded (settingsReloadRequest was not called)
+    cy.get("@settingsReloadRequest").should("be.null");
+  });
+
+  it("change theme favicon setting", function () {
+    cy.visit("/admin/settings");
+
+    cy.wait("@configRequest");
+    cy.wait("@settingsRequest");
+
+    cy.contains("admin.settings.theme.title");
+
+    // Upload new favicon
+    cy.get('[data-test="favicon-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.favicon.title")
+      .within(() => {
+        cy.checkSettingsImageSelector(
+          "/images/favicon.ico",
+          "favicon.ico",
+          false,
+        );
+      });
+
+    // Save changes
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon = "/images/favicon2.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      const uploadedFavicon = formData.get("theme_favicon_file");
+
+      expect(uploadedFavicon.name).to.eql("favicon.ico");
+      expect(uploadedFavicon.type).to.eql("image/vnd.microsoft.icon");
+      cy.fixture("files/favicon.ico", "base64").then((content) => {
+        uploadedFavicon.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(base64).to.eql(content);
+        });
+      });
+
+      expect(formData.get("theme_favicon")).to.eql(null);
+    });
+
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
+    // Check that page was reloaded (settingsReloadRequest was called)
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon2.ico");
+
+    // Change favicon url
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/favicon2.ico")
+      .clear();
+
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/favicon3.ico");
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon = "/images/favicon3.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_favicon_file")).to.eql(null);
+
+      expect(formData.get("theme_favicon")).to.eql("/images/favicon3.ico");
+    });
+
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
+    // Check that page was reloaded (settingsReloadRequest was called)
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon3.ico");
+  });
+
+  it("change theme favicon dark setting", function () {
+    cy.visit("/admin/settings");
+
+    cy.wait("@configRequest");
+    cy.wait("@settingsRequest");
+
+    cy.contains("admin.settings.theme.title");
+
+    // Upload new favicon
+    cy.get('[data-test="favicon-dark-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.favicon_dark.title")
+      .within(() => {
+        cy.checkSettingsImageSelector(
+          "/images/favicon-dark.ico",
+          "favicon-dark.ico",
+          false,
+        );
+      });
+
+    // Save changes
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      const uploadedFavicon = formData.get("theme_favicon_dark_file");
+
+      expect(uploadedFavicon.name).to.eql("favicon-dark.ico");
+      expect(uploadedFavicon.type).to.eql("image/vnd.microsoft.icon");
+      cy.fixture("files/favicon-dark.ico", "base64").then((content) => {
+        uploadedFavicon.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(base64).to.eql(content);
+        });
+      });
+
+      expect(formData.get("theme_favicon_dark")).to.eql(null);
+    });
+
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
+    // Check that page was reloaded (settingsReloadRequest was called)
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon-dark2.ico");
+
+    // Change favicon url
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .should("have.value", "/images/favicon-dark2.ico")
+      .clear();
+
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-url-input"]')
+      .type("/images/favicon-dark3.ico");
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_favicon_dark = "/images/favicon-dark3.ico";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_favicon_dark_file")).to.eql(null);
+
+      expect(formData.get("theme_favicon_dark")).to.eql(
+        "/images/favicon-dark3.ico",
+      );
+    });
+
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
+    // Check that page was reloaded (settingsReloadRequest was called)
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="favicon-dark-field"]')
+      .find('[data-test="settings-image-preview"]')
+      .should("have.attr", "src")
+      .and("include", "/images/favicon-dark3.ico");
+  });
+
+  it("change theme custom css setting", function () {
+    cy.visit("/admin/settings");
+
+    cy.wait("@configRequest");
+    cy.wait("@settingsRequest");
+
+    cy.contains("admin.settings.theme.title");
+
+    // Upload new css file
+    cy.get('[data-test="theme-custom-css-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.custom_css")
+      .within(() => {
+        cy.checkSettingsFileSelector("", "theme_custom_css.css", true);
+      });
+
+    // Save changes
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      const uploadedThemeCustomCss = formData.get("theme_custom_css");
+      expect(uploadedThemeCustomCss.name).to.eql("theme_custom_css.css");
+      expect(uploadedThemeCustomCss.type).to.eql("text/css");
+
+      cy.fixture("files/theme_custom_css.css", "base64").then((content) => {
+        uploadedThemeCustomCss.arrayBuffer().then((arrayBuffer) => {
+          const base64 = _arrayBufferToBase64(arrayBuffer);
+          expect(content).to.eql(base64);
+        });
+      });
+    });
+
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
+    // Check that page was reloaded (settingsReloadRequest was called)
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="theme-custom-css-field"]').within(() => {
+      cy.get('[data-test="file-input-button"]').should(
+        "have.text",
+        "app.browse",
+      );
+
+      cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
+
+      cy.get('[data-test="settings-file-view-button"]')
+        .should("be.visible")
+        .and("include.text", "app.view")
+        .and("have.attr", "href", "/storage/styles/theme_custom_css.css");
+
+      // Remove file
+      cy.get('[data-test="settings-file-delete-button"]').click();
+    });
+
+    // Save changes again
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.theme_custom_css = null;
+
+      cy.intercept("POST", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsReloadRequest");
+
+      cy.get('[data-test="settings-save-button"]')
+        .should("include.text", "app.save")
+        .click();
+    });
+
+    cy.wait("@saveChangesRequest").then((interception) => {
+      const formData = parseFormData(
+        interception.request.body,
+        interception.request.headers,
+      );
+
+      expect(formData.get("theme_custom_css")).to.eql("");
+    });
+
+    // Check that config is loaded (will be loaded regardless of whether the page is reloaded or not)
+    cy.wait("@configRequest");
+
+    // Check that page was reloaded (settingsReloadRequest was called)
+    cy.wait("@settingsReloadRequest");
+
+    // Check that settings are shown correctly
+    cy.get('[data-test="theme-custom-css-field"]').within(() => {
+      cy.get('[data-test="file-input-button"]').should(
+        "have.text",
+        "app.browse",
+      );
+
+      cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
+
+      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
     });
   });
 
   it("change banner settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.banner.title");
@@ -693,10 +1199,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_blank")
-        .and("have.text", "/rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "primary")
+        .and("have.text", "/rooms")
+        .and("have.attr", "data-p-severity", "primary")
         .and("not.have.class", "p-0 underline")
         .and("not.have.attr", "style");
     });
@@ -724,10 +1228,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_blank")
-        .and("have.text", "Rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "primary")
+        .and("have.text", "Rooms")
+        .and("have.attr", "data-p-severity", "primary")
         .and("not.have.class", "p-0 underline")
         .and("not.have.attr", "style");
     });
@@ -790,10 +1292,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_blank")
-        .and("have.text", "Rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "link")
+        .and("have.text", "Rooms")
+        .and("have.attr", "data-p-severity", "link")
         .and("have.class", "p-0 underline")
         .and("not.have.attr", "style");
     });
@@ -855,10 +1355,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_self")
-        .and("have.text", "Rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "link")
+        .and("have.text", "Rooms")
+        .and("have.attr", "data-p-severity", "link")
         .and("have.class", "p-0 underline")
         .and("not.have.attr", "style");
     });
@@ -922,10 +1420,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_self")
-        .and("have.text", "Rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "link")
+        .and("have.text", "Rooms")
+        .and("have.attr", "data-p-severity", "link")
         .and("have.class", "p-0 underline")
         .and("have.attr", "style")
         .and("include", "color: rgb(255, 255, 255)");
@@ -1001,10 +1497,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_self")
-        .and("have.text", "Rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "link")
+        .and("have.text", "Rooms")
+        .and("have.attr", "data-p-severity", "link")
         .and("have.class", "p-0 underline")
         .and("have.attr", "style")
         .and("include", "color: rgb(255, 255, 255)");
@@ -1064,6 +1558,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("banner_background")).to.equal("#ef4444");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -1090,10 +1587,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_self")
-        .and("have.text", "Rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "link")
+        .and("have.text", "Rooms")
+        .and("have.attr", "data-p-severity", "link")
         .and("have.class", "p-0 underline")
         .and("have.attr", "style")
         .and("include", "color: rgb(255, 255, 255)");
@@ -1154,10 +1649,8 @@ describe("Admin settings with edit permission", function () {
         .should("be.visible")
         .and("have.attr", "href", "/rooms")
         .and("have.attr", "target", "_self")
-        .and("have.text", "Rooms");
-      cy.get('[data-test="banner-link-button"]')
-        .find("button")
-        .should("have.attr", "data-p-severity", "link")
+        .and("have.text", "Rooms")
+        .and("have.attr", "data-p-severity", "link")
         .and("have.class", "p-0 underline")
         .and("have.attr", "style")
         .and("include", "color: rgb(255, 255, 255)");
@@ -1221,6 +1714,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("banner_background")).to.equal("");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that settings are shown correctly
     cy.get("#banner-enabled").should("not.be.checked");
     cy.get('[data-test="app-banner"]')
@@ -1271,6 +1767,7 @@ describe("Admin settings with edit permission", function () {
   it("change room settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("app.rooms");
@@ -1306,64 +1803,89 @@ describe("Admin settings with edit permission", function () {
       });
 
     // Room token expiration
-    cy.get('[data-test="room-token-expiration-dropdown-items"]').should(
-      "not.exist",
-    );
-    cy.get('[data-test="room-token-expiration-field"]')
+    cy.get(
+      '[data-test="room-personalized-link-expiration-dropdown-items"]',
+    ).should("not.exist");
+    cy.get('[data-test="room-personalized-link-expiration-field"]')
       .should("be.visible")
-      .and("include.text", "admin.settings.room_token_expiration.title")
-      .and("include.text", "admin.settings.room_token_expiration.description")
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.title",
+      )
+      .and(
+        "include.text",
+        "admin.settings.room_personalized_link_expiration.description",
+      )
       .within(() => {
-        cy.get('[data-test="room-token-expiration-dropdown"]')
+        cy.get('[data-test="room-personalized-link-expiration-dropdown"]')
           .should("have.text", "app.unlimited")
           .click();
       });
 
-    cy.get('[data-test="room-token-expiration-dropdown-items"]')
+    cy.get('[data-test="room-personalized-link-expiration-dropdown-items"]')
       .should("be.visible")
       .within(() => {
-        cy.get('[data-test="room-token-expiration-dropdown-option"]').should(
-          "have.length",
-          8,
-        );
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        ).should("have.length", 8);
 
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(0)
           .should("have.text", "admin.settings.one_week");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(1)
           .should("have.text", "admin.settings.two_weeks");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(2)
           .should("have.text", "admin.settings.one_month");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(3)
           .should("have.text", "admin.settings.three_month");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(4)
           .should("have.text", "admin.settings.six_month");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(5)
           .should("have.text", "admin.settings.one_year");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(6)
           .should("have.text", "admin.settings.two_years");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(7)
           .should("have.text", "app.unlimited");
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(7)
           .should("have.attr", "aria-selected", "true");
 
-        cy.get('[data-test="room-token-expiration-dropdown-option"]')
+        cy.get(
+          '[data-test="room-personalized-link-expiration-dropdown-option"]',
+        )
           .eq(1)
           .click();
       });
 
-    cy.get('[data-test="room-token-expiration-dropdown-items"]').should(
-      "not.exist",
-    );
-    cy.get('[data-test="room-token-expiration-dropdown"]').should(
+    cy.get(
+      '[data-test="room-personalized-link-expiration-dropdown-items"]',
+    ).should("not.exist");
+    cy.get('[data-test="room-personalized-link-expiration-dropdown"]').should(
       "have.text",
       "admin.settings.two_weeks",
     );
@@ -1569,14 +2091,22 @@ describe("Admin settings with edit permission", function () {
         cy.get("#room-file-terms-of-use").type("New room file terms of use");
       });
 
+    cy.get('[data-test="room-hide-owner-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.room_hide_owner_from_guests")
+      .within(() => {
+        cy.get("#room-hide-owner").should("not.be.checked").click();
+      });
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = 10;
-      settings.data.room_token_expiration = 14;
+      settings.data.room_personalized_link_expiration = 14;
       settings.data.room_auto_delete_deadline_period = 7;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = "New room file terms of use";
+      settings.data.room_hide_owner_from_guests = true;
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -1608,7 +2138,7 @@ describe("Admin settings with edit permission", function () {
       );
 
       expect(formData.get("room_limit")).to.equal("10");
-      expect(formData.get("room_token_expiration")).to.equal("14");
+      expect(formData.get("room_personalized_link_expiration")).to.equal("14");
       expect(formData.get("room_auto_delete_deadline_period")).to.equal("7");
       expect(formData.get("room_auto_delete_inactive_period")).to.equal("30");
       expect(formData.get("room_auto_delete_never_used_period")).to.equal(
@@ -1617,7 +2147,11 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("room_file_terms_of_use")).to.equal(
         "New room file terms of use",
       );
+      expect(formData.get("room_hide_owner_from_guests")).to.equal("1");
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
@@ -1631,7 +2165,7 @@ describe("Admin settings with edit permission", function () {
       .should("be.checked")
       .and("not.be.disabled");
     cy.get("#room-limit-custom").should("have.value", "10");
-    cy.get('[data-test="room-token-expiration-dropdown"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-dropdown"]').should(
       "have.text",
       "admin.settings.two_weeks",
     );
@@ -1651,6 +2185,7 @@ describe("Admin settings with edit permission", function () {
       "have.value",
       "New room file terms of use",
     );
+    cy.get("#room-hide-owner").should("be.checked");
 
     // Change settings again (Clear inputs and change room limit to unlimited)
     cy.get("#room-limit-mode-unlimited").click();
@@ -1658,14 +2193,17 @@ describe("Admin settings with edit permission", function () {
 
     cy.get("#room-file-terms-of-use").clear();
 
+    cy.get("#room-hide-owner").click();
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = -1;
-      settings.data.room_token_expiration = 14;
+      settings.data.room_personalized_link_expiration = 14;
       settings.data.room_auto_delete_deadline_period = 7;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
       settings.data.room_file_terms_of_use = null;
+      settings.data.room_hide_owner_from_guests = false;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -1684,14 +2222,18 @@ describe("Admin settings with edit permission", function () {
       );
 
       expect(formData.get("room_limit")).to.equal("-1");
-      expect(formData.get("room_token_expiration")).to.equal("14");
+      expect(formData.get("room_personalized_link_expiration")).to.equal("14");
       expect(formData.get("room_auto_delete_deadline_period")).to.equal("7");
       expect(formData.get("room_auto_delete_inactive_period")).to.equal("30");
       expect(formData.get("room_auto_delete_never_used_period")).to.equal(
         "730",
       );
       expect(formData.get("room_file_terms_of_use")).to.equal("");
+      expect(formData.get("room_hide_owner_from_guests")).to.equal("0");
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that settings are shown correctly
     cy.get("#room-limit-mode-unlimited")
@@ -1702,7 +2244,7 @@ describe("Admin settings with edit permission", function () {
       .and("not.be.disabled");
 
     cy.get("#room-limit-custom").should("not.exist");
-    cy.get('[data-test="room-token-expiration-dropdown"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-dropdown"]').should(
       "have.text",
       "admin.settings.two_weeks",
     );
@@ -1719,11 +2261,13 @@ describe("Admin settings with edit permission", function () {
       "admin.settings.two_years",
     );
     cy.get("#room-file-terms-of-use").should("have.value", "");
+    cy.get("#room-hide-owner").should("not.be.checked");
   });
 
   it("change user settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("app.users");
@@ -1771,6 +2315,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("user_password_change_allowed")).to.equal("0");
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -1782,6 +2329,7 @@ describe("Admin settings with edit permission", function () {
   it("change recording and statistics settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.recording_and_statistics_title");
@@ -2145,6 +2693,9 @@ describe("Admin settings with edit permission", function () {
       );
     });
 
+    // Check that config is loaded
+    cy.wait("@configRequest");
+
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
     cy.get('[data-test="settings-save-button"]').should("not.be.disabled");
@@ -2172,6 +2723,7 @@ describe("Admin settings with edit permission", function () {
   it("change bbb settings", function () {
     cy.visit("/admin/settings");
 
+    cy.wait("@configRequest");
     cy.wait("@settingsRequest");
 
     cy.contains("admin.settings.bbb.title");
@@ -2208,12 +2760,28 @@ describe("Admin settings with edit permission", function () {
         cy.checkSettingsFileSelector("", "testFile.txt", true);
       });
 
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":0,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "")
+          .and("be.not.disabled")
+          .type("Welcome to BBB");
+      });
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "include.text",
+      'app.char_counter_{"chars":14,"max":500}',
+    );
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = "/images/logo.svg";
       settings.data.bbb_logo_dark = "/images/logo-dark.svg";
       settings.data.bbb_style = "/files/bbb_style.css";
       settings.data.bbb_default_presentation = "/files/testFile.txt";
+      settings.data.bbb_default_welcome_message = "Welcome to BigBlueButton";
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -2291,7 +2859,14 @@ describe("Admin settings with edit permission", function () {
           expect(content).to.eql(base64);
         });
       });
+
+      expect(formData.get("bbb_default_welcome_message")).to.equal(
+        "Welcome to BBB",
+      );
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
@@ -2439,12 +3014,28 @@ describe("Admin settings with edit permission", function () {
         .click();
     });
 
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":24,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "Welcome to BigBlueButton")
+          .and("be.not.disabled")
+          .clear();
+      });
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "include.text",
+      'app.char_counter_{"chars":0,"max":500}',
+    );
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = null;
       settings.data.bbb_logo_dark = null;
       settings.data.bbb_style = null;
       settings.data.bbb_default_presentation = null;
+      settings.data.bbb_default_welcome_message = null;
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -2467,7 +3058,11 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("bbb_logo_dark")).to.eql("");
       expect(formData.get("bbb_style")).to.eql("");
       expect(formData.get("bbb_default_presentation")).to.be.eql("");
+      expect(formData.get("bbb_default_welcome_message")).to.be.eql("");
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
 
     // Check that settings are shown correctly
     cy.get('[data-test="bbb-logo-field"]').within(() => {
@@ -2540,6 +3135,9 @@ describe("Admin settings with edit permission", function () {
       expect(formData.get("bbb_style")).to.eql(null);
       expect(formData.get("bbb_default_presentation")).to.be.eql(null);
     });
+
+    // Check that config is loaded
+    cy.wait("@configRequest");
   });
 
   it("save changes errors", function () {
@@ -2551,7 +3149,7 @@ describe("Admin settings with edit permission", function () {
     cy.intercept("POST", "api/v1/settings", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The general name field is required. (and 49 more errors)",
         errors: {
           general_name: ["The general name field is required."],
           general_help_url: ["The selected general help url is invalid."],
@@ -2560,6 +3158,9 @@ describe("Admin settings with edit permission", function () {
           ],
           general_privacy_policy_url: [
             "The selected general privacy policy url is invalid.",
+          ],
+          general_accessibility_statement_url: [
+            "The selected general accessibility url is invalid.",
           ],
           general_pagination_page_size: [
             "The general pagination page size field is required.",
@@ -2585,6 +3186,7 @@ describe("Admin settings with edit permission", function () {
           theme_logo_dark_file: ["The theme logo dark file field is required."],
           theme_primary_color: ["The theme primary color field is required."],
           theme_rounded: ["The theme rounded field is required."],
+          theme_custom_css: ["The theme custom css field is required."],
           banner_enabled: ["The banner enabled field is required."],
           banner_title: ["The selected banner title is invalid."],
           banner_icon: ["The selected banner icon is invalid."],
@@ -2598,8 +3200,8 @@ describe("Admin settings with edit permission", function () {
             "The selected banner background color is invalid.",
           ],
           room_limit: ["The room limit field is required."],
-          room_token_expiration: [
-            "The selected room token expiration is invalid.",
+          room_personalized_link_expiration: [
+            "The selected room personalized room links expiration is invalid.",
           ],
           room_auto_delete_deadline_period: [
             "The selected room auto delete deadline period is invalid.",
@@ -2612,6 +3214,9 @@ describe("Admin settings with edit permission", function () {
           ],
           room_file_terms_of_use: [
             "The selected room file terms of use is invalid.",
+          ],
+          room_hide_owner_from_guests: [
+            "The selected room hide owner for guests field is invalid.",
           ],
           user_password_change_allowed: [
             "The user password change allowed field is required.",
@@ -2642,6 +3247,9 @@ describe("Admin settings with edit permission", function () {
           bbb_default_presentation: [
             "The bbb default presentation field is required.",
           ],
+          bbb_default_welcome_message: [
+            "The bbb default welcome message must not be greater than 500 characters.",
+          ],
         },
       },
     }).as("saveChangesRequest");
@@ -2651,6 +3259,10 @@ describe("Admin settings with edit permission", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that errors are shown correctly
+    cy.checkToastMessage(
+      "The general name field is required. (and 49 more errors)",
+    );
+
     cy.get('[data-test="application-name-field"]').should(
       "include.text",
       "The general name field is required.",
@@ -2666,6 +3278,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="privacy-policy-url-field"]').should(
       "include.text",
       "The selected general privacy policy url is invalid.",
+    );
+    cy.get('[data-test="accessibility-statement-url-field"]').should(
+      "include.text",
+      "The selected general accessibility url is invalid.",
     );
     cy.get('[data-test="pagination-page-size-field"]').should(
       "include.text",
@@ -2703,6 +3319,11 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="theme-rounded-field"]').should(
       "include.text",
       "The theme rounded field is required.",
+    );
+
+    cy.get('[data-test="theme-custom-css-field"]').should(
+      "include.text",
+      "The theme custom css field is required.",
     );
 
     cy.get('[data-test="banner-enabled-field"]').should(
@@ -2750,9 +3371,9 @@ describe("Admin settings with edit permission", function () {
       "include.text",
       "The room limit field is required.",
     );
-    cy.get('[data-test="room-token-expiration-field"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-field"]').should(
       "include.text",
-      "The selected room token expiration is invalid.",
+      "The selected room personalized room links expiration is invalid.",
     );
     cy.get('[data-test="room-auto-delete-deadline-period-field"]').should(
       "include.text",
@@ -2769,6 +3390,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="room-file-terms-of-use-field"]').should(
       "include.text",
       "The selected room file terms of use is invalid.",
+    );
+    cy.get('[data-test="room-hide-owner-field"]').should(
+      "include.text",
+      "The selected room hide owner for guests field is invalid.",
     );
 
     cy.get('[data-test="password-change-allowed-field"]').should(
@@ -2814,6 +3439,11 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="default-presentation-field"]').should(
       "include.text",
       "The bbb default presentation field is required.",
+    );
+
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "include.text",
+      "The bbb default welcome message must not be greater than 500 characters.",
     );
 
     // Check with 500 error
@@ -2937,9 +3567,9 @@ describe("Admin settings with edit permission", function () {
       "not.include.text",
       "The room limit field is required.",
     );
-    cy.get('[data-test="room-token-expiration-field"]').should(
+    cy.get('[data-test="room-personalized-link-expiration-field"]').should(
       "not.include.text",
-      "The selected room token expiration is invalid.",
+      "The selected room personalized room links expiration is invalid.",
     );
     cy.get('[data-test="room-auto-delete-deadline-period-field"]').should(
       "not.include.text",
@@ -2956,6 +3586,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="room-file-terms-of-use-field"]').should(
       "not.include.text",
       "The selected room file terms of use is invalid.",
+    );
+    cy.get('[data-test="room-hide-owner-field"]').should(
+      "not.include.text",
+      "The selected room hide owner for guests field is invalid.",
     );
 
     cy.get('[data-test="password-change-allowed-field"]').should(
@@ -3001,6 +3635,10 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="default-presentation-field"]').should(
       "not.include.text",
       "The bbb default presentation field is required.",
+    );
+    cy.get('[data-test="bbb-default-welcome-message-field"]').should(
+      "not.include.text",
+      "The bbb default welcome message must not be greater than 500 characters.",
     );
 
     // Check with 413 error (payload too large)

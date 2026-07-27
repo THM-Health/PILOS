@@ -340,7 +340,9 @@ describe("Admin room types index room type actions", function () {
     cy.intercept("DELETE", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("deleteRoomTypeRequest");
 
@@ -356,8 +358,8 @@ describe("Admin room types index room type actions", function () {
 
     // Check that error message is shown
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Check that room type is not there anymore
@@ -369,6 +371,7 @@ describe("Admin room types index room type actions", function () {
       .eq(1)
       .should("include.text", "Meeting");
 
+    // Reopen dialog for different room type
     cy.get('[data-test="room-type-item"]')
       .eq(0)
       .find('[data-test="room-types-delete-button"]')

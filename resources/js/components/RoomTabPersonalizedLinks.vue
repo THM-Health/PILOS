@@ -2,10 +2,11 @@
   <div>
     <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
-        <div>
+        <search>
           <InputGroup data-test="room-personalized-links-search">
             <InputText
               v-model="search"
+              type="search"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
               @keyup.enter="loadData(1)"
@@ -18,7 +19,7 @@
               @click="loadData(1)"
             />
           </InputGroup>
-        </div>
+        </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup>
             <InputGroupAddon>
@@ -113,7 +114,7 @@
         :total-records="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
-        :value="tokens"
+        :value="personalizedLinks"
         lazy
         data-key="id"
         paginator
@@ -139,7 +140,7 @@
           <div>
             <div v-if="!isBusy && !loadingError" class="px-2">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
-                $t("rooms.tokens.nodata")
+                $t("rooms.personalized_links.nodata")
               }}</InlineNote>
               <InlineNote v-else>{{ $t("app.filter_no_results") }}</InlineNote>
             </div>
@@ -151,21 +152,21 @@
             <div v-for="item in slotProps.items" :key="item.token">
               <div
                 data-test="room-personalized-link-item"
-                class="flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
+                class="flex flex-col justify-between gap-4 border-t border-surface py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
                   <p class="m-0 text-lg font-semibold">
                     {{ item.firstname }} {{ item.lastname }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="m-0 text-sm">
                         <span v-if="item.last_usage == null">{{
-                          $t("rooms.tokens.last_used_never")
+                          $t("rooms.personalized_links.last_used_never")
                         }}</span>
                         <span v-else>{{
-                          $t("rooms.tokens.last_used_at", {
+                          $t("rooms.personalized_links.last_used_at", {
                             date: $d(
                               new Date(item.last_usage),
                               "datetimeShort",
@@ -176,18 +177,18 @@
                     </div>
                     <div
                       v-if="item.expires !== null"
-                      class="flex flex-row gap-2"
+                      class="flex flex-row items-center gap-2"
                     >
                       <i class="fa-regular fa-calendar-xmark"></i>
                       <p class="m-0 text-sm">
                         {{
-                          $t("rooms.tokens.expires_at", {
+                          $t("rooms.personalized_links.expires_at", {
                             date: $d(new Date(item.expires), "datetimeShort"),
                           })
                         }}
                       </p>
                     </div>
-                    <div class="flex flex-row gap-2">
+                    <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-user-tag"></i>
                       <RoomRoleBadge :role="item.role" />
                     </div>
@@ -208,11 +209,11 @@
                   <!-- edit -->
                   <RoomTabPersonalizedLinksEditButton
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    :id="item.id"
                     :room-id="props.room.id"
                     :firstname="item.firstname"
                     :lastname="item.lastname"
                     :role="item.role"
-                    :token="item.token"
                     :disabled="isBusy"
                     @edited="loadData()"
                     @not-found="loadData()"
@@ -220,10 +221,10 @@
                   <!-- delete -->
                   <RoomTabPersonalizedLinksDeleteButton
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    :id="item.id"
                     :room-id="props.room.id"
                     :firstname="item.firstname"
                     :lastname="item.lastname"
-                    :token="item.token"
                     :disabled="isBusy"
                     @deleted="loadData()"
                     @not-found="loadData()"
@@ -257,7 +258,7 @@ const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 const { t } = useI18n();
 
-const tokens = ref([]);
+const personalizedLinks = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
 const sortField = ref("lastname");
@@ -268,16 +269,19 @@ const filter = ref("all");
 const sortFields = computed(() => [
   { name: t("app.firstname"), value: "firstname" },
   { name: t("app.lastname"), value: "lastname" },
-  { name: t("rooms.tokens.last_usage"), value: "last_usage" },
+  { name: t("rooms.personalized_links.last_usage"), value: "last_usage" },
 ]);
 
 const filterOptions = computed(() => [
-  { name: t("rooms.tokens.filter.all"), value: "all" },
+  { name: t("rooms.personalized_links.filter.all"), value: "all" },
   {
-    name: t("rooms.tokens.filter.participant_role"),
+    name: t("rooms.personalized_links.filter.participant_role"),
     value: "participant_role",
   },
-  { name: t("rooms.tokens.filter.moderator_role"), value: "moderator_role" },
+  {
+    name: t("rooms.personalized_links.filter.moderator_role"),
+    value: "moderator_role",
+  },
 ]);
 
 const toggleSortOrder = () => {
@@ -286,7 +290,7 @@ const toggleSortOrder = () => {
 };
 
 /**
- * (Re)loads list of tokens from api
+ * (Re)loads list of personalized links from api
  */
 function loadData(page = null) {
   isBusy.value = true;
@@ -303,9 +307,9 @@ function loadData(page = null) {
   };
 
   api
-    .call("rooms/" + props.room.id + "/tokens", config)
+    .call("rooms/" + props.room.id + "/personalizedLinks", config)
     .then((response) => {
-      tokens.value = response.data.data;
+      personalizedLinks.value = response.data.data;
       paginator.updateMeta(response.data.meta).then(() => {
         if (paginator.isOutOfRange()) {
           loadData(paginator.getLastPage());

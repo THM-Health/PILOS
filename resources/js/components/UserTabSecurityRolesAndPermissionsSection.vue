@@ -1,6 +1,11 @@
 <template>
   <div>
-    <form v-if="model" class="flex flex-col gap-4" @submit="save">
+    <Form
+      v-if="model"
+      :disabled="isBusy || rolesLoadingError || rolesLoading || disabled"
+      class="flex flex-col gap-4"
+      @submit="save"
+    >
       <div class="field grid grid-cols-12 gap-4" data-test="roles-field">
         <label
           id="roles-label"
@@ -13,20 +18,23 @@
             aria-labelledby="roles-label"
             :invalid="formErrors.fieldInvalid('roles', true)"
             :disabled="
-              isBusy || viewOnly || !userPermissions.can('editUserRole', model)
+              isBusy ||
+              viewOnly ||
+              !userPermissions.can('editUserRole', model) ||
+              disabled
             "
             :automatic-roles="automaticRoles"
             :disable-superuser="!authStore.currentUser?.superuser"
             @loading-error="(value) => (rolesLoadingError = value)"
             @busy="(value) => (rolesLoading = value)"
           />
-          <FormError :errors="formErrors.fieldError('roles')" />
+          <FormError :errors="formErrors.fieldError('roles', true)" />
         </div>
       </div>
       <div class="flex justify-end">
         <Button
           v-if="!viewOnly && userPermissions.can('editUserRole', model)"
-          :disabled="isBusy || rolesLoadingError || rolesLoading"
+          :disabled="isBusy || rolesLoadingError || rolesLoading || disabled"
           type="submit"
           :loading="isBusy"
           :label="$t('app.save')"
@@ -34,18 +42,22 @@
           data-test="users-roles-save-button"
         />
       </div>
-    </form>
+    </Form>
   </div>
 </template>
 
 <script setup>
-import env from "../env";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { computed, onBeforeMount, ref, watch } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useAuthStore } from "../stores/auth.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   viewOnly: {
@@ -56,9 +68,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["staleError", "updateUser", "notFoundError"]);
+const emit = defineEmits(["staleError", "updateUser", "notFoundError", "busy"]);
 
 const userPermissions = useUserPermissions();
 const api = useApi();
@@ -92,6 +108,10 @@ watch(
   { deep: true },
 );
 
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
+});
+
 onBeforeMount(() => {
   model.value = _.cloneDeep(props.user);
 });
@@ -119,16 +139,17 @@ function save(event) {
       emit("updateUser", response.data.data);
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         emit("notFoundError", error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         // Stale error
         emit("staleError", error.response.data);

@@ -208,7 +208,11 @@ The script will try to extract the archive file to a temporary directory, import
 
 If the import was successful, the archive file will be deleted.
 
-By default all recording files are only visible to the meeting owner. The owner can change the visibility of the recordings in the UI.
+By default, all recording files are only visible to the meeting owner. The owner can change the visibility of the recordings in the UI.
+
+:::tip Public recordings by default
+If you want imported recordings to be visible to everyone, put them in a subfolder `public` in the `recordings-spool` directory.
+:::
 
 ### Failed imports
 

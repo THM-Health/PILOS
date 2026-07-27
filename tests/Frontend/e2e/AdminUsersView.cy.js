@@ -104,10 +104,10 @@ describe("Admin users view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.view_{"firstname":"Laura","lastname":"Rivera"}',
+        'admin.breadcrumbs.users.view_{"firstname":"Laura","lastname":"Rivera"}',
       );
 
     // Check that user data is shown and all inputs are disabled
@@ -128,7 +128,7 @@ describe("Admin users view", function () {
 
     cy.get('[data-test="authenticator-field"]')
       .should("be.visible")
-      .and("include.text", "auth.authenticator")
+      .and("include.text", "admin.users.authenticator.title")
       .within(() => {
         cy.get("#authenticator")
           .should("have.value", "admin.users.authenticator.local")
@@ -178,6 +178,9 @@ describe("Admin users view", function () {
     // Email tab
     cy.get('[data-test="email-tab-button"]').click();
 
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2#tab=email");
+
     cy.get('[data-test="email-tab-current-password-field"]').should(
       "not.exist",
     );
@@ -196,6 +199,9 @@ describe("Admin users view", function () {
 
     // Security tab
     cy.get('[data-test="security-tab-button"]').click();
+
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2#tab=security");
 
     cy.get('[data-test="roles-field"]')
       .should("be.visible")
@@ -238,6 +244,10 @@ describe("Admin users view", function () {
 
     // Check others tab
     cy.get('[data-test="others-tab-button"]').click();
+
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2#tab=others");
+
     cy.get('[data-test="bbb-skip-check-audio-field"]')
       .should("be.visible")
       .and("include.text", "admin.users.skip_check_audio")
@@ -270,10 +280,10 @@ describe("Admin users view", function () {
       .should("have.value", "admin.users.authenticator.ldap")
       .and("be.disabled");
 
-    cy.get('[data-test="authenticator-id-field"]')
-      .should("include.text", "auth.authenticator_id")
+    cy.get('[data-test="external-user-id-field"]')
+      .should("include.text", "auth.external_user_id")
       .within(() => {
-        cy.get("#authenticator_id")
+        cy.get("#external-user-id")
           .should("have.value", "lwr")
           .and("be.disabled");
       });
@@ -338,7 +348,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -371,7 +381,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -407,7 +417,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -441,7 +451,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -478,7 +488,7 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("not.be.disabled")
       .and("include.text", "app.edit")
-      .and("have.attr", "href", "/admin/users/2/edit");
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
     cy.get('[data-test="users-reset-password-button"]')
       .should("be.visible")
       .and("not.be.disabled");
@@ -511,6 +521,38 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]').should("not.exist");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
+  });
+
+  it("visit with invalid tab hash", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.visit("/admin/users/2#tab=invalid");
+
+    cy.wait("@userRequest");
+
+    // Check that base tab is shown
+    cy.get("#firstname").should("be.visible");
+
+    // Check that edit button contains base tab as hash parameter
+    cy.get('[data-test="users-edit-button"]')
+      .should("be.visible")
+      .and("have.attr", "href", "/admin/users/2/edit#tab=base");
+
+    // Check that invalid tab stays in the hash
+    cy.url().should("include", "/admin/users/2#tab=invalid");
   });
 
   it("open view errors", function () {
@@ -556,7 +598,9 @@ describe("Admin users view", function () {
     cy.intercept("GET", "api/v1/users/2", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("userRequest");
 
@@ -572,8 +616,8 @@ describe("Admin users view", function () {
 
     // Check that error message gets shown
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Reload page with 401 error

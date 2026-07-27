@@ -39,7 +39,11 @@
     <Message v-if="showRunningMessage" class="mb-4" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
-    <form ref="joinForm" @submit.prevent="getJoinUrl">
+    <Form
+      id="startJoinForm"
+      :disabled="isLoadingAction || loadingError"
+      @submit="getJoinUrl"
+    >
       <OverlayComponent :show="isLoadingAction || loadingError" :opacity="0">
         <template #overlay>
           <LoadingRetryButton
@@ -48,12 +52,12 @@
           />
         </template>
 
-        <div v-if="!isLoadingAction && !loadingError">
+        <div
+          v-if="!isLoadingAction && !loadingError"
+          class="flex flex-col gap-2"
+        >
           <!-- Ask guests for their first and lastname -->
-          <div
-            v-if="!authStore.isAuthenticated && !token"
-            class="mb-4 flex flex-col gap-2"
-          >
+          <div v-if="requiresGuestName" class="flex flex-col gap-2">
             <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
             <InputText
               id="guest-name"
@@ -67,7 +71,7 @@
 
           <div
             v-if="features.attendance_recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{
               $t("rooms.recording_attendance_info")
@@ -91,7 +95,7 @@
 
           <div
             v-if="features.recording"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
             <i>{{ $t("rooms.recording_hint") }}</i>
@@ -130,7 +134,7 @@
 
           <div
             v-if="features.streaming"
-            class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-800"
+            class="flex flex-col gap-2 rounded-border bg-surface-200 p-4 dark:bg-surface-800"
           >
             <span class="font-semibold">{{ $t("rooms.streaming_info") }}</span>
             <i>{{ $t("rooms.streaming_hint") }}</i>
@@ -150,25 +154,25 @@
           </div>
         </div>
       </OverlayComponent>
-
-      <div class="flex justify-end gap-2">
+    </Form>
+    <template #footer>
+      <div class="flex shrink-0 justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
           data-test="dialog-cancel-button"
           :disabled="isLoadingAction"
           severity="secondary"
-          size="small"
           @click="modalVisible = false"
         />
         <Button
           :label="$t('app.continue')"
           data-test="dialog-continue-button"
           :disabled="isLoadingAction || loadingError"
-          size="small"
           type="submit"
+          form="startJoinForm"
         />
       </div>
-    </form>
+    </template>
   </Dialog>
 </template>
 <script setup>
@@ -176,12 +180,24 @@ import { ref, computed, onUnmounted } from "vue";
 import { useAuthStore } from "../stores/auth.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
-import env from "../env.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import { useDark } from "@vueuse/core";
+import { ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK } from "../constants/roomAuthTokenTypes.js";
+import {
+  HTTP_ERROR_GUESTS_NOT_ALLOWED,
+  HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ERROR_ROOM_REQUIRE_CODE,
+} from "../constants/httpCustomErrorMessages.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_ROOM_ALREADY_RUNNING,
+  HTTP_STATUS_ROOM_NOT_RUNNING,
+  HTTP_STATUS_UNAUTHORIZED,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -198,19 +214,15 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  token: {
-    type: String,
-    default: null,
-  },
-  accessCode: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
 });
 
 const emit = defineEmits([
-  "invalidCode",
-  "invalidToken",
+  "invalidRoomAuthToken",
+  "requireCode",
   "guestsNotAllowed",
   "changed",
 ]);
@@ -263,16 +275,17 @@ function loadStartJoinRequirements() {
     isLoadingAction.value = true;
     loadingError.value = false;
 
-    // Build url, add accessCode and token if needed
+    // Build url, add room auth token if needed
     const url = "rooms/" + props.roomId + "/" + action.value;
     const config = {
       method: "options",
     };
 
-    if (props.token) {
-      config.headers = { Token: props.token };
-    } else if (props.accessCode != null) {
-      config.headers = { "Access-Code": props.accessCode };
+    if (props.roomAuthToken) {
+      config.params = {
+        room_auth_token: props.roomAuthToken.id,
+        room_auth_token_type: props.roomAuthToken.type,
+      };
     }
 
     api
@@ -302,8 +315,15 @@ function loadStartJoinRequirements() {
   });
 }
 
+const requiresGuestName = computed(() => {
+  return (
+    !authStore.isAuthenticated &&
+    props.roomAuthToken?.type !== ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK
+  );
+});
+
 const autoJoin = computed(() => {
-  if (!authStore.isAuthenticated && !props.token) {
+  if (requiresGuestName.value) {
     return false;
   }
 
@@ -359,7 +379,7 @@ function getJoinUrl() {
   const config = {
     method: "post",
     data: {
-      name: props.token ? null : name.value,
+      name: !requiresGuestName.value ? null : name.value,
       consent_record_attendance: recordAttendanceAgreement.value,
       consent_record: recordAgreement.value,
       consent_record_video: recordVideoAgreement.value,
@@ -368,10 +388,11 @@ function getJoinUrl() {
     },
   };
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (props.accessCode != null) {
-    config.headers = { "Access-Code": props.accessCode };
+  if (props.roomAuthToken) {
+    config.params = {
+      room_auth_token: props.roomAuthToken.id,
+      room_auth_token_type: props.roomAuthToken.type,
+    };
   }
 
   const url = "rooms/" + props.roomId + "/" + action.value;
@@ -400,14 +421,15 @@ function getJoinUrl() {
         }
 
         // Form validation error
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
+
           loadStartJoinRequirements();
           return;
         }
 
         // Room is not running, update running status
-        if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
+        if (error.response.status === HTTP_STATUS_ROOM_NOT_RUNNING) {
           toast.error(t("app.errors.not_running"));
           modalVisible.value = false;
           emit("changed");
@@ -415,7 +437,7 @@ function getJoinUrl() {
         }
 
         // Room is running cannot be started a second time, update running status
-        if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
+        if (error.response.status === HTTP_STATUS_ROOM_ALREADY_RUNNING) {
           emit("changed");
           showRunningMessage.value = true;
           action.value = "join";
@@ -434,40 +456,30 @@ function getJoinUrl() {
  * @return {boolean} true if error was handled, false otherwise
  */
 function handleError(error) {
-  // Access code invalid
-  if (
-    error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === "invalid_code"
-  ) {
-    emit("invalidCode");
-    modalVisible.value = false;
-    return true;
-  }
-
   // Access code is required
   if (
-    error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "require_code"
+    error.response.status === HTTP_STATUS_FORBIDDEN &&
+    error.response.data.message === HTTP_ERROR_ROOM_REQUIRE_CODE
   ) {
-    emit("invalidCode");
+    emit("requireCode");
     modalVisible.value = false;
     return true;
   }
 
-  // Room token is invalid
+  // Room auth token is invalid
   if (
-    error.response.status === env.HTTP_UNAUTHORIZED &&
-    error.response.data.message === "invalid_token"
+    error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+    error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
   ) {
-    emit("invalidToken");
+    emit("invalidRoomAuthToken");
     modalVisible.value = false;
     return true;
   }
 
   // Forbidden, guests not allowed
   if (
-    error.response.status === env.HTTP_FORBIDDEN &&
-    error.response.data.message === "guests_not_allowed"
+    error.response.status === HTTP_STATUS_FORBIDDEN &&
+    error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
   ) {
     emit("guestsNotAllowed");
     modalVisible.value = false;
@@ -475,7 +487,7 @@ function handleError(error) {
   }
 
   // Forbidden, use can't start the room
-  if (error.response.status === env.HTTP_FORBIDDEN) {
+  if (error.response.status === HTTP_STATUS_FORBIDDEN) {
     // Show error message
     toast.error(t("rooms.flash.start_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);

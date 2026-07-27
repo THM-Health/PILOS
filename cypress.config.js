@@ -1,5 +1,5 @@
 import { defineConfig } from "cypress";
-import configCodeCoverage from "@cypress/code-coverage/task.js";
+import configCodeCoverage from "@cypress/code-coverage/task";
 import "dotenv/config";
 
 const baseUrl = process.env.APP_URL || "http://localhost";
@@ -10,7 +10,7 @@ export default defineConfig({
   screenshotsFolder: "tests/Frontend/screenshots",
   videosFolder: "tests/Frontend/videos",
 
-  env: {
+  expose: {
     redirectBaseUrl: "https://thm-health.github.io/PILOS-Redirect_Test_Pages",
   },
 
@@ -28,11 +28,15 @@ export default defineConfig({
             selected_languages: "en",
           };
 
+          launchOptions.args.push("--force-prefers-reduced-motion");
+
           return launchOptions;
         }
 
         if (browser.family === "firefox") {
           launchOptions.preferences["intl.accept_languages"] = "en";
+          launchOptions.preferences["ui.prefersReducedMotion"] = 1;
+
           return launchOptions;
         }
       });

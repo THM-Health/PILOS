@@ -4,6 +4,8 @@ import * as fs from "fs";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { loadEnv } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+import VueDevTools from "vite-plugin-vue-devtools";
 
 export default (mode) => {
   const ENV_PREFIX = ["VITE_"];
@@ -15,10 +17,28 @@ export default (mode) => {
 
   return {
     plugins: [
-      laravel({
-        input: ["resources/js/app.js", "resources/sass/app.scss"],
+      VueDevTools({
+        appendTo: "resources/js/app.js",
       }),
-      vue(),
+      tailwindcss(),
+      laravel({
+        input: ["resources/js/app.js", "resources/css/app.css"],
+      }),
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: function (tag) {
+              const NEW_HTML_TAGS = ["search"];
+
+              if (NEW_HTML_TAGS.includes(tag)) {
+                return true;
+              }
+
+              return false;
+            },
+          },
+        },
+      }),
       Components({
         dirs: ["resources/js", "resources/custom/js"],
         allowOverrides: true,

@@ -101,11 +101,11 @@ To run a local PostgreSQL using docker compose, you have to adjust the `docker-c
 
 ```yml
 db:
-    image: postgres:14.6-alpine3.17
+    image: postgres:18-alpine
     container_name: postgres
     restart: unless-stopped
     volumes:
-        - ./db:/var/lib/postgresql/data
+        - ./db:/var/lib/postgresql
     environment:
         POSTGRES_USER: "${DB_USERNAME}"
         POSTGRES_PASSWORD: "${DB_PASSWORD}"
@@ -135,7 +135,8 @@ You will need to set up a reverse proxy that routes the traffic to this applicat
 ```nginx
 location / {
   proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    X-Forwarded-Host $host;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Host  $host;
   proxy_set_header    X-Forwarded-Port  $server_port;
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
@@ -156,7 +157,8 @@ location / {
   limit_req_status 429;
 
   proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    X-Forwarded-Host $host;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Host  $host;
   proxy_set_header    X-Forwarded-Port  $server_port;
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
@@ -265,3 +267,34 @@ x-docker-pilos-common: &pilos-common
     volumes:
         - "./storage/logs:/var/www/html/storage/logs"
 ```
+
+## Security
+
+Keep your installation secure by applying updates regularly and following best practices.
+To view supported versions or report a vulnerability, see our [Security Policy](https://github.com/THM-Health/PILOS/security/policy).
+
+### HTTP Strict Transport Security (HSTS)
+
+We recommend enabling [HSTS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security) to protect against downgrade attacks.
+This configuration should be applied at the **reverse proxy** level.
+
+#### Example configurations
+
+**Nginx**
+
+```nginx
+add_header Strict-Transport-Security "max-age=31536000" always;
+```
+
+**Apache**
+
+```apache
+Header always set Strict-Transport-Security "max-age=31536000"
+```
+
+#### Important notes
+
+- Read the [HSTS deployment recommendations](https://hstspreload.org/#deployment-recommendations) carefully before enabling these settings.
+- Add the `includeSubDomains` directive only if all your subdomains support HTTPS.
+- Gradually increase the `max-age` value to safely test and monitor for potential issues.
+- For enhanced protection, you can include the `preload` directive and submit your domain to the [HSTS preload list](https://hstspreload.org/).

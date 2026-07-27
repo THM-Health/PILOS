@@ -2,7 +2,7 @@
   <Button
     v-tooltip="$t('admin.server_pools.delete.item', { name: props.name })"
     :aria-label="$t('admin.server_pools.delete.item', { name: props.name })"
-    :disabled="isBusy"
+    :disabled="isBusy || props.disabled"
     icon="fa-solid fa-trash"
     severity="danger"
     data-test="server-pools-delete-button"
@@ -69,7 +69,10 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
-import env from "../env.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+} from "../constants/httpStatusCodes.js";
 
 const api = useApi();
 
@@ -82,9 +85,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 const modalVisible = ref(false);
 const isBusy = ref(false);
 const deleteFailedRoomTypes = ref(null);
@@ -113,11 +120,17 @@ function deleteServerPool() {
       emit("deleted");
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+      if (error.response && error.response.status === HTTP_STATUS_STALE_MODEL) {
         deleteFailedRoomTypes.value = error.response.data.room_types;
-      } else {
-        api.error(error);
+        return;
+      } else if (
+        error.response &&
+        error.response.status === HTTP_STATUS_NOT_FOUND
+      ) {
+        modalVisible.value = false;
+        emit("notFound");
       }
+      api.error(error);
     })
     .finally(() => {
       isBusy.value = false;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\Demo;
 
 use App\Enums\RoomUserRole;
@@ -15,6 +17,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class CreateDemoSystem extends Command
@@ -24,7 +27,7 @@ class CreateDemoSystem extends Command
      *
      * @var string
      */
-    protected $signature = 'demo:create {--force}';
+    protected $signature = 'demo:create {--force} {--disable-bbb-session-check}';
 
     /**
      * The console command description.
@@ -74,12 +77,12 @@ class CreateDemoSystem extends Command
         File::copyDirectory(__DIR__.'/storage', Storage::path(''));
 
         // Create users
-        $john = User::create(['firstname' => 'John', 'lastname' => 'Doe', 'email' => 'john.doe@example.org', 'password' => \Hash::make('johndoe'), 'locale' => 'en', 'image' => 'profile_images/john-doe.jpg']);
-        $daniel = User::create(['firstname' => 'Daniel', 'lastname' => 'Osorio', 'email' => 'daniel.osorio@example.org', 'password' => \Hash::make('danielosorio'), 'locale' => 'en', 'image' => 'profile_images/daniel-osorio.jpg']);
-        $angela = User::create(['firstname' => 'Angela', 'lastname' => 'Jones', 'email' => 'angela.jones@example.org', 'password' => \Hash::make('angelajones'), 'locale' => 'en', 'image' => 'profile_images/angela-jones.jpg']);
-        $hoyt = User::create(['firstname' => 'Hoyt', 'lastname' => 'Hastings', 'email' => 'hoyt.hastings@example.org', 'password' => \Hash::make('hoythastings'), 'locale' => 'en']);
-        $william = User::create(['firstname' => 'William', 'lastname' => 'White', 'email' => 'william.white@example.org', 'password' => \Hash::make('williamwhite'), 'locale' => 'en']);
-        $thomas = User::create(['firstname' => 'Thomas', 'lastname' => 'Bolden', 'email' => 'thomas.bolden@example.org', 'password' => \Hash::make('thomasbolden'), 'locale' => 'en']);
+        $john = User::create(['firstname' => 'John', 'lastname' => 'Doe', 'email' => 'john.doe@example.org', 'password' => Hash::make('johndoe'), 'locale' => 'en', 'image' => 'profile_images/john-doe.jpg']);
+        $daniel = User::create(['firstname' => 'Daniel', 'lastname' => 'Osorio', 'email' => 'daniel.osorio@example.org', 'password' => Hash::make('danielosorio'), 'locale' => 'en', 'image' => 'profile_images/daniel-osorio.jpg']);
+        $angela = User::create(['firstname' => 'Angela', 'lastname' => 'Jones', 'email' => 'angela.jones@example.org', 'password' => Hash::make('angelajones'), 'locale' => 'en', 'image' => 'profile_images/angela-jones.jpg']);
+        $hoyt = User::create(['firstname' => 'Hoyt', 'lastname' => 'Hastings', 'email' => 'hoyt.hastings@example.org', 'password' => Hash::make('hoythastings'), 'locale' => 'en']);
+        $william = User::create(['firstname' => 'William', 'lastname' => 'White', 'email' => 'william.white@example.org', 'password' => Hash::make('williamwhite'), 'locale' => 'en']);
+        $thomas = User::create(['firstname' => 'Thomas', 'lastname' => 'Bolden', 'email' => 'thomas.bolden@example.org', 'password' => Hash::make('thomasbolden'), 'locale' => 'en']);
 
         // Create roles
         $superuser = Role::where('superuser', true)->first();
@@ -100,6 +103,14 @@ class CreateDemoSystem extends Command
         $exam = RoomType::where('name', 'Exam')->first();
         $seminar = RoomType::where('name', 'Seminar')->first();
 
+        // Disable bbb session check for all room types
+        if ($this->option('disable-bbb-session-check')) {
+            foreach (RoomType::all() as $roomType) {
+                $roomType->create_parameters = 'allowRequestsWithoutSession=true';
+                $roomType->save();
+            }
+        }
+
         // Create rooms
         $anatomyRoom = new Room;
         $anatomyRoom->id = 'abc-def-123';
@@ -108,6 +119,7 @@ class CreateDemoSystem extends Command
         $anatomyRoom->access_code = 123456789;
         $anatomyRoom->owner()->associate($daniel);
         $anatomyRoom->roomType()->associate($lecture);
+        $anatomyRoom->expert_mode = true;
         $anatomyRoom->save();
 
         $mathRoom = new Room;
@@ -149,7 +161,7 @@ class CreateDemoSystem extends Command
 
         // Attach users to rooms
         $anatomyRoom->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
-        $anatomyRoom->members()->attach($william, ['role' => RoomUserRole::USER]);
+        $anatomyRoom->members()->attach($william, ['role' => RoomUserRole::MODERATOR]);
         $mathRoom->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
         $mathRoom->members()->attach($william, ['role' => RoomUserRole::USER]);
         $mathRoom->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);

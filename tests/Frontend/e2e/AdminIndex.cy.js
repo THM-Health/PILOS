@@ -26,6 +26,7 @@ describe("Admin index", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkToastMessage("app.flash.unauthorized");
   });
 
   it("check admin index with all permissions", function () {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console;
 
 use App\Console\Commands\CleanupAttendanceCommand;
@@ -7,7 +9,7 @@ use App\Console\Commands\CleanupRecordingsCommand;
 use App\Console\Commands\CleanupRoomsCommand;
 use App\Console\Commands\CleanupStatisticsCommand;
 use App\Console\Commands\CreateSuperuserCommand;
-use App\Console\Commands\DeleteObsoleteTokensCommand;
+use App\Console\Commands\DeleteObsoletePersonalizedLinksCommand;
 use App\Console\Commands\DeleteUnverifiedNewUsersCommand;
 use App\Console\Commands\ImportGreenlight2Command;
 use App\Console\Commands\ImportRecordingsCommand;
@@ -29,7 +31,7 @@ class Kernel extends ConsoleKernel
         ImportGreenlight2Command::class,
         CleanupAttendanceCommand::class,
         CleanupStatisticsCommand::class,
-        DeleteObsoleteTokensCommand::class,
+        DeleteObsoletePersonalizedLinksCommand::class,
         CleanupRoomsCommand::class,
         CleanupRecordingsCommand::class,
         ImportRecordingsCommand::class,
@@ -47,7 +49,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(CleanupAttendanceCommand::class)->daily()->onOneServer();
         $schedule->command(CleanupRoomsCommand::class)->daily()->onOneServer();
         $schedule->command(CleanupRecordingsCommand::class)->daily()->onOneServer();
-        $schedule->command(DeleteObsoleteTokensCommand::class)->daily()->onOneServer();
+        $schedule->command(DeleteObsoletePersonalizedLinksCommand::class)->daily()->onOneServer();
         $schedule->command('telescope:prune')->daily()->onOneServer();
         $schedule->command('horizon:snapshot')->everyFiveMinutes()->onOneServer();
         $schedule->command(ImportRecordingsCommand::class)->everyMinute()->withoutOverlapping()->onOneServer();

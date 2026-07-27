@@ -76,15 +76,18 @@
     >
       <template #header>
         <div class="flex justify-between gap-2">
-          <IconField icon-position="left">
-            <InputIcon class="fa-solid fa-search"> </InputIcon>
-            <InputText
-              v-model="filters['global'].value"
-              autofocus
-              :placeholder="$t('app.search')"
-              data-test="room-history-attendance-search"
-            />
-          </IconField>
+          <search>
+            <IconField icon-position="left">
+              <InputIcon class="fa-solid fa-search"> </InputIcon>
+              <InputText
+                v-model="filters['global'].value"
+                autofocus
+                type="search"
+                :placeholder="$t('app.search')"
+                data-test="room-history-attendance-search"
+              />
+            </IconField>
+          </search>
 
           <Button
             v-tooltip:top="$t('meetings.attendance.download')"
@@ -162,7 +165,11 @@ import { computed, ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import "chartjs-adapter-date-fns";
 import { useSettingsStore } from "../stores/settings.js";
-import env from "../env.js";
+import {
+  HTTP_STATUS_MEETING_ATTENDANCE_DISABLED,
+  HTTP_STATUS_MEETING_ATTENDANCE_NOT_ENDED,
+  HTTP_STATUS_NOT_FOUND,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -224,19 +231,21 @@ function loadData() {
 
       if (error.response) {
         // meeting is still running, therefore attendance is not yet available
-        if (error.response.status === env.HTTP_MEETING_ATTENDANCE_NOT_ENDED) {
+        if (
+          error.response.status === HTTP_STATUS_MEETING_ATTENDANCE_NOT_ENDED
+        ) {
           emit("notEnded");
           modalVisible.value = false;
         }
 
         // attendance was not enabled for this meeting
-        if (error.response.status === env.HTTP_MEETING_ATTENDANCE_DISABLED) {
+        if (error.response.status === HTTP_STATUS_MEETING_ATTENDANCE_DISABLED) {
           emit("attendanceDisabled");
           modalVisible.value = false;
         }
 
         // meeting not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response.status === HTTP_STATUS_NOT_FOUND) {
           emit("notFound");
           modalVisible.value = false;
         }

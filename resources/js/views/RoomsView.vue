@@ -1,5 +1,5 @@
 <template>
-  <div v-cloak class="container mb-8 mt-8">
+  <div v-cloak class="container mt-8 mb-8">
     <!-- room token is invalid -->
     <div v-if="tokenInvalid" class="mt-20 flex justify-center">
       <!-- Show message that room can only be used by logged in users -->
@@ -10,15 +10,15 @@
         <template #header>
           <Badge
             severity="danger"
-            class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
+            class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
           >
             <i class="fa-solid fa-unlink text-2xl text-white"></i>
           </Badge>
         </template>
         <template #content>
-          <span class="font-bold">
-            {{ $t("rooms.invalid_personal_link") }}
-          </span>
+          <h1 class="font-bold">
+            {{ $t("rooms.invalid_personalized_link") }}
+          </h1>
         </template>
       </Card>
     </div>
@@ -32,7 +32,7 @@
         <template #header>
           <Badge
             severity="danger"
-            class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
+            class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
           >
             <i class="fa-solid fa-lock text-2xl text-white"></i>
           </Badge>
@@ -40,19 +40,18 @@
         <template #content>
           <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
-          <span class="font-bold">
+          <h1 class="font-bold">
             {{ $t("rooms.only_used_by_authenticated_users") }}
-          </span>
+          </h1>
         </template>
         <template #footer>
-          <div class="flex w-full justify-start">
-            <!-- Reload page, in case the room settings changed -->
+          <div class="mt-4 flex w-full justify-start">
             <Button
-              data-test="reload-room-button"
-              :loading="loading"
-              icon="fa-solid fa-sync"
-              :label="$t('rooms.try_again')"
-              @click="reload"
+              data-test="login-room-button"
+              icon="fa-solid fa-lock"
+              :label="$t('auth.login')"
+              as="router-link"
+              :to="{ name: 'login', query: { redirect: $route.fullPath } }"
             />
           </div>
         </template>
@@ -63,8 +62,9 @@
       <div v-if="!room">
         <div class="my-2 text-center" data-test="no-room-overlay">
           <i
-            v-if="roomLoading"
+            v-if="roomLoading || authLoading"
             class="fa-solid fa-circle-notch fa-spin text-3xl"
+            data-test="room-loading-spinner"
           />
           <Button
             v-else
@@ -72,7 +72,7 @@
             :label="$t('app.reload')"
             :aria-label="$t('app.reload')"
             data-test="reload-button"
-            @click="load()"
+            @click="initializeRoomView"
           />
         </div>
       </div>
@@ -86,7 +86,7 @@
             <template #header>
               <Badge
                 severity="danger"
-                class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
+                class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
               >
                 <i class="fa-solid fa-lock text-2xl text-white"></i>
               </Badge>
@@ -94,14 +94,14 @@
             <template #content>
               <RoomHeader
                 :room="room"
-                :loading="loading"
+                :loading="loading || authLoading"
                 :details-inline="false"
                 :hide-favorites="true"
                 :hide-membership="true"
                 :disable-reload="authThrottledFor > 0"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
-                @reload="reload"
+                @reload="reload(true)"
               />
               <Divider />
 
@@ -119,22 +119,26 @@
                     id="access-code"
                     v-model="accessCodeInput"
                     autofocus
-                    :mask="room.legacy_code ? '999-999' : '999-999-999'"
-                    :placeholder="room.legacy_code ? '123-456' : '123-456-789'"
-                    :invalid="accessCodeInvalid"
+                    :mask="room.legacy_code ? '******' : '999-999-999'"
+                    :placeholder="room.legacy_code ? '123abc' : '123-456-789'"
+                    :invalid="
+                      accessCodeInvalid ||
+                      formErrors.fieldInvalid('access_code')
+                    "
                     :disabled="authThrottledFor > 0"
                     class="text-center"
                     @keydown.enter="login"
                   />
                   <Button
-                    :loading="loading"
+                    :loading="loading || authLoading"
                     icon="fa-solid fa-lock"
                     :label="$t('rooms.login')"
                     data-test="room-login-button"
-                    :disabled="authThrottledFor > 0"
+                    :disabled="authThrottledFor > 0 || loading || authLoading"
                     @click="login"
                   />
                 </InputGroup>
+                <FormError :errors="formErrors.fieldError('access_code')" />
                 <p
                   v-if="authThrottledFor > 0"
                   class="mt-1 text-red-500"
@@ -163,16 +167,17 @@
                 class="mx-6 mt-6"
                 :room="room"
                 :loading="loading"
-                :access-code="accessCode"
+                :room-auth-token="roomAuthToken"
                 :details-inline="true"
                 :bbb-errors="bbbErrors"
                 :bbb-reason="bbbReason"
-                @reload="reload"
-                @invalid-code="handleInvalidCode"
+                @reload="reload(true)"
+                @invalid-room-auth-token="handleInvalidRoomAuthToken"
                 @joined-membership="
-                  accessCode = null;
-                  reload();
+                  roomAuthToken = null;
+                  reload(true);
                 "
+                @left-membership="reload"
               />
             </template>
             <template #content>
@@ -198,12 +203,14 @@
                     :running="running"
                     :disabled="room.room_type_invalid"
                     :can-start="room.can_start"
-                    :token="props.token"
-                    :access-code="accessCode"
-                    @invalid-code="handleInvalidCode"
-                    @invalid-token="handleInvalidToken"
+                    :room-auth-token="roomAuthToken"
+                    @invalid-room-auth-token="handleInvalidRoomAuthToken"
+                    @require-code="
+                      handleRequireCode();
+                      reload();
+                    "
                     @guests-not-allowed="handleGuestsNotAllowed"
-                    @changed="reload"
+                    @changed="reload(true)"
                   />
                   <RoomBrowserNotification
                     :room-name="room.name"
@@ -218,13 +225,16 @@
           </Card>
           <!-- Show room tabs -->
           <RoomTabSection
-            :access-code="accessCode"
-            :token="token"
+            :room-auth-token="roomAuthToken"
             :room="room"
-            @invalid-code="handleInvalidCode"
-            @invalid-token="handleInvalidToken"
+            @invalid-room-auth-token="handleInvalidRoomAuthToken"
+            @require-code="
+              handleRequireCode();
+              reload();
+            "
             @guests-not-allowed="handleGuestsNotAllowed"
-            @settings-changed="reload"
+            @settings-changed="reload(true)"
+            @transferred-ownership="reload"
           />
         </div>
       </div>
@@ -232,7 +242,6 @@
   </div>
 </template>
 <script setup>
-import env from "../env.js";
 import { useAuthStore } from "../stores/auth";
 import { useSettingsStore } from "../stores/settings";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
@@ -245,6 +254,24 @@ import RoomHeader from "../components/RoomHeader.vue";
 import RoomShareButton from "../components/RoomShareButton.vue";
 import EventBus from "../services/EventBus.js";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
+import {
+  ROOM_AUTH_TOKEN_TYPE_CODE,
+  ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK,
+} from "../constants/roomAuthTokenTypes.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import {
+  HTTP_ERROR_GUESTS_NOT_ALLOWED,
+  HTTP_ERROR_ROOM_INVALID_CODE,
+  HTTP_ERROR_ROOM_INVALID_PERSONALIZED_LINK,
+  HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN,
+} from "../constants/httpCustomErrorMessages.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_TOO_MANY_REQUESTS,
+  HTTP_STATUS_UNAUTHORIZED,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
+import { useRouteStore } from "../stores/route.js";
 
 const props = defineProps({
   id: {
@@ -268,7 +295,8 @@ const props = defineProps({
 const reloadInterval = ref(null);
 const loading = ref(false); // Room settings/details loading
 const room = ref(null); // Room object
-const accessCode = ref(null); // Access code to use for requests
+const roomAuthToken = ref(null); // Room authentication token
+const authLoading = ref(false); // Room authentication loading
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const roomLoading = ref(false); // Room loading indicator for initial load
@@ -278,7 +306,9 @@ const authThrottledFor = ref(0); // Throttled for authentication (seconds until 
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
+const routeStore = useRouteStore();
 const userPermissions = useUserPermissions();
+const formErrors = useFormErrors();
 const { t } = useI18n();
 const toast = useToast();
 const router = useRouter();
@@ -295,21 +325,35 @@ onMounted(() => {
   EventBus.on(EVENT_FORBIDDEN, reload);
   EventBus.on(EVENT_UNAUTHORIZED, reload);
 
-  load();
+  initializeRoomView();
 });
 
 onUnmounted(() => {
   EventBus.off(EVENT_UNAUTHORIZED, reload);
   EventBus.off(EVENT_FORBIDDEN, reload);
 
-  clearInterval(reloadInterval.value);
+  stopAutoRefresh();
 });
 
 /**
  * Reload room details in a set interval, change in the .env
  */
 function startAutoRefresh() {
-  reloadInterval.value = setInterval(reload, getRandomRefreshInterval() * 1000);
+  if (reloadInterval.value === null) {
+    reloadInterval.value = setInterval(
+      reload,
+      getRandomRefreshInterval() * 1000,
+      true,
+    );
+  }
+}
+
+function stopAutoRefresh() {
+  if (reloadInterval.value === null) {
+    return;
+  }
+  clearInterval(reloadInterval.value);
+  reloadInterval.value = null;
 }
 
 /**
@@ -332,35 +376,69 @@ function getRandomRefreshInterval() {
 function handleGuestsNotAllowed() {
   guestsNotAllowed.value = true;
 
-  // Remove a potential access code
-  accessCode.value = null;
+  // Remove potential room auth token
+  roomAuthToken.value = null;
 
   // Set current user to null, as the user is not logged in
   authStore.setCurrentUser(null);
+
+  // Disable auto reload as this error is permanent until the room settings are changed
+  // or the user logs in
+  stopAutoRefresh();
+}
+
+/**
+ * Handle invalid room authentication token error
+ * based on the token type (access code or personal link)
+ */
+function handleInvalidRoomAuthToken() {
+  const tokenType = roomAuthToken.value?.type;
+  roomAuthToken.value = null;
+  if (!tokenType || tokenType === ROOM_AUTH_TOKEN_TYPE_CODE) {
+    // Access code is invalid or missing
+    return handleInvalidCode();
+  } else if (tokenType === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
+    // Personal link token is invalid or session expired
+    window.location.reload();
+  }
 }
 
 /**
  * Reset access code due to errors, show error and reload room details
  */
 function handleInvalidCode() {
-  // Show access code is valid
+  // Show access code is invalid
   accessCodeInvalid.value = true;
-  // Reset access code (not the form input) to load the general room details again
-  accessCode.value = null;
+
   // Show error message
   toast.error(t("rooms.flash.access_code_invalid"));
   reload();
 }
 
 /**
- * Reset room due to token error
+ * Reset access code error states and access code input and display error message
  */
-function handleInvalidToken() {
+function handleRequireCode() {
+  // Reset access code error states to prevent confusing error state
+  accessCodeInvalid.value = null;
+  formErrors.clear();
+
+  // Reset access code input
+  accessCodeInput.value = "";
+
+  // Show error message
+  toast.error(t("rooms.require_access_code"));
+}
+
+/**
+ * Reset room due to personalized link error
+ */
+function handleInvalidPersonalizedLink() {
   // Show error message
   tokenInvalid.value = true;
-  toast.error(t("rooms.flash.token_invalid"));
+  toast.error(t("rooms.flash.personalized_link_invalid"));
   // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
-  clearInterval(reloadInterval.value);
+  stopAutoRefresh();
 }
 
 /**
@@ -373,10 +451,11 @@ function load() {
   // Build room api url, include access code if set
   const config = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { "Access-Code": accessCode.value };
+  if (roomAuthToken.value) {
+    config.params = {
+      room_auth_token: roomAuthToken.value.id,
+      room_auth_token_type: roomAuthToken.value.type,
+    };
   }
 
   const url = "rooms/" + props.id;
@@ -393,33 +472,27 @@ function load() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
-          return;
-        }
-
-        // Room token is invalid
+        // Room auth token is invalid
         if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
+          error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+          error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
         ) {
-          tokenInvalid.value = true;
-          return;
+          return handleInvalidRoomAuthToken();
         }
 
         // Forbidden, guests not allowed
         if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "guests_not_allowed"
+          error.response.status === HTTP_STATUS_FORBIDDEN &&
+          error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
         ) {
           guestsNotAllowed.value = true;
-          startAutoRefresh();
           return;
         }
       }
 
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -437,17 +510,19 @@ watch(authThrottledFor, (value) => {
 
 /**
  * Reload the room details/settings
+ * @param {boolean} [checkForRequireCodeError=false]
  */
-function reload() {
+function reload(checkForRequireCodeError = false) {
   // Enable loading indicator
   loading.value = true;
   // Build room api url, include access code if set
   const config = {};
 
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { "Access-Code": accessCode.value };
+  if (roomAuthToken.value) {
+    config.params = {
+      room_auth_token: roomAuthToken.value.id,
+      room_auth_token_type: roomAuthToken.value.type,
+    };
   }
 
   const url = "rooms/" + props.id;
@@ -456,13 +531,20 @@ function reload() {
   api
     .call(url, config)
     .then((response) => {
-      room.value = response.data.data;
-      // If logged in, reset the access code valid
-      if (room.value.authenticated) {
-        accessCodeInvalid.value = null;
+      // Room was authenticated but now requires an access code
+      if (
+        checkForRequireCodeError &&
+        room.value?.authenticated &&
+        !response.data.data.authenticated
+      ) {
+        handleRequireCode();
       }
 
-      setPageTitle(room.value.name);
+      room.value = response.data.data;
+
+      setPageTitle(room.value.name, false);
+
+      startAutoRefresh();
 
       // Update current user, if logged in/out in another tab or session expired
       // to have the can/cannot component use the correct state
@@ -472,45 +554,25 @@ function reload() {
     })
     .catch((error) => {
       if (error.response) {
-        // Room not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
-          router.push({ name: "404" });
-          return;
-        }
-
-        // Room auth rate limit reached (throttled)
+        // Room auth token is invalid
         if (
-          error.response.status === env.HTTP_TOO_MANY_REQUESTS &&
-          error.response.data?.limit === "room_auth"
+          error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+          error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
         ) {
-          authThrottledFor.value = error.response.data.retry_after;
-        }
-
-        // Access code invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_code"
-        ) {
-          return handleInvalidCode();
-        }
-
-        // Room token is invalid
-        if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === "invalid_token"
-        ) {
-          return handleInvalidToken();
+          return handleInvalidRoomAuthToken();
         }
 
         // Forbidden, guests not allowed
         if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === "guests_not_allowed"
+          error.response.status === HTTP_STATUS_FORBIDDEN &&
+          error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
         ) {
           return handleGuestsNotAllowed();
         }
       }
-      api.error(error, { redirectOnUnauthenticated: false });
+      api.error(error, {
+        redirectOnUnauthenticated: false,
+      });
     })
     .finally(() => {
       // Disable loading indicator
@@ -519,11 +581,30 @@ function reload() {
 }
 
 /**
+ * Initialize room view, authenticate if personalized link is provided and initial
+ * loading of the room
+ */
+function initializeRoomView() {
+  if (props.token && !roomAuthToken.value) {
+    authenticate(ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK, props.token).then(
+      (success) => {
+        if (success) {
+          load();
+        }
+      },
+    );
+  } else {
+    load();
+  }
+}
+
+/**
  * Show room name in title
  * @param {string} roomName Name of the room
+ * @param announce
  */
-function setPageTitle(roomName) {
-  document.title = roomName + " - " + settingsStore.getSetting("general.name");
+function setPageTitle(roomName, announce = true) {
+  routeStore.setPageTitle(roomName, announce);
 }
 
 /**
@@ -531,9 +612,113 @@ function setPageTitle(roomName) {
  */
 function login() {
   // Remove dashes from the access code
-  accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
-  // Reload the room with an access code
-  reload();
+  const accessCode = accessCodeInput.value.replace(/[-]/g, "");
+
+  // Retrieve room auth token
+  authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
+    if (success) {
+      // Reload room details after authentication
+      reload(true);
+    }
+  });
+}
+
+/**
+ * Authenticate using access code or personal link token to retrieve room auth token
+ *
+ * @param type
+ * @param codeOrToken
+ * @returns {Promise<boolean>}
+ */
+function authenticate(type, codeOrToken) {
+  return new Promise((resolve) => {
+    authLoading.value = true;
+    let data;
+
+    if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
+      data = {
+        type: ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK,
+        personalized_link_token: codeOrToken,
+      };
+    } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
+      data = {
+        type: ROOM_AUTH_TOKEN_TYPE_CODE,
+        access_code: codeOrToken,
+      };
+    }
+
+    formErrors.clear();
+    accessCodeInvalid.value = null;
+
+    // Retrieve room auth token
+    const url = "rooms/" + props.id + "/auth";
+
+    api
+      .call(url, {
+        method: "POST",
+        data: data,
+      })
+      .then((response) => {
+        if (response.status !== 204) {
+          // Set room auth token for further requests if response is not empty
+          roomAuthToken.value = response.data.data;
+        }
+
+        resolve(true);
+      })
+      .catch((error) => {
+        resolve(false);
+        if (error.response) {
+          // Validation errors
+          if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
+            if (type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK) {
+              handleInvalidPersonalizedLink();
+            } else if (type === ROOM_AUTH_TOKEN_TYPE_CODE) {
+              formErrors.set(error.response.data.errors);
+            }
+            return;
+          }
+          // Room auth rate limit reached (throttled)
+          if (
+            error.response.status === HTTP_STATUS_TOO_MANY_REQUESTS &&
+            error.response.data?.limit === "room_auth"
+          ) {
+            authThrottledFor.value = error.response.data.retry_after;
+          }
+          // Room token is invalid
+          if (
+            error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+            error.response.data.message ===
+              HTTP_ERROR_ROOM_INVALID_PERSONALIZED_LINK
+          ) {
+            handleInvalidPersonalizedLink();
+            return;
+          }
+          // Access code is invalid
+          if (
+            error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+            error.response.data.message === HTTP_ERROR_ROOM_INVALID_CODE
+          ) {
+            handleInvalidCode();
+            return;
+          }
+          // Forbidden, guests not allowed
+          if (
+            error.response.status === HTTP_STATUS_FORBIDDEN &&
+            error.response.data.message === HTTP_ERROR_GUESTS_NOT_ALLOWED
+          ) {
+            handleGuestsNotAllowed();
+            return;
+          }
+        }
+        api.error(error, {
+          redirectOnUnauthenticated: false,
+        });
+      })
+      .finally(() => {
+        authLoading.value = false;
+      });
+  });
 }
 
 const running = computed(() => {

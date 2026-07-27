@@ -3,14 +3,13 @@
     <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
     <div class="flex flex-col-reverse gap-2 md:flex-row">
-      <div class="grow">
+      <div class="flex grow flex-col items-start">
         <!-- Display room type, name and owner  -->
-        <RoomTypeBadge :room-type="props.room.type" />
-        <h1 class="my-2 text-3xl text-color">
-          {{ props.room.name }}
-        </h1>
+        <PageTitle :title="props.room.name" class="order-2 my-2" />
 
+        <RoomTypeBadge class="order-1" :room-type="props.room.type" />
         <RoomDetailsList
+          class="order-3"
           :room="props.room"
           :show-description="true"
           :inline="detailsInline"
@@ -38,10 +37,10 @@
           <RoomMembershipButton
             v-if="!hideMembership && authStore.isAuthenticated"
             :room="props.room"
-            :access-code="props.accessCode"
+            :room-auth-token="roomAuthToken"
             @joined-membership="emit('joinedMembership')"
-            @left-membership="emit('reload')"
-            @invalid-code="emit('invalidCode')"
+            @left-membership="emit('leftMembership')"
+            @invalid-room-auth-token="emit('invalidRoomAuthToken')"
             @membership-disabled="emit('reload')"
           />
         </div>
@@ -94,8 +93,8 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  accessCode: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
   disableReload: {
@@ -112,5 +111,10 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["joinedMembership", "reload", "invalidCode"]);
+const emit = defineEmits([
+  "joinedMembership",
+  "reload",
+  "invalidRoomAuthToken",
+  "leftMembership",
+]);
 </script>

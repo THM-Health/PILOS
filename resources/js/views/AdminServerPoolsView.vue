@@ -4,7 +4,7 @@
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           :disabled="isBusy"
           :to="{ name: 'admin.server_pools.view', params: { id: model.id } }"
           severity="secondary"
@@ -14,7 +14,7 @@
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           :disabled="isBusy"
           :to="{ name: 'admin.server_pools.edit', params: { id: model.id } }"
           severity="info"
@@ -26,7 +26,9 @@
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
           :name="name"
+          :disabled="isBusy"
           @deleted="$router.push({ name: 'admin.server_pools' })"
+          @not-found="$router.push({ name: 'admin.server_pools' })"
         >
         </SettingsServerPoolsDeleteButton>
       </div>
@@ -40,10 +42,13 @@
         ></LoadingRetryButton>
       </template>
 
-      <form
+      <Form
         :aria-hidden="modelLoadingError"
         class="flex flex-col gap-4"
-        @submit.prevent="saveServerPool"
+        :disabled="
+          isBusy || modelLoadingError || serversLoadingError || serversLoading
+        "
+        @submit="saveServerPool"
       >
         <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{
@@ -53,6 +58,7 @@
             <InputText
               id="name"
               v-model="model.name"
+              required
               class="w-full"
               type="text"
               :invalid="formErrors.fieldInvalid('name')"
@@ -189,10 +195,11 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
     <ConfirmDialog
       data-test="stale-server-pool-dialog"
+      :draggable="false"
       :pt="{
         pcAcceptButton: {
           root: {
@@ -210,17 +217,21 @@
 </template>
 
 <script setup>
-import env from "../env.js";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useConfirm } from "primevue/useconfirm";
 import { Multiselect } from "vue-multiselect";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { inject, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useI18n } from "vue-i18n";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const { t } = useI18n();
 
@@ -229,7 +240,7 @@ const formErrors = useFormErrors();
 const api = useApi();
 const confirm = useConfirm();
 const router = useRouter();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const props = defineProps({
   id: {
@@ -251,7 +262,7 @@ const name = ref("");
 watch(
   () => name.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       name: name.value,
     };
   },
@@ -293,7 +304,7 @@ function load() {
         name.value = response.data.data.name;
       })
       .catch((error) => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
           router.push({ name: "admin.server_pools" });
         } else {
           modelLoadingError.value = true;
@@ -367,17 +378,18 @@ function saveServerPool() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         // handle stale errors
         handleStaleError(error.response.data);
       } else {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
           router.push({ name: "admin.server_pools" });
         }
 
@@ -391,7 +403,9 @@ function saveServerPool() {
 
 function handleStaleError(staleError) {
   confirm.require({
-    message: staleError.message,
+    message: t("app.errors.stale_model", {
+      model: t("app.model." + _.snakeCase(model.value.model_name)),
+    }),
     header: t("app.errors.stale_error"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {

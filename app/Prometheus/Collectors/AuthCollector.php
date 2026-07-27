@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Prometheus\Collectors;
 
 use App\Prometheus\CollectorRegistry;
@@ -16,9 +18,9 @@ class AuthCollector implements Collector
     public function collect(): void
     {
         Counter::get('login_failed_total')
-            ->init(['local', 'ldap', 'shibboleth']);
+            ->init(['local', 'ldap', 'shibboleth', 'oidc']);
         Counter::get('login_total')
-            ->init(['local', 'ldap', 'shibboleth']);
+            ->init(['local', 'ldap', 'shibboleth', 'oidc']);
 
     }
 }

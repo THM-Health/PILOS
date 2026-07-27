@@ -58,18 +58,22 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
+import { HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN } from "../constants/httpCustomErrorMessages.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_UNAUTHORIZED,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
     type: Object,
     required: true,
   },
-  accessCode: {
-    type: String,
+  roomAuthToken: {
+    type: Object,
     default: null,
   },
   disabled: {
@@ -82,7 +86,7 @@ const props = defineProps({
 const emit = defineEmits([
   "joinedMembership",
   "leftMembership",
-  "invalidCode",
+  "invalidRoomAuthToken",
   "membershipDisabled",
 ]);
 
@@ -99,11 +103,18 @@ function joinMembership() {
   // Enable loading indicator
   isLoadingAction.value = true;
 
-  // Join room as member, send access code if needed
-  const config =
-    props.accessCode == null
-      ? { method: "post" }
-      : { method: "post", headers: { "Access-Code": props.accessCode } };
+  // Join room as member, send room auth token if needed
+  const config = {
+    method: "post",
+  };
+
+  if (props.roomAuthToken) {
+    config.params = {
+      room_auth_token: props.roomAuthToken.id,
+      room_auth_token_type: props.roomAuthToken.type,
+    };
+  }
+
   api
     .call("rooms/" + props.room.id + "/membership", config)
     .then(() => {
@@ -112,14 +123,14 @@ function joinMembership() {
     .catch((error) => {
       // Access code invalid
       if (
-        error.response.status === env.HTTP_UNAUTHORIZED &&
-        error.response.data.message === "invalid_code"
+        error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+        error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
       ) {
-        return emit("invalidCode");
+        return emit("invalidRoomAuthToken");
       }
 
       // Membership is disabled
-      if (error.response.status === env.HTTP_FORBIDDEN) {
+      if (error.response.status === HTTP_STATUS_FORBIDDEN) {
         emit("membershipDisabled");
       }
 

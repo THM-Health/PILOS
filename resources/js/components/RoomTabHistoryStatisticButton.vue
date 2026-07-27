@@ -46,7 +46,7 @@
       </div>
     </template>
 
-    <InlineNote class="w-full">
+    <InlineNote class="mt-2 w-full">
       {{ $t("meetings.stats.no_breakout_support") }}
     </InlineNote>
 
@@ -80,7 +80,10 @@ import "chartjs-adapter-date-fns";
 import { useColors } from "../composables/useColors.js";
 import { useDark } from "@vueuse/core";
 import { sansFontFamily } from "../font.js";
-import env from "../env";
+import {
+  HTTP_STATUS_FEATURE_DISABLED,
+  HTTP_STATUS_NOT_FOUND,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -169,13 +172,13 @@ function loadData() {
 
       if (error.response) {
         // feature disabled
-        if (error.response.status === env.HTTP_FEATURE_DISABLED) {
+        if (error.response.status === HTTP_STATUS_FEATURE_DISABLED) {
           emit("featureDisabled");
           modalVisible.value = false;
         }
 
         // meeting not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response.status === HTTP_STATUS_NOT_FOUND) {
           emit("notFound");
           modalVisible.value = false;
         }
@@ -230,6 +233,7 @@ const chartOptions = computed(() => {
         title: {
           display: true,
           text: t("meetings.stats.time"),
+          color: textColor.value,
           font: {
             family: chartFontFamily,
           },
@@ -268,6 +272,7 @@ const chartOptions = computed(() => {
           font: {
             family: chartFontFamily,
           },
+          color: textColor.value,
         },
         grid: {
           color: surfaceBorderColor.value,
@@ -276,6 +281,7 @@ const chartOptions = computed(() => {
           font: {
             family: chartFontFamily,
           },
+          color: textColor.value,
         },
       },
     },
@@ -285,6 +291,7 @@ const chartOptions = computed(() => {
           font: {
             family: chartFontFamily,
           },
+          color: textColor.value,
         },
       },
       tooltip: {

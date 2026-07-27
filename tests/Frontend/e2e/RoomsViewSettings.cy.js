@@ -79,6 +79,12 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should("not.exist");
         cy.get("#room-setting-access_code").should("have.value", "123456789");
+
+        // Check that buttons are shown correctly
+        cy.get('[data-test="clear-access-code-button"]').should("be.visible");
+        cy.get('[data-test="generate-access-code-button"]').should(
+          "be.visible",
+        );
       });
 
     cy.get('[data-test="room-setting-allow_guests"]')
@@ -94,10 +100,7 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-setting-short_description"]')
       .should("be.visible")
       .should("include.text", "rooms.settings.general.short_description")
-      .should(
-        "include.text",
-        'rooms.settings.general.chars_{"chars":"17 / 300"}',
-      )
+      .should("include.text", 'app.char_counter_{"chars":17,"max":300}')
       .find("#room-setting-short_description")
       .should("have.value", "Short description");
 
@@ -173,10 +176,7 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-setting-welcome"]')
       .should("be.visible")
       .should("include.text", "rooms.settings.video_conference.welcome_message")
-      .should(
-        "include.text",
-        'rooms.settings.general.chars_{"chars":"0 / 500"}',
-      )
+      .should("include.text", 'app.char_counter_{"chars":0,"max":500}')
       .find("#room-setting-welcome")
       .should("have.value", "");
 
@@ -414,6 +414,38 @@ describe("Rooms view settings", function () {
       "api/v1/rooms/abc-def-123/settings",
       "settings",
     );
+
+    // Reload room
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomSettingsRequest");
+
+    cy.get("#tab-settings").click();
+
+    cy.wait("@roomSettingsRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load settings with different permissions", function () {
@@ -1236,6 +1268,73 @@ describe("Rooms view settings", function () {
     );
   });
 
+  it("change settings with GL3 access code", function () {
+    cy.fixture("roomSettings.json").then((roomSettings) => {
+      roomSettings.data.access_code = "012abc";
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
+        statusCode: 200,
+        body: roomSettings,
+      }).as("roomSettingsRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("#room-setting-access_code")
+      .should("have.value", "012abc")
+      .and("not.be.disabled");
+
+    // Change settings
+    cy.get("#room-setting-name").clear();
+    cy.get("#room-setting-name").type("Meeting Two");
+
+    // Save settings
+    cy.fixture("roomTypesWithSettings.json").then(() => {
+      cy.fixture("roomSettings.json").then((roomSettings) => {
+        roomSettings.data.name = "Meeting Two";
+        roomSettings.data.access_code = "012abc";
+
+        cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
+          statusCode: 200,
+          body: roomSettings,
+        }).as("roomSettingsSaveRequest");
+
+        cy.get('[data-test="room-settings-save-button"]').click();
+      });
+    });
+
+    cy.wait("@roomSettingsSaveRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Meeting Two",
+        expert_mode: true,
+        welcome: "Welcome message",
+        short_description: "Short description",
+        access_code: "012abc",
+        room_type: 2,
+        mute_on_start: true,
+        lock_settings_disable_cam: false,
+        webcams_only_for_moderator: true,
+        lock_settings_disable_mic: false,
+        lock_settings_disable_private_chat: false,
+        lock_settings_disable_public_chat: true,
+        lock_settings_disable_note: true,
+        lock_settings_hide_user_list: true,
+        everyone_can_start: false,
+        allow_membership: false,
+        allow_guests: true,
+        default_role: 1,
+        lobby: 2,
+        visibility: 1,
+        record_attendance: false,
+        record: false,
+        auto_start_recording: false,
+      });
+    });
+
+    // Check that settings are shown correctly
+    cy.get("#room-setting-name").should("have.value", "Meeting Two");
+  });
+
   it("change settings errors", function () {
     cy.fixture("roomTypesWithSettings.json").then((roomTypes) => {
       cy.fixture("roomSettings.json").then((roomSettings) => {
@@ -1260,12 +1359,20 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]');
         cy.get("#room-setting-access_code").should("have.value", "");
+
+        // Check that buttons are shown / hidden correctly (access code is enforced)
+        cy.get('[data-test="clear-access-code-button"]').should("not.exist");
+        cy.get('[data-test="generate-access-code-button"]').should(
+          "be.visible",
+        );
       });
 
     // Save settings and respond with 422 errors
     cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
       statusCode: 422,
       body: {
+        message:
+          "The room requires an access code because of its room type. (and 17 more errors)",
         errors: {
           access_code: [
             "The room requires an access code because of its room type.",
@@ -1303,7 +1410,13 @@ describe("Rooms view settings", function () {
 
     cy.get('[data-test="room-settings-save-button"]').click();
 
+    cy.wait("@roomSettingsSaveRequest");
+
     // Check that error messages are set
+    cy.checkToastMessage(
+      "The room requires an access code because of its room type. (and 17 more errors)",
+    );
+
     cy.get('[data-test="room-setting-access_code"]').should(
       "include.text",
       "The room requires an access code because of its room type.",
@@ -1409,6 +1522,15 @@ describe("Rooms view settings", function () {
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]');
         cy.get("#room-setting-access_code").should("have.value", "123456789");
+
+        // Check that buttons are shown / hidden correctly (access code is prohibited)
+        cy.get('[data-test="clear-access-code-button"]').should("be.visible");
+        cy.get('[data-test="generate-access-code-button"]').should("not.exist");
+
+        cy.get('[data-test="clear-access-code-button"]').click();
+        cy.get("#room-setting-access_code").should("have.value", "");
+        cy.get('[data-test="clear-access-code-button"]').should("not.exist");
+        cy.get('[data-test="generate-access-code-button"]').should("not.exist");
       });
 
     // Check that 422 error messages are hidden
@@ -1489,6 +1611,8 @@ describe("Rooms view settings", function () {
     cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
       statusCode: 422,
       body: {
+        message:
+          "The room requires an access code because of its room type. (and 4 more errors)",
         errors: {
           access_code: [
             "The room requires an access code because of its room type.",
@@ -1508,6 +1632,10 @@ describe("Rooms view settings", function () {
     cy.wait("@roomSettingsSaveRequest");
 
     // Check that error messages are set
+    cy.checkToastMessage(
+      "The room requires an access code because of its room type. (and 4 more errors)",
+    );
+
     cy.get('[data-test="room-setting-access_code"]').should(
       "include.text",
       "The room requires an access code because of its room type.",
@@ -1577,6 +1705,40 @@ describe("Rooms view settings", function () {
       "api/v1/rooms/abc-def-123",
       "settings",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.get("#tab-settings").click();
+
+    cy.wait("@roomSettingsRequest");
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomSettingsSaveRequest");
+
+    cy.get('[data-test="room-settings-save-button"]').click();
+
+    cy.wait("@roomSettingsSaveRequest");
+
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("delete room", function () {
@@ -1647,8 +1809,15 @@ describe("Rooms view settings", function () {
     cy.get("[data-test=room-delete-dialog]").should("be.visible");
 
     // Check with 404 error
+    cy.interceptRoomIndexRequests();
+
     cy.intercept("DELETE", "api/v1/rooms/abc-def-123", {
       statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
     }).as("roomDeleteRequest");
 
     cy.get("[data-test=room-delete-dialog]")
@@ -1658,12 +1827,24 @@ describe("Rooms view settings", function () {
 
     cy.wait("@roomDeleteRequest");
 
+    // Check that redirect to room index page worked
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
     cy.checkToastMessage([
-      "app.flash.server_error.empty_message",
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
     ]);
 
-    // Check that modal stays open
+    // Reload room page
+    cy.visit("/rooms/abc-def-123#tab=settings");
+
+    cy.wait("@roomSettingsRequest");
+
+    // Open delete dialog again
+    cy.get('[data-test="room-delete-button"]').click();
+
     cy.get("[data-test=room-delete-dialog]").should("be.visible");
 
     // Check with 500 error
@@ -2114,6 +2295,7 @@ describe("Rooms view settings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },
@@ -2136,6 +2318,7 @@ describe("Rooms view settings", function () {
     cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
       statusCode: 422,
       body: {
+        message: "The selected user can not own rooms.",
         errors: {
           user: ["The selected user can not own rooms."],
         },
@@ -2190,5 +2373,41 @@ describe("Rooms view settings", function () {
       "api/v1/rooms/abc-def-123/transfer",
       "settings",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.get("#tab-settings").click();
+
+    cy.wait("@roomSettingsRequest");
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/transfer", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("transferOwnershipRequest");
+
+    cy.get('[data-test="room-transfer-ownership-button"]').click();
+    cy.get('[data-test="room-transfer-ownership-dialog"]').should("be.visible");
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@transferOwnershipRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

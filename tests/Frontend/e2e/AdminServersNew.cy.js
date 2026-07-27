@@ -60,8 +60,8 @@ describe("Admin servers view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
-      .should("include.text", "admin.breakcrumbs.servers.new");
+      .should("include.text", "admin.breadcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.new");
 
     cy.get('[data-test="name-field"]')
       .should("be.visible")
@@ -73,8 +73,8 @@ describe("Admin servers view", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
-      .should("include.text", "admin.breakcrumbs.servers.new");
+      .should("include.text", "admin.breadcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -285,10 +285,10 @@ describe("Admin servers view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.servers.index")
+      .should("include.text", "admin.breadcrumbs.servers.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.servers.view_{"name":"Server 01"}',
+        'admin.breadcrumbs.servers.view_{"name":"Server 01"}',
       );
   });
 
@@ -314,6 +314,7 @@ describe("Admin servers view", function () {
     cy.intercept("POST", "api/v1/servers", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 5 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -330,6 +331,8 @@ describe("Admin servers view", function () {
     cy.wait("@newServerRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 5 more errors)");
+
     cy.get('[data-test="name-field"]').should(
       "include.text",
       "The name field is required.",

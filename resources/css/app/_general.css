@@ -1,0 +1,86 @@
+html {
+    font-size: 14px;
+}
+
+html,
+body,
+#app,
+#app > .overlay-wrap {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+header {
+    flex-shrink: 0;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+@media (min-width: 640px) {
+    .container {
+        max-width: 640px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 768px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1024px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: 1280px;
+    }
+}
+
+@media (min-width: 1536px) {
+    .container {
+        max-width: 1536px;
+    }
+}
+
+fieldset:not(.p-fieldset) {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+legend:not(.p-fieldset-legend) {
+    float: left;
+    padding: 0;
+}
+
+a.p-button-link {
+    &:hover {
+        text-decoration: underline;
+    }
+}

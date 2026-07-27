@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $ldapEnabled = env('LDAP_ENABLED', false);
 
 return [
@@ -14,8 +16,8 @@ return [
         'base_dn' => env('LDAP_BASE_DN', 'dc=local,dc=com'),
         'timeout' => env('LDAP_TIMEOUT', 5),
         'version' => env('LDAP_VERSION', 3),
-        'use_ssl' => env('LDAP_SSL', false),
-        'use_tls' => env('LDAP_TLS', false),
+        'use_tls' => env('LDAP_SSL', false), // LDAPS / TLS connection
+        'use_starttls' => env('LDAP_TLS', false), // STARTTLS upgrade
     ],
 
     /*

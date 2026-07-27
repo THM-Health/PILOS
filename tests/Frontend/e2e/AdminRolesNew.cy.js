@@ -43,6 +43,7 @@ describe("Admin roles new", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/room_types");
     cy.get("h1").should("be.visible").and("include.text", "home.title");
+    cy.checkToastMessage("app.flash.unauthorized");
   });
 
   it("add new role", function () {
@@ -56,8 +57,8 @@ describe("Admin roles new", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", "admin.breakcrumbs.roles.new");
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.new");
 
     cy.get('[data-test="name-field"]')
       .should("be.visible")
@@ -483,10 +484,10 @@ describe("Admin roles new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+        'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
       );
   });
 
@@ -1328,6 +1329,7 @@ describe("Admin roles new", function () {
     cy.intercept("POST", "api/v1/roles", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 2 more errors)",
         errors: {
           name: ["The Name field is required."],
           room_limit: ["The Room limit must be at least -1."],
@@ -1343,6 +1345,8 @@ describe("Admin roles new", function () {
     cy.wait("@newRoleRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 2 more errors)");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "The Name field is required.");

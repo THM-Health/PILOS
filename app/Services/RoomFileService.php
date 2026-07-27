@@ -1,29 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Enums\CustomErrorMessages;
 use App\Models\RoomFile;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
-use Log;
 
 class RoomFileService
 {
     private RoomFile $file;
-
-    private ?int $timeLimit = null;
-
-    public function getTimeLimit(): int
-    {
-        return $this->timeLimit;
-    }
-
-    public function setTimeLimit(?int $timeLimit): self
-    {
-        $this->timeLimit = $timeLimit;
-
-        return $this;
-    }
 
     public function __construct(RoomFile $file)
     {
@@ -46,12 +35,17 @@ class RoomFileService
         return true;
     }
 
-    public function download(): \Illuminate\Http\Response
+    public function download(): Response
     {
         Log::info('Download room file {file}', ['file' => $this->file->getLogLabel()]);
 
         if (! $this->checkFileExists()) {
-            abort(404);
+            return response(view('new-tab-error', [
+                'type' => CustomErrorMessages::FILE_NOT_FOUND->value,
+                'code' => 404,
+                'title' => 'File not found',
+                'message' => __('rooms.flash.file_gone'),
+            ]))->setStatusCode(404);
         }
 
         $fileAlias = config('filesystems.x-accel.url_prefix').'/app/'.$this->file->path;
@@ -65,25 +59,5 @@ class RoomFileService
             ->header('Content-Disposition', 'inline; filename="'.$fileName.'"')
             ->header('Content-Transfer-Encoding', 'binary')
             ->header('X-Accel-Redirect', $fileAlias);
-    }
-
-    /**
-     * Create download link
-     */
-    public function url(): string
-    {
-        Log::info('Create download url for room file {file}', ['file' => $this->file->getLogLabel()]);
-        $params = ['roomFile' => $this->file->id, 'filename' => $this->file->filename];
-        $routeName = 'download.file';
-
-        if (! $this->checkFileExists()) {
-            abort(404);
-        }
-
-        if ($this->timeLimit == null) {
-            return URL::signedRoute($routeName, $params);
-        }
-
-        return URL::temporarySignedRoute($routeName, now()->addMinutes($this->timeLimit), $params);
     }
 }

@@ -77,8 +77,8 @@ describe("Admin users new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
-      .should("include.text", "admin.breakcrumbs.users.new");
+      .should("include.text", "admin.breadcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.new");
 
     cy.get('[data-test="firstname-field"]')
       .should("be.visible")
@@ -97,8 +97,8 @@ describe("Admin users new", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
-      .should("include.text", "admin.breakcrumbs.users.new");
+      .should("include.text", "admin.breadcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.new");
 
     cy.get('[data-test="email-field"]')
       .should("be.visible")
@@ -375,10 +375,10 @@ describe("Admin users new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.view_{"firstname":"Max","lastname":"Doe"}',
+        'admin.breadcrumbs.users.view_{"firstname":"Max","lastname":"Doe"}',
       );
   });
 
@@ -648,7 +648,7 @@ describe("Admin users new", function () {
     cy.intercept("POST", "api/v1/users", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The Firstname field is required. (and 8 more errors)",
         errors: {
           firstname: ["The Firstname field is required."],
           lastname: ["The Lastname field is required."],
@@ -670,6 +670,11 @@ describe("Admin users new", function () {
     cy.get('[data-test="users-new-save-button"]').click();
 
     cy.wait("@newUserRequest");
+
+    // Check error messages
+    cy.checkToastMessage(
+      "The Firstname field is required. (and 8 more errors)",
+    );
 
     cy.get('[data-test="firstname-field"]').should(
       "include.text",

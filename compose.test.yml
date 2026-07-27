@@ -23,10 +23,10 @@ services:
   db:
     image: "mariadb:11"
     environment:
-      MYSQL_DATABASE: "app"
-      MYSQL_USER: "user"
-      MYSQL_PASSWORD: "password"
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_DATABASE: "app"
+      MARIADB_USER: "user"
+      MARIADB_PASSWORD: "password"
+      MARIADB_RANDOM_ROOT_PASSWORD: "true"
     volumes:
       - mariadb:/var/lib/mysql
     healthcheck:

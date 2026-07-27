@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="flex flex-col justify-between md:flex-row">
-      <div>
+      <search>
         <InputGroup data-test="server-search">
           <InputText
             v-model="filter"
             :disabled="isBusy"
+            type="search"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1, false)"
           />
@@ -18,7 +19,7 @@
             @click="loadData(1, false)"
           />
         </InputGroup>
-      </div>
+      </search>
       <div class="mt-2 flex justify-between gap-2">
         <Button
           :disabled="isBusy"
@@ -125,27 +126,24 @@
             :aria-label="$t('admin.servers.disabled')"
             class="p-2"
             severity="danger"
-          >
-            <i class="fa-solid fa-stop" />
-          </Tag>
+            icon="fa-solid fa-stop"
+          />
           <Tag
             v-else-if="slotProps.data.status === 0"
             v-tooltip="$t('admin.servers.draining')"
             :aria-label="$t('admin.servers.draining')"
             class="p-2"
             severity="info"
-          >
-            <i class="fa-solid fa-pause" />
-          </Tag>
+            icon="fa-solid fa-pause"
+          />
           <Tag
             v-else
             v-tooltip="$t('admin.servers.enabled')"
             :aria-label="$t('admin.servers.enabled')"
             class="p-2"
             severity="success"
-          >
-            <i class="fa-solid fa-play" />
-          </Tag>
+            icon="fa-solid fa-play"
+          />
         </template>
       </Column>
       <Column :header="$t('admin.servers.connection')" field="health">
@@ -156,27 +154,24 @@
             :aria-label="$t('admin.servers.offline')"
             class="p-2"
             severity="danger"
-          >
-            <i class="fa-solid fa-xmark" />
-          </Tag>
+            icon="fa-solid fa-xmark"
+          />
           <Tag
             v-else-if="slotProps.data.health === 0"
             v-tooltip="$t('admin.servers.unhealthy')"
             :aria-label="$t('admin.servers.unhealthy')"
             class="p-2"
             severity="warning"
-          >
-            <i class="fa-solid fa-triangle-exclamation" />
-          </Tag>
+            icon="fa-solid fa-triangle-exclamation"
+          />
           <Tag
             v-else-if="slotProps.data.health === 1"
             v-tooltip="$t('admin.servers.online')"
             :aria-label="$t('admin.servers.online')"
             class="p-2"
             severity="success"
-          >
-            <i class="fa-solid fa-check" />
-          </Tag>
+            icon="fa-solid fa-check"
+          />
           <raw-text v-else> --- </raw-text>
         </template>
       </Column>
@@ -236,7 +231,7 @@
               v-tooltip="
                 $t('admin.servers.view', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.view', { name: slotProps.data.name })
@@ -253,7 +248,7 @@
               v-tooltip="
                 $t('admin.servers.edit', { name: slotProps.data.name })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.edit', { name: slotProps.data.name })
@@ -273,7 +268,9 @@
               "
               :id="slotProps.data.id"
               :name="slotProps.data.name"
+              :disabled="isBusy"
               @deleted="loadData(null, false)"
+              @not-found="loadData(null, false)"
             ></SettingsServersDeleteButton>
           </div>
         </template>
@@ -323,7 +320,7 @@ function loadData(page = null, updateUsage = false) {
   const config = {
     params: {
       page: page || paginator.getCurrentPage(),
-      update_usage: updateUsage,
+      update_usage: updateUsage ? 1 : 0,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? "asc" : "desc",
       query: filter.value,

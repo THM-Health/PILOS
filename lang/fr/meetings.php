@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'attendance' => [
         'download' => 'Télécharger',
@@ -13,6 +15,10 @@ return [
         'retention_period' => 'Les données de présences sont conservées pendant :days jours.',
         'retention_period_unlimited' => 'L\'historique de présence est sauvegardé indéfiniment.',
         'sessions' => 'Sessions',
+        'spreadsheet' => [
+            'title' => 'Présence dans :room',
+            'worksheet' => 'Liste de présence',
+        ],
         'view' => 'Voir les présences',
     ],
     'currently_running' => 'Réunions en cours',

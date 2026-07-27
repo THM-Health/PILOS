@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature;
 
 use App\Enums\ServerStatus;
@@ -11,24 +13,13 @@ use App\Models\Session;
 use App\Models\User;
 use App\Prometheus\Counter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\InteractWithMetrics;
 
 class MetricsTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private function getMetrics(): array
-    {
-        return collect(Str::of($this->get('metrics')->getContent())
-            ->explode("\n")
-            ->filter(fn (string $line) => ! Str::startsWith($line, '#') && $line != '')
-            ->mapWithKeys(function (string $line) {
-                $data = Str::of($line)->explode(' ');
-
-                return [$data[0] => $data[1]];
-            }))->all();
-    }
+    use InteractWithMetrics, RefreshDatabase;
 
     public function test_metrics_disabled()
     {
@@ -93,6 +84,7 @@ class MetricsTest extends TestCase
         Counter::get('room_authentication_errors_total')->incBy(10, ['access_code_invalid']);
         Counter::get('room_authentication_errors_total')->incBy(20, ['guest_access']);
         Counter::get('room_authentication_errors_total')->incBy(30, ['token']);
+        Counter::get('room_authentication_errors_total')->incBy(40, ['room_auth_token_invalid']);
         Counter::get('room_started_total')->incBy(40);
         Counter::get('room_start_errors_total')->incBy(50, ['no_server_found']);
         Counter::get('room_start_errors_total')->incBy(60, ['start_failed']);
@@ -104,6 +96,7 @@ class MetricsTest extends TestCase
         $this->assertEquals(10, $metrics['pilos_room_authentication_errors_total{error_type="access_code_invalid"}']);
         $this->assertEquals(20, $metrics['pilos_room_authentication_errors_total{error_type="guest_access"}']);
         $this->assertEquals(30, $metrics['pilos_room_authentication_errors_total{error_type="token"}']);
+        $this->assertEquals(40, $metrics['pilos_room_authentication_errors_total{error_type="room_auth_token_invalid"}']);
         $this->assertEquals(40, $metrics['pilos_room_started_total']);
         $this->assertEquals(50, $metrics['pilos_room_start_errors_total{error_type="no_server_found"}']);
         $this->assertEquals(60, $metrics['pilos_room_start_errors_total{error_type="start_failed"}']);
@@ -116,6 +109,7 @@ class MetricsTest extends TestCase
         $this->assertEquals(10, $metrics['pilos_room_authentication_errors_total{error_type="access_code_invalid"}']);
         $this->assertEquals(20, $metrics['pilos_room_authentication_errors_total{error_type="guest_access"}']);
         $this->assertEquals(30, $metrics['pilos_room_authentication_errors_total{error_type="token"}']);
+        $this->assertEquals(40, $metrics['pilos_room_authentication_errors_total{error_type="room_auth_token_invalid"}']);
         $this->assertEquals(40, $metrics['pilos_room_started_total']);
         $this->assertEquals(50, $metrics['pilos_room_start_errors_total{error_type="no_server_found"}']);
         $this->assertEquals(60, $metrics['pilos_room_start_errors_total{error_type="start_failed"}']);
@@ -127,6 +121,7 @@ class MetricsTest extends TestCase
         Counter::get('room_authentication_errors_total')->incBy(1, ['access_code_invalid']);
         Counter::get('room_authentication_errors_total')->incBy(2, ['guest_access']);
         Counter::get('room_authentication_errors_total')->incBy(3, ['token']);
+        Counter::get('room_authentication_errors_total')->incBy(3, ['room_auth_token_invalid']);
         Counter::get('room_started_total')->incBy(4);
         Counter::get('room_start_errors_total')->incBy(5, ['no_server_found']);
         Counter::get('room_start_errors_total')->incBy(6, ['start_failed']);
@@ -138,6 +133,7 @@ class MetricsTest extends TestCase
         $this->assertEquals(11, $metrics['pilos_room_authentication_errors_total{error_type="access_code_invalid"}']);
         $this->assertEquals(22, $metrics['pilos_room_authentication_errors_total{error_type="guest_access"}']);
         $this->assertEquals(33, $metrics['pilos_room_authentication_errors_total{error_type="token"}']);
+        $this->assertEquals(43, $metrics['pilos_room_authentication_errors_total{error_type="room_auth_token_invalid"}']);
         $this->assertEquals(44, $metrics['pilos_room_started_total']);
         $this->assertEquals(55, $metrics['pilos_room_start_errors_total{error_type="no_server_found"}']);
         $this->assertEquals(66, $metrics['pilos_room_start_errors_total{error_type="start_failed"}']);
@@ -258,5 +254,38 @@ class MetricsTest extends TestCase
         $this->assertEquals(29, $metrics['pilos_servers_total{status="unhealthy"}']);
         $this->assertEquals(39, $metrics['pilos_servers_total{status="offline"}']);
         $this->assertEquals(53, $metrics['pilos_servers_total{status="online"}']);
+    }
+
+    public function test_storage_gauge_metrics()
+    {
+        // Disable storage metrics collector
+        config(['metrics.collectors.storage.enabled' => false]);
+
+        Storage::fake('local');
+        Storage::fake('recordings');
+        Storage::fake('recordings-spool');
+
+        // Get metrics and check that storage metrics are not present
+        $metrics = $this->getMetrics();
+
+        $this->assertArrayNotHasKey('pilos_storage_total_bytes{disk="local"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_free_bytes{disk="local"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_total_bytes{disk="recordings"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_free_bytes{disk="recordings"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_total_bytes{disk="recordings-spool"}', $metrics);
+        $this->assertArrayNotHasKey('pilos_storage_free_bytes{disk="recordings-spool"}', $metrics);
+
+        // Enable storage metrics collector
+        config(['metrics.collectors.storage.enabled' => true]);
+
+        // Get metrics and check that storage metrics are present and greater than 0
+        $metrics = $this->getMetrics();
+
+        $this->assertGreaterThan(0, $metrics['pilos_storage_total_bytes{disk="local"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_free_bytes{disk="local"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_total_bytes{disk="recordings"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_free_bytes{disk="recordings"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_total_bytes{disk="recordings-spool"}']);
+        $this->assertGreaterThan(0, $metrics['pilos_storage_free_bytes{disk="recordings-spool"}']);
     }
 }

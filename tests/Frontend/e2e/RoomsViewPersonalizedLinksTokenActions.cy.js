@@ -1,16 +1,16 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view personalized links token actions", function () {
+describe("Rooms view personalized links actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
     cy.interceptRoomPersonalizedLinksRequests();
   });
 
-  it("add new token", function () {
+  it("add new personalized link", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-links-add-dialog"]').should(
       "not.exist",
@@ -18,7 +18,7 @@ describe("Rooms view personalized links token actions", function () {
     cy.get('[data-test="room-personalized-links-add-button"]').click();
     cy.get('[data-test="room-personalized-links-add-dialog"]')
       .should("be.visible")
-      .and("include.text", "rooms.tokens.add")
+      .and("include.text", "rooms.personalized_links.add")
       .within(() => {
         cy.get('[data-test="firstname-field"]')
           .should("include.text", "app.firstname")
@@ -47,13 +47,14 @@ describe("Rooms view personalized links token actions", function () {
         cy.get("#participant-role").should("be.checked");
 
         // Add new personalized link
-        const addTokenRequest = interceptIndefinitely(
+        const addLinkRequest = interceptIndefinitely(
           "POST",
-          "/api/v1/rooms/abc-def-123/tokens/",
+          "/api/v1/rooms/abc-def-123/personalizedLinks/",
           {
             statusCode: 201,
             body: {
               data: {
+                id: 4,
                 token:
                   "rwb8nyBvjtVDi3Wd3zM3ZBAJqHyNM18rtrzvPTiLmm2PK3sZGHSmwS0OscMRPtG8Vt13t2GW1KX6UOQQ7HkmjYGdd8qGJitsflt1",
                 firstname: "Laura",
@@ -64,29 +65,32 @@ describe("Rooms view personalized links token actions", function () {
               },
             },
           },
-          "addTokenRequest",
+          "addLinkRequest",
         );
 
-        cy.fixture("roomTokens.json").then((roomTokens) => {
-          roomTokens.data.push({
-            token:
-              "rwb8nyBvjtVDi3Wd3zM3ZBAJqHyNM18rtrzvPTiLmm2PK3sZGHSmwS0OscMRPtG8Vt13t2GW1KX6UOQQ7HkmjYGdd8qGJitsflt1",
-            firstname: "Laura",
-            lastname: "Walter",
-            role: 1,
-            expires: null,
-            last_usage: null,
-          });
-          roomTokens.meta.per_page = 4;
-          roomTokens.meta.to = 4;
-          roomTokens.meta.total = 4;
-          roomTokens.meta.total_no_filter = 4;
+        cy.fixture("roomPersonalizedLinks.json").then(
+          (roomPersonalizedLinks) => {
+            roomPersonalizedLinks.data.push({
+              id: 4,
+              token:
+                "rwb8nyBvjtVDi3Wd3zM3ZBAJqHyNM18rtrzvPTiLmm2PK3sZGHSmwS0OscMRPtG8Vt13t2GW1KX6UOQQ7HkmjYGdd8qGJitsflt1",
+              firstname: "Laura",
+              lastname: "Walter",
+              role: 1,
+              expires: null,
+              last_usage: null,
+            });
+            roomPersonalizedLinks.meta.per_page = 4;
+            roomPersonalizedLinks.meta.to = 4;
+            roomPersonalizedLinks.meta.total = 4;
+            roomPersonalizedLinks.meta.total_no_filter = 4;
 
-          cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
-            statusCode: 200,
-            body: roomTokens,
-          }).as("roomTokensRequest");
-        });
+            cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
+              statusCode: 200,
+              body: roomPersonalizedLinks,
+            }).as("roomPersonalizedLinksRequest");
+          },
+        );
 
         cy.get('[data-test="dialog-save-button"]')
           .should("have.text", "app.save")
@@ -103,25 +107,25 @@ describe("Rooms view personalized links token actions", function () {
           .should("be.disabled")
           .and("include.text", "app.cancel")
           .then(() => {
-            addTokenRequest.sendResponse();
+            addLinkRequest.sendResponse();
           });
       });
 
     // Check that correct data was sent
-    cy.wait("@addTokenRequest").then((interception) => {
+    cy.wait("@addLinkRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         firstname: "Laura",
         lastname: "Walter",
         role: 1,
       });
     });
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-links-add-dialog"]').should(
       "not.exist",
     );
 
-    // Check that new token is shown
+    // Check that new personalized link is shown
     cy.get('[data-test="room-personalized-link-item"]').should(
       "have.length",
       4,
@@ -131,15 +135,15 @@ describe("Rooms view personalized links token actions", function () {
       .eq(3)
       .should("include.text", "Laura Walter")
       .and("include.text", "rooms.roles.participant")
-      .and("not.include.text", "rooms.tokens.last_used_at")
-      .and("not.include.text", "rooms.tokens.expires_at");
+      .and("not.include.text", "rooms.personalized_links.last_used_at")
+      .and("not.include.text", "rooms.personalized_links.expires_at");
   });
 
-  it("add new token errors", function () {
+  it("add new personalized link errors", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-links-add-dialog"]').should(
       "not.exist",
@@ -149,21 +153,22 @@ describe("Rooms view personalized links token actions", function () {
       "be.visible",
     );
 
-    // Try to add new token with 422 error (missing firstname, lastname, role)
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/tokens/", {
+    // Try to add new personalized link with 422 error (missing firstname, lastname, role)
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 2 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
           role: ["The role field is required."],
         },
       },
-    }).as("addTokenRequest");
+    }).as("addLinkRequest");
 
     cy.get('[data-test="dialog-save-button"]').click();
 
-    cy.wait("@addTokenRequest");
+    cy.wait("@addLinkRequest");
 
     // Check that dialog stays open and errors are shown
     cy.get('[data-test="room-personalized-links-add-dialog"]')
@@ -180,17 +185,17 @@ describe("Rooms view personalized links token actions", function () {
         );
       });
 
-    // Try to add new token with 500 error
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/tokens/", {
+    // Try to add new personalized link with 500 error
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
       statusCode: 500,
       body: {
         message: "Test",
       },
-    }).as("addTokenRequest");
+    }).as("addLinkRequest");
 
     cy.get('[data-test="dialog-save-button"]').click();
 
-    cy.wait("@addTokenRequest");
+    cy.wait("@addLinkRequest");
 
     // Check that dialog stays open and 422 errors are hidden
     cy.get('[data-test="room-personalized-links-add-dialog"]')
@@ -227,15 +232,52 @@ describe("Rooms view personalized links token actions", function () {
         cy.get('[data-test="dialog-save-button"]').click();
       },
       "POST",
-      "/api/v1/rooms/abc-def-123/tokens/",
+      "/api/v1/rooms/abc-def-123/personalizedLinks/",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+    cy.get("#tab-tokens").should("be.visible").click();
+    cy.wait("@roomRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Test add personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("addLinkRequest");
+
+    cy.get('[data-test="room-personalized-links-add-button"]').click();
+    cy.get('[data-test="room-personalized-links-add-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@addLinkRequest");
+
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
-  it("edit token", function () {
+  it("edit personalized link", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(0)
@@ -254,7 +296,7 @@ describe("Rooms view personalized links token actions", function () {
 
     cy.get('[data-test="room-personalized-links-edit-dialog"]')
       .should("be.visible")
-      .and("include.text", "rooms.tokens.edit")
+      .and("include.text", "rooms.personalized_links.edit")
       .within(() => {
         cy.get('[data-test="firstname-field"]')
           .should("include.text", "app.firstname")
@@ -289,13 +331,14 @@ describe("Rooms view personalized links token actions", function () {
         cy.get("#participant-role").should("not.be.checked");
 
         // Edit personalized link
-        const editTokenRequest = interceptIndefinitely(
+        const editLinkRequest = interceptIndefinitely(
           "PUT",
-          "/api/v1/rooms/abc-def-123/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
+          "/api/v1/rooms/abc-def-123/personalizedLinks/1",
           {
             statusCode: 200,
             body: {
               data: {
+                id: 1,
                 token:
                   "1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
                 firstname: "Laura",
@@ -306,19 +349,21 @@ describe("Rooms view personalized links token actions", function () {
               },
             },
           },
-          "editTokenRequest",
+          "editLinkRequest",
         );
 
-        cy.fixture("roomTokens.json").then((roomTokens) => {
-          roomTokens.data[0].firstname = "Laura";
-          roomTokens.data[0].lastname = "Walter";
-          roomTokens.data[0].role = 2;
+        cy.fixture("roomPersonalizedLinks.json").then(
+          (roomPersonalizedLinks) => {
+            roomPersonalizedLinks.data[0].firstname = "Laura";
+            roomPersonalizedLinks.data[0].lastname = "Walter";
+            roomPersonalizedLinks.data[0].role = 2;
 
-          cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
-            statusCode: 200,
-            body: roomTokens,
-          }).as("roomTokensRequest");
-        });
+            cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
+              statusCode: 200,
+              body: roomPersonalizedLinks,
+            }).as("roomPersonalizedLinksRequest");
+          },
+        );
 
         cy.get('[data-test="dialog-save-button"]')
           .should("have.text", "app.save")
@@ -335,12 +380,12 @@ describe("Rooms view personalized links token actions", function () {
           .should("be.disabled")
           .and("include.text", "app.cancel")
           .then(() => {
-            editTokenRequest.sendResponse();
+            editLinkRequest.sendResponse();
           });
       });
 
     // Check that correct data was sent
-    cy.wait("@editTokenRequest").then((interception) => {
+    cy.wait("@editLinkRequest").then((interception) => {
       expect(interception.request.body).to.eql({
         firstname: "Laura",
         lastname: "Walter",
@@ -348,32 +393,32 @@ describe("Rooms view personalized links token actions", function () {
       });
     });
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-links-edit-dialog"]').should(
       "not.exist",
     );
 
-    // Check that edited token is shown
+    // Check that edited personalized link is shown
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(0)
       .should("include.text", "Laura Walter")
       .should("include.text", "rooms.roles.moderator")
       .should(
         "include.text",
-        'rooms.tokens.last_used_at_{"date":"09/17/2021, 16:36"}',
+        'rooms.personalized_links.last_used_at_{"date":"09/17/2021, 16:36"}',
       )
       .should(
         "include.text",
-        'rooms.tokens.expires_at_{"date":"10/17/2021, 14:21"}',
+        'rooms.personalized_links.expires_at_{"date":"10/17/2021, 14:21"}',
       );
   });
 
-  it("edit token errors", function () {
+  it("edit personalized link errors", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(2)
@@ -384,36 +429,34 @@ describe("Rooms view personalized links token actions", function () {
       "be.visible",
     );
 
-    // Check with 404 error (token not found / already deleted)
-    cy.intercept(
-      "PUT",
-      "/api/v1/rooms/abc-def-123/tokens/hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus",
-      {
-        statusCode: 404,
-        body: {
-          message: "No query results for model",
-        },
+    // Check with 404 error (personalized link not found / already deleted)
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/3", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room_personalized_link",
+        ids: [3],
       },
-    ).as("editTokenRequest");
+    }).as("editLinkRequest");
 
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 2);
-      roomTokens.meta.to = 2;
-      roomTokens.meta.total = 2;
-      roomTokens.meta.total_no_filter = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 2);
+      roomPersonalizedLinks.meta.to = 2;
+      roomPersonalizedLinks.meta.total = 2;
+      roomPersonalizedLinks.meta.total_no_filter = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="dialog-save-button"]').click();
 
-    cy.wait("@editTokenRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@editLinkRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
-    // Check that token is not shown anymore and dialog is closed
+    // Check that personalized link is not shown anymore and dialog is closed
     cy.get('[data-test="room-personalized-links-edit-dialog"]').should(
       "not.exist",
     );
@@ -423,7 +466,7 @@ describe("Rooms view personalized links token actions", function () {
     );
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_gone");
+    cy.checkToastMessage("rooms.flash.personalized_link_gone");
 
     // Open edit dialog again
     cy.get('[data-test="room-personalized-link-item"]')
@@ -435,25 +478,22 @@ describe("Rooms view personalized links token actions", function () {
       "be.visible",
     );
 
-    // Try to edit token with 422 error (missing firstname, lastname, role)
-    cy.intercept(
-      "PUT",
-      "/api/v1/rooms/abc-def-123/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
-      {
-        statusCode: 422,
-        body: {
-          errors: {
-            firstname: ["The firstname field is required."],
-            lastname: ["The lastname field is required."],
-            role: ["The selected role is invalid."],
-          },
+    // Try to edit personalized link with 422 error (missing firstname, lastname, role)
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
+      statusCode: 422,
+      body: {
+        message: "The firstname field is required. (and 2 more errors)",
+        errors: {
+          firstname: ["The firstname field is required."],
+          lastname: ["The lastname field is required."],
+          role: ["The selected role is invalid."],
         },
       },
-    ).as("editTokenRequest");
+    }).as("editLinkRequest");
 
     cy.get('[data-test="dialog-save-button"]').click();
 
-    cy.wait("@editTokenRequest");
+    cy.wait("@editLinkRequest");
 
     // Check that dialog stays open and errors are shown
     cy.get('[data-test="room-personalized-links-edit-dialog"]')
@@ -470,21 +510,17 @@ describe("Rooms view personalized links token actions", function () {
         );
       });
 
-    // Try to edit token with 500 error
-    cy.intercept(
-      "PUT",
-      "/api/v1/rooms/abc-def-123/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
-      {
-        statusCode: 500,
-        body: {
-          message: "Test",
-        },
+    // Try to edit personalized link with 500 error
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
+      statusCode: 500,
+      body: {
+        message: "Test",
       },
-    ).as("editTokenRequest");
+    }).as("editLinkRequest");
 
     cy.get('[data-test="dialog-save-button"]').click();
 
-    cy.wait("@editTokenRequest");
+    cy.wait("@editLinkRequest");
 
     // Check that dialog stays open and 422 errors are hidden
     cy.get('[data-test="room-personalized-links-edit-dialog"]')
@@ -525,16 +561,56 @@ describe("Rooms view personalized links token actions", function () {
         cy.get('[data-test="dialog-save-button"]').click();
       },
       "PUT",
-      "/api/v1/rooms/abc-def-123/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
+      "/api/v1/rooms/abc-def-123/personalizedLinks/1",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+    cy.get("#tab-tokens").should("be.visible").click();
+    cy.wait("@roomRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Test edit personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("editLinkRequest");
+
+    cy.get('[data-test="room-personalized-link-item"]')
+      .eq(0)
+      .find('[data-test="room-personalized-links-edit-button"]')
+      .click();
+    cy.get('[data-test="room-personalized-links-edit-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@editLinkRequest");
+
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
-  it("delete token", function () {
+  it("delete personalized link", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-link-item"]').should(
       "have.length",
@@ -551,32 +627,32 @@ describe("Rooms view personalized links token actions", function () {
       .click();
     cy.get('[data-test="room-personalized-links-delete-dialog"]')
       .should("be.visible")
-      .and("include.text", "rooms.tokens.delete")
+      .and("include.text", "rooms.personalized_links.delete")
       .should(
         "include.text",
-        'rooms.tokens.confirm_delete_{"firstname":"John","lastname":"Doe"}',
+        'rooms.personalized_links.confirm_delete_{"firstname":"John","lastname":"Doe"}',
       );
 
     // Confirm delete of personalized link
-    const deleteTokenRequest = interceptIndefinitely(
+    const deleteLinkRequest = interceptIndefinitely(
       "DELETE",
-      "/api/v1/rooms/abc-def-123/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
+      "/api/v1/rooms/abc-def-123/personalizedLinks/1",
       {
         statusCode: 204,
       },
-      "deleteTokenRequest",
+      "deleteLinkRequest",
     );
 
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(1, 3);
-      roomTokens.meta.to = 2;
-      roomTokens.meta.total = 2;
-      roomTokens.meta.total_no_filter = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(1, 3);
+      roomPersonalizedLinks.meta.to = 2;
+      roomPersonalizedLinks.meta.total = 2;
+      roomPersonalizedLinks.meta.total_no_filter = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="dialog-continue-button"]')
@@ -589,29 +665,29 @@ describe("Rooms view personalized links token actions", function () {
       .should("have.text", "app.no")
       .and("be.disabled")
       .then(() => {
-        deleteTokenRequest.sendResponse();
+        deleteLinkRequest.sendResponse();
       });
 
-    cy.wait("@deleteTokenRequest");
+    cy.wait("@deleteLinkRequest");
 
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
       "not.exist",
     );
 
-    // Check that token was deleted
+    // Check that personalized link was deleted
     cy.get('[data-test="room-personalized-link-item"]').should(
       "have.length",
       2,
     );
   });
 
-  it("delete token errors", function () {
+  it("delete personalized link errors", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-link-item"]').should(
       "have.length",
@@ -630,36 +706,34 @@ describe("Rooms view personalized links token actions", function () {
       "be.visible",
     );
 
-    // Check with 404 error (token not found / already deleted)
-    cy.intercept(
-      "DELETE",
-      "/api/v1/rooms/abc-def-123/tokens/hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus",
-      {
-        statusCode: 404,
-        body: {
-          message: "No query results for model",
-        },
+    // Check with 404 error (personalized link not found / already deleted)
+    cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/personalizedLinks/3", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room_personalized_link",
+        ids: [3],
       },
-    ).as("deleteTokenRequest");
+    }).as("deleteLinkRequest");
 
-    cy.fixture("roomTokens.json").then((roomTokens) => {
-      roomTokens.data = roomTokens.data.slice(0, 2);
-      roomTokens.meta.to = 2;
-      roomTokens.meta.total = 2;
-      roomTokens.meta.total_no_filter = 2;
+    cy.fixture("roomPersonalizedLinks.json").then((roomPersonalizedLinks) => {
+      roomPersonalizedLinks.data = roomPersonalizedLinks.data.slice(0, 2);
+      roomPersonalizedLinks.meta.to = 2;
+      roomPersonalizedLinks.meta.total = 2;
+      roomPersonalizedLinks.meta.total_no_filter = 2;
 
-      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/personalizedLinks*", {
         statusCode: 200,
-        body: roomTokens,
-      }).as("roomTokensRequest");
+        body: roomPersonalizedLinks,
+      }).as("roomPersonalizedLinksRequest");
     });
 
     cy.get('[data-test="dialog-continue-button"]').click();
 
-    cy.wait("@deleteTokenRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@deleteLinkRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
-    // Check that token is not shown anymore and dialog is closed
+    // Check that personalized link is not shown anymore and dialog is closed
     cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
       "not.exist",
     );
@@ -669,7 +743,7 @@ describe("Rooms view personalized links token actions", function () {
     );
 
     // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.token_gone");
+    cy.checkToastMessage("rooms.flash.personalized_link_gone");
 
     // Open delete dialog again
     cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
@@ -684,20 +758,16 @@ describe("Rooms view personalized links token actions", function () {
     );
 
     // Check with 500 error
-    cy.intercept(
-      "DELETE",
-      "/api/v1/rooms/abc-def-123/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
-      {
-        statusCode: 500,
-        body: {
-          message: "Test",
-        },
+    cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
+      statusCode: 500,
+      body: {
+        message: "Test",
       },
-    ).as("deleteTokenRequest");
+    }).as("deleteLinkRequest");
 
     cy.get('[data-test="dialog-continue-button"]').click();
 
-    cy.wait("@deleteTokenRequest");
+    cy.wait("@deleteLinkRequest");
 
     // Check that dialog stays open and error is shown
     cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
@@ -726,16 +796,56 @@ describe("Rooms view personalized links token actions", function () {
         cy.get('[data-test="dialog-continue-button"]').click();
       },
       "DELETE",
-      "/api/v1/rooms/abc-def-123/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
+      "/api/v1/rooms/abc-def-123/personalizedLinks/1",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+    cy.get("#tab-tokens").should("be.visible").click();
+    cy.wait("@roomRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Test delete personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteLinkRequest");
+
+    cy.get('[data-test="room-personalized-link-item"]')
+      .eq(0)
+      .find('[data-test="room-personalized-links-delete-button"]')
+      .click();
+    cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteLinkRequest");
+
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
-  it("copy token", function () {
+  it("copy personalized link", function () {
     cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
-    cy.wait("@roomTokensRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
 
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(0)
@@ -753,7 +863,7 @@ describe("Rooms view personalized links token actions", function () {
     });
 
     cy.checkToastMessage(
-      'rooms.tokens.room_link_copied_{"firstname":"John","lastname":"Doe"}',
+      'rooms.personalized_links.room_link_copied_{"firstname":"John","lastname":"Doe"}',
     );
   });
 });

@@ -372,7 +372,7 @@ describe("Rooms view members member actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The user is already member of the room.",
         errors: {
           user: ["The user is already member of the room."],
         },
@@ -432,6 +432,50 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomMembersRequest();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+    cy.wait("@roomMembersRequest");
+
+    cy.get("#tab-members").click();
+
+    // Test add new member with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.get('[data-test="room-members-add-button"]').click();
+
+    cy.get("#overlay_menu_0")
+      .should("have.text", "rooms.members.add_single_user")
+      .click();
+
+    cy.get('[data-test="room-members-add-single-dialog"]').should("be.visible");
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/member", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("addUserRequest");
+
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@addUserRequest");
+
+    // Check that user is redirected to room index page and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("edit member", function () {
@@ -536,9 +580,11 @@ describe("Rooms view members member actions", function () {
 
     // Check with member gone
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/member/5", {
-      statusCode: 410,
+      statusCode: 404,
       body: {
-        message: "The person is not a member of this room (anymore).",
+        message: "model_not_found",
+        model: "user",
+        ids: [5],
       },
     }).as("editUserRequest");
 
@@ -566,10 +612,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]').should("have.length", 2);
 
     // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"The person is not a member of this room (anymore)."}',
-      'app.flash.server_error.error_code_{"statusCode":410}',
-    ]);
+    cy.checkToastMessage("app.errors.not_member_of_room");
 
     // Check with 422 error
     cy.get('[data-test="room-member-item"]')
@@ -581,6 +624,7 @@ describe("Rooms view members member actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/member/6", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },
@@ -636,6 +680,49 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member/6",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomMembersRequest();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").click();
+    cy.wait("@roomMembersRequest");
+
+    // Test edit member with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.get('[data-test="room-member-item"]')
+      .eq(0)
+      .find('[data-test="room-members-edit-button"]')
+      .click();
+
+    cy.get('[data-test="room-members-edit-dialog"]').should("be.visible");
+
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/member/5", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("editUserRequest");
+
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@editUserRequest");
+
+    // Check that user is redirected to room index page and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("delete member", function () {
@@ -721,9 +808,11 @@ describe("Rooms view members member actions", function () {
 
     // Check delete with member gone
     cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/member/5", {
-      statusCode: 410,
+      statusCode: 404,
       body: {
-        message: "The person is not a member of this room (anymore).",
+        message: "model_not_found",
+        model: "user",
+        ids: [5],
       },
     }).as("deleteMemberRequest");
 
@@ -749,10 +838,7 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]').should("have.length", 2);
 
     // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"The person is not a member of this room (anymore)."}',
-      'app.flash.server_error.error_code_{"statusCode":410}',
-    ]);
+    cy.checkToastMessage("app.errors.not_member_of_room");
 
     // Check with 500 error
     cy.get('[data-test="room-member-item"]')
@@ -797,5 +883,48 @@ describe("Rooms view members member actions", function () {
       "/api/v1/rooms/abc-def-123/member/6",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomMembersRequest();
+
+    cy.reload();
+
+    cy.wait("@roomRequest");
+    cy.get("#tab-members").click();
+    cy.wait("@roomMembersRequest");
+
+    // Test delete member with room index error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.get('[data-test="room-member-item"]')
+      .eq(0)
+      .find('[data-test="room-members-delete-button"]')
+      .click();
+
+    cy.get('[data-test="room-members-delete-dialog"]').should("be.visible");
+
+    cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/member/5", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteMemberRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteMemberRequest");
+
+    // Check that user is redirected to room index page and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Enums\CustomStatusCodes;
@@ -9,7 +11,7 @@ use App\Models\Room;
 use App\Prometheus\Counter;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class RoomService
 {
@@ -37,7 +39,8 @@ class RoomService
             // Block the lock for a max. of 45sec
             $lock->block($timeout);
 
-            // Get latest of the room
+            // Get latest meeting of the room
+            $this->room->refresh();
             $meeting = $this->room->latestMeeting;
 
             // Do not create a new meeting, if there is already a running meeting and it is not detached

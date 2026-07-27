@@ -104,6 +104,7 @@
         <div>
           <AdminStreamingRoomTypeEditButton
             :room-type="slotProps.data"
+            :disabled="isBusy"
             @edited="emit('edited')"
           />
         </div>
@@ -131,6 +132,10 @@ const emit = defineEmits(["edited", "gone"]);
 defineProps({
   roomTypes: {
     type: Array,
+    required: true,
+  },
+  isBusy: {
+    type: Boolean,
     required: true,
   },
 });

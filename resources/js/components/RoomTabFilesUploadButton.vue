@@ -30,7 +30,7 @@
       },
     }"
   >
-    <div class="flex flex-col gap-2">
+    <div class="field flex flex-col gap-2">
       <label
         for="file"
         class="p-button p-component flex flex-row justify-center gap-2 rounded-border"
@@ -58,7 +58,7 @@
       />
       <div
         ref="dropZoneRef"
-        class="cursor-pointer items-center border border-surface-400 p-2 text-center rounded-border dark:border-surface-400"
+        class="cursor-pointer items-center rounded-border border border-surface-400 p-2 text-center dark:border-surface-400"
         :class="dropZoneClasses"
         data-test="drop-zone"
         @keyup.enter="fileInputRef.click()"
@@ -116,9 +116,12 @@ import { ref, computed } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
-import env from "../env.js";
 import { useI18n } from "vue-i18n";
 import { useSettingsStore } from "../stores/settings.js";
+import {
+  HTTP_STATUS_PAYLOAD_TOO_LARGE,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -256,11 +259,11 @@ function uploadFile(file) {
     .catch((error) => {
       reset();
       if (error.response) {
-        if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
+        if (error.response.status === HTTP_STATUS_PAYLOAD_TOO_LARGE) {
           formErrors.set({ file: [t("app.validation.too_large")] });
           return;
         }
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

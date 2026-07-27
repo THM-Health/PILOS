@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\TimePeriod;
 use Spatie\LaravelSettings\Migrations\SettingsMigration;
 

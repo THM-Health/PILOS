@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -12,18 +14,18 @@ use App\Notifications\PasswordChanged;
 use App\Notifications\PasswordReset;
 use App\Notifications\UserWelcome;
 use App\Notifications\VerifyEmail;
-use Cache;
 use Carbon\Carbon;
-use Config;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
-use Storage;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
 
 class UserTest extends TestCase
@@ -95,8 +97,8 @@ class UserTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $users[0]->firstname])
             ->assertJsonFragment(['firstname' => $users[4]->firstname])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 13])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 13)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -147,10 +149,7 @@ class UserTest extends TestCase
 
         // Sorting wrong direction and field
         $this->getJson(route('api.v1.users.index').'?sort_by=external_id&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_by']);
 
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname')
             ->assertSuccessful()
@@ -164,17 +163,8 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index').'?sort_by=foo&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
-
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname&sort_direction=foo')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonMissingExact(['firstname' => $user->firstname])
-            ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_direction']);
 
         // Filtering by role
         $this->getJson(route('api.v1.users.index').'?role='.$role2->id)
@@ -185,6 +175,8 @@ class UserTest extends TestCase
 
         // Filtering by invalid role
         $this->getJson(route('api.v1.users.index').'?role=0')
+            ->assertJsonValidationErrors(['role']);
+        $this->getJson(route('api.v1.users.index').'?role=')
             ->assertJsonValidationErrors(['role']);
 
         // Filtering by name / email
@@ -219,6 +211,10 @@ class UserTest extends TestCase
 
         // Test without query and order, too many results
         $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+            ->assertNoContent();
+
+        // Test with empty query, too many results
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=')
             ->assertNoContent();
 
         // Test with query and order, too many results
@@ -537,7 +533,13 @@ class UserTest extends TestCase
 
         // Not existing user
         $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => self::INVALID_ID]), $changes)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]
+            );
 
         // Check as admin
         $changes['updated_at'] = Carbon::now();
@@ -1049,7 +1051,7 @@ class UserTest extends TestCase
         $currentSession->save();
 
         $otherSession = new Session;
-        $otherSession->id = \Str::random(40);
+        $otherSession->id = Str::random(40);
         $otherSession->user_agent = $this->faker->userAgent;
         $otherSession->ip_address = $this->faker->ipv4;
         $otherSession->payload = '';
@@ -1058,7 +1060,7 @@ class UserTest extends TestCase
         $otherSession->save();
 
         $otherUserSession = new Session;
-        $otherUserSession->id = \Str::random(40);
+        $otherUserSession->id = Str::random(40);
         $otherUserSession->user_agent = $this->faker->userAgent;
         $otherUserSession->ip_address = $this->faker->ipv4;
         $otherUserSession->payload = '';
@@ -1074,8 +1076,14 @@ class UserTest extends TestCase
         $user->refresh();
         $this->assertTrue(Hash::check($newPassword, $user->password));
 
-        // Check if other sessions are deleted, but not the current one or of other users
-        $this->assertNotNull(Session::find($currentSession->id));
+        // Get current session ID
+        $newSessionId = $this->app['session']->getId();
+
+        // Verify the session ID was regenerated
+        $this->assertNotEquals($newSessionId, $currentSession->id);
+
+        // Check if old and other sessions are deleted, but not of other users
+        $this->assertNull(Session::find($currentSession->id));
         $this->assertNull(Session::find($otherSession->id));
         $this->assertNotNull(Session::find($otherUserSession->id));
 
@@ -1153,7 +1161,7 @@ class UserTest extends TestCase
         $adminSession->save();
 
         $otherAdminSession = new Session;
-        $otherAdminSession->id = \Str::random(40);
+        $otherAdminSession->id = Str::random(40);
         $otherAdminSession->user_agent = $this->faker->userAgent;
         $otherAdminSession->ip_address = $this->faker->ipv4;
         $otherAdminSession->payload = '';
@@ -1162,7 +1170,7 @@ class UserTest extends TestCase
         $otherAdminSession->save();
 
         $userSession = new Session;
-        $userSession->id = \Str::random(40);
+        $userSession->id = Str::random(40);
         $userSession->user_agent = $this->faker->userAgent;
         $userSession->ip_address = $this->faker->ipv4;
         $userSession->payload = '';
@@ -1171,7 +1179,7 @@ class UserTest extends TestCase
         $userSession->save();
 
         $otherUserSession = new Session;
-        $otherUserSession->id = \Str::random(40);
+        $otherUserSession->id = Str::random(40);
         $otherUserSession->user_agent = $this->faker->userAgent;
         $otherUserSession->ip_address = $this->faker->ipv4;
         $otherUserSession->payload = '';
@@ -1356,14 +1364,19 @@ class UserTest extends TestCase
         $this->assertNull($user->image);
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $changes['image'] = $file;
+        $changes['updated_at'] = $user->updated_at;
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     public function test_show()
@@ -1406,7 +1419,12 @@ class UserTest extends TestCase
         $role->users()->attach([$externalUser->id, $user->id]);
 
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => self::INVALID_ID]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         // Existing user
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $externalUser]))
@@ -1470,7 +1488,12 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Not existing model
-        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => self::INVALID_ID]))->assertNotFound();
+        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => self::INVALID_ID]))->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         // User own model
         $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => $user]))
@@ -1549,7 +1572,12 @@ class UserTest extends TestCase
         $role->users()->attach([$user->id]);
 
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => self::INVALID_ID]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $user]))
             ->assertForbidden();

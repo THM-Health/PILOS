@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Enums\ServerStatus;
@@ -13,6 +15,7 @@ use App\Settings\GeneralSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\Backend\TestCase;
 use UnexpectedValueException;
 
@@ -137,7 +140,7 @@ class ProvisioningServiceTest extends TestCase
             $user->firstname = "{$this->testUser->firstname} $i";
             $user->lastname = $this->testUser->lastname;
             $user->email = $this->testUser->email;
-            $user->password = \Hash::make($this->testUser->password);
+            $user->password = Hash::make($this->testUser->password);
             $user->authenticator = $this->testUser->authenticator;
             $user->locale = $this->testUser->locale;
             $user->timezone = $this->testUser->timezone;
@@ -154,7 +157,7 @@ class ProvisioningServiceTest extends TestCase
         $server = Server::firstWhere('name', $this->testServer->name);
         $this->assertNotNull($server);
         $this->assertEquals($this->testServer->description, $server->description);
-        $this->assertEquals($this->testServer->endpoint, $server->base_url);
+        $this->assertEquals($this->testServer->endpoint.'/', $server->base_url);
         $this->assertEquals($this->testServer->secret, $server->secret);
         $this->assertEquals($this->testServer->strength, $server->strength);
         $this->assertEquals(ServerStatus::ENABLED, $server->status);

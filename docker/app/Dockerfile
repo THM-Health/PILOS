@@ -1,11 +1,11 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.5-fpm-alpine
 
 LABEL maintainer="Samuel Weirich"
 LABEL description="Development and production container for PILOS, compatible with laravel sail; heavily inspired by offical image"
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
-ARG PLAYBACK_PLAYER_VERSION=5.4.0
+ARG PLAYBACK_PLAYER_VERSION=5.4.7
 ARG VITE_COVERAGE="false"
 
 WORKDIR /var/www/html
@@ -74,6 +74,7 @@ COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
 # Enable nginx site
 COPY ./docker/app/nginx/sites-enabled /etc/nginx/sites-enabled
 COPY ./docker/app/nginx/templates /etc/nginx/templates
+COPY ./docker/app/nginx/snippets /etc/nginx/snippets
 COPY ./docker/app/nginx/snippets-available /etc/nginx/snippets-available
 RUN ls -la /etc/nginx/
 RUN mkdir -p /etc/nginx/snippets

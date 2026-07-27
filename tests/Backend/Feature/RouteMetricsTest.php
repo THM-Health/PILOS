@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\InteractWithMetrics;
 
 class RouteMetricsTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractWithMetrics, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -28,18 +30,6 @@ class RouteMetricsTest extends TestCase
     {
         putenv('DISABLE_CATCHALL_ROUTES');
         parent::tearDown();
-    }
-
-    private function getMetrics(): array
-    {
-        return collect(Str::of($this->get('metrics')->getContent())
-            ->explode("\n")
-            ->filter(fn (string $line) => ! Str::startsWith($line, '#') && $line != '')
-            ->mapWithKeys(function (string $line) {
-                $data = Str::of($line)->explode(' ');
-
-                return [$data[0] => $data[1]];
-            }))->all();
     }
 
     public function test_route_metrics_request_total()

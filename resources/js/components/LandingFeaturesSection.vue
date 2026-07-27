@@ -1,8 +1,8 @@
 <template>
   <!-- Feature section -->
-  <div class="z-10 mx-auto mb-24 mt-24 max-w-7xl px-6 sm:mt-24 lg:px-8">
+  <div class="z-10 mx-auto mt-24 mb-24 max-w-7xl px-6 sm:mt-24 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
-      <h2 class="text-base font-semibold leading-7 text-primary">
+      <h2 class="text-base leading-7 font-semibold text-primary">
         {{ $t("home.features.vision") }}
       </h2>
       <p class="mt-2 text-3xl font-bold tracking-tight text-color sm:text-4xl">
@@ -21,9 +21,9 @@
           :key="feature.name"
           class="relative pl-16"
         >
-          <dt class="text-base font-semibold leading-7 text-color">
+          <dt class="text-base leading-7 font-semibold text-color">
             <div
-              class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary"
+              class="absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary"
             >
               <i
                 :class="'fa-' + feature.icon"

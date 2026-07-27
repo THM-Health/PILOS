@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'attendance' => [
         'download' => 'دانلود',
@@ -13,6 +15,10 @@ return [
         'retention_period' => 'اطلاعات حضور برای :days روز ذخیره می‌شود.',
         'retention_period_unlimited' => 'اطلاعات حضور به صورت نامحدود ذخیره می‌شود.',
         'sessions' => 'سشن‌ها',
+        'spreadsheet' => [
+            'title' => 'حضور',
+            'worksheet' => 'لیست حضور و غیاب',
+        ],
         'view' => 'نمایش حضور',
     ],
     'currently_running' => 'جلسات در حال اجرا',

@@ -1,5 +1,5 @@
 <template>
-  <div class="sm:pt-30 mx-auto max-w-7xl px-6 pb-0 pt-16 lg:px-8 lg:pt-16">
+  <div class="mx-auto max-w-7xl px-6 pt-16 pb-0 sm:pt-30 lg:px-8 lg:pt-16">
     <div
       class="mx-auto max-w-2xl gap-x-14 lg:mx-0 lg:flex lg:max-w-none lg:items-center"
     >
@@ -24,7 +24,7 @@
               class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
             />
             <div
-              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10"
+              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset"
             />
           </div>
         </div>
@@ -36,7 +36,7 @@
               class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
             />
             <div
-              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10"
+              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset"
             />
           </div>
           <div class="relative">
@@ -46,7 +46,7 @@
               class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
             />
             <div
-              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10"
+              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset"
             />
           </div>
         </div>
@@ -58,7 +58,7 @@
               class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
             />
             <div
-              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10"
+              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset"
             />
           </div>
           <div class="relative">
@@ -68,7 +68,7 @@
               class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
             />
             <div
-              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10"
+              class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset"
             />
           </div>
         </div>

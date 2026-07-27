@@ -1,31 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Rules;
 
 use App\Rules\Password;
+use Illuminate\Support\Facades\Validator;
 use Tests\Backend\TestCase;
 
 class PasswordTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     *
-     * @return void
-     */
     public function test_passes()
     {
-        $pw = new Password;
-
-        $this->assertTrue($pw->passes('', '1_aA'));
-        $this->assertTrue($pw->passes('', 'A_a1'));
-        $this->assertTrue($pw->passes('', 'Aa_1Aa1_'));
-        $this->assertFalse($pw->passes('', 'Aa1'));
-        $this->assertFalse($pw->passes('', 'äA'));
-        $this->assertFalse($pw->passes('', '1_a'));
+        $this->assertTrue(Validator::make(['password' => '1_aA'], ['password' => new Password])->passes());
+        $this->assertTrue(Validator::make(['password' => 'A_a1'], ['password' => new Password])->passes());
+        $this->assertTrue(Validator::make(['password' => 'Aa_1Aa1_'], ['password' => new Password])->passes());
+        $this->assertFalse(Validator::make(['password' => 'Aa1'], ['password' => new Password])->passes());
+        $this->assertFalse(Validator::make(['password' => 'äA'], ['password' => new Password])->passes());
+        $this->assertFalse(Validator::make(['password' => '1_a'], ['password' => new Password])->passes());
     }
 
     public function test_message()
     {
-        $this->assertEquals(__('validation.custom.password'), (new Password)->message());
+        $message = Validator::make(['password' => 'Aa1'], ['password' => new Password])->errors()->first('password');
+        $this->assertEquals(__('validation.custom.password'), $message);
     }
 }

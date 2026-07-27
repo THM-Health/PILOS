@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'attendance' => [
         'download' => 'Herunterladen',
@@ -13,6 +15,10 @@ return [
         'retention_period' => 'Die Anwesenheit wird für :days Tage gespeichert.',
         'retention_period_unlimited' => 'Die Anwesenheit wird zeitlich unbegrenzt gespeichert.',
         'sessions' => 'Sitzungen',
+        'spreadsheet' => [
+            'title' => 'Anwesenheit für :room',
+            'worksheet' => 'Teilnehmerliste',
+        ],
         'view' => 'Anwesenheit anzeigen',
     ],
     'currently_running' => 'Laufende Meetings',

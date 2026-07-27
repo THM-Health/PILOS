@@ -3,12 +3,14 @@
     {
       "id": 1,
       "filename": "File1.pdf",
-      "uploaded": "2020-09-21T07:08:00.000000Z"
+      "uploaded": "2020-09-21T07:08:00.000000Z",
+      "url": "https://example.com/files/File1.pdf?signature=abc123"
     },
     {
       "id": 2,
       "filename": "File2.pdf",
-      "uploaded": "2020-09-21T07:08:00.000000Z"
+      "uploaded": "2020-09-21T07:08:00.000000Z",
+      "url": "https://example.com/files/File2.pdf?signature=def456"
     }
   ],
   "meta": {

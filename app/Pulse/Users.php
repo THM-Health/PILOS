@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Pulse;
 
 use App\Models\User;
@@ -12,7 +14,7 @@ class Users implements ResolvesUsers
     /**
      * The resolved users.
      *
-     * @var Collection<int, \Illuminate\Contracts\Auth\Authenticatable>
+     * @var Collection<int, Authenticatable>
      */
     protected Collection $resolvedUsers;
 

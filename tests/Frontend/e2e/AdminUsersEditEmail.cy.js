@@ -12,6 +12,7 @@ describe("Admin users edit email", function () {
         "users.view",
         "users.update",
         "users.create",
+        "users.delete",
         "roles.viewAny",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
@@ -38,6 +39,9 @@ describe("Admin users edit email", function () {
     cy.get('[data-test="email-tab-button"]').click();
 
     cy.contains("admin.users.email").should("be.visible");
+
+    // Check that tab hash is set
+    cy.url().should("include", "/admin/users/2/edit#tab=email");
 
     // Check that fields are shown correctly and try to change email setting
     cy.get('[data-test="email-tab-current-password-field"]').should(
@@ -79,6 +83,24 @@ describe("Admin users edit email", function () {
         .click();
 
       // Check loading
+      // Check that tab buttons are disabled
+      cy.get('[data-test="base-tab-button"]').should("be.disabled");
+      cy.get('[data-test="email-tab-button"]').should("be.disabled");
+      cy.get('[data-test="security-tab-button"]').should("be.disabled");
+      cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+      // Check that header buttons are disabled
+      cy.get('button[data-test="users-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-reset-password-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
+      // Check that input fields and buttons are disabled
       cy.get("#current_password").should("not.exist");
       cy.get("#email")
         .should("be.disabled")
@@ -94,23 +116,22 @@ describe("Admin users edit email", function () {
     });
 
     // Check that redirect to user view worked
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=email");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
   });
 
   it("save changes errors", function () {
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/users/2/email", {
       statusCode: 422,
       body: {
+        message: "The email field is required",
         errors: {
           email: ["The email field is required."],
         },
@@ -120,6 +141,9 @@ describe("Admin users edit email", function () {
     cy.get('[data-test="user-tab-email-save-button"]').click();
 
     cy.wait("@saveChangesRequest");
+
+    // Check error message
+    cy.checkToastMessage("The email field is required");
 
     cy.get('[data-test="email-field"]').should(
       "include.text",
@@ -155,7 +179,9 @@ describe("Admin users edit email", function () {
     cy.intercept("PUT", "api/v1/users/2/email", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -170,15 +196,13 @@ describe("Admin users edit email", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=email");
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check with 401 error
     cy.intercept("PUT", "api/v1/users/2/email", {
@@ -206,11 +230,9 @@ describe("Admin users edit email", function () {
       }).as("userRequest");
     });
 
-    cy.visit("/admin/users/2/edit");
+    cy.visit("/admin/users/2/edit#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check that email setting is disabled and save button is hidden
     cy.get('[data-test="email-tab-current-password-field"]').should(

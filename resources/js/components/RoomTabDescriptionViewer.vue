@@ -8,6 +8,7 @@
     />
     <ConfirmDialog
       data-test="room-description-viewer-confirm-dialog"
+      :draggable="false"
       :pt="{
         pcRejectButton: {
           root: {

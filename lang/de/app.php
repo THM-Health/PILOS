@@ -1,7 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Aktionen',
+    'aria' => [
+        'footer' => 'Fußzeile',
+        'main' => 'Hauptinhalt',
+        'main_menu' => 'Hauptmenü',
+        'navigated_to_page' => 'Zur Seite :page navigiert',
+        'skip_links' => 'Sprunglinks',
+        'user_menu' => 'Benutzermenü',
+    ],
     'back' => 'Zurück',
     'browse' => 'Durchsuchen',
     'button_styles' => [
@@ -41,8 +51,9 @@ return [
         'membership_disabled' => 'Mitgliedschaft fehlgeschlagen! Eine Mitgliedschaft ist in diesem Raum aktuell nicht möglich.',
         'no_room_access' => 'Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.',
         'no_server_available' => 'Zur Zeit sind keine Server verfügbar.',
-        'not_member_of_room' => 'Die Person ist nicht (mehr) Mitglied dieses Raums.',
+        'not_member_of_room' => 'Dieser Benutzer ist kein Mitglied dieses Raums.',
         'not_running' => 'Der Beitritt zum Raum ist fehlgeschlagen, da er derzeit geschlossen ist.',
+        'personalized_link_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
         'record_agreement_missing' => 'Die Zustimmung zur Aufzeichnung ist erforderlich.',
         'role_delete_linked_users' => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',
         'role_update_permission_lost' => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
@@ -57,14 +68,16 @@ return [
         'streaming_error' => 'Fehler beim Verbinden mit dem Streaming-Server. Bitte versuchen Sie es später noch einmal.',
         'streaming_meeting_not_running' => 'Das Meeting läuft gerade nicht.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming ist für das aktuelle Meeting nicht aktiviert.',
-        'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
     'filter_no_results' => 'Keine Ergebnisse gefunden',
     'firstname' => 'Vorname',
     'flash' => [
         'client_error' => 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
         'guests_only' => 'Die Anfrage ist nur für nicht angemeldete Benutzer gestattet!',
-        'popup_blocked' => 'Ihr Browser hat das Öffnen eines neuen Fensters blockiert. Bitte erlauben Sie das Öffnen von Popups für diese Seite und versuchen Sie es erneut.',
+        'model_not_found' => [
+            'details' => 'ID: :ids',
+            'title' => ':model wurde nicht gefunden!',
+        ],
         'server_error' => [
             'empty_message' => 'Es ist ein Fehler auf dem Server aufgetreten!',
             'error_code' => 'Fehlercode: :statusCode',
@@ -76,6 +89,7 @@ return [
         'unauthorized' => 'Sie haben für die aufgerufene Route nicht die notwendigen Rechte!',
     ],
     'footer' => [
+        'accessibility' => 'Barrierefreiheitserklärung',
         'legal_notice' => 'Impressum',
         'privacy_policy' => 'Datenschutzerklärung',
     ],
@@ -88,17 +102,24 @@ return [
         'self' => 'Im aktuellen Tab öffnen',
     ],
     'locales' => [
+        'ar' => 'Arabisch',
         'de' => 'Deutsch',
         'en' => 'Englisch',
         'fa' => 'Persisch',
         'fr' => 'Französisch',
     ],
     'model' => [
-        'roles' => 'Rollen',
-        'room_types' => 'Raumarten',
-        'server_pools' => 'Serverpool',
-        'servers' => 'Server',
-        'users' => 'Benutzer',
+        'meeting' => 'Meeting',
+        'recording' => 'Aufzeichnung',
+        'recording_format' => 'Aufzeichnungsformat',
+        'role' => 'Rolle',
+        'room' => 'Raum',
+        'room_file' => 'Datei',
+        'room_personalized_link' => 'Personalisierter Raumlink',
+        'room_type' => 'Raumart',
+        'server' => 'Server',
+        'server_pool' => 'Serverpool',
+        'user' => 'Benutzer',
     ],
     'model_name' => 'Name',
     'next' => 'Weiter',

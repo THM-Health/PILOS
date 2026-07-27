@@ -162,8 +162,55 @@ describe("Admin roles index role actions", function () {
       'app.flash.server_error.error_code_{"statusCode":464}',
     ]);
 
-    // Check with 401 error
+    // Check with 404 error
+    cy.fixture("roles.json").then((roles) => {
+      roles.data = roles.data.filter((role) => role.id !== 3);
+      roles.meta.to = 2;
+      roles.meta.total = 2;
+      roles.meta.total_no_filter = 2;
+
+      cy.intercept("GET", "api/v1/roles*", {
+        statusCode: 200,
+        body: roles,
+      }).as("rolesRequest");
+    });
+
     cy.intercept("DELETE", "api/v1/roles/3", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "role",
+        ids: [3],
+      },
+    }).as("deleteRoleRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteRoleRequest");
+
+    // Check that role list was refreshed
+    cy.wait("@rolesRequest");
+
+    // Check that dialog is closed and that error message is shown
+    cy.get('[data-test="roles-delete-dialog"]').should("not.exist");
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.role"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
+    ]);
+
+    // Check that role is not in the list anymore
+    cy.get('[data-test="role-item"]').should("have.length", 2);
+
+    // Reopen dialog for different role
+    cy.get('[data-test="role-item"]')
+      .eq(1)
+      .find('[data-test="roles-delete-button"]')
+      .click();
+
+    cy.get('[data-test="roles-delete-dialog"]').should("be.visible");
+
+    // Check with 401 error
+    cy.intercept("DELETE", "api/v1/roles/2", {
       statusCode: 401,
     }).as("deleteRoleRequest");
 

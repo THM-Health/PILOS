@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use Carbon\Carbon;
@@ -7,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Arr;
 
 /**
  * This class provides the notification for password reset emails.
@@ -51,7 +54,7 @@ class PasswordReset extends Notification implements ShouldQueue
 
     public function getActionUrl($notifiable)
     {
-        return url('/reset_password?').\Arr::query([
+        return url('/reset_password?').Arr::query([
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
         ]);

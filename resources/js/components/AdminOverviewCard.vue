@@ -91,7 +91,7 @@ const cardClass = computed(() => {
       <template #footer>
         <div
           v-if="isHovered && disabled"
-          class="absolute inset-0 flex items-center justify-center p-7 bg-emphasis rounded-border"
+          class="absolute inset-0 flex items-center justify-center rounded-border p-7 bg-emphasis"
         >
           <div>
             <div class="text-xl font-medium">

@@ -27,16 +27,17 @@ or create your own dashboard using the metrics provided by the `/metrics` endpoi
 
 ### Configuration
 
-| Option                                              | Default Value | Description                                                                             |
-| --------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------- |
-| `METRICS_ENABLED`                                   | `false`       | Enable the metrics collection and endpoint                                              |
-| `METRICS_NAMESPACE`                                 | `pilos`       | Prefix for the metrics                                                                  |
-| `METRICS_COLLECTOR_REQUEST_MEMORY_ENABLED`          | `true`        | Collect the memory usage                                                                |
-| `METRICS_COLLECTOR_REQUEST_MEMORY_EXCLUDE_ROUTES`   | `metrics`     | Comma separated list of routes that should be excluded from memory usage collection     |
-| `METRICS_COLLECTOR_REQUEST_DURATION_ENABLED`        | `true`        | Collect the request duration                                                            |
-| `METRICS_COLLECTOR_REQUEST_DURATION_EXCLUDE_ROUTES` | `metrics`     | Comma separated list of routes that should be excluded from request duration collection |
-| `METRICS_COLLECTOR_REQUEST_TOTAL_ENABLED`           | `true`        | Collect the total number of requests (per response code group: 1xx, 2xx, etc.)          |
-| `METRICS_COLLECTOR_REQUEST_TOTAL_EXCLUDE_ROUTES`    | `metrics`     | Comma separated list of routes that should be excluded from total request collection    |
+| Option                                              | Default Value | Description                                                                                                         |
+| --------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `METRICS_ENABLED`                                   | `false`       | Enable the metrics collection and endpoint                                                                          |
+| `METRICS_NAMESPACE`                                 | `pilos`       | Prefix for the metrics                                                                                              |
+| `METRICS_COLLECTOR_REQUEST_MEMORY_ENABLED`          | `true`        | Collect the memory usage                                                                                            |
+| `METRICS_COLLECTOR_REQUEST_MEMORY_EXCLUDE_ROUTES`   | `metrics`     | Comma separated list of routes that should be excluded from memory usage collection                                 |
+| `METRICS_COLLECTOR_REQUEST_DURATION_ENABLED`        | `true`        | Collect the request duration                                                                                        |
+| `METRICS_COLLECTOR_REQUEST_DURATION_EXCLUDE_ROUTES` | `metrics`     | Comma separated list of routes that should be excluded from request duration collection                             |
+| `METRICS_COLLECTOR_REQUEST_TOTAL_ENABLED`           | `true`        | Collect the total number of requests (per response code group: 1xx, 2xx, etc.)                                      |
+| `METRICS_COLLECTOR_REQUEST_TOTAL_EXCLUDE_ROUTES`    | `metrics`     | Comma separated list of routes that should be excluded from total request collection                                |
+| `METRICS_COLLECTOR_STORAGE_ENABLED`                 | `true`        | Collect the available space and free space of the storages (per storage: `local`, `recordings`, `recordings-spool`) |
 
 ## PHP-FPM Monitoring
 

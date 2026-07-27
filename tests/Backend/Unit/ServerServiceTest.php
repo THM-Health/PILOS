@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Enums\ServerHealth;
@@ -9,12 +11,14 @@ use App\Models\Meeting;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\ServerService;
-use Http;
+use BigBlueButton\Enum\HashingAlgorithm;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
+use Tests\Backend\Utils\BigBlueButtonServerFaker;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
@@ -636,5 +640,77 @@ class ServerServiceTest extends TestCase
         // Check if load is correctly calculated (amount of participants)
         $server->refresh();
         $this->assertEquals(12, $server->load);
+    }
+
+    public function test_hashing_algorithm_sha1()
+    {
+        config([
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_1,
+        ]);
+        $server = Server::factory()->create();
+
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-1.xml')));
+
+        $serverService = new ServerService($server);
+        $serverService->getMeetings();
+
+        $request = $bbbfaker->getRequest(0);
+        $hash = sha1('getMeetings'.$server->secret);
+        $this->assertEquals($hash, $request->data()['checksum']);
+    }
+
+    public function test_hashing_algorithm_sha256()
+    {
+        config([
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_256,
+        ]);
+        $server = Server::factory()->create();
+
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-1.xml')));
+
+        $serverService = new ServerService($server);
+        $serverService->getMeetings();
+
+        $request = $bbbfaker->getRequest(0);
+        $hash = hash('sha256', 'getMeetings'.$server->secret);
+        $this->assertEquals($hash, $request->data()['checksum']);
+    }
+
+    public function test_hashing_algorithm_sha384()
+    {
+        config([
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_384,
+        ]);
+        $server = Server::factory()->create();
+
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-1.xml')));
+
+        $serverService = new ServerService($server);
+        $serverService->getMeetings();
+
+        $request = $bbbfaker->getRequest(0);
+        $hash = hash('sha384', 'getMeetings'.$server->secret);
+        $this->assertEquals($hash, $request->data()['checksum']);
+    }
+
+    public function test_hashing_algorithm_sha512()
+    {
+        config([
+            'bigbluebutton.server_hashing_algorithm' => HashingAlgorithm::SHA_512,
+        ]);
+        $server = Server::factory()->create();
+
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-1.xml')));
+
+        $serverService = new ServerService($server);
+        $serverService->getMeetings();
+
+        $request = $bbbfaker->getRequest(0);
+        $hash = hash('sha512', 'getMeetings'.$server->secret);
+        $this->assertEquals($hash, $request->data()['checksum']);
     }
 }

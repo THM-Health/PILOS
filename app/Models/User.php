@@ -1,37 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Notifications\PasswordReset;
+use App\Observers\UserObserver;
 use App\Settings\RoomSettings;
 use App\Traits\AddsModelNameTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
-use Storage;
 
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable implements HasLocalePreference
 {
     use AddsModelNameTrait, HasApiTokens, HasFactory, Notifiable;
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::deleting(function ($model) {
-            $model->myRooms->each->delete();
-        });
-    }
 
     /**
      * The attributes that are mass assignable.
@@ -104,7 +98,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Rooms the user is owner of
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function myRooms()
     {
@@ -114,7 +108,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * The user favorites
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function roomFavorites()
     {
@@ -162,7 +156,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Rooms the user is member of
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function sharedRooms()
     {
@@ -176,7 +170,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $firstname  Firstname to search for
      * @return Builder The scoped query
      */
-    public function scopeWithFirstName(Builder $query, $firstname)
+    public function scopeWithFirstName(Builder $query, string $firstname)
     {
         return $query->whereLike('firstname', '%'.$firstname.'%');
     }
@@ -188,7 +182,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  int  $role  Role the user has
      * @return Builder The scoped query
      */
-    public function scopeWithRole(Builder $query, $role)
+    public function scopeWithRole(Builder $query, int $role)
     {
         return $query->join('role_user', 'role_user.user_id', '=', 'users.id')->where('role_user.role_id', $role);
     }
@@ -200,7 +194,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $lastname  Lastname to search for
      * @return Builder The scoped query
      */
-    public function scopeWithLastName(Builder $query, $lastname)
+    public function scopeWithLastName(Builder $query, string $lastname)
     {
         return $query->whereLike('lastname', '%'.$lastname.'%');
     }
@@ -212,7 +206,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $email  Email to search for
      * @return Builder The scoped query
      */
-    public function scopeWithEmail(Builder $query, $email)
+    public function scopeWithEmail(Builder $query, string $email)
     {
         return $query->whereLike('email', '%'.$email.'%');
     }
@@ -227,7 +221,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopewithNameOrEmail(Builder $query, $name)
+    public function scopewithNameOrEmail(Builder $query, string $name)
     {
         $name = preg_replace('/\s\s+/', ' ', $name);
         $splittedName = explode(' ', $name);

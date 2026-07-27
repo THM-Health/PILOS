@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -11,9 +13,9 @@ use App\Models\Role;
 use App\Models\Server;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Http;
 use Tests\Backend\TestCase;
 use Tests\Backend\Utils\BigBlueButtonServerFaker;
 
@@ -81,8 +83,8 @@ class ServerTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => $servers[0]->id])
             ->assertJsonFragment(['id' => $servers[4]->id])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 11])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 11)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -120,6 +122,11 @@ class ServerTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $serverDisabled->id]);
+
+        // Filtering by name; empty is ignored, no filtering
+        $this->getJson(route('api.v1.servers.index').'?query=')
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 11);
 
         // Filtering by name
         $this->getJson(route('api.v1.servers.index').'?query=server')
@@ -176,7 +183,7 @@ class ServerTest extends TestCase
         $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.4.health'));
 
         // Request with forced usage update, should see that the online servers are now unhealthy (because it's fake data)
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server&update_usage=true')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server&update_usage=1')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
 
@@ -243,7 +250,12 @@ class ServerTest extends TestCase
         $server->save();
         $server->delete();
         $this->actingAs($this->user)->getJson(route('api.v1.servers.show', ['server' => $server->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
     }
 
     /**
@@ -285,6 +297,17 @@ class ServerTest extends TestCase
         // Test with some existing base url
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertJsonValidationErrors(['base_url']);
+
+        $newServer = Server::first();
+        $newServer->status = ServerStatus::DISABLED;
+        $newServer->save();
+        $newServer->delete();
+
+        // Test that missing trailing slash is automatically appended
+        $data['base_url'] = 'https://test-new.notld/bigbluebutton';
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
+            ->assertSuccessful()
+            ->assertJsonFragment(['base_url' => 'https://test-new.notld/bigbluebutton/']);
 
         // Test with invalid data
         $data['base_url'] = 'test';
@@ -358,6 +381,15 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertJsonValidationErrors(['base_url']);
 
+        // Test that missing trailing slash is automatically appended on update
+        $server->refresh();
+        $urlWithoutSlash = rtrim($server->base_url, '/');
+        $data['base_url'] = $urlWithoutSlash;
+        $data['updated_at'] = $server->updated_at;
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
+            ->assertSuccessful()
+            ->assertJsonFragment(['base_url' => $urlWithoutSlash.'/']);
+
         // Test with invalid data
         $server->refresh();
         $data['base_url'] = 'test';
@@ -374,7 +406,12 @@ class ServerTest extends TestCase
         $server->save();
         $server->delete();
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
     }
 
     /**
@@ -423,7 +460,12 @@ class ServerTest extends TestCase
 
         // Test delete again
         $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
 
         $this->assertDatabaseMissing('servers', ['id' => $server->id]);
     }
@@ -473,6 +515,12 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
             ->assertJson(['connection_ok' => true, 'secret_ok' => true]);
 
+        // Test that missing trailing slash is automatically appended for check
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/GetMeetings-1.xml')));
+        $data = ['base_url' => rtrim($validHost, '/'), 'secret' => $validSecret];
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
+            ->assertJson(['connection_ok' => true, 'secret_ok' => true]);
+
         // Test with invalid data
         $data = ['base_url' => 'test', 'secret' => ''];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
@@ -487,11 +535,11 @@ class ServerTest extends TestCase
         $server = Server::factory()->create();
 
         // Test guests
-        $this->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertUnauthorized();
 
         // Test logged in users
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertForbidden();
 
         // Authorize user for view servers
@@ -501,7 +549,7 @@ class ServerTest extends TestCase
         $this->user->roles()->attach($role);
 
         // Test without update permission
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertForbidden();
 
         // Give update permission
@@ -511,7 +559,7 @@ class ServerTest extends TestCase
         $meeting = Meeting::factory()->create(['server_id' => $server->id, 'end' => null]);
 
         // Test with update permission, but as the server is fake, ending the meeting will not work
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertSuccessful()
             ->assertJson(['total' => 1, 'success' => 0]);
 
@@ -520,5 +568,22 @@ class ServerTest extends TestCase
 
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
         $this->assertNull($meeting->end);
+
+        // Test deleted
+        $server->status = ServerStatus::DISABLED;
+        $server->save();
+
+        $meeting->end = date('Y-m-d H:i:s');
+        $meeting->save();
+
+        $server->delete();
+
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.panic', ['server' => $server->id]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'server',
+                'ids' => [$server->id],
+            ]);
     }
 }

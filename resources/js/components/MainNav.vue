@@ -1,9 +1,13 @@
 <template>
-  <div class="border-b bg-white py-2 border-surface dark:bg-surface-900">
+  <div class="border-b border-surface bg-white py-2 dark:bg-surface-900">
     <div class="container flex flex-row justify-between">
       <Menubar
+        v-if="isMobile || authStore.isAuthenticated"
+        id="mainmenu"
+        tabindex="-1"
         :breakpoint="menuBreakpoint + 'px'"
         :model="mainMenuItems"
+        :aria-label="$t('app.aria.main_menu')"
         :pt="{
           root: 'm-0 border-0',
           menu: {
@@ -15,22 +19,7 @@
         }"
       >
         <template #start>
-          <RouterLink
-            v-if="settingsStore.getSetting('theme.logo')"
-            :to="{ name: 'home' }"
-            class="mr-12"
-            data-test="navbar-home"
-          >
-            <img
-              style="height: 2rem"
-              :src="
-                isDark
-                  ? settingsStore.getSetting('theme.logo_dark')
-                  : settingsStore.getSetting('theme.logo')
-              "
-              alt="Logo"
-            />
-          </RouterLink>
+          <MainNavLogo />
         </template>
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link
@@ -44,7 +33,12 @@
               v-bind="props.action"
               class="flex items-center"
               :data-test="item.dataTest"
-              @click="navigate"
+              @click="
+                (event) => {
+                  navigate(event);
+                  $emit('routeChanged');
+                }
+              "
             >
               <span>{{ item.label }}</span>
             </a>
@@ -73,9 +67,14 @@
       </Menubar>
       <Menubar
         v-if="!isMobile"
+        id="usermenu"
+        tabindex="-1"
         :model="userMenuItems"
+        :aria-label="$t('app.aria.user_menu')"
         :pt="{
-          root: 'main-menu-right shrink-0 m-0 border-0',
+          root: authStore.isAuthenticated
+            ? 'main-menu-right shrink-0 m-0 border-0'
+            : 'main-menu-right shrink-0 m-0 border-0 w-full justify-between',
           menu: {
             class: 'gap-1 px-2',
           },
@@ -88,6 +87,9 @@
           },
         }"
       >
+        <template v-if="!authStore.isAuthenticated" #start>
+          <MainNavLogo />
+        </template>
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link
             v-if="item.route"
@@ -100,13 +102,19 @@
               v-bind="props.action"
               class="flex items-center"
               :data-test="item.dataTest"
-              @click="navigate"
+              @click="
+                (event) => {
+                  navigate(event);
+                  $emit('routeChanged');
+                }
+              "
             >
               <span v-if="!item.icon">{{ item.label }}</span>
             </a>
           </router-link>
           <a
             v-else
+            v-tooltip.bottom="item.tooltip"
             :href="item.url"
             :target="item.target"
             v-bind="props.action"
@@ -146,22 +154,15 @@ import { useSettingsStore } from "../stores/settings.js";
 import { useAuthStore } from "../stores/auth.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useI18n } from "vue-i18n";
-import { useBreakpoints, useDark, useToggle } from "@vueuse/core";
+import { useDark, useToggle } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 import { useLoadingStore } from "../stores/loading.js";
 import UserAvatar from "./UserAvatar.vue";
-import env from "../env.js";
 import { useLocaleStore } from "../stores/locale.js";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
-
-const menuBreakpoint = 1023;
-
-const breakpoints = useBreakpoints({
-  desktop: menuBreakpoint,
-});
-
-const isMobile = breakpoints.smallerOrEqual("desktop");
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
+import { menuBreakpoint, isMobile } from "../composables/useMenu.js";
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
@@ -177,20 +178,22 @@ const toast = useToast();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
+const emit = defineEmits(["routeChanged"]);
+
 const mainMenuItems = computed(() => {
   const items = [];
 
   if (authStore.isAuthenticated) {
     items.push({
       label: t("app.rooms"),
-      route: { name: "rooms.index" },
+      route: { name: "rooms.index", force: true },
       dataTest: "navbar-rooms",
     });
 
     if (userPermissions.can("viewAny", "MeetingPolicy")) {
       items.push({
         label: t("meetings.currently_running"),
-        route: { name: "meetings.index" },
+        route: { name: "meetings.index", force: true },
         dataTest: "navbar-meetings",
       });
     }
@@ -278,8 +281,9 @@ const userMenuItems = computed(() => {
 
   if (settingsStore.getSetting("general.help_url")) {
     items.push({
-      icon: "fa-solid fa-circle-question text-xl",
+      icon: "fa-solid fa-circle-question text-2xl",
       label: t("app.help"),
+      tooltip: t("app.help"),
       target: "_blank",
       dataTest: "navbar-help",
       url: settingsStore.getSetting("general.help_url"),
@@ -292,14 +296,18 @@ const userMenuItems = computed(() => {
     label: isDark.value
       ? t("app.dark_mode_disable")
       : t("app.dark_mode_enable"),
-    command: () => changeDarkMode(),
+    command: () => {
+      changeDarkMode();
+      emit("routeChanged");
+    },
   });
 
   // Only show the locale menu if more than one locale is enabled
   if (locales.value.length > 1) {
     const localeItem = {
-      icon: "fa-solid fa-language text-xl",
+      icon: "fa-solid fa-language text-2xl",
       label: t("app.change_locale"),
+      tooltip: t("app.change_locale"),
       dataTest: "navbar-locale",
       items: [],
     };
@@ -308,7 +316,10 @@ const userMenuItems = computed(() => {
       localeItem.items.push({
         label: locale.label,
         dataTest: "navbar-locale-" + locale.locale,
-        command: () => changeLocale(locale.locale),
+        command: () => {
+          changeLocale(locale.locale);
+          emit("routeChanged");
+        },
       });
     });
 
@@ -366,7 +377,8 @@ async function logout() {
     return;
   }
 
-  await router.push({ name: "logout" });
+  const message = response.data.message || null;
+  await router.push({ name: "logout", query: { message } });
 
   loadingStore.setLoadingFinished();
 }
@@ -418,7 +430,7 @@ async function changeLocale(locale) {
   } catch (error) {
     if (
       error.response !== undefined &&
-      error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
     ) {
       toast.error(error.response.data.errors.locale.join(" "));
     } else {

@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'authenticator' => 'Authenticator',
-    'authenticator_id' => 'Authenticator-ID',
     'change_email' => 'Change Email',
     'change_password' => 'Change password',
     'current_password' => 'Current password',
@@ -11,11 +11,16 @@ return [
         'title' => 'Login with Email',
     ],
     'error' => [
+        'invalid_request' => 'Authentication failed due to an invalid request.',
         'login_failed' => 'Login failed',
         'missing_attributes' => 'Attributes for authentication are missing.',
+        'openid_connect_exception' => 'Authentication failed due to an error.',
+        'openid_connect_network_exception' => 'Failed to connect to the authentication provider.',
         'reason' => 'Error reason',
-        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
+        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use.',
+        'try_again' => 'Please try logging in again or contact support if the problem persists.',
     ],
+    'external_user_id' => 'External user ID',
     'failed' => 'These credentials do not match our records.',
     'flash' => [
         'login' => 'Successfully logged in',
@@ -37,6 +42,12 @@ return [
     'logout_success' => 'Successfully logged out',
     'new_password' => 'New password',
     'new_password_confirmation' => 'New password confirmation',
+    'oidc' => [
+        'logout_incomplete' => 'You are still logged in at the OpenID Connect provider.',
+        'redirect' => 'Log in',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'Log in with OpenID Connect',
+    ],
     'password' => 'Password',
     'reset_password' => 'Reset password',
     'send_email_confirm_mail' => 'A verification email has been sent to :email. Please confirm the new email address by clicking on the link in the email.',

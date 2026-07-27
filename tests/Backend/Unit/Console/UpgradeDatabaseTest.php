@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Console;
 
 use App\Enums\LinkButtonStyle;
@@ -12,9 +14,9 @@ use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
-use DB;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\DB;
 use Tests\Backend\TestCase;
 
 class UpgradeDatabaseTest extends TestCase
@@ -182,7 +184,7 @@ class UpgradeDatabaseTest extends TestCase
         // Check room settings
         $roomSettings = app(RoomSettings::class);
         $this->assertEquals(5, $roomSettings->limit);
-        $this->assertEquals(TimePeriod::UNLIMITED, $roomSettings->token_expiration);
+        $this->assertEquals(TimePeriod::UNLIMITED, $roomSettings->personalized_link_expiration);
         $this->assertEquals(TimePeriod::ONE_YEAR, $roomSettings->auto_delete_inactive_period);
         $this->assertEquals(TimePeriod::THREE_MONTHS, $roomSettings->auto_delete_never_used_period);
         $this->assertEquals(TimePeriod::ONE_WEEK, $roomSettings->auto_delete_deadline_period);

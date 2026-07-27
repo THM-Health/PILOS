@@ -53,9 +53,12 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
+import { USER } from "../constants/modelNames.js";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -83,6 +86,8 @@ const props = defineProps({
 const emit = defineEmits(["deleted", "gone"]);
 
 const api = useApi();
+const toast = useToast();
+const { t } = useI18n();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
@@ -106,9 +111,14 @@ function deleteMember() {
       // editing failed
       if (error.response) {
         // user not found
-        if (error.response.status === env.HTTP_GONE) {
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.model === USER
+        ) {
+          toast.error(t("app.errors.not_member_of_room"));
           emit("gone");
           modalVisible.value = false;
+          return;
         }
       }
       api.error(error, { redirectOnUnauthenticated: false });

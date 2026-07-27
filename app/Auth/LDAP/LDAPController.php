@@ -1,85 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\LDAP;
 
-use App\Auth\MissingAttributeException;
-use App\Http\Controllers\Controller;
 use App\Prometheus\Counter;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Auth\StatefulGuard;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use Laravel\Fortify\Http\Requests\LoginRequest;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
-class LDAPController extends Controller
+class LDAPController extends AuthenticatedSessionController
 {
-    use AuthenticatesUsers {
-        login as ldapLogin;
-    }
-
-    public function __construct()
+    public function __construct(StatefulGuard $guard)
     {
-        $this->middleware('guest');
-    }
+        config(['fortify.guard' => 'ldap']);
+        config(['fortify.username' => 'username']);
 
-    /**
-     * Username field name
-     */
-    public function username()
-    {
-        return 'username';
-    }
-
-    /**
-     * Credentials passed to the Auth::attempt() method of the LDAP guard
-     */
-    protected function credentials(Request $request)
-    {
-        return [
-            'password' => $request->input('password'),
-            'username' => $request->input('username'),
-        ];
-    }
-
-    /**
-     * The guard used for LDAP authentication
-     */
-    protected function guard()
-    {
-        return Auth::guard('ldap');
+        parent::__construct($guard);
     }
 
     /**
      * Process the login request
-     *
-     * @return void
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        try {
-            // Run login method from AuthenticatesUsers trait
-            return $this->ldapLogin($request);
-        } catch (MissingAttributeException $e) {
-            // If an attribute is missing during the login process, return error
+        $response = $this->loginPipeline($request)->then(function ($request) {
+            return response()->json(['two_factor' => false]);
+        });
+
+        if ($response->exception != null && $response->getStatusCode() !== ResponseAlias::HTTP_TOO_MANY_REQUESTS) {
             Counter::get('login_failed_total')->inc('ldap');
-
-            return abort(500, __('auth.error.missing_attributes'));
         }
-    }
 
-    /**
-     * The user has been authenticated.
-     *
-     * @param  mixed  $user
-     * @return mixed
-     */
-    protected function authenticated(Request $request, $user)
-    {
-        // Log successful authentication
-        Counter::get('login_total')->inc('ldap');
-        Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'ldap']);
-
-        // Update the last login timestamp
-        $user->last_login = now();
-        $user->save();
+        return $response;
     }
 }

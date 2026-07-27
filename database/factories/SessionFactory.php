@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Session;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Session>
+ * @extends Factory<Session>
  */
 class SessionFactory extends Factory
 {
@@ -18,11 +22,11 @@ class SessionFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => \Str::random(40),
+            'id' => Str::random(40),
             'user_id' => User::factory(),
             'ip_address' => $this->faker->ipv4,
             'user_agent' => $this->faker->userAgent,
-            'payload' => base64_encode(serialize(['_token' => \Str::random(40), '_flash' => ['old' => [], 'new' => []]])),
+            'payload' => base64_encode(serialize(['_token' => Str::random(40), '_flash' => ['old' => [], 'new' => []]])),
             'last_activity' => $this->faker->dateTimeBetween('-1 day', 'now'),
         ];
     }

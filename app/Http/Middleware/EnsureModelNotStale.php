@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use App\Enums\CustomStatusCodes;
@@ -37,7 +39,7 @@ class EnsureModelNotStale
 
             return response()->json([
                 'error' => CustomStatusCodes::STALE_MODEL->value,
-                'message' => __('app.errors.stale_model', ['model' => __('app.model.'.$model->getTable())]),
+                'message' => 'stale_model',
                 'new_model' => $resource,
             ], CustomStatusCodes::STALE_MODEL->value);
         }

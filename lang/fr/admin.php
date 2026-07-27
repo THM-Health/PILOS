@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'Modifier :name',
             'index' => 'Rôles',
@@ -259,6 +261,10 @@ return [
         'view' => 'Informations détaillées du serveur :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'Si non défini, aucun lien vers la déclaration d\'accessibilité ne sera affiché dans le pied de page.',
+            'title' => 'URL de la déclaration d\'accessibilité',
+        ],
         'application' => 'Application',
         'attendance' => [
             'retention_period_title' => 'Nombre de jours de conservation de la journalisation des présences',
@@ -380,11 +386,12 @@ return [
             'description' => 'Les utilisateurs doivent accepter les conditions d\'utilisation afin de télécharger les fichiers. Si le champ est vide, aucun consentement ne sera requis.',
             'title' => 'Conditions d\'utilisation du téléchargement de fichiers',
         ],
+        'room_hide_owner_from_guests' => 'Masquer le propriétaire de la salle aux utilisateurs non identifiées',
         'room_limit' => [
             'description' => 'Limiter le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre est écraser par les limites spécifiques d\'un groupe.',
             'title' => 'Nombre de salles par utilisateur',
         ],
-        'room_token_expiration' => [
+        'room_personalized_link_expiration' => [
             'description' => 'Période depuis la dernière utilisation, après laquelle les liens de salle personnalisés sont automatiquement supprimés.',
             'title' => 'Délai d\'expiration des liens de salle personnalisés',
         ],
@@ -401,6 +408,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Couleur personnalisée',
+            'custom_css' => 'Fichier de styles CSS personnalisé',
             'primary_color' => 'Couleur principale',
             'rounded' => 'Coins arrondis',
             'title' => 'Thème',
@@ -441,8 +449,9 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Interne',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
-            'title' => 'Type d\'identification',
+            'title' => 'Méthode de connexion',
         ],
         'base_data' => 'Données de base',
         'bbb' => 'BigBlueButton',

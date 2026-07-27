@@ -1,17 +1,15 @@
 <template>
-  <div class="container mb-8 mt-4">
-    <Card :pt="{ content: { class: 'p-0' } }">
+  <div class="container mt-8 mb-8">
+    <Card>
       <template #header>
-        <div class="flex flex-col gap-2 border-b p-4 border-surface">
-          <h1 class="text-3xl font-medium">
-            {{ $t("admin.title") }}
-          </h1>
+        <div class="flex flex-col gap-2 border-b border-surface p-5">
+          <PageTitle :title="$t('admin.title')" />
 
           <Breadcrumb
-            v-if="breakcrumbs.length > 0"
+            v-if="breadcrumbs.length > 0"
             :home="home"
             class="px-0 py-2"
-            :model="breakcrumbs"
+            :model="breadcrumbs"
             data-test="admin-breadcrumb"
           >
             <template #item="{ item, props }">
@@ -46,129 +44,131 @@
   </div>
 </template>
 <script setup>
-import { computed, provide, ref, watch } from "vue";
+import { computed, onMounted, provide, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useRouteStore } from "../stores/route.js";
 
-const breakcrumbLabelData = ref({});
-provide("breakcrumbLabelData", breakcrumbLabelData);
+const breadcrumbLabelData = ref({});
+provide("breadcrumbLabelData", breadcrumbLabelData);
 
 const route = useRoute();
 const { t } = useI18n();
+const routeStore = useRouteStore();
 
 const home = ref({
   icon: "fa-solid fa-home",
   route: { name: "admin" },
 });
 
-const breakcrumbs = computed(() => {
+const breadcrumbs = computed(() => {
   const routes = {
     "admin.settings": {
-      title: t("admin.breakcrumbs.settings"),
+      title: t("admin.breadcrumbs.settings"),
       previous: null,
     },
     "admin.users": {
-      title: t("admin.breakcrumbs.users.index"),
+      title: t("admin.breadcrumbs.users.index"),
       previous: null,
     },
     "admin.users.new": {
-      title: t("admin.breakcrumbs.users.new"),
+      title: t("admin.breadcrumbs.users.new"),
       previous: "admin.users",
     },
     "admin.users.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.users.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.users.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.users",
     },
     "admin.users.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.users.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.users.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.users",
     },
     "admin.roles": {
-      title: t("admin.breakcrumbs.roles.index"),
+      title: t("admin.breadcrumbs.roles.index"),
       previous: null,
     },
     "admin.roles.new": {
-      title: t("admin.breakcrumbs.roles.new"),
+      title: t("admin.breadcrumbs.roles.new"),
       previous: "admin.roles",
     },
     "admin.roles.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.roles.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.roles.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.roles",
     },
     "admin.roles.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.roles.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.roles.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.roles",
     },
     "admin.room_types": {
-      title: t("admin.breakcrumbs.room_types.index"),
+      title: t("admin.breadcrumbs.room_types.index"),
       previous: null,
     },
     "admin.room_types.new": {
-      title: t("admin.breakcrumbs.room_types.new"),
+      title: t("admin.breadcrumbs.room_types.new"),
       previous: "admin.room_types",
     },
     "admin.room_types.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.room_types.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.room_types.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.room_types",
     },
     "admin.room_types.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.room_types.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.room_types.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.room_types",
     },
     "admin.servers": {
-      title: t("admin.breakcrumbs.servers.index"),
+      title: t("admin.breadcrumbs.servers.index"),
       previous: null,
     },
     "admin.servers.new": {
-      title: t("admin.breakcrumbs.servers.new"),
+      title: t("admin.breadcrumbs.servers.new"),
       previous: "admin.servers",
     },
     "admin.servers.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.servers.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.servers.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.servers",
     },
     "admin.servers.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.servers.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.servers.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.servers",
     },
     "admin.server_pools": {
-      title: t("admin.breakcrumbs.server_pools.index"),
+      title: t("admin.breadcrumbs.server_pools.index"),
       previous: null,
     },
     "admin.server_pools.new": {
-      title: t("admin.breakcrumbs.server_pools.new"),
+      title: t("admin.breadcrumbs.server_pools.new"),
       previous: "admin.server_pools",
     },
     "admin.server_pools.view": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.server_pools.view", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.server_pools.view", breadcrumbLabelData.value)
         : "",
       previous: "admin.server_pools",
     },
     "admin.server_pools.edit": {
-      title: !isEmpty(breakcrumbLabelData.value)
-        ? t("admin.breakcrumbs.server_pools.edit", breakcrumbLabelData.value)
+      title: !isEmpty(breadcrumbLabelData.value)
+        ? t("admin.breadcrumbs.server_pools.edit", breadcrumbLabelData.value)
         : "",
       previous: "admin.server_pools",
     },
     "admin.streaming_settings": {
-      title: t("admin.breakcrumbs.streaming_settings"),
+      title: t("admin.breadcrumbs.streaming_settings"),
       previous: null,
     },
   };
@@ -176,20 +176,20 @@ const breakcrumbs = computed(() => {
   const currentRoute = routes[route.name];
   if (!currentRoute) return [];
   let previousRoute = currentRoute.previous;
-  const breakcrumbs = [
+  const breadcrumbs = [
     {
       label: currentRoute.title,
     },
   ];
   while (routes[previousRoute]) {
-    breakcrumbs.unshift({
+    breadcrumbs.unshift({
       label: routes[previousRoute].title,
       route: { name: previousRoute },
     });
     previousRoute = previousRoute.previous;
   }
 
-  return breakcrumbs;
+  return breadcrumbs;
 });
 
 function isEmpty(obj) {
@@ -197,6 +197,27 @@ function isEmpty(obj) {
 }
 
 watch(route, () => {
-  breakcrumbLabelData.value = {};
+  breadcrumbLabelData.value = {};
+});
+
+onMounted(() => {
+  setPageTitle();
+});
+
+function setPageTitle() {
+  let title = `${t("admin.title")}`;
+
+  if (breadcrumbs.value.length > 0)
+    title = `${breadcrumbs.value
+      .filter((b) => b.label !== "")
+      .map((b) => b.label)
+      .reverse()
+      .join(" - ")} - ${title}`;
+
+  routeStore.setPageTitle(title);
+}
+
+watch(breadcrumbs, () => {
+  setPageTitle();
 });
 </script>

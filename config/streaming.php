@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'enabled' => (bool) env('STREAMING_ENABLED', false),
     'api' => env('STREAMING_API'),

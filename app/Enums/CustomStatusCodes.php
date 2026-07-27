@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 /**
@@ -7,6 +9,7 @@ namespace App\Enums;
  */
 enum CustomStatusCodes: int
 {
+    case GUESTS_ONLY = 420;
     case ROOM_NOT_RUNNING = 460;
     case NO_SERVER_AVAILABLE = 461;
     case ROOM_START_FAILED = 462;

@@ -27,7 +27,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
-import _ from "lodash";
+import * as _ from "lodash-es";
 
 const fileInputRef = ref();
 

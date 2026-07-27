@@ -1,0 +1,16 @@
+/**
+ * Reduce motion for users who prefer it (including Cypress tests)
+ * See: https://primevue.org/guides/animations/#disable
+ */
+@media (prefers-reduced-motion: reduce) {
+    .p-dialog-enter-active,
+    .p-dialog-leave-active {
+        animation-duration: 0s !important;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    :root {
+        scroll-behavior: smooth;
+    }
+}

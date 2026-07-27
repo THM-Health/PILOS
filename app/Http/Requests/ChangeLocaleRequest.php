@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -15,7 +17,7 @@ class ChangeLocaleRequest extends FormRequest
     public function rules()
     {
         return [
-            'locale' => ['required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
+            'locale' => ['required', Rule::in(array_keys(config('app.enabled_locales')))],
         ];
     }
 }

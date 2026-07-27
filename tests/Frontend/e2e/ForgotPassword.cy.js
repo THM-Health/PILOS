@@ -137,8 +137,9 @@ describe("Forgot password", function () {
     cy.intercept("POST", "api/v1/password/email", {
       statusCode: 422,
       body: {
+        message: "The email field is required",
         errors: {
-          email: ["The email fiel is required."],
+          email: ["The email field is required."],
         },
       },
     }).as("forgotPasswordRequest");
@@ -150,7 +151,10 @@ describe("Forgot password", function () {
     // Check that error message is shown
     cy.get('[data-test="email-field"]')
       .should("be.visible")
-      .and("include.text", "The email fiel is required.");
+      .and("include.text", "The email field is required.");
+
+    // Check toast
+    cy.checkToastMessage("The email field is required");
 
     // Check with 500 error
     cy.intercept("POST", "api/v1/password/email", {

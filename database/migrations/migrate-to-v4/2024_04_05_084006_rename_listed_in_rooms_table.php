@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\RoomVisibility;
 use App\Models\Room;
 use Illuminate\Database\Migrations\Migration;

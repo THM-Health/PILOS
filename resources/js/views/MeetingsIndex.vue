@@ -1,18 +1,17 @@
 <template>
-  <div class="container mb-8 mt-8">
+  <div class="container mt-8 mb-8">
     <Card>
       <template #title
-        ><h1 class="m-0 text-3xl">
-          {{ $t("meetings.currently_running") }}
-        </h1></template
-      >
+        ><PageTitle :title="$t('meetings.currently_running')" />
+      </template>
 
       <template #content>
         <div class="flex justify-between">
-          <div>
+          <search>
             <InputGroup data-test="meeting-search">
               <InputText
                 v-model="search"
+                type="search"
                 :disabled="isBusy"
                 :placeholder="$t('app.search')"
                 @keyup.enter="loadData(1)"
@@ -23,7 +22,7 @@
                 @click="loadData(1)"
               />
             </InputGroup>
-          </div>
+          </search>
           <div>
             <Button
               v-tooltip="$t('app.reload')"
@@ -150,8 +149,12 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.participant_count')"
+                aria-hidden="true"
                 class="fa-solid fa-users"
               />
+              <span class="sr-only">{{
+                $t("meetings.participant_count")
+              }}</span>
             </template>
             <template #body="slotProps">
               <span v-if="slotProps.data.room.participant_count !== null">{{
@@ -168,8 +171,10 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.listener_count')"
+                aria-hidden="true"
                 class="fa-solid fa-headphones"
               />
+              <span class="sr-only">{{ $t("meetings.listener_count") }}</span>
             </template>
             <template #body="slotProps">
               <span v-if="slotProps.data.room.listener_count !== null">{{
@@ -187,8 +192,12 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.voice_participant_count')"
+                aria-hidden="true"
                 class="fa-solid fa-microphone"
               />
+              <span class="sr-only">{{
+                $t("meetings.voice_participant_count")
+              }}</span>
             </template>
             <template #body="slotProps">
               <span
@@ -207,8 +216,10 @@
             <template #header>
               <i
                 v-tooltip="$t('meetings.video_count')"
+                aria-hidden="true"
                 class="fa-solid fa-video"
               />
+              <span class="sr-only">{{ $t("meetings.video_count") }}</span>
             </template>
             <template #body="slotProps">
               <span v-if="slotProps.data.room.video_count !== null">{{
@@ -222,28 +233,26 @@
           <Column :style="{ width: '100px' }" :header="$t('app.actions')">
             <template #body="slotProps">
               <div class="flex justify-between">
-                <router-link
+                <Button
+                  v-tooltip="
+                    $t('meetings.view_room', {
+                      name: slotProps.data.room.name,
+                    })
+                  "
                   :to="{
                     name: 'rooms.view',
                     params: { id: slotProps.data.room.id },
                   }"
-                  :disabled="true"
                   data-test="meeting-view-room-button"
-                >
-                  <Button
-                    v-tooltip="
-                      $t('meetings.view_room', {
-                        name: slotProps.data.room.name,
-                      })
-                    "
-                    :aria-label="
-                      $t('meetings.view_room', {
-                        name: slotProps.data.room.name,
-                      })
-                    "
-                    icon="fa-solid fa-eye"
-                  />
-                </router-link>
+                  :as="isBusy ? 'button' : 'router-link'"
+                  :disabled="isBusy"
+                  :aria-label="
+                    $t('meetings.view_room', {
+                      name: slotProps.data.room.name,
+                    })
+                  "
+                  icon="fa-solid fa-eye"
+                />
               </div>
             </template>
           </Column>

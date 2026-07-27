@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import _ from "lodash";
+import * as _ from "lodash-es";
 import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
 export function onRoomHasChanged(room, callback) {
   watch(room, (newRoom, oldRoom) => {

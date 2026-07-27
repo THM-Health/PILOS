@@ -1,21 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
-use App\Exceptions\RoomIdGenerationFailed;
-use App\Services\RoomAuthService;
+use App\Observers\RoomObserver;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Validation\Rule;
 
+#[ObservedBy([RoomObserver::class])]
 class Room extends Model
 {
     use AddsModelNameTrait, HasFactory;
@@ -23,42 +28,6 @@ class Room extends Model
     public $incrementing = false;
 
     protected $keyType = 'string';
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            // if the meeting has no ID yet, create a unique id
-            // 36^9 possible room ids ≈ 10^14
-
-            if (! $model->id) {
-                $count_tries = 0;
-                $newId = null;
-                while (true) {
-                    $count_tries++;
-                    if ($count_tries >= config('bigbluebutton.room_id_max_tries')) {
-                        throw new RoomIdGenerationFailed;
-                    }
-
-                    $newId = implode('-', str_split(Str::lower(Str::random(9)), 3));
-                    if (DB::table('rooms')->where('id', 'LIKE', $newId)->doesntExist()) {
-                        break;
-                    }
-                }
-                $model->id = $newId;
-            }
-        });
-
-        static::deleting(function ($model) {
-            $model->files->each->delete();
-            $model->recordings->each->delete();
-            \Storage::deleteDirectory($model->id);
-        });
-    }
 
     protected function casts()
     {
@@ -199,17 +168,17 @@ class Room extends Model
     /**
      * Recordings
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function recordings()
     {
-        return $this->hasMany(Recording::class);
+        return $this->hasMany(Recording::class)->chaperone();
     }
 
     /**
      * Room owner
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function owner()
     {
@@ -248,7 +217,7 @@ class Room extends Model
     /**
      * Room type
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function roomType()
     {
@@ -258,7 +227,7 @@ class Room extends Model
     /**
      * Members of the room
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function members()
     {
@@ -268,7 +237,7 @@ class Room extends Model
     /**
      * Meetings
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function meetings()
     {
@@ -278,7 +247,7 @@ class Room extends Model
     /**
      * Last meeting of the room
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function latestMeeting()
     {
@@ -288,7 +257,7 @@ class Room extends Model
     /**
      * Files
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function files()
     {
@@ -296,51 +265,44 @@ class Room extends Model
     }
 
     /**
-     * Personalized tokens.
+     * Personalized links.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function tokens()
+    public function personalizedLinks()
     {
-        return $this->hasMany(RoomToken::class);
+        return $this->hasMany(RoomPersonalizedLink::class);
     }
 
     /** Check if user is moderator of this room
-     * @param  RoomToken|null  $token
-     * @return bool
      */
-    public function isModerator(?User $user)
+    public function isModerator(?User $user): bool
     {
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $token = $roomAuthService->getRoomToken($this);
+        $personalizedLink = Context::getHidden("room.{$this->id}.personalized_link");
 
-        if ($user == null && $token != null) {
-            return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
+        if ($user == null && $personalizedLink != null) {
+            return $personalizedLink->room->is($this) && $personalizedLink->role == RoomUserRole::MODERATOR;
         }
 
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
     }
 
     /** Check if user is co owner of this room
-     * @return bool
      */
-    public function isCoOwner(?User $user)
+    public function isCoOwner(?User $user): bool
     {
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
     }
 
     /**
      * Check if user is member of this room
-     *
-     * @return bool
      */
-    public function isMember(?User $user)
+    public function isMember(?User $user): bool
     {
-        $roomAuthService = app()->make(RoomAuthService::class);
-        $token = $roomAuthService->getRoomToken($this);
+        $personalizedLink = Context::getHidden("room.{$this->id}.personalized_link");
 
-        if ($user == null && $token != null) {
-            return $token->room->is($this) && ($token->role == RoomUserRole::USER || $token->role == RoomUserRole::MODERATOR);
+        if ($user == null && $personalizedLink != null) {
+            return $personalizedLink->room->is($this) && ($personalizedLink->role == RoomUserRole::USER || $personalizedLink->role == RoomUserRole::MODERATOR);
         }
 
         return $user == null ? false : $this->members->contains($user);
@@ -349,11 +311,11 @@ class Room extends Model
     /**
      * Get role of the user
      */
-    public function getRole(?User $user, ?RoomToken $token): RoomUserRole
+    public function getRole(?User $user, ?RoomPersonalizedLink $personalizedLink): RoomUserRole
     {
         if ($user == null) {
-            if ($token) {
-                return $token->role;
+            if ($personalizedLink) {
+                return $personalizedLink->role;
             }
 
             return RoomUserRole::GUEST;
@@ -373,8 +335,6 @@ class Room extends Model
 
     /**
      * Generate message for moderators inside the meeting
-     *
-     * @return string
      */
     public function getModeratorOnlyMessage()
     {
@@ -383,7 +343,8 @@ class Room extends Model
         $message = __('rooms.invitation.room', ['roomname' => $this->name, 'platform' => $appName]).'<br>';
         $message .= __('rooms.invitation.link').': '.config('app.url').'/rooms/'.$this->id;
         if ($this->access_code != null) {
-            $message .= '<br>'.__('rooms.invitation.code').': '.implode('-', str_split($this->access_code, 3));
+            $message .= '<br>'.__('rooms.invitation.code').': ';
+            $message .= $this->hasLegacyCode ? $this->access_code : implode('-', str_split($this->access_code, 3));
         }
 
         return $message;
@@ -396,6 +357,14 @@ class Room extends Model
     public function getRoomTypeInvalidAttribute(): bool
     {
         return ! self::roomTypePermitted($this->owner, $this->roomType);
+    }
+
+    /**
+     * Does the room has a legacy access code (6 characters, alphanumeric)
+     */
+    public function getHasLegacyCodeAttribute(): bool
+    {
+        return $this->access_code && strlen($this->access_code) == 6;
     }
 
     /**

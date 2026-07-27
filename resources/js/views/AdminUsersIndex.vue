@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-4 md:flex-row">
-      <div>
+      <search>
         <InputGroup data-test="user-search">
           <InputText
             v-model="filter.search"
             :disabled="isBusy"
+            type="search"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1)"
           />
@@ -17,7 +18,7 @@
             @click="loadData(1)"
           />
         </InputGroup>
-      </div>
+      </search>
 
       <div class="flex flex-col justify-end gap-2 md:flex-row">
         <InputGroup class="min-w-80 shrink-0 grow">
@@ -252,7 +253,7 @@
                   lastname: slotProps.data.lastname,
                 })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :aria-label="
                 $t('admin.users.view', {
                   firstname: slotProps.data.firstname,
@@ -275,7 +276,7 @@
                   lastname: slotProps.data.lastname,
                 })
               "
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               severity="info"
               :aria-label="
                 $t('admin.users.edit', {
@@ -300,13 +301,17 @@
               :firstname="slotProps.data.firstname"
               :lastname="slotProps.data.lastname"
               :email="slotProps.data.email"
+              :disabled="isBusy"
+              @not-found="loadData()"
             />
             <SettingsUsersDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
               :firstname="slotProps.data.firstname"
               :lastname="slotProps.data.lastname"
+              :disabled="isBusy"
               @deleted="loadData()"
+              @not-found="loadData()"
             />
           </div>
         </template>

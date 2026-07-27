@@ -14,6 +14,7 @@ describe("Admin users edit base", function () {
         "users.view",
         "users.update",
         "users.create",
+        "users.delete",
         "roles.viewAny",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
@@ -42,10 +43,10 @@ describe("Admin users edit base", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+        'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
       );
 
     cy.get('[data-test="default-profile-image-preview"]')
@@ -79,16 +80,16 @@ describe("Admin users edit base", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+        'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
       );
 
     // Check authenticator setting
     cy.get('[data-test="authenticator-field"]')
       .should("be.visible")
-      .and("include.text", "auth.authenticator")
+      .and("include.text", "admin.users.authenticator.title")
       .within(() => {
         cy.get("#authenticator")
           .should("have.value", "admin.users.authenticator.local")
@@ -380,6 +381,24 @@ describe("Admin users edit base", function () {
         .click();
 
       // Check loading
+      // Check that tab buttons are disabled
+      cy.get('[data-test="base-tab-button"]').should("be.disabled");
+      cy.get('[data-test="email-tab-button"]').should("be.disabled");
+      cy.get('[data-test="security-tab-button"]').should("be.disabled");
+      cy.get('[data-test="others-tab-button"]').should("be.disabled");
+
+      // Check that header buttons are disabled
+      cy.get('button[data-test="users-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-reset-password-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="users-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
+      // Check that input fields and buttons are disabled
       cy.get("#firstname").should("be.disabled");
       cy.get("#lastname").should("be.disabled");
       cy.get("#authenticator").should("be.disabled");
@@ -427,16 +446,16 @@ describe("Admin users edit base", function () {
     });
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
+        'admin.breadcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
       );
 
     cy.wait("@userRequest");
@@ -548,7 +567,7 @@ describe("Admin users edit base", function () {
     });
 
     // Check that redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
@@ -562,16 +581,17 @@ describe("Admin users edit base", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+        'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
       );
 
     // Check with 422 error
     cy.intercept("POST", "api/v1/users/2", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 3 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
@@ -586,6 +606,10 @@ describe("Admin users edit base", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that error messages are shown
+    cy.checkToastMessage(
+      "The firstname field is required. (and 3 more errors)",
+    );
+
     cy.get('[data-test="firstname-field"]').should(
       "include.text",
       "The firstname field is required.",
@@ -654,7 +678,7 @@ describe("Admin users edit base", function () {
       cy.intercept("POST", "api/v1/users/2", {
         statusCode: 428,
         body: {
-          message: " The user entity was updated in the meanwhile!",
+          message: "stale_model",
           new_model: user.data,
         },
       }).as("saveChangesRequest");
@@ -673,7 +697,10 @@ describe("Admin users edit base", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-user-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user entity was updated in the meanwhile!");
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 
@@ -686,10 +713,10 @@ describe("Admin users edit base", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.users.index")
+      .should("include.text", "admin.breadcrumbs.users.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
+        'admin.breadcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
       );
 
     // Visit edit page again
@@ -701,7 +728,9 @@ describe("Admin users edit base", function () {
     cy.intercept("POST", "api/v1/users/2", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -716,8 +745,8 @@ describe("Admin users edit base", function () {
     cy.wait("@usersRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Visit edit page again
@@ -759,10 +788,10 @@ describe("Admin users edit base", function () {
       .should("have.value", "admin.users.authenticator.ldap")
       .and("be.disabled");
 
-    cy.get('[data-test="authenticator-id-field"]')
-      .should("include.text", "auth.authenticator_id")
+    cy.get('[data-test="external-user-id-field"]')
+      .should("include.text", "auth.external_user_id")
       .within(() => {
-        cy.get("#authenticator_id")
+        cy.get("#external-user-id")
           .should("have.value", "lwr")
           .and("be.disabled");
       });

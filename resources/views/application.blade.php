@@ -12,7 +12,12 @@
     <title>{{ app(\App\Settings\GeneralSettings::class)->name }}</title>
 
     <!-- Scripts -->
-    @vite(['resources/js/app.js', 'resources/sass/app.scss'])
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
+
+    <!-- Custom CSS -->
+    @if(app(\App\Settings\ThemeSettings::class)->custom_css )
+        <link rel="stylesheet" nonce="{{ app('csp-nonce') }}" href="{{ app(\App\Settings\ThemeSettings::class)->custom_css }}">
+    @endif
 </head>
 <body class="bg-surface-50 dark:bg-surface-950">
     <div id='app'>

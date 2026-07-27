@@ -6,13 +6,11 @@ describe("Login", function () {
   it("local login", function () {
     cy.visit("/login");
 
-    // Check if ldap login tab is shown correctly and click on login button
-    cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get("#local-email").type("john.doe@example.org");
-      cy.get("#local-password").type("johndoe");
-
-      cy.get('[data-test="login-button"]').should("have.text", "Login").click();
-    });
+    // Local login
+    cy.get('[data-test="login-tab-button-local"]').click();
+    cy.get("#local-email").type("john.doe@example.org");
+    cy.get("#local-password").type("johndoe");
+    cy.get('[data-test="login-button"]').should("have.text", "Login").click();
 
     // Check toast message
     cy.get(".p-toast")
@@ -25,13 +23,11 @@ describe("Login", function () {
   it("local login invalid", function () {
     cy.visit("/login");
 
-    // Check if ldap login tab is shown correctly and click on login button
-    cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get("#local-email").type("john.doe@example.org");
-      cy.get("#local-password").type("johndoe2");
-
-      cy.get('[data-test="login-button"]').should("have.text", "Login").click();
-    });
+    // Local login
+    cy.get('[data-test="login-tab-button-local"]').click();
+    cy.get("#local-email").type("john.doe@example.org");
+    cy.get("#local-password").type("johndoe2");
+    cy.get('[data-test="login-button"]').should("have.text", "Login").click();
 
     // Check error message
     cy.contains("These credentials do not match our records.").should(

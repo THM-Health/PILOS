@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\CustomStatusCodes;
@@ -12,14 +14,15 @@ use App\Models\Server;
 use App\Models\User;
 use App\Services\StreamingService;
 use App\Services\StreamingServiceFactory;
-use Config;
+use App\Settings\StreamingSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\Backend\TestCase;
 
@@ -119,7 +122,7 @@ class RoomStreamingTest extends TestCase
      */
     public function test_streaming_settings()
     {
-        $streamingSettings = app(\App\Settings\StreamingSettings::class);
+        $streamingSettings = app(StreamingSettings::class);
 
         // Test default values
         $this->actingAs($this->room->owner)
@@ -322,15 +325,19 @@ class RoomStreamingTest extends TestCase
         $this->assertNull($this->room->streaming->pause_image_url);
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $data['pause_image'] = $this->file_valid;
         $this->actingAs($this->room->owner)
             ->putJson(route('api.v1.rooms.streaming.config.update', ['room' => $this->room]), $data)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['pause_image']);
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     /**
@@ -601,7 +608,7 @@ class RoomStreamingTest extends TestCase
         $this->room->save();
 
         // Test permissions
-        \Auth::logout();
+        Auth::logout();
 
         // Testing guests
         $this->postJson($url)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Room;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,7 +20,7 @@ return new class extends Migration
         });
 
         Room::whereRaw('LENGTH(access_code) < 6')
-            ->update(['access_code' => \DB::raw("LPAD(access_code, 6, '0')")]);
+            ->update(['access_code' => DB::raw("LPAD(access_code, 6, '0')")]);
     }
 
     /**

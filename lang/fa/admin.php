@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'ویرایش :name',
             'index' => 'نقش‌ها',
@@ -153,6 +155,8 @@ return [
         'bbb_api' => [
             'create_parameters' => 'پارامترهای اضافی Create API',
             'create_parameters_description' => 'به صورت جفت ویژگی-مقدار مشخص کنید (یک مورد در هر خط، بدون فاصله)، مثلاً: webcamsOnlyForModerator=true',
+            'join_parameters' => 'پارامتر های اضافه api برای join',
+            'join_parameters_description' => 'به صورت جفت ویژگی-مقدار مشخص کنید (یکی در هر خط، بدون فاصله)، به عنوان مثال: userdata-bbb_show_session_details_on_join=false',
             'title' => 'BigBlueButton API',
         ],
         'color' => 'رنگ',
@@ -257,6 +261,10 @@ return [
         'view' => 'اطلاعات دقیق برای سرور :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'اگر تنظیم نشده باشد، لینک بیانیه دسترسی‌پذیری در فوتر نمایش داده نمی‌شود.',
+            'title' => 'URL بیانیه دسترسی‌پذیری',
+        ],
         'application' => 'برنامه',
         'attendance' => [
             'retention_period_title' => 'دوره نگهداری گزارش حضور در روز',
@@ -378,11 +386,12 @@ return [
             'description' => 'کاربران باید شرایط استفاده را برای دانلود فایل‌ها بپذیرند. اگر فیلد خالی باشد، نیازی به رضایت نیست.',
             'title' => 'شرایط استفاده برای دانلود فایل',
         ],
+        'room_hide_owner_from_guests' => 'مالک اتاق را از کاربران احراز هویت نشده مخفی کنید',
         'room_limit' => [
             'description' => 'تعداد اتاق‌هایی که یک کاربر می‌تواند داشته باشد را محدود می‌کند. این تنظیم توسط محدودیت‌های گروهی جایگزین می‌شود.',
             'title' => 'تعداد اتاق‌ها برای هر کاربر',
         ],
-        'room_token_expiration' => [
+        'room_personalized_link_expiration' => [
             'description' => 'مدت زمان از آخرین استفاده، پس از آن لینک‌های شخصی‌سازی‌شده اتاق به‌طور خودکار حذف می‌شوند.',
             'title' => 'زمان انقضا برای لینک‌های شخصی‌سازی‌شده اتاق',
         ],
@@ -399,6 +408,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'رنگ سفارشی',
+            'custom_css' => 'فایل سبک CSS سفارشی',
             'primary_color' => 'رنگ اصلی',
             'rounded' => 'گوشه‌های گرد',
             'title' => 'تم',
@@ -440,8 +450,9 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'محلی',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
-            'title' => 'نوع احراز هویت',
+            'title' => 'روش احراز هویت',
         ],
         'base_data' => 'داده‌های پایه',
         'bbb' => 'BigBlueButton',
@@ -461,7 +472,12 @@ return [
             'invalid_mime' => 'فرمت فایل پشتیبانی نمی‌شود. لطفاً یک فایل jpg یا png انتخاب کنید.',
             'save' => 'تأیید',
             'title' => 'تصویر پروفایل',
+            'title_short' => 'تصویر',
             'upload' => 'آپلود تصویر جدید',
+        ],
+        'last_login' => [
+            'title' => 'آخر ورود',
+            'unknown' => 'ناشناخته',
         ],
         'new' => 'ایجاد کاربر جدید',
         'no_data' => 'هیچ کاربری یافت نشد!',

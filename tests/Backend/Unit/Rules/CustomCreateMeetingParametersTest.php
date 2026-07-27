@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Rules;
 
 use App\Rules\CustomCreateMeetingParameters;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Validator;
 use Tests\Backend\TestCase;
-use Validator;
 
 class CustomCreateMeetingParametersTest extends TestCase
 {

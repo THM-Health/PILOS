@@ -24,4 +24,4 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 import "../support/commands.js";
-import "happo-cypress";
+import "happo/cypress";
