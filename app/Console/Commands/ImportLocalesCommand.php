@@ -119,7 +119,7 @@ class ImportLocalesCommand extends Command
         }
 
         $this->info('Apply coding standards');
-        Process::run('composer run fix-cs '.config('app.default_locale_dir'));
+        Process::run('composer run fix-cs '.$disk->path('/'));
     }
 
     /**
