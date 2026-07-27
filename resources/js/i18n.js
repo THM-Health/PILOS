@@ -18,14 +18,17 @@ function messageCompiler(message) {
         return message;
       }
 
-      // If ctx.values has n property, we have to handle pluralization
+      // If ctx.values has n or count property, we have to handle pluralization
       if (ctx.values["n"] !== undefined) {
         message = getPluralization(message, ctx.values["n"]);
+      } else if (ctx.values["count"] !== undefined) {
+        message = getPluralization(message, ctx.values["count"]);
       }
 
       Object.keys(ctx.values).forEach((key) => {
+        // ToDo
         // Use Laravel syntax :placeholder instead of {placeholder}
-        message = message.replace(`:${key}`, ctx.values[key]);
+        message = message.replaceAll(`:${key}`, ctx.values[key]);
       });
 
       // If a message is missing and values are present, append values to the message for debugging
@@ -40,21 +43,21 @@ function messageCompiler(message) {
 
 function getPluralization(message, count) {
   const messageParts = message.split("|");
-  const regex = /^(?:(?:\{(\d+)\})|(?:\[(\d+),(\d+|\*)\])) (.*)$/;
+  const regex = /^(?:(?:\{(-?\d+)\})|(?:\[(-?\d+|\*),(-?\d+|\*)\]))(.*)$/;
 
   for (const part of messageParts) {
-    const match = part.trim().match(regex);
+    const match = part.match(regex);
     if (match) {
       // Match {n}
       if (match[1] !== undefined && Number(match[1]) === Number(count)) {
-        return match[4];
+        return match[4].trim();
       }
       if (match[1] === undefined) {
-        // Match [n,m] or [n,*]
-        const n = Number(match[2]);
+        // Match [n,m], [*,m] or [n,*]
+        const n = match[2] === "*" ? -Infinity : Number(match[2]);
         const m = match[3] === "*" ? Infinity : Number(match[3]);
         if (Number(count) >= n && Number(count) <= m) {
-          return match[4];
+          return match[4].trim();
         }
       }
     }

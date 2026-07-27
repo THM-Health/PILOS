@@ -41,27 +41,21 @@ When translating, ensure that placeholders remain unchanged and are correctly po
 
 ### Pluralization
 
-Pluralization can be complex, and we currently support the **flexible pluralization format used by [Laravel](https://laravel.com/docs/12.x/localization#pluralization)**.
+Pluralization can be complex, and we currently support a subset of the **flexible pluralization format used by [Laravel](https://laravel.com/docs/12.x/localization#pluralization)**.
 
 #### Format
 
 ```text
-{0} No items | {1} One item | [2,*] :count items
+{0} No items |{1} One item |[2,*] :count items
 ```
 
 Each plural form is separated by a pipe (`|`):
 
 - **Curly braces `{}`** define exact numbers.
 - **Square brackets `[]`** define numeric ranges.
-- The **asterisk (`*`)** denotes an open upper range.
+- The **asterisk (`*`)** denotes an open upper / lower range.
 
 Pluralization forms must be listed in ascending order, and you can define as many as required for a given locale.
-
-#### Placeholders
-
-- Singular strings support arbitrary placeholders using the `:placeholder` syntax.
-- Pluralization strings only support the `:count` placeholder to represent the number of items.
-  Additional placeholders are not supported.
 
 ## Overriding locales
 
