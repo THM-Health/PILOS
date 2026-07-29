@@ -17,9 +17,9 @@ class FileHelpers {
     const units = ["B", "kB", "MB", "GB"];
 
     // Determine the appropriate unit exponent (0 = B, 1 = kB, 2 = MB, …)
-    // log10(sizeInBytes) / 3 gives the base-1000 exponent; clamped to the available units
+    // log10(bytes) / 3 gives the base-1000 exponent; clamped to the available units
     let exponent = Math.min(
-      Math.floor(Math.log10(sizeInBytes) / 3),
+      Math.floor(Math.log10(bytes) / 3),
       units.length - 1,
     );
 
