@@ -180,10 +180,10 @@ const frontendFileError = computed(() => {
   const errors = [];
 
   if (fileTooBig.value) {
-    errors.push(t("app.validation.too_large"));
+    errors.push(t("app.file.too_large"));
   }
   if (fileInvalidExtension.value) {
-    errors.push(t("app.validation.invalid_type"));
+    errors.push(t("app.file.invalid_type"));
   }
 
   return errors;
