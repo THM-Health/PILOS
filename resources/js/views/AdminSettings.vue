@@ -1098,6 +1098,7 @@
                   id="room-file-terms-of-use"
                   v-model="settings.room_file_terms_of_use"
                   rows="3"
+                  auto-resize
                   :invalid="formErrors.fieldInvalid('room_file_terms_of_use')"
                   :disabled="disabled"
                   aria-describedby="room-file-terms-of-use-help"
@@ -1548,6 +1549,46 @@
                 />
               </div>
             </fieldset>
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="bbb-default-welcome-message-field"
+            >
+              <label
+                for="bbb-default-welcome-message"
+                class="col-span-12 md:col-span-4 md:mb-0"
+                >{{
+                  $t("admin.settings.bbb.default_welcome_message.title")
+                }}</label
+              >
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <Textarea
+                  id="bbb-default-welcome-message"
+                  v-model="settings.bbb_default_welcome_message"
+                  rows="3"
+                  auto-resize
+                  :invalid="
+                    formErrors.fieldInvalid('bbb_default_welcome_message')
+                  "
+                  :maxlength="
+                    settingsStore.getSetting('bbb.welcome_message_limit')
+                  "
+                  :disabled="disabled"
+                />
+                <small>
+                  {{
+                    $t("app.char_counter", {
+                      chars: settings.bbb_default_welcome_message?.length || 0,
+                      max: settingsStore.getSetting(
+                        "bbb.welcome_message_limit",
+                      ),
+                    })
+                  }}
+                </small>
+                <FormError
+                  :errors="formErrors.fieldError('bbb_default_welcome_message')"
+                />
+              </div>
+            </div>
           </AdminPanel>
         </div>
       </OverlayComponent>

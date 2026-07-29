@@ -92,6 +92,7 @@ class UpdateSettingsRequest extends FormRequest
 
             'bbb_style' => ['bail', 'nullable', File::types(['css', 'txt'])->extensions('css')->max('500kb'), new Antivirus], // 500 KB, larger files are bad for loading times
             'bbb_default_presentation' => ['bail', 'nullable', File::types(config('bigbluebutton.allowed_file_mimes'))->extensions(config('bigbluebutton.allowed_file_mimes'))->max(config('bigbluebutton.max_filesize').'mb'), new Antivirus],
+            'bbb_default_welcome_message' => ['bail', 'nullable', 'max:'.config('bigbluebutton.welcome_message_limit'), 'string'],
         ];
     }
 }

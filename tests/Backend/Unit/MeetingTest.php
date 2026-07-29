@@ -352,6 +352,69 @@ class MeetingTest extends TestCase
     }
 
     /**
+     * Test welcome message
+     */
+    public function test_start_parameters_welcome_message()
+    {
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        // Test without welcome message configured in the room
+        // and without a global welcome message
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+        $this->assertArrayNotHasKey('welcome', $data);
+
+        // Test without welcome message configured in the room
+        // and with a global welcome message
+
+        $this->bigBlueButtonSettings->default_welcome_message = 'Demo';
+        $this->bigBlueButtonSettings->save();
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+        $request = Http::recorded()[1][0];
+        $data = $request->data();
+        $this->assertEquals('Demo', $data['welcome']);
+
+        // Test with welcome message configured in the room
+        // but expert mode is disabled and with a global welcome message
+
+        $this->meeting->room->welcome = 'Hello';
+        $this->meeting->room->expert_mode = false;
+        $this->meeting->room->save();
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+        $request = Http::recorded()[2][0];
+        $data = $request->data();
+        $this->assertEquals('Demo', $data['welcome']);
+
+        // Test with welcome message configured in the room
+        // but expert mode is enabled and with a global welcome message
+
+        $this->meeting->room->expert_mode = true;
+        $this->meeting->room->save();
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+        $request = Http::recorded()[3][0];
+        $data = $request->data();
+        $this->assertEquals('Hello', $data['welcome']);
+    }
+
+    /**
      * Test room start without own presentations but global presentation
      */
     public function test_start_parameters_without_own_presentation()

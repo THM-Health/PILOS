@@ -76,7 +76,14 @@
         />
         <FormError :errors="formErrors.fieldError('description')" />
         <small>
-          {{ $t("app.char_counter", { chars: charactersLeftDescription }) }}
+          {{
+            $t("app.char_counter", {
+              chars: newDescription?.length || 0,
+              max: settingsStore.getSetting(
+                "recording.recording_description_limit",
+              ),
+            })
+          }}
         </small>
       </div>
 
@@ -138,7 +145,7 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import * as _ from "lodash-es";
 import { useSettingsStore } from "../stores/settings.js";
 import { useToast } from "../composables/useToast.js";
@@ -198,18 +205,6 @@ const newFormats = ref([]);
 const newAccess = ref(null);
 const isLoadingAction = ref(false);
 const accessTypes = ref([0, 1, 2, 3]);
-
-/**
- * Count the chars of the description
- * @returns {string} amount of chars in comparison to the limit
- */
-const charactersLeftDescription = computed(() => {
-  return (
-    newDescription.value.length +
-    " / " +
-    settingsStore.getSetting("recording.recording_description_limit")
-  );
-});
 
 /**
  * show modal to edit recording

@@ -411,7 +411,6 @@ return [
             'access_code_prohibited' => 'The room type enforces the absence of an access code',
             'allow' => 'Allow',
             'allow_guests' => 'Allow guests',
-            'chars' => 'Characters: :chars',
             'delete_access_code' => 'Remove access code',
             'enforced_setting' => 'Enforced setting',
             'generate_access_code' => 'Create new access code',

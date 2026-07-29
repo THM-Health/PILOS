@@ -42,7 +42,8 @@
     "bbb_logo": "/images/logo.svg",
     "bbb_logo_dark": "/images/logo-dark.svg",
     "bbb_style": null,
-    "bbb_default_presentation": null
+    "bbb_default_presentation": null,
+    "bbb_default_welcome_message": null
   },
   "meta": {
     "link_btn_styles": ["primary", "secondary", "link"],
