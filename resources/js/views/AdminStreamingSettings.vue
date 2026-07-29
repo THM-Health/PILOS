@@ -67,7 +67,7 @@
                   v-model:file-deleted="cssFileDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="5_000_000"
+                  :max-file-size="500_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('css_file')"
