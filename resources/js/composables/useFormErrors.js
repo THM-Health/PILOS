@@ -17,7 +17,7 @@ class FormError {
    * Returns the state for a field with the given name.
    *
    * @param {string} field Name of field to get the error state for.
-   * @param {bool} [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
+   * @param {boolean} [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
    * @return {null|boolean} null if there is no errors object or there is no error
    *    for the passed field and otherwise false.
    */
@@ -41,7 +41,7 @@ class FormError {
    *    <FormError :errors="formErrors.fieldError('FIELD_NAME')" />
    *
    * @param {string} field Name of field to get the error message for.
-   * @param {bool} [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
+   * @param {boolean} [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
    * @return {string[]} Empty array if there is no error for the passed field otherwise an array of strings with the messages for the passed field.
    */
   fieldError(field, wildcard = false) {
