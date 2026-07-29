@@ -103,7 +103,15 @@
               :hide-url="true"
               show-delete
               :preview-alt="$t('rooms.streaming.config.pause_image_alt')"
-              :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+              :allowed-extensions="[
+                'jpg',
+                'jpeg',
+                'png',
+                'gif',
+                'svg',
+                'webp',
+                'bmp',
+              ]"
               input-id="pause-image"
               :url-invalid="formErrors.fieldInvalid('default_pause_image')"
               :file-invalid="formErrors.fieldInvalid('default_pause_image')"

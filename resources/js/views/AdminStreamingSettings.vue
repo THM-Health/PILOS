@@ -33,7 +33,15 @@
                   :readonly="viewOnly"
                   :max-file-size="5_000_000"
                   show-delete
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   :file-invalid="formErrors.fieldInvalid('default_pause_image')"
                   :file-errors="formErrors.fieldError('default_pause_image')"
                 />

@@ -399,7 +399,15 @@
                   preview-width="150"
                   preview-bg-class="bg-surface-0"
                   :preview-alt="$t('admin.settings.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="logo"
                   :url-invalid="formErrors.fieldInvalid('theme_logo')"
                   :file-invalid="formErrors.fieldInvalid('theme_logo_file')"
@@ -428,7 +436,15 @@
                   preview-width="150"
                   preview-bg-class="bg-surface-900"
                   :preview-alt="$t('admin.settings.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="logo-dark"
                   :url-invalid="formErrors.fieldInvalid('theme_logo_dark')"
                   :file-invalid="
@@ -1418,7 +1434,15 @@
                   preview-width="150"
                   show-delete
                   :preview-alt="$t('admin.settings.bbb.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="bbb-logo"
                   :url-invalid="formErrors.fieldInvalid('bbb_logo')"
                   :file-invalid="formErrors.fieldInvalid('bbb_logo_file')"
@@ -1449,7 +1473,15 @@
                   preview-bg-class="bg-surface-900"
                   show-delete
                   :preview-alt="$t('admin.settings.bbb.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="bbb-logo-dark"
                   :url-invalid="formErrors.fieldInvalid('bbb_logo_dark')"
                   :file-invalid="formErrors.fieldInvalid('bbb_logo_dark_file')"
