@@ -56,7 +56,7 @@ class RoomStreamingTest extends TestCase
         $this->viewAllPermission = Permission::where('name', 'rooms.viewAll')->first();
 
         $this->file_valid = UploadedFile::fake()->image('image.jpg', 1920, 1080);
-        $this->file_wrongmime = UploadedFile::fake()->image('image.svg', 1920, 1080);
+        $this->file_wrongmime = UploadedFile::fake()->image('image.tiff', 1920, 1080);
         $this->file_wrongdimensions = UploadedFile::fake()->image('image.jpg', 1080, 1920);
         $this->file_toobig = UploadedFile::fake()->create('image.jpg', 5001, 'image/jpeg');
 

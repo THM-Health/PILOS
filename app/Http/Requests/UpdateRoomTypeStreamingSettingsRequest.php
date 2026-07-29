@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Rules\Antivirus;
+use App\Rules\Image;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\File;
 
 class UpdateRoomTypeStreamingSettingsRequest extends FormRequest
 {
@@ -20,7 +20,7 @@ class UpdateRoomTypeStreamingSettingsRequest extends FormRequest
     {
         return [
             'enabled' => ['required', 'boolean'],
-            'default_pause_image' => ['bail', 'nullable', File::types(['jpg', 'bmp', 'png', 'gif'])->extensions(['jpg', 'jpeg', 'bmp', 'png', 'gif'])->max('5mb'), Rule::dimensions()->width(1920)->height(1080), new Antivirus],
+            'default_pause_image' => ['bail', 'nullable', Image::default()->max('5mb'), Rule::dimensions()->width(1920)->height(1080), new Antivirus],
         ];
     }
 }
