@@ -71,7 +71,7 @@
       }}</small>
     </div>
     <div
-      class="col-span-12 flex justify-center rounded-border border border-surface p-2 lg:col-span-3"
+      class="col-span-12 flex items-center justify-center rounded-border border border-surface p-2 lg:col-span-3"
       :class="previewBgClass"
     >
       <img
