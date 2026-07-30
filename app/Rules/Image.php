@@ -17,13 +17,13 @@ class Image extends File
     public static function logo(): Image
     {
         return self::default()
-            ->max('500kb');
+            ->max('500kb'); // larger files are bad for loading times
     }
 
     public static function favicon(): Image
     {
         return self::types(['ico'])
             ->extensions(['ico'])
-            ->max('500kb');
+            ->max('500kb'); // larger files are bad for loading times
     }
 }

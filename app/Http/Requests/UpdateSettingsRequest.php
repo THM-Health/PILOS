@@ -46,13 +46,13 @@ class UpdateSettingsRequest extends FormRequest
             'general_no_welcome_page' => ['required', 'boolean'],
 
             'theme_logo' => ['required_without:theme_logo_file', 'string', 'max:255'],
-            'theme_logo_file' => ['bail', 'required_without:theme_logo', Image::logo(), new Antivirus], // 500 KB, larger files are bad for loading times
+            'theme_logo_file' => ['bail', 'required_without:theme_logo', Image::logo(), new Antivirus],
             'theme_logo_dark' => ['required_without:theme_logo_dark_file', 'string', 'max:255'],
-            'theme_logo_dark_file' => ['bail', 'required_without:theme_logo_dark', Image::logo(), new Antivirus], // 500 KB, larger files are bad for loading times
+            'theme_logo_dark_file' => ['bail', 'required_without:theme_logo_dark', Image::logo(), new Antivirus],
             'theme_favicon' => ['required_without:theme_favicon_file', 'string', 'max:255'],
-            'theme_favicon_file' => ['bail', 'required_without:theme_favicon', Image::favicon(), new Antivirus], // 500 KB, larger files are bad for loading times
+            'theme_favicon_file' => ['bail', 'required_without:theme_favicon', Image::favicon(), new Antivirus],
             'theme_favicon_dark' => ['required_without:theme_favicon_dark_file', 'string', 'max:255'],
-            'theme_favicon_dark_file' => ['bail', 'required_without:theme_favicon_dark', Image::favicon(), new Antivirus], // 500 KB, larger files are bad for loading times
+            'theme_favicon_dark_file' => ['bail', 'required_without:theme_favicon_dark', Image::favicon(), new Antivirus],
             'theme_primary_color' => ['required', 'string', 'hex_color'],
             'theme_rounded' => ['required', 'boolean'],
             'theme_custom_css' => ['bail', 'nullable', File::types(['css', 'txt'])->extensions('css')->max('500kb'), new Antivirus],
@@ -86,9 +86,9 @@ class UpdateSettingsRequest extends FormRequest
             'recording_recording_retention_period' => ['required', 'numeric',  Rule::enum(TimePeriod::class)->except($disabledRecordingRetentionPeriods)],
 
             'bbb_logo' => ['nullable', 'string', 'max:255'],
-            'bbb_logo_file' => ['bail', Image::logo(), new Antivirus], // 500 KB, larger files are bad for loading times
+            'bbb_logo_file' => ['bail', Image::logo(), new Antivirus],
             'bbb_logo_dark' => ['nullable', 'string', 'max:255'],
-            'bbb_logo_dark_file' => ['bail', Image::logo(), new Antivirus], // 500 KB, larger files are bad for loading times
+            'bbb_logo_dark_file' => ['bail', Image::logo(), new Antivirus],
 
             'bbb_style' => ['bail', 'nullable', File::types(['css', 'txt'])->extensions('css')->max('500kb'), new Antivirus], // 500 KB, larger files are bad for loading times
             'bbb_default_presentation' => ['bail', 'nullable', File::types(config('bigbluebutton.allowed_file_mimes'))->extensions(config('bigbluebutton.allowed_file_mimes'))->max(config('bigbluebutton.max_filesize').'mb'), new Antivirus],
