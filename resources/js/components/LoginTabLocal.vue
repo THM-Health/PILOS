@@ -106,7 +106,7 @@ watch(
   (newErrors) => {
     formErrors.set(toRaw(newErrors));
   },
-  { deep: true },
+  { deep: true, immediate: true },
 );
 
 function submit() {
