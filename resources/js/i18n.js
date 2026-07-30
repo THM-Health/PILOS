@@ -25,11 +25,8 @@ function messageCompiler(message) {
         message = getPluralization(message, ctx.values["count"]);
       }
 
-      Object.keys(ctx.values).forEach((key) => {
-        // ToDo
-        // Use Laravel syntax :placeholder instead of {placeholder}
-        message = message.replaceAll(`:${key}`, ctx.values[key]);
-      });
+      // Use Laravel syntax :placeholder instead of {placeholder}
+      message = getPlaceholderReplacements(message, ctx.values);
 
       // If a message is missing and values are present, append values to the message for debugging
       if (isMissing && Object.keys(ctx.values).length > 0) {
@@ -65,6 +62,31 @@ function getPluralization(message, count) {
 
   // Fallback; should not happen if the syntax is correct
   return message;
+}
+
+function getPlaceholderReplacements(message, values) {
+  // Create a map of replacements
+  const replacements = new Map(
+    Object.entries(values).map(([key, value]) => [`:${key}`, String(value)]),
+  );
+
+  if (replacements.size === 0) {
+    return message;
+  }
+
+  // Sort the placeholder keys by length in descending order to make sure the longest placeholders are replaced first
+  const sortedPlaceholderKeys = [...replacements.keys()].sort(
+    (first, second) => second.length - first.length,
+  );
+
+  // Escape special characters in the placeholder keys
+  const escapedPlaceholderKeys = sortedPlaceholderKeys.map((placeholderKey) =>
+    placeholderKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+  );
+
+  // Create a regular expression and replace the placeholder keys with their corresponding values
+  const regExp = new RegExp(escapedPlaceholderKeys.join("|"), "g");
+  return message.replace(regExp, (matched) => replacements.get(matched));
 }
 
 function missingHandler(locale, key) {
