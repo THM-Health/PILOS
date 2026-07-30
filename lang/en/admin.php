@@ -193,7 +193,7 @@ return [
     'server_pools' => [
         'delete' => [
             'confirm' => 'Do you really want to delete the server pool :name?',
-            'failed' => 'Server pool can\'t be deleted because the following room types still use it:',
+            'failed' => '{1} Server pool can\'t be deleted because the following room type still uses it: |[2,*] Server pool can\'t be deleted because the following room types still use it:',
             'item' => 'Delete server pool :name',
             'title' => 'Delete server pool?',
         ],
