@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
 - System-wide default welcome message ([#3301])
+- Hints in admin UI file uploads indicating supported file types and maximum allowed file size ([#3235])
+
+### Changed
+
+- Allow SVG and WebP images to be used as livestream pause images ([#3235])
 
 ### Fixed
 
@@ -26,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility: Landmark role to all search fields ([#3264])
 - Accessibility: Skip links ([#3264])
 - Accessibility: Announce page change to screen readers ([#3264])
-- Hints in admin UI file uploads indicating supported file types and maximum allowed file size ([#3235])
 
 ### Changed
 
