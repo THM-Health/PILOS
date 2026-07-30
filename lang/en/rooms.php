@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'access_code' => 'Access code',
-    'auth_throttled' => 'Too many attempts. Please try again in :try_again seconds.',
+    'auth_throttled' => '[0,1] Too many attempts. Please try again in 1 second. |[2,*] Too many attempts. Please try again in :count seconds.',
     'bbb_error_message' => [
         'guestDeniedAccess' => 'Failed to join meeting: You have been denied access to this meeting based on the meeting\'s guest policy.',
         'maxParticipantsReached' => 'Failed to join meeting: The number of participants allowed for this meeting has been reached.',
@@ -207,9 +207,9 @@ return [
     'members' => [
         'add_single_user' => 'Add single user',
         'add_user' => 'Add user',
-        'bulk_edit_user' => 'Edit :numberOfSelectedUsers members',
+        'bulk_edit_user' => '{1} Edit 1 member |[2,*] Edit :count members',
         'bulk_import_users' => 'Add several users',
-        'bulk_remove_user' => 'Remove :numberOfSelectedUsers members',
+        'bulk_remove_user' => '{1} Remove 1 member |[2,*] Remove :count members',
         'edit_user' => 'Edit member',
         'filter' => [
             'all' => 'All',
@@ -229,14 +229,14 @@ return [
                 'too_many_results' => 'Too many users were found. Please enter a more precise search term.',
             ],
             'bulk_import' => [
-                'can_import_users' => 'Users that can be added',
-                'cannot_import_users' => 'Users that can not be added',
-                'copied_invalid_users' => 'Copied invalid users',
-                'copy_and_close' => 'Copy users that could not be added and close',
-                'could_not_import_users' => 'Users that could not be added',
-                'import_importable_button' => 'Add valid users',
-                'import_importable_question' => 'Do you want to continue to add the users that can be added?',
-                'imported_users' => 'Users that were successfully added',
+                'can_import_users' => '{1} User that can be added |[2,*] Users that can be added',
+                'cannot_import_users' => '{1} User that can not be added |[2,*] Users that can not be added',
+                'copied_invalid_users' => '{1} Copied invalid user |[2,*] Copied invalid users',
+                'copy_and_close' => '{1} Copy user that could not be added and close |[2,*] Copy users that could not be added and close',
+                'could_not_import_users' => '{1} User that could not be added |[2,*] Users that could not be added',
+                'import_importable_button' => '{1} Add valid user |[2,*] Add valid users',
+                'import_importable_question' => '{1} Do you want to continue to add the user that can be added? |[2,*] Do you want to continue to add the users that can be added?',
+                'imported_users' => '{1} User that was successfully added |[2,*] Users that were successfully added',
                 'label' => 'Email list',
                 'list_description' => 'Every line represents a separate email address (maximum 1000)',
                 'list_placeholder' => 'john.doe@domain.com'."\n"
@@ -244,13 +244,13 @@ return [
             ],
             'edit' => [
                 'title' => 'Edit :firstname :lastname',
-                'title_bulk' => 'Edit :numberOfSelectedUsers users',
+                'title_bulk' => '{1} Edit 1 user |[2,*] Edit :count users',
             ],
             'remove' => [
                 'confirm' => 'Do you want to remove :firstname :lastname from this room?',
-                'confirm_bulk' => 'Do you want to remove :numberOfSelectedUsers members from this room?',
+                'confirm_bulk' => '{1} Do you want to remove 1 member from this room? |[2,*] Do you want to remove :count members from this room?',
                 'title' => 'Remove member from this room',
-                'title_bulk' => 'Remove :numberOfSelectedUsers members from this room',
+                'title_bulk' => '{1} Remove 1 member from this room |[2,*] Remove :count members from this room',
             ],
         ],
         'nodata' => 'No members available',

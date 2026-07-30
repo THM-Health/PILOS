@@ -41,7 +41,7 @@ When translating, ensure that placeholders remain unchanged and are correctly po
 
 ### Pluralization
 
-Pluralization can be complex, and we currently support a subset of the **flexible pluralization format used by [Laravel](https://laravel.com/docs/12.x/localization#pluralization)**.
+Pluralization can be complex, and we currently support a subset of the **flexible pluralization format used by [Laravel](https://laravel.com/docs/13.x/localization#pluralization)**.
 
 #### Format
 

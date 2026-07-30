@@ -144,9 +144,7 @@
                   class="mt-1 text-red-500"
                   role="alert"
                 >
-                  {{
-                    $t("rooms.auth_throttled", { try_again: authThrottledFor })
-                  }}
+                  {{ $t("rooms.auth_throttled", authThrottledFor) }}
                 </p>
 
                 <p
