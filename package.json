@@ -33,7 +33,7 @@
     "happo": "^6.13.0",
     "nyc": "^18.0.0",
     "prettier": "^3.9.5",
-    "prettier-plugin-tailwindcss": "^0.8.0",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "vite-plugin-istanbul": "^9.0.1",
     "vue-eslint-parser": "^10.4.1"
   },
