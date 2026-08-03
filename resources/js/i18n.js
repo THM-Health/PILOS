@@ -26,7 +26,7 @@ function messageCompiler(message) {
       }
 
       // Use Laravel syntax :placeholder instead of {placeholder}
-      message = getPlaceholderReplacements(message, ctx.values);
+      message = applyReplacements(message, ctx.values);
 
       // If a message is missing and values are present, append values to the message for debugging
       if (isMissing && Object.keys(ctx.values).length > 0) {
@@ -64,18 +64,35 @@ function getPluralization(message, count) {
   return message;
 }
 
-function getPlaceholderReplacements(message, values) {
-  // Create a map of replacements
-  const replacements = new Map(
-    Object.entries(values).map(([key, value]) => [`:${key}`, String(value)]),
-  );
-
-  if (replacements.size === 0) {
+/**
+ * Apply the replacements to the message using laravel :placeholder syntax
+ * @param {string} message
+ * @param {object} replacementMap
+ * @returns {string} message with the replacements applied
+ */
+function applyReplacements(message, replacementMap) {
+  if (Object.keys(replacementMap).length === 0) {
+    // No replacements to apply, return the original message
     return message;
   }
 
+  // Transform the replacement map to a map with variant cases of the key
+  // The casing of the key determines if the value should be transformed
+  // plain key -> plain value
+  // uppercase key -> uppercase value
+  // first letter uppercase key -> first letter uppercase value
+  const replacements = {};
+  for (const key of Object.keys(replacementMap)) {
+    const replacement = String(replacementMap[key]);
+
+    replacements[`:${key}`] = replacement;
+    replacements[`:${key.toUpperCase()}`] = replacement.toUpperCase();
+    replacements[`:${key.charAt(0).toUpperCase() + key.slice(1)}`] =
+      replacement.charAt(0).toUpperCase() + replacement.slice(1);
+  }
+
   // Sort the placeholder keys by length in descending order to make sure the longest placeholders are replaced first
-  const sortedPlaceholderKeys = [...replacements.keys()].sort(
+  const sortedPlaceholderKeys = Object.keys(replacements).sort(
     (first, second) => second.length - first.length,
   );
 
@@ -86,7 +103,7 @@ function getPlaceholderReplacements(message, values) {
 
   // Create a regular expression and replace the placeholder keys with their corresponding values
   const regExp = new RegExp(escapedPlaceholderKeys.join("|"), "g");
-  return message.replace(regExp, (matched) => replacements.get(matched));
+  return message.replace(regExp, (matched) => replacements[matched]);
 }
 
 function missingHandler(locale, key) {
