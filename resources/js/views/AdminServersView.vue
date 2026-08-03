@@ -454,6 +454,7 @@ const props = defineProps({
 
 const model = ref({
   id: null,
+  connection_status_always_online: false,
 });
 const name = ref("");
 

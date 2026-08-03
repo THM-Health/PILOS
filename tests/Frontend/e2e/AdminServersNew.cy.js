@@ -269,6 +269,7 @@ describe("Admin servers view", function () {
       expect(interception.request.body).to.eql({
         base_url: "https://localhost/bigbluebutton",
         description: "Testserver 01 for testing purposes",
+        connection_status_always_online: false,
         id: null,
         name: "Server 01",
         secret: "Secret123456789",

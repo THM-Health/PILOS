@@ -6,6 +6,7 @@
     "base_url": "https://localhost/bigbluebutton",
     "secret": "123456789",
     "strength": 2,
+    "connection_status_always_online": false,
     "status": 1,
     "connection_status": 1,
     "participant_count": 14,

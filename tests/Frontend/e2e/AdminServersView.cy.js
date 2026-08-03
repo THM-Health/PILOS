@@ -329,6 +329,55 @@ describe("Admin servers view", function () {
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
   });
 
+  it("check serverView shown correctly (server connection status always online)", function () {
+    cy.intercept("GET", "api/v1/servers/1", { fixture: "server.json" }).as(
+      "serverRequest",
+    );
+
+    cy.visit("/admin/servers/1");
+    cy.wait("@serverRequest");
+
+    // Check connection status always online field is not checked
+    cy.get('[data-test="connection-status-always-online-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection_status_always_online")
+      .and(
+        "include.text",
+        "admin.servers.connection_status_always_online_description",
+      )
+      .within(() => {
+        cy.get("#connection-status-always-online")
+          .should("not.be.checked")
+          .and("be.disabled");
+      });
+
+    cy.fixture("server.json").then((server) => {
+      server.data.connection_status_always_online = true;
+
+      cy.intercept("GET", "api/v1/servers/1", {
+        statusCode: 200,
+        body: server,
+      }).as("serverRequest");
+    });
+
+    cy.reload();
+    cy.wait("@serverRequest");
+
+    // Check connection status always online field is checked
+    cy.get('[data-test="connection-status-always-online-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection_status_always_online")
+      .and(
+        "include.text",
+        "admin.servers.connection_status_always_online_description",
+      )
+      .within(() => {
+        cy.get("#connection-status-always-online")
+          .should("be.checked")
+          .and("be.disabled");
+      });
+  });
+
   it("check button visibility with update permission", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [

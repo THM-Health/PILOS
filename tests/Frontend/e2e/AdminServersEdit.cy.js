@@ -231,6 +231,18 @@ describe("Admin servers edit", function () {
       "admin.servers.enabled",
     );
 
+    cy.get('[data-test="connection-status-always-online-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection_status_always_online")
+      .and(
+        "include.text",
+        "admin.servers.connection_status_always_online_description",
+      )
+      .within(() => {
+        cy.get("#connection-status-always-online").should("not.be.checked");
+        cy.get("#connection-status-always-online").click();
+      });
+
     cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
@@ -263,6 +275,7 @@ describe("Admin servers edit", function () {
       server.data.base_url = "https://localhost/bigbluebutton2";
       server.data.secret = "Secret123456789";
       server.data.strength = 6;
+      server.data.connection_status_always_online = true;
 
       const saveChangesRequest = interceptIndefinitely(
         "PUT",
@@ -301,6 +314,10 @@ describe("Admin servers edit", function () {
       cy.get('[data-test="status-dropdown"]').within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
       });
+
+      cy.get("#connection-status-always-online")
+        .should("be.checked")
+        .and("be.disabled");
 
       cy.get("#connectionStatus").and("be.disabled");
 
@@ -371,6 +388,9 @@ describe("Admin servers edit", function () {
           secret: ["The secret field is required."],
           strength: ["The strength field is required."],
           status: ["The status field is required."],
+          connection_status_always_online: [
+            "The connection status always online field is required.",
+          ],
         },
       },
     }).as("saveChangesRequest");
@@ -412,6 +432,11 @@ describe("Admin servers edit", function () {
       "The status field is required.",
     );
 
+    cy.get('[data-test="connection-status-always-online-field"]').should(
+      "include.text",
+      "The connection status always online field is required.",
+    );
+
     // Set values
     cy.get("#name").and("have.value", "Server 01").clear();
     cy.get("#name").type("Server 02");
@@ -437,6 +462,7 @@ describe("Admin servers edit", function () {
     cy.get('[data-test="status-dropdown"]').click();
     cy.get('[data-test="status-dropdown-items"]').should("be.visible");
     cy.get('[data-test="status-dropdown-option"]').eq(2).click();
+    cy.get("#connection-status-always-online").click();
 
     // Check with 500 error
     cy.intercept("PUT", "api/v1/servers/1", {
@@ -487,6 +513,11 @@ describe("Admin servers edit", function () {
       "The status field is required.",
     );
 
+    cy.get('[data-test="connection-status-always-online-field"]').should(
+      "not.include.text",
+      "The connection status always online field is required.",
+    );
+
     // Check with 428 error (stale error)
     cy.fixture("server.json").then((server) => {
       server.data.name = "Server 03";
@@ -495,6 +526,7 @@ describe("Admin servers edit", function () {
       server.data.secret = "Secret987654321";
       server.data.strength = 5;
       server.data.status = 1;
+      server.data.connection_status_always_online = true;
 
       cy.intercept("PUT", "api/v1/servers/1", {
         statusCode: 428,
@@ -564,6 +596,8 @@ describe("Admin servers edit", function () {
       "admin.servers.enabled",
     );
 
+    cy.get("#connection-status-always-online").should("be.checked");
+
     // Trigger 428 error (stale error) again
     cy.fixture("server.json").then((server) => {
       server.data.name = "Server 04";
@@ -572,6 +606,7 @@ describe("Admin servers edit", function () {
       server.data.secret = "123456789Secret";
       server.data.strength = 4;
       server.data.status = 10;
+      server.data.connection_status_always_online = false;
 
       cy.intercept("PUT", "api/v1/servers/1", {
         statusCode: 428,
@@ -614,6 +649,7 @@ describe("Admin servers edit", function () {
       server.data.secret = "Secret987654321";
       server.data.strength = 5;
       server.data.status = 1;
+      server.data.connection_status_always_online = true;
 
       cy.intercept("PUT", "api/v1/servers/1", {
         statusCode: 200,
