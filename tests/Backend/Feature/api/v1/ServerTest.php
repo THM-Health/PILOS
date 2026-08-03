@@ -234,6 +234,7 @@ class ServerTest extends TestCase
                 'base_url' => $server->base_url,
                 'secret' => $server->secret,
                 'strength' => $server->strength,
+                'connection_status_always_online' => $server->connection_status_always_online,
                 'status' => $server->status,
                 'connection_status' => $server->connection_status->value,
                 'participant_count' => $server->participant_count,
@@ -273,6 +274,7 @@ class ServerTest extends TestCase
             'secret' => $server->secret,
             'strength' => 5,
             'status' => ServerStatus::ENABLED->value,
+            'connection_status_always_online' => false,
         ];
 
         // Test guests
@@ -317,8 +319,9 @@ class ServerTest extends TestCase
         $data['secret'] = '';
         $data['strength'] = 1000;
         $data['status'] = 10;
+        $data['connection_status_always_online'] = 'invalid';
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status', 'connection_status_always_online']);
     }
 
     /**
@@ -336,6 +339,7 @@ class ServerTest extends TestCase
             'secret' => $server->secret,
             'strength' => $server->strength,
             'status' => ServerStatus::DISABLED->value,
+            'connection_status_always_online' => false,
         ];
 
         // Test guests
@@ -376,6 +380,15 @@ class ServerTest extends TestCase
                 'connection_status' => ServerConnectionStatus::FAULTY->value,
             ]);
 
+        // Test with connection status always online is true
+        $server->refresh();
+        $data['connection_status_always_online'] = true;
+        $data['updated_at'] = $server->updated_at;
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
+            ->assertSuccessful()
+            ->assertJsonFragment(['connection_status' => ServerConnectionStatus::ONLINE->value])
+            ->assertJsonFragment(['connection_status_always_online' => true]);
+
         // Test with base url of an other server
         $server->refresh();
         $data['base_url'] = $server2->base_url;
@@ -399,9 +412,10 @@ class ServerTest extends TestCase
         $data['secret'] = '';
         $data['strength'] = 1000;
         $data['status'] = 10;
+        $data['connection_status_always_online'] = 'invalid';
         $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status', 'connection_status_always_online']);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;
