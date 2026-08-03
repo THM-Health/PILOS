@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
 - System-wide default welcome message ([#3301])
+- Option to set connection status of servers to always online ([#3317], [#3373])
+
+### Changed
+
+- Prometheus metric label `pilos_servers_total{status="unhealthy"}` to `pilos_servers_total{status="faulty"}` ([#3373])
+- Connection status terminology in log messages (`unhealthy` to `faulty`; `healthy` to `online`; `old_health` to `old_connection_status`) ([#3373])
 
 ### Fixed
 
@@ -873,6 +879,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3302]: https://github.com/THM-Health/PILOS/pull/3302
 [#3314]: https://github.com/THM-Health/PILOS/issues/3314
 [#3315]: https://github.com/THM-Health/PILOS/pull/3315
+[#3317]: https://github.com/THM-Health/PILOS/issues/3317
+[#3373]: https://github.com/THM-Health/PILOS/pull/3373
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
