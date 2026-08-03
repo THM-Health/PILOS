@@ -22,6 +22,7 @@ class Server extends Model
 
     protected $casts = [
         'strength' => 'integer',
+        'connection_status_always_online' => 'boolean',
         'status' => ServerStatus::class,
         'participant_count' => 'integer',
         'listener_count' => 'integer',

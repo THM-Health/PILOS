@@ -87,6 +87,10 @@ class ServerService
      */
     public function handleApiCallFailed()
     {
+        if ($this->server->connection_status_always_online) {
+            return;
+        }
+
         if ($this->server->connection_status != ServerConnectionStatus::OFFLINE) {
             $this->server->error_count++;
         }
@@ -103,16 +107,18 @@ class ServerService
 
     public function handleApiCallSuccessful()
     {
-        if ($this->server->connection_status != ServerConnectionStatus::ONLINE) {
-            $this->server->recover_count++;
-        }
+        if (! $this->server->connection_status_always_online) {
+            if ($this->server->connection_status != ServerConnectionStatus::ONLINE) {
+                $this->server->recover_count++;
+            }
 
-        if ($this->server->connection_status == ServerConnectionStatus::ONLINE) {
-            $this->server->error_count = 0;
-        }
+            if ($this->server->connection_status == ServerConnectionStatus::ONLINE) {
+                $this->server->error_count = 0;
+            }
 
-        $this->server->timestamps = false;
-        $this->server->save();
+            $this->server->timestamps = false;
+            $this->server->save();
+        }
 
         $this->endDetachedMeetings();
 

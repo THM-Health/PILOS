@@ -252,6 +252,8 @@ return [
         'status' => 'Status',
         'strength' => 'Server strength',
         'strength_description' => 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
+        'connection_status_always_online' => 'Connection always online',
+        'connection_status_always_online_description' => 'The server is always considered online and available for new meetings; connection issues are ignored',
         'test_connection' => 'Test connection',
         'tile_description' => 'The servers provide the BBB infrastructure for the meetings.',
         'unknown' => 'Unknown',

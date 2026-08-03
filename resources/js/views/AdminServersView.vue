@@ -200,6 +200,36 @@
 
         <div
           class="field grid grid-cols-12 gap-4"
+          data-test="connection-status-always-online-field"
+        >
+          <label
+            for="connection-status-always-online"
+            class="col-span-12 items-start md:col-span-4 md:mb-0"
+            >{{ $t("admin.servers.connection_status_always_online") }}</label
+          >
+          <div class="col-span-12 md:col-span-8">
+            <div>
+              <ToggleSwitch
+                v-model="model.connection_status_always_online"
+                input-id="connection-status-always-online"
+                :invalid="
+                  formErrors.fieldInvalid('connection_status_always_online')
+                "
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                aria-describedby="connection-status-always-online-help"
+              />
+            </div>
+            <FormError
+              :errors="formErrors.fieldError('connection_status_always_online')"
+            />
+            <small id="connection-status-always-online-help">{{
+              $t("admin.servers.connection_status_always_online_description")
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="field grid grid-cols-12 gap-4"
           data-test="connection-status-field"
         >
           <label

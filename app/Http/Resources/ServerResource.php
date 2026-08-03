@@ -41,6 +41,7 @@ class ServerResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'strength' => $this->strength,
+            'connection_status_always_online' => $this->connection_status_always_online,
             'status' => $this->status,
             'connection_status' => $this->connection_status,
             'participant_count' => $this->participant_count,
