@@ -39,10 +39,23 @@ function messageCompiler(message) {
 }
 
 function getPluralization(message, count) {
+  // Split message into parts by |
   const messageParts = message.split("|");
+
+  // Match a pluralization segment and capture its exact value or range bounds and message
+  //  Matches messages of the following patterns:
+  //    {integer}message
+  //      e.g. {1}This is a message for count 1
+  //    [integer or *,integer or *]message
+  //      e.g. [2,*]This is a message for count 2 or more
   const regex = /^(?:(?:\{(-?\d+)\})|(?:\[(-?\d+|\*),(-?\d+|\*)\]))(.*)$/;
 
   for (const part of messageParts) {
+    // Match message parts using the regex from above
+    //  match[1] contains the number for {n} pattern
+    //  match[2] contains the lower bound for [n,m] pattern
+    //  match[3] contains the upper bound for [n,m] pattern
+    //  match[4] contains the message text
     const match = part.match(regex);
     if (match) {
       // Match {n}
