@@ -37,7 +37,31 @@ Both frontend and backend code can replace `:name` with a dynamic value, produci
 "Welcome, John!"
 ```
 
-When translating, ensure that placeholders remain unchanged and are correctly positioned within the sentence structure of the target language.
+The capitalization of a placeholder controls how the replacement value is inserted.
+
+If the placeholder is written in lowercase, the value is inserted without modification.
+For example, given the replacement value `John`:
+
+```
+"Welcome, :name!" // Welcome, John!
+```
+
+If the first letter of the placeholder is uppercase, the first letter of the value is converted to uppercase.
+For example, given the replacement value `john`:
+
+```
+"Welcome, :Name!" // Welcome, John!
+```
+
+If the entire placeholder is uppercase, the entire value is converted to uppercase.
+For example, given the replacement value `john`:
+
+```
+"Welcome, :NAME!" // Welcome, JOHN!
+```
+
+When translating, ensure that placeholder names remain unchanged and are correctly positioned within the sentence structure of the target language.
+Only adjust their capitalization if the replacement value should be transformed accordingly.
 
 ### Pluralization
 
