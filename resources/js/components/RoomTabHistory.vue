@@ -11,7 +11,7 @@
       >
         <div class="flex gap-2">
           <InputGroup class="w-auto" data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -21,6 +21,7 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
+              :aria-label="$t('app.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -38,6 +39,11 @@
                   sortOrder === 1
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
+                "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('app.sort_ascending')
+                    : $t('app.sort_descending')
                 "
                 severity="secondary"
                 text

@@ -22,7 +22,7 @@
         </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
@@ -32,6 +32,7 @@
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
+              :aria-label="$t('app.filter')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -45,7 +46,7 @@
           </InputGroup>
 
           <InputGroup data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -55,6 +56,7 @@
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
+              :aria-label="$t('app.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -72,6 +74,11 @@
                   sortOrder === 1
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
+                "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('app.sort_ascending')
+                    : $t('app.sort_descending')
                 "
                 severity="secondary"
                 text

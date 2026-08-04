@@ -157,6 +157,7 @@ return [
     ],
     'index' => [
         'filter' => 'Filter',
+        'filter_by_room_type' => 'Filter by room type',
         'no_favorites' => 'No rooms marked as favorites',
         'no_rooms_selected' => 'No rooms selected',
         'only_favorites' => 'Only show favorites',

@@ -126,7 +126,7 @@
               v-if="!onlyShowFavorites"
               data-test="room-type-inputgroup"
             >
-              <InputGroupAddon>
+              <InputGroupAddon aria-hidden="true">
                 <i class="fa-solid fa-tag"></i>
               </InputGroupAddon>
               <InputGroupAddon
@@ -150,6 +150,7 @@
                 option-group-label="index"
                 option-group-children="items"
                 option-value="id"
+                :aria-label="$t('rooms.index.filter_by_room_type')"
                 :pt="{
                   listContainer: {
                     'data-test': 'room-type-dropdown-items',
@@ -187,7 +188,7 @@
 
             <!--dropdown for sorting type (on small devices only shown, when filter menu is open)-->
             <InputGroup>
-              <InputGroupAddon>
+              <InputGroupAddon aria-hidden="true">
                 <i class="fa-solid fa-sort"></i>
               </InputGroupAddon>
               <Select
@@ -197,6 +198,7 @@
                 :options="sortingTypes"
                 option-label="label"
                 option-value="type"
+                :aria-label="$t('app.sort_by')"
                 :pt="{
                   listContainer: {
                     'data-test': 'sorting-type-dropdown-items',

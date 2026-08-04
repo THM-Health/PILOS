@@ -29,12 +29,11 @@
       class="field flex flex-col gap-2"
       data-test="replacement-room-type-field"
     >
-      <label for="replacement-room-type">{{
+      <label id="replacement-room-type-label">{{
         $t("admin.room_types.delete.replacement")
       }}</label>
       <InputGroup>
         <Select
-          id="replacement-room-type"
           v-model.number="replacement"
           data-test="replacement-room-type-dropdown"
           :disabled="
@@ -49,7 +48,7 @@
           option-group-children="items"
           option-value="value"
           option-label="text"
-          aria-describedby="replacement-help"
+          aria-labelledby="replacement-room-type-label"
           :pt="{
             listContainer: {
               'data-test': 'replacement-room-type-dropdown-items',
@@ -59,6 +58,7 @@
             },
             optionGroup: 'p-0',
             label: {
+              'aria-describedby': 'replacement-help',
               autofocus: true,
             },
           }"
