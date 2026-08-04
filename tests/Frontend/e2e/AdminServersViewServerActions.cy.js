@@ -390,7 +390,7 @@ describe("Admin servers view server actions", function () {
 
     // Check that toast message is shown
     cy.checkToastMessage([
-      'admin.servers.flash.panic.description_{"total":5,"success":3}',
+      'admin.servers.flash.panic.description_meetings_total_{"count":5,"n":5} admin.servers.flash.panic.description_meetings_successful_{"count":3,"n":3}',
       "admin.servers.flash.panic.title",
     ]);
 

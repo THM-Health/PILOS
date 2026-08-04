@@ -76,9 +76,13 @@
         <i class="fa-solid fa-users" />
       </div>
       <div class="room-details__text">
-        <span
-          >{{ props.room.last_meeting.usage.participant_count }}
-          {{ $t("meetings.participant_count") }}</span
+        <span>
+          {{
+            $t(
+              "meetings.participant_count_value",
+              props.room.last_meeting.usage.participant_count,
+            )
+          }}</span
         >
       </div>
     </div>

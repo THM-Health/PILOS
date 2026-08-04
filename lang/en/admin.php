@@ -134,6 +134,7 @@ return [
             ],
         ],
         'permissions_title' => 'Permissions',
+        'reload_aria' => 'Reload roles',
         'room_limit' => [
             'custom' => 'Custom amount',
             'default' => 'System default (:value)',
@@ -146,6 +147,7 @@ return [
                 'system_default' => 'System default',
             ],
         ],
+        'search_aria' => 'Search roles',
         'select_roles' => 'Please select at least one role',
         'superuser' => 'Superuser',
         'tile_description' => 'The roles assign permissions, organise the users and define the maximum number of rooms per user.',
@@ -184,6 +186,7 @@ return [
         'preview' => 'Preview',
         'restrict' => 'Restrict usage',
         'restrict_description' => 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
+        'search_aria' => 'Search room types',
         'select_roles' => 'Select roles',
         'select_server_pool' => 'Select server pool',
         'server_pool_description' => 'Servers of this server pool are used for load balancing',
@@ -193,7 +196,7 @@ return [
     'server_pools' => [
         'delete' => [
             'confirm' => 'Do you really want to delete the server pool :name?',
-            'failed' => 'Server pool can\'t be deleted because the following room types still use it:',
+            'failed' => '{1} Server pool can\'t be deleted because the following room type still uses it: |[2,*] Server pool can\'t be deleted because the following room types still use it:',
             'item' => 'Delete server pool :name',
             'title' => 'Delete server pool?',
         ],
@@ -201,7 +204,9 @@ return [
         'new' => 'Create new server pool',
         'no_data' => 'No server pools found!',
         'no_data_filtered' => 'For the filter query no server pools were found!',
+        'reload_aria' => 'Reload server pools',
         'remove_server' => 'Remove server :name',
+        'search_aria' => 'Search server pools',
         'select_servers' => 'Select server',
         'server_count' => 'Number of servers',
         'tile_description' => 'For load balancing several servers are bundled and assigned to each room via the room type.',
@@ -224,7 +229,8 @@ return [
         'faulty' => 'Faulty',
         'flash' => [
             'panic' => [
-                'description' => ':total meetings were found and :success were successfully stopped.',
+                'description_meetings_successful' => '{0} No meetings were successfully stopped. |{1} 1 meeting was successfully stopped. |[2,*] :count meetings were successfully stopped.',
+                'description_meetings_total' => '{0} No meetings were found. |{1} 1 meeting was found. |[2,*] :count meetings were found.',
                 'title' => 'The server has been disabled.',
             ],
         ],
@@ -247,6 +253,8 @@ return [
         'panic_server' => 'Disable server and end all meetings',
         'participant_count' => 'Participants',
         'reload' => 'Recalculate usage',
+        'reload_list_aria' => 'Reload servers',
+        'search_aria' => 'Search servers',
         'secret' => 'API secret',
         'show_secret' => 'Show clear text',
         'status' => 'Status',
@@ -488,6 +496,7 @@ return [
         'no_data_filtered' => 'For the filter query no users were found!',
         'other_settings' => 'Other settings',
         'password_reset_success' => 'Password reset mail was successfully send to :mail!',
+        'reload_aria' => 'Reload users',
         'remove_role' => 'Remove role :name',
         'reset_password' => [
             'confirm' => 'Are you really want to reset the password for :firstname :lastname?',
@@ -496,6 +505,7 @@ return [
         ],
         'role_filter' => 'Select role for filtering',
         'roles_and_permissions' => 'Roles and permissions',
+        'search_aria' => 'Search users',
         'show_password' => 'Show password',
         'skip_check_audio' => 'Disable echo audio test',
         'tile_description' => 'Users can login to the system and use different features depending on their role.',

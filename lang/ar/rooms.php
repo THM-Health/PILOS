@@ -407,7 +407,6 @@ return [
             'access_code_prohibited' => 'نوع الغرفة يمنع وجود رمز دخول',
             'allow' => 'السماح',
             'allow_guests' => 'السماح للضيوف',
-            'chars' => 'الأحرف: :chars',
             'delete_access_code' => 'إزالة رمز الدخول',
             'enforced_setting' => 'إعداد إجباري',
             'generate_access_code' => 'إنشاء رمز دخول جديد',

@@ -70,7 +70,7 @@
             v-else
             icon="fa-solid fa-sync"
             :label="$t('app.reload')"
-            :aria-label="$t('app.reload')"
+            :aria-label="$t('rooms.reload_aria')"
             data-test="reload-button"
             @click="initializeRoomView"
           />
@@ -144,9 +144,7 @@
                   class="mt-1 text-red-500"
                   role="alert"
                 >
-                  {{
-                    $t("rooms.auth_throttled", { try_again: authThrottledFor })
-                  }}
+                  {{ $t("rooms.auth_throttled", authThrottledFor) }}
                 </p>
 
                 <p
