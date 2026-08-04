@@ -269,7 +269,7 @@ class UserTest extends TestCase
         $userSettings->save();
 
         $users = [];
-        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'gregory.dumas@example.com']);
+        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'gregory.Dumas@example.com']);
 
         // Check with exact lastname match (search for names should not be possible)
         $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Dumas')
@@ -287,7 +287,7 @@ class UserTest extends TestCase
             ->assertJsonCount(0, 'data');
 
         // Check exact email (case-insensitive)
-        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Gregory.Dumas@example.com')
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Gregory.dumas@example.com')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[0]->firstname)
             ->assertJsonCount(1, 'data');
