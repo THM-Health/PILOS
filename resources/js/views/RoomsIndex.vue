@@ -46,7 +46,7 @@
                 v-tooltip="$t('app.search')"
                 icon="fa-solid fa-magnifying-glass"
                 :disabled="loadingRooms"
-                :aria-label="$t('app.search')"
+                :aria-label="$t('rooms.index.search_aria')"
                 @click="loadRooms(1)"
               />
             </InputGroup>
@@ -175,7 +175,7 @@
               <!-- reload the room types -->
               <Button
                 v-if="roomTypesLoadingError"
-                v-tooltip="$t('rooms.room_types.reload')"
+                v-tooltip="$t('app.reload')"
                 :disabled="roomTypesBusy || onlyShowFavorites"
                 severity="secondary"
                 outlined
@@ -198,7 +198,7 @@
                 :options="sortingTypes"
                 option-label="label"
                 option-value="type"
-                :aria-label="$t('app.sort_by')"
+                :aria-label="$t('rooms.index.sort_by')"
                 :pt="{
                   listContainer: {
                     'data-test': 'sorting-type-dropdown-items',

@@ -79,7 +79,7 @@
           outlined
           severity="secondary"
           icon="fa-solid fa-sync"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.room_types.reload')"
           data-test="replacement-room-types-reload-button"
           @click="loadReplacementRoomTypes()"
         />

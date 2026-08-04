@@ -82,7 +82,7 @@
         v-tooltip="$t('app.reload')"
         severity="secondary"
         icon="fa-solid fa-sync"
-        :aria-label="$t('app.reload')"
+        :aria-label="$t('rooms.streaming.reload_aria')"
         data-test="streaming-reload-button"
         @click="streamingCommand('status')"
       />

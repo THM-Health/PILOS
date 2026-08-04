@@ -21,7 +21,7 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
-              :aria-label="$t('app.sort_by')"
+              :aria-label="$t('rooms.meeting_history.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -42,8 +42,8 @@
                 "
                 :aria-label="
                   sortOrder === 1
-                    ? $t('app.sort_ascending')
-                    : $t('app.sort_descending')
+                    ? $t('rooms.meeting_history.sort_ascending')
+                    : $t('rooms.meeting_history.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -57,7 +57,7 @@
         <Button
           v-tooltip="$t('app.reload')"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.meeting_history.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"

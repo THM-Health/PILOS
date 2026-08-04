@@ -171,7 +171,7 @@
                 outlined
                 severity="secondary"
                 icon="fa-solid fa-sync"
-                :aria-label="$t('app.reload')"
+                :aria-label="$t('admin.servers.reload_list_aria')"
                 data-test="servers-reload-button"
                 @click="loadServers(serversCurrentPage)"
               />

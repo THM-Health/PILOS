@@ -4,7 +4,12 @@
     v-tooltip="$t('rooms.personalized_links.copy')"
     :disabled="disabled"
     icon="fa-solid fa-link"
-    :aria-label="$t('rooms.personalized_links.copy')"
+    :aria-label="
+      $t('rooms.personalized_links.copy_aria', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     data-test="room-personalized-links-copy-button"
     @click="copyLink"
   />
