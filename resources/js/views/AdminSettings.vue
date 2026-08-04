@@ -893,7 +893,7 @@
                   :disabled="disabled"
                   aria-labelledby="room-personalized-link-expiration-label"
                   :pt="{
-                    input: {
+                    label: {
                       'aria-describedby':
                         'room-personalized-link-expiration-help',
                     },
@@ -943,7 +943,7 @@
                   :disabled="disabled"
                   aria-labelledby="room-auto-delete-deadline-period-label"
                   :pt="{
-                    input: {
+                    label: {
                       'aria-describedby':
                         'room-auto-delete-deadline-period-help',
                     },
@@ -991,7 +991,7 @@
                   :disabled="disabled"
                   aria-labelledby="room-auto-delete-inactive-period-label"
                   :pt="{
-                    input: {
+                    label: {
                       'aria-describedby':
                         'room-auto-delete-inactive-period-help',
                     },
@@ -1041,7 +1041,7 @@
                   :disabled="disabled"
                   aria-labelledby="room-auto-delete-never-used-period-label"
                   :pt="{
-                    input: {
+                    label: {
                       'aria-describedby':
                         'room-auto-delete-never-used-period-help',
                     },

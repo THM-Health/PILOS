@@ -407,7 +407,6 @@ return [
             'access_code_prohibited' => 'Ce type de salle a verrouillé l\'absence de code d\'accès',
             'allow' => 'Autoriser',
             'allow_guests' => 'Autoriser les invités',
-            'chars' => 'Caractères: :chars',
             'delete_access_code' => 'Enlever le code d\'accès',
             'enforced_setting' => 'Verrouiller le paramètre',
             'generate_access_code' => 'Créer un nouveau code d\'accès',
