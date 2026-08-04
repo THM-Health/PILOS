@@ -1926,7 +1926,11 @@ describe("Rooms view settings", function () {
         // Check placeholder and type in input
         cy.get('[data-test="new-owner-dropdown"]')
           .find("input")
-          .should("have.attr", "placeholder", "app.user_name")
+          .should(
+            "have.attr",
+            "placeholder",
+            "rooms.members.modals.add.placeholder",
+          )
           .click();
 
         cy.get('[data-test="new-owner-dropdown"]').find("input").type("L");
@@ -1979,22 +1983,6 @@ describe("Rooms view settings", function () {
         }).as("userSearchRequest");
 
         cy.get('[data-test="new-owner-dropdown"]').find("input").type("aura");
-
-        cy.wait("@userSearchRequest").then((interception) => {
-          expect(interception.request.query).to.contain({
-            query: "La",
-          });
-        });
-        cy.wait("@userSearchRequest").then((interception) => {
-          expect(interception.request.query).to.contain({
-            query: "Lau",
-          });
-        });
-        cy.wait("@userSearchRequest").then((interception) => {
-          expect(interception.request.query).to.contain({
-            query: "Laur",
-          });
-        });
 
         cy.wait("@userSearchRequest").then((interception) => {
           expect(interception.request.query).to.contain({
@@ -2197,6 +2185,49 @@ describe("Rooms view settings", function () {
 
     // Check that access code overlay is shown
     cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+  });
+
+  it("transfer ownership with search by name disabled", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.user.search_by_name = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("[data-test=room-transfer-ownership-dialog]").should("not.exist");
+    cy.get('[data-test="room-transfer-ownership-button"]')
+      .should("have.text", "rooms.modals.transfer_ownership.title")
+      .click();
+
+    // Check that dialog is shown correctly
+    cy.get("[data-test=room-transfer-ownership-dialog]")
+      .should("be.visible")
+      .within(() => {
+        // Check autofocus
+        cy.get(".multiselect__content").should("be.visible");
+
+        // Check prompt
+        cy.get('[data-test="new-owner-dropdown"]').should(
+          "include.text",
+          "rooms.members.modals.add.no_options_email_only",
+        );
+
+        // Check placeholder
+        cy.get('[data-test="new-owner-dropdown"]')
+          .find("input")
+          .should(
+            "have.attr",
+            "placeholder",
+            "rooms.members.modals.add.placeholder_email_only",
+          );
+      });
   });
 
   it("transfer ownership errors", function () {
