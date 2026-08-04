@@ -14,7 +14,7 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.members.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
@@ -32,7 +32,7 @@
               :options="filterOptions"
               option-label="name"
               option-value="value"
-              :aria-label="$t('app.filter')"
+              :aria-label="$t('rooms.members.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -56,7 +56,7 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
-              :aria-label="$t('app.sort_by')"
+              :aria-label="$t('rooms.members.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -77,8 +77,8 @@
                 "
                 :aria-label="
                   sortOrder === 1
-                    ? $t('app.sort_ascending')
-                    : $t('app.sort_descending')
+                    ? $t('rooms.members.sort_ascending')
+                    : $t('rooms.members.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -102,7 +102,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-members-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.members.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -163,6 +163,7 @@
           <div class="mb-2 flex justify-between">
             <Checkbox
               :model-value="selectedMembers.length === selectableMembers.length"
+              :aria-label="$t('rooms.members.select_all_aria')"
               :binary="true"
               data-test="room-members-select-all-checkbox"
               @update:model-value="toggleSelectAll"
@@ -201,6 +202,12 @@
                     class="flex items-center"
                   >
                     <Checkbox
+                      :aria-label="
+                        $t('rooms.members.select_aria', {
+                          firstname: item.firstname,
+                          lastname: item.lastname,
+                        })
+                      "
                       :disabled="
                         authStore.currentUser &&
                         authStore.currentUser.id === item.id

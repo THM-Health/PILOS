@@ -57,7 +57,7 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.files.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
@@ -75,7 +75,7 @@
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
-              :aria-label="$t('app.filter')"
+              :aria-label="$t('rooms.files.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -99,7 +99,7 @@
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
-              :aria-label="$t('app.sort_by')"
+              :aria-label="$t('rooms.files.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -120,8 +120,8 @@
                 "
                 :aria-label="
                   sortOrder === 1
-                    ? $t('app.sort_ascending')
-                    : $t('app.sort_descending')
+                    ? $t('rooms.files.sort_ascending')
+                    : $t('rooms.files.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -145,7 +145,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-files-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.files.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -265,6 +265,7 @@
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"
                     :file-url="item.url"
+                    :filename="item.filename"
                     :room-auth-token="props.roomAuthToken"
                     :disabled="isBusy"
                     :require-terms-of-use-acceptance="

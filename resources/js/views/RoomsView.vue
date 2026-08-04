@@ -70,7 +70,7 @@
             v-else
             icon="fa-solid fa-sync"
             :label="$t('app.reload')"
-            :aria-label="$t('app.reload')"
+            :aria-label="$t('rooms.reload_aria')"
             data-test="reload-button"
             @click="initializeRoomView"
           />

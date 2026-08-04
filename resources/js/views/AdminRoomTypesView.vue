@@ -223,7 +223,7 @@
                   severity="secondary"
                   outlined
                   icon="fa-solid fa-sync"
-                  :aria-label="$t('app.reload')"
+                  :aria-label="$t('admin.server_pools.reload_aria')"
                   data-test="server-pools-reload-button"
                   @click="loadServerPools(serverPoolsCurrentPage)"
                 />

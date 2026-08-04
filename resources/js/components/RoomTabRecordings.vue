@@ -14,7 +14,7 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.recordings.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
@@ -32,7 +32,7 @@
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
-              :aria-label="$t('app.filter')"
+              :aria-label="$t('rooms.recordings.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -56,7 +56,7 @@
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
-              :aria-label="$t('app.sort_by')"
+              :aria-label="$t('rooms.recordings.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -77,8 +77,8 @@
                 "
                 :aria-label="
                   sortOrder === 1
-                    ? $t('app.sort_ascending')
-                    : $t('app.sort_descending')
+                    ? $t('rooms.recordings.sort_ascending')
+                    : $t('rooms.recordings.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -95,7 +95,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-recordings-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.recordings.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -235,6 +235,7 @@
                   <RoomTabRecordingsDownloadButton
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :recording-id="item.id"
+                    :description="item.description"
                     :disabled="isBusy"
                   />
 
@@ -258,6 +259,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :room-id="props.room.id"
                     :recording-id="item.id"
+                    :description="item.description"
                     :disabled="isBusy"
                     @deleted="loadData()"
                     @not-found="loadData()"

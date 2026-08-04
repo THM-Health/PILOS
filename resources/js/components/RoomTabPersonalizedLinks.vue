@@ -14,7 +14,7 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.personalized_links.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
@@ -32,7 +32,7 @@
               :options="filterOptions"
               option-label="name"
               option-value="value"
-              :aria-label="$t('app.filter')"
+              :aria-label="$t('rooms.personalized_links.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -56,7 +56,7 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
-              :aria-label="$t('app.sort_by')"
+              :aria-label="$t('rooms.personalized_links.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -77,8 +77,8 @@
                 "
                 :aria-label="
                   sortOrder === 1
-                    ? $t('app.sort_ascending')
-                    : $t('app.sort_descending')
+                    ? $t('rooms.personalized_links.sort_ascending')
+                    : $t('rooms.personalized_links.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -103,7 +103,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-personalized-links-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.personalized_links.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"

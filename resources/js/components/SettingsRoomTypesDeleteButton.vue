@@ -75,11 +75,12 @@
         </Select>
         <Button
           v-if="replacementRoomTypesLoadingError"
+          v-tooltip="$t('app.reload')"
           :disabled="isBusy"
           outlined
           severity="secondary"
           icon="fa-solid fa-sync"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.room_types.reload')"
           data-test="replacement-room-types-reload-button"
           @click="loadReplacementRoomTypes()"
         />

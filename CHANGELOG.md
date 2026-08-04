@@ -11,7 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
 - System-wide default welcome message ([#3301])
-- Accessibility: Aria-labels for filter and sort select elements in room tabs ([#3298])
+- Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
+
+### Changed
+
+- Accessibility: Updated aria-label values for buttons and select controls to provide more descriptive context ([#3241], [#3242])
 
 ### Fixed
 
@@ -867,6 +871,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
+[#3241]: https://github.com/THM-Health/PILOS/issues/3241
+[#3242]: https://github.com/THM-Health/PILOS/pull/3242
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
 [#3277]: https://github.com/THM-Health/PILOS/pull/3277
 [#3296]: https://github.com/THM-Health/PILOS/pull/3296

@@ -5,7 +5,12 @@
     severity="info"
     :disabled="disabled"
     icon="fa-solid fa-edit"
-    :aria-label="$t('rooms.personalized_links.edit')"
+    :aria-label="
+      $t('rooms.personalized_links.edit_aria', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     data-test="room-personalized-links-edit-button"
     @click="showModal"
   />

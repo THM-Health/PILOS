@@ -131,6 +131,7 @@ return [
     'previous_page' => 'Previous page',
     'profile' => 'Profile',
     'reload' => 'Reload',
+    'reload_timezones_aria' => 'Reload timezones',
     'reset' => 'Reset',
     'roles' => 'Roles',
     'room_limit' => 'Room limit',
