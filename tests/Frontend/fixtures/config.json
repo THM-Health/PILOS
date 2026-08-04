@@ -35,7 +35,8 @@
       "room_name_limit": 50
     },
     "user": {
-      "password_change_allowed": true
+      "password_change_allowed": true,
+      "search_by_name": true
     },
     "banner": {},
     "recording": {

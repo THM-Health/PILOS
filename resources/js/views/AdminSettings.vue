@@ -1151,6 +1151,36 @@
                 />
               </div>
             </fieldset>
+
+            <fieldset
+              class="field grid grid-cols-12 gap-4"
+              data-test="user-search-by-name-field"
+            >
+              <legend class="col-span-12 md:col-span-4 md:mb-0">
+                {{ $t("admin.settings.user_search_by_name.title") }}
+              </legend>
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <div class="flex items-center gap-2">
+                  <ToggleSwitch
+                    v-model="settings.user_search_by_name"
+                    input-id="user-search-by-name"
+                    binary
+                    :disabled="disabled"
+                    :invalid="formErrors.fieldInvalid('user_search_by_name')"
+                    aria-describedby="user-search-by-name-help"
+                  />
+                  <label for="user-search-by-name">{{
+                    $t("app.enable")
+                  }}</label>
+                </div>
+                <small id="user-search-by-name-help">{{
+                  $t("admin.settings.user_search_by_name.description")
+                }}</small>
+                <FormError
+                  :errors="formErrors.fieldError('user_search_by_name')"
+                />
+              </div>
+            </fieldset>
           </AdminPanel>
 
           <AdminPanel
