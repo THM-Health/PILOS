@@ -75,6 +75,7 @@
         </Select>
         <Button
           v-if="replacementRoomTypesLoadingError"
+          v-tooltip="$t('app.reload')"
           :disabled="isBusy"
           outlined
           severity="secondary"

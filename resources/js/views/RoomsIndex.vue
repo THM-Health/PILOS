@@ -180,7 +180,7 @@
                 severity="secondary"
                 outlined
                 icon="fa-solid fa-sync"
-                :aria-label="$t('app.reload')"
+                :aria-label="$t('rooms.room_types.reload')"
                 :loading="roomTypesBusy"
                 @click="loadRoomTypes"
               />
