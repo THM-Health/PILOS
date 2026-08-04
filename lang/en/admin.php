@@ -193,7 +193,7 @@ return [
     'server_pools' => [
         'delete' => [
             'confirm' => 'Do you really want to delete the server pool :name?',
-            'failed' => 'Server pool can\'t be deleted because the following room types still use it:',
+            'failed' => '{1} Server pool can\'t be deleted because the following room type still uses it: |[2,*] Server pool can\'t be deleted because the following room types still use it:',
             'item' => 'Delete server pool :name',
             'title' => 'Delete server pool?',
         ],
@@ -223,7 +223,8 @@ return [
         'enabled' => 'Enabled',
         'flash' => [
             'panic' => [
-                'description' => ':total meetings were found and :success were successfully stopped.',
+                'description_meetings_successful' => '{0} No meetings were successfully stopped. |{1} 1 meeting was successfully stopped. |[2,*] :count meetings were successfully stopped.',
+                'description_meetings_total' => '{0} No meetings were found. |{1} 1 meeting was found. |[2,*] :count meetings were found.',
                 'title' => 'The server has been disabled.',
             ],
         ],

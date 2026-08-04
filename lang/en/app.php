@@ -84,7 +84,7 @@ return [
             'message' => ':message',
         ],
         'too_large' => 'The transmitted data was too large!',
-        'too_many_requests' => 'Too many requests. Please try again later.',
+        'too_many_requests' => '{1} Too many requests. Please try again in 1 minute. |[2,*] Too many requests. Please try again in :count minutes.',
         'unauthenticated' => 'You must be authenticated to execute the request!',
         'unauthorized' => 'You don\'t have the necessary rights to access the called route!',
     ],

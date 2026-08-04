@@ -1,16 +1,8 @@
 <template>
   <Button
-    v-tooltip="
-      $t('rooms.members.bulk_edit_user', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    v-tooltip="$t('rooms.members.bulk_edit_user', props.userIds.length)"
     data-test="room-members-bulk-edit-button"
-    :aria-label="
-      $t('rooms.members.bulk_edit_user', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    :aria-label="$t('rooms.members.bulk_edit_user', props.userIds.length)"
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-users-cog"
@@ -22,11 +14,7 @@
     v-model:visible="modalVisible"
     data-test="room-members-bulk-edit-dialog"
     modal
-    :header="
-      $t('rooms.members.modals.edit.title_bulk', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    :header="$t('rooms.members.modals.edit.title_bulk', props.userIds.length)"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"

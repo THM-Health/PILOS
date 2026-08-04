@@ -478,10 +478,15 @@ function panic() {
     .then((response) => {
       if (response.status === 200) {
         toast.success(
-          t("admin.servers.flash.panic.description", {
-            total: response.data.total,
-            success: response.data.success,
-          }),
+          t(
+            "admin.servers.flash.panic.description_meetings_total",
+            response.data.total,
+          ) +
+            " " +
+            t(
+              "admin.servers.flash.panic.description_meetings_successful",
+              response.data.success,
+            ),
           t("admin.servers.flash.panic.title"),
         );
         load();

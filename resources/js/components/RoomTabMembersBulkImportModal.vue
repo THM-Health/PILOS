@@ -49,7 +49,10 @@
           v-if="validUsers.length > 0"
           :loading="isLoadingAction"
           :label="
-            $t('rooms.members.modals.bulk_import.import_importable_button')
+            $t(
+              'rooms.members.modals.bulk_import.import_importable_button',
+              validUsers.length,
+            )
           "
           data-test="dialog-continue-button"
           @click="importUsers(false)"
@@ -68,7 +71,12 @@
         <Button
           v-if="invalidUsers.length > 0"
           severity="secondary"
-          :label="$t('rooms.members.modals.bulk_import.copy_and_close')"
+          :label="
+            $t(
+              'rooms.members.modals.bulk_import.copy_and_close',
+              invalidUsers.length,
+            )
+          "
           data-test="room-members-copy-and-close-button"
           @click="copyInvalidUsers"
         />
@@ -160,20 +168,31 @@
       <RoomTabMembersBulkImportList
         :list="validUsers"
         variant="success"
-        :description="$t('rooms.members.modals.bulk_import.can_import_users')"
+        :description="
+          $t(
+            'rooms.members.modals.bulk_import.can_import_users',
+            validUsers.length,
+          )
+        "
       />
 
       <RoomTabMembersBulkImportList
         :list="invalidUsers"
         variant="danger"
         :description="
-          $t('rooms.members.modals.bulk_import.cannot_import_users')
+          $t(
+            'rooms.members.modals.bulk_import.cannot_import_users',
+            invalidUsers.length,
+          )
         "
       />
 
       <i v-if="validUsers.length > 0">
         {{
-          $t("rooms.members.modals.bulk_import.import_importable_question")
+          $t(
+            "rooms.members.modals.bulk_import.import_importable_question",
+            validUsers.length,
+          )
         }}</i
       >
     </div>
@@ -181,14 +200,22 @@
       <RoomTabMembersBulkImportList
         :list="validUsers"
         variant="success"
-        :description="$t('rooms.members.modals.bulk_import.imported_users')"
+        :description="
+          $t(
+            'rooms.members.modals.bulk_import.imported_users',
+            validUsers.length,
+          )
+        "
       />
 
       <RoomTabMembersBulkImportList
         :list="invalidUsers"
         variant="danger"
         :description="
-          $t('rooms.members.modals.bulk_import.could_not_import_users')
+          $t(
+            'rooms.members.modals.bulk_import.could_not_import_users',
+            invalidUsers.length,
+          )
         "
       />
     </div>
@@ -260,7 +287,12 @@ function copyInvalidUsers() {
     (invalidUser) => invalidUser.email,
   );
   navigator.clipboard.writeText(invalidUsersEmails.join("\n"));
-  toast.info(t("rooms.members.modals.bulk_import.copied_invalid_users"));
+  toast.info(
+    t(
+      "rooms.members.modals.bulk_import.copied_invalid_users",
+      invalidUsers.value.length,
+    ),
+  );
   finish();
 }
 

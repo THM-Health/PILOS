@@ -30,6 +30,7 @@ return [
     'now' => 'now',
     'owner' => 'Owner',
     'participant_count' => 'Participant(s)',
+    'participant_count_value' => '{0} 0 participants |{1} 1 participant |[2,*] :count participants',
     'retention_period' => 'Retention period',
     'start' => 'Begin',
     'stats' => [
