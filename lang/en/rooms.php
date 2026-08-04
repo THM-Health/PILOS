@@ -172,8 +172,6 @@ return [
         'no_rooms_selected' => 'No rooms selected',
         'only_favorites' => 'Only show favorites',
         'reset_filter' => 'Reset filter',
-        'search_aria' => 'Search rooms',
-        'sort_by' => 'Sort rooms by',
         'room_component' => [
             'details' => 'Details',
             'last_ran_till' => 'Last run until :date',
@@ -186,10 +184,12 @@ return [
             'show_details' => 'Show room details',
             'show_details_for' => 'Show details for room: :room',
         ],
+        'search_aria' => 'Search rooms',
         'show_all' => 'All rooms',
         'show_own' => 'Own rooms',
         'show_public' => 'Public rooms',
         'show_shared' => 'Shared rooms',
+        'sort_by' => 'Sort rooms by',
         'sorting' => [
             'alpha' => 'Alphabetical',
             'last_started' => 'Last started',

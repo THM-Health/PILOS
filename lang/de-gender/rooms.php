@@ -413,7 +413,6 @@ return [
             'access_code_prohibited' => 'Die Raumart erzwingt, dass kein Zugangscode existiert',
             'allow' => 'Erlauben',
             'allow_guests' => 'Gäste zulassen',
-            'chars' => 'Zeichen: :chars',
             'delete_access_code' => 'Zugangscode entfernen',
             'enforced_setting' => 'Erzwungene Einstellung',
             'generate_access_code' => 'Neuen Zugangscode erstellen',

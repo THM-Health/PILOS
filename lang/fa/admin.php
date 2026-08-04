@@ -223,7 +223,6 @@ return [
         'enabled' => 'فعال',
         'flash' => [
             'panic' => [
-                'description' => ':total جلسه یافت شد و :success با موفقیت متوقف شدند.',
                 'title' => 'سرور غیرفعال شده است.',
             ],
         ],

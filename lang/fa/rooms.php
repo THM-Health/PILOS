@@ -407,7 +407,6 @@ return [
             'access_code_prohibited' => 'نوع اتاق عدم وجود کد دسترسی را اجباری می‌کند',
             'allow' => 'اجازه دادن',
             'allow_guests' => 'اجازه دادن به مهمانان',
-            'chars' => 'کاراکترها: :chars',
             'delete_access_code' => 'حذف کد دسترسی',
             'enforced_setting' => 'تنظیم اجباری',
             'generate_access_code' => 'ایجاد کد دسترسی جدید',

@@ -145,8 +145,8 @@ return [
     'server_pool' => 'Server pool',
     'server_pools' => 'Server pools',
     'servers' => 'Server',
-    'sort_by' => 'Sort by',
     'sort_ascending' => 'Sort ascending',
+    'sort_by' => 'Sort by',
     'sort_descending' => 'Sort descending',
     'streaming' => 'Streaming',
     'time_formats' => [
