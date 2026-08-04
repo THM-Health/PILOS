@@ -4,7 +4,7 @@
   <Button
     v-if="requireTermsOfUseAcceptance"
     v-tooltip="$t('rooms.files.view')"
-    :aria-label="$t('rooms.files.view')"
+    :aria-label="$t('rooms.files.view_aria', { filename: filename })"
     :disabled="disabled"
     icon="fa-solid fa-eye"
     data-test="room-files-view-button"
@@ -14,7 +14,7 @@
   <Button
     v-else
     v-tooltip="$t('rooms.files.view')"
-    :aria-label="$t('rooms.files.view')"
+    :aria-label="$t('rooms.files.view_aria', { filename: filename })"
     :disabled="disabled"
     target="_blank"
     rel="opener"
@@ -32,7 +32,7 @@
       <Button
         class="popover-close-button"
         data-test="popover-close-button"
-        :aria-label="$t('app.close')"
+        :aria-label="$t('rooms.files.terms_of_use.close')"
         text
         rounded
         severity="secondary"
@@ -58,6 +58,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
     required: false,
+  },
+  filename: {
+    type: String,
+    required: true,
   },
   fileUrl: {
     type: String,

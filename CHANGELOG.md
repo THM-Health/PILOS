@@ -16,10 +16,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Allow SVG and WebP images to be used as livestream pause images ([#3235])
+- Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
+
+### Changed
+
+- Accessibility: Updated aria-label values for buttons and select controls to provide more descriptive context ([#3241], [#3242])
 
 ### Fixed
 
 - Select dropdown border styles ([#3314], [#3315])
+- Accessibility: Aria-describedby for select and toggle switch input fields ([#3298])
 
 ## [v4.17.0] - 2026-07-09
 
@@ -871,9 +877,12 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
 [#3235]: https://github.com/THM-Health/PILOS/pull/3235
+[#3241]: https://github.com/THM-Health/PILOS/issues/3241
+[#3242]: https://github.com/THM-Health/PILOS/pull/3242
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
 [#3277]: https://github.com/THM-Health/PILOS/pull/3277
 [#3296]: https://github.com/THM-Health/PILOS/pull/3296
+[#3298]: https://github.com/THM-Health/PILOS/pull/3298
 [#3300]: https://github.com/THM-Health/PILOS/issues/3300
 [#3301]: https://github.com/THM-Health/PILOS/pull/3301
 [#3302]: https://github.com/THM-Health/PILOS/pull/3302

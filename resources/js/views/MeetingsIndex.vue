@@ -17,7 +17,9 @@
                 @keyup.enter="loadData(1)"
               />
               <Button
+                v-tooltip="$t('app.search')"
                 :disabled="isBusy"
+                :aria-label="$t('meetings.search_aria')"
                 icon="fa-solid fa-magnifying-glass"
                 @click="loadData(1)"
               />
@@ -26,7 +28,7 @@
           <div>
             <Button
               v-tooltip="$t('app.reload')"
-              :aria-label="$t('app.reload')"
+              :aria-label="$t('meetings.reload_aria')"
               severity="secondary"
               icon="fa-solid fa-sync"
               :loading="isBusy"

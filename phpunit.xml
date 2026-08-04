@@ -25,8 +25,8 @@
     <env name="QUEUE_CONNECTION" value="sync"/>
     <env name="METRICS_ENABLED" value="false"/>
     <env name="TELESCOPE_ENABLED" value="false"/>
-    <env name="SANCTUM_STATEFUL_DOMAINS" value="localhost,127.0.0.1"/>
-    <env name="SESSION_DOMAIN" value="localhost,127.0.0.1"/>
+    <env name="SANCTUM_STATEFUL_DOMAINS" value="localhost"/>
+    <env name="SESSION_DOMAIN" value="localhost"/>
   </php>
   <source>
     <include>

@@ -13,7 +13,7 @@
           <Button
             v-tooltip="$t('app.search')"
             :disabled="isBusy"
-            :aria-label="$t('app.search')"
+            :aria-label="$t('admin.roles.search_aria')"
             severity="primary"
             icon="fa-solid fa-magnifying-glass"
             @click="loadData(1)"

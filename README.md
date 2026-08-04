@@ -124,8 +124,8 @@ Please check our [development documentation](https://thm-health.github.io/PILOS/
 
 ## Localization
 
-The localization is managed in our [POEditor](https://poeditor.com/join/project/gWkaFBI8OH) project.
-Feel free to join and help us translate PILOS into your language or improve the existing translations.
+Please check our [localization documentation](https://thm-health.github.io/PILOS/docs/administration/customisation/locales) to
+learn how to contribute and add custom locales.
 
 ## License
 

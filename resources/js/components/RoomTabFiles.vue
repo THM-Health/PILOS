@@ -57,7 +57,7 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.files.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
@@ -65,7 +65,7 @@
         </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
@@ -75,6 +75,7 @@
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
+              :aria-label="$t('rooms.files.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -88,7 +89,7 @@
           </InputGroup>
 
           <InputGroup data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -98,6 +99,7 @@
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
+              :aria-label="$t('rooms.files.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -115,6 +117,11 @@
                   sortOrder === 1
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
+                "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('rooms.files.sort_ascending')
+                    : $t('rooms.files.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -138,7 +145,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-files-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.files.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -258,6 +265,7 @@
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"
                     :file-url="item.url"
+                    :filename="item.filename"
                     :room-auth-token="props.roomAuthToken"
                     :disabled="isBusy"
                     :require-terms-of-use-acceptance="

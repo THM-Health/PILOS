@@ -11,7 +11,7 @@
       >
         <div class="flex gap-2">
           <InputGroup class="w-auto" data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -21,6 +21,7 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
+              :aria-label="$t('rooms.meeting_history.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -39,6 +40,11 @@
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
                 "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('rooms.meeting_history.sort_ascending')
+                    : $t('rooms.meeting_history.sort_descending')
+                "
                 severity="secondary"
                 text
                 class="rounded-l-none"
@@ -51,7 +57,7 @@
         <Button
           v-tooltip="$t('app.reload')"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.meeting_history.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"

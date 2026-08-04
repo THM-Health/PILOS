@@ -134,6 +134,7 @@ return [
             ],
         ],
         'permissions_title' => 'Rechte',
+        'reload_aria' => 'Rollen neu laden',
         'room_limit' => [
             'custom' => 'Benutzerdefinierter Wert',
             'default' => 'Systemstandard (:value)',
@@ -146,6 +147,7 @@ return [
                 'system_default' => 'Systemstandard',
             ],
         ],
+        'search_aria' => 'Rollen suchen',
         'select_roles' => 'Bitte wählen Sie mindestens eine Rolle aus',
         'superuser' => 'Superuser',
         'tile_description' => 'Die Rollen vergeben Berechtigungen, gliedern die Benutzer und legen das Maximum an Räumen pro Benutzer fest.',
@@ -184,6 +186,7 @@ return [
         'preview' => 'Vorschau',
         'restrict' => 'Verwendung einschränken',
         'restrict_description' => 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
+        'search_aria' => 'Raumarten suchen',
         'select_roles' => 'Rollen auswählen',
         'select_server_pool' => 'Serverpool auswählen',
         'server_pool_description' => 'Server dieses Serverpools werden für die Lastverteilung verwendet',
@@ -193,7 +196,7 @@ return [
     'server_pools' => [
         'delete' => [
             'confirm' => 'Wollen Sie den Serverpool :name wirklich entfernen?',
-            'failed' => 'Serverpool kann nicht gelöscht werden, weil die folgenden Raumarten diesen noch verwenden:',
+            'failed' => '{1} Serverpool kann nicht gelöscht werden, weil die folgende Raumart diesen noch verwendet: |[2,*] Serverpool kann nicht gelöscht werden, weil die folgenden Raumarten diesen noch verwenden:',
             'item' => 'Serverpool :name löschen',
             'title' => 'Serverpool löschen?',
         ],
@@ -201,7 +204,9 @@ return [
         'new' => 'Neuen Serverpool hinzufügen',
         'no_data' => 'Es sind keine Serverpools vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Serverpools gefunden!',
+        'reload_aria' => 'Serverpools neu laden',
         'remove_server' => 'Server :name entfernen',
+        'search_aria' => 'Serverpools suchen',
         'select_servers' => 'Server auswählen',
         'server_count' => 'Anzahl Server',
         'tile_description' => 'Für die Lastverteilung werden mehrere Server gebündelt und über die Raumart jedem Raum zugewiesen.',
@@ -223,7 +228,8 @@ return [
         'enabled' => 'Aktiviert',
         'flash' => [
             'panic' => [
-                'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
+                'description_meetings_successful' => '{0} Es konnten keine Meetings erfolgreich beendet werden. |{1} 1 Meeting konnte erfolgreich beendet werden. |[2,*] :count Meetings konnten erfolgreich beendet werden.',
+                'description_meetings_total' => '{0} Keine Meetings gefunden. |{1} 1 Meeting gefunden. |[2,*] :count Meetings gefunden.',
                 'title' => 'Der Server wurde deaktiviert.',
             ],
         ],
@@ -246,6 +252,8 @@ return [
         'panic_server' => 'Server deaktiveren und alle Meetings beenden',
         'participant_count' => 'Teilnehmer',
         'reload' => 'Auslastung neu bestimmen',
+        'reload_list_aria' => 'Server neu laden',
+        'search_aria' => 'Server suchen',
         'secret' => 'API Geheimnis',
         'show_secret' => 'Klartext anzeigen',
         'status' => 'Status',
@@ -287,6 +295,9 @@ return [
             'title' => 'Banner für Mitteilungen',
         ],
         'bbb' => [
+            'default_welcome_message' => [
+                'title' => 'Standard Begrüßungsnachricht',
+            ],
             'logo' => [
                 'alt' => 'Logo Vorschau',
                 'hint' => 'https://domain.tld/path/logo.svg',
@@ -483,6 +494,7 @@ return [
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Benutzer gefunden!',
         'other_settings' => 'Weitere Einstellungen',
         'password_reset_success' => 'Passwort-Rücksetz-Mail wurde erfolgreich an :mail verschickt!',
+        'reload_aria' => 'Benutzer neu laden',
         'remove_role' => 'Rolle :name entfernen',
         'reset_password' => [
             'confirm' => 'Wollen Sie das Passwort für :firstname :lastname wirklich zurücksetzen?',
@@ -491,6 +503,7 @@ return [
         ],
         'role_filter' => 'Rolle zum Filtern auswählen',
         'roles_and_permissions' => 'Rollen and Berechtigungen',
+        'search_aria' => 'Benutzer suchen',
         'show_password' => 'Password anzeigen',
         'skip_check_audio' => 'Echo-Test deaktivieren',
         'tile_description' => 'Die Benutzer können sich an dem System anmelden und je nach Rolle unterschiedliche Funktionen nutzen.',

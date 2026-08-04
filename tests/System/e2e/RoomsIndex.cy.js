@@ -27,7 +27,7 @@ describe("Room Index", function () {
       .should("include.text", "Running since 01/01/2024, 08:00");
     cy.get('[data-test="room-card"]')
       .eq(0)
-      .should("include.text", "2 Participant(s)");
+      .should("include.text", "2 participants");
     cy.get('[data-test="room-card"]')
       .eq(0)
       .within(() => {

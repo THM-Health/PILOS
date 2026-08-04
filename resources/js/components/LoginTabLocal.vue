@@ -11,7 +11,6 @@
           :disabled="props.loading"
           autocomplete="email"
           :placeholder="props.emailLabel"
-          aria-describedby="email-help-block"
           :invalid="formErrors.fieldInvalid('email')"
           required
         />
@@ -30,12 +29,10 @@
           fluid
           :disabled="props.loading"
           :placeholder="props.passwordLabel"
-          aria-describedby="password-help-block"
           :invalid="formErrors.fieldInvalid('password')"
         />
         <Button
           v-if="settingsStore.getSetting('user.password_change_allowed')"
-          id="password-help-block"
           as="router-link"
           link
           class="self-start p-0"

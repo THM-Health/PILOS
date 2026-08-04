@@ -127,7 +127,10 @@ describe("Admin server pools view", function () {
 
     // Check that error is shown correctly
     cy.get('[data-test="server-pools-delete-dialog"]')
-      .should("include.text", "admin.server_pools.delete.failed")
+      .should(
+        "include.text",
+        'admin.server_pools.delete.failed_{"count":2,"n":2}',
+      )
       .and("include.text", "Lecture")
       .and("include.text", "Meeting");
 
