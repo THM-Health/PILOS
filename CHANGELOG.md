@@ -18,9 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Allow SVG and WebP images to be used as livestream pause images ([#3235])
 - Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
-
-### Changed
-
 - Accessibility: Updated aria-label values for buttons and select controls to provide more descriptive context ([#3241], [#3242])
 
 ### Fixed
