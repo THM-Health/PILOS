@@ -11,14 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
 - System-wide default welcome message ([#3301])
-- Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
+- Privacy setting to disable finding users by partial matches of their name or email address ([#2264], [#3316])
+- Hints in admin UI file uploads indicating supported file types and maximum allowed file size ([#3235])
 - Option to set connection status of servers to always online ([#3317], [#3373])
 
 ### Changed
-
+- Allow SVG and WebP images to be used as livestream pause images ([#3235])
+- Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
+- Accessibility: Updated aria-label values for buttons and select controls to provide more descriptive context ([#3241], [#3242])
 - Prometheus metric label `pilos_servers_total{status="unhealthy"}` to `pilos_servers_total{status="faulty"}` ([#3373])
 - Connection status terminology in log messages (`unhealthy` to `faulty`; `healthy` to `online`; `old_health` to `old_connection_status`) ([#3373])
-- Accessibility: Updated aria-label values for buttons and select controls to provide more descriptive context ([#3241], [#3242])
 
 ### Fixed
 
@@ -773,6 +775,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2165]: https://github.com/THM-Health/PILOS/pull/2165
 [#2222]: https://github.com/THM-Health/PILOS/pull/2222
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
+[#2264]: https://github.com/THM-Health/PILOS/issues/2264
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2281]: https://github.com/THM-Health/PILOS/pull/2281
@@ -874,6 +877,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
+[#3235]: https://github.com/THM-Health/PILOS/pull/3235
 [#3241]: https://github.com/THM-Health/PILOS/issues/3241
 [#3242]: https://github.com/THM-Health/PILOS/pull/3242
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
@@ -885,6 +889,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3302]: https://github.com/THM-Health/PILOS/pull/3302
 [#3314]: https://github.com/THM-Health/PILOS/issues/3314
 [#3315]: https://github.com/THM-Health/PILOS/pull/3315
+[#3316]: https://github.com/THM-Health/PILOS/pull/3316
 [#3317]: https://github.com/THM-Health/PILOS/issues/3317
 [#3373]: https://github.com/THM-Health/PILOS/pull/3373
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop

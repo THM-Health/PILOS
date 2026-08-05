@@ -29,13 +29,33 @@
       "show_fps": false
     },
     "bbb": {
-      "file_mimes": "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png",
+      "file_mimes": [
+        "pdf",
+        "doc",
+        "docx",
+        "xls",
+        "xlsx",
+        "ppt",
+        "pptx",
+        "txt",
+        "rtf",
+        "odt",
+        "ods",
+        "odp",
+        "odg",
+        "odc",
+        "odi",
+        "jpg",
+        "jpeg",
+        "png"
+      ],
       "max_filesize": 30,
       "welcome_message_limit": 500,
       "room_name_limit": 50
     },
     "user": {
-      "password_change_allowed": true
+      "password_change_allowed": true,
+      "search_by_name": true
     },
     "banner": {},
     "recording": {

@@ -21,9 +21,9 @@ describe("Rooms view files file actions", function () {
       .should("include.text", "rooms.files.upload")
       .should(
         "include.text",
-        'rooms.files.formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
+        'app.file.allowed_formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
       )
-      .should("include.text", 'rooms.files.size_{"size":30')
+      .should("include.text", 'app.file.max_size_{"size":"30 MB"')
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="drop-zone"]')
@@ -261,7 +261,7 @@ describe("Rooms view files file actions", function () {
     // Check that dialog stayed open and error message is shown
     cy.get('[data-test="room-files-upload-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.validation.too_large");
+      .and("include.text", "app.file.too_large");
 
     // Check 422 error (validation error)
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/files", {

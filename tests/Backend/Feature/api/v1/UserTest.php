@@ -14,6 +14,7 @@ use App\Notifications\PasswordChanged;
 use App\Notifications\PasswordReset;
 use App\Notifications\UserWelcome;
 use App\Notifications\VerifyEmail;
+use App\Settings\UserSettings;
 use Carbon\Carbon;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -198,6 +199,10 @@ class UserTest extends TestCase
         $searchLimit = 5;
         config(['bigbluebutton.user_search_limit' => $searchLimit]);
 
+        $userSettings = app(UserSettings::class);
+        $userSettings->search_by_name = true;
+        $userSettings->save();
+
         $users = [];
         $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'gregory.dumas@example.com']);
         $users[] = User::factory()->create(['firstname' => 'Mable', 'lastname' => 'Torres', 'email' => 'mable.torres@example.com']);
@@ -251,6 +256,40 @@ class UserTest extends TestCase
         $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=deborah.brown')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[5]->firstname)
+            ->assertJsonCount(1, 'data');
+    }
+
+    public function test_search_by_name_disabled()
+    {
+        $searchLimit = 5;
+        config(['bigbluebutton.user_search_limit' => $searchLimit]);
+
+        $userSettings = app(UserSettings::class);
+        $userSettings->search_by_name = false;
+        $userSettings->save();
+
+        $users = [];
+        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'gregory.Dumas@example.com']);
+
+        // Check with exact lastname match (search for names should not be possible)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Dumas')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+
+        // Check with exact firstname match (search for names should not be possible)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Gregory')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+
+        // Check fragments of email (query must match exactly, fragments are disabled)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=example.com')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+
+        // Check exact email (case-insensitive)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Gregory.dumas@example.com')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.firstname', $users[0]->firstname)
             ->assertJsonCount(1, 'data');
     }
 

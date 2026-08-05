@@ -7,11 +7,13 @@
       <FileUpload
         v-if="!imageDeleted"
         mode="basic"
-        accept="image/*"
+        accept=".jpg,.jpeg,.png"
         custom-upload
         auto
         :disabled="disabled"
         class="w-full"
+        :invalid-file-size-message="$t('app.file.too_large')"
+        :invalid-file-type-message="$t('app.file.invalid_type')"
         :choose-label="$t('admin.users.image.upload')"
         :pt="{
           pcChooseButton: {

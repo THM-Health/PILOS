@@ -727,6 +727,48 @@ describe("Admin settings with edit permission", function () {
           .should("be.checked")
           .and("be.disabled");
       });
+
+    cy.get('[data-test="user-search-by-name-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.user_search_by_name.title")
+      .and("include.text", "admin.settings.user_search_by_name.description")
+      .within(() => {
+        cy.get("#user-search-by-name").should("be.checked").and("be.disabled");
+      });
+
+    // Reload with different settings
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.user_password_change_allowed = false;
+      settings.data.user_search_by_name = false;
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsRequest");
+    });
+
+    cy.reload();
+
+    cy.wait("@settingsRequest");
+
+    cy.get('[data-test="password-change-allowed-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.password_change_allowed")
+      .within(() => {
+        cy.get("#password-change-allowed")
+          .should("not.be.checked")
+          .and("be.disabled");
+      });
+
+    cy.get('[data-test="user-search-by-name-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.user_search_by_name.title")
+      .and("include.text", "admin.settings.user_search_by_name.description")
+      .within(() => {
+        cy.get("#user-search-by-name")
+          .should("not.be.checked")
+          .and("be.disabled");
+      });
   });
 
   it("check recording and statistics settings with only view permission", function () {

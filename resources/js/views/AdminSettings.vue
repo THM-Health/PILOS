@@ -344,8 +344,8 @@
                   input-id="favicon"
                   :url-invalid="formErrors.fieldInvalid('theme_favicon')"
                   :file-invalid="formErrors.fieldInvalid('theme_favicon_file')"
-                  :url-error="formErrors.fieldError('theme_favicon')"
-                  :file-error="formErrors.fieldError('theme_favicon_file')"
+                  :url-errors="formErrors.fieldError('theme_favicon')"
+                  :file-errors="formErrors.fieldError('theme_favicon_file')"
                 />
               </div>
             </fieldset>
@@ -375,8 +375,10 @@
                   :file-invalid="
                     formErrors.fieldInvalid('theme_favicon_dark_file')
                   "
-                  :url-error="formErrors.fieldError('theme_favicon_dark')"
-                  :file-error="formErrors.fieldError('theme_favicon_dark_file')"
+                  :url-errors="formErrors.fieldError('theme_favicon_dark')"
+                  :file-errors="
+                    formErrors.fieldError('theme_favicon_dark_file')
+                  "
                 />
               </div>
             </fieldset>
@@ -397,12 +399,20 @@
                   preview-width="150"
                   preview-bg-class="bg-surface-0"
                   :preview-alt="$t('admin.settings.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="logo"
                   :url-invalid="formErrors.fieldInvalid('theme_logo')"
                   :file-invalid="formErrors.fieldInvalid('theme_logo_file')"
-                  :url-error="formErrors.fieldError('theme_logo')"
-                  :file-error="formErrors.fieldError('theme_logo_file')"
+                  :url-errors="formErrors.fieldError('theme_logo')"
+                  :file-errors="formErrors.fieldError('theme_logo_file')"
                 />
               </div>
             </fieldset>
@@ -426,14 +436,22 @@
                   preview-width="150"
                   preview-bg-class="bg-surface-900"
                   :preview-alt="$t('admin.settings.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="logo-dark"
                   :url-invalid="formErrors.fieldInvalid('theme_logo_dark')"
                   :file-invalid="
                     formErrors.fieldInvalid('theme_logo_dark_file')
                   "
-                  :url-error="formErrors.fieldError('theme_logo_dark')"
-                  :file-error="formErrors.fieldError('theme_logo_dark_file')"
+                  :url-errors="formErrors.fieldError('theme_logo_dark')"
+                  :file-errors="formErrors.fieldError('theme_logo_dark_file')"
                 />
               </div>
             </fieldset>
@@ -505,11 +523,11 @@
                   v-model:file-deleted="themeCustomCssDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="500000"
+                  :max-file-size="500_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('theme_custom_css')"
-                  :file-error="formErrors.fieldError('theme_custom_css')"
+                  :file-errors="formErrors.fieldError('theme_custom_css')"
                 />
               </div>
             </fieldset>
@@ -1151,6 +1169,36 @@
                 />
               </div>
             </fieldset>
+
+            <fieldset
+              class="field grid grid-cols-12 gap-4"
+              data-test="user-search-by-name-field"
+            >
+              <legend class="col-span-12 md:col-span-4 md:mb-0">
+                {{ $t("admin.settings.user_search_by_name.title") }}
+              </legend>
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <div class="flex items-center gap-2">
+                  <ToggleSwitch
+                    v-model="settings.user_search_by_name"
+                    input-id="user-search-by-name"
+                    binary
+                    :disabled="disabled"
+                    :invalid="formErrors.fieldInvalid('user_search_by_name')"
+                    aria-describedby="user-search-by-name-help"
+                  />
+                  <label for="user-search-by-name">{{
+                    $t("app.enable")
+                  }}</label>
+                </div>
+                <small id="user-search-by-name-help">{{
+                  $t("admin.settings.user_search_by_name.description")
+                }}</small>
+                <FormError
+                  :errors="formErrors.fieldError('user_search_by_name')"
+                />
+              </div>
+            </fieldset>
           </AdminPanel>
 
           <AdminPanel
@@ -1417,12 +1465,20 @@
                   preview-width="150"
                   show-delete
                   :preview-alt="$t('admin.settings.bbb.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="bbb-logo"
                   :url-invalid="formErrors.fieldInvalid('bbb_logo')"
                   :file-invalid="formErrors.fieldInvalid('bbb_logo_file')"
-                  :url-error="formErrors.fieldError('bbb_logo')"
-                  :file-error="formErrors.fieldError('bbb_logo_file')"
+                  :url-errors="formErrors.fieldError('bbb_logo')"
+                  :file-errors="formErrors.fieldError('bbb_logo_file')"
                 />
               </div>
             </fieldset>
@@ -1448,12 +1504,20 @@
                   preview-bg-class="bg-surface-900"
                   show-delete
                   :preview-alt="$t('admin.settings.bbb.logo.alt')"
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   input-id="bbb-logo-dark"
                   :url-invalid="formErrors.fieldInvalid('bbb_logo_dark')"
                   :file-invalid="formErrors.fieldInvalid('bbb_logo_dark_file')"
-                  :url-error="formErrors.fieldError('bbb_logo_dark')"
-                  :file-error="formErrors.fieldError('bbb_logo_dark_file')"
+                  :url-errors="formErrors.fieldError('bbb_logo_dark')"
+                  :file-errors="formErrors.fieldError('bbb_logo_dark_file')"
                 />
               </div>
             </fieldset>
@@ -1474,11 +1538,11 @@
                   v-model:file-deleted="bbbStyleDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="500000"
+                  :max-file-size="500_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('bbb_style')"
-                  :file-error="formErrors.fieldError('bbb_style')"
+                  :file-errors="formErrors.fieldError('bbb_style')"
                 />
               </div>
             </fieldset>
@@ -1500,18 +1564,16 @@
                   :disabled="disabled"
                   :readonly="viewOnly"
                   :max-file-size="
-                    settingsStore.getSetting('bbb.max_filesize') * 1000000
+                    settingsStore.getSetting('bbb.max_filesize') * 1_000_000
                   "
                   show-delete
                   :allowed-extensions="
-                    String(settingsStore.getSetting('bbb.file_mimes')).split(
-                      ',',
-                    )
+                    settingsStore.getSetting('bbb.file_mimes')
                   "
                   :file-invalid="
                     formErrors.fieldInvalid('bbb_default_presentation')
                   "
-                  :file-error="
+                  :file-errors="
                     formErrors.fieldError('bbb_default_presentation')
                   "
                 />
