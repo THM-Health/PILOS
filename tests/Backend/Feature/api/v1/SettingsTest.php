@@ -14,6 +14,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RoomSettings;
 use App\Settings\ThemeSettings;
+use App\Settings\UserSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,6 +90,7 @@ class SettingsTest extends TestCase
         $this->roomSettings->save();
 
         $this->userSettings->password_change_allowed = true;
+        $this->userSettings->search_by_name = true;
         $this->userSettings->save();
 
         $this->recordingSettings->server_usage_enabled = true;
@@ -164,6 +166,7 @@ class SettingsTest extends TestCase
                     'room_hide_owner_from_guests' => false,
 
                     'user_password_change_allowed' => true,
+                    'user_search_by_name' => true,
 
                     'recording_server_usage_enabled' => true,
                     'recording_server_usage_retention_period' => 7,
@@ -228,6 +231,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => true,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -292,6 +296,7 @@ class SettingsTest extends TestCase
                     'room_hide_owner_from_guests' => true,
 
                     'user_password_change_allowed' => 1,
+                    'user_search_by_name' => 1,
 
                     'recording_server_usage_enabled' => 0,
                     'recording_server_usage_retention_period' => 7,
@@ -309,12 +314,14 @@ class SettingsTest extends TestCase
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->legal_notice_url);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->privacy_policy_url);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->accessibility_statement_url);
+        $this->assertTrue(app(UserSettings::class)->search_by_name);
 
         $payload['general_help_url'] = '';
         $payload['general_legal_notice_url'] = '';
         $payload['general_privacy_policy_url'] = '';
         $payload['general_accessibility_statement_url'] = '';
         $payload['room_file_terms_of_use'] = '';
+        $payload['user_search_by_name'] = 0;
         $payload['bbb_default_welcome_message'] = '';
 
         $this->putJson(route('api.v1.settings.update'), $payload)
@@ -325,6 +332,7 @@ class SettingsTest extends TestCase
         $this->assertNull(app(GeneralSettings::class)->privacy_policy_url);
         $this->assertNull(app(GeneralSettings::class)->accessibility_statement_url);
         $this->assertNull(app(RoomSettings::class)->file_terms_of_use);
+        $this->assertFalse(app(UserSettings::class)->search_by_name);
         $this->assertNull(app(BigBlueButtonSettings::class)->default_welcome_message);
     }
 
@@ -373,6 +381,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -452,6 +461,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -535,6 +545,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => 'notbool',
 
             'user_password_change_allowed' => 'foo',
+            'user_search_by_name' => 'foo',
 
             'recording_server_usage_enabled' => 'foo',
             'recording_server_usage_retention_period' => 'notnumber',
@@ -589,6 +600,7 @@ class SettingsTest extends TestCase
                 'room_hide_owner_from_guests',
 
                 'user_password_change_allowed',
+                'user_search_by_name',
 
                 'recording_server_usage_enabled',
                 'recording_server_usage_retention_period',
@@ -673,6 +685,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -780,6 +793,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 1,
@@ -835,6 +849,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 366,
@@ -917,6 +932,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -1029,6 +1045,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -1126,6 +1143,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -1210,6 +1228,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,
@@ -1300,6 +1319,7 @@ class SettingsTest extends TestCase
             'room_hide_owner_from_guests' => false,
 
             'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
 
             'recording_server_usage_enabled' => 0,
             'recording_server_usage_retention_period' => 7,

@@ -434,6 +434,10 @@ return [
         ],
         'two_weeks' => '2 Weeks (14 Days)',
         'two_years' => '2 Years (730 Days)',
+        'user_search_by_name' => [
+            'description' => 'Allows users to find others by partial matches of their name or email address. When disabled, users can only be found by entering their exact email address.',
+            'title' => 'Allow searching users by name',
+        ],
         'user_settings' => 'User settings',
     ],
     'streaming' => [

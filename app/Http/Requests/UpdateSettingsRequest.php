@@ -77,6 +77,7 @@ class UpdateSettingsRequest extends FormRequest
             'room_hide_owner_from_guests' => ['required', 'boolean'],
 
             'user_password_change_allowed' => ['required', 'boolean'],
+            'user_search_by_name' => ['required', 'boolean'],
 
             'recording_server_usage_enabled' => ['required', 'boolean'],
             'recording_server_usage_retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
