@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
 - System-wide default welcome message ([#3301])
 - Privacy setting to disable finding users by partial matches of their name or email address ([#2264], [#3316])
+- Hints in admin UI file uploads indicating supported file types and maximum allowed file size ([#3235])
+
+### Changed
+
+- Allow SVG and WebP images to be used as livestream pause images ([#3235])
 - Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
 
 ### Changed
@@ -873,6 +878,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
+[#3235]: https://github.com/THM-Health/PILOS/pull/3235
 [#3241]: https://github.com/THM-Health/PILOS/issues/3241
 [#3242]: https://github.com/THM-Health/PILOS/pull/3242
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264

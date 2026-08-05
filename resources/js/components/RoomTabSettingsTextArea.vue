@@ -53,7 +53,7 @@ const props = defineProps({
     required: false,
   },
   errors: {
-    type: Object,
+    type: Array,
     required: true,
   },
   setting: {

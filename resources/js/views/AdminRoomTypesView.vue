@@ -1456,11 +1456,11 @@
                     : 'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'
                 "
               />
-              <p id="create-parameters-help">
+              <small id="create-parameters-help" class="block">
                 {{
                   $t("admin.room_types.bbb_api.create_parameters_description")
                 }}
-              </p>
+              </small>
               <FormError :errors="formErrors.fieldError('create_parameters')" />
             </div>
           </div>
@@ -1488,9 +1488,9 @@
                     : 'userdata-bbb_show_session_details_on_join=false'
                 "
               />
-              <p id="join-parameters-help">
+              <small id="join-parameters-help" class="block">
                 {{ $t("admin.room_types.bbb_api.join_parameters_description") }}
-              </p>
+              </small>
               <FormError :errors="formErrors.fieldError('join_parameters')" />
             </div>
           </div>
