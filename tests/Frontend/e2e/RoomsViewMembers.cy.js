@@ -1400,7 +1400,7 @@ describe("Rooms view members", function () {
       .should("be.visible")
       .should(
         "include.text",
-        'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":3}',
+        'rooms.members.modals.edit.title_bulk_{"count":3,"n":3}',
       );
     cy.get('[data-test="room-members-bulk-edit-dialog"]')
       .find('[data-test="dialog-cancel-button"]')

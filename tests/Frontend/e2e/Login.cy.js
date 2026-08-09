@@ -430,7 +430,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check if error gets displayed
-    cy.contains('auth.throttle_{"seconds":"59"}').should("be.visible");
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("be.visible");
     // Check that 422 error messages are hidden
     cy.contains("Password or Email wrong!").should("not.exist");
     cy.contains("The Password field is required.").should("not.exist");
@@ -448,7 +448,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check that other error messages are hidden
-    cy.contains('auth.throttle_{"seconds":"59"}').should("not.exist");
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("not.exist");
 
     // Check that error message is shown
     cy.checkToastMessage([
@@ -562,7 +562,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check if error gets displayed
-    cy.contains('auth.throttle_{"seconds":"59"}').should("be.visible");
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("be.visible");
     // Check that 422 error messages are hidden
     cy.contains("These credentials do not match our records.").should(
       "not.exist",
@@ -582,7 +582,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check that other error messages are hidden
-    cy.contains('auth.throttle_{"seconds":"59"}').should("not.exist");
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("not.exist");
 
     // Check that error message is shown
     cy.checkToastMessage([

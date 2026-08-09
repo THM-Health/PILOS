@@ -13,7 +13,7 @@
           <Button
             v-tooltip="$t('app.search')"
             :disabled="isBusy"
-            :aria-label="$t('app.search')"
+            :aria-label="$t('admin.servers.search_aria')"
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
             @click="loadData(1, false)"
@@ -34,7 +34,7 @@
           :disabled="isBusy"
           severity="secondary"
           icon="fa-solid fa-sync"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('admin.servers.reload_list_aria')"
           data-test="servers-reload-no-usage-button"
           @click="loadData(null, false)"
         />

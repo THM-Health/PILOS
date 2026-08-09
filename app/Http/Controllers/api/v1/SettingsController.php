@@ -189,6 +189,7 @@ class SettingsController extends Controller
         $roomSettings->hide_owner_from_guests = $request->boolean('room_hide_owner_from_guests');
 
         $userSettings->password_change_allowed = $request->boolean('user_password_change_allowed');
+        $userSettings->search_by_name = $request->boolean('user_search_by_name');
 
         $bannerSettings->enabled = $request->boolean('banner_enabled');
         $bannerSettings->title = $request->input('banner_title');
@@ -207,6 +208,8 @@ class SettingsController extends Controller
         $recordingSettings->meeting_usage_retention_period = $request->enum('recording_meeting_usage_retention_period', TimePeriod::class);
         $recordingSettings->attendance_retention_period = $request->enum('recording_attendance_retention_period', TimePeriod::class);
         $recordingSettings->recording_retention_period = $request->enum('recording_recording_retention_period', TimePeriod::class);
+
+        $bigBlueButtonSettings->default_welcome_message = $request->input('bbb_default_welcome_message');
 
         $generalSettings->save();
         $themeSettings->save();

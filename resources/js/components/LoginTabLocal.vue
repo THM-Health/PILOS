@@ -11,15 +11,10 @@
           :disabled="props.loading"
           autocomplete="email"
           :placeholder="props.emailLabel"
-          aria-describedby="email-help-block"
-          :invalid="
-            props.errors !== null &&
-            props.errors.email &&
-            props.errors.email.length > 0
-          "
+          :invalid="formErrors.fieldInvalid('email')"
           required
         />
-        <FormError :errors="props.errors?.email" />
+        <FormError :errors="formErrors.fieldError('email')" />
       </div>
 
       <div class="field mt-6 flex flex-col gap-2" data-test="password-field">
@@ -34,16 +29,10 @@
           fluid
           :disabled="props.loading"
           :placeholder="props.passwordLabel"
-          aria-describedby="password-help-block"
-          :invalid="
-            props.errors !== null &&
-            props.errors.password &&
-            props.errors.password.length > 0
-          "
+          :invalid="formErrors.fieldInvalid('password')"
         />
         <Button
           v-if="settingsStore.getSetting('user.password_change_allowed')"
-          id="password-help-block"
           as="router-link"
           link
           class="self-start p-0"
@@ -52,7 +41,7 @@
         >
           {{ $t("auth.forgot_password") }}
         </Button>
-        <FormError :errors="props.errors?.password" />
+        <FormError :errors="formErrors.fieldError('password')" />
       </div>
       <Button
         type="submit"
@@ -67,18 +56,19 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, toRaw, watch } from "vue";
 import { useSettingsStore } from "../stores/settings";
 import FormError from "./FormError.vue";
+import { useFormErrors } from "../composables/useFormErrors.js";
 
 const settingsStore = useSettingsStore();
+const formErrors = useFormErrors();
 
 const emit = defineEmits(["submit"]);
 const props = defineProps({
   errors: {
     type: [Object, null],
     required: true,
-    default: null,
   },
   id: {
     type: String,
@@ -107,6 +97,14 @@ const props = defineProps({
 
 const email = ref("");
 const password = ref("");
+
+watch(
+  () => props.errors,
+  (newErrors) => {
+    formErrors.set(toRaw(newErrors));
+  },
+  { deep: true, immediate: true },
+);
 
 function submit() {
   emit("submit", {

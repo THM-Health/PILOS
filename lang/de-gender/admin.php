@@ -223,7 +223,6 @@ return [
         'enabled' => 'Aktiviert',
         'flash' => [
             'panic' => [
-                'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
                 'title' => 'Der Server wurde deaktiviert.',
             ],
         ],

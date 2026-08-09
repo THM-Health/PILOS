@@ -96,22 +96,6 @@ describe("Rooms view members member actions", function () {
 
     cy.wait("@userSearchRequest").then((interception) => {
       expect(interception.request.query).to.contain({
-        query: "La",
-      });
-    });
-    cy.wait("@userSearchRequest").then((interception) => {
-      expect(interception.request.query).to.contain({
-        query: "Lau",
-      });
-    });
-    cy.wait("@userSearchRequest").then((interception) => {
-      expect(interception.request.query).to.contain({
-        query: "Laur",
-      });
-    });
-
-    cy.wait("@userSearchRequest").then((interception) => {
-      expect(interception.request.query).to.contain({
         query: "Laura",
       });
     });
@@ -239,6 +223,45 @@ describe("Rooms view members member actions", function () {
     cy.get('[data-test="room-member-item"]')
       .eq(3)
       .should("include.text", "rooms.roles.moderator");
+  });
+
+  it("add new member with search by name disabled", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.user.search_by_name = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=members");
+
+    cy.wait("@roomMembersRequest");
+
+    cy.get('[data-test="room-members-add-button"]').click();
+
+    // Click on add single user option
+    cy.get("#overlay_menu_0")
+      .should("have.text", "rooms.members.add_single_user")
+      .click();
+
+    cy.get('[data-test="room-members-add-single-dialog"]').should("be.visible");
+
+    // Check prompt
+    cy.get('[data-test="select-user-dropdown"]').should(
+      "include.text",
+      "rooms.members.modals.add.no_options_email_only",
+    );
+
+    // Check placeholder
+    cy.get('[data-test="select-user-dropdown"]')
+      .find("input")
+      .should(
+        "have.attr",
+        "placeholder",
+        "rooms.members.modals.add.placeholder_email_only",
+      );
   });
 
   it("add new member errors", function () {

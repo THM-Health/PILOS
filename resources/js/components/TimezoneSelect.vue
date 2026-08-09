@@ -25,7 +25,7 @@
       outlined
       severity="secondary"
       icon="fa-solid fa-sync"
-      :aria-label="$t('app.reload')"
+      :aria-label="$t('app.reload_timezones_aria')"
       data-test="timezone-reload-button"
       @click="loadTimezones()"
     />

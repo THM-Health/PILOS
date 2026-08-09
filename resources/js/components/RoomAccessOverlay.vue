@@ -176,7 +176,7 @@ const { t } = useI18n();
 
 const accessCodeErrors = computed(() => {
   if (props.authThrottledFor > 0) {
-    return [t("rooms.auth_throttled", { try_again: props.authThrottledFor })];
+    return [t("rooms.auth_throttled", props.authThrottledFor)];
   }
 
   if (props.accessCodeInvalid) {

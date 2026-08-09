@@ -14,7 +14,7 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.recordings.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
@@ -22,7 +22,7 @@
         </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
@@ -32,6 +32,7 @@
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
+              :aria-label="$t('rooms.recordings.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -45,7 +46,7 @@
           </InputGroup>
 
           <InputGroup data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -55,6 +56,7 @@
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
+              :aria-label="$t('rooms.recordings.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -73,6 +75,11 @@
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
                 "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('rooms.recordings.sort_ascending')
+                    : $t('rooms.recordings.sort_descending')
+                "
                 severity="secondary"
                 text
                 class="rounded-l-none"
@@ -88,7 +95,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-recordings-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.recordings.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -228,6 +235,7 @@
                   <RoomTabRecordingsDownloadButton
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :recording-id="item.id"
+                    :description="item.description"
                     :disabled="isBusy"
                   />
 
@@ -251,6 +259,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :room-id="props.room.id"
                     :recording-id="item.id"
+                    :description="item.description"
                     :disabled="isBusy"
                     @deleted="loadData()"
                     @not-found="loadData()"

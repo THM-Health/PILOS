@@ -13,7 +13,7 @@
           <Button
             v-tooltip="$t('app.search')"
             :disabled="isBusy"
-            :aria-label="$t('app.search')"
+            :aria-label="$t('admin.room_types.search_aria')"
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
             @click="filters['name'].value = nameSearch"

@@ -143,17 +143,27 @@
               v-model:file="streamingPauseImageFile"
               v-model:file-deleted="streamingPauseImageDeleted"
               :disabled="formDisabled"
-              :max-file-size="5000000"
+              :max-file-size="5_000_000"
               :hide-url="true"
               show-delete
               :show-view="false"
               :preview-alt="$t('rooms.streaming.config.pause_image_alt')"
-              :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+              :allowed-extensions="[
+                'jpg',
+                'jpeg',
+                'png',
+                'gif',
+                'svg',
+                'webp',
+                'bmp',
+              ]"
               input-id="pause-image"
               :file-invalid="formErrors.fieldInvalid('pause_image')"
-              :file-error="formErrors.fieldError('pause_image')"
+              :file-errors="formErrors.fieldError('pause_image')"
             />
-            <small>{{ $t("rooms.streaming.config.pause_image_format") }}</small>
+            <small class="block">{{
+              $t("rooms.streaming.config.pause_image_resolution")
+            }}</small>
           </div>
         </fieldset>
       </Form>

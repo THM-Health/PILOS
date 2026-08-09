@@ -20,7 +20,7 @@
           <!-- Reload general room settings/details -->
           <Button
             v-tooltip="$t('app.reload')"
-            :aria-label="$t('app.reload')"
+            :aria-label="$t('rooms.reload_aria')"
             severity="secondary"
             :disabled="props.loading || disableReload"
             :loading="props.loading"

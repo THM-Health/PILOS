@@ -1254,9 +1254,9 @@ describe("Rooms View access saved access parameters", function () {
     // Check countdown
     for (let i = 5; i > 0; i--) {
       // Check if countdown message is updated
-      cy.contains('rooms.auth_throttled_{"try_again":' + i + "}").should(
-        "be.visible",
-      );
+      cy.contains(
+        'rooms.auth_throttled_{"count":' + i + ',"n":' + i + "}",
+      ).should("be.visible");
 
       // Tick clock 1 sec forward
       cy.tick(1000);

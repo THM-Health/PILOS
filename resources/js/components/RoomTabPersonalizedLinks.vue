@@ -14,7 +14,7 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.personalized_links.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
@@ -22,7 +22,7 @@
         </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup>
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
@@ -32,6 +32,7 @@
               :options="filterOptions"
               option-label="name"
               option-value="value"
+              :aria-label="$t('rooms.personalized_links.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -45,7 +46,7 @@
           </InputGroup>
 
           <InputGroup data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -55,6 +56,7 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
+              :aria-label="$t('rooms.personalized_links.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -72,6 +74,11 @@
                   sortOrder === 1
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
+                "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('rooms.personalized_links.sort_ascending')
+                    : $t('rooms.personalized_links.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -96,7 +103,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-personalized-links-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.personalized_links.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"

@@ -24,8 +24,9 @@
       />
       <small v-if="max">
         {{
-          $t("rooms.settings.general.chars", {
-            chars: charactersLeft,
+          $t("app.char_counter", {
+            chars: model[props.setting]?.length || 0,
+            max: props.max,
           })
         }}
       </small>
@@ -39,7 +40,6 @@
 
 <script setup>
 import FormError from "./FormError.vue";
-import { computed } from "vue";
 
 const model = defineModel({ type: Object });
 
@@ -53,7 +53,7 @@ const props = defineProps({
     required: false,
   },
   errors: {
-    type: Object,
+    type: Array,
     required: true,
   },
   setting: {
@@ -94,16 +94,5 @@ const props = defineProps({
     required: false,
     default: null,
   },
-});
-
-/**
- * Count the chars of the short description
- * @returns {string} amount of chars in comparison to the limit
- */
-const charactersLeft = computed(() => {
-  const char = model.value[props.setting]
-    ? model.value[props.setting].length
-    : 0;
-  return char + " / " + props.max;
 });
 </script>

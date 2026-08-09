@@ -70,6 +70,7 @@ class SettingsResource extends JsonResource
             'room_file_terms_of_use' => $roomSettings->file_terms_of_use,
             'room_hide_owner_from_guests' => $roomSettings->hide_owner_from_guests,
             'user_password_change_allowed' => $userSettings->password_change_allowed,
+            'user_search_by_name' => $userSettings->search_by_name,
             'recording_server_usage_enabled' => $recordingSettings->server_usage_enabled,
             'recording_server_usage_retention_period' => $recordingSettings->server_usage_retention_period,
             'recording_meeting_usage_enabled' => $recordingSettings->meeting_usage_enabled,
@@ -80,6 +81,7 @@ class SettingsResource extends JsonResource
             'bbb_logo_dark' => $bigBlueButtonSettings->logo_dark,
             'bbb_style' => $bigBlueButtonSettings->style,
             'bbb_default_presentation' => $bigBlueButtonSettings->default_presentation,
+            'bbb_default_welcome_message' => $bigBlueButtonSettings->default_welcome_message,
         ];
     }
 }

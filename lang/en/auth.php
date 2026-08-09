@@ -69,6 +69,6 @@ return [
         'tab_title' => 'Shibboleth',
         'title' => 'Log in with Shibboleth',
     ],
-    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'throttle' => '[0,1] Too many login attempts. Please try again in 1 second. |[2,*] Too many login attempts. Please try again in :count seconds.',
     'throttle_email' => 'You have recently requested an email change. Please wait and try again later.',
 ];

@@ -223,7 +223,6 @@ return [
         'enabled' => 'مفعّل',
         'flash' => [
             'panic' => [
-                'description' => 'تم العثور على :total اجتماعًا وتم إيقاف :success بنجاح.',
                 'title' => 'تم تعطيل الخادم.',
             ],
         ],
