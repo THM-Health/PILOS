@@ -5,6 +5,7 @@ import Logout from "./views/Logout.vue";
 import NotFound from "./views/NotFound.vue";
 import RoomsIndex from "./views/RoomsIndex.vue";
 import RoomView from "./views/RoomsView.vue";
+import InvalidPersonalizedRoomLink from "./views/InvalidPersonalizedRoomLink.vue";
 import AdminLayout from "./views/AdminLayout.vue";
 import RolesIndex from "./views/AdminRolesIndex.vue";
 import RolesView from "./views/AdminRolesView.vue";
@@ -142,6 +143,11 @@ export const routes = [
     redirect: (to) => {
       return { name: "rooms.view", params: { id: to.params.id } };
     },
+  },
+  {
+    path: "/rooms/:id/invalid_personalized_link",
+    name: "rooms.invalid_personalized_link",
+    component: InvalidPersonalizedRoomLink,
   },
   {
     path: "/rooms/:id",

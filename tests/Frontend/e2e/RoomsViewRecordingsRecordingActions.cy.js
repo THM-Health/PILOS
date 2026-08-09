@@ -422,10 +422,17 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.wait("@roomAuthRequest");
 
-    // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    // Check that sessionStorage is cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
 
+    // Check that error message is shown and url changed
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -438,7 +445,9 @@ describe("Rooms view recordings recording actions", function () {
       },
     }).as("roomAuthRequest");
 
-    cy.reload();
+    cy.visit(
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
+    );
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");

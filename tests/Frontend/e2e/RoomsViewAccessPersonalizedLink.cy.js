@@ -190,9 +190,20 @@ describe("Rooms View access personalized link", function () {
 
     cy.get('[data-test="reload-room-button"]').click();
 
-    // Check that error message is shown
+    cy.wait("@roomRequest");
+    cy.wait("@roomAuthRequest");
+
+    // Check that sessionStorage is cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
+
+    // Check that error message is shown and url changed
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
   });
 
   it("room view with personalized link (moderator)", function () {
@@ -408,7 +419,7 @@ describe("Rooms View access personalized link", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -420,40 +431,15 @@ describe("Rooms View access personalized link", function () {
     });
 
     cy.window().then((win) => {
-      expect(
-        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
-      ).to.eq(
-        "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
     });
 
-    // Check that error message is shown
+    // Check that error message is shown and url changed
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
-    // Reload and check that error stays even though personalized link now is loaded from the sessionStorage
-    cy.url().should("not.include", "#personalizedLink");
-    cy.reload();
-
-    cy.wait("@roomAuthRequest").then((interception) => {
-      expect(interception.request.body).to.eql({
-        personalized_link_token:
-          "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
-      });
-    });
-
-    cy.window().then((win) => {
-      expect(
-        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
-      ).to.eq(
-        "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
-    });
-
-    // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
-    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Reload and check with 422 error with personalized link from hash
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -468,7 +454,7 @@ describe("Rooms View access personalized link", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -480,40 +466,15 @@ describe("Rooms View access personalized link", function () {
     });
 
     cy.window().then((win) => {
-      expect(
-        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
-      ).to.eq(
-        "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
     });
 
-    // Check that error message is shown
+    // Check that error message is shown and url changed
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
-    // Reload and check that error stays even though personalized link now is loaded from the sessionStorage
-    cy.url().should("not.include", "#personalizedLink");
-    cy.reload();
-
-    cy.wait("@roomAuthRequest").then((interception) => {
-      expect(interception.request.body).to.eql({
-        personalized_link_token:
-          "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
-      });
-    });
-
-    cy.window().then((win) => {
-      expect(
-        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
-      ).to.eq(
-        "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
-    });
-
-    // Check that error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
-    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Check with guests only error with personalized link from hash
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -525,7 +486,7 @@ describe("Rooms View access personalized link", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -559,7 +520,7 @@ describe("Rooms View access personalized link", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -684,7 +645,7 @@ describe("Rooms View access personalized link", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -732,7 +693,7 @@ describe("Rooms View access personalized link", function () {
     );
 
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -776,16 +737,15 @@ describe("Rooms View access personalized link", function () {
     });
 
     cy.window().then((win) => {
-      expect(
-        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
-      ).to.eq(
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
     });
 
-    // Check that error message is shown
+    // Check that error message is shown and url changed
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -807,7 +767,7 @@ describe("Rooms View access personalized link", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -848,7 +808,7 @@ describe("Rooms View access personalized link", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest").then((interception) => {
@@ -1093,16 +1053,15 @@ describe("Rooms View access personalized link", function () {
     cy.wait("@roomAuthRequest");
 
     cy.window().then((win) => {
-      expect(
-        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
-      ).to.eq(
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      );
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
     });
 
-    // Check that error message is shown
+    // Check that error message is shown and url changed
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -1127,7 +1086,9 @@ describe("Rooms View access personalized link", function () {
       }).as("roomRequest");
     });
 
-    cy.reload();
+    cy.visit(
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+    );
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");

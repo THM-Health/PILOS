@@ -6,7 +6,7 @@ describe("Rooms View access participant name", function () {
     cy.interceptRoomViewRequests();
   });
 
-  it("rooms view with participant name errors", function () {
+  it("rooms view with participant name errors (guest)", function () {
     // Check as guest user (room does not require an access code)
     cy.intercept("GET", "api/v1/currentUser", {});
 
@@ -174,7 +174,7 @@ describe("Rooms View access participant name", function () {
       .should("not.exist");
   });
 
-  it("rooms view with invalid remembered participant name in localStorage", function () {
+  it("rooms view with invalid remembered participant name in localStorage (guest)", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -351,7 +351,7 @@ describe("Rooms View access participant name", function () {
     cy.contains("Laura Rivera").should("be.visible");
   });
 
-  it("rooms view with remembered participant name after logout", function () {
+  it("rooms view with remembered participant name after logout (guest)", function () {
     cy.interceptRoomFilesRequest();
 
     cy.window().then((win) => {
@@ -409,7 +409,7 @@ describe("Rooms View access participant name", function () {
     cy.get('[data-test="access-code-field"]').should("be.visible");
   });
 
-  it("change participant name as guest", function () {
+  it("change participant name (guest)", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -679,7 +679,7 @@ describe("Rooms View access participant name", function () {
       });
   });
 
-  it("change remember participant name as guest", function () {
+  it("change remember participant name (guest)", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -909,7 +909,7 @@ describe("Rooms View access participant name", function () {
       });
   });
 
-  it("change participant name with errors", function () {
+  it("change participant name with errors (guest)", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.interceptRoomFilesRequest();
 
@@ -1054,5 +1054,178 @@ describe("Rooms View access participant name", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+  });
+
+  it("rooms view with participant name errors (personalized link)", function () {
+    // Check as user with personalized link
+    cy.intercept("GET", "api/v1/currentUser", {});
+
+    cy.fixture("room.json").then((room) => {
+      room.data.username = "Max Doe";
+      room.data.allow_membership = true;
+      room.data.is_member = true;
+      room.data.current_user = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123*", {
+        statusCode: 200,
+        body: room,
+      }).as("roomRequest");
+    });
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
+      statusCode: 201,
+      body: {
+        data: {
+          id: "roomAuthToken",
+          type: 1,
+        },
+      },
+    }).as("roomAuthRequest");
+
+    cy.interceptRoomFilesRequest();
+
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
+
+    // Check with 422 error
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 422,
+      body: {
+        errors: {
+          name: ['Name contains the following non-permitted characters: <>";'],
+        },
+      },
+    }).as("checkParticipantNameRequest");
+
+    cy.visit(
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+    );
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    // Check that room auth token is set
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "1",
+      });
+    });
+
+    // Check that sessionStorage was set
+    cy.window().then((win) => {
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+    });
+
+    // Check that local storage was cleared
+    cy.window().then((win) => {
+      expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
+    });
+
+    // Check that personalized link was removed from url
+    cy.url().should("not.include", "#personalizedLink");
+
+    // Check that room Header is shown correctly
+    cy.contains("Meeting One").should("be.visible");
+    cy.contains("John Doe").should("be.visible");
+    cy.contains("rooms.index.room_component.never_started").should(
+      "be.visible",
+    );
+
+    // Check that participant name is shown
+    cy.contains("rooms.name_in_video_conference").should("be.visible");
+    cy.contains("Max Doe").should("be.visible");
+    cy.get('[data-test="change-participant-name-button"]').should("not.exist");
+
+    // Check with 500 error
+    cy.window().then((win) => {
+      win.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
+
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("checkParticipantNameRequest");
+
+    cy.visit(
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+    );
+
+    cy.wait("@checkParticipantNameRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        name: "Laura Rivera",
+      });
+    });
+
+    cy.wait("@roomAuthRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      });
+    });
+
+    // Check that room auth token is set
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.query).to.contain({
+        room_auth_token: "roomAuthToken",
+        room_auth_token_type: "1",
+      });
+    });
+
+    // Check that sessionStorage was set
+    cy.window().then((win) => {
+      expect(
+        win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+      ).to.eq(
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+    });
+
+    // Check that guest name is still set in localStorage
+    cy.window().then((win) => {
+      expect(win.localStorage.getItem("pilos_guest_name")).to.eql(
+        "Laura Rivera",
+      );
+    });
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that personalized link was removed from url
+    cy.url().should("not.include", "#personalizedLink");
+
+    // Check that room Header is shown correctly
+    cy.contains("Meeting One").should("be.visible");
+    cy.contains("John Doe").should("be.visible");
+    cy.contains("rooms.index.room_component.never_started").should(
+      "be.visible",
+    );
+
+    // Check that participant name is shown
+    cy.contains("rooms.name_in_video_conference").should("be.visible");
+    cy.contains("Max Doe").should("be.visible");
+    cy.get('[data-test="change-participant-name-button"]').should("not.exist");
   });
 });

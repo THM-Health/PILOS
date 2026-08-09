@@ -1,30 +1,7 @@
 <template>
   <div v-cloak class="container mt-8 mb-8">
-    <!-- room token is invalid -->
-    <div v-if="tokenInvalid" class="mt-20 flex justify-center">
-      <!-- Show message that room can only be used by logged in users -->
-      <Card
-        style="width: 500px; max-width: 90vw"
-        :pt="{ header: { class: 'flex justify-center' } }"
-      >
-        <template #header>
-          <Badge
-            severity="danger"
-            class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
-          >
-            <i class="fa-solid fa-unlink text-2xl text-white"></i>
-          </Badge>
-        </template>
-        <template #content>
-          <h1 class="font-bold">
-            {{ $t("rooms.invalid_personalized_link") }}
-          </h1>
-        </template>
-      </Card>
-    </div>
-
     <!-- room is only for logged in users -->
-    <div v-else-if="guestsNotAllowed" class="mt-20 flex justify-center">
+    <div v-if="guestsNotAllowed" class="mt-20 flex justify-center">
       <Card
         style="width: 500px; max-width: 90vw"
         :pt="{ header: { class: 'flex justify-center' } }"
@@ -290,7 +267,6 @@ const rememberedGuestNameValidating = ref(false);
 const accessCodeInput = ref(""); // Access code input modal
 const accessCodeInvalid = ref(null); // Is access code invalid
 const personalizedLink = ref(null); // Personalized link token from url or session storage
-const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
 const authThrottledFor = ref(0); // Throttled for authentication (seconds until next try)
 
@@ -433,10 +409,13 @@ function handleRequireCode() {
  */
 function handleInvalidPersonalizedLink() {
   // Show error message
-  tokenInvalid.value = true;
   toast.error(t("rooms.flash.personalized_link_invalid"));
-  // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
-  stopAutoRefresh();
+
+  // Clear stored token
+  sessionStorage.removeItem("roomPersonalizedLink_" + props.id);
+
+  // Redirect to error page
+  router.replace({ name: "rooms.invalid_personalized_link" });
 }
 
 /**
@@ -735,6 +714,10 @@ function authenticate(type, codeOrToken) {
  * Priority: personalized link from hash params > access code from hash params > personalized link from session storage > access code from session storage
  */
 async function loadSavedAccessParameters() {
+  if (!authStore.isAuthenticated) {
+    await loadSavedGuestName();
+  }
+
   // Load personalized link from hash params
   if (hashParams.personalizedLink) {
     personalizedLink.value = hashParams.personalizedLink;
@@ -752,6 +735,7 @@ async function loadSavedAccessParameters() {
     // discard any competing hash access code so it cannot win on a later reload when
     // the personalized link is only stored in session storage
     hashParams.accessCode = null;
+
     return;
   }
 
@@ -770,35 +754,27 @@ async function loadSavedAccessParameters() {
     // Clear hash params
     await nextTick();
     hashParams.accessCode = null;
+
+    return;
   }
 
-  // Load Access Parameters stored in session storage only if parameters are not already set by hash params
-  if (accessCodeInput.value === "") {
-    const savedPersonalizedLink = sessionStorage.getItem(
-      "roomPersonalizedLink_" + props.id,
-    );
-    if (savedPersonalizedLink) {
-      if (authStore.isAuthenticated) {
-        // User is authenticated and not allowed to use personalized link, remove it from session storage
-        // and continue without loading the existing personalized link
-        sessionStorage.removeItem("roomPersonalizedLink_" + props.id);
-      } else {
-        personalizedLink.value = savedPersonalizedLink;
-        return;
-      }
-    }
-
-    const savedAccessCode = sessionStorage.getItem(
-      "roomAccessCode_" + props.id,
-    );
-
-    if (savedAccessCode) {
-      accessCodeInput.value = savedAccessCode;
+  const savedPersonalizedLink = sessionStorage.getItem(
+    "roomPersonalizedLink_" + props.id,
+  );
+  if (savedPersonalizedLink) {
+    if (authStore.isAuthenticated) {
+      // User is authenticated and not allowed to use personalized link, remove it from session storage
+      // and continue without loading the existing personalized link
+      sessionStorage.removeItem("roomPersonalizedLink_" + props.id);
+    } else {
+      personalizedLink.value = savedPersonalizedLink;
+      return;
     }
   }
 
-  if (!authStore.isAuthenticated) {
-    await loadSavedGuestName();
+  const savedAccessCode = sessionStorage.getItem("roomAccessCode_" + props.id);
+  if (savedAccessCode) {
+    accessCodeInput.value = savedAccessCode;
   }
 }
 

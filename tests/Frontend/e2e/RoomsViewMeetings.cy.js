@@ -942,7 +942,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@joinRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: null,
+        name: "Laura Rivera",
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
@@ -1029,10 +1029,17 @@ describe("Rooms view meetings", function () {
 
     cy.wait("@roomAuthRequest");
 
-    // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    // Check that sessionStorage is cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
 
+    // Check that error message is shown and url changed
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
   });
 
   it("join meeting errors", function () {
@@ -1575,16 +1582,18 @@ describe("Rooms view meetings", function () {
     cy.wait("@preJoinRequest");
     cy.wait("@roomAuthRequest");
 
-    // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
-
-    // Check dialog is closed
-    cy.get('[data-test="room-join-dialog"]').should("not.exist");
-
-    // Reload room
+    // Check that sessionStorage is cleared
     cy.window().then((win) => {
-      win.sessionStorage.clear();
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
     });
+
+    // Check that error message is shown and url changed
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
+
     cy.fixture("room.json").then((room) => {
       room.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
@@ -2508,7 +2517,7 @@ describe("Rooms view meetings", function () {
     // Check that correct query is sent
     cy.wait("@startRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        name: null,
+        name: "Laura Rivera",
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true,
@@ -2599,10 +2608,19 @@ describe("Rooms view meetings", function () {
 
     cy.wait("@startRequest");
 
-    // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    cy.wait("@roomAuthRequest");
 
+    // Check that sessionStorage is cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
+
+    // Check that error message is shown and url changed
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
   });
 
   it("start meeting errors", function () {
@@ -3206,17 +3224,21 @@ describe("Rooms view meetings", function () {
     // Try to start meeting
     cy.get('[data-test="room-start-button"]').click();
     cy.wait("@preStartRequest");
+    cy.wait("@roomAuthRequest");
 
-    // Check if error message is shown
+    // Check that sessionStorage is cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
+
+    // Check that error message is shown and url changed
     cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    cy.contains("rooms.invalid_personalized_link").should("be.visible");
 
-    // Check dialog is closed
-    cy.get('[data-test="room-join-dialog"]').should("not.exist");
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Reload
-    cy.window().then((win) => {
-      win.sessionStorage.clear();
-    });
     cy.visit("/rooms/abc-def-123");
 
     // Test missing permissions
