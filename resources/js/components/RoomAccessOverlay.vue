@@ -115,7 +115,7 @@
 <script setup>
 import RoomHeader from "./RoomHeader.vue";
 import { useAuthStore } from "../stores/auth.js";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 import { useI18n } from "vue-i18n";
