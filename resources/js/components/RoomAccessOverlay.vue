@@ -186,18 +186,26 @@ const accessCodeErrors = computed(() => {
   return [];
 });
 
-onMounted(() => {
-  participantNameInput.value = participantName.value;
-  accessCodeInput.value = accessCode.value;
-});
+watch(
+  participantName,
+  (value) => {
+    participantNameInput.value = value;
+  },
+  { immediate: true },
+);
 
-watch(participantName, (value) => {
-  participantNameInput.value = value;
-});
+watch(
+  accessCode,
+  (value) => {
+    accessCodeInput.value = value;
+  },
+  { immediate: true },
+);
 
 function submit() {
   if (authStore.isAuthenticated) {
-    accessCode.value = accessCodeInput.value;
+    // Remove dashes from the access code
+    accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
     emit("submit");
     return;
   }
@@ -215,7 +223,8 @@ function submit() {
       },
     })
     .then(() => {
-      accessCode.value = accessCodeInput.value;
+      // Remove dashes from the access code
+      accessCode.value = accessCodeInput.value.replace(/[-]/g, "");
       participantName.value = newParticipantName;
       emit("submit");
     })

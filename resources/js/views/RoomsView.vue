@@ -574,18 +574,17 @@ function setPageTitle(roomName, announce = true) {
 function login() {
   rememberedGuestNameInvalid.value = false;
 
-  // Remove dashes from the access code
-  const accessCode = accessCodeInput.value.replace(/[-]/g, "");
-
   if (!room.value.authenticated) {
     // Try to authenticate if authentication is required
-    authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCode).then((success) => {
-      if (success) {
-        syncGuestNameStorage();
-        // Reload room details after authentication
-        loadRoom(true);
-      }
-    });
+    authenticate(ROOM_AUTH_TOKEN_TYPE_CODE, accessCodeInput.value).then(
+      (success) => {
+        if (success) {
+          syncGuestNameStorage();
+          // Reload room details after authentication
+          loadRoom(true);
+        }
+      },
+    );
   } else {
     syncGuestNameStorage();
     loadRoom(true);
