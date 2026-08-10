@@ -491,6 +491,13 @@ return [
             'title' => 'Profile picture',
             'title_short' => 'Picture',
             'upload' => 'Upload new picture',
+            'zoom' => 'Zoom',
+            'position_horizontal' => ':x% horizontal',
+            'position_vertical' => ':y% vertical',
+            'position_horizontal_full' => 'full width',
+            'position_vertical_full' => 'full height',
+            'crop_area' => 'Crop: :pos_string_x, :pos_string_y,: :zoom% zoom',
+            'aria_instructions' => 'Image cropper. Drag or use arrow keys to reposition the image. Use plus or minus keys to zoom in or out',
         ],
         'last_login' => [
             'title' => 'Last login',

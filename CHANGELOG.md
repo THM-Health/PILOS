@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room access is now preserved across page reloads after entering via an access code or personalized link ([#3275])
 - Login button inside room access overlay to allow users to log in instead of accessing the room as a guest ([#2450], [#3275])
 - Option to set connection status of servers to always online ([#3317], [#3373])
+- Keyboard and focus support for the user avatar cropper to improve accessibility ([#3386])
 
 ### Changed
 
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved fallback behavior for invalid room and user tab links ([#3275])
 - Prometheus metric label `pilos_servers_total{status="unhealthy"}` to `pilos_servers_total{status="faulty"}` ([#3373])
 - Connection status terminology in log messages (`unhealthy` to `faulty`; `healthy` to `online`; `old_health` to `old_connection_status`) ([#3373])
+- User avatar cropper and preview now displayed in circular shape ([#3386])
 
 ### Fixed
 
@@ -901,6 +903,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3316]: https://github.com/THM-Health/PILOS/pull/3316
 [#3317]: https://github.com/THM-Health/PILOS/issues/3317
 [#3373]: https://github.com/THM-Health/PILOS/pull/3373
+[#3386]: https://github.com/THM-Health/PILOS/pull/3386
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

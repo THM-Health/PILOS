@@ -48,7 +48,7 @@
         :label="$t('admin.users.image.delete')"
         icon="fa-solid fa-trash"
         data-test="delete-image-button"
-        @click="emit('deleteImage', true)"
+        @click="deleteImage"
       />
       <Button
         v-if="imageDeleted"
@@ -57,7 +57,7 @@
         :label="$t('app.undo_delete')"
         icon="fa-solid fa-undo"
         data-test="undo-delete-button"
-        @click="emit('deleteImage', false)"
+        @click="undoDeleteImage"
       />
     </div>
     <div
@@ -69,8 +69,6 @@
         :image="croppedImage ? croppedImage : image"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        class="overflow-hidden rounded-border"
-        shape="square"
         data-test="profile-image-preview"
       />
       <UserAvatar
@@ -80,7 +78,6 @@
         :lastname="lastname"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        shape="square"
       />
     </div>
   </div>
@@ -97,38 +94,96 @@
     :closable="false"
   >
     <template #footer>
-      <div class="flex justify-end gap-2">
+      <div class="mt-2 flex justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          :disabled="isLoadingAction"
+          :disabled="isLoadingAction || isLoadingCropper"
           data-test="dialog-cancel-button"
-          @click="modalVisible = false"
+          @click="closeModal"
         />
-        <Button
+        <LoadingButton
+          autofocus
           :label="$t('admin.users.image.save')"
-          :loading="isLoadingAction"
+          :loading="isLoadingAction || isLoadingCropper"
           data-test="dialog-save-button"
           @click="save"
         />
       </div>
     </template>
-    <VueCropper
-      v-show="selectedFile"
-      ref="cropperRef"
-      class="my-2"
-      :auto-crop-area="1"
-      :aspect-ratio="1"
-      :view-mode="1"
-      :src="selectedFile"
-      :alt="$t('admin.users.image.title')"
-    />
+
+    <div v-if="selectedFile" class="flex flex-col gap-4 py-4">
+      <ProfileImageCropper
+        ref="cropperRef"
+        v-model:zoom="cropperZoom"
+        :min-zoom="MIN_ZOOM / 100"
+        :max-zoom="MAX_ZOOM / 100"
+        :zoom-step="ZOOM_STEP / 100"
+        :output-size="100"
+        mime-type="image/jpeg"
+        :quality="1"
+        :image="selectedFile"
+        :aria-label="t('admin.users.image.aria_instructions')"
+        root-class="w-full"
+        viewport-class="aspect-square h-70 bg-surface-200 dark:bg-surface-900 w-full"
+        mask-class="shadow-[0_0_0_9999px_rgb(0_0_0_/_0.4)]"
+        ring-class="border-2 border-white"
+        @position="position = $event"
+        @loading="(loading) => (isLoadingCropper = loading)"
+      />
+      <span
+        v-if="!isLoadingCropper"
+        aria-live="polite"
+        aria-atomic="true"
+        class="sr-only"
+        >{{ ariaPosition }}</span
+      >
+
+      <div class="flex items-center gap-2">
+        <label id="zoom-label"> {{ $t("admin.users.image.zoom") }}</label>
+        <Button
+          variant="text"
+          :disabled="zoom == MIN_ZOOM || isLoadingAction || isLoadingCropper"
+          severity="secondary"
+          rounded
+          class="shrink-0"
+          icon="fa-solid fa-minus"
+          @click="zoom -= ZOOM_STEP"
+        />
+        <Slider
+          v-model="zoom"
+          data-test="image-zoom"
+          :disabled="isLoadingAction || isLoadingCropper"
+          aria-labelledby="zoom-label"
+          :min="MIN_ZOOM"
+          :max="MAX_ZOOM"
+          :step="ZOOM_STEP"
+          class="w-full"
+        />
+        <Button
+          variant="text"
+          severity="secondary"
+          :disabled="zoom == MAX_ZOOM || isLoadingAction || isLoadingCropper"
+          rounded
+          class="shrink-0"
+          icon="fa-solid fa-plus"
+          @click="zoom += ZOOM_STEP"
+        />
+        <Badge
+          data-test="image-zoom-display"
+          severity="secondary"
+          class="shrink-0"
+          >{{ zoom }}<raw-text>%</raw-text></Badge
+        >
+      </div>
+    </div>
   </Dialog>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-import VueCropper from "vue-cropperjs";
+import { nextTick, ref, watch, computed } from "vue";
+import { ProfileImageCropper } from "@thm-health/vue-profile-image-cropper";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   image: {
@@ -156,11 +211,47 @@ const props = defineProps({
 
 const emit = defineEmits(["newImage", "deleteImage"]);
 
+const { t } = useI18n();
+
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
+const isLoadingCropper = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
-const cropperRef = ref();
+
+const MIN_ZOOM = 100;
+const MAX_ZOOM = 300;
+const ZOOM_STEP = 10;
+const cropperRef = ref(null);
+const zoom = ref(MIN_ZOOM);
+const cropperZoom = computed({
+  get: () => zoom.value / 100,
+  set: (value) => {
+    zoom.value = Math.round(value * 100);
+  },
+});
+const position = ref({ x: 0, y: 0 });
+
+const ariaPosition = computed(function () {
+  const x =
+    position.value.x != null
+      ? t("admin.users.image.position_horizontal", {
+          x: Math.round(position.value.x),
+        })
+      : t("admin.users.image.position_horizontal_full");
+  const y =
+    position.value.y != null
+      ? t("admin.users.image.position_vertical", {
+          y: Math.round(position.value.y),
+        })
+      : t("admin.users.image.position_vertical_full");
+
+  return t("admin.users.image.crop_area", {
+    pos_string_x: x,
+    pos_string_y: y,
+    zoom: zoom.value,
+  });
+});
 
 watch(
   () => props.image,
@@ -176,40 +267,51 @@ watch(
  */
 async function save() {
   isLoadingAction.value = true;
-  const oc = cropperRef.value.getCroppedCanvas({
-    width: 100,
-    height: 100,
-    fillColor: "#ffff",
-  });
+  const result = await cropperRef.value.cropImage();
 
-  croppedImage.value = oc.toDataURL("image/jpeg");
-  oc.toBlob((blob) => {
-    emit("newImage", blob);
-    isLoadingAction.value = false;
-    modalVisible.value = false;
-  }, "image/jpeg");
+  croppedImage.value = URL.createObjectURL(result.blob);
+  emit("newImage", result.blob);
+
+  isLoadingAction.value = false;
+  closeModal();
 }
 
 /**
  * Reset other previously uploaded images
  */
-function resetFileUpload() {
+async function resetFileUpload() {
   croppedImage.value = null;
   emit("newImage", null);
+  selectedFile.value = null;
+
+  await nextTick();
+
+  document.querySelector("[data-test='upload-file-button']")?.focus();
+}
+
+function closeModal() {
+  modalVisible.value = false;
   selectedFile.value = null;
 }
 
 async function onFileSelect(event) {
   modalVisible.value = true;
-  isLoadingAction.value = true;
-  const file = event.files[0];
+  isLoadingCropper.value = true;
+  selectedFile.value = null;
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    selectedFile.value = event.target.result;
-    cropperRef.value.replace(selectedFile.value);
-    isLoadingAction.value = false;
-  };
-  reader.readAsDataURL(file);
+  selectedFile.value = event.files[0];
+  zoom.value = MIN_ZOOM;
+}
+
+async function deleteImage() {
+  emit("deleteImage", true);
+  await nextTick();
+  document.querySelector("[data-test='undo-delete-button']")?.focus();
+}
+
+async function undoDeleteImage() {
+  emit("deleteImage", false);
+  await nextTick();
+  document.querySelector("[data-test='delete-image-button']")?.focus();
 }
 </script>
