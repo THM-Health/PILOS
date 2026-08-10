@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Option in room file management to set system-wide default presentation as start presentation ([#2662], [#2746])
+- Keyboard and focus support for the user avatar cropper to improve accessibility ([#3386])
 
 ### Changed
 
 - Always include system-wide default presentation ([#2662], [#2746])
+- User avatar cropper and preview now displayed in circular shape ([#3386])
 
 ## [v4.20.0] - 2026-11-09
 
