@@ -33,6 +33,7 @@ class LoadBalancingService
                     ->orWhere('connection_status_always_online', true);
             })
             ->whereNotNull('load')
+            ->where('strength', '>', 0) // Extra safety against division by zero; request validation ensures strength is between 1 and 10
             ->orderByRaw('`load` / `strength`')
             ->first();
     }
