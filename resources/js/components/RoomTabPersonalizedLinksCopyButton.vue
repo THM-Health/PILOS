@@ -6,8 +6,7 @@
     icon="fa-solid fa-link"
     :aria-label="
       $t('rooms.personalized_links.copy_aria', {
-        firstname: props.firstname,
-        lastname: props.lastname,
+        description: props.description,
       })
     "
     data-test="room-personalized-links-copy-button"
@@ -30,11 +29,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  firstname: {
-    type: String,
-    required: true,
-  },
-  lastname: {
+  description: {
     type: String,
     required: true,
   },
@@ -63,8 +58,7 @@ function copyLink() {
   navigator.clipboard.writeText(link);
   toast.info(
     t("rooms.personalized_links.room_link_copied", {
-      firstname: props.firstname,
-      lastname: props.lastname,
+      description: props.description,
     }),
   );
 }

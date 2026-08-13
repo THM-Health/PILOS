@@ -7,8 +7,7 @@
     icon="fa-solid fa-trash"
     :aria-label="
       $t('rooms.personalized_links.delete_aria', {
-        firstname: props.firstname,
-        lastname: props.lastname,
+        description: props.description,
       })
     "
     data-test="room-personalized-links-delete-button"
@@ -50,8 +49,7 @@
     <span>
       {{
         $t("rooms.personalized_links.confirm_delete", {
-          firstname: props.firstname,
-          lastname: props.lastname,
+          description: props.description,
         })
       }}
     </span>
@@ -75,11 +73,7 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  firstname: {
-    type: String,
-    required: true,
-  },
-  lastname: {
+  description: {
     type: String,
     required: true,
   },
