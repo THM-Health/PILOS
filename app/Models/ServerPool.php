@@ -21,7 +21,7 @@ class ServerPool extends Model
     protected $fillable = ['name', 'description'];
 
     /**
-     * Servers that are port of this server pool
+     * Servers that are part of this server pool
      */
     public function servers(): BelongsToMany
     {

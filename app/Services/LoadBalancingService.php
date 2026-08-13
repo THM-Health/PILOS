@@ -7,14 +7,15 @@ namespace App\Services;
 use App\Enums\ServerStatus;
 use App\Models\Server;
 use App\Models\ServerPool;
+use Illuminate\Database\Eloquent\Builder;
 
 class LoadBalancingService
 {
-    private $servers;
+    private ServerPool $serverPool;
 
     public function setServerPool(ServerPool $serverPool)
     {
-        $this->servers = $serverPool->servers;
+        $this->serverPool = $serverPool;
 
         return $this;
     }
@@ -24,14 +25,15 @@ class LoadBalancingService
      */
     public function getLowestUsageServer(): ?Server
     {
-        return $this->servers
+        return $this->serverPool->servers()
             ->where('status', ServerStatus::ENABLED)
-            ->where('recover_count', '>=', config('bigbluebutton.server_online_threshold'))
-            ->where('error_count', '=', 0)
-            ->whereNotNull('load')
-            ->sortBy(function (Server $server) {
-                return $server->load / $server->strength;
+            ->where(function (Builder $query) {
+                $query->where('recover_count', '>=', config('bigbluebutton.server_online_threshold'))
+                    ->where('error_count', '=', 0)
+                    ->orWhere('connection_status_always_online', true);
             })
+            ->whereNotNull('load')
+            ->orderByRaw('`load` / `strength`')
             ->first();
     }
 }

@@ -81,8 +81,14 @@ class Server extends Model
 
     public function getConnectionStatusAttribute(): ?ServerConnectionStatus
     {
+        // No connection status available for disabled servers
         if ($this->status == ServerStatus::DISABLED) {
             return null;
+        }
+
+        // Always return online if connection_status_always_online
+        if ($this->connection_status_always_online) {
+            return ServerConnectionStatus::ONLINE;
         }
 
         return self::calculateConnectionStatus($this->recover_count, $this->error_count);

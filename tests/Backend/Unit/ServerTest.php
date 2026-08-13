@@ -75,5 +75,28 @@ class ServerTest extends TestCase
         $server->save();
 
         $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
+
+        // Check disabled
+        $server->status = ServerStatus::DISABLED;
+        $server->error_count = 0;
+        $server->recover_count = config('bigbluebutton.server_online_threshold');
+        $server->save();
+        $this->assertNull($server->connection_status);
+
+        // Check always online
+        $server->status = ServerStatus::ENABLED;
+        $server->connection_status_always_online = true;
+        $server->error_count = 1;
+        $server->recover_count = 1;
+        $server->save();
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $server->connection_status);
+
+        // Check always online and disabled
+        $server->status = ServerStatus::DISABLED;
+        $server->connection_status_always_online = true;
+        $server->error_count = 1;
+        $server->recover_count = 1;
+        $server->save();
+        $this->assertNull($server->connection_status);
     }
 }
