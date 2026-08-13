@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+    <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <search>
           <InputGroup data-test="room-members-search">
@@ -144,7 +144,7 @@
         <!-- Show message on empty list -->
         <template #empty>
           <div>
-            <div v-if="!isBusy && !loadingError" class="px-2">
+            <div v-if="!isBusy && !loadingError">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
                 $t("rooms.members.nodata")
               }}</InlineNote>
@@ -189,7 +189,7 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2">
+          <div>
             <div v-for="(item, index) in slotProps.items" :key="item.id">
               <div
                 data-test="room-member-item"

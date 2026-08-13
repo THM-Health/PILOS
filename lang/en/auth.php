@@ -42,6 +42,7 @@ return [
     'logout_success' => 'Successfully logged out',
     'new_password' => 'New password',
     'new_password_confirmation' => 'New password confirmation',
+    'offer_login' => 'Login with your user account',
     'oidc' => [
         'logout_incomplete' => 'You are still logged in at the OpenID Connect provider.',
         'redirect' => 'Log in',

@@ -13,12 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - System-wide default welcome message ([#3301])
 - Privacy setting to disable finding users by partial matches of their name or email address ([#2264], [#3316])
 - Hints in admin UI file uploads indicating supported file types and maximum allowed file size ([#3235])
+- Guests can now choose to remember their name for future video conferences ([#2450], [#3275])
+- Room access is now preserved across page reloads after entering via an access code or personalized link ([#3275])
+- Login button inside room access overlay to allow users to log in instead of accessing the room as a guest ([#2450], [#3275])
 
 ### Changed
 
 - Allow SVG and WebP images to be used as livestream pause images ([#3235])
 - Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
 - Accessibility: Updated aria-label values for buttons and select controls to provide more descriptive context ([#3241], [#3242])
+- Guest name input was moved from join dialog to room access overlay ([#2450], [#3275])
+- Room share link now includes the access code, so users no longer need to enter it manually when opening the link ([#3275])
+- Improved fallback behavior for invalid room and user tab links ([#3275])
 
 ### Fixed
 
@@ -788,6 +794,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2449]: https://github.com/THM-Health/PILOS/pull/2449
+[#2450]: https://github.com/THM-Health/PILOS/issues/2450
 [#2476]: https://github.com/THM-Health/PILOS/issues/2476
 [#2477]: https://github.com/THM-Health/PILOS/pull/2477
 [#2478]: https://github.com/THM-Health/PILOS/issues/2478
@@ -879,6 +886,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3241]: https://github.com/THM-Health/PILOS/issues/3241
 [#3242]: https://github.com/THM-Health/PILOS/pull/3242
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
+[#3275]: https://github.com/THM-Health/PILOS/pull/3275
 [#3277]: https://github.com/THM-Health/PILOS/pull/3277
 [#3296]: https://github.com/THM-Health/PILOS/pull/3296
 [#3298]: https://github.com/THM-Health/PILOS/pull/3298

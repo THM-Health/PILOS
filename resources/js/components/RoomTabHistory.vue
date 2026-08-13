@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div
-      class="flex flex-col items-start justify-between gap-2 px-2 lg:flex-row"
-    >
+    <div class="flex flex-col items-start justify-between gap-2 lg:flex-row">
       <div>
         <!-- Search field, currently not implemented -->
       </div>
@@ -99,7 +97,7 @@
       >
         <!-- Show message on empty list -->
         <template #empty>
-          <div class="px-2">
+          <div>
             <InlineNote v-if="!isBusy && !loadingError">{{
               $t("meetings.no_historical_data")
             }}</InlineNote>
@@ -107,7 +105,7 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2">
+          <div>
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-history-item"

@@ -127,6 +127,7 @@ return [
     'next_page' => 'Next page',
     'no' => 'No',
     'not_found' => '404 | The requested address was not found',
+    'or' => 'or',
     'overwrite' => 'Overwrite',
     'previous_page' => 'Previous page',
     'profile' => 'Profile',
