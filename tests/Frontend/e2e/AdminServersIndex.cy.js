@@ -367,7 +367,7 @@ describe("Admin servers index", function () {
 
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -439,7 +439,7 @@ describe("Admin servers index", function () {
 
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -832,7 +832,7 @@ describe("Admin servers index", function () {
     // Change sorting type and respond with 4 servers on 4 different pages
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -880,7 +880,7 @@ describe("Admin servers index", function () {
       servers.data = servers.data.slice(1, 2);
       servers.meta.current_page = 2;
       servers.meta.from = 2;
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 2;
 
@@ -921,7 +921,7 @@ describe("Admin servers index", function () {
     // Change sorting direction and make sure that the page is reset
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -985,7 +985,7 @@ describe("Admin servers index", function () {
       servers.data = servers.data.slice(1, 2);
       servers.meta.current_page = 2;
       servers.meta.from = 2;
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 2;
 
@@ -1026,7 +1026,7 @@ describe("Admin servers index", function () {
     // Change sorting and make sure that the page is reset
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
