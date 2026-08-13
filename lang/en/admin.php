@@ -213,6 +213,7 @@ return [
         'view' => 'Detailed information for the server pool :name',
     ],
     'servers' => [
+        'always_online' => 'Always online',
         'base_url' => 'API endpoint',
         'connection' => 'Connection',
         'current_usage' => 'Current usage',

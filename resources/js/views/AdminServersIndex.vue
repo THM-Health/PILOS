@@ -168,6 +168,24 @@
             icon="fa-solid fa-triangle-exclamation"
           />
           <Tag
+            v-else-if="
+              slotProps.data.connection_status === 1 &&
+              slotProps.data.connection_status_always_online
+            "
+            v-tooltip="$t('admin.servers.always_online')"
+            :aria-label="$t('admin.servers.always_online')"
+            class="relative gap-0 p-2"
+            severity="success"
+          >
+            <span class="absolute left-1 font-medium"
+              ><raw-text>(</raw-text></span
+            >
+            <i class="p-tag-icon fa-solid fa-check"></i>
+            <span class="absolute right-1 font-medium"
+              ><raw-text>)</raw-text></span
+            >
+          </Tag>
+          <Tag
             v-else-if="slotProps.data.connection_status === 1"
             v-tooltip="$t('admin.servers.online')"
             :aria-label="$t('admin.servers.online')"
