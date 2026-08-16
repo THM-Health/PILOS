@@ -29,6 +29,14 @@ class ServerPool extends Model
     }
 
     /**
+     * Backup-Servers that are part of this server pool
+     */
+    public function backupServers(): BelongsToMany
+    {
+        return $this->belongsToMany(Server::class, 'backup_server_server_pool');
+    }
+
+    /**
      * RoomTypes that are using this server pool
      *
      * @return HasMany

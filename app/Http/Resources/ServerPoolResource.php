@@ -42,6 +42,10 @@ class ServerPoolResource extends JsonResource
             'servers' => $this->when($this->withServers, function () {
                 return ServerResource::collection($this->servers);
             }),
+            'backup_servers_count' => $this->backupServers()->count(),
+            'backup_servers' => $this->when($this->withServers, function () {
+                return ServerResource::collection($this->backupServers);
+            }),
             'model_name' => $this->model_name,
             'updated_at' => $this->updated_at,
         ];

@@ -63,9 +63,14 @@ class RoomService
 
             // Basic load balancing: get server with the lowest usage
             $loadBalancingService = new LoadBalancingService;
-            $server = $loadBalancingService
+            ['server' => $server, 'isPreferred' => $isPreferredServer] = $loadBalancingService
                 ->setServerPool($this->room->roomType->serverPool)
                 ->getLowestUsageServer();
+
+            // No preferred Server found, but backup server found
+            if (! $isPreferredServer && $server != null) {
+                Log::warning('No preferred server found! Fallback to backup server', ['room' => $this->room->getLogLabel()]);
+            }
 
             // If no server found, throw error
             if ($server == null) {
@@ -84,20 +89,21 @@ class RoomService
             $meeting->save();
 
             $meetingService = new MeetingService($meeting);
+            $serverType = $isPreferredServer ? 'server' : 'backup server';
 
-            Log::info('Starting new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
-            if (! $meetingService->start()) {
+            Log::info('Starting new meeting for room {room} on {serverType} {server}', ['room' => $this->room->getLogLabel(), 'serverType' => $serverType, 'server' => $server->getLogLabel()]);
+            if (! $meetingService->start($isPreferredServer)) {
                 // Creating Meeting failed, remove meeting
                 $meeting->forceDelete();
 
                 $lock->release();
-                Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
+                Log::error('Failed to start meeting for room {room} on {serverType} {server}', ['room' => $this->room->getLogLabel(), 'serverType' => $serverType, 'server' => $server->getLogLabel()]);
                 Counter::get('room_start_errors_total')->inc('start_failed');
                 abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
             }
 
             Counter::get('room_started_total')->inc();
-            Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
+            Log::info('Successfully started new meeting for room {room} on {serverType} {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
 
             // Set start time after successful api call, prevents server poller from ending a meeting that has been started
             // but the api call has not been completed yet therefore the meeting will not be found on the server

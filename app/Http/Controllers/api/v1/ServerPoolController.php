@@ -34,11 +34,12 @@ class ServerPoolController extends Controller
     public function index(ServerPoolIndexRequest $request)
     {
         $additionalMeta = [];
-        $resource = ServerPool::withCount('servers');
+        $resource = ServerPool::withCount(['servers', 'backupServers']);
 
         // Sort by column, fallback/default is id
         $sortBy = match ($request->query('sort_by')) {
             'servers_count' => 'servers_count',
+            'backup_servers_count' => 'backup_servers_count',
             'name' => 'LOWER(name)',
             default => 'id',
         };
@@ -89,6 +90,7 @@ class ServerPoolController extends Controller
         $serverPool->name = $request->name;
         $serverPool->save();
         $serverPool->servers()->sync($request->servers);
+        $serverPool->backupServers()->sync($request->backup_servers);
 
         return (new ServerPoolResource($serverPool))->withServers();
     }
@@ -105,6 +107,7 @@ class ServerPoolController extends Controller
         $serverPool->name = $request->name;
         $serverPool->save();
         $serverPool->servers()->sync($request->servers);
+        $serverPool->backupServers()->sync($request->backup_servers);
 
         return (new ServerPoolResource($serverPool))->withServers();
     }
