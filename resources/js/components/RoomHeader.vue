@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4">
     <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
     <div class="flex flex-col-reverse gap-2 md:flex-row">
       <div class="flex grow flex-col items-start">
         <!-- Display room type, name and owner  -->
-        <PageTitle :title="props.room.name" class="order-2 my-2" />
+        <PageTitle :title="props.room.name" class="order-2 mt-2 mb-4" />
 
         <RoomTypeBadge class="order-1" :room-type="props.room.type" />
         <RoomDetailsList
@@ -45,25 +45,6 @@
           />
         </div>
       </div>
-    </div>
-    <div>
-      <InlineNote
-        v-if="props.room.last_meeting?.detached"
-        severity="warn"
-        icon="fa-solid fa-triangle-exclamation"
-        :closable="false"
-      >
-        {{ $t("rooms.connection_error.detached") }}
-      </InlineNote>
-
-      <InlineNote
-        v-else-if="props.room.last_meeting?.server_connection_issues"
-        severity="warn"
-        icon="fa-solid fa-triangle-exclamation"
-        :closable="false"
-      >
-        {{ $t("rooms.connection_error.reconnecting") }}
-      </InlineNote>
     </div>
   </div>
 </template>

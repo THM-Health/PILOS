@@ -5,6 +5,8 @@ describe("Rooms view recordings recording actions", function () {
     cy.init();
     cy.interceptRoomViewRequests();
     cy.interceptRoomRecordingsRequests();
+
+    cy.setValidRememberedParticipantName("Laura Rivera");
   });
 
   it("view recording", function () {
@@ -69,34 +71,6 @@ describe("Rooms view recordings recording actions", function () {
   });
 
   it("view recording with access code", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.fixture("roomRecordings.json").then((roomRecordings) => {
-      roomRecordings.data = roomRecordings.data.slice(0, 1);
-      roomRecordings.meta.total = 1;
-      roomRecordings.meta.total_no_filter = 1;
-      roomRecordings.meta.to = 1;
-
-      cy.intercept("api/v1/rooms/abc-def-123/recordings*", {
-        statusCode: 200,
-        body: roomRecordings,
-      }).as("roomRecordingsRequest");
-    });
-
-    cy.visit("/rooms/abc-def-123#tab=recordings");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
       body: {
@@ -116,7 +90,19 @@ describe("Rooms view recordings recording actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    cy.fixture("roomRecordings.json").then((roomRecordings) => {
+      roomRecordings.data = roomRecordings.data.slice(0, 1);
+      roomRecordings.meta.total = 1;
+      roomRecordings.meta.total_no_filter = 1;
+      roomRecordings.meta.to = 1;
+
+      cy.intercept("api/v1/rooms/abc-def-123/recordings*", {
+        statusCode: 200,
+        body: roomRecordings,
+      }).as("roomRecordingsRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -172,34 +158,6 @@ describe("Rooms view recordings recording actions", function () {
   });
 
   it("view recording with access code errors", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.fixture("roomRecordings.json").then((roomRecordings) => {
-      roomRecordings.data = roomRecordings.data.slice(0, 1);
-      roomRecordings.meta.total = 1;
-      roomRecordings.meta.total_no_filter = 1;
-      roomRecordings.meta.to = 1;
-
-      cy.intercept("api/v1/rooms/abc-def-123/recordings*", {
-        statusCode: 200,
-        body: roomRecordings,
-      }).as("roomRecordingsRequest");
-    });
-
-    cy.visit("/rooms/abc-def-123#tab=recordings");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
       body: {
@@ -219,7 +177,19 @@ describe("Rooms view recordings recording actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    cy.fixture("roomRecordings.json").then((roomRecordings) => {
+      roomRecordings.data = roomRecordings.data.slice(0, 1);
+      roomRecordings.meta.total = 1;
+      roomRecordings.meta.total_no_filter = 1;
+      roomRecordings.meta.to = 1;
+
+      cy.intercept("api/v1/rooms/abc-def-123/recordings*", {
+        statusCode: 200,
+        body: roomRecordings,
+      }).as("roomRecordingsRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -336,7 +306,7 @@ describe("Rooms view recordings recording actions", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR#tab=recordings",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
     );
 
     cy.wait("@roomAuthRequest");
@@ -428,7 +398,7 @@ describe("Rooms view recordings recording actions", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR#tab=recordings",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
     );
 
     cy.wait("@roomAuthRequest");
@@ -452,10 +422,17 @@ describe("Rooms view recordings recording actions", function () {
 
     cy.wait("@roomAuthRequest");
 
-    // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    // Check that sessionStorage is cleared
+    cy.window().then((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
 
+    // Check that error message is shown and url changed
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -468,7 +445,9 @@ describe("Rooms view recordings recording actions", function () {
       },
     }).as("roomAuthRequest");
 
-    cy.reload();
+    cy.visit(
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
+    );
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -612,6 +591,10 @@ describe("Rooms view recordings recording actions", function () {
 
     // Check that room and recordings are reloaded (because of changes in the room (current_user))
     cy.wait("@reloadRoomRequest");
+    cy.wait("@checkParticipantNameRequest");
+
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
+
     cy.wait("@roomRecordingsRequest");
 
     // Check that recording list was updated again

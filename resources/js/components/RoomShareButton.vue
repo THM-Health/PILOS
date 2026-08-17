@@ -216,6 +216,9 @@ const roomUrl = computed(() => {
     router.resolve({
       name: "rooms.view",
       params: { id: props.room.id },
+      hash: props.room.access_code
+        ? "#accessCode=" + props.room.access_code
+        : "",
     }).href
   );
 });

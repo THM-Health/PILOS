@@ -11,6 +11,7 @@ return [
         'meetingForciblyEnded' => 'Failed to join meeting: The meeting is no longer running.',
     ],
     'become_member' => 'Become member',
+    'change_participant_name' => 'Change name',
     'change_type' => [
         'changing_settings' => 'The following changes will be made to the room settings',
         'current_setting' => 'Current setting',
@@ -24,6 +25,7 @@ return [
         'detached' => 'Connection to ongoing video conference lost, recovery failed.',
         'reconnecting' => 'Connection to ongoing video conference lost, trying to reconnect.',
     ],
+    'continue_as_guest' => 'Continue as guest',
     'create' => [
         'ok' => 'Create',
         'title' => 'Create room',
@@ -302,6 +304,7 @@ return [
         ],
     ],
     'name' => 'Room name',
+    'name_in_video_conference' => 'Name in video conference: ',
     'no_rooms_available' => 'No rooms available',
     'no_rooms_found' => 'No rooms found',
     'not_running' => 'This room is not started yet.',
@@ -416,6 +419,8 @@ return [
         'view_recording_aria' => 'View recording: :description',
     ],
     'reload_aria' => 'Reload room',
+    'remember_participant_name' => 'Remember name for next time',
+    'request_participant_name_change' => 'Please change your name to join the room.',
     'require_access_code' => 'An access code is required to join this room',
     'role' => 'Role',
     'roles' => [

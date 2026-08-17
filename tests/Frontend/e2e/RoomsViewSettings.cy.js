@@ -2184,7 +2184,7 @@ describe("Rooms view settings", function () {
     cy.contains("Laura Walter").should("be.visible");
 
     // Check that access code overlay is shown
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
   });
 
   it("transfer ownership with search by name disabled", function () {

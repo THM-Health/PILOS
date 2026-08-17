@@ -57,7 +57,8 @@ function copyLink() {
     settingsStore.getSetting("general.base_url") +
     router.resolve({
       name: "rooms.view",
-      params: { id: props.roomId, token: props.token },
+      params: { id: props.roomId },
+      hash: "#personalizedLink=" + props.token,
     }).href;
   navigator.clipboard.writeText(link);
   toast.info(

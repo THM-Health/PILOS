@@ -622,6 +622,60 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test participant name validation
+     */
+    public function test_participant_name_validation()
+    {
+        // Valid names
+        $this->postJson(route('api.v1.participantName.check'), ['name' => 'John Doe'])
+            ->assertNoContent();
+
+        $this->postJson(route('api.v1.participantName.check'), [
+            'name' => 'AB',
+        ])->assertNoContent();
+
+        $this->postJson(route('api.v1.participantName.check'), [
+            'name' => str_repeat('A', 50),
+        ])->assertNoContent();
+
+        // Test without name
+        $this->postJson(route('api.v1.participantName.check'))
+            ->assertJsonValidationErrors(['name']);
+
+        $this->postJson(route('api.v1.participantName.check'), ['name' => ''])
+            ->assertJsonValidationErrors(['name']);
+
+        // Test with invalid name
+        $this->postJson(route('api.v1.participantName.check'), ['name' => 'A'])
+            ->assertJsonValidationErrors(['name']);
+
+        $this->postJson(route('api.v1.participantName.check'), ['name' => str_repeat('A', 51)])
+            ->assertJsonValidationErrors(['name']);
+
+        // Test with invalid / dangerous name
+        $this->postJson(route('api.v1.participantName.check'), ['name' => '<script>alert("HI");</script>'])
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        'Name contains the following non-permitted characters: <>";',
+                    ],
+                ],
+            ]);
+
+        // Test with invalid/dangerous name that contains non utf8 chars
+        $this->postJson(route('api.v1.participantName.check'), ['name' => '§´`'])
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        'Name contains non-permitted characters',
+                    ],
+                ],
+            ]);
+    }
+
+    /**
      * Test visibility of room owner for unauthenticated users based on settings.
      */
     public function test_hide_owner_from_guests()
