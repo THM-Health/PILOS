@@ -95,4 +95,46 @@ class ServerPoolTest extends TestCase
         $serverPool->servers()->sync([$lightUsage, $heavyUsage, $always_online_not_recovered, $always_online_disabled, $always_online_not_recovered]);
         $this->assertEquals($lightUsage->id, $loadBalancingService->getLowestUsageServer()->id);
     }
+
+    /**
+     * Check servers virtual usage is precise
+     */
+    public function test_load_balancing_decimal_virtual_usage()
+    {
+        $serverA = Server::factory()->create(['load' => 5, 'strength' => 2]); // usage: 2.5
+        $serverB = Server::factory()->create(['load' => 7, 'strength' => 3]); // usage: 2.33...
+        $serverC = Server::factory()->create(['load' => 8, 'strength' => 3]); // usage: 2.66...
+
+        $serverPool = ServerPool::factory()->create();
+        $loadBalancingService = new LoadBalancingService;
+        $loadBalancingService->setServerPool($serverPool);
+
+        $serverPool->servers()->sync([$serverA, $serverB, $serverC]);
+        $this->assertEquals($serverB->id, $loadBalancingService->getLowestUsageServer()->id);
+    }
+
+    /**
+     * Check servers with the same virtual usage are picked in a pseudo-random way
+     */
+    public function test_load_balancing_same_virtual_usage()
+    {
+        $serverA = Server::factory()->create(['load' => 5, 'strength' => 2]);
+        $serverB = Server::factory()->create(['load' => 5, 'strength' => 2]);
+        $serverC = Server::factory()->create(['load' => 5, 'strength' => 2]);
+
+        $serverPool = ServerPool::factory()->create();
+        $loadBalancingService = new LoadBalancingService;
+        $loadBalancingService->setServerPool($serverPool);
+
+        $serverPool->servers()->sync([$serverA, $serverB, $serverC]);
+
+        srand(2);
+        $this->assertEquals($serverA->id, $loadBalancingService->getLowestUsageServer()->id);
+
+        srand(1);
+        $this->assertEquals($serverB->id, $loadBalancingService->getLowestUsageServer()->id);
+
+        srand(5);
+        $this->assertEquals($serverC->id, $loadBalancingService->getLowestUsageServer()->id);
+    }
 }

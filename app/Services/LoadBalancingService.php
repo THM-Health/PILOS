@@ -22,11 +22,12 @@ class LoadBalancingService
 
     /**
      * Find server in the pool with the lowest usage
+     *
+     * If multiple servers have the same lowest usage, a pseudo-random server is picked
      */
     public function getLowestUsageServer(): ?Server
     {
-        return $this->serverPool->servers()
-            ->where('status', ServerStatus::ENABLED)
+        $servers = $this->serverPool->servers()->where('status', ServerStatus::ENABLED)
             ->where(function (Builder $query) {
                 $query->where('recover_count', '>=', config('bigbluebutton.server_online_threshold'))
                     ->where('error_count', '=', 0)
@@ -34,7 +35,30 @@ class LoadBalancingService
             })
             ->whereNotNull('load')
             ->where('strength', '>', 0) // Extra safety against division by zero; request validation ensures strength is between 1 and 10
-            ->orderByRaw('`load` / `strength`')
-            ->first();
+            ->get();
+
+        // No servers available
+        if ($servers->count() == 0) {
+            return null;
+        }
+
+        // Find all servers with the same lowest usage
+        $minUsage = null;
+        $minUsageServers = [];
+
+        foreach ($servers as $server) {
+            $usage = $server->load / $server->strength;
+            if ($minUsage === null || $usage < $minUsage) {
+                $minUsage = $usage;
+                $minUsageServers = [$server];
+            } elseif ($usage == $minUsage) {
+                $minUsageServers[] = $server;
+            }
+        }
+
+        // Use pseudo-random (not security relevant and enables reliable testing with seeding)
+        $randomKey = rand(0, count($minUsageServers) - 1);
+
+        return $minUsageServers[$randomKey];
     }
 }
