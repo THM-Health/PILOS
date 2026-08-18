@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -12,6 +14,7 @@ use App\Notifications\PasswordChanged;
 use App\Notifications\PasswordReset;
 use App\Notifications\UserWelcome;
 use App\Notifications\VerifyEmail;
+use App\Settings\UserSettings;
 use Carbon\Carbon;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +22,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -96,8 +98,8 @@ class UserTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $users[0]->firstname])
             ->assertJsonFragment(['firstname' => $users[4]->firstname])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 13])
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 13)
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -148,10 +150,7 @@ class UserTest extends TestCase
 
         // Sorting wrong direction and field
         $this->getJson(route('api.v1.users.index').'?sort_by=external_id&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_by']);
 
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname')
             ->assertSuccessful()
@@ -165,17 +164,8 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index').'?sort_by=foo&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['firstname' => $user->firstname])
-            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
-
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname&sort_direction=foo')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonMissingExact(['firstname' => $user->firstname])
-            ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
+            ->assertJsonValidationErrors(['sort_direction']);
 
         // Filtering by role
         $this->getJson(route('api.v1.users.index').'?role='.$role2->id)
@@ -186,6 +176,8 @@ class UserTest extends TestCase
 
         // Filtering by invalid role
         $this->getJson(route('api.v1.users.index').'?role=0')
+            ->assertJsonValidationErrors(['role']);
+        $this->getJson(route('api.v1.users.index').'?role=')
             ->assertJsonValidationErrors(['role']);
 
         // Filtering by name / email
@@ -207,6 +199,10 @@ class UserTest extends TestCase
         $searchLimit = 5;
         config(['bigbluebutton.user_search_limit' => $searchLimit]);
 
+        $userSettings = app(UserSettings::class);
+        $userSettings->search_by_name = true;
+        $userSettings->save();
+
         $users = [];
         $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'gregory.dumas@example.com']);
         $users[] = User::factory()->create(['firstname' => 'Mable', 'lastname' => 'Torres', 'email' => 'mable.torres@example.com']);
@@ -220,6 +216,10 @@ class UserTest extends TestCase
 
         // Test without query and order, too many results
         $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+            ->assertNoContent();
+
+        // Test with empty query, too many results
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=')
             ->assertNoContent();
 
         // Test with query and order, too many results
@@ -256,6 +256,40 @@ class UserTest extends TestCase
         $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=deborah.brown')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[5]->firstname)
+            ->assertJsonCount(1, 'data');
+    }
+
+    public function test_search_by_name_disabled()
+    {
+        $searchLimit = 5;
+        config(['bigbluebutton.user_search_limit' => $searchLimit]);
+
+        $userSettings = app(UserSettings::class);
+        $userSettings->search_by_name = false;
+        $userSettings->save();
+
+        $users = [];
+        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'gregory.Dumas@example.com']);
+
+        // Check with exact lastname match (search for names should not be possible)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Dumas')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+
+        // Check with exact firstname match (search for names should not be possible)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Gregory')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+
+        // Check fragments of email (query must match exactly, fragments are disabled)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=example.com')
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data');
+
+        // Check exact email (case-insensitive)
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Gregory.dumas@example.com')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.firstname', $users[0]->firstname)
             ->assertJsonCount(1, 'data');
     }
 
@@ -538,7 +572,13 @@ class UserTest extends TestCase
 
         // Not existing user
         $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => self::INVALID_ID]), $changes)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]
+            );
 
         // Check as admin
         $changes['updated_at'] = Carbon::now();
@@ -1363,15 +1403,19 @@ class UserTest extends TestCase
         $this->assertNull($user->image);
 
         // Virus file
-        Config::set('antivirus.enabled', true);
-        Config::set('antivirus.clamav.url', 'http://clamav');
+        config([
+            'antivirus.enabled' => true,
+            'antivirus.clamav.url' => 'http://clamav',
+        ]);
         Http::fake(['http://clamav' => Http::response([['Description' => 'Eicar-Test-Signature']], 406)]);
         $changes['image'] = $file;
         $changes['updated_at'] = $user->updated_at;
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['image']);
-        Config::set('antivirus.enabled', false);
+        config([
+            'antivirus.enabled' => false,
+        ]);
     }
 
     public function test_show()
@@ -1414,7 +1458,12 @@ class UserTest extends TestCase
         $role->users()->attach([$externalUser->id, $user->id]);
 
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => self::INVALID_ID]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         // Existing user
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $externalUser]))
@@ -1478,7 +1527,12 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Not existing model
-        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => self::INVALID_ID]))->assertNotFound();
+        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => self::INVALID_ID]))->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         // User own model
         $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => $user]))
@@ -1557,7 +1611,12 @@ class UserTest extends TestCase
         $role->users()->attach([$user->id]);
 
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => self::INVALID_ID]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'user',
+                'ids' => [self::INVALID_ID],
+            ]);
 
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $user]))
             ->assertForbidden();

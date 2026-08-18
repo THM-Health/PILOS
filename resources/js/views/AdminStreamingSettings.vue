@@ -9,9 +9,13 @@
 
       <div class="flex flex-col gap-6">
         <AdminPanel :title="$t('admin.streaming.general.title')">
-          <form class="flex flex-col gap-6" @submit.prevent="updateSettings">
+          <Form
+            class="flex flex-col gap-6"
+            :disabled="disabled || isBusy"
+            @submit="updateSettings"
+          >
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="default-pause-image-field"
             >
               <legend
@@ -27,19 +31,27 @@
                   v-model:file-deleted="defaultPauseImageDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="5000000"
+                  :max-file-size="5_000_000"
                   show-delete
-                  :allowed-extensions="['jpg', 'jpeg', 'png', 'gif']"
+                  :allowed-extensions="[
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'svg',
+                    'webp',
+                    'bmp',
+                  ]"
                   :file-invalid="formErrors.fieldInvalid('default_pause_image')"
-                  :file-error="formErrors.fieldError('default_pause_image')"
+                  :file-errors="formErrors.fieldError('default_pause_image')"
                 />
-                <small>{{
-                  $t("rooms.streaming.config.pause_image_format")
+                <small class="block">{{
+                  $t("rooms.streaming.config.pause_image_resolution")
                 }}</small>
               </div>
             </fieldset>
             <fieldset
-              class="grid grid-cols-12 gap-4"
+              class="field grid grid-cols-12 gap-4"
               data-test="css-file-field"
             >
               <legend
@@ -55,13 +67,15 @@
                   v-model:file-deleted="cssFileDeleted"
                   :disabled="disabled"
                   :readonly="viewOnly"
-                  :max-file-size="500000"
+                  :max-file-size="500_000"
                   show-delete
                   :allowed-extensions="['css']"
                   :file-invalid="formErrors.fieldInvalid('css_file')"
-                  :file-error="formErrors.fieldError('css_file')"
+                  :file-errors="formErrors.fieldError('css_file')"
                 />
-                <small>{{ $t("admin.streaming.css_file_description") }}</small>
+                <small class="block">{{
+                  $t("admin.streaming.css_file_description")
+                }}</small>
               </div>
             </fieldset>
 
@@ -89,9 +103,9 @@
                       : 'userdata-bbb_show_public_chat_on_login=false\nuserdata-bbb_show_participants_on_login=false'
                   "
                 />
-                <p id="join-parameters-help">
+                <small id="join-parameters-help" class="block">
                   {{ $t("admin.streaming.join_parameters_description") }}
-                </p>
+                </small>
                 <FormError :errors="formErrors.fieldError('join_parameters')" />
               </div>
             </div>
@@ -108,13 +122,14 @@
                 />
               </div>
             </div>
-          </form>
+          </Form>
         </AdminPanel>
 
         <AdminPanel :title="$t('admin.streaming.room_types.title')">
           <AdminStreamingRoomTypeTable
             v-if="settings.room_types"
             :room-types="settings.room_types"
+            :is-busy="isBusy"
             @edited="getSettings"
           />
         </AdminPanel>
@@ -124,12 +139,12 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { computed, onMounted, ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import AdminPanel from "../components/AdminPanel.vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const defaultPauseImage = ref(null);
 const defaultPauseImageDeleted = ref(false);
@@ -222,9 +237,10 @@ function updateSettings() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else {
         api.error(error);
       }

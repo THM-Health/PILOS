@@ -78,8 +78,8 @@ describe("Rooms index create new room", function () {
     roomTypesRequest.sendResponse();
     cy.wait("@roomTypesRequest").then((interception) => {
       expect(interception.request.query).to.deep.equal({
-        with_room_settings: "true",
-        with_features: "true",
+        with_room_settings: "1",
+        with_features: "1",
         filter: "own",
       });
     });
@@ -629,7 +629,7 @@ describe("Rooms index create new room", function () {
     cy.intercept("POST", "api/v1/rooms", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid",
+        message: "The Room type field is required.",
         errors: {
           room_type: ["The Room type field is required."],
         },
@@ -729,7 +729,7 @@ describe("Rooms index create new room", function () {
     cy.intercept("POST", "api/v1/rooms", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid",
+        message: "The Name field is required.",
         errors: {
           name: ["The Name field is required."],
         },

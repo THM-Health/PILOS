@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\CustomErrorMessages;
@@ -28,7 +30,7 @@ class RoomFileController extends Controller
         } catch (AuthorizationException $e) {
             // User is not authorized to download the file
             return response(view('new-tab-error', [
-                'type' => CustomErrorMessages::ROOM_FILE_FORBIDDEN->value,
+                'type' => CustomErrorMessages::FORBIDDEN->value,
                 'code' => 403,
                 'title' => 'Forbidden',
                 'message' => __('rooms.flash.file_forbidden'),

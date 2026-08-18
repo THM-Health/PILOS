@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTypeDestroyRequest;
+use App\Http\Requests\RoomTypeIndexRequest;
 use App\Http\Requests\RoomTypeRequest;
-use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResource;
 use App\Http\Resources\RoomTypeResourceCollection;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,7 +21,7 @@ class RoomTypeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(RoomType::class, 'roomType');
-        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withDetails,withDefaultRoomSettings', ['only' => 'update']);
+        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomTypeResource,withDetails,withDefaultRoomSettings', ['only' => 'update']);
     }
 
     /**
@@ -27,11 +29,11 @@ class RoomTypeController extends Controller
      *
      * @return RoomTypeResourceCollection
      */
-    public function index(Request $request)
+    public function index(RoomTypeIndexRequest $request)
     {
         $roomTypes = RoomType::query();
 
-        if ($request->has('filter')) {
+        if ($request->filled('filter')) {
             $filter = $request->query('filter');
 
             if ($filter === 'own') {

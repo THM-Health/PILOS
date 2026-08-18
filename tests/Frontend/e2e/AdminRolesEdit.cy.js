@@ -12,6 +12,7 @@ describe("Admin roles edit", function () {
         "roles.view",
         "roles.update",
         "roles.create",
+        "roles.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -76,13 +77,14 @@ describe("Admin roles edit", function () {
     cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check that correct buttons are shown
-    cy.get('[data-test="roles-cancel-edit-button"]')
+    cy.get('a[data-test="roles-cancel-edit-button"]')
       .should("be.visible")
-      .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/roles/2");
     cy.get('[data-test="roles-edit-button"]').should("not.exist");
-    cy.get('[data-test="roles-delete-button"]').should("not.exist");
+    cy.get('[data-test="roles-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
     cy.get('[data-test="roles-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")
@@ -91,8 +93,8 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", 'admin.breadcrumbs.roles.edit_{"name":"Staff"}');
 
     // Change role settings
     cy.get('[data-test="name-field"]')
@@ -106,8 +108,8 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs stays the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", 'admin.breadcrumbs.roles.edit_{"name":"Staff"}');
 
     cy.get('[data-test="roles-room-limit-help-dialog"]').should("not.exist");
     cy.get('[data-test="room-limit-field"]')
@@ -482,6 +484,11 @@ describe("Admin roles edit", function () {
       cy.get("#server_pools\\.create").should("not.exist");
       cy.get("#server_pools\\.delete").should("not.exist");
 
+      cy.get('button[data-test="roles-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="roles-delete-button"]').should("be.disabled");
+
       cy.get('[data-test="roles-save-button"]')
         .should("be.disabled")
         .then(() => {
@@ -510,10 +517,10 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+        'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
       );
   });
 
@@ -577,6 +584,11 @@ describe("Admin roles edit", function () {
       cy.get("#unlimited").should("be.disabled");
       cy.get("#custom").should("be.disabled");
       cy.get("#room-limit").should("be.disabled");
+
+      cy.get('button[data-test="roles-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="roles-delete-button"]').should("be.disabled");
 
       cy.get('[data-test="roles-save-button"]')
         .should("be.disabled")
@@ -1386,13 +1398,14 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
-      .should("include.text", 'admin.breakcrumbs.roles.edit_{"name":"Staff"}');
+      .should("include.text", "admin.breadcrumbs.roles.index")
+      .should("include.text", 'admin.breadcrumbs.roles.edit_{"name":"Staff"}');
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/roles/2", {
       statusCode: 422,
       body: {
+        message: "The name field is required. (and 2 more errors)",
         errors: {
           name: ["The Name field is required."],
           room_limit: ["The Room limit must be at least -1."],
@@ -1408,6 +1421,8 @@ describe("Admin roles edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 2 more errors)");
+
     cy.get('[data-test="name-field"]')
       .should("be.visible")
       .and("include.text", "The Name field is required.");
@@ -1456,6 +1471,7 @@ describe("Admin roles edit", function () {
         statusCode: 428,
         body: {
           new_model: role.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1469,7 +1485,11 @@ describe("Admin roles edit", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-role-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.errors.stale_error")
+      .should("include.text", "app.errors.stale_error")
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.role"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -1488,10 +1508,10 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs is updated
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.roles.edit_{"name":"Standard role"}',
+        'admin.breadcrumbs.roles.edit_{"name":"Standard role"}',
       );
 
     // Check that correct data is shown
@@ -1556,6 +1576,7 @@ describe("Admin roles edit", function () {
         statusCode: 428,
         body: {
           new_model: role.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1569,7 +1590,11 @@ describe("Admin roles edit", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-role-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.errors.stale_error")
+      .should("include.text", "app.errors.stale_error")
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.role"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -1615,10 +1640,10 @@ describe("Admin roles edit", function () {
     // Check that breadcrumbs stays the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.roles.index")
+      .should("include.text", "admin.breadcrumbs.roles.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.roles.view_{"name":"Standard role"}',
+        'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
       );
 
     // Reload
@@ -1629,7 +1654,9 @@ describe("Admin roles edit", function () {
     cy.intercept("PUT", "api/v1/roles/2", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "role",
+        ids: [2],
       },
     }).as("saveChangesRequest");
 
@@ -1644,8 +1671,8 @@ describe("Admin roles edit", function () {
     cy.wait("@rolesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.role"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Reload
@@ -1792,7 +1819,9 @@ describe("Admin roles edit", function () {
     cy.intercept("GET", "api/v1/roles/2", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "role",
+        ids: [2],
       },
     }).as("roleRequest");
 
@@ -1809,8 +1838,8 @@ describe("Admin roles edit", function () {
 
     // Check that error message is shown
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.role"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
     ]);
 
     // Reload page with 401 error
@@ -1829,7 +1858,7 @@ describe("Admin roles edit", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("check button visibility with delete permission", function () {
+  it("check button visibility without delete permission", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
@@ -1837,7 +1866,6 @@ describe("Admin roles edit", function () {
         "roles.view",
         "roles.update",
         "roles.create",
-        "roles.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -1855,9 +1883,7 @@ describe("Admin roles edit", function () {
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/roles/2");
     cy.get('[data-test="roles-edit-button"]').should("not.exist");
-    cy.get('[data-test="roles-delete-button"]')
-      .should("be.visible")
-      .and("not.be.disabled");
+    cy.get('[data-test="roles-delete-button"]').should("not.exist");
     cy.get('[data-test="roles-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")

@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Enums\RoomUserRole;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +22,7 @@ return new class extends Migration
             $table->string('room_id', 15);
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->primary(['user_id', 'room_id']);
-            $table->tinyInteger('role')->default(\App\Enums\RoomUserRole::USER);
+            $table->tinyInteger('role')->default(RoomUserRole::USER);
         });
     }
 

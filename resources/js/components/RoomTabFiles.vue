@@ -57,28 +57,29 @@
       @edited="loadData()"
     />
 
-    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+    <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
-        <div>
+        <search>
           <InputGroup data-test="room-files-search">
             <InputText
               v-model="search"
               :disabled="isBusy"
+              type="search"
               :placeholder="$t('app.search')"
               @keyup.enter="loadData(1)"
             />
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.files.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
           </InputGroup>
-        </div>
+        </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
@@ -88,6 +89,7 @@
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
+              :aria-label="$t('rooms.files.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -101,7 +103,7 @@
           </InputGroup>
 
           <InputGroup data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -111,6 +113,7 @@
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
+              :aria-label="$t('rooms.files.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -128,6 +131,11 @@
                   sortOrder === 1
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
+                "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('rooms.files.sort_ascending')
+                    : $t('rooms.files.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -151,7 +159,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-files-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.files.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -193,7 +201,7 @@
         <!-- Show message on empty list -->
         <template #empty>
           <div>
-            <div v-if="!isBusy && !loadingError" class="px-2">
+            <div v-if="!isBusy && !loadingError">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
                 $t("rooms.files.nodata")
               }}</InlineNote>
@@ -203,7 +211,7 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2">
+          <div>
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-file-item"
@@ -283,6 +291,7 @@
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"
                     :file-url="item.url"
+                    :filename="item.filename"
                     :room-auth-token="props.roomAuthToken"
                     :disabled="isBusy"
                     :require-terms-of-use-acceptance="
@@ -320,7 +329,6 @@
   </div>
 </template>
 <script setup>
-import env from "../env.js";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useApi } from "../composables/useApi.js";
@@ -332,13 +340,18 @@ import { useToast } from "../composables/useToast.js";
 import { EVENT_FORBIDDEN } from "../constants/events.js";
 import EventBus from "../services/EventBus.js";
 import {
-  HTTP_ROOM_FILE_FORBIDDEN,
-  HTTP_ROOM_FILE_NOT_FOUND,
-  HTTP_ROOM_GUESTS_NOT_ALLOWED,
-  HTTP_ROOM_GUESTS_ONLY,
-  HTTP_ROOM_INVALID_AUTH_TOKEN,
-  HTTP_ROOM_REQUIRE_CODE,
+  HTTP_ERROR_FORBIDDEN,
+  HTTP_ERROR_FILE_NOT_FOUND,
+  HTTP_ERROR_GUESTS_NOT_ALLOWED,
+  HTTP_ERROR_GUESTS_ONLY,
+  HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ERROR_ROOM_REQUIRE_CODE,
+  HTTP_ERROR_NOT_FOUND,
 } from "../constants/httpCustomErrorMessages.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_UNAUTHORIZED,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -351,7 +364,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidRoomAuthToken", "guestsNotAllowed"]);
+const emit = defineEmits([
+  "invalidRoomAuthToken",
+  "requireCode",
+  "guestsNotAllowed",
+]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -443,18 +460,18 @@ function loadData(page = null) {
       if (error.response) {
         // Room auth token is invalid
         if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
+          error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+          error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
         ) {
           return emit("invalidRoomAuthToken");
         }
 
         // Forbidden, require access code
         if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
+          error.response.status === HTTP_STATUS_FORBIDDEN &&
+          error.response.data.message === HTTP_ERROR_ROOM_REQUIRE_CODE
         ) {
-          return emit("invalidRoomAuthToken");
+          return emit("requireCode");
         }
       }
       api.error(error, { redirectOnUnauthenticated: false });
@@ -477,27 +494,30 @@ function handleFileErrorMessages(event) {
   // Check origin
   if (event.origin !== settingsStore.getSetting("general.base_url")) return;
   if (event.data?.type === null || event.data?.type === undefined) return;
-  if (event.data.type === HTTP_ROOM_FILE_NOT_FOUND) {
+  if (
+    event.data.type === HTTP_ERROR_FILE_NOT_FOUND ||
+    event.data.type === HTTP_ERROR_NOT_FOUND
+  ) {
     // File not found
     toast.error(t("rooms.flash.file_gone"));
     loadData();
-  } else if (event.data.type === HTTP_ROOM_INVALID_AUTH_TOKEN) {
+  } else if (event.data.type === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN) {
     // Room auth token is invalid
     emit("invalidRoomAuthToken");
-  } else if (event.data.type === HTTP_ROOM_REQUIRE_CODE) {
+  } else if (event.data.type === HTTP_ERROR_ROOM_REQUIRE_CODE) {
     // Forbidden, require access code
-    emit("invalidRoomAuthToken");
-  } else if (event.data.type === HTTP_ROOM_FILE_FORBIDDEN) {
+    emit("requireCode");
+  } else if (event.data.type === HTTP_ERROR_FORBIDDEN) {
     // Forbidden, not allowed to view file
     toast.error(t("rooms.flash.file_forbidden"));
     EventBus.emit(EVENT_FORBIDDEN);
     // Reload file to reflect changes to file visibility (e.g. download no longer allowed)
     // This can result in multiple reloads in some cases, but ensures the file list stays up to date
     loadData();
-  } else if (event.data.type === HTTP_ROOM_GUESTS_NOT_ALLOWED) {
+  } else if (event.data.type === HTTP_ERROR_GUESTS_NOT_ALLOWED) {
     // Guests are not allowed
     emit("guestsNotAllowed");
-  } else if (event.data.type === HTTP_ROOM_GUESTS_ONLY) {
+  } else if (event.data.type === HTTP_ERROR_GUESTS_ONLY) {
     api.handleGuestsOnly();
   }
 }

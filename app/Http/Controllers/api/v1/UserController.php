@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -7,19 +9,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\NewUserRequest;
+use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserRequest;
-use App\Http\Resources\User as UserResource;
-use App\Http\Resources\UserSearch;
+use App\Http\Requests\UserSearchRequest;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserSearchResource;
 use App\Models\User;
 use App\Notifications\UserWelcome;
 use App\Services\AuthenticationService;
 use App\Services\EmailVerification\EmailVerificationService;
 use App\Settings\GeneralSettings;
+use App\Settings\UserSettings;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -28,31 +32,42 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
-        $this->middleware('check.stale:user,\App\Http\Resources\User', ['only' => 'update']);
+        $this->middleware('check.stale:user,\App\Http\Resources\UserResource', ['only' => 'update']);
     }
 
     /**
-     * Search for users in the whole database, based on first name and last name
+     * Search for users in the whole database
+     * Depending on the search_by_name setting it will either search for partial matches of firstname, lastname and email
+     * or only for an exact email match
      *
-     * @param  Request  $request  query parameter with search query
+     * @param  UserSearchRequest  $request  query parameter with search query
      * @return AnonymousResourceCollection
      */
-    public function search(Request $request)
+    public function search(UserSearchRequest $request)
     {
-        $query = User::withNameOrEmail($request->query('query'));
+        $userSettings = app(UserSettings::class);
+
+        if (! $request->filled('query')) {
+            abort(204, 'Too many results');
+        }
+
+        if ($userSettings->search_by_name) {
+            $query = User::withNameOrEmail($request->query('query'));
+        } else {
+            $query = User::whereRaw('LOWER(email) = ?', [strtolower($request->query('query'))]);
+        }
 
         if ($query->count() > config('bigbluebutton.user_search_limit')) {
             abort(204, 'Too many results');
         }
 
-        return UserSearch::collection($query->orderByRaw('LOWER(lastname) ASC')->orderByRaw('LOWER(firstname) ASC')->get());
+        return UserSearchResource::collection($query->orderByRaw('LOWER(lastname) ASC')->orderByRaw('LOWER(firstname) ASC')->get());
     }
 
     /**
@@ -60,7 +75,7 @@ class UserController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(UserIndexRequest $request)
     {
         $additionalMeta = [];
         $resource = User::query();
@@ -92,13 +107,10 @@ class UserController extends Controller
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         if ($request->has('role')) {
-            Validator::make($request->all(), [
-                'role' => 'required|exists:roles,id',
-            ])->validate();
-            $resource = $resource->withRole($request->query('role'));
+            $resource = $resource->withRole($request->integer('role'));
         }
 
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $resource = $resource->withNameOrEmail($request->query('query'));
         }
 

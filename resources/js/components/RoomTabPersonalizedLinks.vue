@@ -1,11 +1,12 @@
 <template>
   <div>
-    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+    <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
-        <div>
+        <search>
           <InputGroup data-test="room-personalized-links-search">
             <InputText
               v-model="search"
+              type="search"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
               @keyup.enter="loadData(1)"
@@ -13,15 +14,15 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.personalized_links.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
           </InputGroup>
-        </div>
+        </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup>
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
@@ -31,6 +32,7 @@
               :options="filterOptions"
               option-label="name"
               option-value="value"
+              :aria-label="$t('rooms.personalized_links.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -44,7 +46,7 @@
           </InputGroup>
 
           <InputGroup data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -54,6 +56,7 @@
               :options="sortFields"
               option-label="name"
               option-value="value"
+              :aria-label="$t('rooms.personalized_links.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -71,6 +74,11 @@
                   sortOrder === 1
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
+                "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('rooms.personalized_links.sort_ascending')
+                    : $t('rooms.personalized_links.sort_descending')
                 "
                 severity="secondary"
                 text
@@ -95,7 +103,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-personalized-links-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.personalized_links.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -137,7 +145,7 @@
         <!-- Show message on empty list -->
         <template #empty>
           <div>
-            <div v-if="!isBusy && !loadingError" class="px-2">
+            <div v-if="!isBusy && !loadingError">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
                 $t("rooms.personalized_links.nodata")
               }}</InlineNote>
@@ -147,7 +155,7 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2">
+          <div>
             <div v-for="item in slotProps.items" :key="item.token">
               <div
                 data-test="room-personalized-link-item"

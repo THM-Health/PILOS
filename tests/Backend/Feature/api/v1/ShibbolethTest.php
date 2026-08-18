@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\Role;
@@ -9,7 +11,6 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
@@ -87,9 +88,11 @@ class ShibbolethTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Config::set('services.shibboleth.enabled', true);
-        Config::set('services.shibboleth.mapping', json_decode($this->mapping));
-        Config::set('app.enabled_locales', ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]]);
+        config([
+            'services.shibboleth.enabled' => true,
+            'services.shibboleth.mapping' => json_decode($this->mapping),
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
+        ]);
 
         Role::factory()->create(['name' => 'admin']);
         Role::factory()->create(['name' => 'user']);
@@ -103,7 +106,9 @@ class ShibbolethTest extends TestCase
      */
     public function test_redirect_route_disabled()
     {
-        Config::set('services.shibboleth.enabled', false);
+        config([
+            'services.shibboleth.enabled' => false,
+        ]);
         $response = $this->get(route('auth.shibboleth.redirect'));
         $response->assertNotFound();
     }
@@ -120,13 +125,54 @@ class ShibbolethTest extends TestCase
     }
 
     /**
+     * Test that the redirect route can be accessed by logged-in users
+     *
+     * @return void
+     */
+    public function test_redirect_route_as_logged_in_user()
+    {
+        $user = User::factory()->create();
+
+        // Check without redirect url
+        $response = $this->actingAs($user)->get(route('auth.shibboleth.redirect'));
+        $response->assertRedirect('http://localhost/external_login?no_message=1');
+
+        // Check with redirect url
+        $response = $this->actingAs($user)->get(route('auth.shibboleth.redirect', ['redirect' => '/rooms/abc-123-def']));
+        $response->assertRedirect('http://localhost/external_login?no_message=1&redirect=%2Frooms%2Fabc-123-def');
+    }
+
+    public function test_redirect_route_invalid_redirect_parameter()
+    {
+        Log::swap(new LogFake);
+
+        // Redirect parameter empty
+        $response = $this->get(route('auth.shibboleth.redirect', ['redirect' => '']));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        // Redirect parameter array
+        $response = $this->get(route('auth.shibboleth.redirect', ['redirect' => ['foo', 'bar']]));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        Log::assertLoggedTimes(
+            fn (LogEntry $log) => $log->level == 'error'
+                && $log->message == 'Shibboleth login redirect failed: invalid request parameter(s): redirect'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['current-user'] == 'guest',
+            2
+        );
+    }
+
+    /**
      * Test that the callback route is disabled if disabled in env
      *
      * @return void
      */
     public function test_callback_route_disabled()
     {
-        Config::set('services.shibboleth.enabled', false);
+        config([
+            'services.shibboleth.enabled' => false,
+        ]);
         $response = $this->get(route('auth.shibboleth.callback'));
         $response->assertNotFound();
     }
@@ -190,6 +236,49 @@ class ShibbolethTest extends TestCase
         $this->assertEquals('Europe/Paris', $user->timezone);
 
         $this->assertEquals($user->roles()->pluck('name')->toArray(), ['user']);
+    }
+
+    public function test_callback_route_invalid_redirect_parameter()
+    {
+        Log::swap(new LogFake);
+
+        // Redirect parameter empty
+        $response = $this->get(route('auth.shibboleth.callback', ['redirect' => '']));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        // Redirect parameter array
+        $response = $this->get(route('auth.shibboleth.callback', ['redirect' => ['foo', 'bar']]));
+        $response->assertRedirect('http://localhost/external_login?error=invalid_request');
+
+        Log::assertLoggedTimes(
+            fn (LogEntry $log) => $log->level == 'error'
+                && $log->message == 'Shibboleth login callback failed: invalid request parameter(s): redirect'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['current-user'] == 'guest',
+            2
+        );
+    }
+
+    public function test_redirect_and_callback()
+    {
+        $this->generalSettings->default_timezone = 'Europe/Paris';
+        $this->generalSettings->save();
+
+        $header = [
+            'Accept-Language' => 'fr',
+            'shib-session-id' => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname' => 'johnd@university.org',
+            'givenname' => 'John',
+            'surname' => 'Doe',
+            'mail' => 'john.doe@domain.tld',
+            'scoped-affiliation' => 'student@university.org;staff@university.org',
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback', ['redirect' => '/rooms/abc-123-def']), $header);
+        $response->assertRedirect('http://localhost/external_login?redirect=%2Frooms%2Fabc-123-def');
+
+        $this->assertAuthenticated();
     }
 
     public function test_set_last_login()
@@ -462,7 +551,9 @@ class ShibbolethTest extends TestCase
      */
     public function test_logout_route_disabled()
     {
-        Config::set('services.shibboleth.enabled', false);
+        config([
+            'services.shibboleth.enabled' => false,
+        ]);
         $response = $this->get(route('auth.shibboleth.logout'));
         $response->assertNotFound();
     }

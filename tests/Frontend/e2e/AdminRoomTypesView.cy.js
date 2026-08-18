@@ -74,10 +74,10 @@ describe("Admin room types view", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.view_{"name":"Exam"}',
+        'admin.breadcrumbs.room_types.view_{"name":"Exam"}',
       );
 
     // Check that room type data is shown correctly
@@ -126,7 +126,7 @@ describe("Admin room types view", function () {
       .within(() => {
         cy.get('[data-test="room-type-badge"]')
           .should("have.css", "background-color", "rgb(74, 92, 102)")
-          .and("have.text", "Exam");
+          .and("have.text", "rooms.index.room_component.room_type:Exam");
       });
 
     cy.get('[data-test="server-pool-field"]')
@@ -631,7 +631,9 @@ describe("Admin room types view", function () {
     cy.intercept("GET", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("roomTypeRequest");
 
@@ -647,8 +649,8 @@ describe("Admin room types view", function () {
 
     // Check that error message is shown
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Reload page with 401 error

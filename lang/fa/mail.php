@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'action_url' => 'اگر در کلیک روی دکمه ":actionText" مشکل دارید، لینک زیر را در مرورگر خود کپی و جایگذاری کنید:',
     'email_changed' => [

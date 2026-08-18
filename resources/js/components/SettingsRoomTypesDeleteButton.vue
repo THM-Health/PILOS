@@ -2,7 +2,7 @@
   <Button
     v-tooltip="$t('admin.room_types.delete.item', { id: props.name })"
     :aria-label="$t('admin.room_types.delete.item', { id: props.name })"
-    :disabled="isBusy"
+    :disabled="isBusy || props.disabled"
     severity="danger"
     icon="fa-solid fa-trash"
     data-test="room-types-delete-button"
@@ -25,13 +25,15 @@
       {{ $t("admin.room_types.delete.confirm", { name: props.name }) }}
     </span>
     <Divider />
-    <div class="flex flex-col gap-2" data-test="replacement-room-type-field">
-      <label for="replacement-room-type">{{
+    <div
+      class="field flex flex-col gap-2"
+      data-test="replacement-room-type-field"
+    >
+      <label id="replacement-room-type-label">{{
         $t("admin.room_types.delete.replacement")
       }}</label>
       <InputGroup>
         <Select
-          id="replacement-room-type"
           v-model.number="replacement"
           data-test="replacement-room-type-dropdown"
           :disabled="
@@ -46,7 +48,7 @@
           option-group-children="items"
           option-value="value"
           option-label="text"
-          aria-describedby="replacement-help"
+          aria-labelledby="replacement-room-type-label"
           :pt="{
             listContainer: {
               'data-test': 'replacement-room-type-dropdown-items',
@@ -56,6 +58,7 @@
             },
             optionGroup: 'p-0',
             label: {
+              'aria-describedby': 'replacement-help',
               autofocus: true,
             },
           }"
@@ -72,11 +75,12 @@
         </Select>
         <Button
           v-if="replacementRoomTypesLoadingError"
+          v-tooltip="$t('app.reload')"
           :disabled="isBusy"
           outlined
           severity="secondary"
           icon="fa-solid fa-sync"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.room_types.reload')"
           data-test="replacement-room-types-reload-button"
           @click="loadReplacementRoomTypes()"
         />
@@ -107,10 +111,13 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import env from "../env.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useI18n } from "vue-i18n";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
@@ -124,6 +131,10 @@ const props = defineProps({
   name: {
     type: String,
     required: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -197,12 +208,12 @@ function deleteRoomType() {
       // failed due to form validation errors
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
         return;
       }
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         modalVisible.value = false;
         emit("notFound");
       }

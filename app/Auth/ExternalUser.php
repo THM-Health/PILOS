@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth;
 
 use App\Models\Role;
@@ -51,9 +53,9 @@ abstract class ExternalUser
      * Add a value to an attribute.
      *
      * @param  string  $name  The name of the attribute.
-     * @param  mixed  $value  The value to add to the attribute.
+     * @param  string|null  $value  The value to add to the attribute.
      */
-    public function addAttributeValue($name, $value)
+    public function addAttributeValue(string $name, ?string $value)
     {
         if (! isset($this->attributes[$name])) {
             $this->attributes[$name] = [];
@@ -96,6 +98,8 @@ abstract class ExternalUser
     /**
      * Validate the required attributes.
      * Throws a MissingAttributeException if the attribute is not set.
+     *
+     * @throws MissingAttributeException
      */
     public function validate()
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Actions',
     'back' => 'Retour',
@@ -64,7 +66,10 @@ return [
     'flash' => [
         'client_error' => 'Une erreur inconnue s\'est produite dans l\'application !',
         'guests_only' => 'La demande ne peut être faite que par les invités !',
-        'popup_blocked' => 'Votre navigateur a bloqué une nouvelle fenêtre. Merci d\'autoriser les pop-ups à s\'ouvrir pour cette page puis réessayez.',
+        'model_not_found' => [
+            'details' => 'ID : :ids',
+            'title' => 'Le :model n\'a pas été trouvé !',
+        ],
         'server_error' => [
             'empty_message' => 'Une erreur s\'est produite sur le serveur lors de la requête !',
             'error_code' => 'Code d\'erreur: :statusCode',
@@ -76,6 +81,7 @@ return [
         'unauthorized' => 'Vous n\'avez pas les droits nécessaires pour continuer !',
     ],
     'footer' => [
+        'accessibility' => 'Déclaration d\'accessibilité',
         'legal_notice' => 'Mentions légales',
         'privacy_policy' => 'Politique de confidentialité',
     ],
@@ -95,11 +101,17 @@ return [
         'fr' => 'Français',
     ],
     'model' => [
-        'roles' => 'rôle',
-        'room_types' => 'type de salle',
-        'server_pools' => 'groupe de serveurs',
-        'servers' => 'serveur',
-        'users' => 'utilisateur',
+        'meeting' => 'Réunion',
+        'recording' => 'Enregistrement',
+        'recording_format' => 'Format d\'enregistrement',
+        'role' => 'Rôle',
+        'room' => 'Salle',
+        'room_file' => 'Fichier de salle',
+        'room_personalized_link' => 'Lien personnalisé de la salle',
+        'room_type' => 'type de salle',
+        'server' => 'Serveur',
+        'server_pool' => 'Groupe de serveurs',
+        'user' => 'Utilisateur',
     ],
     'model_name' => 'Nom',
     'next' => 'Suivant',

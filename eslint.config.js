@@ -1,20 +1,15 @@
 import vueI18n from "@intlify/eslint-plugin-vue-i18n";
-import mochaPlugin from "eslint-plugin-mocha";
-import pluginCypress from "eslint-plugin-cypress/flat";
+import pluginMocha from "eslint-plugin-mocha";
+import pluginCypress from "eslint-plugin-cypress";
 import pluginVue from "eslint-plugin-vue";
 import js from "@eslint/js";
 import json from "@eslint/json";
 import globals from "globals";
 import vueParser from "vue-eslint-parser";
 import eslintConfigPrettier from "eslint-config-prettier";
+import { defineConfig } from "eslint/config";
 
-export default [
-  mochaPlugin.configs.recommended,
-  pluginCypress.configs.recommended,
-  ...vueI18n.configs["flat/recommended"],
-  js.configs.recommended,
-  ...pluginVue.configs["flat/recommended"],
-  eslintConfigPrettier,
+export default defineConfig([
   {
     ignores: [
       "node_modules/",
@@ -46,28 +41,14 @@ export default [
         messageSyntaxVersion: "^9.0.0",
       },
     },
-    rules: {
-      "@intlify/vue-i18n/no-html-messages": "error",
-      "@intlify/vue-i18n/no-raw-text": [
-        "error",
-        {
-          ignoreNodes: ["raw-text"],
-        },
-      ],
-      "@intlify/vue-i18n/no-missing-keys": "error",
-      "@intlify/vue-i18n/key-format-style": [
-        "warn",
-        "snake_case",
-        {
-          splitByDots: true,
-        },
-      ],
-      "@intlify/vue-i18n/no-v-html": "error",
-    },
   },
   {
     files: ["**/*.js", "**/*.vue"],
-
+    extends: [
+      ...pluginVue.configs["flat/recommended"],
+      ...vueI18n.configs["flat/recommended"],
+      js.configs.recommended,
+    ],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -92,24 +73,50 @@ export default [
         },
       ],
       "vue/custom-event-name-casing": ["error"],
-
-      "mocha/no-exclusive-tests": "error",
-      "mocha/no-pending-tests": "error",
+      "@intlify/vue-i18n/no-html-messages": "error",
+      "@intlify/vue-i18n/no-raw-text": [
+        "error",
+        {
+          ignoreNodes: ["raw-text"],
+        },
+      ],
+      "@intlify/vue-i18n/no-missing-keys": "error",
+      "@intlify/vue-i18n/key-format-style": [
+        "warn",
+        "snake_case",
+        {
+          splitByDots: true,
+        },
+      ],
+      "@intlify/vue-i18n/no-v-html": "error",
     },
   },
   {
-    plugins: {
-      json,
-    },
+    files: ["**/*.json"],
+    ignores: ["package-lock.json"],
+    plugins: { json },
+    language: "json/json",
+    extends: ["json/recommended"],
   },
   {
-    // files: ['**/*.json'],
-    // language: 'json/json',
-  },
-  {
-    files: ["**/*.cy.js"],
+    files: [
+      "**/*.cy.js",
+      "tests/Utils/cypress/**/*.js",
+      "tests/Frontend/**/*.js",
+      "tests/Visual/**/*.js",
+      "tests/System/**/*.js",
+    ],
+    extends: [
+      pluginMocha.configs.recommended,
+      pluginCypress.configs.recommended,
+    ],
     rules: {
       "no-unused-expressions": "off",
+      "mocha/no-async-in-sync-tests": "off", // for Cypress compatibility
+      "mocha/no-exclusive-tests": "error",
+      "mocha/no-pending-tests": "error",
+      "mocha/no-mocha-arrows": "off",
     },
   },
-];
+  eslintConfigPrettier,
+]);

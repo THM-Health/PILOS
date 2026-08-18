@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Auth\OIDC\OpenIDConnectAlgorithmSubset;
@@ -960,7 +962,7 @@ class OpenIDConnectClientTest extends TestCase
             ],
         ];
 
-        $clientMockBuilder = $this->getStubBuilder(OpenIDConnectClient::class)
+        $clientMockBuilder = $this->getMockBuilder(OpenIDConnectClient::class)
             ->setConstructorArgs(['https://example.org',
                 'fake-client-id',
                 'fake-client-secret',
@@ -973,16 +975,16 @@ class OpenIDConnectClientTest extends TestCase
         ]);
 
         // Check if the jwks are correctly fetched
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
         Http::assertSentCount(1);
 
         // Call again to check if the jwks are not fetched again, but returned from cache
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
@@ -992,8 +994,8 @@ class OpenIDConnectClientTest extends TestCase
         $this->travel(3601)->seconds();
 
         // Call again to check if the jwks are fetched again
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
@@ -1020,7 +1022,7 @@ class OpenIDConnectClientTest extends TestCase
             ],
         ];
 
-        $clientMockBuilder = $this->getStubBuilder(OpenIDConnectClient::class)
+        $clientMockBuilder = $this->getMockBuilder(OpenIDConnectClient::class)
             ->setConstructorArgs(['https://example.org',
                 'fake-client-id',
                 'fake-client-secret',
@@ -1033,32 +1035,32 @@ class OpenIDConnectClientTest extends TestCase
         ]);
 
         // Check if the jwks are correctly fetched
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
         Http::assertSentCount(1);
 
         // Call again to check if jwks are correctly fetched again
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(0);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
         Http::assertSentCount(2);
 
         // Call again but setting a custom cache max age
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(60);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
         Http::assertSentCount(3);
 
         // Call again to check if the jwks are not fetched again but returned from cache
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(60);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));
@@ -1066,8 +1068,8 @@ class OpenIDConnectClientTest extends TestCase
 
         // Travel forward in time to invalidate the cache
         $this->travel(61)->seconds();
-        $client = $clientMockBuilder->getStub();
-        $client->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
+        $client = $clientMockBuilder->getMock();
+        $client->expects($this->once())->method('getWellKnownConfigValue')->with('jwks_uri')->willReturn('https://example.org/jwks');
         $client->setCacheJwksMaxAge(60);
         $jwksSet = $client->getJwkSet();
         $this->assertEquals($privateKey->thumbprint('sha256'), $jwksSet->get($kid)->thumbprint('sha256'));

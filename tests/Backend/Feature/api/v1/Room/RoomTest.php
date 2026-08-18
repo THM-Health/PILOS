@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\CustomErrorMessages;
@@ -10,7 +12,7 @@ use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Enums\ServerHealth;
 use App\Events\RoomEnded;
-use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResource;
 use App\Models\Meeting;
 use App\Models\Permission;
 use App\Models\Role;
@@ -290,7 +292,12 @@ class RoomTest extends TestCase
 
         // Try again after deleted
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room' => $room]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     public function test_transfer_room()
@@ -422,6 +429,89 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test room enumeration attack prevention using a rate limit
+     */
+    public function test_room_404_rate_limit()
+    {
+        $room = Room::factory()->create();
+
+        // Guest trying to access non-existing rooms
+        for ($i = 0; $i < 10; $i++) {
+            $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+                ->assertNotFound()
+                ->assertJson([
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [999999],
+                ]);
+        }
+        // Check route is now rate limited
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertStatus(429);
+
+        // Check other room routes are also rate limited
+        $this->getJson(route('api.v1.rooms.files.get', ['room' => 999999]))
+            ->assertStatus(429);
+
+        // User trying to access non-existing rooms
+        // The rate limit is per user or IP for unauthenticated users, so the user should have its own limit
+        $this->actingAs($room->owner);
+        for ($i = 0; $i < 10; $i++) {
+            $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+                ->assertNotFound()
+                ->assertJson([
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [999999],
+                ]);
+        }
+        // Check route is now rate limited
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertStatus(429);
+
+        // Check other room routes are also rate limited
+        $this->getJson(route('api.v1.rooms.files.get', ['room' => 999999]))
+            ->assertStatus(429);
+
+        $this->putJson(route('api.v1.rooms.files.update', ['room' => 999999, 'file' => 999999]))
+            ->assertStatus(429);
+
+        // Time travel 1 minute to reset rate limit
+        $this->travel(1)->minutes();
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [999999],
+            ]);
+
+        $this->actingAsGuest();
+        $this->getJson(route('api.v1.rooms.show', ['room' => 999999]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [999999],
+            ]);
+
+        // Time travel 1 minute to reset rate limit
+        $this->travel(1)->minutes();
+
+        // Check calling routes for an existing room that also result in a 404
+        // due to other reasons than the room not existing are not so strictly rate limited
+        for ($i = 0; $i < 50; $i++) {
+            $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => 999999]))
+                ->assertNotFound()
+                ->assertJson([
+                    'message' => 'model_not_found',
+                    'model' => 'room_file',
+                    'ids' => ['999999'],
+                ]);
+        }
+    }
+
+    /**
      * Test if guests can access room
      */
     public function test_guest_access()
@@ -505,14 +595,14 @@ class RoomTest extends TestCase
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         $room->allow_guests = false;
         $room->save();
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         // Test for default value set to true (not enforced)
         $room->roomType()->associate($roomTypeGuestAccessDefault);
@@ -520,7 +610,7 @@ class RoomTest extends TestCase
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         // Test for default value set to false (not enforced)
         $room->roomType()->associate($roomTypeNoGuestAccessDefault);
@@ -528,7 +618,106 @@ class RoomTest extends TestCase
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
+    }
+
+    /**
+     * Test participant name validation
+     */
+    public function test_participant_name_validation()
+    {
+        // Valid names
+        $this->postJson(route('api.v1.participantName.check'), ['name' => 'John Doe'])
+            ->assertNoContent();
+
+        $this->postJson(route('api.v1.participantName.check'), [
+            'name' => 'AB',
+        ])->assertNoContent();
+
+        $this->postJson(route('api.v1.participantName.check'), [
+            'name' => str_repeat('A', 50),
+        ])->assertNoContent();
+
+        // Test without name
+        $this->postJson(route('api.v1.participantName.check'))
+            ->assertJsonValidationErrors(['name']);
+
+        $this->postJson(route('api.v1.participantName.check'), ['name' => ''])
+            ->assertJsonValidationErrors(['name']);
+
+        // Test with invalid name
+        $this->postJson(route('api.v1.participantName.check'), ['name' => 'A'])
+            ->assertJsonValidationErrors(['name']);
+
+        $this->postJson(route('api.v1.participantName.check'), ['name' => str_repeat('A', 51)])
+            ->assertJsonValidationErrors(['name']);
+
+        // Test with invalid / dangerous name
+        $this->postJson(route('api.v1.participantName.check'), ['name' => '<script>alert("HI");</script>'])
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        'Name contains the following non-permitted characters: <>";',
+                    ],
+                ],
+            ]);
+
+        // Test with invalid/dangerous name that contains non utf8 chars
+        $this->postJson(route('api.v1.participantName.check'), ['name' => '§´`'])
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        'Name contains non-permitted characters',
+                    ],
+                ],
+            ]);
+    }
+
+    /**
+     * Test visibility of room owner for unauthenticated users based on settings.
+     */
+    public function test_hide_owner_from_guests()
+    {
+        // Create a room allowing guests
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+        ]);
+
+        // Case 1: The setting is enabled.
+        // Guests should NOT see the owner information.
+        $this->roomSettings->hide_owner_from_guests = true;
+        $this->roomSettings->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonMissingPath('data.owner');
+
+        // Case 2: The setting is enabled, but the user is authenticated.
+        // Authenticated users should always see the owner information.
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonStructure(['data' => [
+                'owner' => [
+                    'id',
+                    'name',
+                ],
+            ]]);
+
+        // Case 3: The setting is disabled.
+        // Guests should see the owner information.
+        $this->roomSettings->hide_owner_from_guests = false;
+        $this->roomSettings->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonStructure(['data' => [
+                'owner' => [
+                    'id',
+                    'name',
+                ],
+            ]]);
     }
 
     /**
@@ -617,6 +806,12 @@ class RoomTest extends TestCase
             'session_id' => $currentSession->id,
             'type' => RoomAuthTokenType::CODE->value,
         ]);
+
+        // Try with legacy alphanumeric access code
+        $room->access_code = '012abc';
+        $room->save();
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), ['type' => RoomAuthTokenType::CODE->value, 'access_code' => $room->access_code])
+            ->assertStatus(201);
     }
 
     /**
@@ -626,7 +821,7 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'access_code' => 111111111,
+            'access_code' => '111111111',
         ]);
 
         // Try 6 times with wrong access code
@@ -1528,6 +1723,17 @@ class RoomTest extends TestCase
         $room->save();
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertJsonPath('data.legacy_code', false);
+
+        // Test deleted
+        $room->delete();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [$room->id],
+            ]);
     }
 
     /**
@@ -3175,7 +3381,7 @@ class RoomTest extends TestCase
 
         $this->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         $this->postJson(route('api.v1.rooms.start', [
             'room' => $room,
@@ -3183,7 +3389,7 @@ class RoomTest extends TestCase
             'room_auth_token_type' => RoomAuthTokenType::CODE->value,
         ]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertForbidden()
-            ->assertJsonFragment(['message' => CustomErrorMessages::ROOM_GUESTS_NOT_ALLOWED->value]);
+            ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
 
         // Testing authorized users
         $currentSession = $this->startNewSession($this->user);

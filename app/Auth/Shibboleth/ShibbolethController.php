@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\Shibboleth;
 
 use App\Auth\MissingAttributeException;
@@ -7,19 +9,33 @@ use App\Http\Controllers\Controller;
 use App\Prometheus\Counter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Uri;
 
 class ShibbolethController extends Controller
 {
+    protected const string REDIRECT_URL = '/external_login';
+
     public function __construct(protected ShibbolethProvider $provider)
     {
-        $this->middleware('guest')->except(['logout']);
+        $this->middleware('guest')->except(['logout', 'redirect']);
     }
 
     /**
      * Redirect to the Shibboleth for authentication with an optional redirect back to a specific URL
      */
-    public function redirect(Request $request)
+    public function redirect(ShibbolethRedirectRequest $request)
     {
+        if (Auth()->check()) {
+            $uri = Uri::of(self::REDIRECT_URL)->withQuery(['no_message' => true]);
+            if ($request->has('redirect')) {
+                return redirect($uri
+                    ->withQuery(['redirect' => $request->query('redirect')])
+                    ->value());
+            }
+
+            return redirect($uri->value());
+        }
+
         return $this->provider->redirect($request->query('redirect'));
     }
 
@@ -42,7 +58,7 @@ class ShibbolethController extends Controller
     /**
      * Request to login with shibboleth, route is protected by mod-shibb of the reverse proxy
      */
-    public function callback(Request $request)
+    public function callback(ShibbolethCallbackRequest $request)
     {
         try {
             $user = $this->provider->login($request);
@@ -63,9 +79,12 @@ class ShibbolethController extends Controller
         $user->save();
 
         // Redirect to the external login page in the frontend, optionally with a redirect back to a specific URL
-        $url = '/external_login';
-        $redirectUrl = $request->query('redirect');
+        if ($request->has('redirect')) {
+            return redirect(Uri::of(self::REDIRECT_URL)
+                ->withQuery(['redirect' => $request->query('redirect')])
+                ->value());
+        }
 
-        return redirect($redirectUrl ? ($url.'?redirect='.urlencode($redirectUrl)) : $url);
+        return redirect(self::REDIRECT_URL);
     }
 }

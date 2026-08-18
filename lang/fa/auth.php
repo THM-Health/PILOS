@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'تغییر ایمیل',
     'change_password' => 'تغییر رمز عبور',
@@ -9,11 +11,16 @@ return [
         'title' => 'ورود با ایمیل',
     ],
     'error' => [
+        'invalid_request' => 'احراز هویت به دلیل درخواست نامعتبر ناموفق بود.',
         'login_failed' => 'ورود ناموفق',
         'missing_attributes' => 'ویژگی‌های مورد نیاز برای احراز هویت وجود ندارد.',
+        'openid_connect_exception' => 'احراز هویت به دلیل خطا ناموفق بود.',
+        'openid_connect_network_exception' => 'اتصال به ارائه دهنده احراز هویت ناموفق بود.',
         'reason' => 'دلیل خطا',
         'shibboleth_session_duplicate_exception' => 'سشن Shibboleth در حال استفاده است. لطفاً مجدداً وارد شوید.',
+        'try_again' => 'لطفاً دوباره وارد شوید یا در صورت ادامه مشکل با پشتیبانی تماس بگیرید.',
     ],
+    'external_user_id' => 'شناسه خارجی کاربر',
     'failed' => 'این اعتبارنامه‌ها با سوابق ما مطابقت ندارند.',
     'flash' => [
         'login' => 'با موفقیت وارد شدید',
@@ -35,6 +42,12 @@ return [
     'logout_success' => 'با موفقیت خارج شدید',
     'new_password' => 'رمز عبور جدید',
     'new_password_confirmation' => 'تأیید رمز عبور جدید',
+    'oidc' => [
+        'logout_incomplete' => 'شما هنوز در ارائه دهنده OpenID Connect وارد شده اید.',
+        'redirect' => 'ورود',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'ورود با OpenID Connect',
+    ],
     'password' => 'رمز عبور',
     'reset_password' => 'بازنشانی رمز عبور',
     'send_email_confirm_mail' => 'یک ایمیل تأیید به :email ارسال شده است. لطفاً با کلیک روی لینک موجود در ایمیل، آدرس ایمیل جدید را تأیید کنید.',

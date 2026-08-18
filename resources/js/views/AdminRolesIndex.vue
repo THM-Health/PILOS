@@ -1,24 +1,25 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
-      <div>
+      <search>
         <InputGroup data-test="role-search">
           <InputText
             v-model="filter"
             :disabled="isBusy"
+            type="search"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1)"
           />
           <Button
             v-tooltip="$t('app.search')"
             :disabled="isBusy"
-            :aria-label="$t('app.search')"
+            :aria-label="$t('admin.roles.search_aria')"
             severity="primary"
             icon="fa-solid fa-magnifying-glass"
             @click="loadData(1)"
           />
         </InputGroup>
-      </div>
+      </search>
 
       <Button
         v-if="userPermissions.can('create', 'RolePolicy')"
@@ -116,7 +117,7 @@
             <Button
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="$t('admin.roles.view', { name: slotProps.data.name })"
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               :aria-label="
                 $t('admin.roles.view', { name: slotProps.data.name })
               "
@@ -131,7 +132,7 @@
             <Button
               v-if="userPermissions.can('update', slotProps.data)"
               v-tooltip="$t('admin.roles.edit', { name: slotProps.data.name })"
-              as="router-link"
+              :as="isBusy ? 'button' : 'router-link'"
               severity="info"
               :aria-label="
                 $t('admin.roles.edit', { name: slotProps.data.name })
@@ -148,7 +149,9 @@
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
+              :disabled="isBusy"
               @deleted="loadData()"
+              @not-found="loadData()"
             />
           </div>
         </template>

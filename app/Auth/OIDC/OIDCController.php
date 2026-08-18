@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\OIDC;
 
 use App\Auth\MissingAttributeException;
@@ -13,16 +15,29 @@ use Illuminate\Support\Uri;
 
 class OIDCController extends Controller
 {
+    protected const string REDIRECT_URL = '/external_login';
+
     public function __construct(protected OIDCProvider $provider)
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->except('redirect');
     }
 
     /**
      * Redirect to the OpenID Provider for authentication with an optional redirect back to a specific URL
      */
-    public function redirect(Request $request)
+    public function redirect(OIDCRedirectRequest $request)
     {
+        if (Auth()->check()) {
+            $uri = Uri::of(self::REDIRECT_URL)->withQuery(['no_message' => true]);
+            if ($request->has('redirect')) {
+                return redirect($uri
+                    ->withQuery(['redirect' => $request->query('redirect')])
+                    ->value());
+            }
+
+            return redirect($uri->value());
+        }
+
         try {
             return $this->provider->redirect($request->query('redirect'));
         } catch (OpenIDConnectNetworkException $e) {
@@ -41,7 +56,7 @@ class OIDCController extends Controller
     /**
      * Handle Authorization Code Flow redirect back from the OpenID Provider with an Authorization Code
      */
-    public function callback(Request $request): RedirectResponse
+    public function callback(OIDCCallbackRequest $request): RedirectResponse
     {
         try {
             $user = $this->provider->login($request);
@@ -74,15 +89,13 @@ class OIDCController extends Controller
         $user->last_login = now();
         $user->save();
 
-        $url = '/external_login';
-
         if (session()->has('redirect_url')) {
-            return redirect(Uri::of($url)
+            return redirect(Uri::of(self::REDIRECT_URL)
                 ->withQuery(['redirect' => session()->get('redirect_url')])
                 ->value());
         }
 
-        return redirect($url);
+        return redirect(self::REDIRECT_URL);
     }
 
     /**

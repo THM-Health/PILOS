@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.email')">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form class="flex flex-col gap-4" :disabled="isBusy" @submit="save">
         <div
           v-if="
             !viewOnly &&
@@ -78,21 +78,25 @@
             }}
           </Message>
         </div>
-      </form>
+      </Form>
     </AdminPanel>
   </div>
 </template>
 
 <script setup>
-import env from "../env";
 import { useAuthStore } from "../stores/auth";
-import { computed, onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import AdminPanel from "./AdminPanel.vue";
+import {
+  HTTP_STATUS_EMAIL_CHANGE_THROTTLE,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   user: {
@@ -105,7 +109,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["updateUser", "notFoundError"]);
+const emit = defineEmits(["updateUser", "notFoundError", "busy"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -126,6 +130,10 @@ const isOwnUser = computed(() => {
 onBeforeMount(() => {
   email.value = props.user.email;
   validationRequiredEmail.value = null;
+});
+
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
 });
 
 function save(event) {
@@ -160,11 +168,12 @@ function save(event) {
       }
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         emit("notFoundError", error);
-      } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      } else if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
-      } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {
+        api.validationError(error);
+      } else if (error.response.status === HTTP_STATUS_EMAIL_CHANGE_THROTTLE) {
         toast.error(t("auth.throttle_email"));
       } else {
         api.error(error);

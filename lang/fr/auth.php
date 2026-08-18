@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'Changer l\'adresse e-mail',
     'change_password' => 'Changer le mot de passe',
@@ -9,9 +11,10 @@ return [
         'title' => 'S\'identifier via son e-mail',
     ],
     'error' => [
+        'invalid_request' => 'Échec de l\'authentification en raison d\'une requête invalide.',
         'login_failed' => 'Connexion refusée',
         'missing_attributes' => 'Informations d\'identification manquantes.',
-        'openid_connect_exception' => 'Echec de l\'authentification due à une erreur.',
+        'openid_connect_exception' => 'Échec de l\'authentification due à une erreur.',
         'openid_connect_network_exception' => 'Échec de la connexion au fournisseur d\'authentification.',
         'reason' => 'Cause de l\'erreur',
         'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation.',

@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => ':name bearbeiten',
             'index' => 'Rollen',
@@ -27,6 +29,7 @@ return [
             'view' => ':name',
         ],
         'settings' => 'Einstellungen',
+        'streaming_settings' => 'Streaming',
         'users' => [
             'edit' => ':firstname :lastname bearbeiten',
             'index' => 'Benutzer',
@@ -34,10 +37,15 @@ return [
             'view' => ':firstname :lastname',
         ],
     ],
+    'feature_disabled' => [
+        'description' => ':name ist für dieses System nicht aktiviert.',
+        'title' => 'Deaktiviert',
+    ],
     'home_button' => 'Zurück zur Übersicht',
     'overview' => 'Übersicht',
     'overview_description' => 'Hier können die Einstellungen der Anwendung verwaltet werden. Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.',
     'roles' => [
+        'automatic' => 'Automatisch',
         'default' => 'Standard',
         'delete' => [
             'confirm' => 'Wollen Sie die Rolle :name wirklich löschen?',
@@ -106,6 +114,11 @@ return [
                 'update' => 'Einstellungen bearbeiten',
                 'view_any' => 'Alle Einstellungen anzeigen',
             ],
+            'streaming' => [
+                'title' => 'Streaming',
+                'update' => 'Streaming-Einstellungen bearbeiten',
+                'view_any' => 'Alle Streaming-Einstellungen anzeigen',
+            ],
             'system' => [
                 'monitor' => 'Überwachung',
                 'title' => 'System',
@@ -134,6 +147,7 @@ return [
             ],
         ],
         'select_roles' => 'Bitte wählen Sie mindestens eine Rolle aus',
+        'superuser' => 'Superuser',
         'tile_description' => 'Die Rollen vergeben Berechtigungen, gliedern die Benutzer und legen das Maximum an Räumen pro Benutzer fest.',
         'view' => 'Detaillierte Informationen für die Rolle :name',
     ],
@@ -141,6 +155,8 @@ return [
         'bbb_api' => [
             'create_parameters' => 'Zusätzliche Create-API-Parameter',
             'create_parameters_description' => 'Angabe als Attribut-Wert-Paar (eins pro Zeile, ohne Leerzeichen), z.B. webcamsOnlyForModerator=true',
+            'join_parameters' => 'Zusätzliche Join-API-Parameter',
+            'join_parameters_description' => 'Als Attribut-Wert-Paar angeben (eins pro Zeile, ohne Leerzeichen), z.B. userdata-bbb_show_session_details_on_join=false',
             'title' => 'BigBlueButton API',
         ],
         'color' => 'Farbe',
@@ -153,7 +169,7 @@ return [
         'delete' => [
             'confirm' => 'Wollen Sie die Raumart :name wirklich löschen?',
             'item' => 'Raumart :id löschen',
-            'no_replacement' => '-- Kein Ersatz --',
+            'no_replacement' => 'Kein Ersatz',
             'replacement' => 'Ersatzraumart',
             'replacement_info' => 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.',
             'title' => 'Raumart löschen?',
@@ -185,7 +201,7 @@ return [
         'new' => 'Neuen Serverpool hinzufügen',
         'no_data' => 'Es sind keine Serverpools vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Serverpools gefunden!',
-        'remove_server' => 'Server entfernen',
+        'remove_server' => 'Server :name entfernen',
         'select_servers' => 'Server auswählen',
         'server_count' => 'Anzahl Server',
         'tile_description' => 'Für die Lastverteilung werden mehrere Server gebündelt und über die Raumart jedem Raum zugewiesen.',
@@ -207,7 +223,6 @@ return [
         'enabled' => 'Aktiviert',
         'flash' => [
             'panic' => [
-                'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
                 'title' => 'Der Server wurde deaktiviert.',
             ],
         ],
@@ -245,6 +260,10 @@ return [
         'view' => 'Detaillierte Informationen über Server :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'Wenn nicht gesetzt, wird im Footer kein Link zur Barrierefreiheitserklärung angezeigt.',
+            'title' => 'URL zur Barrierefreiheitserklärung',
+        ],
         'application' => 'Anwendung',
         'attendance' => [
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
@@ -327,6 +346,7 @@ return [
             'title' => 'Name der Anwendung',
         ],
         'never' => 'Nie',
+        'no_welcome_page' => 'Willkommensseite ausblenden',
         'one_day' => '1 Tag (24 Stunden)',
         'one_month' => '1 Monat (30 Tage)',
         'one_week' => '1 Woche (7 Tage)',
@@ -343,6 +363,7 @@ return [
         'recording' => [
             'retention_period_title' => 'Speicherdauer der Aufzeichnungen in Tagen',
         ],
+        'recording_and_statistics_title' => 'Aufzeichnung und Statistik',
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Zeitraum zwischen Zustellung der Informations-E-Mail und der Löschung',
@@ -360,9 +381,18 @@ return [
                 'title' => 'Zeitraum bis nie genutzte Räume gelöscht werden',
             ],
         ],
+        'room_file_terms_of_use' => [
+            'description' => 'Benutzer müssen den Nutzungsbedingungen zustimmen, um Dateien herunterladen zu können. Wenn das Feld leer ist, ist keine Zustimmung erforderlich.',
+            'title' => 'Nutzungsbedingungen für das Herunterladen von Dateien',
+        ],
+        'room_hide_owner_from_guests' => 'Raumbesitzer vor nicht authentifizierten Benutzern verbergen',
         'room_limit' => [
             'description' => 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.',
             'title' => 'Anzahl der Räume pro Benutzer',
+        ],
+        'room_personalized_link_expiration' => [
+            'description' => 'Zeitraum seit der letzten Nutzung, nach dem personalisierte Raumlinks automatisch entfernt werden.',
+            'title' => 'Ablaufzeit für personalisierte Raumlinks',
         ],
         'six_month' => '6 Monate (180 Tage)',
         'statistics' => [
@@ -377,6 +407,7 @@ return [
         ],
         'theme' => [
             'custom_color' => 'Eigene Farbe',
+            'custom_css' => 'Benutzerdefinierte CSS-Stildatei',
             'primary_color' => 'Primärfarbe',
             'rounded' => 'Abgerundete Ecken',
             'title' => 'Design',
@@ -393,11 +424,31 @@ return [
         'two_years' => '2 Jahre (730 Tage)',
         'user_settings' => 'Benutzereinstellungen',
     ],
+    'streaming' => [
+        'css_file' => 'CSS Style Datei',
+        'css_file_description' => 'CSS-Datei zur Anpassung der BBB-Oberfläche für das Streaming',
+        'default_pause_image' => 'Standard-Pausebild',
+        'enabled' => 'Aktiviert',
+        'general' => [
+            'title' => 'Allgemeine Einstellungen',
+        ],
+        'join_parameters' => 'Zusätzliche Join-API-Parameter',
+        'join_parameters_description' => 'Als Attribut-Wert-Paar angeben (eins pro Zeile, ohne Leerzeichen), z. B. userdata-bbb_show_public_chat_on_login=false',
+        'room_types' => [
+            'edit' => 'Streaming-Einstellungen für :name bearbeiten',
+            'edit_dialog' => [
+                'title' => 'Streaming-Einstellungen für :name bearbeiten',
+            ],
+            'title' => 'Raumtypenspezifische Einstellungen',
+        ],
+        'tile_description' => 'Globale und raumtypenspezifische Einstellungen für das Streaming.',
+    ],
     'title' => 'Administration',
     'users' => [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Lokal',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
             'title' => 'Anmeldeart',
         ],
@@ -419,14 +470,19 @@ return [
             'invalid_mime' => 'Das Dateiformat wird nicht unterstützt. Bitte wählen Sie eine jpg- oder png-Datei aus.',
             'save' => 'Übernehmen',
             'title' => 'Profilbild',
+            'title_short' => 'Bild',
             'upload' => 'Neues Bild hochladen',
+        ],
+        'last_login' => [
+            'title' => 'Letzter Login',
+            'unknown' => 'Unbekannt',
         ],
         'new' => 'Neuen Benutzer erstellen',
         'no_data' => 'Es sind keine Benutzer vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Benutzer gefunden!',
         'other_settings' => 'Weitere Einstellungen',
         'password_reset_success' => 'Passwort-Rücksetz-Mail wurde erfolgreich an :mail verschickt!',
-        'remove_role' => 'Rolle entfernen',
+        'remove_role' => 'Rolle :name entfernen',
         'reset_password' => [
             'confirm' => 'Wollen Sie das Passwort für :firstname :lastname wirklich zurücksetzen?',
             'item' => 'Passwort für den Benutzer :firstname :lastname zurücksetzen',

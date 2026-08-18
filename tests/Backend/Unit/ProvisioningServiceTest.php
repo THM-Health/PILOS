@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Enums\ServerStatus;
@@ -155,7 +157,7 @@ class ProvisioningServiceTest extends TestCase
         $server = Server::firstWhere('name', $this->testServer->name);
         $this->assertNotNull($server);
         $this->assertEquals($this->testServer->description, $server->description);
-        $this->assertEquals($this->testServer->endpoint, $server->base_url);
+        $this->assertEquals($this->testServer->endpoint.'/', $server->base_url);
         $this->assertEquals($this->testServer->secret, $server->secret);
         $this->assertEquals($this->testServer->strength, $server->strength);
         $this->assertEquals(ServerStatus::ENABLED, $server->status);

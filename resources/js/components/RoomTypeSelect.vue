@@ -7,7 +7,7 @@
     <Button
       v-if="modelLoadingError"
       v-tooltip="$t('app.reload')"
-      :aria-label="$t('app.reload')"
+      :aria-label="$t('rooms.room_types.reload')"
       :disabled="disabled || isLoadingAction"
       :loading="isLoadingAction"
       icon="fa-solid fa-sync"
@@ -162,8 +162,8 @@ function reloadRoomTypes() {
   const config = {
     params: {
       filter: props.roomId ?? "own",
-      with_room_settings: true,
-      with_features: true,
+      with_room_settings: 1,
+      with_features: 1,
     },
   };
 

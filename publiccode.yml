@@ -5,7 +5,8 @@
 publiccodeYmlVersion: "0.2"
 name: PILOS
 url: "https://github.com/THM-Health/PILOS"
-softwareVersion: 4.4.0
+softwareVersion: "4.17.0"
+releaseDate: "2026-07-09"
 logo: logo.svg
 platforms:
   - web
@@ -13,10 +14,15 @@ categories:
   - video-conferencing
 usedBy:
   - Technische Hochschule Mittelhessen
+  - Universität Osnabrück
   - Goethe-Universität Frankfurt am Main
   - Universität Innsbruck
-  - Universität Osnabrück
+  - Hochschule für nachhaltige Entwicklung Eberswalde
+  - Hochschule der Polizei des Landes Brandenburg
   - Kompetenzzentrum für Telemedizin und E-Health Hessen (KTE Hessen)
+  - IT-Dienstleistungszentrum des Freistaats Bayern (LDBV)
+  - infra.run Service GmbH
+  - Hosterra SAS
 developmentStatus: stable
 softwareType: standalone/web
 maintenance:
@@ -31,6 +37,8 @@ localisation:
     - en
     - de
     - fr
+    - fa
+    - ar
 description:
   en:
     localisedName: PILOS
@@ -56,6 +64,8 @@ description:
         Engage your audience with interactive tools like chat, emojis, surveys and much more.
       - **Recording**
         Record your videoconferences and make them available using fine grained permission control.
+      - **Live Streaming**
+        Reach a wider audience by streaming video conferences to an RTMP endpoint.
       - **Security**
         All communication data is securely encrypted during transmission using the WebRTC protocol.
       - **Statistics**
@@ -66,7 +76,7 @@ description:
       - Manage BigBlueButton Server and Server Pools
       - Manage users and roles
       - Manage room types (room setting presets)
-      - Record video conferences
+      - Record and stream video conferences
     genericName: Videoconferencing
     screenshots:
       - .opencode/screenshots/en/home.jpg
@@ -133,6 +143,11 @@ description:
       Zeichnen Sie Ihre Videokonferenzen auf und stellen Sie Aufzeichnugen mit
       einer fein abgestuften Berechtigungen zur Verfügung.
 
+      - **Live Streaming**
+
+      Erreichen Sie ein größeres Publikum, indem Sie Videokonferenzen
+      an einen RTMP-Endpunkt streamen.
+
       - **Sicherheit**
 
       Alle Kommunikationsdaten werden während der Übertragung mit dem
@@ -148,7 +163,7 @@ description:
       - Verwalten von BigBlueButton Server und Serverpools
       - Verwalten von Benutzern und Rollen
       - Verwalten von Raumtypen (Raumeinstellungsvoreinstellungen)
-      - Videokonferenzen aufzeichnen
+      - Videokonferenzen aufzeichnen & streamen
     genericName: Videokonferenz
     screenshots:
       - .opencode/screenshots/de/home.jpg

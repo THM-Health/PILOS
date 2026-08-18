@@ -1,6 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use BigBlueButton\Enum\HashingAlgorithm;
+
+$allowedFileMimes = array_values(array_unique(array_filter(array_map('trim', explode(',', env('BBB_ALLOWED_FILE_MIMES', ''))))));
+$allowedFileMimesFallback = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'odt', 'ods', 'odp', 'odg', 'odc', 'odi', 'jpg', 'jpeg', 'png'];
 
 return [
     'test_server' => [
@@ -8,7 +13,7 @@ return [
         'secret' => env('BBB_TEST_SERVER_SECRET'),
     ],
     'max_filesize' => (int) env('BBB_MAX_FILESIZE', 30),
-    'allowed_file_mimes' => env('BBB_ALLOWED_FILE_MIMES', 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png'),
+    'allowed_file_mimes' => ! empty($allowedFileMimes) ? $allowedFileMimes : $allowedFileMimesFallback,
     'welcome_message_limit' => (int) env('WELCOME_MESSAGE_LIMIT', 500), // max 5000
     'room_name_limit' => (int) env('ROOM_NAME_LIMIT', 50),
     'room_id_max_tries' => (int) env('BBB_ROOM_ID_MAX_TRIES', 1000),

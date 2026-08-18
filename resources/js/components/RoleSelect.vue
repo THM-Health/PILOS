@@ -8,6 +8,7 @@
       :model-value="selectedRoles"
       track-by="id"
       open-direction="bottom"
+      :required="required"
       :multiple="true"
       :searchable="false"
       :internal-search="false"
@@ -90,7 +91,7 @@
       severity="secondary"
       outlined
       icon="fa-solid fa-sync"
-      :aria-label="$t('app.reload')"
+      :aria-label="$t('admin.roles.reload_aria')"
       data-test="roles-reload-button"
       @click="loadRoles(currentPage)"
     />
@@ -114,6 +115,10 @@ const props = defineProps({
     default: false,
   },
   disabled: {
+    type: Boolean,
+    default: false,
+  },
+  required: {
     type: Boolean,
     default: false,
   },

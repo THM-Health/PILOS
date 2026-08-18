@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Date;
 use SimpleXMLElement;
 
@@ -41,20 +45,11 @@ class RecordingFormat extends Model
         $meetingId = (string) $xml->meta->meetingId;
         $meetingName = (string) $xml->meta->meetingName;
 
-        // Find the meeting with the given id
-        $meeting = Meeting::where('id', $meetingId)->first();
-
-        // If the meeting exists, get the room from the meeting
-        // Otherwise, find the room with the given id
-        if ($meeting != null) {
-            $room = $meeting->room;
-        } else {
-            // Fallback to greenlight behaviour (using the persistent room id as meeting id)
-            $room = Room::where('id', $meetingId)->first();
-        }
-
-        // If the room does not exist, we can't associate the recording format with a room
-        if ($room == null) {
+        try {
+            // Find the meeting with the given id
+            $meeting = Meeting::findOrFail($meetingId);
+        } catch (ModelNotFoundException) {
+            // If the meeting does not exist, we can't associate the recording format with anything
             return null;
         }
 
@@ -66,7 +61,7 @@ class RecordingFormat extends Model
             $recording->description = $meetingName;
             $recording->start = $start;
             $recording->end = $end;
-            $recording->room()->associate($room);
+            $recording->room()->associate($meeting->room);
             $recording->meeting()->associate($meeting);
             $recording->save();
         }
@@ -91,7 +86,7 @@ class RecordingFormat extends Model
     /**
      * Recording the recording format belongs to
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function recording()
     {

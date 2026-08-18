@@ -1,17 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Attendee;
-use App\Http\Resources\MeetingStat;
-use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
+use App\Http\Requests\MeetingIndexRequest;
+use App\Http\Resources\AttendeeResource;
+use App\Http\Resources\MeetingStatResource;
+use App\Http\Resources\MeetingWithRoomAndServerResource as MeetingResource;
 use App\Models\Meeting;
 use App\Services\MeetingService;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -27,9 +32,9 @@ class MeetingController extends Controller
     /**
      * Display a listing of all currently running meetings
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(MeetingIndexRequest $request)
     {
         $additionalMeta = [];
 
@@ -47,7 +52,7 @@ class MeetingController extends Controller
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         // And-search, sub queries split by space
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {
@@ -111,9 +116,9 @@ class MeetingController extends Controller
     /**
      * Usage statistics for this meeting (count of participants, voices, videos)
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function stats(Meeting $meeting)
     {
@@ -127,15 +132,15 @@ class MeetingController extends Controller
             abort(CustomStatusCodes::FEATURE_DISABLED->value, __('app.errors.meeting_statistics_disabled'));
         }
 
-        return MeetingStat::collection($meeting->stats()->orderBy('created_at')->get());
+        return MeetingStatResource::collection($meeting->stats()->orderBy('created_at')->get());
     }
 
     /**
      * Attendance of users and guests during a meeting
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function attendance(Meeting $meeting)
     {
@@ -157,6 +162,6 @@ class MeetingController extends Controller
             abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value, __('app.errors.meeting_attendance_not_ended'));
         }
 
-        return Attendee::collection($meetingService->attendance());
+        return AttendeeResource::collection($meetingService->attendance());
     }
 }

@@ -7,11 +7,16 @@
     }"
     data-test="room-type-badge"
   >
-    {{ roomType.name }}
+    <span class="sr-only"
+      >{{ $t("rooms.index.room_component.room_type") }}<raw-text>:</raw-text>
+    </span>
+    <span>{{ roomType.name }}</span>
   </Tag>
 </template>
 
 <script setup>
+import RawText from "./RawText.vue";
+
 defineProps({
   roomType: {
     type: Object,

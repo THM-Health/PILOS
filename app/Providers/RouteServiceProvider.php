@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -9,6 +12,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
+use Laravel\Fortify\Fortify;
+use Response;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -47,6 +53,12 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(200)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('login', function (Request $request) {
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($throttleKey);
+        });
+
         RateLimiter::for('password_reset', function (Request $request) {
             return Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip());
         });
@@ -70,6 +82,21 @@ class RouteServiceProvider extends ServiceProvider
 
             // If the user is not editing himself, no rate limit (use the default rate limit, see api rate limit)
             return Limit::none();
+        });
+
+        RateLimiter::for('room-enumeration', function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->user()?->id ?: $request->ip())
+                ->after(function (\Symfony\Component\HttpFoundation\Response $response) use ($request) {
+                    // If the response is not a 404, do not count this request
+                    if ($response->getStatusCode() !== 404) {
+                        return false;
+                    }
+
+                    // Only count the request if the route parameter 'room' was not resolved to a Room model
+                    // Prevent counting requests that are valid and return a 404 for other reasons
+                    return ! ($request->route('room') instanceof Room);
+                });
         });
     }
 }

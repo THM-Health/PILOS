@@ -13,7 +13,7 @@
         lastname: props.lastname,
       })
     "
-    :disabled="isBusy"
+    :disabled="isBusy || props.disabled"
     severity="warn"
     icon="fa-solid fa-key"
     data-test="users-reset-password-button"
@@ -64,6 +64,7 @@ import { ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const api = useApi();
 const toast = useToast();
@@ -86,8 +87,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
+const emit = defineEmits(["notFound"]);
 const modalVisible = ref(false);
 const isBusy = ref(false);
 
@@ -114,6 +120,10 @@ function resetPassword() {
       );
     })
     .catch((error) => {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
+        modalVisible.value = false;
+        emit("notFound");
+      }
       api.error(error);
     })
     .finally(() => {

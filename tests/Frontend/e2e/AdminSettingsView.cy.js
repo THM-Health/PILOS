@@ -29,7 +29,7 @@ describe("Admin settings with edit permission", function () {
           .and("be.disabled");
       });
 
-    cy.get('[ data-test="help-url-field"]')
+    cy.get('[data-test="help-url-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.help_url.title")
       .and("include.text", "admin.settings.help_url.description")
@@ -51,6 +51,19 @@ describe("Admin settings with edit permission", function () {
       .and("include.text", "admin.settings.privacy_policy_url.description")
       .within(() => {
         cy.get("#privacy-policy-url")
+          .should("have.value", "")
+          .and("be.disabled");
+      });
+
+    cy.get('[data-test="accessibility-statement-url-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.accessibility_statement_url.title")
+      .and(
+        "include.text",
+        "admin.settings.accessibility_statement_url.description",
+      )
+      .within(() => {
+        cy.get("#accessibility-statement-url")
           .should("have.value", "")
           .and("be.disabled");
       });
@@ -406,10 +419,8 @@ describe("Admin settings with edit permission", function () {
             .should("be.visible")
             .and("have.attr", "href", "/rooms")
             .and("have.attr", "target", "_self")
-            .and("have.text", "Rooms");
-          cy.get('[data-test="banner-link-button"]')
-            .find("button")
-            .should("have.attr", "data-p-severity", "link")
+            .and("have.text", "Rooms")
+            .and("have.attr", "data-p-severity", "link")
             .and("have.class", "p-0 underline")
             .and("have.attr", "style")
             .and("include", "color: rgb(255, 255, 255)");
@@ -642,11 +653,19 @@ describe("Admin settings with edit permission", function () {
           .and("be.disabled");
       });
 
+    cy.get('[data-test="room-hide-owner-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.room_hide_owner_from_guests")
+      .within(() => {
+        cy.get("#room-hide-owner").should("not.be.checked").and("be.disabled");
+      });
+
     // Reload with different settings
     cy.fixture("settings.json").then((settings) => {
       settings.data.room_limit = 10;
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
+      settings.data.room_hide_owner_from_guests = true;
 
       cy.intercept("GET", "api/v1/settings", {
         statusCode: 200,
@@ -686,6 +705,13 @@ describe("Admin settings with edit permission", function () {
               .and("be.disabled");
           });
       });
+
+    cy.get('[data-test="room-hide-owner-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.room_hide_owner_from_guests")
+      .within(() => {
+        cy.get("#room-hide-owner").should("be.checked").and("be.disabled");
+      });
   });
 
   it("check user settings with only view permission", function () {
@@ -699,6 +725,48 @@ describe("Admin settings with edit permission", function () {
       .within(() => {
         cy.get("#password-change-allowed")
           .should("be.checked")
+          .and("be.disabled");
+      });
+
+    cy.get('[data-test="user-search-by-name-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.user_search_by_name.title")
+      .and("include.text", "admin.settings.user_search_by_name.description")
+      .within(() => {
+        cy.get("#user-search-by-name").should("be.checked").and("be.disabled");
+      });
+
+    // Reload with different settings
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.user_password_change_allowed = false;
+      settings.data.user_search_by_name = false;
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsRequest");
+    });
+
+    cy.reload();
+
+    cy.wait("@settingsRequest");
+
+    cy.get('[data-test="password-change-allowed-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.password_change_allowed")
+      .within(() => {
+        cy.get("#password-change-allowed")
+          .should("not.be.checked")
+          .and("be.disabled");
+      });
+
+    cy.get('[data-test="user-search-by-name-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.user_search_by_name.title")
+      .and("include.text", "admin.settings.user_search_by_name.description")
+      .within(() => {
+        cy.get("#user-search-by-name")
+          .should("not.be.checked")
           .and("be.disabled");
       });
   });
@@ -841,12 +909,24 @@ describe("Admin settings with edit permission", function () {
         cy.checkSettingsFileSelectorOnlyView("");
       });
 
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":0,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "")
+          .and("be.disabled");
+      });
+
     // Reload with different settings
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = null;
       settings.data.bbb_logo_dark = null;
       settings.data.bbb_style = "/files/bbb_style.css";
       settings.data.bbb_default_presentation = "/files/testFile.txt";
+      settings.data.bbb_default_welcome_message =
+        "Welcome to our BigBlueButton meetings!";
 
       cy.intercept("GET", "api/v1/settings", {
         statusCode: 200,
@@ -884,6 +964,16 @@ describe("Admin settings with edit permission", function () {
       .and("include.text", "admin.settings.default_presentation")
       .within(() => {
         cy.checkSettingsFileSelectorOnlyView("/files/testFile.txt");
+      });
+
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":38,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "Welcome to our BigBlueButton meetings!")
+          .and("be.disabled");
       });
   });
 });

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'action_url' => 'Si vous ne parvenez pas à cliquer sur le bouton ":actionText", copiez et collez l\'URL ci-dessous dans votre navigateur internet:',
     'email_changed' => [

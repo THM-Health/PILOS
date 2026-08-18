@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'Code d\'accès',
     'auth_throttled' => 'Trop de tentatives. Merci de retenter dans :try_again secondes.',
@@ -141,6 +143,7 @@ return [
     'first_and_lastname' => 'Prénom et nom',
     'flash' => [
         'access_code_invalid' => 'Le code d\'accès est invalide.',
+        'auth_token_invalid' => 'Le jeton d\'authentification n\'est pas valide.',
         'file_forbidden' => 'L\'accès au fichier demandé a été interdit.',
         'file_gone' => 'Ce fichier a été supprimé entre temps.',
         'no_new_room' => 'Vous n\'avez pas l\'autorisation nécessaire pour créer une nouvelle salle.',
@@ -260,7 +263,7 @@ return [
             'select_user' => 'Merci de sélectionner le nouveau propriétaire',
             'title' => 'Transférer la propriété',
             'transfer' => 'Transférer',
-            'warning' => 'Attention: Cela peu faire perdre l\'accès à cette salle à son propriétaire actuel',
+            'warning' => 'Attention: Cela peut faire perdre l\'accès à cette salle à son propriétaire actuel',
         ],
     ],
     'name' => 'Nom de la salle',
@@ -404,7 +407,6 @@ return [
             'access_code_prohibited' => 'Ce type de salle a verrouillé l\'absence de code d\'accès',
             'allow' => 'Autoriser',
             'allow_guests' => 'Autoriser les invités',
-            'chars' => 'Caractères: :chars',
             'delete_access_code' => 'Enlever le code d\'accès',
             'enforced_setting' => 'Verrouiller le paramètre',
             'generate_access_code' => 'Créer un nouveau code d\'accès',

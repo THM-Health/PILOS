@@ -1,8 +1,8 @@
 <template>
   <div>
     <h1 class="p-card-title">{{ props.title }}</h1>
-    <form @submit.prevent="submit">
-      <div class="flex flex-col gap-2" data-test="username-field">
+    <Form :disabled="props.loading" @submit="submit">
+      <div class="field flex flex-col gap-2" data-test="username-field">
         <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>
         <InputText
           :id="`${props.id}-username`"
@@ -12,20 +12,16 @@
           autocomplete="username"
           :placeholder="props.usernameLabel"
           aria-describedby="username-help-block"
-          :invalid="
-            props.errors !== null &&
-            props.errors.username &&
-            props.errors.username.length > 0
-          "
+          :invalid="formErrors.fieldInvalid('username')"
           required
         />
         <small id="username-help-block">{{
           $t("auth.ldap.username_help")
         }}</small>
-        <FormError :errors="props.errors?.username" />
+        <FormError :errors="formErrors.fieldError('username')" />
       </div>
 
-      <div class="mt-6 flex flex-col gap-2" data-test="password-field">
+      <div class="field mt-6 flex flex-col gap-2" data-test="password-field">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
           v-model="password"
@@ -37,13 +33,9 @@
           fluid
           :disabled="props.loading"
           :placeholder="props.passwordLabel"
-          :invalid="
-            props.errors !== null &&
-            props.errors.password &&
-            props.errors.password.length > 0
-          "
+          :invalid="formErrors.fieldInvalid('password')"
         />
-        <FormError :errors="props.errors?.password" />
+        <FormError :errors="formErrors.fieldError('password')" />
       </div>
       <Button
         type="submit"
@@ -53,20 +45,22 @@
         icon="fa-solid fa-right-to-bracket"
         :label="props.submitLabel"
       />
-    </form>
+    </Form>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, toRaw, watch } from "vue";
 import FormError from "./FormError.vue";
+import { useFormErrors } from "../composables/useFormErrors.js";
+
+const formErrors = useFormErrors();
 
 const emit = defineEmits(["submit"]);
 const props = defineProps({
   errors: {
     type: [Object, null],
     required: true,
-    default: null,
   },
   id: {
     type: String,
@@ -95,6 +89,14 @@ const props = defineProps({
 
 const username = ref("");
 const password = ref("");
+
+watch(
+  () => props.errors,
+  (newErrors) => {
+    formErrors.set(toRaw(newErrors));
+  },
+  { deep: true, immediate: true },
+);
 
 function submit() {
   emit("submit", {

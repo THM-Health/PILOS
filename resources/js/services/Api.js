@@ -1,11 +1,20 @@
 import axios from "axios";
-import env from "../env";
 import { useToast } from "../composables/useToast";
 import i18n from "../i18n";
 import { useAuthStore } from "../stores/auth";
 import { useRouter } from "vue-router";
 import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
 import EventBus from "./EventBus.js";
+import { ROOM } from "../constants/modelNames.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_GUESTS_ONLY,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_PAYLOAD_TOO_LARGE,
+  HTTP_STATUS_SERVICE_UNAVAILABLE,
+  HTTP_STATUS_TOO_MANY_REQUESTS,
+  HTTP_STATUS_UNAUTHORIZED,
+} from "../constants/httpStatusCodes.js";
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
@@ -52,25 +61,32 @@ export class Api {
     const statusCode = this.getErrorStatusCode(error);
     const message = this.getErrorMessage(error);
 
-    if (statusCode === env.HTTP_UNAUTHORIZED) {
+    if (statusCode === HTTP_STATUS_UNAUTHORIZED) {
       // 401 => unauthorized, redirect and show error messages as flash!
       this.handleUnauthorized(error, options);
     } else if (
-      statusCode === env.HTTP_FORBIDDEN &&
+      statusCode === HTTP_STATUS_FORBIDDEN &&
       message === "This action is unauthorized."
     ) {
       // 403 => unauthorized, show error messages as flash!
       this.handleForbidden(error, options);
-    } else if (statusCode === env.HTTP_GUESTS_ONLY) {
+    } else if (statusCode === HTTP_STATUS_NOT_FOUND) {
+      // 404 => not found, show error messages as flash!
+      if (message === "model_not_found") {
+        this.handleModelNotFound(error, options);
+      } else {
+        this.handleOtherServerError(error, options);
+      }
+    } else if (statusCode === HTTP_STATUS_GUESTS_ONLY) {
       // 420 => only for guests, redirect to home route
       this.handleGuestsOnly(error, options);
-    } else if (statusCode === env.HTTP_PAYLOAD_TOO_LARGE) {
+    } else if (statusCode === HTTP_STATUS_PAYLOAD_TOO_LARGE) {
       // 413 => payload to large
       this.handlePayloadTooLarge(error, options);
-    } else if (statusCode === env.HTTP_TOO_MANY_REQUESTS) {
+    } else if (statusCode === HTTP_STATUS_TOO_MANY_REQUESTS) {
       // 429 => too many requests
       this.handleTooManyRequests(error, options);
-    } else if (statusCode === env.HTTP_SERVICE_UNAVAILABLE) {
+    } else if (statusCode === HTTP_STATUS_SERVICE_UNAVAILABLE) {
       // 503 => maintenance mode
       this.handleMaintenance(error, options);
     } else if (statusCode !== undefined) {
@@ -79,6 +95,10 @@ export class Api {
     } else {
       this.handleClientError(error, options);
     }
+  }
+
+  validationError(error) {
+    this.toast.error(error.response.data.message);
   }
 
   getErrorMessage(error) {
@@ -112,6 +132,34 @@ export class Api {
     this.toast.error(this.t("app.flash.unauthorized"));
   }
 
+  handleModelNotFound(error, options) {
+    const data = error.response?.data;
+    const model = data?.model;
+    const ids = data?.ids;
+
+    if (model === ROOM && options.redirectOnRoomModelNotFound !== false) {
+      // Redirect to room index page if user is authenticated, otherwise show 404 page, because
+      // unauthenticated user is not able to visit the room index page
+      if (this.auth.isAuthenticated) {
+        this.router.push({ name: "rooms.index" });
+      } else {
+        this.router.push({ name: "404" });
+      }
+    }
+
+    // Show error message for model not found error with model name and ids if available
+    this.toast.error(
+      this.t("app.flash.model_not_found.title", {
+        model: this.t("app.model." + model),
+      }),
+      ids && ids.length > 0
+        ? this.t("app.flash.model_not_found.details", {
+            ids: `${ids.join(", ")}`,
+          })
+        : null,
+    );
+  }
+
   handleGuestsOnly() {
     this.toast.info(this.t("app.flash.guests_only"));
     this.router.replace({ name: "home" });
@@ -121,8 +169,14 @@ export class Api {
     this.toast.error(this.t("app.flash.too_large"));
   }
 
-  handleTooManyRequests() {
-    this.toast.error(this.t("app.flash.too_many_requests"));
+  handleTooManyRequests(error) {
+    // Retry-After Header is in seconds
+    // Minutes are always rounded up to avoid user retrying again too early
+    const tryAgainMinutes = Math.ceil(
+      error.response.headers["retry-after"] / 60,
+    );
+
+    this.toast.error(this.t("app.flash.too_many_requests", tryAgainMinutes));
   }
 
   handleMaintenance() {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <OverlayComponent :show="loading || loadingError">
+    <OverlayComponent :show="isBusy || loadingError">
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="getSessions()" />
       </template>
@@ -54,11 +54,11 @@
       <div class="flex justify-end">
         <Button
           severity="danger"
-          :disabled="loading || loadingError"
+          :disabled="isBusy || loadingError || disabled"
           class="mt-4"
           :label="$t('auth.sessions.logout_all')"
           icon="fa-solid fa-right-from-bracket"
-          :loading="loading"
+          :loading="isBusy"
           data-test="logout-all-sessions-button"
           @click="deleteAllSessions"
         />
@@ -68,19 +68,32 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import UAParser from "ua-parser-js";
 
+defineProps({
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["busy"]);
+
 const sessions = ref([]);
-const loading = ref(false);
+const isBusy = ref(false);
 const loadingError = ref(false);
 
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
+
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
+});
 
 onMounted(() => {
   getSessions();
@@ -90,7 +103,7 @@ onMounted(() => {
  * Get the user's sessions.
  */
 function getSessions() {
-  loading.value = true;
+  isBusy.value = true;
   api
     .call("sessions")
     .then((response) => {
@@ -105,7 +118,7 @@ function getSessions() {
       api.error(error);
     })
     .finally(() => {
-      loading.value = false;
+      isBusy.value = false;
     });
 }
 
@@ -125,7 +138,7 @@ function parseAgent(agent) {
  * Delete all other sessions
  */
 function deleteAllSessions() {
-  loading.value = true;
+  isBusy.value = true;
 
   api
     .call("sessions", { method: "DELETE" })
@@ -137,7 +150,7 @@ function deleteAllSessions() {
       api.error(error);
     })
     .finally(() => {
-      loading.value = false;
+      isBusy.value = false;
     });
 }
 </script>

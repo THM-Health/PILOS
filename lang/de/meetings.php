@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'attendance' => [
         'download' => 'Herunterladen',
+        'download_aria' => 'Teilnehmerliste herunterladen',
         'duration' => 'Anwesenheit',
         'duration_minute' => ':duration min.',
         'filename' => 'Anwesenheitsliste',
@@ -13,7 +16,12 @@ return [
         'retention_period' => 'Die Anwesenheit wird für :days Tage gespeichert.',
         'retention_period_unlimited' => 'Die Anwesenheit wird zeitlich unbegrenzt gespeichert.',
         'sessions' => 'Sitzungen',
+        'spreadsheet' => [
+            'title' => 'Anwesenheit für :room',
+            'worksheet' => 'Anwesenheitsliste',
+        ],
         'view' => 'Anwesenheit anzeigen',
+        'view_aria' => 'Teilnahmeliste für Meeting anzeigen :start',
     ],
     'currently_running' => 'Laufende Meetings',
     'end' => 'Ende',
@@ -24,7 +32,10 @@ return [
     'now' => 'Jetzt',
     'owner' => 'Eigentümer',
     'participant_count' => 'Teilnehmer',
+    'participant_count_value' => '{0} 0 Teilnehmer |{1} 1 Teilnehmer |[2,*] :count Teilnehmer',
+    'reload_aria' => 'Laufende Meetings neu laden',
     'retention_period' => 'Aufbewahrungsfrist',
+    'search_aria' => 'Laufende Meetings suchen',
     'start' => 'Beginn',
     'stats' => [
         'amount' => 'Anzahl',
@@ -39,6 +50,7 @@ return [
     ],
     'video_count' => 'Teilnehmer mit Video',
     'view_meeting_stats' => 'Auslastung anzeigen',
-    'view_room' => 'Raum ":name" anzeigen',
+    'view_meeting_stats_aria' => 'Auslastung für Meeting anzeigen :start',
+    'view_room' => 'Raum anzeigen: :name',
     'voice_participant_count' => 'Teilnehmer mit Mikrofon',
 ];

@@ -8,7 +8,7 @@
     "
   >
     <div class="row-start-2">
-      <div class="flex items-center gap-2">
+      <div class="field flex items-center gap-2">
         <ToggleSwitch
           v-model="model[setting]"
           :input-id="'room-setting-' + setting"
@@ -47,7 +47,7 @@ defineProps({
     required: false,
   },
   errors: {
-    type: Object,
+    type: Array,
     required: true,
   },
   setting: {

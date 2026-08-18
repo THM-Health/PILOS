@@ -2,7 +2,9 @@
   <!-- button -->
   <Button
     v-tooltip="$t('rooms.recordings.delete_recording')"
-    :aria-label="$t('rooms.recordings.delete_recording')"
+    :aria-label="
+      $t('rooms.recordings.delete_recording_aria', { description: description })
+    "
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-trash"
@@ -48,11 +50,12 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { RECORDING } from "../constants/modelNames.js";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   recordingId: {
@@ -60,6 +63,10 @@ const props = defineProps({
     required: true,
   },
   roomId: {
+    type: String,
+    required: true,
+  },
+  description: {
     type: String,
     required: true,
   },
@@ -97,7 +104,10 @@ function deleteRecording() {
       // editing failed
       if (error.response) {
         // recording not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.model === RECORDING
+        ) {
           toast.error(t("rooms.flash.recording_gone"));
           emit("notFound");
           return;

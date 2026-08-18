@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'enabled' => env('METRICS_ENABLED', false),
     'namespace' => env('METRICS_NAMESPACE', 'pilos'),

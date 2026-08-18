@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => ':attribute باید پذیرفته شود.',
     'accepted_if' => ':attribute باید پذیرفته شود وقتی :other برابر :value است.',
@@ -9,6 +11,10 @@ return [
     'alpha' => ':attribute باید فقط شامل حروف باشد.',
     'alpha_dash' => ':attribute باید فقط شامل حروف، اعداد، خط تیره',
     'alpha_num' => 'The :attribute must only contain letters and numbers.',
+    'antivirus' => [
+        'error' => 'اسکن ویروس برای :file ناموفق بود.',
+        'virus' => ':file حاوی ویروس است.',
+    ],
     'array' => 'The :attribute must be an array.',
     'ascii' => 'فیلد :attribute باید فقط شامل کاراکترهای الفبایی عددی تک‌بایتی و نمادها باشد.',
     'attached' => 'این :attribute قبلاً پیوست شده است.',
@@ -71,6 +77,7 @@ return [
         'firstname' => 'نام',
         'formats' => 'فرمت‌ها',
         'gender' => 'جنسیت',
+        'general_accessibility_statement_url' => 'URL بیانیه دسترسی‌پذیری',
         'general_default_timezone' => 'منطقه زمانی پیش‌فرض',
         'general_help_url' => 'آدرس صفحه راهنما',
         'general_legal_notice_url' => 'آدرس اطلاعیه حقوقی',
@@ -125,6 +132,7 @@ return [
         'room_auto_delete_inactive_period' => 'مدت تا حذف اتاق‌های غیرفعال',
         'room_auto_delete_never_used_period' => 'مدت تا حذف اتاق‌های استفاده‌نشده',
         'room_file_terms_of_use' => 'شرایط استفاده برای دانلود فایل',
+        'room_hide_owner_from_guests' => 'مالک اتاق را از کاربران احراز هویت نشده مخفی کنید',
         'room_limit' => 'محدودیت اتاق',
         'room_personalized_link_expiration' => 'زمان انقضای لینک‌های شخصی‌سازی شده اتاق',
         'room_type' => 'نوع اتاق',
@@ -141,6 +149,7 @@ return [
         'streaming_pause_image' => 'تصویر حالت مکث',
         'streaming_url' => 'آدرس اینترنتی RTMP(S)',
         'strength' => 'قدرت سرور',
+        'theme_custom_css' => 'فایل سبک CSS سفارشی',
         'theme_favicon' => 'فاوآیکون',
         'theme_favicon_dark' => 'فاوآیکون نسخه تاریک',
         'theme_favicon_dark_file' => 'فایل فاوآیکون نسخه تاریک',
@@ -374,6 +383,7 @@ return [
     'room_type_attribute_default' => 'تنظیم پیش‌فرض برای :attribute',
     'room_type_attribute_enforced' => 'وضعیت اجرایی :attribute',
     'same' => 'فیلد :attribute و :other باید مطابقت داشته باشند.',
+    'several_errors' => '(و :count خطاهای بیشتر)',
     'size' => [
         'array' => 'فیلد :attribute باید شامل :size آیتم باشد.',
         'file' => 'فیلد :attribute باید :size کیلوبایت باشد.',

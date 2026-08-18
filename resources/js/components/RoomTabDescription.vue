@@ -1,5 +1,5 @@
 <template>
-  <div class="px-2">
+  <div>
     <div
       v-if="userPermissions.can('manageSettings', room)"
       class="mb-4 flex justify-end gap-2"
@@ -36,15 +36,17 @@
         </div>
       </div>
 
-      <div v-else>
-        <TipTapEditor
-          v-model="newContent"
-          :class="{
-            'is-invalid': formErrors.fieldInvalid('description') === false,
-          }"
-          :disabled="isBusy"
-        />
-        <FormError :errors="formErrors.fieldError('description')" />
+      <div v-else class="form">
+        <div class="field">
+          <TipTapEditor
+            v-model="newContent"
+            :class="{
+              'is-invalid': formErrors.fieldInvalid('description'),
+            }"
+            :disabled="isBusy"
+          />
+          <FormError :errors="formErrors.fieldError('description')" />
+        </div>
       </div>
     </OverlayComponent>
     <div class="mt-2 flex justify-end">
@@ -61,12 +63,15 @@
 </template>
 
 <script setup>
-import env from "../env";
 import createDOMPurify from "dompurify";
 import { ref, computed } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -118,7 +123,7 @@ function sanitizeCss(node) {
   };
 
   // Loop through each style property of the node
-  for (let i = node.style.length; i--; ) {
+  for (let i = node.style.length; i--;) {
     const name = node.style[i];
     // If the property is not in the allowlist, remove it
     if (!Object.prototype.hasOwnProperty.call(cssAllowlist, name)) {
@@ -220,9 +225,14 @@ function save() {
     })
     .catch((error) => {
       // Description couldn't be saved due to validation errors
-      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
         return;
+      }
+      // Description couldn't be saved due to missing permission, close the editor
+      if (error.response.status === HTTP_STATUS_FORBIDDEN) {
+        editorOpen.value = false;
       }
       // Handle other errors
       api.error(error, { redirectOnUnauthenticated: false });

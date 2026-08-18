@@ -10,22 +10,26 @@
         {
           "id": 1,
           "format": "notes",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1"
         },
         {
           "id": 2,
           "format": "podcast",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2"
         },
         {
           "id": 3,
           "format": "presentation",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3"
         },
         {
           "id": 4,
           "format": "screenshare",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/4"
         }
       ]
     },
@@ -39,22 +43,26 @@
         {
           "id": 1,
           "format": "notes",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200/formats/1"
         },
         {
           "id": 2,
           "format": "podcast",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200/formats/2"
         },
         {
           "id": 3,
           "format": "presentation",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200/formats/3"
         },
         {
           "id": 4,
           "format": "screenshare",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200/formats/4"
         }
       ]
     },
@@ -68,22 +76,26 @@
         {
           "id": 1,
           "format": "notes",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975/formats/1"
         },
         {
           "id": 2,
           "format": "podcast",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975/formats/2"
         },
         {
           "id": 3,
           "format": "presentation",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975/formats/3"
         },
         {
           "id": 4,
           "format": "screenshare",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975/formats/4"
         }
       ]
     },
@@ -97,22 +109,26 @@
         {
           "id": 1,
           "format": "notes",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775/formats/1"
         },
         {
           "id": 2,
           "format": "podcast",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775/formats/2"
         },
         {
           "id": 3,
           "format": "presentation",
-          "disabled": true
+          "disabled": true,
+          "url": "https://example.com/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775/formats/3"
         },
         {
           "id": 4,
           "format": "screenshare",
-          "disabled": false
+          "disabled": false,
+          "url": "https://example.com/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775/formats/4"
         }
       ]
     }

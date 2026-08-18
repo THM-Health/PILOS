@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => 'يجب قبول :attribute.',
     'accepted_if' => 'يجب قبول :attribute عندما يكون :other هو :value.',
@@ -75,6 +77,7 @@ return [
         'firstname' => 'الاسم الأول',
         'formats' => 'الصيغ',
         'gender' => 'الجنس',
+        'general_accessibility_statement_url' => 'رابط بيان إمكانية الوصول',
         'general_default_timezone' => 'المنطقة الزمنية الافتراضية',
         'general_help_url' => 'رابط صفحة المساعدة',
         'general_legal_notice_url' => 'رابط الإشعار القانوني',
@@ -129,6 +132,7 @@ return [
         'room_auto_delete_inactive_period' => 'المدة حتى حذف الغرف غير النشطة',
         'room_auto_delete_never_used_period' => 'المدة حتى حذف الغرف التي لم تُستخدم أبدًا',
         'room_file_terms_of_use' => 'شروط استخدام تنزيل الملفات',
+        'room_hide_owner_from_guests' => 'إخفاء مالك الغرفة عن المستخدمين غير المصادق عليهم',
         'room_limit' => 'حد الغرف',
         'room_personalized_link_expiration' => 'مدة صلاحية روابط الغرف المخصصة',
         'room_type' => 'نوع الغرفة',
@@ -379,6 +383,7 @@ return [
     'room_type_attribute_default' => 'الإعداد الافتراضي لـ :attribute',
     'room_type_attribute_enforced' => 'حالة الإجبار لـ :attribute',
     'same' => ':attribute و :other يجب أن يتطابقا.',
+    'several_errors' => '(و :count أخطاء أخرى)',
     'size' => [
         'array' => ':attribute يجب أن يحتوي على :size عناصر.',
         'file' => ':attribute يجب أن يكون :size كيلوبايت.',

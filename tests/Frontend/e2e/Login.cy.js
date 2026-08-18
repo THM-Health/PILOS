@@ -359,6 +359,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 422,
       body: {
+        message: "Password or Email wrong!",
         errors: {
           email: ["Password or Email wrong!"],
         },
@@ -386,6 +387,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 422,
       body: {
+        message: "The Password field is required",
         errors: {
           password: ["The Password field is required."],
         },
@@ -415,10 +417,11 @@ describe("Login", function () {
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/local", {
       statusCode: 429,
+      headers: {
+        "Retry-After": "59",
+      },
       body: {
-        errors: {
-          email: ["Too many logins. Please try again later!"],
-        },
+        message: "Too Many Attempts.",
       },
     }).as("loginRequest");
 
@@ -427,9 +430,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check if error gets displayed
-    cy.contains("Too many logins. Please try again later!").should(
-      "be.visible",
-    );
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("be.visible");
     // Check that 422 error messages are hidden
     cy.contains("Password or Email wrong!").should("not.exist");
     cy.contains("The Password field is required.").should("not.exist");
@@ -447,7 +448,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check that other error messages are hidden
-    cy.contains("Too many logins. Please try again later!").should("not.exist");
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("not.exist");
 
     // Check that error message is shown
     cy.checkToastMessage([
@@ -490,6 +491,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/ldap", {
       statusCode: 422,
       body: {
+        message: "These credentials do not match our records.",
         errors: {
           username: ["These credentials do not match our records."],
         },
@@ -517,6 +519,7 @@ describe("Login", function () {
     cy.intercept("POST", "api/v1/login/ldap", {
       statusCode: 422,
       body: {
+        message: "The Password field is required",
         errors: {
           password: ["The Password field is required."],
         },
@@ -546,10 +549,11 @@ describe("Login", function () {
     // Error for to many login requests gets displayed
     cy.intercept("POST", "api/v1/login/ldap", {
       statusCode: 429,
+      headers: {
+        "Retry-After": "59",
+      },
       body: {
-        errors: {
-          username: ["Too many logins. Please try again later!"],
-        },
+        message: "Too Many Attempts.",
       },
     }).as("loginRequest");
 
@@ -558,9 +562,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check if error gets displayed
-    cy.contains("Too many logins. Please try again later!").should(
-      "be.visible",
-    );
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("be.visible");
     // Check that 422 error messages are hidden
     cy.contains("These credentials do not match our records.").should(
       "not.exist",
@@ -580,7 +582,7 @@ describe("Login", function () {
     cy.wait("@loginRequest");
 
     // Check that other error messages are hidden
-    cy.contains("Too many logins. Please try again later!").should("not.exist");
+    cy.contains('auth.throttle_{"count":59,"n":59}').should("not.exist");
 
     // Check that error message is shown
     cy.checkToastMessage([
@@ -601,12 +603,22 @@ describe("Login", function () {
   });
 
   it("visit login page with already logged in user", function () {
-    cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["admin.view"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
     cy.interceptRoomIndexRequests();
 
+    // Check without redirect query parameter
     cy.visit("/login");
-    cy.checkToastMessage("app.flash.guests_only");
-    cy.url().should("not.include", "/login");
+    cy.url().should("include", "/rooms").and("not.include", "/login");
+
+    // Check with redirect query parameter
+    cy.visit("/login?redirect=/admin");
+    cy.url().should("include", "/admin").and("not.include", "/login");
   });
 
   it("shibboleth login", function () {
@@ -635,6 +647,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("hide shibboleth login if disabled", function () {
@@ -692,6 +705,10 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("external login callback missing attributes error", function () {
@@ -701,6 +718,12 @@ describe("Login", function () {
     // Check if error gets displayed
     cy.contains("auth.error.login_failed").should("be.visible");
     cy.contains("auth.error.missing_attributes").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
   });
 
   it("external login callback duplicate session error", function () {
@@ -712,6 +735,70 @@ describe("Login", function () {
     cy.contains("auth.error.shibboleth_session_duplicate_exception").should(
       "be.visible",
     );
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback invalid request", function () {
+    // Visit redirect page after external login with error (invalid request)
+    cy.visit("/external_login?error=invalid_request");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.invalid_request").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback openid connect network exception", function () {
+    // Visit redirect page after external login with error (openid connect network exception)
+    cy.visit("/external_login?error=openid_connect_network_exception");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.openid_connect_network_exception").should(
+      "be.visible",
+    );
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback openid connect exception", function () {
+    // Visit redirect page after external login with error (openid connect exception)
+    cy.visit("/external_login?error=openid_connect_exception");
+
+    // Check if error gets displayed
+    cy.contains("auth.error.login_failed").should("be.visible");
+    cy.contains("auth.error.openid_connect_exception").should("be.visible");
+
+    // Check login button
+    cy.get('a[data-test="login-button"]')
+      .should("be.visible")
+      .should("have.text", "auth.login")
+      .should("have.attr", "href", "/login");
+  });
+
+  it("external login callback with error and already logged in user", function () {
+    cy.intercept("/api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.interceptRoomIndexRequests();
+
+    // Visit redirect page after external login with error
+    cy.visit("/external_login?error=invalid_request");
+
+    // Check redirected to room overview page
+    cy.url().should("include", "/rooms").and("not.include", "/login");
   });
 
   it("oidc login", function () {
@@ -741,6 +828,7 @@ describe("Login", function () {
     cy.visit("/external_login");
 
     cy.url().should("include", "/rooms").and("not.include", "/login");
+    cy.checkToastMessage("auth.flash.login");
   });
 
   it("hide oidc login if disabled", function () {
@@ -799,5 +887,30 @@ describe("Login", function () {
 
     // Check if redirect works
     cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.checkToastMessage("auth.flash.login");
+  });
+
+  it("external login with redirect query and no_message set", function () {
+    // Intercept user request (user that has the permission to show the config page)
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["admin.view"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    // Visit redirect page after external login (redirect query is set)
+    cy.visit("/external_login?no_message=1&redirect=/admin");
+
+    // Check if redirect works
+    cy.url().should("include", "/admin").and("not.include", "/login");
+
+    // Check admin page is shown (loading is finished) and no toast message is shown
+    cy.contains("admin.title").should("be.visible");
+    cy.get(".p-toast-message").should("not.exist");
   });
 });

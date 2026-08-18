@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;

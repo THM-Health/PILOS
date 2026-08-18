@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'تغيير البريد الإلكتروني',
     'change_password' => 'تغيير كلمة المرور',
@@ -9,6 +11,7 @@ return [
         'title' => 'تسجيل الدخول بالبريد الإلكتروني',
     ],
     'error' => [
+        'invalid_request' => 'فشلت المصادقة بسبب طلب غير صالح.',
         'login_failed' => 'فشل تسجيل الدخول',
         'missing_attributes' => 'بيانات المصادقة مفقودة.',
         'openid_connect_exception' => 'فشلت المصادقة بسبب خطأ.',

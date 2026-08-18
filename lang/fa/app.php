@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'اقدامات',
     'back' => 'بازگشت',
@@ -64,7 +66,10 @@ return [
     'flash' => [
         'client_error' => 'یک خطای ناشناخته در برنامه رخ داد!',
         'guests_only' => 'این درخواست فقط می‌تواند توسط مهمانان انجام شود!',
-        'popup_blocked' => 'مرورگر شما باز کردن پنجره جدید را مسدود کرده است. لطفاً اجازه نمایش پنجره‌های بازشو را برای این صفحه بدهید و دوباره امتحان کنید.',
+        'model_not_found' => [
+            'details' => 'شناسه: :ids',
+            'title' => 'مدل یافت نشد!',
+        ],
         'server_error' => [
             'empty_message' => 'در حین درخواست خطایی در سرور رخ داد!',
             'error_code' => 'کد خطا: :statusCode',
@@ -76,6 +81,7 @@ return [
         'unauthorized' => 'شما مجوزهای لازم برای دسترسی به مسیر فراخوانی‌شده را ندارید!',
     ],
     'footer' => [
+        'accessibility' => 'بیانیه دسترسی‌پذیری',
         'legal_notice' => 'اطلاعیه قانونی',
         'privacy_policy' => 'سیاست حفظ حریم خصوصی',
     ],
@@ -95,11 +101,17 @@ return [
         'fr' => 'فرانسوی',
     ],
     'model' => [
-        'roles' => 'نقش',
-        'room_types' => 'نوع اتاق',
-        'server_pools' => 'مخزن سرور',
-        'servers' => 'سرور',
-        'users' => 'کاربر',
+        'meeting' => 'جلسه',
+        'recording' => 'ضبط',
+        'recording_format' => 'فرمت ضبط',
+        'role' => 'نقش',
+        'room' => 'اتاق',
+        'room_file' => 'فایل اتاق',
+        'room_personalized_link' => 'لینک شخصی اتاق',
+        'room_type' => 'نوع اتاق',
+        'server' => 'سرورها',
+        'server_pool' => 'استخر سرور',
+        'user' => 'کاربر',
     ],
     'model_name' => 'نام',
     'next' => 'بعدی',

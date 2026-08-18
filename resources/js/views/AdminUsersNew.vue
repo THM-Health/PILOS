@@ -1,7 +1,17 @@
 <template>
   <div>
     <OverlayComponent :show="isBusy">
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form
+        class="flex flex-col gap-4"
+        :disabled="
+          isBusy ||
+          rolesLoadingError ||
+          timezonesLoadingError ||
+          rolesLoading ||
+          timezonesLoading
+        "
+        @submit="save"
+      >
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <div
             class="field grid grid-cols-12 gap-4"
@@ -131,7 +141,11 @@
                   input-id="generate_password"
                   :invalid="formErrors.fieldInvalid('generate_password')"
                   :disabled="isBusy"
-                  aria-describedby="generate_password-help"
+                  :pt="{
+                    input: {
+                      'aria-describedby': 'generate_password-help',
+                    },
+                  }"
                 />
               </div>
               <FormError :errors="formErrors.fieldError('generate_password')" />
@@ -209,12 +223,11 @@
             data-test="users-new-save-button"
           />
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
   </div>
 </template>
 <script setup>
-import env from "../env.js";
 import "cropperjs/dist/cropper.css";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
@@ -222,13 +235,13 @@ import { useSettingsStore } from "../stores/settings";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
 const router = useRouter();
-
 const isBusy = ref(false);
 const showPassword = ref(false);
 const model = reactive({
@@ -295,9 +308,10 @@ function save() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else {
         api.error(error);
       }

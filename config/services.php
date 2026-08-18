@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $shibbolethEnabled = (bool) env('SHIBBOLETH_ENABLED', false);
 $oidcEnabled = (bool) env('OIDC_ENABLED', false);
 

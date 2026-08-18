@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => 'Le champ :attribute doit être accepté.',
     'accepted_if' => '« :attribute » doit être accepté lorsque « :other » est « :value »',
@@ -75,6 +77,7 @@ return [
         'firstname' => 'Prénom',
         'formats' => 'Formats',
         'gender' => 'Genre',
+        'general_accessibility_statement_url' => 'URL de la déclaration d\'accessibilité',
         'general_default_timezone' => 'Fuseau horaire par défaut',
         'general_help_url' => 'URL de la page d\'aide',
         'general_legal_notice_url' => 'URL des mentions légales',
@@ -129,6 +132,7 @@ return [
         'room_auto_delete_inactive_period' => 'Période minimum avant suppression de la salle une fois inutilisée',
         'room_auto_delete_never_used_period' => 'Période minimum avant suppression de la salle si elle n\'a jamais été démarrée',
         'room_file_terms_of_use' => 'Conditions d\'utilisation pour le téléchargement de fichier',
+        'room_hide_owner_from_guests' => 'Masquer le propriétaire de la salle aux utilisateurs non identifiées',
         'room_limit' => 'Limites de salle',
         'room_personalized_link_expiration' => 'Délai d\'expiration des liens de salle personnalisés',
         'room_type' => 'Type de salle',
@@ -269,9 +273,9 @@ return [
     'custom_parameter_invalid' => 'La valeur du paramètre :parameter est invalide.',
     'custom_parameter_missing' => 'La valeur du paramètre :parameter est manquante.',
     'custom_parameter_not_found' => 'Le paramètre :parameter n\'existe pas.',
-    'date' => 'Le champ :attribute n\'est pas uen date valide.',
+    'date' => 'Le champ :attribute n\'est pas une date valide.',
     'date_equals' => 'Le champ :attribute doit être une date égale à :date.',
-    'date_format' => 'Le champ :attribute ne correspont pas au format :format.',
+    'date_format' => 'Le champ :attribute ne correspond pas au format :format.',
     'decimal' => 'Le champ « :attribute » doit avoir :decimal décimales.',
     'declined' => '« :attribute » doit être refusé.',
     'declined_if' => '« :attribute » doit être refusé lorsque « :other » est « :value »',
@@ -353,6 +357,7 @@ return [
     'not_in' => 'Le champ :attribute sélectionné est invalide.',
     'not_regex' => 'Le champ :attribute a un format invalid.',
     'numeric' => 'Le champ :attribute doit être un nombre.',
+    'one_more_error' => '(et une erreur en plus)',
     'password' => 'Le mot de passe est incorrect.',
     'password.letters' => 'Le champ « :attribute » doit contenir au moins une lettre.',
     'password.mixed' => 'Le champ « :attribute » doit contenir au moins une lettre majuscule et minuscule.',
@@ -368,7 +373,7 @@ return [
     'prohibited_if' => 'Le champ :attribute est interdit quand :other est :value.',
     'prohibited_unless' => 'Le champ :attribute est interdit sauf si :other est dans :values.',
     'regex' => 'Le champ :attribute a un format invalid.',
-    'relatable' => 'Le champ « :attribute » peu ne pas être associé avec cette ressource.',
+    'relatable' => 'Le champ « :attribute » peut ne pas être associé avec cette ressource.',
     'required' => 'Le champ :attribute est requis.',
     'required_array_keys' => 'Le champ « :attribute » doit contenir les entrées pour « :values ».',
     'required_if' => 'Le champ :attribute est requis quand :other est :value.',
@@ -382,6 +387,7 @@ return [
     'room_type_attribute_default' => 'Paramètre par défaut pour « :attribute »',
     'room_type_attribute_enforced' => 'Statut de verrouillage de « :attribute »',
     'same' => 'Le champ :attribute et :other doivent correspondre.',
+    'several_errors' => '(et :count erreurs supplémentaires)',
     'size' => [
         'array' => 'Le champ :attribute doit contenir :size éléments.',
         'file' => 'Le champ :attribute doit être de :size Ko.',

@@ -37,7 +37,8 @@
           :label="$t('app.save')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction || isLoading || modelLoadingError"
-          @click="save"
+          form="room-streaming-config-form"
+          type="submit"
         />
       </div>
     </template>
@@ -48,9 +49,14 @@
           <LoadingRetryButton :error="modelLoadingError" @click="loadConfig" />
         </div>
       </template>
-      <form class="flex flex-col gap-4" @submit.prevent="save">
+      <Form
+        id="room-streaming-config-form"
+        class="flex flex-col gap-4"
+        :disabled="isLoadingAction || isLoading || modelLoadingError"
+        @submit="save"
+      >
         <div
-          class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
+          class="field col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
           data-test="streaming-enabled-field"
         >
           <label for="streaming-enabled" class="flex items-center">
@@ -68,7 +74,7 @@
 
         <!-- Streaming url -->
         <div
-          class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
+          class="field col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
           data-test="streaming-url-field"
         >
           <label for="streaming-url" class="mb-2">{{
@@ -85,7 +91,7 @@
         </div>
 
         <fieldset
-          class="grid-rows grid gap-2"
+          class="field grid-rows grid gap-2"
           data-test="streaming-pause-image-field"
         >
           <legend
@@ -137,20 +143,30 @@
               v-model:file="streamingPauseImageFile"
               v-model:file-deleted="streamingPauseImageDeleted"
               :disabled="formDisabled"
-              :max-file-size="5000000"
+              :max-file-size="5_000_000"
               :hide-url="true"
               show-delete
               :show-view="false"
               :preview-alt="$t('rooms.streaming.config.pause_image_alt')"
-              :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+              :allowed-extensions="[
+                'jpg',
+                'jpeg',
+                'png',
+                'gif',
+                'svg',
+                'webp',
+                'bmp',
+              ]"
               input-id="pause-image"
               :file-invalid="formErrors.fieldInvalid('pause_image')"
-              :file-error="formErrors.fieldError('pause_image')"
+              :file-errors="formErrors.fieldError('pause_image')"
             />
-            <small>{{ $t("rooms.streaming.config.pause_image_format") }}</small>
+            <small class="block">{{
+              $t("rooms.streaming.config.pause_image_resolution")
+            }}</small>
           </div>
         </fieldset>
-      </form>
+      </Form>
     </OverlayComponent>
   </Dialog>
 </template>
@@ -159,8 +175,8 @@
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { computed, ref } from "vue";
-import env from "../env.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -268,7 +284,7 @@ function save() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
       } else {

@@ -29,7 +29,7 @@ export default {
   viewInvitation(user, model) {
     return !user
       ? false
-      : model.owner.id === user.id ||
+      : model.owner?.id === user.id ||
           model.is_moderator ||
           model.is_co_owner ||
           user.permissions.includes("rooms.viewAll");
@@ -44,7 +44,8 @@ export default {
   delete(user, model) {
     return !user
       ? false
-      : model.owner.id === user.id || user.permissions.includes("rooms.manage");
+      : model.owner?.id === user.id ||
+          user.permissions.includes("rooms.manage");
   },
   /**
    * Is user allowed to transfer this room to a different user
@@ -55,7 +56,8 @@ export default {
   transfer(user, model) {
     return !user
       ? false
-      : model.owner.id === user.id || user.permissions.includes("rooms.manage");
+      : model.owner?.id === user.id ||
+          user.permissions.includes("rooms.manage");
   },
 
   /**
@@ -67,7 +69,7 @@ export default {
   viewSettings(user, model) {
     return !user
       ? false
-      : model.owner.id === user.id ||
+      : model.owner?.id === user.id ||
           model.is_co_owner ||
           user.permissions.includes("rooms.viewAll");
   },
@@ -81,7 +83,7 @@ export default {
   manageSettings(user, model) {
     return !user
       ? false
-      : model.owner.id === user.id ||
+      : model.owner?.id === user.id ||
           model.is_co_owner ||
           user.permissions.includes("rooms.manage");
   },
@@ -96,6 +98,6 @@ export default {
       ? false
       : model.allow_membership &&
           !model.is_member &&
-          model.owner.id !== user.id;
+          model.owner?.id !== user.id;
   },
 };

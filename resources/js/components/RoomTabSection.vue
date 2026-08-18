@@ -1,12 +1,12 @@
 <template>
-  <Card class="mt-6">
+  <Card pt:body:class="pt-4 px-6" class="mt-4">
     <template #header>
       <!-- Tab header -->
       <div
         class="mb-5 flex flex-row justify-between border-b border-surface px-6 py-4"
       >
         <!-- Current tab -->
-        <div class="flex flex-row items-center gap-2 px-2 text-xl">
+        <div class="flex flex-row items-center gap-2 text-xl">
           <i :class="activeTab?.icon" />
           <h2 class="m-0">{{ activeTab?.label }}</h2>
         </div>
@@ -85,8 +85,10 @@
           :room-auth-token="roomAuthToken"
           :room="props.room"
           @invalid-room-auth-token="$emit('invalidRoomAuthToken')"
+          @require-code="$emit('requireCode')"
           @guests-not-allowed="$emit('guestsNotAllowed')"
           @settings-changed="$emit('settingsChanged')"
+          @transferred-ownership="$emit('transferredOwnership')"
         />
       </div>
     </template>
@@ -132,7 +134,7 @@
 </template>
 <script setup>
 import { useUserPermissions } from "../composables/useUserPermission.js";
-import { computed, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import RoomTabDescription from "./RoomTabDescription.vue";
 import RoomTabMembers from "./RoomTabMembers.vue";
@@ -146,7 +148,13 @@ import { useUrlSearchParams } from "@vueuse/core";
 import { useSettingsStore } from "../stores/settings.js";
 import RoomTabStreaming from "./RoomTabStreaming.vue";
 
-defineEmits(["invalidRoomAuthToken", "guestsNotAllowed", "settingsChanged"]);
+defineEmits([
+  "invalidRoomAuthToken",
+  "requireCode",
+  "guestsNotAllowed",
+  "settingsChanged",
+  "transferredOwnership",
+]);
 
 const props = defineProps({
   room: {
@@ -186,7 +194,7 @@ const activeTabKey = ref("");
 const hashParams = useUrlSearchParams("hash-params");
 
 // Initial tab selection
-onMounted(() => {
+onMounted(async () => {
   // Check if tab selection is saved in URL hash and try to select it if it exists
   if (hashParams.tab) {
     if (availableTabs.value.find((tab) => tab.key === hashParams.tab)) {
@@ -196,6 +204,9 @@ onMounted(() => {
   }
   // Default and fallback to first tab
   activeTabKey.value = availableTabs.value[0].key;
+
+  await nextTick();
+  hashParams.tab = null;
 });
 
 onRoomHasChanged(

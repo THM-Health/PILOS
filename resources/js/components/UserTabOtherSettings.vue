@@ -1,7 +1,12 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.bbb')">
-      <form v-if="model" class="flex flex-col gap-4" @submit="save">
+      <Form
+        v-if="model"
+        class="flex flex-col gap-4"
+        :disabled="isBusy"
+        @submit="save"
+      >
         <div
           class="field grid grid-cols-12 gap-4"
           data-test="bbb-skip-check-audio-field"
@@ -35,17 +40,21 @@
             data-test="user-tab-others-save-button"
           />
         </div>
-      </form>
+      </Form>
     </AdminPanel>
   </div>
 </template>
 
 <script setup>
-import env from "../env";
 import * as _ from "lodash-es";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { onBeforeMount, ref, watch } from "vue";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   user: {
@@ -58,7 +67,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["updateUser", "notFoundError", "staleError"]);
+const emit = defineEmits(["updateUser", "notFoundError", "staleError", "busy"]);
 
 const model = ref(null);
 const isBusy = ref(false);
@@ -73,6 +82,10 @@ watch(
   },
   { deep: true },
 );
+
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
+});
 
 onBeforeMount(() => {
   model.value = _.cloneDeep(props.user);
@@ -103,17 +116,18 @@ function save(event) {
       emit("updateUser", response.data.data);
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         emit("notFoundError", error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         // Validation errors
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         // Stale error
         emit("staleError", error.response.data);

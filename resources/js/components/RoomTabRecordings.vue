@@ -1,11 +1,12 @@
 <template>
   <div>
-    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+    <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
-        <div>
+        <search>
           <InputGroup data-test="room-recordings-search">
             <InputText
               v-model="search"
+              type="search"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
               @keyup.enter="loadData(1)"
@@ -13,15 +14,15 @@
             <Button
               v-tooltip="$t('app.search')"
               :disabled="isBusy"
-              :aria-label="$t('app.search')"
+              :aria-label="$t('rooms.recordings.search_aria')"
               icon="fa-solid fa-magnifying-glass"
               @click="loadData(1)"
             />
           </InputGroup>
-        </div>
+        </search>
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
@@ -31,6 +32,7 @@
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
+              :aria-label="$t('rooms.recordings.filter_aria')"
               :pt="{
                 listContainer: {
                   'data-test': 'filter-dropdown-items',
@@ -44,7 +46,7 @@
           </InputGroup>
 
           <InputGroup data-test="sorting-type-inputgroup">
-            <InputGroupAddon>
+            <InputGroupAddon aria-hidden="true">
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
@@ -54,6 +56,7 @@
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
+              :aria-label="$t('rooms.recordings.sort_by')"
               :pt="{
                 listContainer: {
                   'data-test': 'sorting-type-dropdown-items',
@@ -72,6 +75,11 @@
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
                 "
+                :aria-label="
+                  sortOrder === 1
+                    ? $t('rooms.recordings.sort_ascending')
+                    : $t('rooms.recordings.sort_descending')
+                "
                 severity="secondary"
                 text
                 class="rounded-l-none"
@@ -87,7 +95,7 @@
           v-tooltip="$t('app.reload')"
           data-test="room-recordings-reload-button"
           class="shrink-0"
-          :aria-label="$t('app.reload')"
+          :aria-label="$t('rooms.recordings.reload_aria')"
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
@@ -131,7 +139,7 @@
         <!-- Show message on empty recording list -->
         <template #empty>
           <div>
-            <div v-if="!isBusy && !loadingError" class="px-2">
+            <div v-if="!isBusy && !loadingError">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
                 $t("rooms.recordings.nodata")
               }}</InlineNote>
@@ -141,7 +149,7 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2">
+          <div>
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-recording-item"
@@ -227,6 +235,7 @@
                   <RoomTabRecordingsDownloadButton
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :recording-id="item.id"
+                    :description="item.description"
                     :disabled="isBusy"
                   />
 
@@ -250,6 +259,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :room-id="props.room.id"
                     :recording-id="item.id"
+                    :description="item.description"
                     :disabled="isBusy"
                     @deleted="loadData()"
                     @not-found="loadData()"
@@ -304,7 +314,7 @@
   </div>
 </template>
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import RoomTabRecordingsDownloadButton from "./RoomTabRecordingsDownloadButton.vue";
@@ -312,12 +322,23 @@ import { useSettingsStore } from "../stores/settings.js";
 import { usePaginator } from "../composables/usePaginator.js";
 import { useDateDiff } from "../composables/useDateDiff.js";
 import { useI18n } from "vue-i18n";
-import env from "../env.js";
 import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 import {
-  HTTP_ROOM_INVALID_AUTH_TOKEN,
-  HTTP_ROOM_REQUIRE_CODE,
+  HTTP_ERROR_FORBIDDEN,
+  HTTP_ERROR_FILE_NOT_FOUND,
+  HTTP_ERROR_GUESTS_NOT_ALLOWED,
+  HTTP_ERROR_GUESTS_ONLY,
+  HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN,
+  HTTP_ERROR_ROOM_REQUIRE_CODE,
+  HTTP_ERROR_NOT_FOUND,
 } from "../constants/httpCustomErrorMessages.js";
+import EventBus from "../services/EventBus.js";
+import { EVENT_FORBIDDEN } from "../constants/events.js";
+import { useToast } from "../composables/useToast.js";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_UNAUTHORIZED,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -330,7 +351,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidRoomAuthToken"]);
+const emit = defineEmits([
+  "invalidRoomAuthToken",
+  "requireCode",
+  "guestsNotAllowed",
+]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -338,6 +363,7 @@ const settingsStore = useSettingsStore();
 const paginator = usePaginator();
 const dateDiff = useDateDiff();
 const { t } = useI18n();
+const toast = useToast();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
@@ -415,18 +441,18 @@ function loadData(page = null) {
       if (error.response) {
         // Room auth token is invalid
         if (
-          error.response.status === env.HTTP_UNAUTHORIZED &&
-          error.response.data.message === HTTP_ROOM_INVALID_AUTH_TOKEN
+          error.response.status === HTTP_STATUS_UNAUTHORIZED &&
+          error.response.data.message === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN
         ) {
           return emit("invalidRoomAuthToken");
         }
 
         // Forbidden, require access code
         if (
-          error.response.status === env.HTTP_FORBIDDEN &&
-          error.response.data.message === HTTP_ROOM_REQUIRE_CODE
+          error.response.status === HTTP_STATUS_FORBIDDEN &&
+          error.response.data.message === HTTP_ERROR_ROOM_REQUIRE_CODE
         ) {
-          return emit("invalidRoomAuthToken");
+          return emit("requireCode");
         }
       }
       loadingError.value = true;
@@ -444,10 +470,48 @@ function onPage(event) {
 
 onMounted(() => {
   loadData();
+  // Listen for messages from recording viewer window
+  window.addEventListener("message", handleRecordingErrorMessages);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("message", handleRecordingErrorMessages);
 });
 
 onRoomHasChanged(
   () => props.room,
   () => loadData(),
 );
+
+function handleRecordingErrorMessages(event) {
+  // Check origin
+  if (event.origin !== settingsStore.getSetting("general.base_url")) return;
+  if (event.data?.type === null || event.data?.type === undefined) return;
+  if (
+    event.data.type === HTTP_ERROR_FILE_NOT_FOUND ||
+    event.data.type === HTTP_ERROR_NOT_FOUND
+  ) {
+    // Recording not found
+    toast.error(t("rooms.flash.recording_gone"));
+    loadData();
+  } else if (event.data.type === HTTP_ERROR_ROOM_INVALID_AUTH_TOKEN) {
+    // Room auth token is invalid
+    emit("invalidRoomAuthToken");
+  } else if (event.data.type === HTTP_ERROR_ROOM_REQUIRE_CODE) {
+    // Forbidden, require access code
+    emit("requireCode");
+  } else if (event.data.type === HTTP_ERROR_FORBIDDEN) {
+    // Forbidden, not allowed to view recording
+    toast.error(t("rooms.flash.recording_forbidden"));
+    EventBus.emit(EVENT_FORBIDDEN);
+    // Reload recordings to reflect changes to recordings visibility
+    // This can result in multiple reloads in some cases, but ensures the recording list stays up to date
+    loadData();
+  } else if (event.data.type === HTTP_ERROR_GUESTS_NOT_ALLOWED) {
+    // Guests are not allowed
+    emit("guestsNotAllowed");
+  } else if (event.data.type === HTTP_ERROR_GUESTS_ONLY) {
+    api.handleGuestsOnly();
+  }
+}
 </script>

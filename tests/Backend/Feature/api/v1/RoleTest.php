@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -43,8 +45,8 @@ class RoleTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleA->name])
             ->assertJsonFragment(['superuser' => true])
-            ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 2]);
+            ->assertJsonPath('meta.per_page', $page_size)
+            ->assertJsonPath('meta.total', 2);
 
         $this->getJson(route('api.v1.roles.index').'?page=2')
             ->assertSuccessful()
@@ -57,11 +59,9 @@ class RoleTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleA->name]);
 
-        // Wrong data for sort gets ignored and sorting doesn't get applied
+        // Invalid sort order and sort field
         $this->getJson(route('api.v1.roles.index').'?page=2&sort_by=test&sort_direction=foo')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonFragment(['name' => $roleB->name]);
+            ->assertJsonValidationErrors(['sort_direction', 'sort_by']);
 
         // Test search
         $this->generalSettings->pagination_page_size = 10;
@@ -72,6 +72,11 @@ class RoleTest extends TestCase
             ->assertJsonFragment(['name' => $roleA->name])
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('meta.total_no_filter', 2);
+
+        // Test search; empty is ignored, no filtering
+        $this->getJson(route('api.v1.roles.index').'?query=')
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 2);
     }
 
     public function test_create()
@@ -239,6 +244,17 @@ class RoleTest extends TestCase
         $this->putJson(route('api.v1.roles.update', ['role' => $role]), $changes)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['permissions', 'name', 'room_limit']);
+
+        // Test deleted
+        $role->delete();
+
+        $this->putJson(route('api.v1.roles.update', ['role' => $role]), $changes)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'role',
+                'ids' => [$role->id],
+            ]);
     }
 
     public function test_update_permission_lost()
@@ -324,7 +340,13 @@ class RoleTest extends TestCase
         $roleB->permissions()->attach($permission->id);
 
         $this->actingAs($user)->getJson(route('api.v1.roles.show', ['role' => self::INVALID_ID]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'role',
+                'ids' => [self::INVALID_ID],
+            ]);
+
         $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))
             ->assertStatus(200)
             ->assertJsonFragment([
@@ -356,7 +378,11 @@ class RoleTest extends TestCase
         $superuserRole->permissions()->attach($permission->id);
         $role->permissions()->attach($permission->id);
 
-        $this->deleteJson(route('api.v1.roles.destroy', ['role' => self::INVALID_ID]))->assertNotFound();
+        $this->deleteJson(route('api.v1.roles.destroy', ['role' => self::INVALID_ID]))->assertNotFound()->assertJson([
+            'message' => 'model_not_found',
+            'model' => 'role',
+            'ids' => [self::INVALID_ID],
+        ]);
 
         // check if superuser role cannot be deleted
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $superuserRole]))->assertStatus(403);

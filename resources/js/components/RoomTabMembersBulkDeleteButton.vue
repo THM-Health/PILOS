@@ -1,16 +1,8 @@
 <template>
   <Button
-    v-tooltip="
-      $t('rooms.members.bulk_remove_user', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    v-tooltip="$t('rooms.members.bulk_remove_user', props.userIds.length)"
     data-test="room-members-bulk-delete-button"
-    :aria-label="
-      $t('rooms.members.bulk_remove_user', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    :aria-label="$t('rooms.members.bulk_remove_user', props.userIds.length)"
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-users-slash"
@@ -22,11 +14,7 @@
     v-model:visible="modalVisible"
     data-test="room-members-bulk-delete-dialog"
     modal
-    :header="
-      $t('rooms.members.modals.remove.title_bulk', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    :header="$t('rooms.members.modals.remove.title_bulk', props.userIds.length)"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -53,12 +41,10 @@
       </div>
     </template>
 
-    <div class="flex flex-col gap-2">
+    <div class="field flex flex-col gap-2">
       <span>
         {{
-          $t("rooms.members.modals.remove.confirm_bulk", {
-            numberOfSelectedUsers: props.userIds.length,
-          })
+          $t("rooms.members.modals.remove.confirm_bulk", props.userIds.length)
         }}
       </span>
       <FormError :errors="formErrors.fieldError('users', true)" />
@@ -66,10 +52,10 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -125,7 +111,7 @@ function deleteMembers() {
       // editing failed
       if (error.response) {
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

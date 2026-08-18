@@ -22,7 +22,7 @@ The following sections form a complete specification of the file format.
 
 ### Top-level sections
 
-| Field          | Type     | Default | Description                            |
+| Section        | Type     | Default | Description                            |
 | -------------- | -------- | ------- | -------------------------------------- |
 | `servers`      | `object` | `{}`    | Creating and/or wiping of servers      |
 | `server_pools` | `object` | `{}`    | Creating and/or wiping of server pools |
@@ -31,6 +31,8 @@ The following sections form a complete specification of the file format.
 | `users`        | `object` | `{}`    | Creating and/or wiping of users        |
 | `settings`     | `object` | `{}`    | Configuration of application settings  |
 
+All sections are optional. Missing sections will be skipped.
+
 ### Section `servers`
 
 | Field  | Type       | Default | Description                                                                  |
@@ -38,7 +40,7 @@ The following sections form a complete specification of the file format.
 | `wipe` | `boolean`  | `false` | If set to `true`, all existing servers are deleted before creating new ones. |
 | `add`  | `[object]` | `[]`    | A list of new servers to create.                                             |
 
-All items in the `add` array have the following format:
+All fields are optional. All items in the `add` array have the following format:
 
 | Field         | Type      | Description                           |
 | ------------- | --------- | ------------------------------------- |
@@ -58,7 +60,7 @@ All fields are required and do not have default values.
 | `wipe` | `boolean`  | `false` | If set to `true`, all existing server pools are deleted before creating new ones. |
 | `add`  | `[object]` | `[]`    | A list of new server pools to create.                                             |
 
-All items in the `add` array have the following format:
+All fields are optional. All items in the `add` array have the following format:
 
 | Field         | Type       | Description                                |
 | ------------- | ---------- | ------------------------------------------ |
@@ -75,7 +77,7 @@ All fields are required and do not have default values.
 | `wipe` | `boolean`  | `false` | If set to `true`, all existing room types are deleted before creating new ones. |
 | `add`  | `[object]` | `[]`    | A list of new room types to create.                                             |
 
-All items in the `add` array have the following format:
+All fields are optional. All items in the `add` array have the following format:
 
 | Field         | Type     | Description                                                                   |
 | ------------- | -------- | ----------------------------------------------------------------------------- |
@@ -93,7 +95,7 @@ All fields are required and do not have default values.
 | `wipe` | `boolean`  | `false` | If set to `true`, all existing roles are deleted before creating new ones. |
 | `add`  | `[object]` | `[]`    | A list of new roles to create.                                             |
 
-All items in the `add` array have the following format:
+All fields are optional. All items in the `add` array have the following format:
 
 | Field         | Type     | Description                  |
 | ------------- | -------- | ---------------------------- |
@@ -113,6 +115,8 @@ All fields are required and do not have default values. The `permissions` object
 | `servers`     | `[string]` | `[]`    | `viewAny`, `view`, `update`, `create`, `delete`                        |
 | `serverPools` | `[string]` | `[]`    | `viewAny`, `view`, `update`, `create`, `delete`                        |
 
+All fields are optional. All permissions of missing fields are revoked.
+
 ### Section `users`
 
 | Field  | Type       | Default | Description                                                                |
@@ -120,7 +124,7 @@ All fields are required and do not have default values. The `permissions` object
 | `wipe` | `boolean`  | `false` | If set to `true`, all existing users are deleted before creating new ones. |
 | `add`  | `[object]` | `[]`    | A list of new users to create.                                             |
 
-All items in the `add` array have the following format:
+All fields are optional. All items in the `add` array have the following format:
 
 | Field           | Type       | Description                                                                                                                                                                                                           |
 | --------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -137,25 +141,28 @@ All fields are required and do not have default values.
 
 ### Section `settings`
 
-| Field       | Type     | Default | Description                  |
+| Subsection  | Type     | Default | Description                  |
 | ----------- | -------- | ------- | ---------------------------- |
 | `general`   | `object` | `{}`    | General application settings |
 | `recording` | `object` | `{}`    | Recording settings           |
 | `room`      | `object` | `{}`    | Room settings                |
 | `user`      | `object` | `{}`    | User settings                |
 
+All subsections and fields within are optional.
+
 #### Subsection `general`
 
-| Field                  | Type      | Description                         |
-| ---------------------- | --------- | ----------------------------------- |
-| `name`                 | `string`  | Name of the application             |
-| `pagination_page_size` | `integer` | Pagination page size                |
-| `default_timezone`     | `string`  | Default timezone                    |
-| `help_url`             | `string`  | URL to the help page                |
-| `legal_notice_url`     | `string`  | URL to the legal notice             |
-| `privacy_policy_url`   | `string`  | URL to the privacy policy           |
-| `toast_lifetime`       | `integer` | Display duration of pop-up messages |
-| `no_welcome_page`      | `boolean` | Hide welcome page                   |
+| Field                         | Type      | Description                         |
+| ----------------------------- | --------- | ----------------------------------- |
+| `name`                        | `string`  | Name of the application             |
+| `pagination_page_size`        | `integer` | Pagination page size                |
+| `default_timezone`            | `string`  | Default timezone                    |
+| `help_url`                    | `string`  | URL to the help page                |
+| `legal_notice_url`            | `string`  | URL to the legal notice             |
+| `privacy_policy_url`          | `string`  | URL to the privacy policy           |
+| `accessibility_statement_url` | `string`  | URL to the accessibility statement  |
+| `toast_lifetime`              | `integer` | Display duration of pop-up messages |
+| `no_welcome_page`             | `boolean` | Hide welcome page                   |
 
 #### Subsection `recording`
 

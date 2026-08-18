@@ -13,6 +13,7 @@ describe("Admin room types edit", function () {
         "roomTypes.view",
         "roomTypes.update",
         "roomTypes.create",
+        "roomTypes.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -74,13 +75,14 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check that correct buttons are shown
-    cy.get('[data-test="room-types-cancel-edit-button"]')
+    cy.get('a[data-test="room-types-cancel-edit-button"]')
       .should("be.visible")
-      .and("not.be.disabled")
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/room_types/3");
     cy.get('[data-test="room-types-edit-button"]').should("not.exist");
-    cy.get('[data-test="room-types-delete-button"]').should("not.exist");
+    cy.get('[data-test="room-types-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
     cy.get('[data-test="room-types-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")
@@ -89,10 +91,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam"}',
       );
 
     // Change room type settings
@@ -108,10 +110,10 @@ describe("Admin room types edit", function () {
 
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam"}',
       );
 
     cy.get('[data-test="description-field"]')
@@ -175,7 +177,7 @@ describe("Admin room types edit", function () {
       .within(() => {
         cy.get('[data-test="room-type-badge"]')
           .should("have.css", "background-color", "rgb(239, 68, 68)")
-          .and("have.text", "Exam 01");
+          .and("have.text", "rooms.index.room_component.room_type:Exam 01");
       });
 
     cy.get(".multiselect__content").should("not.exist");
@@ -829,6 +831,13 @@ describe("Admin room types edit", function () {
         .should("be.disabled");
       cy.get('[data-test="visibility-enforced"]').should("be.disabled");
 
+      cy.get('button[data-test="room-types-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="room-types-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
       cy.get('[data-test="room-types-save-button"]')
         .should("be.disabled")
         .then(() => {
@@ -855,10 +864,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
   });
 
@@ -1140,6 +1149,13 @@ describe("Admin room types edit", function () {
         "multiselect--disabled",
       );
 
+      cy.get('button[data-test="room-types-cancel-edit-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+      cy.get('[data-test="room-types-delete-button"]')
+        .should("be.visible")
+        .and("be.disabled");
+
       cy.get('[data-test="room-types-save-button"]')
         .should("be.disabled")
         .then(() => {
@@ -1196,17 +1212,17 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam"}',
       );
 
     // Check with 422 error
     cy.intercept("PUT", "api/v1/roomTypes/3", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The name field is required. (and 39 more errors)",
         errors: {
           name: ["The name field is required."],
           description: ["The description field is required."],
@@ -1318,6 +1334,8 @@ describe("Admin room types edit", function () {
     cy.wait("@saveChangesRequest");
 
     // Check error messages
+    cy.checkToastMessage("The name field is required. (and 39 more errors)");
+
     cy.get('[data-test="room-type-name-field"]').should(
       "include.text",
       "The name field is required.",
@@ -1721,6 +1739,7 @@ describe("Admin room types edit", function () {
         statusCode: 428,
         body: {
           new_model: roomType.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1735,6 +1754,10 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="stale-room-type-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.room_type"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -1753,10 +1776,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.edit_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.edit_{"name":"Exam 01"}',
       );
 
     // Check that correct data is shown
@@ -1932,6 +1955,7 @@ describe("Admin room types edit", function () {
         statusCode: 428,
         body: {
           new_model: roomType.data,
+          message: "stale_model",
         },
       }).as("saveChangesRequest");
     });
@@ -1946,6 +1970,10 @@ describe("Admin room types edit", function () {
     cy.get('[data-test="stale-room-type-dialog"]')
       .should("be.visible")
       .and("include.text", "app.errors.stale_error")
+      .and(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.room_type"}',
+      )
       .within(() => {
         // Check buttons
         cy.get('[data-test="stale-dialog-reject-button"]')
@@ -2053,10 +2081,10 @@ describe("Admin room types edit", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.room_types.index")
+      .should("include.text", "admin.breadcrumbs.room_types.index")
       .should(
         "include.text",
-        'admin.breakcrumbs.room_types.view_{"name":"Exam 01"}',
+        'admin.breadcrumbs.room_types.view_{"name":"Exam 01"}',
       );
 
     // Reload
@@ -2067,7 +2095,9 @@ describe("Admin room types edit", function () {
     cy.intercept("PUT", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("saveChangesRequest");
 
@@ -2082,8 +2112,8 @@ describe("Admin room types edit", function () {
     cy.wait("@roomTypesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Reload
@@ -2148,7 +2178,9 @@ describe("Admin room types edit", function () {
     cy.intercept("GET", "api/v1/roomTypes/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_type",
+        ids: [3],
       },
     }).as("roomTypeRequest");
 
@@ -2163,8 +2195,8 @@ describe("Admin room types edit", function () {
     cy.wait("@roomTypesRequest");
 
     cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"No query results for model"}',
-      'app.flash.server_error.error_code_{"statusCode":404}',
+      'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+      'app.flash.model_not_found.details_{"ids":"3"}',
     ]);
 
     // Reload page with 401 error
@@ -2182,7 +2214,7 @@ describe("Admin room types edit", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("check button visibility with delete permission", function () {
+  it("check button visibility without delete permission", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
@@ -2191,7 +2223,6 @@ describe("Admin room types edit", function () {
         "roomTypes.view",
         "roomTypes.update",
         "roomTypes.create",
-        "roomTypes.delete",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
         statusCode: 200,
@@ -2209,9 +2240,7 @@ describe("Admin room types edit", function () {
       .and("include.text", "app.cancel_editing")
       .and("have.attr", "href", "/admin/room_types/3");
     cy.get('[data-test="room-types-edit-button"]').should("not.exist");
-    cy.get('[data-test="room-types-delete-button"]')
-      .should("be.visible")
-      .and("not.be.disabled");
+    cy.get('[data-test="room-types-delete-button"]').should("not.exist");
     cy.get('[data-test="room-types-save-button"]')
       .should("be.visible")
       .and("not.be.disabled")

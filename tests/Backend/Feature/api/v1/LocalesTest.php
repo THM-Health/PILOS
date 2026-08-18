@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Models\User;
 use App\Services\LocaleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
@@ -37,8 +38,10 @@ class LocalesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Config::set('ldap.enabled', true);
-        Config::set('ldap.mapping', json_decode($this->ldapMapping));
+        config([
+            'ldap.enabled' => true,
+            'ldap.mapping' => json_decode($this->ldapMapping),
+        ]);
         $this->withoutMix();
 
         config([
@@ -213,7 +216,7 @@ class LocalesTest extends TestCase
     public function test_default_locale_set_automatically_for_ldap_users_on_login()
     {
         Container::getConnection('default')->getConfiguration()->set('use_tls', false);
-        Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
+        Container::getConnection('default')->getConfiguration()->set('use_starttls', false);
         $fake = DirectoryEmulator::setup('default');
 
         $externalUser = LdapUser::create([

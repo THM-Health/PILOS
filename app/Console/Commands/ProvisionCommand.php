@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Services\ProvisioningService;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -26,15 +27,10 @@ class ProvisionCommand extends Command
      */
     protected $description = 'Provision this PILOS instance';
 
-    public function __construct(protected ProvisioningService $provision)
-    {
-        parent::__construct();
-    }
-
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(ProvisioningService $provision)
     {
         $data = json_decode(file_get_contents($this->argument('path')));
 
@@ -42,63 +38,76 @@ class ProvisionCommand extends Command
             DB::beginTransaction();
 
             // Wipe existing data (order is important!)
-            if ($data->room_types->wipe) {
-                $this->provision->roomType->destroy();
+            if ($data?->room_types?->wipe ?? false) {
+                $provision->roomType->destroy();
             }
-            if ($data->server_pools->wipe) {
-                $this->provision->serverPool->destroy();
+            if ($data?->server_pools?->wipe ?? false) {
+                $provision->serverPool->destroy();
             }
-            if ($data->servers->wipe) {
-                $this->provision->server->destroy();
+            if ($data?->servers?->wipe ?? false) {
+                $provision->server->destroy();
             }
-            if ($data->roles->wipe) {
-                $this->provision->role->destroy();
+            if ($data?->roles?->wipe ?? false) {
+                $provision->role->destroy();
             }
-            if ($data->users->wipe) {
-                $this->provision->user->destroy();
+            if ($data?->users?->wipe ?? false) {
+                $provision->user->destroy();
             }
 
             // Add new instances
-            $n = count($data->servers->add);
-            info("Provisioning $n servers");
-            foreach ($data->servers->add as $item) {
-                $this->provision->server->create($item);
+
+            if (isset($data->servers)) {
+                $n = count($data->servers->add ?? []);
+                info("Provisioning $n servers");
+                foreach ($data->servers->add ?? [] as $item) {
+                    $provision->server->create($item);
+                }
             }
 
-            $n = count($data->server_pools->add);
-            info("Provisioning $n server pools");
-            foreach ($data->server_pools->add as $item) {
-                $this->provision->serverPool->create($item);
+            if (isset($data->server_pools)) {
+                $n = count($data->server_pools->add ?? []);
+                info("Provisioning $n server pools");
+                foreach ($data->server_pools->add ?? [] as $item) {
+                    $provision->serverPool->create($item);
+                }
             }
 
-            $n = count($data->room_types->add);
-            info("Provisioning $n room types");
-            foreach ($data->room_types->add as $item) {
-                $this->provision->roomType->create($item);
+            if (isset($data->room_types)) {
+                $n = count($data->room_types->add ?? []);
+                info("Provisioning $n room types");
+                foreach ($data->room_types->add ?? [] as $item) {
+                    $provision->roomType->create($item);
+                }
             }
 
-            $n = count($data->roles->add);
-            info("Provisioning $n roles");
-            foreach ($data->roles->add as $item) {
-                $item->permissions = (array) $item->permissions;
-                $this->provision->role->create($item);
+            if (isset($data->roles)) {
+                $n = count($data->roles->add ?? []);
+                info("Provisioning $n roles");
+                foreach ($data->roles->add ?? [] as $item) {
+                    $item->permissions = (array) $item->permissions;
+                    $provision->role->create($item);
+                }
             }
 
-            $n = count($data->users->add);
-            info("Provisioning $n users");
-            foreach ($data->users->add as $item) {
-                $this->provision->user->create($item);
+            if (isset($data->users)) {
+                $n = count($data->users->add ?? []);
+                info("Provisioning $n users");
+                foreach ($data->users->add ?? [] as $item) {
+                    $provision->user->create($item);
+                }
             }
 
-            $n = array_sum(array_map(fn ($v) => count(get_object_vars($v)), get_object_vars($data->settings)));
-            info("Provisioning $n settings");
-            foreach (get_object_vars($data->settings) as $section => $settings) {
-                $data->settings->{$section} = (array) $settings;
+            if (isset($data->settings)) {
+                $n = array_sum(array_map(fn ($v) => count(get_object_vars($v)), get_object_vars($data->settings)));
+                info("Provisioning $n settings");
+                foreach (get_object_vars($data->settings) as $section => $settings) {
+                    $data->settings->{$section} = (array) $settings;
+                }
+                $provision->settings->set($data->settings);
             }
-            $this->provision->settings->set($data->settings);
 
             DB::commit();
-        } catch (Exception $err) {
+        } catch (\Throwable $err) {
             error("Provisioning failed, aborting transaction: {$err->getMessage()}");
             DB::rollBack();
 

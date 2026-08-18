@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Settings;
 
 use Spatie\LaravelSettings\Settings;
@@ -13,6 +15,8 @@ class GeneralSettings extends Settings
     public ?string $legal_notice_url;
 
     public ?string $privacy_policy_url;
+
+    public ?string $accessibility_statement_url;
 
     public int $pagination_page_size;
 

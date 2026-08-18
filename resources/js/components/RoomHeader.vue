@@ -1,16 +1,15 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4">
     <RoomBBBMessage :reason="bbbReason" :errors="bbbErrors" />
 
     <div class="flex flex-col-reverse gap-2 md:flex-row">
-      <div class="grow">
+      <div class="flex grow flex-col items-start">
         <!-- Display room type, name and owner  -->
-        <RoomTypeBadge :room-type="props.room.type" />
-        <h1 class="my-2 text-3xl text-color">
-          {{ props.room.name }}
-        </h1>
+        <PageTitle :title="props.room.name" class="order-2 mt-2 mb-4" />
 
+        <RoomTypeBadge class="order-1" :room-type="props.room.type" />
         <RoomDetailsList
+          class="order-3"
           :room="props.room"
           :show-description="true"
           :inline="detailsInline"
@@ -21,7 +20,7 @@
           <!-- Reload general room settings/details -->
           <Button
             v-tooltip="$t('app.reload')"
-            :aria-label="$t('app.reload')"
+            :aria-label="$t('rooms.reload_aria')"
             severity="secondary"
             :disabled="props.loading || disableReload"
             :loading="props.loading"
@@ -40,31 +39,12 @@
             :room="props.room"
             :room-auth-token="roomAuthToken"
             @joined-membership="emit('joinedMembership')"
-            @left-membership="emit('reload')"
+            @left-membership="emit('leftMembership')"
             @invalid-room-auth-token="emit('invalidRoomAuthToken')"
             @membership-disabled="emit('reload')"
           />
         </div>
       </div>
-    </div>
-    <div>
-      <InlineNote
-        v-if="props.room.last_meeting?.detached"
-        severity="warn"
-        icon="fa-solid fa-triangle-exclamation"
-        :closable="false"
-      >
-        {{ $t("rooms.connection_error.detached") }}
-      </InlineNote>
-
-      <InlineNote
-        v-else-if="props.room.last_meeting?.server_connection_issues"
-        severity="warn"
-        icon="fa-solid fa-triangle-exclamation"
-        :closable="false"
-      >
-        {{ $t("rooms.connection_error.reconnecting") }}
-      </InlineNote>
     </div>
   </div>
 </template>
@@ -116,5 +96,6 @@ const emit = defineEmits([
   "joinedMembership",
   "reload",
   "invalidRoomAuthToken",
+  "leftMembership",
 ]);
 </script>

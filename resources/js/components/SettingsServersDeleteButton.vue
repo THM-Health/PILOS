@@ -3,7 +3,7 @@
     v-tooltip="$t('admin.servers.delete.item', { name: props.name })"
     severity="danger"
     icon="fa-solid fa-trash"
-    :disabled="isBusy"
+    :disabled="isBusy || props.disabled"
     :aria-label="$t('admin.servers.delete.item', { name: props.name })"
     data-test="servers-delete-button"
     @click="showModal()"
@@ -44,6 +44,7 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const api = useApi();
 
@@ -56,9 +57,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 const modalVisible = ref(false);
 const isBusy = ref(false);
 
@@ -85,6 +90,10 @@ function deleteServer() {
       emit("deleted");
     })
     .catch((error) => {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
+        modalVisible.value = false;
+        emit("notFound");
+      }
       api.error(error);
     })
     .finally(() => {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'enabled' => env('ANTIVIRUS_ENABLED', false),
     'clamav' => [

@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RoomPersonalizedLinkIndexRequest;
 use App\Http\Requests\RoomPersonalizedLinkRequest;
-use App\Http\Resources\RoomPersonalizedLink as RoomPersonalizedLinkResource;
+use App\Http\Resources\RoomPersonalizedLinkResource;
 use App\Models\Room;
 use App\Models\RoomPersonalizedLink;
 use App\Settings\GeneralSettings;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +24,7 @@ class RoomPersonalizedLinkController extends Controller
      * @param  Room  $room  Room for which the personalized links should be listed.
      * @return AnonymousResourceCollection
      */
-    public function index(Room $room, Request $request)
+    public function index(Room $room, RoomPersonalizedLinkIndexRequest $request)
     {
         $additional = [];
 
@@ -59,7 +61,7 @@ class RoomPersonalizedLinkController extends Controller
         $additional['meta']['total_no_filter'] = $resource->count();
 
         // Apply search query if set
-        if ($request->has('query')) {
+        if ($request->filled('query')) {
             // Split search query into single words and search for them in firstname and lastname
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
@@ -101,20 +103,16 @@ class RoomPersonalizedLinkController extends Controller
      *
      * @return RoomPersonalizedLinkResource
      */
-    public function update(Room $room, RoomPersonalizedLink $link, RoomPersonalizedLinkRequest $request)
+    public function update(Room $room, RoomPersonalizedLink $personalizedLink, RoomPersonalizedLinkRequest $request)
     {
-        if (! $link->room->is($room)) {
-            abort(404, __('app.errors.personalized_link_not_found'));
-        }
+        $personalizedLink->firstname = $request->firstname;
+        $personalizedLink->lastname = $request->lastname;
+        $personalizedLink->role = $request->role;
+        $personalizedLink->save();
 
-        $link->firstname = $request->firstname;
-        $link->lastname = $request->lastname;
-        $link->role = $request->role;
-        $link->save();
+        Log::info('Updated personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'name' => $personalizedLink->fullname]);
 
-        Log::info('Updated personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
-
-        return new RoomPersonalizedLinkResource($link);
+        return new RoomPersonalizedLinkResource($personalizedLink);
     }
 
     /**
@@ -124,15 +122,11 @@ class RoomPersonalizedLinkController extends Controller
      *
      * @throws \Exception
      */
-    public function destroy(Room $room, RoomPersonalizedLink $link)
+    public function destroy(Room $room, RoomPersonalizedLink $personalizedLink)
     {
-        if (! $link->room->is($room)) {
-            abort(404, __('app.errors.personalized_link_not_found'));
-        }
+        $personalizedLink->delete();
 
-        $link->delete();
-
-        Log::info('Removed personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
+        Log::info('Removed personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'name' => $personalizedLink->fullname]);
 
         return response()->noContent();
     }

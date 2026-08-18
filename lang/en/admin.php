@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'breakcrumbs' => [
+    'breadcrumbs' => [
         'roles' => [
             'edit' => 'Edit :name',
             'index' => 'Roles',
@@ -132,6 +134,7 @@ return [
             ],
         ],
         'permissions_title' => 'Permissions',
+        'reload_aria' => 'Reload roles',
         'room_limit' => [
             'custom' => 'Custom amount',
             'default' => 'System default (:value)',
@@ -144,6 +147,7 @@ return [
                 'system_default' => 'System default',
             ],
         ],
+        'search_aria' => 'Search roles',
         'select_roles' => 'Please select at least one role',
         'superuser' => 'Superuser',
         'tile_description' => 'The roles assign permissions, organise the users and define the maximum number of rooms per user.',
@@ -182,6 +186,7 @@ return [
         'preview' => 'Preview',
         'restrict' => 'Restrict usage',
         'restrict_description' => 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
+        'search_aria' => 'Search room types',
         'select_roles' => 'Select roles',
         'select_server_pool' => 'Select server pool',
         'server_pool_description' => 'Servers of this server pool are used for load balancing',
@@ -190,8 +195,8 @@ return [
     ],
     'server_pools' => [
         'delete' => [
-            'confirm' => 'Are you really want to delete the server pool :name?',
-            'failed' => 'Server pool can\'t be deleted because the following room types still use it:',
+            'confirm' => 'Do you really want to delete the server pool :name?',
+            'failed' => '{1} Server pool can\'t be deleted because the following room type still uses it: |[2,*] Server pool can\'t be deleted because the following room types still use it:',
             'item' => 'Delete server pool :name',
             'title' => 'Delete server pool?',
         ],
@@ -199,7 +204,9 @@ return [
         'new' => 'Create new server pool',
         'no_data' => 'No server pools found!',
         'no_data_filtered' => 'For the filter query no server pools were found!',
+        'reload_aria' => 'Reload server pools',
         'remove_server' => 'Remove server :name',
+        'search_aria' => 'Search server pools',
         'select_servers' => 'Select server',
         'server_count' => 'Number of servers',
         'tile_description' => 'For load balancing several servers are bundled and assigned to each room via the room type.',
@@ -221,7 +228,8 @@ return [
         'enabled' => 'Enabled',
         'flash' => [
             'panic' => [
-                'description' => ':total meetings were found and :success were successfully stopped.',
+                'description_meetings_successful' => '{0} No meetings were successfully stopped. |{1} 1 meeting was successfully stopped. |[2,*] :count meetings were successfully stopped.',
+                'description_meetings_total' => '{0} No meetings were found. |{1} 1 meeting was found. |[2,*] :count meetings were found.',
                 'title' => 'The server has been disabled.',
             ],
         ],
@@ -244,6 +252,8 @@ return [
         'panic_server' => 'Disable server and end all meetings',
         'participant_count' => 'Participants',
         'reload' => 'Recalculate usage',
+        'reload_list_aria' => 'Reload servers',
+        'search_aria' => 'Search servers',
         'secret' => 'API secret',
         'show_secret' => 'Show clear text',
         'status' => 'Status',
@@ -259,6 +269,10 @@ return [
         'view' => 'Detailed information for the server :name',
     ],
     'settings' => [
+        'accessibility_statement_url' => [
+            'description' => 'If not set, no accessibility statement link will be displayed in the footer.',
+            'title' => 'URL to the accessibility statement',
+        ],
         'application' => 'Application',
         'attendance' => [
             'retention_period_title' => 'Retention period of the attendance logging in days',
@@ -281,6 +295,9 @@ return [
             'title' => 'Banner for messages',
         ],
         'bbb' => [
+            'default_welcome_message' => [
+                'title' => 'Default Welcome Message',
+            ],
             'logo' => [
                 'alt' => 'Logo preview',
                 'hint' => 'https://domain.tld/path/logo.svg',
@@ -344,7 +361,7 @@ return [
         'no_welcome_page' => 'Hide welcome page',
         'one_day' => '1 Day (24 Hours)',
         'one_month' => '1 Month (30 Days)',
-        'one_week' => '1 Week (7 Day)',
+        'one_week' => '1 Week (7 Days)',
         'one_year' => '1 Year (365 Days)',
         'pagination_page_size' => [
             'description' => 'Number of records displayed simultaneously in tables',
@@ -380,6 +397,7 @@ return [
             'description' => 'Users must agree to the terms of use in order to download files. If the field is empty, no consent is required.',
             'title' => 'Terms of use for file download',
         ],
+        'room_hide_owner_from_guests' => 'Hide room owner from unauthenticated users',
         'room_limit' => [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
@@ -415,7 +433,11 @@ return [
             'title' => 'Display duration of pop-up messages',
         ],
         'two_weeks' => '2 Weeks (14 Days)',
-        'two_years' => '2 Year (730 Days)',
+        'two_years' => '2 Years (730 Days)',
+        'user_search_by_name' => [
+            'description' => 'Allows users to find others by partial matches of their name or email address. When disabled, users can only be found by entering their exact email address.',
+            'title' => 'Allow searching users by name',
+        ],
         'user_settings' => 'User settings',
     ],
     'streaming' => [
@@ -449,7 +471,7 @@ return [
         'base_data' => 'Base data',
         'bbb' => 'BigBlueButton',
         'delete' => [
-            'confirm' => 'Are you really want to delete the user :firstname :lastname?',
+            'confirm' => 'Do you really want to delete the user :firstname :lastname?',
             'item' => 'Delete user :firstname :lastname',
             'title' => 'Delete user?',
         ],
@@ -476,6 +498,7 @@ return [
         'no_data_filtered' => 'For the filter query no users were found!',
         'other_settings' => 'Other settings',
         'password_reset_success' => 'Password reset mail was successfully send to :mail!',
+        'reload_aria' => 'Reload users',
         'remove_role' => 'Remove role :name',
         'reset_password' => [
             'confirm' => 'Are you really want to reset the password for :firstname :lastname?',
@@ -484,6 +507,7 @@ return [
         ],
         'role_filter' => 'Select role for filtering',
         'roles_and_permissions' => 'Roles and permissions',
+        'search_aria' => 'Search users',
         'show_password' => 'Show password',
         'skip_check_audio' => 'Disable echo audio test',
         'tile_description' => 'Users can login to the system and use different features depending on their role.',

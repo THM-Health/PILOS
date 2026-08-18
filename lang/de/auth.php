@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'E-Mail-Adresse ändern',
     'change_password' => 'Passwort ändern',
@@ -9,6 +11,7 @@ return [
         'title' => 'Mit einer E-Mail anmelden',
     ],
     'error' => [
+        'invalid_request' => 'Die Anmeldung ist aufgrund einer ungültigen Anfrage fehlgeschlagen.',
         'login_failed' => 'Anmeldung fehlgeschlagen',
         'missing_attributes' => 'Es fehlen Attribute für die Authentifizierung.',
         'openid_connect_exception' => 'Die Anmeldung ist aufgrund eines Fehlers fehlgeschlagen.',
@@ -65,6 +68,6 @@ return [
         'tab_title' => 'Shibboleth',
         'title' => 'Mit Shibboleth anmelden',
     ],
-    'throttle' => 'Zu viele Loginversuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.',
+    'throttle' => '[0,1] Zu viele Loginversuche. Bitte versuchen Sie es in 1 Sekunde erneut. |[2,*] Zu viele Loginversuche. Bitte versuchen Sie es in :count Sekunden erneut.',
     'throttle_email' => 'Sie haben bereits vor kurzem eine Anfrage zur Änderung der E-Mail-Adresse gestellt. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.',
 ];

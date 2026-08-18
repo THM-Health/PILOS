@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Faker;
 
 use Faker\Provider\Base;

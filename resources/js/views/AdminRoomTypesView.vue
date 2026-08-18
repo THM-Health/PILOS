@@ -4,7 +4,7 @@
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           severity="secondary"
           :disabled="isBusy"
           :to="{ name: 'admin.room_types.view', params: { id: model.id } }"
@@ -14,7 +14,7 @@
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
-          as="router-link"
+          :as="isBusy ? 'button' : 'router-link'"
           severity="info"
           :disabled="isBusy"
           :to="{ name: 'admin.room_types.edit', params: { id: model.id } }"
@@ -26,7 +26,9 @@
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
           :name="name"
+          :disabled="isBusy"
           @deleted="$router.push({ name: 'admin.room_types' })"
+          @not-found="$router.push({ name: 'admin.room_types' })"
         />
       </div>
     </div>
@@ -37,7 +39,18 @@
           @reload="loadRoomType"
         ></LoadingRetryButton>
       </template>
-      <form class="flex flex-col gap-4" @submit.prevent="saveRoomType">
+      <Form
+        class="flex flex-col gap-4"
+        :disabled="
+          isBusy ||
+          modelLoadingError ||
+          serverPoolsLoadingError ||
+          serverPoolsLoading ||
+          rolesLoading ||
+          rolesLoadingError
+        "
+        @submit="saveRoomType"
+      >
         <!-- General room type settings -->
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <!-- Room type name -->
@@ -56,6 +69,7 @@
                 v-model="model.name"
                 class="w-full"
                 type="text"
+                required
                 :invalid="formErrors.fieldInvalid('name')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
@@ -108,6 +122,7 @@
                 v-model="model.color"
                 class="w-full"
                 type="text"
+                required
                 :invalid="formErrors.fieldInvalid('color')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
@@ -154,6 +169,7 @@
                   :show-no-results="false"
                   :show-labels="false"
                   :options="serverPools"
+                  :required="true"
                   :disabled="
                     isBusy ||
                     modelLoadingError ||
@@ -207,7 +223,7 @@
                   severity="secondary"
                   outlined
                   icon="fa-solid fa-sync"
-                  :aria-label="$t('app.reload')"
+                  :aria-label="$t('admin.server_pools.reload_aria')"
                   data-test="server-pools-reload-button"
                   @click="loadServerPools(serverPoolsCurrentPage)"
                 />
@@ -233,7 +249,11 @@
                   input-id="restrict"
                   :invalid="formErrors.fieldInvalid('restrict')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
-                  aria-describedby="restrict-help"
+                  :pt="{
+                    input: {
+                      'aria-describedby': 'restrict-help',
+                    },
+                  }"
                 />
               </div>
               <FormError :errors="formErrors.fieldError('restrict')" />
@@ -256,6 +276,7 @@
               <RoleSelect
                 v-model="model.roles"
                 aria-labelledby="roles-label"
+                required
                 :invalid="formErrors.fieldInvalid('roles')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 @busy="(value) => (rolesLoading = value)"
@@ -544,6 +565,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
+                      pt:input:required
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="0"
                       name="lobby"
@@ -557,6 +579,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
+                      pt:input:required
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="1"
                       name="lobby"
@@ -570,6 +593,7 @@
                   >
                     <RadioButton
                       v-model.number="model.lobby_default"
+                      pt:input:required
                       :disabled="isBusy || modelLoadingError || viewOnly"
                       :value="2"
                       name="lobby"
@@ -1432,11 +1456,11 @@
                     : 'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'
                 "
               />
-              <p id="create-parameters-help">
+              <small id="create-parameters-help" class="block">
                 {{
                   $t("admin.room_types.bbb_api.create_parameters_description")
                 }}
-              </p>
+              </small>
               <FormError :errors="formErrors.fieldError('create_parameters')" />
             </div>
           </div>
@@ -1464,9 +1488,9 @@
                     : 'userdata-bbb_show_session_details_on_join=false'
                 "
               />
-              <p id="join-parameters-help">
+              <small id="join-parameters-help" class="block">
                 {{ $t("admin.room_types.bbb_api.join_parameters_description") }}
-              </p>
+              </small>
               <FormError :errors="formErrors.fieldError('join_parameters')" />
             </div>
           </div>
@@ -1490,10 +1514,11 @@
             />
           </div>
         </div>
-      </form>
+      </Form>
     </OverlayComponent>
     <ConfirmDialog
       data-test="stale-room-type-dialog"
+      :draggable="false"
       :pt="{
         pcAcceptButton: {
           root: {
@@ -1511,7 +1536,6 @@
 </template>
 
 <script setup>
-import env from "../env.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
@@ -1523,6 +1547,11 @@ import { useConfirm } from "primevue/useconfirm";
 import { useI18n } from "vue-i18n";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useColors } from "../composables/useColors.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_STALE_MODEL,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
@@ -1530,7 +1559,7 @@ const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
 const colors = useColors();
-const breakcrumbLabelData = inject("breakcrumbLabelData");
+const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const { t } = useI18n();
 
@@ -1599,7 +1628,7 @@ const name = ref("");
 watch(
   () => name.value,
   () => {
-    breakcrumbLabelData.value = {
+    breadcrumbLabelData.value = {
       name: name.value,
     };
   },
@@ -1653,7 +1682,7 @@ function loadRoomType() {
         modelLoadingError.value = false;
       })
       .catch((error) => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
           router.push({ name: "admin.room_types" });
         } else {
           modelLoadingError.value = true;
@@ -1726,18 +1755,19 @@ function saveRoomType() {
     .catch((error) => {
       if (
         error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+        error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY
       ) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_STALE_MODEL
+        error.response.status === HTTP_STATUS_STALE_MODEL
       ) {
         // handle stale errors
         handleStaleError(error.response.data);
       } else if (
         error.response &&
-        error.response.status === env.HTTP_NOT_FOUND
+        error.response.status === HTTP_STATUS_NOT_FOUND
       ) {
         api.error(error);
         router.push({ name: "admin.room_types" });
@@ -1752,7 +1782,9 @@ function saveRoomType() {
 
 function handleStaleError(staleError) {
   confirm.require({
-    message: staleError.message,
+    message: t("app.errors.stale_model", {
+      model: t("app.model." + _.snakeCase(model.value.model_name)),
+    }),
     header: t("app.errors.stale_error"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {

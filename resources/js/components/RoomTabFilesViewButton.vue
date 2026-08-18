@@ -4,9 +4,8 @@
   <Button
     v-if="requireTermsOfUseAcceptance"
     v-tooltip="$t('rooms.files.view')"
-    :aria-label="$t('rooms.files.view')"
+    :aria-label="$t('rooms.files.view_aria', { filename: filename })"
     :disabled="disabled"
-    :loading="loading"
     icon="fa-solid fa-eye"
     data-test="room-files-view-button"
     @click="toggleTermsOfUsePopover"
@@ -15,21 +14,32 @@
   <Button
     v-else
     v-tooltip="$t('rooms.files.view')"
-    :aria-label="$t('rooms.files.view')"
+    :aria-label="$t('rooms.files.view_aria', { filename: filename })"
     :disabled="disabled"
     target="_blank"
     rel="opener"
     :href="downloadUrl"
-    :loading="loading"
     icon="fa-solid fa-eye"
     data-test="room-files-view-button"
-    as="a"
+    :as="disabled ? 'button' : 'a'"
   />
 
   <Popover ref="op" class="max-w-96" data-test="terms-of-use-required-info">
-    <InlineNote severity="info">{{
-      $t("rooms.files.terms_of_use.required")
-    }}</InlineNote>
+    <div class="flex w-full justify-between gap-4">
+      <InlineNote tabindex="-1" autofocus severity="info">{{
+        $t("rooms.files.terms_of_use.required")
+      }}</InlineNote>
+      <Button
+        class="popover-close-button"
+        data-test="popover-close-button"
+        :aria-label="$t('rooms.files.terms_of_use.close')"
+        text
+        rounded
+        severity="secondary"
+        icon="fas fa-xmark"
+        @click="closePopover"
+      />
+    </div>
   </Popover>
 </template>
 <script setup>
@@ -49,6 +59,10 @@ const props = defineProps({
     default: false,
     required: false,
   },
+  filename: {
+    type: String,
+    required: true,
+  },
   fileUrl: {
     type: String,
     required: true,
@@ -59,8 +73,8 @@ const props = defineProps({
   },
 });
 
-const loading = ref(false);
 const op = ref();
+const triggerButton = ref(null);
 
 const downloadUrl = computed(() => {
   let url = props.fileUrl;
@@ -76,6 +90,14 @@ const downloadUrl = computed(() => {
 });
 
 function toggleTermsOfUsePopover(event) {
+  triggerButton.value = event.currentTarget;
   op.value.toggle(event);
+}
+
+function closePopover() {
+  op.value.hide();
+  if (triggerButton.value != null) {
+    triggerButton.value.focus();
+  }
 }
 </script>

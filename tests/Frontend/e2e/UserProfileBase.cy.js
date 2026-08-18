@@ -377,7 +377,7 @@ describe("User Profile Base", function () {
       expect(formData.get("updated_at")).to.eql("2024-09-13T14:20:26.000000Z");
 
       const uploadedFile = formData.get("image");
-      expect(uploadedFile.name).to.eql("image.png");
+      expect(uploadedFile.name).to.eql("image.jpg");
       expect(uploadedFile.type).to.eql("image/jpeg");
       cy.fixture("files/profileImagePreview.jpg", "base64").then((content) => {
         uploadedFile.arrayBuffer().then((arrayBuffer) => {
@@ -506,6 +506,7 @@ describe("User Profile Base", function () {
     cy.intercept("POST", "api/v1/users/1", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 3 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
@@ -520,6 +521,10 @@ describe("User Profile Base", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that error messages are shown
+    cy.checkToastMessage(
+      "The firstname field is required. (and 3 more errors)",
+    );
+
     cy.get('[data-test="firstname-field"]').should(
       "include.text",
       "The firstname field is required.",
@@ -590,7 +595,7 @@ describe("User Profile Base", function () {
       cy.intercept("POST", "api/v1/users/1", {
         statusCode: 428,
         body: {
-          message: " The user entity was updated in the meanwhile!",
+          message: "stale_model",
           new_model: newModel,
         },
       }).as("saveChangesRequest");
@@ -604,7 +609,10 @@ describe("User Profile Base", function () {
     // Check that stale dialog is shown
     cy.get('[data-test="stale-user-dialog"]')
       .should("be.visible")
-      .and("include.text", "The user entity was updated in the meanwhile!");
+      .should(
+        "include.text",
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 

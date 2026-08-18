@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'access_code' => 'رمز الدخول',
     'auth_throttled' => 'محاولات كثيرة جدًا. يرجى المحاولة بعد :try_again ثانية.',
@@ -141,6 +143,7 @@ return [
     'first_and_lastname' => 'الاسم الأول واسم العائلة',
     'flash' => [
         'access_code_invalid' => 'رمز الدخول غير صحيح.',
+        'auth_token_invalid' => 'رمز المصادقة غير صالح.',
         'file_forbidden' => 'تم رفض الوصول إلى الملف المطلوب.',
         'file_gone' => 'تم حذف الملف في هذه الأثناء.',
         'no_new_room' => 'لا تملك الصلاحيات اللازمة لإنشاء غرفة جديدة.',
@@ -404,7 +407,6 @@ return [
             'access_code_prohibited' => 'نوع الغرفة يمنع وجود رمز دخول',
             'allow' => 'السماح',
             'allow_guests' => 'السماح للضيوف',
-            'chars' => 'الأحرف: :chars',
             'delete_access_code' => 'إزالة رمز الدخول',
             'enforced_setting' => 'إعداد إجباري',
             'generate_access_code' => 'إنشاء رمز دخول جديد',

@@ -70,14 +70,14 @@ watch(errorMessages, (errors) => {
   <Message
     v-if="reason"
     data-test="room-meeting-ended-reason"
-    class="mb-3"
+    class="mb-2"
     closable
     @close="closeReasonMessage"
     >{{ reason }}</Message
   >
 
   <!-- Show error messages -->
-  <div v-if="errorMessages" class="mb-3 flex flex-col gap-3">
+  <div v-if="errorMessages" class="mb-2 flex flex-col gap-3">
     <Message
       v-for="error in errorMessages"
       :key="error.key"

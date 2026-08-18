@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit;
 
 use App\Enums\CustomStatusCodes;
+use App\HTTP\Resources\RoleResource;
 use App\Models\Role;
 use Carbon\Carbon;
 use DateInterval;
@@ -21,7 +24,7 @@ class EnsureModelNotStaleTest extends TestCase
         parent::setUp();
 
         Route::post('api/test/{role}', [
-            'middleware' => ['api', 'check.stale:role,\App\Http\Resources\Role,withPermissions'],
+            'middleware' => ['api', 'check.stale:role,\App\Http\Resources\RoleResource,withPermissions'],
             'as' => 'test.stale.check',
             function (Role $role) {
                 return 'OK';
@@ -50,11 +53,11 @@ class EnsureModelNotStaleTest extends TestCase
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $role->updated_at->sub(new DateInterval('P1D'))])
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value)
-            ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->withPermissions()->toJson(), true)]);
+            ->assertJsonFragment(['new_model' => json_decode((new RoleResource(Role::find($role->id)))->withPermissions()->toJson(), true)]);
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => null])
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value)
-            ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->withPermissions()->toJson(), true)]);
+            ->assertJsonFragment(['new_model' => json_decode((new RoleResource(Role::find($role->id)))->withPermissions()->toJson(), true)]);
     }
 
     public function test_actual_model()

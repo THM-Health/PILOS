@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'Change Email',
     'change_password' => 'Change password',
@@ -9,6 +11,7 @@ return [
         'title' => 'Login with Email',
     ],
     'error' => [
+        'invalid_request' => 'Authentication failed due to an invalid request.',
         'login_failed' => 'Login failed',
         'missing_attributes' => 'Attributes for authentication are missing.',
         'openid_connect_exception' => 'Authentication failed due to an error.',
@@ -39,6 +42,7 @@ return [
     'logout_success' => 'Successfully logged out',
     'new_password' => 'New password',
     'new_password_confirmation' => 'New password confirmation',
+    'offer_login' => 'Login with your user account',
     'oidc' => [
         'logout_incomplete' => 'You are still logged in at the OpenID Connect provider.',
         'redirect' => 'Log in',
@@ -65,6 +69,6 @@ return [
         'tab_title' => 'Shibboleth',
         'title' => 'Log in with Shibboleth',
     ],
-    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'throttle' => '[0,1] Too many login attempts. Please try again in 1 second. |[2,*] Too many login attempts. Please try again in :count seconds.',
     'throttle_email' => 'You have recently requested an email change. Please wait and try again later.',
 ];

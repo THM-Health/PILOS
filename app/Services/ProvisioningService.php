@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Enums\ServerStatus;
 use App\Enums\TimePeriod;
-use App\Http\Requests\UpdateSettings;
+use App\Http\Requests\UpdateSettingsRequest;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoomType;
@@ -105,7 +107,7 @@ class ServerProvisioner extends AbstractProvisioner
             $status = ServerStatus::{strtoupper($properties->status)};
             $srv->name = $properties->name;
             $srv->description = $properties->description;
-            $srv->base_url = $properties->endpoint;
+            $srv->base_url = Str::finish($properties->endpoint, '/');
             $srv->secret = $properties->secret;
             $srv->strength = $properties->strength;
             $srv->status = $status;
@@ -208,6 +210,7 @@ class RoleProvisioner extends AbstractProvisioner
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($role) use ($properties) {
+            $permissions = [];
             foreach ($properties->permissions as $group => $perms) {
                 foreach ($perms as $item) {
                     $permName = "$group.$item";
@@ -286,12 +289,12 @@ class SettingsProvisioner
             'recording' => app(RecordingSettings::class),
         ];
         $this->expectedProperties = [
-            'general' => 'array:name,pagination_page_size,default_timezone,help_url,legal_notice_url,privacy_policy_url,toast_lifetime,no_welcome_page',
+            'general' => 'array:name,pagination_page_size,default_timezone,help_url,legal_notice_url,privacy_policy_url,accessibility_statement_url,toast_lifetime,no_welcome_page',
             'room' => 'array:limit,personalized_link_expiration,auto_delete_inactive_period,auto_delete_never_used_period,auto_delete_deadline_period,file_terms_of_use',
             'user' => 'array:password_change_allowed',
             'recording' => 'array:server_usage_enabled,server_usage_retention_period,meeting_usage_enabled,meeting_usage_retention_period,attendance_retention_period,recording_retention_period',
         ];
-        foreach ((new UpdateSettings)->rules() as $property => $validations) {
+        foreach ((new UpdateSettingsRequest)->rules() as $property => $validations) {
             foreach (['banner', 'bbb', 'theme'] as $section) {
                 if (str_starts_with($property, $section)) {
                     continue 2;
@@ -314,7 +317,7 @@ class SettingsProvisioner
             foreach ($items as $name => $value) {
                 info("Provisioning setting '$sect.$name'");
                 if ($section->{$name} instanceof TimePeriod) {
-                    $value = TimePeriod::from($value);
+                    $value = TimePeriod::from((int) $value);
                 }
                 $section->{$name} = $value;
             }

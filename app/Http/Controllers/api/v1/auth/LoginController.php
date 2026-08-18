@@ -1,71 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Auth\OIDC\OIDCProvider;
 use App\Auth\Shibboleth\ShibbolethProvider;
-use App\Http\Controllers\Controller;
-use App\Prometheus\Counter;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use Laravel\Fortify\Http\Requests\LoginRequest;
 
-class LoginController extends Controller
+class LoginController extends AuthenticatedSessionController
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers {
-        logout as protected logoutApplication;
-    }
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function login(LoginRequest $request)
     {
-        $this->middleware('guest')->except(['logout']);
-        $this->middleware('auth:users,ldap')->only(['logout']);
-    }
-
-    public function username()
-    {
-        return 'email';
-    }
-
-    protected function credentials(Request $request)
-    {
-        return [
-            'password' => $request->input('password'),
-            'email' => $request->input('email'),
-        ];
-    }
-
-    /**
-     * The user has been authenticated.
-     *
-     * @param  mixed  $user
-     * @return mixed
-     */
-    protected function authenticated(Request $request, $user)
-    {
-        Counter::get('login_total')->inc('local');
-        Log::info('Local user {user} has been successfully authenticated.', ['user' => $user->getLogLabel()]);
-
-        // Update the last login timestamp
-        $user->last_login = now();
-        $user->save();
+        return $this->loginPipeline($request)->then(function ($request) {
+            return response()->json(['two_factor' => false]);
+        });
     }
 
     public function logout(Request $request)
@@ -95,5 +47,15 @@ class LoginController extends Controller
             'redirect' => $redirect,
             'message' => $message,
         ]);
+    }
+
+    private function logoutApplication(Request $request)
+    {
+        $this->guard->logout();
+
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
     }
 }

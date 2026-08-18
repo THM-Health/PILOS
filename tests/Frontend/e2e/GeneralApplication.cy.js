@@ -52,9 +52,9 @@ describe("General", function () {
       "localeRequest",
     );
 
-    cy.intercept("GET", "/api/v1/locale/de", {
-      statusCode: 200,
-    }).as("deRequest");
+    cy.intercept("GET", "/api/v1/locale/de", { fixture: "en.json" }).as(
+      "deRequest",
+    );
 
     cy.visit("/rooms");
 
@@ -93,6 +93,7 @@ describe("General", function () {
     cy.intercept("POST", "/api/v1/locale", {
       statusCode: 422,
       body: {
+        message: "Test",
         errors: {
           locale: ["Test"],
         },
@@ -153,6 +154,155 @@ describe("General", function () {
       'app.flash.server_error.message_{"message":["Test"]}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+  });
+
+  it("PrimeVue uses locale with exact match", function () {
+    // Intercept locale change request
+    cy.intercept("POST", "/api/v1/locale", {
+      statusCode: 200,
+    }).as("localeChange");
+
+    // Intercept German locale request
+    cy.intercept("GET", "api/v1/locale/de", { fixture: "en.json" }).as(
+      "deLocale",
+    );
+
+    cy.visit("/rooms");
+    cy.wait("@roomRequest");
+
+    // Change to German locale
+    cy.get('[data-test="navbar-locale"]').click();
+    cy.get('[data-test="submenu"]')
+      .eq(1)
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="navbar-locale-de"]')
+          .should("exist")
+          .should("have.text", "Deutsch")
+          .click();
+      });
+
+    cy.wait("@localeChange");
+    cy.wait("@deLocale");
+
+    // Check that PrimeVue pagination uses German locale
+    // Check "Next Page" button aria-label
+    cy.get('[data-test="paginator-next-button"]')
+      .first()
+      .should("have.attr", "aria-label", "Nächste Seite");
+
+    // Check page number aria-label (should be "Seite 1")
+    cy.get('[data-test="paginator-page"]')
+      .first()
+      .should("have.attr", "aria-label", "Seite 1");
+  });
+
+  it("PrimeVue uses parent locale for invalid language-region codes (de-XX -> de)", function () {
+    // Test loading an (imaginary) region-specific locale that is supported by the backend but not by PrimeLocale (de-XX)
+
+    // Add de-XX to enabled locales in config
+    cy.fixture("config.json").then((config) => {
+      config.data.general.enabled_locales = {
+        en: "English",
+        "de-xx": "Deutsch",
+      };
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Intercept locale change request
+    cy.intercept("POST", "/api/v1/locale", {
+      statusCode: 200,
+    }).as("localeChange");
+
+    // Intercept invalid regional German locale request
+    cy.intercept("GET", "api/v1/locale/de-xx", { fixture: "en.json" }).as(
+      "de-xxLocale",
+    );
+
+    cy.visit("/rooms");
+    cy.wait("@roomRequest");
+
+    // Change to invalid regional German locale
+    cy.get('[data-test="navbar-locale"]').click();
+    cy.get('[data-test="submenu"]')
+      .eq(1)
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="navbar-locale-de-xx"]')
+          .should("exist")
+          .should("have.text", "Deutsch")
+          .click();
+      });
+
+    cy.wait("@localeChange");
+    cy.wait("@de-xxLocale");
+
+    // Verify that PrimeVue uses German locale as fallback for the unsupported regional German locale (de-XX)
+    cy.get('[data-test="paginator-next-button"]')
+      .first()
+      .should("have.attr", "aria-label", "Nächste Seite");
+
+    cy.get('[data-test="paginator-page"]')
+      .first()
+      .should("have.attr", "aria-label", "Seite 1");
+  });
+
+  it("PrimeVue uses local fallback (en) for unsupported PrimeLocale locales", function () {
+    // Add xx to enabled locales in config
+    cy.fixture("config.json").then((config) => {
+      config.data.general.enabled_locales = {
+        en: "English",
+        xx: "Invalid locale",
+      };
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    // Intercept locale change request
+    cy.intercept("POST", "/api/v1/locale", {
+      statusCode: 200,
+    }).as("localeChange");
+
+    // Intercept Invalid locale request
+    cy.intercept("GET", "api/v1/locale/xx", { fixture: "en.json" }).as(
+      "xxLocale",
+    );
+
+    cy.visit("/rooms");
+    cy.wait("@roomRequest");
+
+    // Change to Invalid locale
+    cy.get('[data-test="navbar-locale"]').click();
+    cy.get('[data-test="submenu"]')
+      .eq(1)
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="navbar-locale-xx"]')
+          .should("exist")
+          .should("have.text", "Invalid locale")
+          .click();
+      });
+
+    cy.wait("@localeChange");
+    cy.wait("@xxLocale");
+
+    // Check that PrimeVue pagination uses English locale as fallback
+    // Check "Next Page" button aria-label - should be in English
+    cy.get('[data-test="paginator-next-button"]')
+      .last()
+      .should("have.attr", "aria-label", "Next Page");
+
+    // Check page number aria-label (should be "Page 1")
+    cy.get('[data-test="paginator-page"]')
+      .last()
+      .should("have.attr", "aria-label", "Page 1");
   });
 
   it("disabled welcome page redirect unauthenticated users to login", function () {
@@ -239,7 +389,7 @@ describe("General", function () {
     cy.get('[data-test="navbar-help"]').should("not.exist");
   });
 
-  it("toggle dark mode", function () {
+  it("change to dark mode", function () {
     cy.visit("/");
 
     // Check if light mode is enabled by default
@@ -248,7 +398,7 @@ describe("General", function () {
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
 
-    // Toggle dark mode
+    // Change to dark mode
     cy.get('[data-test="navbar-dark-mode"]').click();
 
     // Check if dark mode is enabled
@@ -257,13 +407,45 @@ describe("General", function () {
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
 
-    // Toggle dark mode again
+    // Change to light mode
     cy.get('[data-test="navbar-dark-mode"]').click();
 
-    // Check if light mode is enabled again
+    // Check if light mode is enabled
     cy.get("html").should("not.have.class", "dark");
     cy.get('[data-test="navbar-dark-mode"]')
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
+  });
+
+  it("change to light mode", function () {
+    cy.visit("/", {
+      onBeforeLoad() {
+        Cypress.expose("darkMode", true);
+      },
+    });
+
+    // Check if dark mode is enabled by default
+    cy.get("html").should("have.class", "dark");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
+
+    // Change to light mode
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    // Check if light mode is enabled
+    cy.get("html").should("not.have.class", "dark");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-disabled-icon");
+
+    // Change to dark mode
+    cy.get('[data-test="navbar-dark-mode"]').click();
+
+    // Check if dark mode is enabled
+    cy.get("html").should("have.class", "dark");
+    cy.get('[data-test="navbar-dark-mode"]')
+      .find("svg")
+      .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
   });
 });

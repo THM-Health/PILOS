@@ -159,7 +159,10 @@ describe("Admin server pools index server pool actions", function () {
 
     // Check that error is shown correctly
     cy.get('[data-test="server-pools-delete-dialog"]')
-      .should("include.text", "admin.server_pools.delete.failed")
+      .should(
+        "include.text",
+        'admin.server_pools.delete.failed_{"count":2,"n":2}',
+      )
       .and("include.text", "Lecture")
       .and("include.text", "Meeting");
 
@@ -197,8 +200,61 @@ describe("Admin server pools index server pool actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check with 401 error
+    // Check with 404 error
+    cy.fixture("serverPools.json").then((serverPools) => {
+      serverPools.data = serverPools.data.filter(
+        (serverPool) => serverPool.id !== 1,
+      );
+      serverPools.meta.to = 1;
+      serverPools.meta.total = 1;
+      serverPools.meta.total_no_filter = 1;
+
+      cy.intercept("GET", "api/v1/serverPools*", {
+        statusCode: 200,
+        body: serverPools,
+      }).as("serverPoolsRequest");
+    });
+
     cy.intercept("DELETE", "api/v1/serverPools/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "server_pool",
+        ids: [1],
+      },
+    }).as("deleteServerPoolRequest");
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteServerPoolRequest");
+
+    // Check that server pool list was refreshed
+    cy.wait("@serverPoolsRequest");
+
+    // Check that dialog is closed and error message is shown
+    cy.get('[data-test="server-pools-delete-dialog"]').should("not.exist");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.server_pool"}',
+      'app.flash.model_not_found.details_{"ids":"1"}',
+    ]);
+
+    // Check that server pool is not in list anymore
+    cy.get('[data-test="server-pool-item"]').should("have.length", 1);
+    cy.get('[data-test="server-pool-item"]')
+      .eq(0)
+      .should("include.text", "Production");
+
+    // Reopen dialog for different server pool
+    cy.get('[data-test="server-pool-item"]')
+      .eq(0)
+      .find('[data-test="server-pools-delete-button"]')
+      .click();
+
+    cy.get('[data-test="server-pools-delete-dialog"]').should("be.visible");
+
+    // Check with 401 error
+    cy.intercept("DELETE", "api/v1/serverPools/2", {
       statusCode: 401,
     }).as("deleteServerPoolRequest");
 

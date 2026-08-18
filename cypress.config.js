@@ -1,5 +1,5 @@
 import { defineConfig } from "cypress";
-import configCodeCoverage from "@cypress/code-coverage/task.js";
+import configCodeCoverage from "@cypress/code-coverage/task";
 import "dotenv/config";
 
 const baseUrl = process.env.APP_URL || "http://localhost";

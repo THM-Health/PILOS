@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Console;
 
 use App\Enums\ServerHealth;
@@ -127,10 +129,10 @@ class PollServerTest extends TestCase
 
         // Check server archival data
         $this->assertEquals(1, $meeting->server->stats()->count());
-        $this->assertNotNull(6, $meeting->server->stats->last()->participant_count);
-        $this->assertNotNull(3, $meeting->server->stats->last()->listener_count);
-        $this->assertNotNull(3, $meeting->server->stats->last()->voice_participant_count);
-        $this->assertNotNull(2, $meeting->server->stats->last()->video_count);
+        $this->assertEquals(6, $meeting->server->stats->last()->participant_count);
+        $this->assertEquals(3, $meeting->server->stats->last()->listener_count);
+        $this->assertEquals(3, $meeting->server->stats->last()->voice_participant_count);
+        $this->assertEquals(2, $meeting->server->stats->last()->video_count);
         $this->assertEquals(1, $meeting->server->stats->last()->meeting_count);
 
         // Check server live data

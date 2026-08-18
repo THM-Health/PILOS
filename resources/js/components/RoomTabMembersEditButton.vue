@@ -2,7 +2,12 @@
   <Button
     v-tooltip="$t('rooms.members.edit_user')"
     data-test="room-members-edit-button"
-    :aria-label="$t('rooms.members.edit_user')"
+    :aria-label="
+      $t('rooms.members.edit_user_aria', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"
@@ -40,65 +45,84 @@
           :label="$t('app.save')"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
-          @click="save"
+          form="room-members-edit-form"
+          type="submit"
         />
       </div>
     </template>
 
-    <!-- select role -->
-    <div class="mt-6 flex flex-col gap-2">
-      <fieldset class="flex w-full flex-col gap-2">
-        <legend>{{ $t("rooms.role") }}</legend>
+    <Form
+      id="room-members-edit-form"
+      :disabled="isLoadingAction"
+      @submit="save"
+    >
+      <!-- select role -->
+      <div class="field mt-6 flex flex-col gap-2">
+        <fieldset class="flex w-full flex-col gap-2">
+          <legend>{{ $t("rooms.role") }}</legend>
 
-        <div class="flex items-center" data-test="participant-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="participant-role"
-            name="role"
-            :value="1"
-          />
-          <label for="participant-role" class="ml-2"
-            ><RoomRoleBadge :role="1"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="participant-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              input-id="participant-role"
+              pt:input:required
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="1"
+            />
+            <label for="participant-role" class="ml-2"
+              ><RoomRoleBadge :role="1"
+            /></label>
+          </div>
 
-        <div class="flex items-center" data-test="moderator-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="moderator-role"
-            name="role"
-            :value="2"
-          />
-          <label for="moderator-role" class="ml-2"
-            ><RoomRoleBadge :role="2"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="moderator-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              input-id="moderator-role"
+              pt:input:required
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="2"
+            />
+            <label for="moderator-role" class="ml-2"
+              ><RoomRoleBadge :role="2"
+            /></label>
+          </div>
 
-        <div class="flex items-center" data-test="co-owner-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="co_owner-role"
-            name="role"
-            :value="3"
-          />
-          <label for="co_owner-role" class="ml-2"
-            ><RoomRoleBadge :role="3"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="co-owner-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              input-id="co_owner-role"
+              pt:input:required
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="3"
+            />
+            <label for="co_owner-role" class="ml-2"
+              ><RoomRoleBadge :role="3"
+            /></label>
+          </div>
 
-        <FormError :errors="formErrors.fieldError('role')" />
-      </fieldset>
-    </div>
+          <FormError :errors="formErrors.fieldError('role')" />
+        </fieldset>
+      </div>
+    </Form>
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
+import { USER } from "../constants/modelNames.js";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -131,6 +155,8 @@ const emit = defineEmits(["edited", "gone"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const toast = useToast();
+const { t } = useI18n();
 
 const modalVisible = ref(false);
 const newRole = ref(null);
@@ -168,12 +194,17 @@ function save() {
       // editing failed
       if (error.response) {
         // user not found
-        if (error.response.status === env.HTTP_GONE) {
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.model === USER
+        ) {
+          toast.error(t("app.errors.not_member_of_room"));
           emit("gone");
           modalVisible.value = false;
+          return;
         }
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

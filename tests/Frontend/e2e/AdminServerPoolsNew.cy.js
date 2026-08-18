@@ -61,8 +61,8 @@ describe("Admin server pools new", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
-      .should("include.text", "admin.breakcrumbs.server_pools.new");
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.new");
 
     cy.get('[data-test="name-field"]')
       .should("be.visible")
@@ -74,8 +74,8 @@ describe("Admin server pools new", function () {
     // Check that breadcrumbs stay the same
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.server_pools.index")
-      .should("include.text", "admin.breakcrumbs.server_pools.new");
+      .should("include.text", "admin.breadcrumbs.server_pools.index")
+      .should("include.text", "admin.breadcrumbs.server_pools.new");
 
     cy.get('[data-test="description-field"]')
       .should("be.visible")
@@ -454,7 +454,7 @@ describe("Admin server pools new", function () {
     cy.intercept("POST", "api/v1/serverPools", {
       statusCode: 422,
       body: {
-        message: "The given data was invalid.",
+        message: "The Name field is required. (and 2 more errors)",
         errors: {
           name: ["The Name field is required."],
           description: [
@@ -470,6 +470,8 @@ describe("Admin server pools new", function () {
     cy.wait("@newServerPoolRequest");
 
     // Check that error messages are shown
+    cy.checkToastMessage("The Name field is required. (and 2 more errors)");
+
     cy.get('[data-test="name-field"]').should(
       "include.text",
       "The Name field is required.",

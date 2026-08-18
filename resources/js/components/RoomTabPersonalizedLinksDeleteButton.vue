@@ -5,7 +5,12 @@
     severity="danger"
     :disabled="disabled"
     icon="fa-solid fa-trash"
-    :aria-label="$t('rooms.personalized_links.delete')"
+    :aria-label="
+      $t('rooms.personalized_links.delete_aria', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     data-test="room-personalized-links-delete-button"
     @click="showModal"
   />
@@ -54,11 +59,12 @@
 </template>
 
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { ROOM_PERSONALIZED_LINK } from "../constants/modelNames.js";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -120,7 +126,10 @@ function deleteLink() {
       // deleting failed
       if (error.response) {
         // personalized link not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.model === ROOM_PERSONALIZED_LINK
+        ) {
           toast.error(t("rooms.flash.personalized_link_gone"));
           modalVisible.value = false;
           emit("notFound");

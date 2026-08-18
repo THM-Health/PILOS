@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'description_details' => 'Designed with education at its core, PILOS offers a seamless, interactive, and secure solution for online learning, teaching, and all kinds of virtual meetings. Adaptable to your needs, PILOS delivers high-quality video, robust collaboration tools, and an intuitive user experience.',
     'description_intro' => 'All in one video conferencing platform powered by BigBlueButton™.',

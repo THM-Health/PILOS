@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'change_email' => 'E-Mail-Adresse ändern',
     'change_password' => 'Passwort ändern',
@@ -9,11 +11,16 @@ return [
         'title' => 'Mit einer E-Mail anmelden',
     ],
     'error' => [
+        'invalid_request' => 'Authentifizierung fehlgeschlagen aufgrund einer ungültigen Anfrage.',
         'login_failed' => 'Anmeldung fehlgeschlagen',
         'missing_attributes' => 'Es fehlen Attribute für die Authentifizierung.',
+        'openid_connect_exception' => 'Authentifizierung fehlgeschlagen aufgrund eines Fehlers.',
+        'openid_connect_network_exception' => 'Verbindung zum Authentifizierungsanbieter fehlgeschlagen.',
         'reason' => 'Fehlergrund',
-        'shibboleth_session_duplicate_exception' => 'Die Shibboleth-Session ist bereits in Verwendung. Bitte melden Sie sich erneut an.',
+        'shibboleth_session_duplicate_exception' => 'Die Shibboleth-Session ist bereits in Verwendung.',
+        'try_again' => 'Bitte versuchen Sie es erneut mit der Anmeldung oder wenden Sie sich an den Support, falls das Problem weiterhin besteht.',
     ],
+    'external_user_id' => 'Externe Benutzer-ID',
     'failed' => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
     'flash' => [
         'login' => 'Erfolgreich angemeldet',
@@ -35,6 +42,12 @@ return [
     'logout_success' => 'Erfolgreich abgemeldet',
     'new_password' => 'Neues Passwort',
     'new_password_confirmation' => 'Neues Passwort bestätigen',
+    'oidc' => [
+        'logout_incomplete' => 'Sie sind beim OpenID Connect-Anbieter noch angemeldet.',
+        'redirect' => 'Anmelden',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'Mit OpenID Connect anmelden',
+    ],
     'password' => 'Passwort',
     'reset_password' => 'Passwort zurücksetzen',
     'send_email_confirm_mail' => 'Es wurde eine Bestätigungsmail an :email gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.',

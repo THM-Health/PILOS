@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import i18n, { setTimeZone, setLocale } from "../i18n";
 import { useApi } from "../composables/useApi.js";
 import { useTextDirection } from "@vueuse/core";
+import { all as primeVueLocales } from "primelocale";
 
 export const useLocaleStore = defineStore("locale", {
   state: () => {
@@ -48,6 +49,13 @@ export const useLocaleStore = defineStore("locale", {
       setTimeZone(this.i18n, this.timezone);
       const dir = useTextDirection();
       dir.value = this.locales[currentLocale].textDirection;
+
+      // Set PrimeVue locale
+      // Try exact match first, then match language only (e.g. "en" for "en-US"), then fallback to English
+      this.primevue.config.locale =
+        primeVueLocales[currentLocale] ||
+        primeVueLocales[currentLocale.split("-")[0]] ||
+        primeVueLocales["en"];
     },
 
     async setTimezone(timezone) {

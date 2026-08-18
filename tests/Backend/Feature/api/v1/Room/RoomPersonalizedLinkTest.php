@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1\Room;
 
 use App\Enums\RoomAuthTokenType;
@@ -100,7 +102,12 @@ class RoomPersonalizedLinkTest extends TestCase
 
         // Testing owner
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => 1337]))
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [1337],
+            ]);
 
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room]))
             ->assertSuccessful()
@@ -182,6 +189,11 @@ class RoomPersonalizedLinkTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
+        // Check search; empty is ignored, no filtering
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'query' => '']))
+            ->assertSuccessful()
+            ->assertJsonPath('meta.total', 6);
+
         // Check search with whitespaces (all should match in first or last name)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'query' => 'John Doe']))
             ->assertJsonCount(1, 'data')
@@ -201,10 +213,9 @@ class RoomPersonalizedLinkTest extends TestCase
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 6);
 
-        // Check filter by invalid role (fallback to all)
+        // Check filter by invalid role
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.personalizedLinks.get', ['room' => $this->room, 'filter' => 'invalid_role']))
-            ->assertJsonCount(5, 'data')
-            ->assertJsonPath('meta.total', 6);
+            ->assertJsonValidationErrors(['filter']);
     }
 
     public function test_create()
@@ -246,7 +257,14 @@ class RoomPersonalizedLinkTest extends TestCase
         // Create as moderator
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.personalizedLinks.add', ['room' => 1337]), $payload)
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [1337],
+                ]
+            );
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.personalizedLinks.add', ['room' => $this->room]), $payload)
             ->assertForbidden();
 
@@ -314,7 +332,7 @@ class RoomPersonalizedLinkTest extends TestCase
         ];
 
         // Update as guest
-        $this->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'link' => $link]), $payload)
+        $this->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
@@ -330,7 +348,7 @@ class RoomPersonalizedLinkTest extends TestCase
 
         $this->putJson(route('api.v1.rooms.personalizedLinks.update', [
             'room' => $this->room,
-            'link' => $link,
+            'personalizedLink' => $link,
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]), $payload)
@@ -339,14 +357,21 @@ class RoomPersonalizedLinkTest extends TestCase
 
         // Update as moderator
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => 1337, 'link' => $link]), $payload)
-            ->assertNotFound();
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'link' => $link]), $payload)
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => 1337, 'personalizedLink' => $link]), $payload)
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [1337],
+                ]);
+
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
             ->assertForbidden();
 
         // Update as co-owner invalid data
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'link' => $link]), $payload)
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
             ->assertJsonValidationErrors([
                 'firstname',
                 'lastname',
@@ -359,7 +384,7 @@ class RoomPersonalizedLinkTest extends TestCase
             'lastname' => $this->faker->lastName,
             'role' => RoomUserRole::USER,
         ];
-        $response = $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'link' => $link]), $payload)
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
                 'firstname',
@@ -374,7 +399,7 @@ class RoomPersonalizedLinkTest extends TestCase
             'lastname' => $this->faker->lastName,
             'role' => RoomUserRole::USER,
         ];
-        $response = $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'link' => $link]), $payload)
+        $response = $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
                 'firstname',
@@ -391,7 +416,7 @@ class RoomPersonalizedLinkTest extends TestCase
         ];
         $this->room->members()->sync([]);
         $this->user->roles()->attach(Role::where(['superuser' => true])->first());
-        $response = $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'link' => $link]), $payload)
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
                 'firstname',
@@ -400,8 +425,37 @@ class RoomPersonalizedLinkTest extends TestCase
             ]);
 
         // Check trying to update with wrong room id
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $otherRoom, 'link' => $link]), $payload)
-            ->assertNotFound();
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $otherRoom, 'personalizedLink' => $link]), $payload)
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room_personalized_link',
+                    'ids' => [$link->id],
+                ]);
+
+        // Test deleted
+        $link->delete();
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room_personalized_link',
+                    'ids' => [$link->id],
+                ]);
+
+        // Test deleted room
+        $this->room->delete();
+
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.personalizedLinks.update', ['room' => $this->room, 'personalizedLink' => $link]), $payload)
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room',
+                    'ids' => [$this->room->id],
+                ]);
     }
 
     public function test_delete()
@@ -417,7 +471,7 @@ class RoomPersonalizedLinkTest extends TestCase
         ]);
 
         // Delete as guest
-        $this->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
+        $this->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
             ->assertUnauthorized()
             ->assertJsonFragment(['message' => 'Unauthenticated.']);
 
@@ -433,7 +487,7 @@ class RoomPersonalizedLinkTest extends TestCase
 
         $this->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', [
             'room' => $this->room,
-            'link' => $link,
+            'personalizedLink' => $link,
             'room_auth_token' => $roomAuthToken->id,
             'room_auth_token_type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
         ]))
@@ -442,26 +496,38 @@ class RoomPersonalizedLinkTest extends TestCase
 
         // Delete as moderator
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
             ->assertForbidden();
 
         // Delete as co-owner
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
             ->assertSuccessful();
 
         // Delete not existing
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
-            ->assertNotFound();
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room_personalized_link',
+                    'ids' => [$link->id],
+                ]);
 
         // Delete as owner
         $link = RoomPersonalizedLink::factory()->create([
             'room_id' => $this->room,
         ]);
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
             ->assertSuccessful();
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
-            ->assertNotFound();
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room_personalized_link',
+                    'ids' => [$link->id],
+                ]);
 
         // Delete with viewAllPermission
         $this->room->members()->sync([]);
@@ -471,12 +537,26 @@ class RoomPersonalizedLinkTest extends TestCase
         ]);
 
         // Check trying to delete with wrong room id
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $otherRoom, 'link' => $link]))
-            ->assertNotFound();
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $otherRoom, 'personalizedLink' => $link]))
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room_personalized_link',
+                    'ids' => [$link->id],
+                ]);
 
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
             ->assertSuccessful();
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'link' => $link]))
-            ->assertNotFound();
+
+        // Test delete again
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.personalizedLinks.destroy', ['room' => $this->room, 'personalizedLink' => $link]))
+            ->assertNotFound()
+            ->assertJson(
+                [
+                    'message' => 'model_not_found',
+                    'model' => 'room_personalized_link',
+                    'ids' => [$link->id],
+                ]);
     }
 }

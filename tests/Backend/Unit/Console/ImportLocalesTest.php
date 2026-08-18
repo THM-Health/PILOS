@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Unit\Console;
 
 use App\Services\LocaleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 
@@ -32,6 +33,12 @@ class ImportLocalesTest extends TestCase
             'home' => [
                 'title' => 'Home',
                 'description' => 'This is the home page',
+                'foo' => "test@example.org\ndemo@example.org",
+                'bar' => "We've sent an email!",
+                'baz' => [
+                    'foo' => 'bar',
+                    'baz' => 'qux',
+                ],
             ],
             'app' => [
                 'title' => 'My App',
@@ -45,9 +52,6 @@ class ImportLocalesTest extends TestCase
                 ],
             ],
         ];
-
-        // Fake process
-        Process::fake();
 
         // Fake HTTP requests to poeditor api
         Http::fake([
@@ -135,13 +139,13 @@ class ImportLocalesTest extends TestCase
         $files = $localDisk->allFiles();
         $this->assertEquals(['de/home.php', 'en/app.php', 'en/home.php', 'en/validation.php'], $files);
 
+        $this->assertFileEquals(__DIR__.'/../../Fixtures/home.php', $localDisk->path('en/home.php'));
+
         $localeService = $this->app->make(LocaleService::class);
 
         // Check if the locale data created with the new files is the same as the data loaded from the api
         $this->assertEquals($deLocale, json_decode($localeService->buildJsonLocale('de', false, false), true));
         $this->assertEquals($enLocale, json_decode($localeService->buildJsonLocale('en', false, false), true));
-
-        Process::assertRan('composer run fix-cs lang');
     }
 
     /**

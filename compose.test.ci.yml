@@ -3,3 +3,5 @@ name: pilos-ci
 services:
   app:
     env_file: .env
+    volumes:
+      - "./storage/logs:/var/www/html/storage/logs"

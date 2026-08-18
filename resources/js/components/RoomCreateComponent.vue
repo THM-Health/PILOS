@@ -28,22 +28,29 @@
           {{ $t("rooms.create.title") }}
         </h2>
       </template>
-      <div>
+      <Form
+        id="room-create-form"
+        :disabled="
+          roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy
+        "
+        @submit="handleOk"
+      >
         <!-- Room name -->
-        <div class="mt-6 flex flex-col gap-2">
+        <div class="field mt-6 flex flex-col gap-2">
           <label for="room-name">{{ $t("rooms.name") }}</label>
           <InputText
             id="room-name"
             v-model="room.name"
             :disabled="isLoadingAction"
             autofocus
+            required
             :invalid="formErrors.fieldInvalid('name')"
           />
           <FormError :errors="formErrors.fieldError('name')" />
         </div>
 
         <!-- Room type -->
-        <div class="flex flex-col gap-2">
+        <div class="field flex flex-col gap-2">
           <label id="room-type-label">{{
             $t("rooms.settings.general.type")
           }}</label>
@@ -58,7 +65,7 @@
           />
           <FormError :errors="formErrors.fieldError('room_type')" />
         </div>
-      </div>
+      </Form>
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button
@@ -77,7 +84,8 @@
               isLoadingAction ||
               roomTypeSelectBusy
             "
-            @click="handleOk"
+            form="room-create-form"
+            type="submit"
           />
         </div>
       </template>
@@ -85,7 +93,6 @@
   </div>
 </template>
 <script setup>
-import env from "../env.js";
 import * as _ from "lodash-es";
 import { useAuthStore } from "../stores/auth";
 import { reactive, ref } from "vue";
@@ -94,6 +101,11 @@ import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import {
+  HTTP_STATUS_FORBIDDEN,
+  HTTP_STATUS_ROOM_LIMIT_EXCEEDED,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const authStore = useAuthStore();
 const formErrors = useFormErrors();
@@ -158,7 +170,7 @@ function handleOk() {
       isLoadingAction.value = false;
       if (error.response) {
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           // Room type validation error, a room type was sent, but it is invalid
           // therefore we need to reload the room types
           if (
@@ -172,14 +184,14 @@ function handleOk() {
           return;
         }
         // permission denied
-        if (error.response.status === env.HTTP_FORBIDDEN) {
+        if (error.response.status === HTTP_STATUS_FORBIDDEN) {
           toast.error(t("rooms.flash.no_new_room"));
           modalVisible.value = false;
           authStore.getCurrentUser();
           return;
         }
         // room limit exceeded
-        if (error.response.status === env.HTTP_ROOM_LIMIT_EXCEEDED) {
+        if (error.response.status === HTTP_STATUS_ROOM_LIMIT_EXCEEDED) {
           emit("limitReached");
           modalVisible.value = false;
         }

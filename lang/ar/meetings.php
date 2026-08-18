@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'attendance' => [
         'download' => 'تنزيل',
@@ -13,6 +15,10 @@ return [
         'retention_period' => 'يتم الاحتفاظ بسجلات الحضور لمدة :days يومًا.',
         'retention_period_unlimited' => 'يتم الاحتفاظ بسجلات الحضور بشكل دائم.',
         'sessions' => 'الجلسات',
+        'spreadsheet' => [
+            'title' => 'سجل الحضور لغرفة :room',
+            'worksheet' => 'قائمة الحضور',
+        ],
         'view' => 'عرض سجل الحضور',
     ],
     'currently_running' => 'الاجتماعات الجارية',

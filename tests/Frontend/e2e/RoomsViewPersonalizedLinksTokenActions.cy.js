@@ -157,6 +157,7 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 2 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
@@ -234,6 +235,43 @@ describe("Rooms view personalized links actions", function () {
       "/api/v1/rooms/abc-def-123/personalizedLinks/",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+    cy.get("#tab-tokens").should("be.visible").click();
+    cy.wait("@roomRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Test add personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("addLinkRequest");
+
+    cy.get('[data-test="room-personalized-links-add-button"]').click();
+    cy.get('[data-test="room-personalized-links-add-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@addLinkRequest");
+
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("edit personalized link", function () {
@@ -395,7 +433,9 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_personalized_link",
+        ids: [3],
       },
     }).as("editLinkRequest");
 
@@ -442,6 +482,7 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
       statusCode: 422,
       body: {
+        message: "The firstname field is required. (and 2 more errors)",
         errors: {
           firstname: ["The firstname field is required."],
           lastname: ["The lastname field is required."],
@@ -523,6 +564,46 @@ describe("Rooms view personalized links actions", function () {
       "/api/v1/rooms/abc-def-123/personalizedLinks/1",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+    cy.get("#tab-tokens").should("be.visible").click();
+    cy.wait("@roomRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Test edit personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("editLinkRequest");
+
+    cy.get('[data-test="room-personalized-link-item"]')
+      .eq(0)
+      .find('[data-test="room-personalized-links-edit-button"]')
+      .click();
+    cy.get('[data-test="room-personalized-links-edit-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@editLinkRequest");
+
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("delete personalized link", function () {
@@ -629,7 +710,9 @@ describe("Rooms view personalized links actions", function () {
     cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/personalizedLinks/3", {
       statusCode: 404,
       body: {
-        message: "No query results for model",
+        message: "model_not_found",
+        model: "room_personalized_link",
+        ids: [3],
       },
     }).as("deleteLinkRequest");
 
@@ -716,6 +799,46 @@ describe("Rooms view personalized links actions", function () {
       "/api/v1/rooms/abc-def-123/personalizedLinks/1",
       "tokens",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+    cy.get("#tab-tokens").should("be.visible").click();
+    cy.wait("@roomRequest");
+    cy.wait("@roomPersonalizedLinksRequest");
+
+    // Test delete personalized link with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("DELETE", "/api/v1/rooms/abc-def-123/personalizedLinks/1", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("deleteLinkRequest");
+
+    cy.get('[data-test="room-personalized-link-item"]')
+      .eq(0)
+      .find('[data-test="room-personalized-links-delete-button"]')
+      .click();
+    cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteLinkRequest");
+
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("copy personalized link", function () {
@@ -734,7 +857,7 @@ describe("Rooms view personalized links actions", function () {
       win.navigator.clipboard.readText().then((text) => {
         expect(text).to.eq(
           Cypress.config("baseUrl") +
-            "/rooms/abc-def-123/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
+            "/rooms/abc-def-123#personalizedLink=1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
         );
       });
     });

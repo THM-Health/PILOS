@@ -5,7 +5,12 @@
     severity="info"
     :disabled="disabled"
     icon="fa-solid fa-edit"
-    :aria-label="$t('rooms.personalized_links.edit')"
+    :aria-label="
+      $t('rooms.personalized_links.edit_aria', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     data-test="room-personalized-links-edit-button"
     @click="showModal"
   />
@@ -36,70 +41,81 @@
           :label="$t('app.save')"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
-          @click="save"
+          form="room-personalized-links-edit-form"
+          type="submit"
         />
       </div>
     </template>
 
-    <!-- first name -->
-    <div class="mt-6 flex flex-col gap-2" data-test="firstname-field">
-      <label for="firstname">{{ $t("app.firstname") }}</label>
-      <InputText
-        id="firstname"
-        v-model.trim="newFirstname"
-        autofocus
-        :disabled="isLoadingAction"
-        :invalid="formErrors.fieldInvalid('firstname')"
-      />
-      <FormError :errors="formErrors.fieldError('firstname')" />
-    </div>
+    <Form
+      id="room-personalized-links-edit-form"
+      :disabled="isLoadingAction"
+      @submit="save"
+    >
+      <!-- first name -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="firstname-field">
+        <label for="firstname">{{ $t("app.firstname") }}</label>
+        <InputText
+          id="firstname"
+          v-model.trim="newFirstname"
+          autofocus
+          :disabled="isLoadingAction"
+          :invalid="formErrors.fieldInvalid('firstname')"
+        />
+        <FormError :errors="formErrors.fieldError('firstname')" />
+      </div>
 
-    <!-- last name -->
-    <div class="mt-6 flex flex-col gap-2" data-test="lastname-field">
-      <label for="lastname">{{ $t("app.lastname") }}</label>
-      <InputText
-        id="lastname"
-        v-model.trim="newLastname"
-        :disabled="isLoadingAction"
-        :invalid="formErrors.fieldInvalid('lastname')"
-      />
-      <FormError :errors="formErrors.fieldError('lastname')" />
-    </div>
+      <!-- last name -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="lastname-field">
+        <label for="lastname">{{ $t("app.lastname") }}</label>
+        <InputText
+          id="lastname"
+          v-model.trim="newLastname"
+          :disabled="isLoadingAction"
+          :invalid="formErrors.fieldInvalid('lastname')"
+        />
+        <FormError :errors="formErrors.fieldError('lastname')" />
+      </div>
 
-    <!-- select role -->
-    <div class="mt-6 flex flex-col gap-2">
-      <fieldset class="flex w-full flex-col gap-2">
-        <legend>{{ $t("rooms.role") }}</legend>
+      <!-- select role -->
+      <div class="field mt-6 flex flex-col gap-2">
+        <fieldset class="flex w-full flex-col gap-2">
+          <legend>{{ $t("rooms.role") }}</legend>
 
-        <div class="flex items-center" data-test="participant-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="participant-role"
-            name="role"
-            :value="1"
-          />
-          <label for="participant-role" class="ml-2"
-            ><RoomRoleBadge :role="1"
-          /></label>
-        </div>
+          <div class="flex items-center" data-test="participant-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              pt:input:required
+              input-id="participant-role"
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="1"
+            />
+            <label for="participant-role" class="ml-2"
+              ><RoomRoleBadge :role="1"
+            /></label>
+          </div>
 
-        <div class="flex items-center" data-test="moderator-role-group">
-          <RadioButton
-            v-model="newRole"
-            :disabled="isLoadingAction"
-            input-id="moderator-role"
-            name="role"
-            :value="2"
-          />
-          <label for="moderator-role" class="ml-2"
-            ><RoomRoleBadge :role="2"
-          /></label>
-        </div>
-      </fieldset>
+          <div class="flex items-center" data-test="moderator-role-group">
+            <RadioButton
+              v-model="newRole"
+              :disabled="isLoadingAction"
+              pt:input:required
+              input-id="moderator-role"
+              :invalid="formErrors.fieldInvalid('role')"
+              name="role"
+              :value="2"
+            />
+            <label for="moderator-role" class="ml-2"
+              ><RoomRoleBadge :role="2"
+            /></label>
+          </div>
+        </fieldset>
 
-      <FormError :errors="formErrors.fieldError('role')" />
-    </div>
+        <FormError :errors="formErrors.fieldError('role')" />
+      </div>
+    </Form>
   </Dialog>
 </template>
 
@@ -107,9 +123,13 @@
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
-import env from "../env.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
+import { ROOM_PERSONALIZED_LINK } from "../constants/modelNames.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -189,14 +209,17 @@ function save() {
       // editing failed
       if (error.response) {
         // token not found
-        if (error.response.status === env.HTTP_NOT_FOUND) {
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.model === ROOM_PERSONALIZED_LINK
+        ) {
           toast.error(t("rooms.flash.personalized_link_gone"));
           modalVisible.value = false;
           emit("notFound");
           return;
         }
         // failed due to form validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

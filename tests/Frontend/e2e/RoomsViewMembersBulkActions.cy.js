@@ -70,7 +70,7 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":1}',
+          'rooms.members.modals.edit.title_bulk_{"count":1,"n":1}',
         ).should("be.visible");
 
         // Check that roles are shown correctly
@@ -187,7 +187,7 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":3}',
+          'rooms.members.modals.edit.title_bulk_{"count":3,"n":3}',
         ).should("be.visible");
 
         // Select participant role and save
@@ -408,6 +408,47 @@ describe("Rooms view members bulk actions", function () {
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").should("be.visible").click();
+
+    // Select all users
+    cy.get('[data-test="room-members-select-all-checkbox"]').click();
+
+    // Test bulk edit with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/member/bulk", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("bulkEditRequest");
+
+    cy.get('[data-test="room-members-bulk-edit-button"]')
+      .should("be.visible")
+      .click();
+
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').should("be.visible");
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@bulkEditRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("bulk delete members", function () {
@@ -459,10 +500,10 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.remove.title_bulk_{"numberOfSelectedUsers":1}',
+          'rooms.members.modals.remove.title_bulk_{"count":1,"n":1}',
         ).should("be.visible");
         cy.contains(
-          'rooms.members.modals.remove.confirm_bulk_{"numberOfSelectedUsers":1}',
+          'rooms.members.modals.remove.confirm_bulk_{"count":1,"n":1}',
         ).should("be.visible");
 
         const bulkDeleteRequest = interceptIndefinitely(
@@ -534,10 +575,10 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.remove.title_bulk_{"numberOfSelectedUsers":2}',
+          'rooms.members.modals.remove.title_bulk_{"count":2,"n":2}',
         ).should("be.visible");
         cy.contains(
-          'rooms.members.modals.remove.confirm_bulk_{"numberOfSelectedUsers":2}',
+          'rooms.members.modals.remove.confirm_bulk_{"count":2,"n":2}',
         ).should("be.visible");
 
         cy.intercept("DELETE", "api/v1/rooms/abc-def-123/member/bulk", {
@@ -682,6 +723,50 @@ describe("Rooms view members bulk actions", function () {
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").should("be.visible").click();
+
+    // Select all users
+    cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
+
+    // Test bulk delete with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/member/bulk", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("bulkDeleteRequest");
+
+    cy.get('[data-test="room-members-bulk-delete-button"]')
+      .should("be.visible")
+      .click();
+
+    cy.get('[data-test="room-members-bulk-delete-dialog"]').should(
+      "be.visible",
+    );
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@bulkDeleteRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("bulk import members", function () {
@@ -716,11 +801,12 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains("rooms.members.bulk_import_users");
+        // Check continue button
+        cy.get('[data-test="dialog-continue-button"]').should(
+          "have.text",
+          "rooms.members.modals.add.add",
+        );
 
-        // Check that continue button is disabled and shows the correct text
-        cy.get('[data-test="dialog-continue-button"]')
-          .should("have.text", "rooms.members.modals.add.add")
-          .and("be.disabled");
         // Check that textarea is empty and enter users
         cy.get("#user-emails")
           .should("have.value", "")
@@ -731,15 +817,12 @@ describe("Rooms view members bulk actions", function () {
           )
           .type("LauraWRivera@domain.tld\nLauraMWalter@domain.tld");
 
-        // Check that button is enabled
-        cy.get('[data-test="dialog-continue-button"]').should(
-          "not.be.disabled",
-        );
-
         // Check that roles are shown correctly
         cy.get('[data-test="participant-role-group"]').within(() => {
           cy.contains("rooms.roles.participant");
-          cy.get("#participant-role").should("be.checked").and("have.value", 1);
+          cy.get("#participant-role")
+            .should("not.be.checked")
+            .and("have.value", 1);
         });
 
         cy.get('[data-test="moderator-role-group"]').within(() => {
@@ -998,7 +1081,7 @@ describe("Rooms view members bulk actions", function () {
         cy.get('[data-test="dialog-continue-button"]')
           .should(
             "have.text",
-            "rooms.members.modals.bulk_import.import_importable_button",
+            'rooms.members.modals.bulk_import.import_importable_button_{"count":2,"n":2}',
           )
           .click();
 
@@ -1083,7 +1166,7 @@ describe("Rooms view members bulk actions", function () {
         cy.get('[data-test="room-members-copy-and-close-button"]')
           .should(
             "have.text",
-            "rooms.members.modals.bulk_import.copy_and_close",
+            'rooms.members.modals.bulk_import.copy_and_close_{"count":2,"n":2}',
           )
           .click();
 
@@ -1098,7 +1181,7 @@ describe("Rooms view members bulk actions", function () {
     cy.get('[data-test="room-members-bulk-import-dialog"]').should("not.exist");
 
     cy.checkToastMessage(
-      "rooms.members.modals.bulk_import.copied_invalid_users",
+      'rooms.members.modals.bulk_import.copied_invalid_users_{"count":2,"n":2}',
     );
 
     // Check that members are shown correctly
@@ -1301,6 +1384,7 @@ describe("Rooms view members bulk actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 422,
       body: {
+        message: "The user emails field is required.",
         errors: {
           user_emails: ["The user emails field is required."],
         },
@@ -1323,6 +1407,7 @@ describe("Rooms view members bulk actions", function () {
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/member/bulk", {
       statusCode: 422,
       body: {
+        message: "The selected role is invalid.",
         errors: {
           role: ["The selected role is invalid."],
         },
@@ -1386,5 +1471,48 @@ describe("Rooms view members bulk actions", function () {
       "api/v1/rooms/abc-def-123/member/bulk",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    cy.wait("@roomRequest");
+
+    cy.get("#tab-members").should("be.visible").click();
+
+    // Test bulk import with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("POST", "api/v1/rooms/abc-def-123/member/bulk", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("bulkImportRequest");
+
+    cy.get('[data-test="room-members-add-button"]').click();
+    cy.get("#overlay_menu_1")
+      .should("have.text", "rooms.members.bulk_import_users")
+      .click();
+
+    cy.get('[data-test="room-members-bulk-import-dialog"]').should(
+      "be.visible",
+    );
+    cy.get("#user-emails").type("\n");
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@bulkImportRequest");
+
+    // Check that redirect to room index page worked and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

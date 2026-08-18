@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -104,13 +106,20 @@ class ImportLocalesCommand extends Command
                 // Export the group data as a PHP array
                 $exported = VarExporter::export($response[$group]);
 
+                // Each array entry on a new line for better readability
+                $exported = str_replace(
+                    ["['", "', '", "']"],
+                    ["[\n'", "',\n'", "'\n]"],
+                    $exported
+                );
+
                 // Write the PHP array to the language file
                 $disk->put($lang['code'].'/'.$group.'.php', '<?php return '.$exported.';');
             }
         }
 
         $this->info('Apply coding standards');
-        Process::run('composer run fix-cs '.config('app.default_locale_dir'));
+        Process::run(['composer', 'run', 'fix-cs', $disk->path('/')]);
     }
 
     /**

@@ -5,6 +5,7 @@ import Logout from "./views/Logout.vue";
 import NotFound from "./views/NotFound.vue";
 import RoomsIndex from "./views/RoomsIndex.vue";
 import RoomView from "./views/RoomsView.vue";
+import InvalidPersonalizedRoomLink from "./views/InvalidPersonalizedRoomLink.vue";
 import AdminLayout from "./views/AdminLayout.vue";
 import RolesIndex from "./views/AdminRolesIndex.vue";
 import RolesView from "./views/AdminRolesView.vue";
@@ -32,6 +33,7 @@ import { useToast } from "./composables/useToast";
 import i18n from "./i18n";
 import { useUserPermissions } from "./composables/useUserPermission.js";
 import { useApi } from "./composables/useApi.js";
+import { useRouteStore } from "./stores/route.js";
 
 const Home = Object.values(
   import.meta.glob(["../custom/js/views/Home.vue", "./views/Home.vue"], {
@@ -44,11 +46,10 @@ export const routes = [
     path: "/",
     name: "home",
     component: Home,
-    beforeEnter: (to, from, next) => {
+    meta: { title: (t) => t("app.home") },
+    beforeEnter: () => {
       if (useSettingsStore().getSetting("general.no_welcome_page")) {
-        next({ name: "rooms.index" });
-      } else {
-        next();
+        return { name: "rooms.index" };
       }
     },
   },
@@ -56,13 +57,13 @@ export const routes = [
     path: "/profile",
     name: "profile",
     component: Profile,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, title: (t) => t("app.profile") },
   },
   {
     path: "/login",
     name: "login",
     component: Login,
-    meta: { guestsOnly: true },
+    meta: { title: (t) => t("auth.login") },
   },
   {
     path: "/external_login",
@@ -71,6 +72,7 @@ export const routes = [
     props: (route) => {
       return {
         error: route.query.error,
+        noMessage: route.query.no_message === "1",
       };
     },
   },
@@ -78,7 +80,7 @@ export const routes = [
     path: "/logout",
     name: "logout",
     component: Logout,
-    meta: { guestsOnly: true },
+    meta: { guestsOnly: true, title: (t) => t("auth.logout") },
     props: (route) => {
       return {
         message: route.query.message,
@@ -131,20 +133,54 @@ export const routes = [
     path: "/rooms",
     name: "rooms.index",
     component: RoomsIndex,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, title: (t) => t("app.rooms") },
   },
-
+  /**
+   * Greenlight v3 compatibility
+   */
   {
-    path: "/rooms/:id/:token?",
+    path: "/rooms/:id/join",
+    redirect: (to) => {
+      return { name: "rooms.view", params: { id: to.params.id } };
+    },
+  },
+  {
+    path: "/rooms/:id/invalid_personalized_link",
+    name: "rooms.invalid_personalized_link",
+    component: InvalidPersonalizedRoomLink,
+  },
+  {
+    path: "/rooms/:id",
     name: "rooms.view",
     component: RoomView,
     meta: { redirectBackAfterLogin: true },
     props: (route) => {
       return {
         id: route.params.id,
-        token: route.params.token,
         bbbReason: route.query.reason,
         bbbErrors: route.query.errors,
+      };
+    },
+  },
+  /**
+   * Legacy personalized link compatibility route.
+   *
+   * Old links used /rooms/:id/:token. Redirect them to the current hash-based
+   * format so RoomsView can handle authentication through the regular flow.
+   */
+  {
+    path: "/rooms/:id/:token",
+    redirect: (route) => {
+      // Parse hash parameters
+      const searchParams = new URLSearchParams(route.hash.substring(1));
+
+      // Append or overwrite personalizedLink parameter
+      searchParams.set("personalizedLink", route.params.token);
+
+      return {
+        name: "rooms.view",
+        params: { id: route.params.id },
+        hash: "#" + searchParams.toString(),
       };
     },
   },
@@ -154,6 +190,7 @@ export const routes = [
     name: "meetings.index",
     meta: {
       requiresAuth: true,
+      title: (t) => t("meetings.currently_running"),
       accessPermitted: (userPermissions) =>
         Promise.resolve(userPermissions.can("viewAny", "MeetingPolicy")),
     },
@@ -550,11 +587,9 @@ export const routes = [
         path: "streaming_settings",
         name: "admin.streaming_settings",
         component: AdminStreamingSettings,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: () => {
           if (!useSettingsStore().getSetting("streaming.enabled")) {
-            next({ name: "404" });
-          } else {
-            next();
+            return { name: "404" };
           }
         },
         meta: {
@@ -603,10 +638,9 @@ export const routes = [
  * If the meta `guestsOnly` is set for a matched route but the user is logged in, he will
  * be redirected to the home route with a error messsage.
  */
-export async function beforeEachRoute(router, to, from, next) {
+export async function beforeEachRoute(router, to, from) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
-  const settings = useSettingsStore();
   const userPermissions = useUserPermissions();
   const toast = useToast();
   const { t } = i18n.global;
@@ -615,9 +649,6 @@ export async function beforeEachRoute(router, to, from, next) {
   if (!loading.initialized) {
     await loading.initialize();
   }
-
-  // Set the application name as title if loaded, otherwise the title from the html template is used
-  document.title = settings.getSetting("general.name");
 
   // Resolve all permission promises for the current route
   const recordsPermissions = await Promise.all(
@@ -640,8 +671,7 @@ export async function beforeEachRoute(router, to, from, next) {
       return false;
     })
   ) {
-    next({ name: "404" });
-    return;
+    return { name: "404" };
   }
 
   // Check if unauthenticated user tries to access a route that requires authentication
@@ -649,11 +679,10 @@ export async function beforeEachRoute(router, to, from, next) {
     to.matched.some((record) => record.meta.requiresAuth) &&
     !auth.isAuthenticated
   ) {
-    next({
+    return {
       name: "login",
       query: { redirect: to.fullPath },
-    });
-    return;
+    };
   }
 
   // Check if authenticated user tries to access a route that is only for guests
@@ -662,18 +691,14 @@ export async function beforeEachRoute(router, to, from, next) {
     auth.isAuthenticated
   ) {
     toast.error(t("app.flash.guests_only"));
-    next({ name: "home" });
-    return;
+    return { name: "home" };
   }
 
   // Check if user doesn't have permission to access a route
   if (!recordsPermissions.every((permission) => permission)) {
     toast.error(t("app.flash.unauthorized"));
-    next(from.matched.length !== 0 ? false : "/");
-    return;
+    return from.matched.length !== 0 ? false : "/";
   }
-
-  next();
 }
 
 export default function () {
@@ -682,9 +707,25 @@ export default function () {
     routes,
   });
 
-  router.beforeEach((to, from, next) =>
-    beforeEachRoute(router, to, from, next),
-  );
+  router.beforeEach((to, from) => beforeEachRoute(router, to, from));
+
+  router.afterEach((to, from) => {
+    const routeStore = useRouteStore();
+
+    // Do not update page title if only hash or query parameters change
+    if (from.path === to.path) {
+      return;
+    }
+
+    // Update page title if route has a static title
+    if (to.meta.title) {
+      const { t } = i18n.global;
+      routeStore.setPageTitle(to.meta.title(t));
+    } else {
+      // Route has no title or is set somewhere else, reset to default
+      routeStore.setPageTitle(null);
+    }
+  });
 
   router.onError((error) => {
     const api = useApi();

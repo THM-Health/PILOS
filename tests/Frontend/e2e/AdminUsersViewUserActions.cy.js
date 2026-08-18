@@ -127,6 +127,38 @@ describe("Admin users view user actions", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
+    // Check with 404 error
+    cy.intercept("DELETE", "api/v1/users/2", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
+      },
+    }).as("deleteUserRequest");
+
+    cy.interceptAdminUsersIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteUserRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/users").and("not.include", "/2");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
+    ]);
+
+    // Reload view and open delete dialog again
+    cy.visit("/admin/users/2");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-delete-button"]').click();
+    cy.get('[data-test="users-delete-dialog"]').should("be.visible");
+
     // Check with 401 error
     cy.intercept("DELETE", "api/v1/users/2", {
       statusCode: 401,
@@ -222,6 +254,38 @@ describe("Admin users view user actions", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+
+    // Check with 404 error
+    cy.intercept("POST", "api/v1/users/2/resetPassword", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "user",
+        ids: [2],
+      },
+    }).as("resetPasswordRequest");
+
+    cy.interceptAdminUsersIndexRequests();
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@resetPasswordRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/admin/users").and("not.include", "/2");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.user"}',
+      'app.flash.model_not_found.details_{"ids":"2"}',
+    ]);
+
+    // Reload view and open reset password dialog again
+    cy.visit("/admin/users/2");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="users-reset-password-button"]').click();
+    cy.get('[data-test="users-reset-password-dialog"]').should("be.visible");
 
     // Check with 401 error
     cy.intercept("POST", "api/v1/users/2/resetPassword", {
@@ -325,7 +389,7 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=base");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
@@ -354,7 +418,7 @@ describe("Admin users view user actions", function () {
     // Switch to edit again
     cy.get('[data-test="users-edit-button"]').click();
 
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=base");
 
     cy.wait("@userRequest");
 
@@ -395,6 +459,7 @@ describe("Admin users view user actions", function () {
 
     // Check email tab
     cy.get('[data-test="email-tab-button"]').click();
+    cy.url().should("include", "/admin/users/2/edit#tab=email");
 
     // Change value of email field
     cy.get("#email").should("have.value", "LauraWRivera@domain.tld").type("e");
@@ -408,14 +473,12 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=email");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
 
-    // Switch to email tab and check that changes are not saved
-    cy.get('[data-test="email-tab-button"]').click();
-
+    // Check that changes are not saved
     cy.get("#email")
       .should("have.value", "LauraWRivera@domain.tld")
       .should("be.disabled");
@@ -427,11 +490,9 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-edit-button"]').click();
 
     // Check if redirected to edit page
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=email");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
 
     // Check that original values are shown
     cy.get("#email")
@@ -445,6 +506,7 @@ describe("Admin users view user actions", function () {
 
     // Check security tab
     cy.get('[data-test="security-tab-button"]').click();
+    cy.url().should("include", "/admin/users/2/edit#tab=security");
 
     // Change value of role field
     cy.get('[data-test="role-dropdown"]')
@@ -509,12 +571,10 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page and check that changes are not saved
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=security");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     cy.get('[data-test="role-dropdown"]')
       .should("have.class", "multiselect--disabled")
@@ -544,11 +604,9 @@ describe("Admin users view user actions", function () {
     // Switch back to edit page
     cy.get('[data-test="users-edit-button"]').click();
 
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=security");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="security-tab-button"]').click();
 
     // Check that original values are shown
     cy.get('[data-test="role-dropdown"]')
@@ -578,8 +636,9 @@ describe("Admin users view user actions", function () {
       .should("be.visible")
       .and("not.be.disabled");
 
-    // Check other tab
+    // Check others tab
     cy.get('[data-test="others-tab-button"]').click();
+    cy.url().should("include", "/admin/users/2/edit#tab=others");
 
     // Change value of bbb_skip_check_audio
     cy.get("#bbb_skip_check_audio").click();
@@ -593,14 +652,12 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-cancel-edit-button"]').click();
 
     // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
+    cy.url().should("include", "/admin/users/2#tab=others");
     cy.url().should("not.include", "/edit");
 
     cy.wait("@userRequest");
 
-    // Switch to others tab and check if changes are not saved
-    cy.get('[data-test="others-tab-button"]').click();
-
+    // Check that changes are not saved
     cy.get("#bbb_skip_check_audio")
       .should("not.be.checked")
       .should("be.disabled");
@@ -612,11 +669,9 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-edit-button"]').click();
 
     // Check if redirected to edit page
-    cy.url().should("include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users/2/edit#tab=others");
 
     cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
 
     // Check that original value is shown
     cy.get("#bbb_skip_check_audio")

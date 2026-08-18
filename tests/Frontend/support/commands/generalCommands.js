@@ -1,4 +1,26 @@
 /**
+ * Check that the final state of the test is correct, e.g. that there are no unexpected error toasts.
+ * This should be called at the end of every test to make sure that unexpected errors aren't missed in the tests.
+ * @memberof cy
+ * @method checkFinalState
+ * @returns {Cypress.Chainable<void>}
+ */
+Cypress.Commands.add("checkFinalState", () => {
+  return cy.url({ log: false }).then((currentUrl) => {
+    const currentOrigin = new URL(currentUrl).origin;
+    const baseOrigin = new URL(Cypress.config().baseUrl).origin;
+
+    if (currentOrigin === baseOrigin) {
+      cy.log("Check final state");
+      // Check that all toasts that maybe have been created during the test have been removed
+      // This makes sure that unexpected error toasts that are not handled in the test will cause the test to fail,
+      // which makes sure that we don't miss any unexpected errors in the tests
+      cy.get(".p-toast-message").should("not.exist");
+    }
+  });
+});
+
+/**
  * Check that a user who visits this page without being logged in is redirected to the login page
  * @memberof cy
  * @method testVisitWithoutCurrentUser
@@ -37,4 +59,26 @@ Cypress.Commands.add("checkToastMessage", (messages) => {
     cy.wrap($toast, { log: false }).find("button").click();
     cy.wrap($toast, { log: false }).should("not.exist");
   });
+});
+
+/**
+ * Set the hash without triggering a hashchange event and reload the page.
+ * @memberof cy
+ * @method reloadWithHash
+ * @param {string} hash
+ * @returns {Cypress.Chainable<Window>}
+ */
+Cypress.Commands.add("reloadWithHash", (hash) => {
+  return cy
+    .window({ log: false })
+    .then((win) => {
+      const url = new URL(win.location.href);
+      url.hash = hash;
+
+      // Replace the current history entry with the new URL to avoid triggering a hashchange event
+      win.history.replaceState(win.history.state, "", url.toString());
+    })
+    .then(() => {
+      cy.reload();
+    });
 });

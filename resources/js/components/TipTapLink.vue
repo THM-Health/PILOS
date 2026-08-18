@@ -21,13 +21,25 @@
     :draggable="false"
     data-test="tip-tap-link-dialog"
   >
-    <div class="mt-6 flex flex-col gap-2" data-test="url-field">
-      <label for="url">{{ $t("rooms.description.modals.link.url") }}</label>
-      <InputText id="url" v-model.trim="link" autofocus :invalid="urlInvalid" />
-      <p v-if="urlInvalid" class="text-red-500" role="alert">
-        {{ $t("rooms.description.modals.link.invalid_url") }}
-      </p>
-    </div>
+    <Form
+      id="tip-tap-link-form"
+      :disabled="urlInvalid !== false"
+      @submit="save"
+    >
+      <div class="field mt-6 flex flex-col gap-2" data-test="url-field">
+        <label for="url">{{ $t("rooms.description.modals.link.url") }}</label>
+        <InputText
+          id="url"
+          v-model.trim="link"
+          autofocus
+          required
+          :invalid="urlInvalid"
+        />
+        <p v-if="urlInvalid" class="text-red-500" role="alert">
+          {{ $t("rooms.description.modals.link.invalid_url") }}
+        </p>
+      </div>
+    </Form>
 
     <template #footer>
       <div class="flex w-full justify-between gap-2">
@@ -51,7 +63,8 @@
             :disabled="urlInvalid !== false"
             :label="$t('app.save')"
             data-test="dialog-save-button"
-            @click="save"
+            form="tip-tap-link-form"
+            type="submit"
           />
         </div>
       </div>

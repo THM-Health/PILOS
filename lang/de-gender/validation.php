@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'accepted' => ':attribute muss akzeptiert werden.',
     'accepted_if' => ':attribute muss akzeptiert werden, wenn :other :value ist.',
@@ -9,6 +11,10 @@ return [
     'alpha' => ':attribute darf nur aus Buchstaben bestehen.',
     'alpha_dash' => ':attribute darf nur aus Buchstaben, Zahlen, Binde- und Unterstrichen bestehen.',
     'alpha_num' => ':attribute darf nur aus Buchstaben und Zahlen bestehen.',
+    'antivirus' => [
+        'error' => 'Die Virenprüfung für :file ist fehlgeschlagen.',
+        'virus' => ':file enthält einen Virus.',
+    ],
     'array' => ':attribute muss ein Array sein.',
     'ascii' => 'Die :attribute darf nur alphanumerische Single-Byte-Zeichen und -Symbole enthalten.',
     'attached' => ':attribute ist bereits angehängt.',
@@ -35,6 +41,8 @@ return [
         'base_url' => 'API Endpunkt',
         'bbb_default_presentation' => 'Standard Präsentation',
         'bbb_logo' => 'Logo',
+        'bbb_logo_dark' => 'Dunkle Version des Logos',
+        'bbb_logo_dark_file' => 'Logodatei der dunklen Version',
         'bbb_logo_file' => 'Logodatei',
         'bbb_skip_check_audio' => 'Echo-Test deaktivieren',
         'bbb_style' => 'CSS Style Datei',
@@ -46,10 +54,12 @@ return [
         'content' => 'Inhalt',
         'country' => 'Land',
         'create_parameters' => 'Zusätzliche Create-API-Parameter',
+        'css_file' => 'CSS Style Datei',
         'current_password' => 'Aktuelles Passwort',
         'date' => 'Datum',
         'day' => 'Tag',
         'default' => 'Standard',
+        'default_pause_image' => 'Standard-Pausenbild',
         'default_role' => 'Standardrolle',
         'description' => 'Beschreibung',
         'download' => 'Herunterladbar',
@@ -67,6 +77,7 @@ return [
         'firstname' => 'Vorname',
         'formats' => 'Formate',
         'gender' => 'Geschlecht',
+        'general_accessibility_statement_url' => 'URL zur Barrierefreiheitserklärung',
         'general_default_timezone' => 'Standardzeitzone',
         'general_help_url' => 'URL zur Hilfeseite',
         'general_legal_notice_url' => 'URL zum Impressum',
@@ -99,6 +110,7 @@ return [
         'name' => 'Name',
         'new_password' => 'Neues Passwort',
         'new_password_confirmation' => 'Neues Passwort Bestätigung',
+        'no_welcome_page' => 'Willkommensseite ausblenden',
         'only_favorites' => 'Nur Favoriten',
         'page' => 'Seite',
         'password' => 'Passwort',
@@ -119,7 +131,10 @@ return [
         'room_auto_delete_deadline_period' => 'Löschfrist',
         'room_auto_delete_inactive_period' => 'Zeitraum bis inaktive Räume gelöscht werden',
         'room_auto_delete_never_used_period' => 'Zeitraum bis nie genutzte Räume gelöscht werden',
+        'room_file_terms_of_use' => 'Nutzungsbedingungen für den Dateidownload',
+        'room_hide_owner_from_guests' => 'Raumbesitzer vor nicht authentifizierten Benutzern verbergen',
         'room_limit' => 'Maximale Anzahl an Räumen',
+        'room_personalized_link_expiration' => 'Ablaufzeit für personalisierte Raumlinks',
         'room_type' => 'Raumart',
         'search' => 'Suche',
         'second' => 'Sekunde',
@@ -131,7 +146,10 @@ return [
         'size' => 'Größe',
         'sort_by' => 'Sortieren nach',
         'status' => 'Status',
+        'streaming_pause_image' => 'Pausenbild',
+        'streaming_url' => 'RTMP(S)-URL',
         'strength' => 'Serverstärke',
+        'theme_custom_css' => 'Benutzerdefinierte CSS-Stildatei',
         'theme_favicon' => 'Favicon',
         'theme_favicon_dark' => 'Dunkle Version des Favicon',
         'theme_favicon_dark_file' => 'Favicondatei für die dunkle Version',
@@ -189,6 +207,12 @@ return [
         'consent_record_attendance' => [
             'accepted' => 'Die Zustimmung zur Protokollierung der Anwesenheit muss erteilt werden.',
         ],
+        'consent_streaming' => [
+            'accepted' => 'Die Zustimmung zum Streaming der Videokonferenz muss erteilt werden.',
+        ],
+        'default_pause_image' => [
+            'dimensions' => 'Das :attribut muss eine Auflösung von 1920x1080 Pixeln haben.',
+        ],
         'invalid_room_type' => 'Sie haben nicht die notwendigen Rechte, um einen Raum mit der übergebenen Raumart zu besitzen.',
         'locale' => [
             'in' => 'Die gewählte Sprache wird vom Server nicht unterstützt.',
@@ -219,6 +243,13 @@ return [
                 'exists' => 'Der Server mit der ID :input konnte nicht gefunden werden.',
             ],
         ],
+        'streaming_pause_image_file' => [
+            'dimensions' => 'Das :attribut muss eine Auflösung von 1920x1080 Pixeln haben.',
+        ],
+        'streaming_url' => [
+            'required_if_accepted' => 'Das Feld :attribut ist erforderlich, wenn Streaming aktiviert ist.',
+            'url' => 'Das :attribut muss eine RTMP- oder RTMPS-URL sein.',
+        ],
         'transfer_ownership' => [
             'can_not_own_rooms' => 'Der ausgewählte Benutzer darf keine Räume besitzen.',
             'invalid_room_type' => 'Der ausgewählte Benutzer darf keine Räume mit der Raumart dieses Raumes besitzen.',
@@ -234,6 +265,14 @@ return [
             ],
         ],
     ],
+    'custom_create_parameter_other_error' => 'Die benutzerdefinierten Erstellungsparameter sind ungültig.',
+    'custom_join_parameter_other_error' => 'Die benutzerdefinierten Beitrittsparameter sind ungültig.',
+    'custom_parameter_boolean' => 'Der Parameter :parameter muss true oder false sein.',
+    'custom_parameter_enum' => 'Der Wert des Parameters :parameter ist nicht in der Liste der zulässigen Werte.',
+    'custom_parameter_integer' => 'Der Parameter :parameter muss eine ganze Zahl sein.',
+    'custom_parameter_invalid' => 'Der Wert des Parameters :parameter ist ungültig.',
+    'custom_parameter_missing' => 'Dem Parameter :parameter fehlt ein Wert.',
+    'custom_parameter_not_found' => 'Der Parameter :parameter existiert nicht.',
     'date' => ':attribute muss ein gültiges Datum sein.',
     'date_equals' => ':attribute muss ein Datum gleich :date sein.',
     'date_format' => ':attribute entspricht nicht dem gültigen Format für :format.',
@@ -315,6 +354,7 @@ return [
     'not_in' => 'Der gewählte Wert für :attribute ist ungültig.',
     'not_regex' => ':attribute hat ein ungültiges Format.',
     'numeric' => ':attribute muss eine Zahl sein.',
+    'one_more_error' => '(und :count weitere Fehler)',
     'password' => 'Das Passwort ist falsch.',
     'password.letters' => ':attribute muss mindestens einen Buchstaben beinhalten.',
     'password.mixed' => ':attribute muss mindestens einen Großbuchstaben und einen Kleinbuchstaben beinhalten.',
@@ -344,6 +384,7 @@ return [
     'room_type_attribute_default' => 'Standardeinstellung für :attribute',
     'room_type_attribute_enforced' => 'Erzwungener Status von :attribute',
     'same' => ':attribute und :other müssen übereinstimmen.',
+    'several_errors' => '(und :count weitere Fehler)',
     'size' => [
         'array' => ':attribute muss genau :size Elemente haben.',
         'file' => ':attribute muss :size Kilobyte groß sein.',

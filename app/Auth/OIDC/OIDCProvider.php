@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\OIDC;
 
 use App\Auth\MissingAttributeException;
@@ -74,10 +76,7 @@ class OIDCProvider
      */
     public function login(Request $request): User
     {
-        if (! $this->openIDConnectClient->authenticate($request)) {
-            // Response is missing the code parameters
-            throw new OpenIDConnectCodeMissingException("Response is missing 'code' parameter.");
-        }
+        $this->openIDConnectClient->authenticate($request);
 
         $claims = $this->openIDConnectClient->getVerifiedClaims();
 

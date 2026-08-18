@@ -17,16 +17,16 @@ describe("Room View general", function () {
     cy.visit("/rooms/abc-def-123");
 
     cy.contains("Anatomy").should("be.visible");
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
-    cy.get('[data-test="room-access-code"] input').type("111111111");
-    cy.get('[data-test="room-access-code"] button').click();
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
-    cy.get('[data-test="room-access-code"] input').clear();
+    cy.get('[data-test="access-code-field"] input').type("111111111");
+    cy.get('[data-test="room-login-button"]').click();
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
+    cy.get('[data-test="access-code-field"] input').clear();
 
-    cy.get('[data-test="room-access-code"] input').type("123456789");
-    cy.get('[data-test="room-access-code"] button').click();
-    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.get('[data-test="access-code-field"] input').type("123456789");
+    cy.get('[data-test="room-login-button"]').click();
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
   });
 
   it("guest forbidden", function () {
@@ -41,16 +41,19 @@ describe("Room View general", function () {
     cy.visit("/rooms/abc-def-234");
 
     cy.contains("Math").should("be.visible");
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
-    cy.get('[data-test="room-access-code"] input').type("111111111");
-    cy.get('[data-test="room-access-code"] button').click();
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
-    cy.get('[data-test="room-access-code"] input').clear();
+    cy.get('[data-test="participant-name-field"] > #participant-name').type(
+      "John Doe",
+    );
+    cy.get('[data-test="access-code-field"] input').type("111111111");
+    cy.get('[data-test="room-login-button"]').click();
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
+    cy.get('[data-test="access-code-field"] input').clear();
 
-    cy.get('[data-test="room-access-code"] input').type("123456789");
-    cy.get('[data-test="room-access-code"] button').click();
-    cy.get('[data-test="room-access-code-overlay"]').should("not.exist");
+    cy.get('[data-test="access-code-field"] input').type("123456789");
+    cy.get('[data-test="room-login-button"]').click();
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
   });
 
   it("room not found", function () {

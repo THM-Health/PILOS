@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
@@ -45,6 +47,44 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_login_rate_limiting()
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('bar'),
+        ]);
+
+        $credentials = [
+            'email' => $user->email,
+            'password' => 'foo',
+        ];
+
+        // Allow 5 attempts, then lock out for 1 minute
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), $credentials);
+            $response->assertUnprocessable();
+            $this->assertGuest();
+        }
+
+        // Check request gets blocked
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), $credentials);
+        $response->assertStatus(429);
+        $this->assertGuest();
+
+        // Check request for other user is still permitted
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
+            'email' => 'other_user@example.org',
+            'password' => 'foo',
+        ]);
+        $response->assertUnprocessable();
+        $this->assertGuest();
+
+        // Check if rate limit is reset after 1 minute
+        $this->travel(1)->minute();
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), $credentials);
+        $response->assertUnprocessable();
+        $this->assertGuest();
+    }
+
     /**
      * Tests a successful authentication with correct user credentials for database users.
      *
@@ -60,7 +100,8 @@ class LoginTest extends TestCase
             'email' => $user->email,
             'password' => $password,
         ]);
-        $response->assertNoContent();
+        $response->assertStatus(200);
+        $response->assertJson(['two_factor' => false]);
         $this->assertAuthenticated();
 
         // Authenticated user tries to login again

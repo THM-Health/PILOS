@@ -318,10 +318,23 @@ describe("Rooms view members", function () {
     // Check that room gets reloaded
     cy.wait("@roomRequest");
 
+    // Enter guest name
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
+    cy.get("#participant-name").type("Max Doe");
+
+    cy.intercept("POST", "api/v1/participantName/check", {
+      statusCode: 204,
+    }).as("checkParticipantNameRequest");
+
+    cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait("@checkParticipantNameRequest");
+
+    cy.get('[data-test="room-access-overlay"]').should("not.exist");
+
     // Check that file tab is shown
     cy.wait("@roomFilesRequest");
     cy.url().should("not.include", "#tab=members");
-    cy.url().should("include", "/rooms/abc-def-123#tab=files");
 
     // Check that error message is shown
     cy.checkToastMessage("app.flash.unauthenticated");
@@ -372,7 +385,7 @@ describe("Rooms view members", function () {
     cy.wait("@roomRequest");
 
     // Check that access code overlay is shown
-    cy.get('[data-test="room-access-code-overlay"]').should("be.visible");
+    cy.get('[data-test="room-access-overlay"]').should("be.visible");
 
     // Check that error message is shown
     cy.checkToastMessage("app.flash.unauthenticated");
@@ -484,6 +497,35 @@ describe("Rooms view members", function () {
       "api/v1/rooms/abc-def-123/member*",
       "members",
     );
+
+    // Reload room page
+    cy.interceptRoomViewRequests();
+    cy.reload();
+
+    // Test 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/member*", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("roomMembersRequest");
+
+    cy.get("#tab-members").click();
+
+    cy.wait("@roomMembersRequest");
+
+    // Check that redirect to room index page works and error message is shown
+    cy.url()
+      .should("include", "/rooms")
+      .and("not.include", "/rooms/abc-def-123");
+
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 
   it("load members page out of range", function () {
@@ -1358,7 +1400,7 @@ describe("Rooms view members", function () {
       .should("be.visible")
       .should(
         "include.text",
-        'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":3}',
+        'rooms.members.modals.edit.title_bulk_{"count":3,"n":3}',
       );
     cy.get('[data-test="room-members-bulk-edit-dialog"]')
       .find('[data-test="dialog-cancel-button"]')

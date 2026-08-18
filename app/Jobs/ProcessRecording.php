@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
+use App\Enums\RecordingAccess;
 use App\Exceptions\RecordingExtractionFailed;
 use App\Models\RecordingFormat;
 use DateTime;
@@ -30,15 +33,18 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
 
     protected string $file;
 
+    protected RecordingAccess $access;
+
     protected string $tempPath;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(string $file)
+    public function __construct(string $file, RecordingAccess $access = RecordingAccess::OWNER)
     {
         $this->onQueue('recordings');
         $this->file = $file;
+        $this->access = $access;
         $filename = pathinfo($this->file, PATHINFO_FILENAME);
         $this->tempPath = 'temp/'.$filename;
     }
@@ -138,11 +144,14 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
                 // Create or update the recording format in the database
                 $recordingFormat = RecordingFormat::createFromRecordingXML($xml);
 
-                $formatDirectory = dirname($metadataFile);
-
                 // Recording format was created or updated (found the corresponding room)
                 if ($recordingFormat != null) {
+                    // Set visibility
+                    $recordingFormat->recording->access = $this->access;
+                    $recordingFormat->recording->save();
+
                     // Move the recording to the final destination
+                    $formatDirectory = dirname($metadataFile);
                     Storage::disk('recordings')->move($formatDirectory, $recordingFormat->recording->id.'/'.$recordingFormat->format);
                 } else {
                     // No room found for the recording format, fail whole file
@@ -184,5 +193,15 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
     public function cleanup(): void
     {
         Storage::disk('recordings')->deleteDirectory($this->tempPath);
+    }
+
+    public function getFile(): string
+    {
+        return $this->file;
+    }
+
+    public function getAccess(): RecordingAccess
+    {
+        return $this->access;
     }
 }

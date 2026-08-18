@@ -78,7 +78,7 @@ describe("Admin settings general", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.settings");
+      .should("include.text", "admin.breadcrumbs.settings");
   });
 
   it("check loading with edit permission", function () {
@@ -111,7 +111,7 @@ describe("Admin settings general", function () {
     // Check that breadcrumbs are shown correctly
     cy.get('[data-test="admin-breadcrumb"]')
       .should("be.visible")
-      .should("include.text", "admin.breakcrumbs.settings");
+      .should("include.text", "admin.breadcrumbs.settings");
   });
 
   it("load settings errors", function () {

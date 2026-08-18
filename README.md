@@ -29,6 +29,25 @@ The team behind Greenlight did an amazing job, and we want to thank for their ha
 However, due to the underlying ruby-on-rails software architecture and the small amount of rails software-packages
 we decided to build a new system with another architecture.
 
+### Used by / Trusted by
+
+This project is actively used and trusted by a growing number of academic institutions, public organizations, and companies:
+
+- Technische Hochschule Mittelhessen (THM)
+- Universität Osnabrück
+- Goethe-Universität Frankfurt
+- Universität Innsbruck
+- Hochschule für nachhaltige Entwicklung Eberswalde
+- Hochschule der Polizei des Landes Brandenburg
+- Kompetenzzentrum für Telemedizin und E-Health Hessen (KTE Hessen)
+- IT-Dienstleistungszentrum des Freistaats Bayern (LDBV)
+- infra.run Service GmbH
+
+…and more.
+
+> Want to support this project and be listed here?
+> Join the community and leave a comment in the related [GitHub issue](https://github.com/THM-Health/PILOS/issues/2876).
+
 ## Screenshots
 
 ### Welcome, Home and Login
@@ -84,9 +103,9 @@ For information on installing PILOS have a look at our [documentation](https://t
 
 If you have proviously used PILOS v2/v3, follow our [upgrade instructions](https://thm-health.github.io/PILOS/docs/administration/upgrade) .
 
-## Migrate from Greenlight 2
+## Migrate from Greenlight
 
-If you have proviously used Greenlight 2, follow our [migration guide](https://thm-health.github.io/PILOS/docs/administration/advanced/migrate-greenlight).
+If you have previously used Greenlight, follow our [migration guide](https://thm-health.github.io/PILOS/docs/administration/advanced/migrate-greenlight).
 
 ## Stacks
 
@@ -105,8 +124,8 @@ Please check our [development documentation](https://thm-health.github.io/PILOS/
 
 ## Localization
 
-The localization is managed in our [POEditor](https://poeditor.com/join/project/gWkaFBI8OH) project.
-Feel free to join and help us translate PILOS into your language or improve the existing translations.
+Please check our [localization documentation](https://thm-health.github.io/PILOS/docs/administration/customisation/locales) to
+learn how to contribute and add custom locales.
 
 ## License
 

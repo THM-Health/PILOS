@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form :aria-hidden="loadingError" @submit="save">
+    <Form :aria-hidden="loadingError" :disabled="disabled" @submit="save">
       <OverlayComponent :show="isBusy || loadingError">
         <template #overlay>
           <LoadingRetryButton :error="loadingError" @reload="load" />
@@ -88,7 +88,7 @@
           <RoomTransferOwnershipButton
             :disabled="disabled"
             :room="room"
-            @transferred-ownership="emit('settingsChanged')"
+            @transferred-ownership="emit('transferredOwnership')"
           />
           <RoomTabSettingsExpertModeButton
             :disabled="disabled"
@@ -106,12 +106,11 @@
           type="submit"
         />
       </div>
-    </form>
+    </Form>
   </div>
 </template>
 
 <script setup>
-import env from "../env.js";
 import * as _ from "lodash-es";
 import { useSettingsStore } from "../stores/settings";
 import { useApi } from "../composables/useApi.js";
@@ -131,6 +130,7 @@ import RoomTabSettingsRadioGroup from "./RoomTabSettingsRadioGroup.vue";
 import RoomTabSettingsSelectButton from "./RoomTabSettingsSelectButton.vue";
 import RoomTabSettingsRoomTypeSelect from "./RoomTabSettingsRoomTypeSelect.vue";
 import RoomTabSettingsAccessCodeInput from "./RoomTabSettingsAccessCodeInput.vue";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   room: {
@@ -139,7 +139,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["settingsChanged"]);
+const emit = defineEmits(["settingsChanged", "transferredOwnership"]);
 
 const settings = ref({
   expert_mode: false,
@@ -356,12 +356,8 @@ const form = computed(() => {
 /**
  * Save room settings
  *
- *  @param event
  */
-function save(event) {
-  // Prevent default form submit
-  event.preventDefault();
-
+function save() {
   // Set busy indicator
   isBusy.value = true;
 
@@ -388,8 +384,9 @@ function save(event) {
     })
     .catch((error) => {
       // Settings couldn't be saved
-      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
+        api.validationError(error);
         return;
       }
       api.error(error, { redirectOnUnauthenticated: false });

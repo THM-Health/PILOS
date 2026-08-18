@@ -92,8 +92,8 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="modalVisible = false"
           autofocus
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -151,10 +151,10 @@
   </Dialog>
 </template>
 <script setup>
-import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref, watch } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   file: {
@@ -236,7 +236,7 @@ function save() {
     .catch((error) => {
       // editing failed
       if (error.response) {
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }

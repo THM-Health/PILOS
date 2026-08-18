@@ -25,11 +25,12 @@
         class="flex w-full flex-col justify-end gap-2 sm:flex-row"
       >
         <Button
-          :disabled="rawList.length === 0 || isLoadingAction"
+          :disabled="isLoadingAction"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
           data-test="dialog-continue-button"
-          @click="importUsers(true)"
+          form="room-members-bulk-import-form"
+          type="submit"
         />
       </div>
 
@@ -48,7 +49,10 @@
           v-if="validUsers.length > 0"
           :loading="isLoadingAction"
           :label="
-            $t('rooms.members.modals.bulk_import.import_importable_button')
+            $t(
+              'rooms.members.modals.bulk_import.import_importable_button',
+              validUsers.length,
+            )
           "
           data-test="dialog-continue-button"
           @click="importUsers(false)"
@@ -67,15 +71,25 @@
         <Button
           v-if="invalidUsers.length > 0"
           severity="secondary"
-          :label="$t('rooms.members.modals.bulk_import.copy_and_close')"
+          :label="
+            $t(
+              'rooms.members.modals.bulk_import.copy_and_close',
+              invalidUsers.length,
+            )
+          "
           data-test="room-members-copy-and-close-button"
           @click="copyInvalidUsers"
         />
       </div>
     </template>
 
-    <div v-if="step === 0">
-      <div class="mt-6 flex flex-col gap-2">
+    <Form
+      v-if="step === 0"
+      id="room-members-bulk-import-form"
+      :disabled="isLoadingAction"
+      @submit="importUsers(true)"
+    >
+      <div class="field mt-6 flex flex-col gap-2">
         <label for="user-emails">{{
           $t("rooms.members.modals.bulk_import.label")
         }}</label>
@@ -83,6 +97,7 @@
           id="user-emails"
           v-model="rawList"
           autofocus
+          required
           aria-describedby="user-emails-help"
           :disabled="isLoadingAction"
           :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
@@ -95,7 +110,7 @@
         <FormError :errors="formErrors.fieldError('user_emails')" />
       </div>
       <!-- select role -->
-      <div class="mt-6 flex flex-col gap-2">
+      <div class="field mt-6 flex flex-col gap-2">
         <fieldset class="flex w-full flex-col gap-2">
           <legend>{{ $t("rooms.role") }}</legend>
 
@@ -104,6 +119,8 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="participant-role"
+              :invalid="formErrors.fieldInvalid('role')"
+              pt:input:required
               name="role"
               :value="1"
             />
@@ -117,6 +134,8 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="moderator-role"
+              pt:input:required
+              :invalid="formErrors.fieldInvalid('role')"
               name="role"
               :value="2"
             />
@@ -130,6 +149,8 @@
               v-model="newUsersRole"
               :disabled="isLoadingAction"
               input-id="co_owner-role"
+              pt:input:required
+              :invalid="formErrors.fieldInvalid('role')"
               name="role"
               :value="3"
             />
@@ -141,26 +162,37 @@
           <FormError :errors="formErrors.fieldError('role')" />
         </fieldset>
       </div>
-    </div>
+    </Form>
 
     <div v-if="step === 1">
       <RoomTabMembersBulkImportList
         :list="validUsers"
         variant="success"
-        :description="$t('rooms.members.modals.bulk_import.can_import_users')"
+        :description="
+          $t(
+            'rooms.members.modals.bulk_import.can_import_users',
+            validUsers.length,
+          )
+        "
       />
 
       <RoomTabMembersBulkImportList
         :list="invalidUsers"
         variant="danger"
         :description="
-          $t('rooms.members.modals.bulk_import.cannot_import_users')
+          $t(
+            'rooms.members.modals.bulk_import.cannot_import_users',
+            invalidUsers.length,
+          )
         "
       />
 
       <i v-if="validUsers.length > 0">
         {{
-          $t("rooms.members.modals.bulk_import.import_importable_question")
+          $t(
+            "rooms.members.modals.bulk_import.import_importable_question",
+            validUsers.length,
+          )
         }}</i
       >
     </div>
@@ -168,14 +200,22 @@
       <RoomTabMembersBulkImportList
         :list="validUsers"
         variant="success"
-        :description="$t('rooms.members.modals.bulk_import.imported_users')"
+        :description="
+          $t(
+            'rooms.members.modals.bulk_import.imported_users',
+            validUsers.length,
+          )
+        "
       />
 
       <RoomTabMembersBulkImportList
         :list="invalidUsers"
         variant="danger"
         :description="
-          $t('rooms.members.modals.bulk_import.could_not_import_users')
+          $t(
+            'rooms.members.modals.bulk_import.could_not_import_users',
+            invalidUsers.length,
+          )
         "
       />
     </div>
@@ -184,12 +224,12 @@
 
 <script setup>
 import * as _ from "lodash-es";
-import env from "../env";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { ref } from "vue";
 import { useApi } from "../composables/useApi.js";
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
@@ -206,7 +246,7 @@ const emit = defineEmits(["imported"]);
 
 const step = ref(0);
 const rawList = ref("");
-const newUsersRole = ref(1);
+const newUsersRole = ref(null);
 const modalVisible = ref(false);
 
 const validUsers = ref([]);
@@ -247,7 +287,12 @@ function copyInvalidUsers() {
     (invalidUser) => invalidUser.email,
   );
   navigator.clipboard.writeText(invalidUsersEmails.join("\n"));
-  toast.info(t("rooms.members.modals.bulk_import.copied_invalid_users"));
+  toast.info(
+    t(
+      "rooms.members.modals.bulk_import.copied_invalid_users",
+      invalidUsers.value.length,
+    ),
+  );
   finish();
 }
 
@@ -304,11 +349,10 @@ function importUsers(firstRound = false) {
     .catch((error) => {
       // adding failed
       if (error.response) {
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           // check for role errors
           if (error.response.data.errors.role) {
             formErrors.set(error.response.data.errors);
-
             return;
           }
           // check for general errors with user list (empty, too long)
@@ -316,7 +360,6 @@ function importUsers(firstRound = false) {
             formErrors.set({
               user_emails: error.response.data.errors.user_emails,
             });
-
             return;
           }
 

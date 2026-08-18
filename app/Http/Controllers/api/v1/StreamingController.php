@@ -1,22 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateStreamingSettings;
-use App\Http\Resources\StreamingSettings;
+use App\Http\Requests\UpdateStreamingSettingsRequest;
+use App\Http\Resources\StreamingSettingsResource;
+use App\Settings\StreamingSettings;
 use Illuminate\Support\Facades\Storage;
 
 class StreamingController extends Controller
 {
     public function view()
     {
-        return new StreamingSettings;
+        return new StreamingSettingsResource;
     }
 
-    public function update(UpdateStreamingSettings $request)
+    public function update(UpdateStreamingSettingsRequest $request)
     {
-        $settings = app(\App\Settings\StreamingSettings::class);
+        $settings = app(StreamingSettings::class);
 
         // Pause image
         if ($request->file('default_pause_image')) {
@@ -45,6 +48,6 @@ class StreamingController extends Controller
 
         $settings->save();
 
-        return new StreamingSettings;
+        return new StreamingSettingsResource;
     }
 }

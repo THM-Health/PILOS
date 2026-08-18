@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend\Utils;
 
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -114,7 +117,7 @@ class BigBlueButtonServerFaker
         return $this->requests[$id]['request'];
     }
 
-    public static function createCreateMeetingResponse(Request $request): \GuzzleHttp\Promise\PromiseInterface
+    public static function createCreateMeetingResponse(Request $request): PromiseInterface
     {
         $uri = $request->toPsrRequest()->getUri();
         parse_str($uri->getQuery(), $params);

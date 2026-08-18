@@ -1,48 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Models\User;
-use App\Rules\Password;
 use App\Services\AuthenticationService;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Illuminate\Foundation\Auth\ResetsPasswords;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Password as PasswordBrokerFacade;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Contracts\FailedPasswordResetResponse;
+use Laravel\Fortify\Contracts\PasswordResetResponse;
 
 class ResetPasswordController extends Controller
 {
-    use ResetsPasswords;
-
     /**
      * Reset the given user's password.
      *
-     * @return RedirectResponse|JsonResponse
+     * @return PasswordResetResponse|FailedPasswordResetResponse
      *
      * @throws ValidationException
      */
-    public function reset(Request $request)
+    public function reset(ResetPasswordRequest $request)
     {
-        $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => ['required', 'string', 'min:8', 'confirmed', new Password],
-        ]);
-
         $user = User::where('authenticator', '=', 'local')
             ->whereLike('email', $request->email)
             ->first();
         $initial_password_set = $user ? $user->initial_password_set : false;
 
-        $response = $this->broker($initial_password_set ? 'new_users' : 'users')
+        $status = $this->broker($initial_password_set ? 'new_users' : 'users')
             ->reset(
-                array_merge(['authenticator' => 'local'], $this->credentials($request)),
+                array_merge(['authenticator' => 'local'], $request->only('email', 'password', 'password_confirmation', 'token')),
                 function ($user, $password) use ($initial_password_set) {
                     $authService = new AuthenticationService($user);
                     $authService->changePassword($password);
@@ -56,19 +48,17 @@ class ResetPasswordController extends Controller
                 }
             );
 
-        return $response == PasswordBrokerFacade::PASSWORD_RESET
-            ? $this->sendResetResponse($request, $response)
-            : $this->sendResetFailedResponse($request, $response);
+        return $status == Password::PASSWORD_RESET
+            ? app(PasswordResetResponse::class, ['status' => $status])
+            : app(FailedPasswordResetResponse::class, ['status' => $status]);
     }
 
     /**
      * Get the broker to be used during password reset.
-     *
-     * @param  string  $name
      */
-    public function broker($name): PasswordBroker
+    public function broker(string $name): PasswordBroker
     {
-        return PasswordBrokerFacade::broker($name);
+        return Password::broker($name);
     }
 
     /**

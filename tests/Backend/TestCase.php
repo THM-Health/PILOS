@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Backend;
 
+use App\Prometheus\CollectorRegistry;
 use App\Settings\BannerSettings;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
@@ -11,6 +14,7 @@ use App\Settings\StreamingSettings;
 use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\ParallelTesting;
@@ -24,7 +28,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Creates the application.
      *
-     * @return \Illuminate\Foundation\Application
+     * @return Application
      */
     public function createApplication()
     {
@@ -84,7 +88,7 @@ abstract class TestCase extends BaseTestCase
         $prefix = 'TESTING_'.($token ? $token.'_' : '').config('metrics.redis.prefix');
         config(['metrics.enabled' => true]);
         config(['metrics.redis.prefix' => $prefix]);
-        $registry = $this->app->make(\App\Prometheus\CollectorRegistry::class);
+        $registry = $this->app->make(CollectorRegistry::class);
         $registry->wipeStorage();
     }
 

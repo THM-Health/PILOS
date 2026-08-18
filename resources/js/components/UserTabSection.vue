@@ -4,58 +4,39 @@
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadUser" />
       </template>
-      <Tabs v-if="!isBusy && user" value="base" scrollable lazy>
+      <Tabs
+        v-if="!isBusy && user"
+        :value="activeTab"
+        scrollable
+        lazy
+        @update:value="onActiveTabChanged"
+      >
         <TabList>
-          <Tab value="base" data-test="base-tab-button"
-            ><i class="fa-solid fa-user mr-2" />
-            {{ $t("admin.users.base_data") }}</Tab
+          <Tab
+            v-for="tab in availableTabs"
+            :key="tab.key"
+            :disabled="isLoadingAction"
+            :value="tab.key"
+            :data-test="tab.key + '-tab-button'"
           >
-          <Tab value="email" data-test="email-tab-button"
-            ><i class="fa-solid fa-envelope mr-2" /> {{ $t("app.email") }}</Tab
-          >
-          <Tab value="security" data-test="security-tab-button"
-            ><i class="fa-solid fa-user-shield mr-2" />
-            {{ $t("app.security") }}</Tab
-          >
-          <Tab value="others" data-test="others-tab-button"
-            ><i class="fa-solid fa-user-gear mr-2" />
-            {{ $t("admin.users.other_settings") }}</Tab
-          >
+            <i :class="tab.icon" />
+            {{ tab.label }}
+          </Tab>
         </TabList>
         <TabPanels class="px-0">
-          <TabPanel value="base">
-            <UserTabProfile
+          <TabPanel
+            v-for="tab in availableTabs"
+            :key="tab.key"
+            :value="tab.key"
+          >
+            <component
+              :is="tab.component"
               :user="user"
               :view-only="viewOnly"
               @update-user="updateUser"
               @stale-error="handleStaleError"
               @not-found-error="handleNotFoundError"
-            />
-          </TabPanel>
-          <TabPanel value="email">
-            <UserTabEmail
-              :user="user"
-              :view-only="viewOnly"
-              @update-user="updateUser"
-              @not-found-error="handleNotFoundError"
-            />
-          </TabPanel>
-          <TabPanel value="security">
-            <UserTabSecurity
-              :user="user"
-              :view-only="viewOnly"
-              @update-user="updateUser"
-              @stale-error="handleStaleError"
-              @not-found-error="handleNotFoundError"
-            />
-          </TabPanel>
-          <TabPanel value="others">
-            <UserTabOtherSettings
-              :user="user"
-              :view-only="viewOnly"
-              @update-user="updateUser"
-              @stale-error="handleStaleError"
-              @not-found-error="handleNotFoundError"
+              @busy="(state) => (isLoadingAction = state)"
             />
           </TabPanel>
         </TabPanels>
@@ -84,18 +65,28 @@
           />
         </div>
       </template>
-
-      {{ staleError.message }}
+      {{
+        $t("app.errors.stale_model", {
+          model: $t("app.model." + _.snakeCase(user.model_name)),
+        })
+      }}
     </Dialog>
   </div>
 </template>
 
 <script setup>
-import env from "../env";
-import { onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { useUserPermissions } from "../composables/useUserPermission.js";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
+import { useUrlSearchParams } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
+import UserTabProfile from "./UserTabProfile.vue";
+import UserTabEmail from "./UserTabEmail.vue";
+import UserTabSecurity from "./UserTabSecurity.vue";
+import UserTabOtherSettings from "./UserTabOtherSettings.vue";
+import * as _ from "lodash-es";
 
 const props = defineProps({
   id: {
@@ -108,20 +99,48 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["updateUser"]);
+const emit = defineEmits([
+  "updateUser",
+  "busy",
+  "loadingAction",
+  "activeTabChanged",
+]);
 
 const user = ref(null);
 const isBusy = ref(false);
+const isLoadingAction = ref(false);
 const loadingError = ref(false);
 const staleError = ref({});
 const modalVisible = ref(false);
+const activeTab = ref("base");
 
 const api = useApi();
 const router = useRouter();
 const userPermissions = useUserPermissions();
+const { t } = useI18n();
+const hashParams = useUrlSearchParams("hash-params");
 
-onMounted(() => {
+onMounted(async () => {
+  if (
+    hashParams.tab &&
+    availableTabs.value.some((tab) => tab.key === hashParams.tab)
+  ) {
+    activeTab.value = hashParams.tab;
+    emit("activeTabChanged", activeTab.value);
+  } else {
+    await nextTick();
+    hashParams.tab = null;
+  }
+
   loadUser();
+});
+
+// detect busy status while data fetching and notify parent
+watch(isBusy, () => {
+  emit("busy", isBusy.value);
+});
+watch(isLoadingAction, () => {
+  emit("loadingAction", isLoadingAction.value);
 });
 
 function handleNotFoundError(error) {
@@ -169,7 +188,7 @@ function loadUser() {
       emit("updateUser", user.value);
     })
     .catch((error) => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      if (error.response && error.response.status === HTTP_STATUS_NOT_FOUND) {
         router.push({ name: "admin.users" });
       }
 
@@ -181,9 +200,48 @@ function loadUser() {
     });
 }
 
+function onActiveTabChanged(newActiveTab) {
+  activeTab.value = newActiveTab;
+  hashParams.tab = newActiveTab;
+  emit("activeTabChanged", newActiveTab);
+}
+
+const availableTabs = computed(() => {
+  return [
+    {
+      key: "base",
+      label: t("admin.users.base_data"),
+      icon: "fa-solid fa-user",
+      component: UserTabProfile,
+    },
+    {
+      key: "email",
+      label: t("app.email"),
+      icon: "fa-solid fa-envelope",
+      component: UserTabEmail,
+    },
+    {
+      key: "security",
+      label: t("app.security"),
+      icon: "fa-solid fa-user-shield",
+      component: UserTabSecurity,
+    },
+    {
+      key: "others",
+      label: t("admin.users.other_settings"),
+      icon: "fa-solid fa-user-gear",
+      component: UserTabOtherSettings,
+    },
+  ];
+});
+
 watch(user, (user) => {
   if (!userPermissions.can("update", user) && !props.viewOnly) {
-    router.push({ name: "admin.users.view", params: { id: user.id } });
+    router.push({
+      name: "admin.users.view",
+      params: { id: user.id },
+      hash: "#tab=" + activeTab.value,
+    });
   }
 });
 </script>
