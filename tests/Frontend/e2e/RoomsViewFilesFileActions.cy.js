@@ -220,10 +220,10 @@ describe("Rooms view files file actions", function () {
       .should("include.text", "Sep 21, 2020, 09:10");
     cy.get('[data-test="room-file-item"]')
       .eq(3)
-      .should("include.text", "rooms.files.download_hidden");
+      .should("include.text", "rooms.files.download_not_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(3)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "rooms.files.not_available_in_next_meeting");
 
     cy.get('[data-test="room-file-item"]')
       .eq(4)
@@ -233,10 +233,10 @@ describe("Rooms view files file actions", function () {
       .should("include.text", "Sep 21, 2020, 09:10");
     cy.get('[data-test="room-file-item"]')
       .eq(4)
-      .should("include.text", "rooms.files.download_hidden");
+      .should("include.text", "rooms.files.download_not_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(4)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "rooms.files.not_available_in_next_meeting");
   });
 
   it("upload file errors", function () {
@@ -589,15 +589,15 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@roomFilesRequest");
 
-    cy.get('[data-test="room-files-edit-dialog"]').should("not.exist");
+    cy.get('[data-test="room-files-configure-dialog"]').should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .click();
 
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .should("be.visible")
-      .and("include.text", "rooms.files.edit")
+      .and("include.text", "rooms.files.configure")
       .within(() => {
         cy.get('[data-test="download-field"]')
           .should("include.text", "rooms.files.downloadable")
@@ -606,7 +606,7 @@ describe("Rooms view files file actions", function () {
           .click();
 
         cy.get('[data-test="use-in-meeting-field"]')
-          .should("include.text", "rooms.files.use_in_next_meeting")
+          .should("include.text", "rooms.files.available_in_next_meeting")
           .find("#use_in_meeting")
           .should("not.be.checked")
           .click();
@@ -665,15 +665,15 @@ describe("Rooms view files file actions", function () {
     });
     cy.wait("@roomFilesRequest");
 
-    cy.get('[data-test="room-files-edit-dialog"]').should("not.exist");
+    cy.get('[data-test="room-files-configure-dialog"]').should("not.exist");
 
     // Check that file settings were changed
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "rooms.files.download_hidden")
-      .and("include.text", "rooms.files.use_in_next_meeting")
-      .and("not.include.text", "rooms.files.download_visible")
-      .and("not.include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "rooms.files.download_not_allowed")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .and("not.include.text", "rooms.files.download_allowed")
+      .and("not.include.text", "rooms.files.not_available_in_next_meeting");
   });
 
   it("change file settings errors", function () {
@@ -684,9 +684,9 @@ describe("Rooms view files file actions", function () {
     // Check with 404 error (file not found / already deleted)
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .click();
-    cy.get('[data-test="room-files-edit-dialog"]').should("be.visible");
+    cy.get('[data-test="room-files-configure-dialog"]').should("be.visible");
 
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/3", {
       statusCode: 404,
@@ -709,7 +709,7 @@ describe("Rooms view files file actions", function () {
       }).as("roomFilesRequest");
     });
 
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .find('[data-test="dialog-save-button"]')
       .click();
 
@@ -717,7 +717,7 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomFilesRequest");
 
     // Check that file is not shown anymore and dialog is closed
-    cy.get('[data-test="room-files-edit-dialog"]').should("not.exist");
+    cy.get('[data-test="room-files-configure-dialog"]').should("not.exist");
     cy.get('[data-test="room-file-item"]').should("have.length", 2);
 
     // Check that error message is shown
@@ -726,9 +726,9 @@ describe("Rooms view files file actions", function () {
     // Check with 422 error
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .click();
-    cy.get('[data-test="room-files-edit-dialog"]').should("be.visible");
+    cy.get('[data-test="room-files-configure-dialog"]').should("be.visible");
 
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/2", {
       statusCode: 422,
@@ -742,14 +742,14 @@ describe("Rooms view files file actions", function () {
       },
     }).as("editFileRequest");
 
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .find('[data-test="dialog-save-button"]')
       .click();
 
     cy.wait("@editFileRequest");
 
     // Check that dialog stayed open and error message is shown
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .should("be.visible")
       .and("include.text", "The Downloadable field is required.")
       .and("include.text", "The Use in the next meeting field is required.")
@@ -763,14 +763,14 @@ describe("Rooms view files file actions", function () {
       },
     }).as("editFileRequest");
 
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .find('[data-test="dialog-save-button"]')
       .click();
 
     cy.wait("@editFileRequest");
 
     // Check that dialog is still open and 422 error messages are hidden
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .should("be.visible")
       .and("not.include.text", "The Downloadable field is required.")
       .and("not.include.text", "The Use in the next meeting field is required.")
@@ -783,20 +783,20 @@ describe("Rooms view files file actions", function () {
     ]);
 
     // Close dialog
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .find('[data-test="dialog-cancel-button"]')
       .click();
 
-    cy.get('[data-test="room-files-edit-dialog"]').should("not.exist");
+    cy.get('[data-test="room-files-configure-dialog"]').should("not.exist");
 
     // Check auth errors
     cy.checkRoomAuthErrors(
       () => {
         cy.get('[data-test="room-file-item"]')
           .eq(0)
-          .find('[data-test="room-files-edit-button"]')
+          .find('[data-test="room-files-configure-button"]')
           .click();
-        cy.get('[data-test="room-files-edit-dialog"]')
+        cy.get('[data-test="room-files-configure-dialog"]')
           .should("be.visible")
           .find('[data-test="dialog-save-button"]')
           .click();
@@ -825,10 +825,10 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .click();
 
-    cy.get('[data-test="room-files-edit-dialog"]')
+    cy.get('[data-test="room-files-configure-dialog"]')
       .should("be.visible")
       .find('[data-test="dialog-save-button"]')
       .click();
@@ -1253,7 +1253,7 @@ describe("Rooms view files file actions", function () {
         .should("not.be.disabled");
       cy.get('[data-test="room-file-item"]')
         .eq(0)
-        .find('[data-test="room-files-edit-button"]')
+        .find('[data-test="room-files-configure-button"]')
         .should("not.exist");
       cy.get('[data-test="room-file-item"]')
         .eq(0)

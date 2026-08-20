@@ -107,7 +107,13 @@ class MeetingService
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
 
-        // get files that should be used in this meeting and add links to the files
+        // Use system default presentation as default, if explicitly set
+        $useSystemDefaultFileAsDefault = app(BigBlueButtonSettings::class)->default_presentation && $this->meeting->room->use_system_default_presentation_as_default;
+        if ($useSystemDefaultFileAsDefault) {
+            $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
+        }
+
+        // Get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
             // Create file download url
@@ -120,7 +126,12 @@ class MeetingService
             $meetingParams->addPresentation($fileUrl, null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
-        if (empty($meetingParams->getPresentations()) && app(BigBlueButtonSettings::class)->default_presentation) {
+        // Add system default presentation
+        // Only add it, if not already added as default file
+        // and if no other files are present or the room is set to use the system default in meetings
+        if (! $useSystemDefaultFileAsDefault && app(BigBlueButtonSettings::class)->default_presentation && (
+            empty($files->toArray()) || $this->meeting->room->use_system_default_presentation_in_meeting
+        )) {
             $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
         }
 

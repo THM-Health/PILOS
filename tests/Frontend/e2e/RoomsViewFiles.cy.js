@@ -83,8 +83,8 @@ describe("Rooms View Files", function () {
       .eq(0)
       .should("include.text", "File1.pdf")
       .and("include.text", "Sep 21, 2020, 09:08")
-      .and("include.text", "rooms.files.download_visible")
-      .and("include.text", "rooms.files.use_in_next_meeting_disabled")
+      .and("include.text", "rooms.files.download_allowed")
+      .and("include.text", "rooms.files.not_available_in_next_meeting")
       .find('a[data-test="room-files-view-button"]')
       .should(
         "have.attr",
@@ -98,8 +98,8 @@ describe("Rooms View Files", function () {
       .eq(1)
       .should("include.text", "File2.pdf")
       .and("include.text", "Sep 21, 2020, 09:08")
-      .and("include.text", "rooms.files.download_visible")
-      .and("include.text", "rooms.files.use_in_next_meeting")
+      .and("include.text", "rooms.files.download_allowed")
+      .and("include.text", "rooms.files.available_in_next_meeting")
       .find('a[data-test="room-files-view-button"]')
       .should(
         "have.attr",
@@ -113,8 +113,8 @@ describe("Rooms View Files", function () {
       .eq(2)
       .should("include.text", "File3.pdf")
       .and("include.text", "Sep 21, 2020, 09:09")
-      .and("include.text", "rooms.files.download_hidden")
-      .and("include.text", "rooms.files.use_in_next_meeting_disabled")
+      .and("include.text", "rooms.files.download_not_allowed")
+      .and("include.text", "rooms.files.not_available_in_next_meeting")
       .find('a[data-test="room-files-view-button"]')
       .should(
         "have.attr",
@@ -145,7 +145,7 @@ describe("Rooms View Files", function () {
     // Check edit button is disabled during loading
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("be.disabled");
 
     // Check delete button is disabled during loading
@@ -173,7 +173,7 @@ describe("Rooms View Files", function () {
     // Check edit button is enabled after loading
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.be.disabled");
 
     // Check delete button is enabled after loading
@@ -228,8 +228,8 @@ describe("Rooms View Files", function () {
       .eq(0)
       .should("include.text", "File1.pdf")
       .and("include.text", "Sep 21, 2020, 09:08")
-      .and("not.include.text", "rooms.files.download_visible")
-      .and("not.include.text", "rooms.files.use_in_next_meeting_disabled")
+      .and("not.include.text", "rooms.files.download_allowed")
+      .and("not.include.text", "rooms.files.not_available_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled")
       .and(
@@ -241,7 +241,7 @@ describe("Rooms View Files", function () {
       .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -252,8 +252,8 @@ describe("Rooms View Files", function () {
       .eq(1)
       .should("include.text", "File2.pdf")
       .and("include.text", "Sep 21, 2020, 09:08")
-      .and("not.include.text", "rooms.files.download_visible")
-      .and("not.include.text", "rooms.files.use_in_next_meeting")
+      .and("not.include.text", "rooms.files.download_allowed")
+      .and("not.include.text", "rooms.files.available_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled")
       .and(
@@ -265,7 +265,7 @@ describe("Rooms View Files", function () {
       .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -452,8 +452,8 @@ describe("Rooms View Files", function () {
       .eq(0)
       .should("include.text", "File1.pdf")
       .and("include.text", "Sep 21, 2020, 03:08")
-      .and("not.include.text", "rooms.files.download_visible")
-      .and("not.include.text", "rooms.files.use_in_next_meeting_disabled")
+      .and("not.include.text", "rooms.files.download_allowed")
+      .and("not.include.text", "rooms.files.not_available_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled")
       .and(
@@ -465,7 +465,7 @@ describe("Rooms View Files", function () {
       .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -476,8 +476,8 @@ describe("Rooms View Files", function () {
       .eq(1)
       .should("include.text", "File2.pdf")
       .and("include.text", "Sep 21, 2020, 03:08")
-      .and("not.include.text", "rooms.files.download_visible")
-      .and("not.include.text", "rooms.files.use_in_next_meeting")
+      .and("not.include.text", "rooms.files.download_allowed")
+      .and("not.include.text", "rooms.files.available_in_next_meeting")
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled")
       .and(
@@ -489,7 +489,7 @@ describe("Rooms View Files", function () {
       .and("have.attr", "target", "_blank");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -916,17 +916,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 03:08");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("not.include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -941,17 +941,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 03:08");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
+      .should("not.include.text", "rooms.files.available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -997,17 +997,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("not.include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -1022,17 +1022,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
+      .should("not.include.text", "rooms.files.available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -1097,17 +1097,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 03:08");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("not.include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -1122,17 +1122,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 03:08");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
+      .should("not.include.text", "rooms.files.available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -1202,17 +1202,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("not.include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -1227,13 +1227,13 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.download_visible");
+      .should("not.include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("not.include.text", "rooms.files.use_in_next_meeting");
+      .should("not.include.text", "rooms.files.available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -1282,17 +1282,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "rooms.files.download_visible");
+      .should("include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -1307,17 +1307,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "rooms.files.download_visible");
+      .should("include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "rooms.files.use_in_next_meeting");
+      .should("include.text", "rooms.files.available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -1332,17 +1332,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:09");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .should("include.text", "rooms.files.download_hidden");
+      .should("include.text", "rooms.files.download_not_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
@@ -1386,17 +1386,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "rooms.files.download_visible");
+      .should("include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
@@ -1411,17 +1411,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:08");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "rooms.files.download_visible");
+      .should("include.text", "rooms.files.download_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "rooms.files.use_in_next_meeting");
+      .should("include.text", "rooms.files.available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
@@ -1436,17 +1436,17 @@ describe("Rooms View Files", function () {
       .should("include.text", "Sep 21, 2020, 09:09");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .should("include.text", "rooms.files.download_hidden");
+      .should("include.text", "rooms.files.download_not_allowed");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .should("include.text", "rooms.files.use_in_next_meeting_disabled");
+      .should("include.text", "rooms.files.not_available_in_next_meeting");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
       .find('[data-test="room-files-view-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
-      .find('[data-test="room-files-edit-button"]')
+      .find('[data-test="room-files-configure-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(2)

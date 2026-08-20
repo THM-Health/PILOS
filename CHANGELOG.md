@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Guests can now choose to remember their name for future video conferences ([#2450], [#3275])
 - Room access is now preserved across page reloads after entering via an access code or personalized link ([#3275])
 - Login button inside room access overlay to allow users to log in instead of accessing the room as a guest ([#2450], [#3275])
+- Option in room file management to always use system-wide default presentation ([#2662], [#2746])
+- Option in room file management to set system-wide default presentation as default ([#2662], [#2746])
 
 ### Changed
 
@@ -816,12 +818,14 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2613]: https://github.com/THM-Health/PILOS/pull/2613
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616
 [#2660]: https://github.com/THM-Health/PILOS/issues/2660
+[#2662]: https://github.com/THM-Health/PILOS/issues/2662
 [#2664]: https://github.com/THM-Health/PILOS/issues/2664
 [#2665]: https://github.com/THM-Health/PILOS/pull/2665
 [#2686]: https://github.com/THM-Health/PILOS/pull/2686
 [#2726]: https://github.com/THM-Health/PILOS/pull/2726
 [#2728]: https://github.com/THM-Health/PILOS/pull/2728
 [#2742]: https://github.com/THM-Health/PILOS/pull/2742
+[#2746]: https://github.com/THM-Health/PILOS/pull/2746
 [#2751]: https://github.com/THM-Health/PILOS/issues/2751
 [#2752]: https://github.com/THM-Health/PILOS/pull/2752
 [#2765]: https://github.com/THM-Health/PILOS/issues/2765

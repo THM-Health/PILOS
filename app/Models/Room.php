@@ -8,6 +8,7 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Observers\RoomObserver;
+use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -33,6 +34,8 @@ class Room extends Model
     {
         $casts = [
             'expert_mode' => 'boolean',
+            'use_system_default_presentation_in_meeting' => 'boolean',
+            'use_system_default_presentation_as_default' => 'boolean',
             'delete_inactive' => 'datetime',
         ];
 
@@ -206,7 +209,18 @@ class Room extends Model
             $currentDefault->default = false;
             $currentDefault->save();
         }
-        // If any other files are found that are used in the next meeting, select the first one to become new default
+
+        // If system has a default presentation and the system presentation is always available
+        // use system default presentation as default presentation for the next meeting
+        if (app(BigBlueButtonSettings::class)->default_presentation && $this->use_system_default_presentation_in_meeting) {
+            $this->use_system_default_presentation_as_default = true;
+            $this->save();
+
+            return;
+        }
+
+        // If no default file is explicitly set or the system default is not enabled
+        // look for the first file that is set to be used in the meeting and set it as default
         $newDefaultFile = $this->files()->firstWhere('use_in_meeting', true);
         if ($newDefaultFile != null) {
             $newDefaultFile->default = true;

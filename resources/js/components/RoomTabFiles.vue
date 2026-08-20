@@ -43,6 +43,20 @@
       </Accordion>
     </Message>
 
+    <RoomTabFilesSystemDefault
+      v-if="
+        userPermissions.can('manageSettings', props.room) &&
+        systemDefault.file != null
+      "
+      :room-id="props.room.id"
+      :file="systemDefault.file"
+      :use-in-meeting="systemDefault.use_in_meeting"
+      :use-as-default="systemDefault.use_as_default"
+      :default-file="defaultFile"
+      :disabled="isBusy"
+      @edited="loadData()"
+    />
+
     <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <search>
@@ -207,6 +221,18 @@
                   <p class="text-word-break m-0 text-lg font-semibold">
                     {{ item.filename }}
                   </p>
+                  <div>
+                    <Tag
+                      v-if="
+                        defaultFile?.id === item.id &&
+                        userPermissions.can('manageSettings', props.room)
+                      "
+                      icon="fa-solid fa-star"
+                      severity="info"
+                      :value="$t('rooms.files.default')"
+                    />
+                  </div>
+
                   <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
@@ -220,14 +246,20 @@
                     class="flex flex-col items-start gap-2"
                   >
                     <div class="flex flex-row items-center gap-2">
-                      <i class="fa-solid fa-download" />
-                      <p class="m-0 text-sm">
-                        <Tag v-if="item.download" severity="success">{{
-                          $t("rooms.files.download_visible")
-                        }}</Tag>
-                        <Tag v-else severity="danger">{{
-                          $t("rooms.files.download_hidden")
-                        }}</Tag>
+                      <i class="fa-solid fa-chalkboard-user"></i>
+                      <p class="m-0 flex flex-row gap-2 text-sm">
+                        <Tag
+                          v-if="item.use_in_meeting"
+                          severity="success"
+                          :value="$t('rooms.files.available_in_next_meeting')"
+                        />
+                        <Tag
+                          v-else
+                          severity="secondary"
+                          :value="
+                            $t('rooms.files.not_available_in_next_meeting')
+                          "
+                        />
                       </p>
                     </div>
                   </div>
@@ -236,24 +268,18 @@
                     class="flex flex-col items-start gap-2"
                   >
                     <div class="flex flex-row items-center gap-2">
-                      <i
-                        v-if="item.use_in_meeting"
-                        class="fa-solid fa-circle-check"
-                      ></i>
-                      <i v-else class="fa-solid fa-circle-xmark"></i>
-                      <p class="m-0 flex flex-row gap-2 text-sm">
-                        <Tag v-if="item.use_in_meeting" severity="success">{{
-                          $t("rooms.files.use_in_next_meeting")
-                        }}</Tag>
-                        <Tag v-else severity="danger">{{
-                          $t("rooms.files.use_in_next_meeting_disabled")
-                        }}</Tag>
+                      <i class="fa-solid fa-download" />
+                      <p class="m-0 text-sm">
                         <Tag
-                          v-if="defaultFile?.id === item.id"
-                          icon="fa-solid fa-star"
-                        >
-                          {{ $t("rooms.files.default") }}
-                        </Tag>
+                          v-if="item.download"
+                          severity="success"
+                          :value="$t('rooms.files.download_allowed')"
+                        />
+                        <Tag
+                          v-else
+                          severity="secondary"
+                          :value="$t('rooms.files.download_not_allowed')"
+                        />
                       </p>
                     </div>
                   </div>
@@ -272,7 +298,7 @@
                       !downloadAgreement && requireAgreement
                     "
                   />
-                  <RoomTabFilesEditButton
+                  <RoomTabFilesConfigureButton
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :room-id="props.room.id"
                     :file-id="item.id"
@@ -362,6 +388,12 @@ const showTermsOfUse = ref(true);
 const search = ref("");
 const filter = ref("all");
 
+const systemDefault = ref({
+  file: null,
+  use_in_meeting: false,
+  use_as_default: false,
+});
+
 const sortFields = computed(() => [
   { name: t("rooms.files.sort.filename"), value: "filename" },
   { name: t("rooms.files.sort.uploaded_at"), value: "uploaded" },
@@ -417,6 +449,7 @@ function loadData(page = null) {
       // Fetch successful
       files.value = response.data.data;
       defaultFile.value = response.data.default;
+      systemDefault.value = response.data.system_default;
       paginator.updateMeta(response.data.meta).then(() => {
         if (paginator.isOutOfRange()) {
           loadData(paginator.getLastPage());
