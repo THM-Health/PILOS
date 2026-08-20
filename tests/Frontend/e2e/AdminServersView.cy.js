@@ -351,6 +351,16 @@ describe("Admin servers view", function () {
           .and("be.disabled");
       });
 
+    // Check that the real connection status is shown
+    cy.get('[data-test="connection-status-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection")
+      .within(() => {
+        cy.get("#connectionStatus")
+          .should("have.value", "admin.servers.online")
+          .and("be.disabled");
+      });
+
     cy.fixture("server.json").then((server) => {
       server.data.connection_status_always_online = true;
 
@@ -374,6 +384,16 @@ describe("Admin servers view", function () {
       .within(() => {
         cy.get("#connection-status-always-online")
           .should("be.checked")
+          .and("be.disabled");
+      });
+
+    // Check that the connection status is unknown because the server is always online
+    cy.get('[data-test="connection-status-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection")
+      .within(() => {
+        cy.get("#connectionStatus")
+          .should("have.value", "admin.servers.unknown")
           .and("be.disabled");
       });
   });

@@ -593,7 +593,9 @@ function load() {
         model.value = response.data.data;
         isDisabled.value = model.value.status === -1;
         name.value = response.data.data.name;
-        connectionStatus.value = model.value.connection_status;
+        connectionStatus.value = model.value.connection_status_always_online
+          ? null
+          : model.value.connection_status;
         offlineReason.value = null;
       })
       .catch((error) => {
