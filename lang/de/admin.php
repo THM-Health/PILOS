@@ -261,7 +261,6 @@ return [
         'strength_description' => 'Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten',
         'test_connection' => 'Verbindung testen',
         'tile_description' => 'Die Server stellen die BBB Infrastruktur für die Meetings bereit.',
-        'unhealthy' => 'Fehlerhaft',
         'unknown' => 'Unbekannt',
         'usage_info' => 'Die Auslastung (Meetings, Teilnehmer, Videos) beinhalten auch Meetings die von anderen Systemen verwaltet werden.',
         'version' => 'Version',
@@ -434,6 +433,10 @@ return [
         ],
         'two_weeks' => '2 Wochen (14 Tage)',
         'two_years' => '2 Jahre (730 Tage)',
+        'user_search_by_name' => [
+            'description' => 'Ermöglicht es Benutzern, andere anhand von Teilübereinstimmungen ihres Namens oder ihrer E-Mail-Adresse zu finden. Wenn diese Funktion deaktiviert ist, können Benutzer nur durch Eingabe der exakten E-Mail-Adresse gefunden werden.',
+            'title' => 'Suche nach Benutzern anhand ihres Namens erlauben',
+        ],
         'user_settings' => 'Benutzereinstellungen',
     ],
     'streaming' => [
