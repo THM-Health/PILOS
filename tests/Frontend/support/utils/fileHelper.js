@@ -10,34 +10,47 @@ export function _arrayBufferToBase64(buffer) {
   return btoa(binary);
 }
 
-export async function _compareBase64Images(
-  expectedImageBase64,
-  actualImageBase64,
-) {
-  const expectedImage = await _base64ToImageData(expectedImageBase64);
-  const actualImage = await _base64ToImageData(actualImageBase64);
+export async function _compareBase64Images(expectedImage, actualImage) {
+  const { imageData: expectedImageData, blob: expectedImageBlob } =
+    await _base64ToImageData(expectedImage);
+  const { imageData: actualImageData, blob: actualImageBlob } =
+    await _base64ToImageData(actualImage);
 
-  expect(expectedImage.width).to.eql(actualImage.width);
-  expect(expectedImage.height).to.eql(actualImage.height);
+  expect(expectedImageData.width).to.eql(actualImageData.width);
+  expect(expectedImageData.height).to.eql(actualImageData.height);
 
   const diff2 = pixelmatch(
-    expectedImage.data,
-    actualImage.data,
+    expectedImageData.data,
+    actualImageData.data,
     null,
-    expectedImage.width,
-    expectedImage.height,
+    expectedImageData.width,
+    expectedImageData.height,
     {
       threshold: 0.1,
     },
   );
 
+  const expectedImageBase64 = await blobToBase64(expectedImageBlob);
+  const actualImageBase64 = await blobToBase64(actualImageBlob);
+
   expect(diff2).to.eql(
     0,
     "Expected Image: " +
       expectedImageBase64 +
-      " Actual Image: " +
-      actualImageBase64,
+      "\n\nActual Image: " +
+      actualImageBase64 +
+      "\n\n",
   );
+}
+
+async function blobToBase64(blob) {
+  return new Promise((res) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      res(reader.result);
+    });
+    reader.readAsDataURL(blob);
+  });
 }
 
 export async function _base64ToImageData(base64) {
@@ -45,12 +58,19 @@ export async function _base64ToImageData(base64) {
     const image = new Image();
     image.src = base64;
 
-    image.onload = () => {
+    image.onload = async () => {
       const { naturalWidth: width, naturalHeight: height } = image;
       const canvas = new OffscreenCanvas(width, height);
       const ctx = canvas.getContext("2d");
       ctx.drawImage(image, 0, 0);
-      res(ctx.getImageData(0, 0, width, height));
+
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const blob = await canvas.convertToBlob({
+        type: "image/jpeg",
+        quality: 1.0,
+      });
+
+      res({ imageData, blob });
     };
   });
 }
