@@ -183,11 +183,11 @@ describe("Admin servers view", function () {
       "admin.servers.enabled",
     );
 
-    cy.get('[data-test="health-status-field"]')
+    cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
       .within(() => {
-        cy.get("#healthStatus")
+        cy.get("#connectionStatus")
           .should("have.value", "admin.servers.unknown")
           .and("be.disabled");
         cy.get('[data-test="servers-test-connection-button"]')
@@ -253,7 +253,7 @@ describe("Admin servers view", function () {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
       });
 
-      cy.get("#healthStatus").and("be.disabled");
+      cy.get("#connectionStatus").and("be.disabled");
       cy.get('[data-test="servers-test-connection-button"]').should(
         "be.disabled",
       );
@@ -269,6 +269,7 @@ describe("Admin servers view", function () {
       expect(interception.request.body).to.eql({
         base_url: "https://localhost/bigbluebutton",
         description: "Testserver 01 for testing purposes",
+        connection_status_always_online: false,
         id: null,
         name: "Server 01",
         secret: "Secret123456789",

@@ -101,7 +101,7 @@ describe("Admin server pools new", function () {
 
     // Check if correct options are shown
     cy.get(".multiselect__content").should("be.visible");
-    cy.get(".multiselect__option").should("have.length", 6);
+    cy.get(".multiselect__option").should("have.length", 7);
     cy.get(".multiselect__option")
       .eq(0)
       .should("include.text", "Server 01")
@@ -120,6 +120,10 @@ describe("Admin server pools new", function () {
       .and("be.visible");
     cy.get(".multiselect__option")
       .eq(4)
+      .should("include.text", "Server 05")
+      .and("be.visible");
+    cy.get(".multiselect__option")
+      .eq(5)
       .should(
         "include.text",
         "No elements found. Consider changing the search query.",
@@ -127,7 +131,7 @@ describe("Admin server pools new", function () {
       .and("not.be.visible");
 
     cy.get(".multiselect__option")
-      .eq(5)
+      .eq(6)
       .should("include.text", "admin.servers.no_data")
       .and("not.be.visible");
 

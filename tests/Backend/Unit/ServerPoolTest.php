@@ -25,9 +25,9 @@ class ServerPoolTest extends TestCase
             'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
-        $unhealthy = Server::factory()->create(['status' => ServerStatus::ENABLED]);
-        $unhealthy->error_count = 1;
-        $unhealthy->save();
+        $faulty = Server::factory()->create(['status' => ServerStatus::ENABLED]);
+        $faulty->error_count = 1;
+        $faulty->save();
         $offline = Server::factory()->create(['status' => ServerStatus::ENABLED]);
         $offline->error_count = 3;
         $offline->save();
@@ -37,7 +37,7 @@ class ServerPoolTest extends TestCase
         $heavyUsage = Server::factory()->create(['load' => 20, 'strength' => 1]);
 
         $serverPool = ServerPool::factory()->create();
-        $serverPool->servers()->sync([$unhealthy->id, $offline->id, $draining->id, $disabled->id, $offline->id, $lightUsage->id, $heavyUsage->id]);
+        $serverPool->servers()->sync([$faulty->id, $offline->id, $draining->id, $disabled->id, $offline->id, $lightUsage->id, $heavyUsage->id]);
         $loadBalancingService = new LoadBalancingService;
         $loadBalancingService->setServerPool($serverPool);
 
@@ -55,10 +55,86 @@ class ServerPoolTest extends TestCase
         $this->assertEquals($heavyUsage->id, $server->id);
 
         // Check server that should not be used for load balancing
-        $serverPool->servers()->sync([$unhealthy->id, $offline->id, $draining->id, $disabled->id, $offline->id]);
+        $serverPool->servers()->sync([$faulty->id, $offline->id, $draining->id, $disabled->id, $offline->id]);
         $serverPool->refresh();
         $loadBalancingService->setServerPool($serverPool);
         $server = $loadBalancingService->getLowestUsageServer();
         $this->assertNull($server);
+    }
+
+    public function test_load_balancing_always_online()
+    {
+        config([
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
+        ]);
+
+        $always_online_with_error = Server::factory()->create(['connection_status_always_online' => true, 'status' => ServerStatus::ENABLED, 'error_count' => 1, 'load' => 5]);
+        $always_online_not_recovered = Server::factory()->create(['connection_status_always_online' => true, 'status' => ServerStatus::ENABLED, 'recover_count' => 1, 'load' => 5]);
+        $always_online_disabled = Server::factory()->create(['connection_status_always_online' => true, 'status' => ServerStatus::DISABLED, 'load' => 5]);
+        $lightUsage = Server::factory()->create(['load' => 1]);
+        $heavyUsage = Server::factory()->create(['load' => 20]);
+
+        $serverPool = ServerPool::factory()->create();
+        $loadBalancingService = new LoadBalancingService;
+        $loadBalancingService->setServerPool($serverPool);
+
+        // Disabled always online servers are never picked
+        $serverPool->servers()->sync([$heavyUsage, $always_online_disabled]);
+        $this->assertEquals($heavyUsage->id, $loadBalancingService->getLowestUsageServer()->id);
+
+        // Always online servers are picked, even with error_count
+        $serverPool->servers()->sync([$heavyUsage, $always_online_with_error]);
+        $this->assertEquals($always_online_with_error->id, $loadBalancingService->getLowestUsageServer()->id);
+
+        // Always online servers are picked, even with recover_count too low
+        $serverPool->servers()->sync([$heavyUsage, $always_online_not_recovered]);
+        $this->assertEquals($always_online_not_recovered->id, $loadBalancingService->getLowestUsageServer()->id);
+
+        // Load is still considered
+        $serverPool->servers()->sync([$lightUsage, $heavyUsage, $always_online_not_recovered, $always_online_disabled, $always_online_not_recovered]);
+        $this->assertEquals($lightUsage->id, $loadBalancingService->getLowestUsageServer()->id);
+    }
+
+    /**
+     * Check servers virtual usage is precise
+     */
+    public function test_load_balancing_decimal_virtual_usage()
+    {
+        $serverA = Server::factory()->create(['load' => 5, 'strength' => 2]); // usage: 2.5
+        $serverB = Server::factory()->create(['load' => 7, 'strength' => 3]); // usage: 2.33...
+        $serverC = Server::factory()->create(['load' => 8, 'strength' => 3]); // usage: 2.66...
+
+        $serverPool = ServerPool::factory()->create();
+        $loadBalancingService = new LoadBalancingService;
+        $loadBalancingService->setServerPool($serverPool);
+
+        $serverPool->servers()->sync([$serverA, $serverB, $serverC]);
+        $this->assertEquals($serverB->id, $loadBalancingService->getLowestUsageServer()->id);
+    }
+
+    /**
+     * Check servers with the same virtual usage are picked in a pseudo-random way
+     */
+    public function test_load_balancing_same_virtual_usage()
+    {
+        $serverA = Server::factory()->create(['load' => 5, 'strength' => 2]);
+        $serverB = Server::factory()->create(['load' => 5, 'strength' => 2]);
+        $serverC = Server::factory()->create(['load' => 5, 'strength' => 2]);
+
+        $serverPool = ServerPool::factory()->create();
+        $loadBalancingService = new LoadBalancingService;
+        $loadBalancingService->setServerPool($serverPool);
+
+        $serverPool->servers()->sync([$serverA, $serverB, $serverC]);
+
+        srand(2);
+        $this->assertEquals($serverA->id, $loadBalancingService->getLowestUsageServer()->id);
+
+        srand(1);
+        $this->assertEquals($serverB->id, $loadBalancingService->getLowestUsageServer()->id);
+
+        srand(5);
+        $this->assertEquals($serverC->id, $loadBalancingService->getLowestUsageServer()->id);
     }
 }

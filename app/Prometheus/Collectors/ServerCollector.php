@@ -30,6 +30,6 @@ class ServerCollector implements Collector
             ->set(Server::where('status', ServerStatus::ENABLED)
                 ->where('recover_count', '<', config('bigbluebutton.server_online_threshold'))
                 ->where('error_count', '<', config('bigbluebutton.server_offline_threshold'))
-                ->count(), ['unhealthy']);
+                ->count(), ['faulty']);
     }
 }

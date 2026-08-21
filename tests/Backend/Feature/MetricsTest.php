@@ -209,14 +209,14 @@ class MetricsTest extends TestCase
 
         $disabled = Server::factory()->count(10)->create(['status' => ServerStatus::DISABLED]);
         $draining = Server::factory()->count(20)->create(['status' => ServerStatus::DRAINING]);
-        $unhealthy = Server::factory()->count(30)->create(['status' => ServerStatus::ENABLED, 'recover_count' => 1, 'error_count' => 1]);
+        $faulty = Server::factory()->count(30)->create(['status' => ServerStatus::ENABLED, 'recover_count' => 1, 'error_count' => 1]);
         $offline = Server::factory()->count(40)->create(['status' => ServerStatus::ENABLED, 'recover_count' => 0, 'error_count' => 3]);
         $online = Server::factory()->count(50)->create(['status' => ServerStatus::ENABLED, 'recover_count' => 3, 'error_count' => 0]);
 
         $metrics = $this->getMetrics();
         $this->assertEquals(10, $metrics['pilos_servers_total{status="disabled"}']);
         $this->assertEquals(20, $metrics['pilos_servers_total{status="draining"}']);
-        $this->assertEquals(30, $metrics['pilos_servers_total{status="unhealthy"}']);
+        $this->assertEquals(30, $metrics['pilos_servers_total{status="faulty"}']);
         $this->assertEquals(40, $metrics['pilos_servers_total{status="offline"}']);
         $this->assertEquals(50, $metrics['pilos_servers_total{status="online"}']);
 
@@ -224,7 +224,7 @@ class MetricsTest extends TestCase
         $metrics = $this->getMetrics();
         $this->assertEquals(10, $metrics['pilos_servers_total{status="disabled"}']);
         $this->assertEquals(20, $metrics['pilos_servers_total{status="draining"}']);
-        $this->assertEquals(30, $metrics['pilos_servers_total{status="unhealthy"}']);
+        $this->assertEquals(30, $metrics['pilos_servers_total{status="faulty"}']);
         $this->assertEquals(40, $metrics['pilos_servers_total{status="offline"}']);
         $this->assertEquals(50, $metrics['pilos_servers_total{status="online"}']);
 
@@ -235,9 +235,9 @@ class MetricsTest extends TestCase
         $draining[0]->status = ServerStatus::ENABLED;
         $draining[0]->save();
 
-        $unhealthy[0]->error_count = 0;
-        $unhealthy[0]->recover_count = 3;
-        $unhealthy[0]->save();
+        $faulty[0]->error_count = 0;
+        $faulty[0]->recover_count = 3;
+        $faulty[0]->save();
 
         $offline[0]->error_count = 0;
         $offline[0]->recover_count = 3;
@@ -251,7 +251,7 @@ class MetricsTest extends TestCase
         $metrics = $this->getMetrics();
         $this->assertEquals(9, $metrics['pilos_servers_total{status="disabled"}']);
         $this->assertEquals(19, $metrics['pilos_servers_total{status="draining"}']);
-        $this->assertEquals(29, $metrics['pilos_servers_total{status="unhealthy"}']);
+        $this->assertEquals(29, $metrics['pilos_servers_total{status="faulty"}']);
         $this->assertEquals(39, $metrics['pilos_servers_total{status="offline"}']);
         $this->assertEquals(53, $metrics['pilos_servers_total{status="online"}']);
     }

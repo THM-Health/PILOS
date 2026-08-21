@@ -213,6 +213,7 @@ return [
         'view' => 'Detailed information for the server pool :name',
     ],
     'servers' => [
+        'always_online' => 'Always online',
         'base_url' => 'API endpoint',
         'connection' => 'Connection',
         'current_usage' => 'Current usage',
@@ -226,6 +227,7 @@ return [
         'draining' => 'Draining',
         'edit' => 'Edit server :name',
         'enabled' => 'Enabled',
+        'faulty' => 'Faulty',
         'flash' => [
             'panic' => [
                 'description_meetings_successful' => '{0} No meetings were successfully stopped. |{1} 1 meeting was successfully stopped. |[2,*] :count meetings were successfully stopped.',
@@ -259,9 +261,10 @@ return [
         'status' => 'Status',
         'strength' => 'Server strength',
         'strength_description' => 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
+        'connection_status_always_online' => 'Connection always online',
+        'connection_status_always_online_description' => 'The server is always considered online and available for new meetings; connection issues are ignored',
         'test_connection' => 'Test connection',
         'tile_description' => 'The servers provide the BBB infrastructure for the meetings.',
-        'unhealthy' => 'Faulty',
         'unknown' => 'Unknown',
         'usage_info' => 'The usage (meetings, participants, videos) also contains meetings that are managed by other systems.',
         'version' => 'Version',

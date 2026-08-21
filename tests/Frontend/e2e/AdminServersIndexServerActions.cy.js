@@ -33,7 +33,7 @@ describe("Admin servers index server actions", function () {
     cy.visit("admin/servers");
     cy.wait("@serversRequest");
 
-    cy.get('[data-test="server-item"]').should("have.length", 4);
+    cy.get('[data-test="server-item"]').should("have.length", 5);
 
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
 
@@ -61,10 +61,10 @@ describe("Admin servers index server actions", function () {
     );
 
     cy.fixture("servers.json").then((servers) => {
-      servers.data = servers.data.slice(0, 3);
-      servers.meta.to = 3;
-      servers.meta.total = 3;
-      servers.meta.total_no_filter = 3;
+      servers.data = servers.data.filter((server) => server.id !== 4);
+      servers.meta.to = 4;
+      servers.meta.total = 4;
+      servers.meta.total_no_filter = 4;
 
       cy.intercept("GET", "api/v1/servers*", {
         statusCode: 200,
@@ -89,7 +89,7 @@ describe("Admin servers index server actions", function () {
     cy.wait("@serversRequest");
 
     // Check that server was deleted
-    cy.get('[data-test="server-item"]').should("have.length", 3);
+    cy.get('[data-test="server-item"]').should("have.length", 4);
 
     // Check that dialog is closed
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
@@ -119,7 +119,7 @@ describe("Admin servers index server actions", function () {
     cy.visit("admin/servers");
     cy.wait("@serversRequest");
 
-    cy.get('[data-test="server-item"]').should("have.length", 4);
+    cy.get('[data-test="server-item"]').should("have.length", 5);
 
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
 
@@ -152,9 +152,9 @@ describe("Admin servers index server actions", function () {
     // Check 404 error
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.filter((server) => server.id !== 3);
-      servers.meta.to = 3;
-      servers.meta.total = 3;
-      servers.meta.total_no_filter = 3;
+      servers.meta.to = 4;
+      servers.meta.total = 4;
+      servers.meta.total_no_filter = 4;
 
       servers.data[2].status = -1;
 
@@ -188,7 +188,7 @@ describe("Admin servers index server actions", function () {
     ]);
 
     // Check that server is not in list anymore
-    cy.get('[data-test="server-item"]').should("have.length", 3);
+    cy.get('[data-test="server-item"]').should("have.length", 4);
 
     // Reopen dialog for different server
     cy.get('[data-test="server-item"]')
@@ -241,7 +241,7 @@ describe("Admin servers index server actions", function () {
       servers.data[0].meeting_count = 3;
       servers.data[0].participant_count = 50;
       servers.data[0].video_count = 6;
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -319,7 +319,7 @@ describe("Admin servers index server actions", function () {
       servers.data = servers.data.slice(1, 2);
       servers.meta.current_page = 2;
       servers.meta.from = 2;
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 2;
 
@@ -352,7 +352,7 @@ describe("Admin servers index server actions", function () {
       });
 
     // Check that pagination shows the correct number of pages
-    cy.get('[data-test="paginator-page"]').should("have.length", 4);
+    cy.get('[data-test="paginator-page"]').should("have.length", 5);
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
@@ -367,7 +367,7 @@ describe("Admin servers index server actions", function () {
       servers.data[0].video_count = 10;
       servers.meta.current_page = 2;
       servers.meta.from = 2;
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 2;
 
@@ -398,7 +398,7 @@ describe("Admin servers index server actions", function () {
           .should("have.text", "10");
       });
 
-    cy.get('[data-test="paginator-page"]').should("have.length", 4);
+    cy.get('[data-test="paginator-page"]').should("have.length", 5);
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
@@ -428,7 +428,7 @@ describe("Admin servers index server actions", function () {
           .should("have.text", "10");
       });
 
-    cy.get('[data-test="paginator-page"]').should("have.length", 4);
+    cy.get('[data-test="paginator-page"]').should("have.length", 5);
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
