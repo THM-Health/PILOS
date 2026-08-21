@@ -121,11 +121,12 @@
         :zoom-step="ZOOM_STEP / 100"
         :output-size="100"
         :keyboard-step="8"
+        :disabled="isLoadingAction"
         mime-type="image/jpeg"
         :quality="1"
         :image="selectedFile"
         :aria-label="t('admin.users.image.aria_instructions')"
-        root-class="w-full"
+        root-class="w-full focus-within:outline-1 focus-within:outline-offset-2 focus-within:outline-primary"
         viewport-class="aspect-square max-h-[30vh] min-h-30 bg-surface-200 dark:bg-surface-900 w-full"
         mask-class="shadow-[0_0_0_9999px_rgb(0_0_0_/_0.4)]"
         ring-class="border-2 border-white"
@@ -149,6 +150,7 @@
           rounded
           class="shrink-0"
           icon="fa-solid fa-minus"
+          :aria-label="$t('admin.users.image.zoom_decrease')"
           @click="zoom -= ZOOM_STEP"
         />
         <Slider
@@ -160,6 +162,11 @@
           :max="MAX_ZOOM"
           :step="ZOOM_STEP"
           class="w-full"
+          :pt="{
+            handle: {
+              tabindex: isLoadingAction || isLoadingCropper ? '-1' : '0',
+            },
+          }"
         />
         <Button
           variant="text"
@@ -168,6 +175,7 @@
           rounded
           class="shrink-0"
           icon="fa-solid fa-plus"
+          :aria-label="$t('admin.users.image.zoom_increase')"
           @click="zoom += ZOOM_STEP"
         />
         <Badge

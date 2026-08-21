@@ -45,7 +45,7 @@
     "@primevue/auto-import-resolver": "^4.5.5",
     "@primevue/themes": "^4.5.4",
     "@tailwindcss/vite": "^4.3.3",
-    "@thm-health/vue-profile-image-cropper": "^0.4.0",
+    "@thm-health/vue-profile-image-cropper": "^0.5.0",
     "@tiptap/extension-highlight": "^3.29.2",
     "@tiptap/extension-image": "^3.29.2",
     "@tiptap/extension-text-align": "^3.29.2",
