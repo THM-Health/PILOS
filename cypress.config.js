@@ -46,7 +46,6 @@ export default defineConfig({
       return config;
     },
     baseUrl: baseUrl,
-    experimentalStudio: true,
     supportFile: "tests/Frontend/support/e2e.{js,jsx,ts,tsx}",
     specPattern: "tests/Frontend/e2e/**/*.cy.{js,jsx,ts,tsx}",
   },
