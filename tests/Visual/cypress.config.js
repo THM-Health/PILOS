@@ -9,6 +9,8 @@ export default defineConfig({
   screenshotsFolder: "screenshots",
   videosFolder: "videos",
 
+  allowCypressEnv: false,
+
   e2e: {
     setupNodeEvents(on, config) {
       happoTask.register(on);

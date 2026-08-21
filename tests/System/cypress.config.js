@@ -11,6 +11,8 @@ export default defineConfig({
   screenshotsFolder: "screenshots",
   videosFolder: "videos",
 
+  allowCypressEnv: false,
+
   e2e: {
     baseUrl: "http://localhost:9080",
     supportFile: "support/e2e.{js,jsx,ts,tsx}",

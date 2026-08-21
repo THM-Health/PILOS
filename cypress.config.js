@@ -10,6 +10,8 @@ export default defineConfig({
   screenshotsFolder: "tests/Frontend/screenshots",
   videosFolder: "tests/Frontend/videos",
 
+  allowCypressEnv: false,
+
   expose: {
     redirectBaseUrl: "https://thm-health.github.io/PILOS-Redirect_Test_Pages",
   },
