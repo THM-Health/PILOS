@@ -62,6 +62,7 @@ export async function _base64ToImageData(base64) {
       const { naturalWidth: width, naturalHeight: height } = image;
       const canvas = new OffscreenCanvas(width, height);
       const ctx = canvas.getContext("2d");
+      ctx.filter = "blur(1px)";
       ctx.drawImage(image, 0, 0);
 
       const imageData = ctx.getImageData(0, 0, width, height);
