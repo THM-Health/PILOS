@@ -65,6 +65,7 @@ return [
         'download' => 'Downloadable',
         'duration' => 'Max. duration',
         'email' => 'Email',
+        'enforced_name' => 'Name in video conference',
         'everyone_can_start' => 'Everyone can start the meeting',
         'excerpt' => 'Excerpt',
         'expert_mode' => 'Expert mode',

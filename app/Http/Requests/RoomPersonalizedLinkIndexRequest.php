@@ -20,7 +20,7 @@ class RoomPersonalizedLinkIndexRequest extends FormRequest
         return [
             'query' => ['nullable', 'string'],
             'filter' => [Rule::in(['participant_role', 'moderator_role'])],
-            'sort_by' => [Rule::in(['firstname', 'lastname', 'last_usage'])],
+            'sort_by' => [Rule::in(['description', 'last_usage'])],
             'sort_direction' => [Rule::in(['asc', 'desc'])],
         ];
     }
