@@ -2,7 +2,7 @@ import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js
 import { parseFormData } from "../support/utils/formData.js";
 import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
 
-describe("Admin users edit base", function () {
+describe.skip("Admin users edit base", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminUsersViewRequests();

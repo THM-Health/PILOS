@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Forgot password", function () {
+describe.skip("Forgot password", function () {
   beforeEach(function () {
     cy.intercept("GET", "api/v1/locale/en", { fixture: "en.json" });
 

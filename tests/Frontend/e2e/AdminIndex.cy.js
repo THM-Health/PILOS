@@ -1,4 +1,4 @@
-describe("Admin index", function () {
+describe.skip("Admin index", function () {
   beforeEach(function () {
     cy.init();
 

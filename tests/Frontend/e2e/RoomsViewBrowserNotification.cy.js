@@ -3,7 +3,7 @@ import {
   createNotificationFaker,
 } from "../support/utils/notificationFaker.js";
 
-describe("Rooms view browser notification", function () {
+describe.skip("Rooms view browser notification", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();

@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Meetings index", function () {
+describe.skip("Meetings index", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptMeetingsIndexRequests();

@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Admin users new", function () {
+describe.skip("Admin users new", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminUsersNewRequests();

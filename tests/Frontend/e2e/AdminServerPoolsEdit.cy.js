@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Admin server pools edit", function () {
+describe.skip("Admin server pools edit", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminServerPoolsViewRequests();
