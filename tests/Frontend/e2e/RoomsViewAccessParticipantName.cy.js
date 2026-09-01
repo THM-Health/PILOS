@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-Cypress._.times(20, () => {
+Cypress._.times(30, () => {
   describe("Rooms View access participant name", function () {
     beforeEach(function () {
       cy.init();
