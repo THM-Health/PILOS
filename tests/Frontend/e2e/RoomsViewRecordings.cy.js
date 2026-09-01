@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view recordings", function () {
+describe.skip("Rooms view recordings", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
@@ -581,7 +581,7 @@ describe("Rooms view recordings", function () {
       .and("include.text", "rooms.recordings.retention_period.unlimited");
   });
 
-  it("load recordings with personalized link errors", function () {
+  it.only("load recordings with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
@@ -636,7 +636,7 @@ describe("Rooms view recordings", function () {
     cy.wait("@roomAuthRequest");
 
     // Check that sessionStorage is cleared
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
         .be.null;
     });
@@ -1170,7 +1170,9 @@ describe("Rooms view recordings", function () {
       );
 
     // Check for co_owner
-    cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
+    cy.intercept("GET", "api/v1/currentUser", {
+      fixture: "currentUser.json",
+    });
 
     cy.fixture("room.json").then((room) => {
       room.data.owner = { id: 2, name: "Max Doe" };

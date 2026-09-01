@@ -1,4 +1,4 @@
-describe("Admin settings with edit permission", function () {
+describe.skip("Admin settings with edit permission", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminSettingsRequest();

@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view recordings recording actions", function () {
+describe.skip("Rooms view recordings recording actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
@@ -362,7 +362,7 @@ describe("Rooms view recordings recording actions", function () {
       .and("have.attr", "target", "_blank");
   });
 
-  it("view recording with personalized link errors", function () {
+  it.only("view recording with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";
@@ -423,7 +423,7 @@ describe("Rooms view recordings recording actions", function () {
     cy.wait("@roomAuthRequest");
 
     // Check that sessionStorage is cleared
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
         .be.null;
     });

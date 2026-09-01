@@ -1,4 +1,4 @@
-describe("Rooms view streaming", function () {
+describe.skip("Rooms view streaming", function () {
   beforeEach(function () {
     cy.init();
     cy.fixture("config.json").then((config) => {

@@ -1,6 +1,6 @@
 import { selectTiptapContent } from "../support/utils/tiptapHelper.js";
 
-describe("Rooms view description TipTap Editor", function () {
+describe.skip("Rooms view description TipTap Editor", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();

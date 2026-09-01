@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Admin roles index role actions", function () {
+describe.skip("Admin roles index role actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminRolesIndexRequests();

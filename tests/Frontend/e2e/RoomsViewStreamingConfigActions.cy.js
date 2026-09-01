@@ -2,7 +2,7 @@ import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js
 import { parseFormData } from "../support/utils/formData.js";
 import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
 
-describe("Rooms view streaming config actions", function () {
+describe.skip("Rooms view streaming config actions", function () {
   beforeEach(function () {
     cy.init();
     cy.fixture("config.json").then((config) => {

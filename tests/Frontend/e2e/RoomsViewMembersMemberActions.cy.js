@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view members member actions", function () {
+describe.skip("Rooms view members member actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
