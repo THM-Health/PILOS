@@ -203,12 +203,12 @@ All new installations will use this version, existing installations will not be 
 
 To upgrade your MariaDB container, you need to edit your `docker-compose.yml` file:
 
-- Change the MariaDB image tag to `11`.
+- Change the MariaDB image tag to `12`.
 - Add a new environment variable `MARIADB_AUTO_UPGRADE` to trigger the service to upgrade the database:
 
     ```yaml
     db:
-        image: "mariadb:11"
+        image: "mariadb:12"
         environment:
             MARIADB_AUTO_UPGRADE: 1
     ```
