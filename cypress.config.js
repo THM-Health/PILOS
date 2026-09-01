@@ -11,6 +11,7 @@ export default defineConfig({
   videosFolder: "tests/Frontend/videos",
 
   allowCypressEnv: false,
+  experimentalMemoryManagement: true,
 
   expose: {
     redirectBaseUrl: "https://thm-health.github.io/PILOS-Redirect_Test_Pages",
