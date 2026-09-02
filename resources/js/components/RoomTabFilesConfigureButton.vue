@@ -69,22 +69,6 @@
         </div>
       </div>
 
-      <div class="field mt-2 grid grid-cols-12 gap-4" data-test="default-field">
-        <label for="default" class="col-span-12 mb-2 md:col-span-8 md:mb-0">{{
-          $t("rooms.files.default")
-        }}</label>
-        <div class="col-span-12 md:col-span-4">
-          <ToggleSwitch
-            v-model="newDefault"
-            input-id="default"
-            required
-            :disabled="isLoadingAction"
-            :invalid="formErrors.fieldInvalid('default')"
-          />
-          <FormError :errors="formErrors.fieldError('default')" />
-        </div>
-      </div>
-
       <div
         class="field mt-2 grid grid-cols-12 gap-4"
         data-test="download-field"
@@ -108,7 +92,7 @@
 </template>
 <script setup>
 import { useApi } from "../composables/useApi.js";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
@@ -139,10 +123,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  default: {
-    type: Boolean,
-    default: false,
-  },
   disabled: {
     type: Boolean,
     default: false,
@@ -159,7 +139,6 @@ const formErrors = useFormErrors();
 const modalVisible = ref(false);
 const newUseInMeeting = ref(null);
 const newDownload = ref(null);
-const newDefault = ref(null);
 const isLoadingAction = ref(false);
 
 /**
@@ -168,22 +147,9 @@ const isLoadingAction = ref(false);
 function showModal() {
   newUseInMeeting.value = props.useInMeeting;
   newDownload.value = props.download;
-  newDefault.value = props.default;
   formErrors.clear();
   modalVisible.value = true;
 }
-
-watch(newDefault, (value) => {
-  if (value) {
-    newUseInMeeting.value = true;
-  }
-});
-
-watch(newUseInMeeting, (value) => {
-  if (!value) {
-    newDefault.value = false;
-  }
-});
 
 /**
  * Sends a request to the server to update the file configuration.
@@ -197,7 +163,6 @@ function save() {
     data: {
       use_in_meeting: newUseInMeeting.value,
       download: newDownload.value,
-      default: newDefault.value,
     },
   };
 

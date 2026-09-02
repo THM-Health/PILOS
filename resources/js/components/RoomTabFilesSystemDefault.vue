@@ -4,16 +4,28 @@
     class="flex flex-col justify-between gap-4 rounded p-4 shadow outline-3 outline-surface-200 md:flex-row dark:outline-surface-700"
   >
     <div class="flex flex-col gap-2">
-      <p class="text-word-break m-0 text-lg font-semibold">
-        {{ $t("rooms.files.system_default") }}
-      </p>
-      <div>
+      <div class="flex flex-row items-center gap-2">
+        <p class="text-word-break m-0 text-lg font-semibold">
+          {{ $t("rooms.files.system_default") }}
+        </p>
         <Tag
-          v-if="defaultFile === null"
-          severity="info"
+          v-if="preferAsDefault"
+          severity="warn"
           icon="fa-solid fa-star"
           :value="$t('rooms.files.default')"
         />
+        <Tag
+          v-else-if="defaultFile === null"
+          icon="fa-solid fa-star"
+          severity="warn"
+        >
+          <div class="ml-2">
+            <p>{{ $t("rooms.files.default") }}</p>
+            <i>{{
+              "Automatically selected because no other file is used in meeting."
+            }}</i>
+          </div>
+        </Tag>
       </div>
       <div class="flex flex-row items-center gap-2">
         <i class="fa-solid fa-circle-info"></i>
@@ -34,7 +46,7 @@
             <Tag
               v-else-if="defaultFile === null"
               severity="success"
-              :value="$t('rooms.files.available_in_next_meeting')"
+              :value="$t('rooms.files.available_fallback')"
             />
             <Tag
               v-else
@@ -47,6 +59,19 @@
     </div>
 
     <div class="flex shrink-0 flex-row items-start justify-end gap-1">
+      <!-- default -->
+      <Button
+        v-tooltip="$t('rooms.files.default')"
+        :aria-label="
+          $t('rooms.files.default_aria', { filename: 'System default' })
+        "
+        :disabled="disabled"
+        :severity="preferAsDefault ? 'warn' : 'secondary'"
+        icon="fa-solid fa-star"
+        data-test="room-files-system-default-default-button"
+        @click="saveDefault"
+      />
+
       <!-- view -->
       <Button
         v-tooltip="$t('rooms.files.view')"
@@ -132,27 +157,11 @@
         <FormError :errors="formErrors.fieldError('use_in_meeting')" />
       </div>
     </div>
-
-    <div class="field mt-2 grid grid-cols-12 gap-4" data-test="default-field">
-      <label for="default" class="col-span-12 mb-2 md:col-span-8 md:mb-0">{{
-        $t("rooms.files.default")
-      }}</label>
-      <div class="col-span-12 md:col-span-4">
-        <ToggleSwitch
-          v-model="newDefault"
-          :disabled="isLoadingAction"
-          input-id="default"
-          required
-          :invalid="formErrors.fieldInvalid('default')"
-        />
-        <FormError :errors="formErrors.fieldError('default')" />
-      </div>
-    </div>
   </Dialog>
 </template>
 <script setup>
 import { useApi } from "../composables/useApi.js";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
 
@@ -169,7 +178,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  useAsDefault: {
+  preferAsDefault: {
     type: Boolean,
     default: false,
   },
@@ -186,7 +195,6 @@ const formErrors = useFormErrors();
 
 const modalVisible = ref(false);
 const newUseInMeeting = ref(null);
-const newDefault = ref(null);
 const isLoadingAction = ref(false);
 
 /**
@@ -194,22 +202,9 @@ const isLoadingAction = ref(false);
  */
 function showModal() {
   newUseInMeeting.value = props.useInMeeting;
-  newDefault.value = props.useAsDefault;
   formErrors.clear();
   modalVisible.value = true;
 }
-
-watch(newDefault, (value) => {
-  if (value) {
-    newUseInMeeting.value = true;
-  }
-});
-
-watch(newUseInMeeting, (value) => {
-  if (!value) {
-    newDefault.value = false;
-  }
-});
 
 /**
  * Sends a request to the server to update the system-wide default presentation configuration.
@@ -222,7 +217,6 @@ function save() {
     method: "put",
     data: {
       use_in_meeting: newUseInMeeting.value,
-      default: newDefault.value,
     },
   };
 
@@ -240,6 +234,29 @@ function save() {
           formErrors.set(error.response.data.errors);
           return;
         }
+      }
+      api.error(error, { redirectOnUnauthenticated: false });
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
+}
+
+function saveDefault() {
+  // ToDO add confirmation modal if useInMeeting is false
+  isLoadingAction.value = true;
+
+  api
+    .call(`rooms/${props.roomId}/files/system_default/default`, {
+      method: "post",
+    })
+    .then(() => {
+      emit("edited");
+    })
+    .catch((error) => {
+      // setting default failed
+      if (error.response) {
+        // ToDo Stale error
       }
       api.error(error, { redirectOnUnauthenticated: false });
     })

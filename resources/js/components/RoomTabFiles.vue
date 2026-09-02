@@ -51,7 +51,7 @@
       :room-id="props.room.id"
       :file="systemDefault.file"
       :use-in-meeting="systemDefault.use_in_meeting"
-      :use-as-default="systemDefault.use_as_default"
+      :prefer-as-default="systemDefault.prefer_as_default"
       :default-file="defaultFile"
       :disabled="isBusy"
       @edited="loadData()"
@@ -218,19 +218,36 @@
                 class="flex flex-col justify-between gap-4 border-t border-surface py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
-                  <p class="text-word-break m-0 text-lg font-semibold">
-                    {{ item.filename }}
-                  </p>
-                  <div>
-                    <Tag
-                      v-if="
-                        defaultFile?.id === item.id &&
-                        userPermissions.can('manageSettings', props.room)
-                      "
-                      icon="fa-solid fa-star"
-                      severity="info"
-                      :value="$t('rooms.files.default')"
-                    />
+                  <div class="flex flex-row items-center gap-2">
+                    <p class="text-word-break m-0 text-lg font-semibold">
+                      {{ item.filename }}
+                    </p>
+                    <div>
+                      <Tag
+                        v-if="
+                          defaultFile?.id === item.id &&
+                          userPermissions.can('manageSettings', props.room) &&
+                          systemDefault.file !== null &&
+                          systemDefault.prefer_as_default
+                        "
+                        icon="fa-solid fa-star"
+                        severity="secondary"
+                      >
+                        <div class="ml-2">
+                          <p>{{ $t("rooms.files.default") }}</p>
+                          <i>{{ "Currently overridden by system default" }}</i>
+                        </div>
+                      </Tag>
+                      <Tag
+                        v-else-if="
+                          defaultFile?.id === item.id &&
+                          userPermissions.can('manageSettings', props.room)
+                        "
+                        icon="fa-solid fa-star"
+                        severity="warn"
+                        :value="$t('rooms.files.default')"
+                      />
+                    </div>
                   </div>
 
                   <div class="flex flex-col items-start gap-2">
@@ -288,6 +305,18 @@
                 <div
                   class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
+                  <RoomTabFilesDefaultButton
+                    v-if="userPermissions.can('manageSettings', props.room)"
+                    :room-id="props.room.id"
+                    :file-id="item.id"
+                    :filename="item.filename"
+                    :use-in-meeting="item.use_in_meeting"
+                    :default="defaultFile?.id === item.id"
+                    :prefer-system-default="systemDefault.prefer_as_default"
+                    :disabled="isBusy"
+                    @edited="loadData()"
+                    @not-found="loadData()"
+                  />
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"
                     :file-url="item.url"
@@ -305,11 +334,11 @@
                     :filename="item.filename"
                     :use-in-meeting="item.use_in_meeting"
                     :download="item.download"
-                    :default="defaultFile?.id === item.id"
                     :disabled="isBusy"
                     @edited="loadData()"
                     @not-found="loadData()"
                   />
+
                   <RoomTabFilesDeleteButton
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :room-id="props.room.id"
@@ -391,7 +420,7 @@ const filter = ref("all");
 const systemDefault = ref({
   file: null,
   use_in_meeting: false,
-  use_as_default: false,
+  prefer_as_default: false,
 });
 
 const sortFields = computed(() => [

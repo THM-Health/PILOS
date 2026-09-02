@@ -12,7 +12,6 @@ class UpdateRoomSystemDefaultPresentation extends FormRequest
     {
         return [
             'use_in_meeting' => ['required', 'boolean'],
-            'default' => ['required', 'boolean'],
         ];
     }
 }

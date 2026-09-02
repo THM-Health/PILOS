@@ -16,13 +16,13 @@ return new class extends Migration
     {
         Schema::table('rooms', function (Blueprint $table) {
             $table->boolean('use_system_default_presentation_in_meeting')->default(true);
-            $table->boolean('use_system_default_presentation_as_default')->default(true);
+            $table->boolean('prefer_system_default_presentation_as_default')->default(true);
         });
 
         RoomFile::where('default', true)
             ->where('use_in_meeting', true)
             ->each(function (RoomFile $file) {
-                $file->room->use_system_default_presentation_as_default = false;
+                $file->room->prefer_system_default_presentation_as_default = false;
                 $file->room->save();
             });
 
@@ -35,7 +35,7 @@ return new class extends Migration
     {
         Schema::table('rooms', function (Blueprint $table) {
             $table->dropColumn('use_system_default_presentation_in_meeting');
-            $table->dropColumn('use_system_default_presentation_as_default');
+            $table->dropColumn('prefer_system_default_presentation_as_default');
         });
     }
 };
