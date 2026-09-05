@@ -4,30 +4,41 @@
     class="flex flex-col justify-between gap-4 rounded p-4 shadow outline-3 outline-surface-200 md:flex-row dark:outline-surface-700"
   >
     <div class="flex flex-col gap-2">
-      <div class="flex flex-row items-center gap-2">
+      <div class="flex flex-col gap-2 md:flex-row md:items-center">
         <p class="text-word-break m-0 text-lg font-semibold">
           {{ $t("rooms.files.system_default") }}
         </p>
-        <Tag
-          v-if="preferAsDefault"
-          severity="warn"
-          icon="fa-solid fa-star"
-          :value="$t('rooms.files.default')"
-        />
-        <Tag
-          v-else-if="defaultFile === null"
-          icon="fa-solid fa-star"
-          severity="warn"
-        >
-          <div class="ml-2">
-            <p>{{ $t("rooms.files.default") }}</p>
-            <i>{{
-              "Automatically selected because no other file is used in meeting."
-            }}</i>
-          </div>
-        </Tag>
+        <div>
+          <Tag
+            v-if="preferAsDefault"
+            severity="warn"
+            :value="$t('rooms.files.default')"
+          >
+            <template #icon>
+              <CircleNumberIcon
+                :number="1"
+                data-test="room-file-system-default-priority"
+              />
+            </template>
+          </Tag>
+          <Tag
+            v-else-if="defaultFile === null"
+            severity="info"
+            value="Default presentation (Automatic)"
+          >
+            <template #icon>
+              <CircleNumberIcon
+                :number="1"
+                data-test="room-file-system-default-priority"
+              />
+            </template>
+          </Tag>
+        </div>
       </div>
-      <div class="flex flex-row items-center gap-2">
+      <div
+        v-if="defaultFile === null && !preferAsDefault"
+        class="flex flex-row items-center gap-2"
+      >
         <i class="fa-solid fa-circle-info"></i>
         <p class="m-0 text-sm">
           {{ $t("rooms.files.system_default_description") }}
@@ -45,8 +56,10 @@
             />
             <Tag
               v-else-if="defaultFile === null"
-              severity="success"
-              :value="$t('rooms.files.available_fallback')"
+              severity="info"
+              :value="
+                $t('rooms.files.available_in_next_meeting') + ' (Automatic)'
+              "
             />
             <Tag
               v-else
@@ -60,16 +73,12 @@
 
     <div class="flex shrink-0 flex-row items-start justify-end gap-1">
       <!-- default -->
-      <Button
-        v-tooltip="$t('rooms.files.default')"
-        :aria-label="
-          $t('rooms.files.default_aria', { filename: 'System default' })
-        "
-        :disabled="disabled"
-        :severity="preferAsDefault ? 'warn' : 'secondary'"
-        icon="fa-solid fa-star"
-        data-test="room-files-system-default-default-button"
-        @click="saveDefault"
+      <RoomTabFilesSystemDefaultDefaultButton
+        :room-id="roomId"
+        :use-in-meeting="useInMeeting"
+        :prefer-as-default="preferAsDefault"
+        :default-file="defaultFile"
+        @edited="$emit('edited')"
       />
 
       <!-- view -->
@@ -228,35 +237,14 @@ function save() {
       emit("edited");
     })
     .catch((error) => {
+      // ToDo Stale error
+
       // editing failed
       if (error.response) {
         if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
           return;
         }
-      }
-      api.error(error, { redirectOnUnauthenticated: false });
-    })
-    .finally(() => {
-      isLoadingAction.value = false;
-    });
-}
-
-function saveDefault() {
-  // ToDO add confirmation modal if useInMeeting is false
-  isLoadingAction.value = true;
-
-  api
-    .call(`rooms/${props.roomId}/files/system_default/default`, {
-      method: "post",
-    })
-    .then(() => {
-      emit("edited");
-    })
-    .catch((error) => {
-      // setting default failed
-      if (error.response) {
-        // ToDo Stale error
       }
       api.error(error, { redirectOnUnauthenticated: false });
     })

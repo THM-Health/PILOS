@@ -218,7 +218,7 @@
                 class="flex flex-col justify-between gap-4 border-t border-surface py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
-                  <div class="flex flex-row items-center gap-2">
+                  <div class="flex flex-col gap-2 md:flex-row md:items-center">
                     <p class="text-word-break m-0 text-lg font-semibold">
                       {{ item.filename }}
                     </p>
@@ -230,26 +230,51 @@
                           systemDefault.file !== null &&
                           systemDefault.prefer_as_default
                         "
-                        icon="fa-solid fa-star"
                         severity="secondary"
+                        value="Default presentation fallback"
                       >
-                        <div class="ml-2">
-                          <p>{{ $t("rooms.files.default") }}</p>
-                          <i>{{ "Currently overridden by system default" }}</i>
-                        </div>
+                        <template #icon>
+                          <CircleNumberIcon
+                            :number="2"
+                            data-test="room-file-default-priority"
+                          />
+                        </template>
                       </Tag>
                       <Tag
                         v-else-if="
                           defaultFile?.id === item.id &&
                           userPermissions.can('manageSettings', props.room)
                         "
-                        icon="fa-solid fa-star"
                         severity="warn"
                         :value="$t('rooms.files.default')"
-                      />
+                      >
+                        <template #icon>
+                          <CircleNumberIcon
+                            :number="1"
+                            data-test="room-file-default-priority"
+                          />
+                        </template>
+                      </Tag>
                     </div>
                   </div>
 
+                  <div
+                    v-if="
+                      defaultFile?.id === item.id &&
+                      userPermissions.can('manageSettings', props.room) &&
+                      systemDefault.file !== null &&
+                      systemDefault.prefer_as_default
+                    "
+                    class="flex flex-col items-start gap-2"
+                  >
+                    <div class="flex flex-row items-center gap-2">
+                      <i class="fa-solid fa-info" />
+                      <p class="m-0 text-sm">
+                        Will be used as the default presentation if no
+                        system-wide presentation is available.
+                      </p>
+                    </div>
+                  </div>
                   <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />

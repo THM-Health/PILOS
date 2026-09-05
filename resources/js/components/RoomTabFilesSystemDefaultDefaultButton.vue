@@ -2,16 +2,10 @@
   <!-- button -->
   <Button
     v-tooltip="$t('rooms.files.default')"
-    :aria-label="$t('rooms.files.default_aria', { filename: filename })"
-    :disabled="
-      disabled ||
-      isLoadingAction ||
-      (props.default && !props.preferSystemDefault)
-    "
+    :aria-label="$t('rooms.files.default_aria', { filename: 'System default' })"
+    :disabled="disabled || isLoadingAction || preferAsDefault"
     :loading="isLoadingAction"
-    :severity="
-      props.default && !props.preferSystemDefault ? 'warn' : 'secondary'
-    "
+    :severity="preferAsDefault ? 'warn' : 'secondary'"
     data-test="room-files-default-button"
     @click="setDefault"
   >
@@ -19,7 +13,7 @@
       <CircleNumberIcon
         :class="iconClass"
         :number="1"
-        data-test="room-file-default-button-priority"
+        data-test="room-file-system-default-button-priority"
       />
     </template>
   </Button>
@@ -28,7 +22,7 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="$t('rooms.files.default', { name: filename })"
+    :header="$t('rooms.files.default', { name: 'System default' })"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -57,34 +51,25 @@
     </template>
 
     <div style="overflow-wrap: break-word">
-      {{ $t("rooms.files.confirm_default", { filename: filename }) }}
+      {{ $t("rooms.files.confirm_default", { filename: "System default" }) }}
     </div>
-    <div v-if="props.preferSystemDefault" style="overflow-wrap: break-word">
-      This will override the system default file preference for this room.
+    <div v-if="!useInMeeting" style="overflow-wrap: break-word">
+      This will cause the file to be available in future meetings.
     </div>
-    <div v-if="!props.useInMeeting" style="overflow-wrap: break-word">
-      This will cause the file to be available in the next meeting.
+    <div v-if="defaultFile !== null" style="overflow-wrap: break-word">
+      The system-wide presentation will be shown first. "{{
+        defaultFile.filename
+      }}" will remain the room default and will be used when no system-wide
+      presentation is available.
     </div>
   </Dialog>
 </template>
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
-import { useToast } from "../composables/useToast.js";
-import { useI18n } from "vue-i18n";
-import { ROOM_FILE } from "../constants/modelNames.js";
-import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
 
 const props = defineProps({
   roomId: {
-    type: String,
-    required: true,
-  },
-  fileId: {
-    type: Number,
-    required: true,
-  },
-  filename: {
     type: String,
     required: true,
   },
@@ -92,11 +77,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  default: {
-    type: Boolean,
-    default: false,
-  },
-  preferSystemDefault: {
+  preferAsDefault: {
     type: Boolean,
     default: false,
   },
@@ -104,19 +85,24 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  defaultFile: {
+    type: Object,
+    default: null,
+  },
 });
 
-const emit = defineEmits(["edited", "notFound"]);
+const emit = defineEmits(["edited"]);
 
 const api = useApi();
-const toast = useToast();
-const { t } = useI18n();
 
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 function setDefault() {
-  if (!props.useInMeeting || props.preferSystemDefault) {
+  if (
+    !props.useInMeeting ||
+    (props.defaultFile !== null && !props.preferAsDefault)
+  ) {
     showModal();
   } else {
     saveDefault();
@@ -137,7 +123,7 @@ function saveDefault() {
   isLoadingAction.value = true;
 
   api
-    .call(`rooms/${props.roomId}/files/${props.fileId}/default`, {
+    .call(`rooms/${props.roomId}/files/system_default/default`, {
       method: "post",
     })
     .then(() => {
@@ -148,16 +134,7 @@ function saveDefault() {
     .catch((error) => {
       // setting default failed
       if (error.response) {
-        // file not found
-        if (
-          error.response.status === HTTP_STATUS_NOT_FOUND &&
-          error.response.data?.model === ROOM_FILE
-        ) {
-          toast.error(t("rooms.flash.file_gone"));
-          emit("notFound");
-          modalVisible.value = false;
-          return;
-        }
+        // ToDo Stale error
       }
       api.error(error, { redirectOnUnauthenticated: false });
     })

@@ -141,7 +141,7 @@ return [
         'sort_by' => 'Sort files by',
         'sort_descending' => 'Sort files descending',
         'system_default' => 'System-wide default presentation',
-        'system_default_description' => 'Automatically used when no other presentation is enabled for the next video conference',
+        'system_default_description' => 'Automatically used as default because no other presentation is enabled for the next video conference',
         'terms_of_use' => [
             'accept' => 'I accept the terms of use',
             'close' => 'Close terms of use',
