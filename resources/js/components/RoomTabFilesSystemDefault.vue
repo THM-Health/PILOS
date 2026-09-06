@@ -79,6 +79,9 @@
         :prefer-as-default="preferAsDefault"
         :default-file="defaultFile"
         @edited="$emit('edited')"
+        @system-default-presentation-not-set="
+          handleSystemDefaultPresentationNotSet()
+        "
       />
 
       <!-- view -->
@@ -172,7 +175,13 @@
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
 import { useFormErrors } from "../composables/useFormErrors.js";
-import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from "../constants/httpStatusCodes.js";
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_UNPROCESSABLE_ENTITY,
+} from "../constants/httpStatusCodes.js";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
+import { HTTP_ERROR_ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET } from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   file: {
@@ -197,10 +206,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edited"]);
+const emit = defineEmits(["edited", "systemDefaultPresentationNotSet"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const toast = useToast();
+const { t } = useI18n();
 
 const modalVisible = ref(false);
 const newUseInMeeting = ref(null);
@@ -237,12 +248,19 @@ function save() {
       emit("edited");
     })
     .catch((error) => {
-      // ToDo Stale error
-
       // editing failed
       if (error.response) {
         if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
+          return;
+        }
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.message ===
+            HTTP_ERROR_ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET
+        ) {
+          modalVisible.value = false;
+          handleSystemDefaultPresentationNotSet();
           return;
         }
       }
@@ -251,5 +269,10 @@ function save() {
     .finally(() => {
       isLoadingAction.value = false;
     });
+}
+
+function handleSystemDefaultPresentationNotSet() {
+  toast.error(t("rooms.flash.default_presentation_not_set"));
+  emit("systemDefaultPresentationNotSet");
 }
 </script>

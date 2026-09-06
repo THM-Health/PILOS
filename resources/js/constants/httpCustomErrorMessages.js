@@ -3,7 +3,8 @@ export const HTTP_ERROR_ROOM_INVALID_CODE = "invalid_code";
 export const HTTP_ERROR_ROOM_REQUIRE_CODE = "require_code";
 export const HTTP_ERROR_ROOM_INVALID_PERSONALIZED_LINK =
   "invalid_personalized_link";
-
+export const HTTP_ERROR_ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET =
+  "system_default_presentation_not_set";
 export const HTTP_ERROR_GUESTS_NOT_ALLOWED = "guests_not_allowed";
 export const HTTP_ERROR_GUESTS_ONLY = "guests_only";
 export const HTTP_ERROR_FORBIDDEN = "forbidden";

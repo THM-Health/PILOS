@@ -67,6 +67,8 @@
 <script setup>
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
+import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
+import { HTTP_ERROR_ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET } from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   roomId: {
@@ -91,7 +93,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edited"]);
+const emit = defineEmits(["edited", "systemDefaultPresentationNotSet"]);
 
 const api = useApi();
 
@@ -134,7 +136,15 @@ function saveDefault() {
     .catch((error) => {
       // setting default failed
       if (error.response) {
-        // ToDo Stale error
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.message ===
+            HTTP_ERROR_ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET
+        ) {
+          modalVisible.value = false;
+          emit("systemDefaultPresentationNotSet");
+          return;
+        }
       }
       api.error(error, { redirectOnUnauthenticated: false });
     })

@@ -55,6 +55,7 @@
       :default-file="defaultFile"
       :disabled="isBusy"
       @edited="loadData()"
+      @system-default-presentation-not-set="loadData()"
     />
 
     <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">

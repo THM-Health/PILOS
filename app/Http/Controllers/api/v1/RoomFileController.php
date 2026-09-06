@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomErrorMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomFileIndexRequest;
 use App\Http\Requests\StoreRoomFileRequest;
@@ -152,6 +153,13 @@ class RoomFileController extends Controller
 
     public function updateSystemDefault(UpdateRoomSystemDefaultPresentation $request, Room $room)
     {
+        if (! app(BigBlueButtonSettings::class)->default_presentation) {
+            // No system default presentation is set, return error
+            return response()->json([
+                'message' => CustomErrorMessages::ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET->value,
+            ], 404);
+        }
+
         $room->use_system_default_presentation_in_meeting = $request->use_in_meeting;
 
         // Reset prefer system default as default if use in meeting is set to false
@@ -168,6 +176,13 @@ class RoomFileController extends Controller
 
     public function setPreferSystemDefault(Room $room)
     {
+        if (! app(BigBlueButtonSettings::class)->default_presentation) {
+            // No system default presentation is set, return error
+            return response()->json([
+                'message' => CustomErrorMessages::ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET->value,
+            ], 404);
+        }
+
         $room->prefer_system_default_presentation_as_default = true;
 
         // If use system default in meeting is false, set it to true, because a default file must be used in the next meeting
