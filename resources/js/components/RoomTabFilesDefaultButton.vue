@@ -1,17 +1,11 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.files.default')"
-    :aria-label="$t('rooms.files.default_aria', { filename: filename })"
-    :disabled="
-      disabled ||
-      isLoadingAction ||
-      (props.default && !props.preferSystemDefault)
-    "
+    v-tooltip="$t('rooms.files.set_default')"
+    :aria-label="$t('rooms.files.set_default_aria', { filename: filename })"
+    :disabled="disabled || isLoadingAction || isCurrentDefault"
     :loading="isLoadingAction"
-    :severity="
-      props.default && !props.preferSystemDefault ? 'warn' : 'secondary'
-    "
+    :severity="isCurrentDefault ? 'warn' : 'secondary'"
     data-test="room-files-default-button"
     @click="setDefault"
   >
@@ -28,7 +22,7 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="$t('rooms.files.default', { name: filename })"
+    :header="$t('rooms.files.set_default_dialog_title', { name: filename })"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -56,20 +50,20 @@
       </div>
     </template>
 
-    <div style="overflow-wrap: break-word">
+    <div style="overflow-wrap: break-word" class="mb-4">
       {{ $t("rooms.files.confirm_default", { filename: filename }) }}
     </div>
-    <div v-if="props.preferSystemDefault" style="overflow-wrap: break-word">
-      This will override the system default file preference for this room.
+    <div v-if="preferSystemDefault" style="overflow-wrap: break-word">
+      {{ $t("rooms.files.confirm_default_system_default") }}
     </div>
-    <div v-if="!props.useInMeeting" style="overflow-wrap: break-word">
-      This will cause the file to be available in the next meeting.
+    <div v-if="!useInMeeting" style="overflow-wrap: break-word">
+      {{ $t("rooms.files.confirm_default_use_in_meeting") }}
     </div>
   </Dialog>
 </template>
 <script setup>
 import { useApi } from "../composables/useApi.js";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { ROOM_FILE } from "../constants/modelNames.js";
@@ -165,4 +159,8 @@ function saveDefault() {
       isLoadingAction.value = false;
     });
 }
+
+const isCurrentDefault = computed(() => {
+  return props.default && !props.preferSystemDefault;
+});
 </script>

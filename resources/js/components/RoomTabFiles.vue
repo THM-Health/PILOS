@@ -232,7 +232,7 @@
                           systemDefault.prefer_as_default
                         "
                         severity="secondary"
-                        value="Default presentation fallback"
+                        :value="$t('rooms.files.default_fallback')"
                       >
                         <template #icon>
                           <CircleNumberIcon
@@ -271,8 +271,7 @@
                     <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-info" />
                       <p class="m-0 text-sm">
-                        Will be used as the default presentation if no
-                        system-wide presentation is available.
+                        {{ $t("rooms.files.default_fallback_description") }}
                       </p>
                     </div>
                   </div>
