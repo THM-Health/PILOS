@@ -1,6 +1,6 @@
 describe("Room Index", function () {
   beforeEach(function () {
-    cy.seed();
+    cy.task("seed");
   });
 
   it("visit with user that is not logged in", function () {
