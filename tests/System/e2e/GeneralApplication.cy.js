@@ -1,6 +1,6 @@
 describe("General", function () {
   beforeEach(function () {
-    cy.seed();
+    cy.task("seed");
   });
 
   it("all locales get rendered", function () {
