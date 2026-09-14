@@ -17,6 +17,16 @@ export default defineConfig({
     baseUrl: "http://localhost:9080",
     supportFile: "support/e2e.{js,jsx,ts,tsx}",
     specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
+
+    setupNodeEvents(on, config) {
+      on('task', {
+        seed() {
+          execFileSync('docker', ['compose', '-f', '../../compose.test.yml', 'exec', 'app', 'pilos-cli', 'demo:create', '--force', '--disable-bbb-session-check'], {
+            stdio: 'pipe',
+          })
+        },
+      })
+    },
   },
 
   expose: {
