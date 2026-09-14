@@ -267,6 +267,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -308,6 +309,7 @@ jobs:
           parallel: ${{ needs.generate-frontend-matrix.outputs.record }}
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
+          browser: chrome-for-testing
         env:
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -316,7 +318,6 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
@@ -339,6 +340,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -382,6 +384,7 @@ jobs:
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
           project: ./tests/Visual
+          browser: chrome-for-testing
         env:
           NODE_OPTIONS: "--experimental-require-module"
           HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
@@ -396,7 +399,6 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
   system-tests:
     name: System Tests
     runs-on: ubuntu-latest
@@ -410,6 +412,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -453,6 +456,7 @@ jobs:
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
           project: ./tests/System
+          browser: chrome-for-testing
         env:
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -461,7 +465,6 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()

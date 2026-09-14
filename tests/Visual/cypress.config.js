@@ -9,6 +9,8 @@ export default defineConfig({
   screenshotsFolder: "screenshots",
   videosFolder: "videos",
 
+  defaultBrowser: "chrome",
+
   allowCypressEnv: false,
 
   e2e: {
