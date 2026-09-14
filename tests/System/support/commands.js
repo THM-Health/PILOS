@@ -23,11 +23,12 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+import { execFileSync } from 'child_process'
 
 Cypress.Commands.add("seed", () => {
-  cy.exec(
-    "docker compose -f ../../compose.test.yml exec app pilos-cli demo:create --force --disable-bbb-session-check",
-  );
+  execFileSync('docker', ['compose', '-f', '../../compose.test.yml', 'exec', 'app', 'pilos-cli', 'demo:create', '--force', '--disable-bbb-session-check'], {
+            stdio: 'pipe',
+          })
 });
 
 Cypress.Commands.add("loginAs", (name) => {
