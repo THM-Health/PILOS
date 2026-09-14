@@ -65,7 +65,7 @@
     "mitt": "^3.0.1",
     "pinia": "^4.0.2",
     "primeicons": "^7.0.0",
-    "primelocale": "^2.4.0",
+    "primelocale": "^2.5.0",
     "primevue": "^4.5.5",
     "tailwindcss": "^4.1.14",
     "tailwindcss-primeui": "^0.6.1",
