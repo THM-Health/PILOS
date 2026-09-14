@@ -19,7 +19,7 @@ export default defineConfig({
     supportFile: "support/e2e.{js,jsx,ts,tsx}",
     specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
 
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on) {
       on("task", {
         seed() {
           execFileSync(
