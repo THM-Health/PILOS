@@ -16,20 +16,13 @@ export default defineConfig({
   allowCypressEnv: false,
 
   e2e: {
-    async setupNodeEvents(config) {
+    async setupNodeEvents(on, config) {
       const chromeForTesting = await findChromeForTesting();
 
       if (chromeForTesting.length > 0) {
         config.browsers = config.browsers.concat(chromeForTesting);
       }
 
-      return config;
-    },
-    baseUrl: "http://localhost:9080",
-    supportFile: "support/e2e.{js,jsx,ts,tsx}",
-    specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
-
-    setupNodeEvents(on) {
       on("task", {
         seed() {
           execFileSync(
@@ -53,7 +46,12 @@ export default defineConfig({
           return null;
         },
       });
+
+      return config;
     },
+    baseUrl: "http://localhost:9080",
+    supportFile: "support/e2e.{js,jsx,ts,tsx}",
+    specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
   },
 
   expose: {
