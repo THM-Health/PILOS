@@ -109,6 +109,7 @@ return [
         'fa' => 'Persian',
         'fr' => 'French',
     ],
+    'loading' => 'Loading',
     'model' => [
         'meeting' => 'Meeting',
         'recording' => 'Recording',
