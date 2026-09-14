@@ -4,7 +4,7 @@ import {
   selectTiptapContent,
 } from "../support/utils/tiptapHelper.js";
 
-describe.skip("Rooms view description", function () {
+describe("Rooms view description", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();

@@ -2,7 +2,7 @@ import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js
 import { parseFormData } from "../support/utils/formData.js";
 import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
 
-describe.skip("Admin settings with edit permission", function () {
+describe("Admin settings with edit permission", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminSettingsRequest();

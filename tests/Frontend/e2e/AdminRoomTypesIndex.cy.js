@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Admin room types index", function () {
+describe("Admin room types index", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminRoomTypesIndexRequests();

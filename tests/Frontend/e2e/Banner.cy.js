@@ -1,4 +1,4 @@
-describe.skip("Banner", function () {
+describe("Banner", function () {
   beforeEach(function () {
     cy.init();
   });

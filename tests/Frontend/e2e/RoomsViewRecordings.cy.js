@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Rooms view recordings", function () {
+describe("Rooms view recordings", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
@@ -581,7 +581,7 @@ describe.skip("Rooms view recordings", function () {
       .and("include.text", "rooms.recordings.retention_period.unlimited");
   });
 
-  it.only("load recordings with personalized link errors", function () {
+  it("load recordings with personalized link errors", function () {
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
       room.data.username = "Max Doe";

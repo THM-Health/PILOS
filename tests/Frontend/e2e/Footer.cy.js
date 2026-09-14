@@ -1,4 +1,4 @@
-describe.skip("Footer", function () {
+describe("Footer", function () {
   beforeEach(function () {
     cy.init();
   });

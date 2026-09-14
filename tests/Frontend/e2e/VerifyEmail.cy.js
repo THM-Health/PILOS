@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Verify email", function () {
+describe("Verify email", function () {
   beforeEach(function () {
     cy.init();
 

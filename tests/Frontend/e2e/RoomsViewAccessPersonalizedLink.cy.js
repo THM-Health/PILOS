@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Rooms View access personalized link", function () {
+describe("Rooms View access personalized link", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();

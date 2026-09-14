@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe.skip("Admin settings general", function () {
+describe("Admin settings general", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminSettingsRequest();
