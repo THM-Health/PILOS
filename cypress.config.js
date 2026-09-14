@@ -10,6 +10,8 @@ export default defineConfig({
   screenshotsFolder: "tests/Frontend/screenshots",
   videosFolder: "tests/Frontend/videos",
 
+  defaultBrowser: "chrome",
+
   allowCypressEnv: false,
 
   expose: {
@@ -23,7 +25,7 @@ export default defineConfig({
       // include any other plugin code...
 
       on("before:browser:launch", (browser, launchOptions) => {
-        if (browser.family === "chromium" && browser.name !== "electron") {
+        if (browser.family === "chromium") {
           launchOptions.preferences.default.intl = {
             acceptLanguages: "en",
             accept_languages: "en",
