@@ -622,6 +622,8 @@ Cypress._.times(30, () => {
 
       cy.reload();
 
+      cy.wait("@checkParticipantNameRequest");
+
       // Check that room Header is shown correctly
       cy.contains("Meeting One").should("be.visible");
       cy.contains("John Doe").should("be.visible");
