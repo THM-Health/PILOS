@@ -1,4 +1,5 @@
 import { defineConfig } from "cypress";
+import { execFileSync } from 'child_process';
 import dotenv from "dotenv";
 
 dotenv.config({ path: "../../.env" });
