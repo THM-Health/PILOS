@@ -39,6 +39,8 @@ export default defineConfig({
               stdio: "pipe",
             },
           );
+
+          return null;
         },
       });
     },
