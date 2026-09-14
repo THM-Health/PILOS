@@ -24,12 +24,6 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("seed", () => {
-  cy.exec(
-    "docker compose -f ../../compose.test.yml exec app pilos-cli demo:create --force --disable-bbb-session-check",
-  );
-});
-
 Cypress.Commands.add("loginAs", (name) => {
   const validCredentials = [
     { name: "john", email: "john.doe@example.org", password: "johndoe" },

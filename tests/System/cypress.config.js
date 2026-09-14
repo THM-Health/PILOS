@@ -1,4 +1,5 @@
 import { defineConfig } from "cypress";
+import { execFileSync } from "child_process";
 import dotenv from "dotenv";
 
 dotenv.config({ path: "../../.env" });
@@ -17,6 +18,32 @@ export default defineConfig({
     baseUrl: "http://localhost:9080",
     supportFile: "support/e2e.{js,jsx,ts,tsx}",
     specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
+
+    setupNodeEvents(on) {
+      on("task", {
+        seed() {
+          execFileSync(
+            "docker",
+            [
+              "compose",
+              "-f",
+              "../../compose.test.yml",
+              "exec",
+              "app",
+              "pilos-cli",
+              "demo:create",
+              "--force",
+              "--disable-bbb-session-check",
+            ],
+            {
+              stdio: "pipe",
+            },
+          );
+
+          return null;
+        },
+      });
+    },
   },
 
   expose: {
