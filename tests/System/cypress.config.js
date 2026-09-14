@@ -1,5 +1,6 @@
 import { defineConfig } from "cypress";
 import dotenv from "dotenv";
+import { findChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
 
 dotenv.config({ path: "../../.env" });
 
@@ -11,11 +12,18 @@ export default defineConfig({
   screenshotsFolder: "screenshots",
   videosFolder: "videos",
 
-  defaultBrowser: "chrome",
-
   allowCypressEnv: false,
 
   e2e: {
+    async setupNodeEvents(on, config) {
+      const chromeForTesting = await findChromeForTesting();
+
+      if (chromeForTesting.length > 0) {
+        config.browsers = config.browsers.concat(chromeForTesting);
+      }
+
+      return config;
+    },
     baseUrl: "http://localhost:9080",
     supportFile: "support/e2e.{js,jsx,ts,tsx}",
     specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",

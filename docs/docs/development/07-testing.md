@@ -73,6 +73,16 @@ If the system requirements are met, you can install Cypress on your local machin
 npx cypress install
 ```
 
+### Installing Chrome for Testing
+
+Cypress tests run using [Chrome for Testing](https://developer.chrome.com/docs/automation-and-testing/chrome-for-testing/) to ensure a reproducible and reliable test environment.
+
+Install Chrome for Testing locally with:
+
+```bash
+npx @puppeteer/browsers install chrome@stable
+```
+
 ### Running Cypress Tests
 
 First you need to have the frontend either running compiled (`./sail npm run build`) or in development mode (`./sail npm run dev`).
