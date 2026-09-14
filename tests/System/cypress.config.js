@@ -15,7 +15,7 @@ export default defineConfig({
   allowCypressEnv: false,
 
   e2e: {
-    async setupNodeEvents(on, config) {
+    async setupNodeEvents(config) {
       const chromeForTesting = await findChromeForTesting();
 
       if (chromeForTesting.length > 0) {
