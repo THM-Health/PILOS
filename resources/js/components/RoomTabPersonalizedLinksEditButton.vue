@@ -7,8 +7,7 @@
     icon="fa-solid fa-edit"
     :aria-label="
       $t('rooms.personalized_links.edit_aria', {
-        firstname: props.firstname,
-        lastname: props.lastname,
+        description: props.description,
       })
     "
     data-test="room-personalized-links-edit-button"
@@ -52,29 +51,38 @@
       :disabled="isLoadingAction"
       @submit="save"
     >
-      <!-- first name -->
-      <div class="field mt-6 flex flex-col gap-2" data-test="firstname-field">
-        <label for="firstname">{{ $t("app.firstname") }}</label>
+      <!-- description -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="description-field">
+        <label for="description">{{ $t("app.description") }}</label>
         <InputText
-          id="firstname"
-          v-model.trim="newFirstname"
+          id="description"
+          v-model.trim="newDescription"
           autofocus
           :disabled="isLoadingAction"
-          :invalid="formErrors.fieldInvalid('firstname')"
+          :invalid="formErrors.fieldInvalid('description')"
         />
-        <FormError :errors="formErrors.fieldError('firstname')" />
+        <FormError :errors="formErrors.fieldError('description')" />
       </div>
 
-      <!-- last name -->
-      <div class="field mt-6 flex flex-col gap-2" data-test="lastname-field">
-        <label for="lastname">{{ $t("app.lastname") }}</label>
+      <!-- enforced name -->
+      <div
+        class="field mt-6 flex flex-col gap-2"
+        data-test="enforced-name-field"
+      >
+        <label for="enforced-name">{{
+          $t("rooms.personalized_links.enforced_name")
+        }}</label>
         <InputText
-          id="lastname"
-          v-model.trim="newLastname"
+          id="enforced-name"
+          v-model.trim="newEnforcedName"
+          aria-describedby="enforced-name-hint"
           :disabled="isLoadingAction"
-          :invalid="formErrors.fieldInvalid('lastname')"
+          :invalid="formErrors.fieldInvalid('enforced_name')"
         />
-        <FormError :errors="formErrors.fieldError('lastname')" />
+        <small id="enforced-name-hint">{{
+          $t("rooms.personalized_links.enforced_name_hint")
+        }}</small>
+        <FormError :errors="formErrors.fieldError('enforced_name')" />
       </div>
 
       <!-- select role -->
@@ -140,12 +148,12 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  firstname: {
+  description: {
     type: String,
     required: true,
   },
-  lastname: {
-    type: String,
+  enforcedName: {
+    type: [String, null],
     required: true,
   },
   role: {
@@ -166,8 +174,8 @@ const toast = useToast();
 const { t } = useI18n();
 
 const modalVisible = ref(false);
-const newFirstname = ref(null);
-const newLastname = ref(null);
+const newDescription = ref(null);
+const newEnforcedName = ref(null);
 const newRole = ref(null);
 const isLoadingAction = ref(false);
 
@@ -175,8 +183,8 @@ const isLoadingAction = ref(false);
  * show modal
  */
 function showModal() {
-  newFirstname.value = props.firstname;
-  newLastname.value = props.lastname;
+  newDescription.value = props.description;
+  newEnforcedName.value = props.enforcedName;
   newRole.value = props.role;
   formErrors.clear();
   modalVisible.value = true;
@@ -192,8 +200,8 @@ function save() {
   const config = {
     method: "put",
     data: {
-      firstname: newFirstname.value,
-      lastname: newLastname.value,
+      description: newDescription.value,
+      enforced_name: newEnforcedName.value,
       role: newRole.value,
     },
   };

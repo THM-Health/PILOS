@@ -28,11 +28,10 @@ class RoomPersonalizedLinkController extends Controller
     {
         $additional = [];
 
-        // Sort by column, fallback/default is firstname
+        // Sort by column, fallback/default is description
         $sortBy = match ($request->query('sort_by')) {
-            'lastname' => 'LOWER(lastname)',
             'last_usage' => 'last_usage',
-            default => 'LOWER(firstname)',
+            default => 'LOWER(description)',
         };
 
         // Sort direction, fallback/default is asc
@@ -62,13 +61,10 @@ class RoomPersonalizedLinkController extends Controller
 
         // Apply search query if set
         if ($request->filled('query')) {
-            // Split search query into single words and search for them in firstname and lastname
+            // Split search query into single words and search for them in description
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->query('query')));
             foreach ($searchQueries as $searchQuery) {
-                $resource = $resource->where(function ($query) use ($searchQuery) {
-                    $query->whereLike('firstname', '%'.$searchQuery.'%')
-                        ->orWhereLike('lastname', '%'.$searchQuery.'%');
-                });
+                $resource = $resource->whereLike('description', '%'.$searchQuery.'%');
             }
         }
 
@@ -87,15 +83,15 @@ class RoomPersonalizedLinkController extends Controller
      */
     public function store(Room $room, RoomPersonalizedLinkRequest $request)
     {
-        $link = new RoomPersonalizedLink;
-        $link->firstname = $request->firstname;
-        $link->lastname = $request->lastname;
-        $link->role = $request->role;
-        $room->personalizedLinks()->save($link);
+        $personalizedLink = new RoomPersonalizedLink;
+        $personalizedLink->description = $request->description;
+        $personalizedLink->enforced_name = $request->enforced_name;
+        $personalizedLink->role = $request->role;
+        $room->personalizedLinks()->save($personalizedLink);
 
-        Log::info('Created new personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $link->role->label(), 'name' => $link->fullname]);
+        Log::info('Created new personalized room link for {description} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'description' => $personalizedLink->description]);
 
-        return new RoomPersonalizedLinkResource($link);
+        return new RoomPersonalizedLinkResource($personalizedLink);
     }
 
     /**
@@ -105,12 +101,12 @@ class RoomPersonalizedLinkController extends Controller
      */
     public function update(Room $room, RoomPersonalizedLink $personalizedLink, RoomPersonalizedLinkRequest $request)
     {
-        $personalizedLink->firstname = $request->firstname;
-        $personalizedLink->lastname = $request->lastname;
+        $personalizedLink->description = $request->description;
+        $personalizedLink->enforced_name = $request->enforced_name;
         $personalizedLink->role = $request->role;
         $personalizedLink->save();
 
-        Log::info('Updated personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'name' => $personalizedLink->fullname]);
+        Log::info('Updated personalized room link for {description} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'description' => $personalizedLink->description]);
 
         return new RoomPersonalizedLinkResource($personalizedLink);
     }
@@ -126,7 +122,7 @@ class RoomPersonalizedLinkController extends Controller
     {
         $personalizedLink->delete();
 
-        Log::info('Removed personalized room link for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'name' => $personalizedLink->fullname]);
+        Log::info('Removed personalized room link for {description} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $personalizedLink->role->label(), 'description' => $personalizedLink->description]);
 
         return response()->noContent();
     }

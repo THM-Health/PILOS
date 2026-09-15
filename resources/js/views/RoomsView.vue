@@ -857,15 +857,18 @@ const hasValidGuestName = computed(() => {
   return guestName.value !== "" && !rememberedGuestNameInvalid.value;
 });
 
-const hasPersonalizedLinkAuthToken = computed(() => {
-  return roomAuthToken.value?.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK;
+const hasEnforcedName = computed(() => {
+  return (
+    roomAuthToken.value?.type === ROOM_AUTH_TOKEN_TYPE_PERSONALIZED_LINK &&
+    room.value.username !== undefined
+  );
 });
 
 const showAccessCodeOverlay = computed(() => {
   return (
     !room.value.authenticated ||
     (!authStore.isAuthenticated &&
-      !hasPersonalizedLinkAuthToken.value &&
+      !hasEnforcedName.value &&
       !hasValidGuestName.value)
   );
 });

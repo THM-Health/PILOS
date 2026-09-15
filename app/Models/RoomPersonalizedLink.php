@@ -34,16 +34,6 @@ class RoomPersonalizedLink extends Model
     }
 
     /**
-     * Full name of the links owner.
-     *
-     * @return string
-     */
-    public function getFullnameAttribute()
-    {
-        return $this->firstname.' '.$this->lastname;
-    }
-
-    /**
      * Expire datetime of the link
      *
      * @return null
