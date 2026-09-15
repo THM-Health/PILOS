@@ -28,7 +28,7 @@
     "eslint-plugin-cypress": "^7.0.1",
     "eslint-plugin-jsonc": "^3.4.2",
     "eslint-plugin-mocha": "^12.0.2",
-    "eslint-plugin-vue": "^10.10.0",
+    "eslint-plugin-vue": "^10.11.0",
     "globals": "^17.12.0",
     "happo": "^6.14.0",
     "nyc": "^18.0.0",
