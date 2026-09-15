@@ -9,3 +9,4 @@ package-lock.json
 .github/skills
 .vscode/mcp.json
 AGENTS.md
+chrome/

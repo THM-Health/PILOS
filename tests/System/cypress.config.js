@@ -1,6 +1,7 @@
 import { defineConfig } from "cypress";
 import { execFileSync } from "child_process";
 import dotenv from "dotenv";
+import { findChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
 
 dotenv.config({ path: "../../.env" });
 
@@ -15,11 +16,13 @@ export default defineConfig({
   allowCypressEnv: false,
 
   e2e: {
-    baseUrl: "http://localhost:9080",
-    supportFile: "support/e2e.{js,jsx,ts,tsx}",
-    specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
+    async setupNodeEvents(on, config) {
+      const chromeForTesting = await findChromeForTesting();
 
-    setupNodeEvents(on) {
+      if (chromeForTesting.length > 0) {
+        config.browsers = config.browsers.concat(chromeForTesting);
+      }
+
       on("task", {
         seed() {
           execFileSync(
@@ -43,7 +46,12 @@ export default defineConfig({
           return null;
         },
       });
+
+      return config;
     },
+    baseUrl: "http://localhost:9080",
+    supportFile: "support/e2e.{js,jsx,ts,tsx}",
+    specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
   },
 
   expose: {
