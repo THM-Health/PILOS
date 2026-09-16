@@ -309,7 +309,6 @@ jobs:
           parallel: ${{ needs.generate-frontend-matrix.outputs.record }}
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
-          browser: chrome-for-testing
         env:
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -384,7 +383,6 @@ jobs:
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
           project: ./tests/Visual
-          browser: chrome-for-testing
         env:
           NODE_OPTIONS: "--experimental-require-module"
           HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
@@ -456,7 +454,6 @@ jobs:
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
           project: ./tests/System
-          browser: chrome-for-testing
         env:
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

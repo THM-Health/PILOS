@@ -1,7 +1,7 @@
 import { defineConfig } from "cypress";
 import configCodeCoverage from "@cypress/code-coverage/task";
 import "dotenv/config";
-import { findChromeForTesting } from "./tests/Utils/cypress/chrome-for-testing.js";
+import { setupChromeForTesting } from "./tests/Utils/cypress/chrome-for-testing.js";
 
 const baseUrl = process.env.APP_URL || "http://localhost";
 
@@ -19,11 +19,7 @@ export default defineConfig({
 
   e2e: {
     async setupNodeEvents(on, config) {
-      const chromeForTesting = await findChromeForTesting();
-
-      if (chromeForTesting.length > 0) {
-        config.browsers = config.browsers.concat(chromeForTesting);
-      }
+      await setupChromeForTesting(config);
 
       configCodeCoverage(on, config);
 
