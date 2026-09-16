@@ -69,6 +69,12 @@ return [
         'streaming_meeting_not_running' => 'The meeting is not running.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming is not enabled for the current meeting.',
     ],
+    'file' => [
+        'allowed_formats' => 'Allowed file formats: :formats',
+        'invalid_type' => 'The file type is not allowed.',
+        'max_size' => 'Max. file size: :size',
+        'too_large' => 'The selected file is too large.',
+    ],
     'filter' => 'Filter',
     'filter_no_results' => 'No results found',
     'firstname' => 'Firstname',
@@ -165,12 +171,6 @@ return [
     'user' => 'User',
     'user_name' => 'Name',
     'users' => 'Users',
-    'file' => [
-        'allowed_formats' => 'Allowed file formats: :formats',
-        'max_size' => 'Max. file size: :size',
-        'invalid_type' => 'The file type is not allowed.',
-        'too_large' => 'The selected file is too large.',
-    ],
     'verify_email' => [
         'fail' => 'Your email address could not be verified!',
         'invalid' => 'The verification link is invalid or has expired!',

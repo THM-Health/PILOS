@@ -252,7 +252,6 @@ return [
         'strength_description' => 'Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten',
         'test_connection' => 'Verbindung testen',
         'tile_description' => 'Die Server stellen die BBB Infrastruktur für die Meetings bereit.',
-        'unhealthy' => 'Fehlerhaft',
         'unknown' => 'Unbekannt',
         'usage_info' => 'Die Auslastung (Meetings, Teilnehmer, Videos) beinhalten auch Meetings die von anderen Systemen verwaltet werden.',
         'version' => 'Version',
