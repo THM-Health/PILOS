@@ -75,13 +75,11 @@ npx cypress install
 
 ### Installing Chrome for Testing
 
-Cypress tests run using [Chrome for Testing](https://developer.chrome.com/docs/automation-and-testing/chrome-for-testing/) to ensure a reproducible and reliable test environment.
+Cypress tests run using [Chrome for Testing](https://developer.chrome.com/docs/automation-and-testing/chrome-for-testing/) to provide a reproducible and reliable test environment.
 
-Install Chrome for Testing locally with:
+By default, our Cypress setup automatically downloads the latest stable version of Chrome for Testing.
 
-```bash
-npx @puppeteer/browsers install chrome@stable
-```
+To use a specific version, you can install it with [Puppeteer’s CLI](https://pptr.dev/browsers-api#cli) and select that version in the Cypress UI.
 
 ### Running Cypress Tests
 

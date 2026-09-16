@@ -1,7 +1,7 @@
 import { defineConfig } from "cypress";
 import "dotenv/config";
 import happoTask from "happo/cypress/task";
-import { findChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
+import { setupChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
 
 const baseUrl = process.env.APP_URL || "http://localhost";
 export default defineConfig({
@@ -16,11 +16,7 @@ export default defineConfig({
     async setupNodeEvents(on, config) {
       happoTask.register(on);
 
-      const chromeForTesting = await findChromeForTesting();
-
-      if (chromeForTesting.length > 0) {
-        config.browsers = config.browsers.concat(chromeForTesting);
-      }
+      await setupChromeForTesting(config);
 
       // It's IMPORTANT to return the config object
       // with any changed environment variables
