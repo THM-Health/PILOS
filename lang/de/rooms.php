@@ -11,6 +11,7 @@ return [
         'meetingForciblyEnded' => 'Teilnahme an Meeting fehlgeschlagen: Das Meeting läuft nicht mehr.',
     ],
     'become_member' => 'Mitglied werden',
+    'change_participant_name' => 'Namen ändern',
     'change_type' => [
         'changing_settings' => 'Es kommt zur folgenden Veränderung der Raumeinstellungen',
         'current_setting' => 'Aktuelle Einstellung',
@@ -24,6 +25,7 @@ return [
         'detached' => 'Verbindung zu laufender Videokonferenz verloren, Wiederherstellung fehlgeschlagen.',
         'reconnecting' => 'Verbindung zu laufender Videokonferenz unterbrochen, versuche die Verbindung wiederherzustellen.',
     ],
+    'continue_as_guest' => 'Als Gast fortfahren',
     'create' => [
         'ok' => 'Erstellen',
         'title' => 'Raum erstellen',
@@ -302,6 +304,7 @@ return [
         ],
     ],
     'name' => 'Raumname',
+    'name_in_video_conference' => 'Name in der Videokonferenz: ',
     'no_rooms_available' => 'Keine Räume vorhanden',
     'no_rooms_found' => 'Keine Räume gefunden',
     'not_running' => 'Der Raum ist noch nicht gestartet.',
@@ -416,6 +419,8 @@ return [
         'view_recording_aria' => 'Aufzeichnung ansehen: :description',
     ],
     'reload_aria' => 'Raum neu laden',
+    'remember_participant_name' => 'Namen für das nächste Mal merken',
+    'request_participant_name_change' => 'Bitte ändere den Namen, um dem Raum beizutreten.',
     'require_access_code' => 'Für diesen Raum ist ein Zugangscode erforderlich',
     'role' => 'Rolle',
     'roles' => [
