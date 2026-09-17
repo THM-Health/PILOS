@@ -133,6 +133,7 @@ return [
     'next_page' => 'Nächste Seite',
     'no' => 'Nein',
     'not_found' => '404 | Die aufgerufene Adresse wurde nicht gefunden',
+    'or' => 'oder',
     'overwrite' => 'Überschreiben',
     'previous_page' => 'Vorherige Seite',
     'profile' => 'Profil',
