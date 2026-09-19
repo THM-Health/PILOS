@@ -1,6 +1,7 @@
 import { defineConfig } from "cypress";
 import configCodeCoverage from "@cypress/code-coverage/task";
 import "dotenv/config";
+import { setupChromeForTesting } from "./tests/Utils/cypress/chrome-for-testing.js";
 
 const baseUrl = process.env.APP_URL || "http://localhost";
 
@@ -17,13 +18,15 @@ export default defineConfig({
   },
 
   e2e: {
-    setupNodeEvents(on, config) {
+    async setupNodeEvents(on, config) {
+      await setupChromeForTesting(config);
+
       configCodeCoverage(on, config);
 
       // include any other plugin code...
 
       on("before:browser:launch", (browser, launchOptions) => {
-        if (browser.family === "chromium" && browser.name !== "electron") {
+        if (browser.family === "chromium") {
           launchOptions.preferences.default.intl = {
             acceptLanguages: "en",
             accept_languages: "en",
