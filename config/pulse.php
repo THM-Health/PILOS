@@ -121,6 +121,7 @@ return [
     'middleware' => [
         'web',
         Authorize::class,
+        'enable_if_config:pulse.enabled',
     ],
 
     /*

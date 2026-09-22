@@ -79,7 +79,7 @@ class ConfigResource extends JsonResource
             ],
             'monitor' => [
                 'horizon' => true,
-                'pulse' => true,
+                'pulse' => config('pulse.enabled'),
                 'telescope' => config('telescope.enabled'),
             ],
             'banner' => [
