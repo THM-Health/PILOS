@@ -43,7 +43,6 @@ It helps with debugging by showing details for each request, job, outgoing reque
 :::info
 
 Telescope is disabled by default. It is strongly recommended not to enable it in production environments.
-As an extra precaution, PILOS limits the data Telescope records outside of local development to reportable exceptions, failed requests, failed jobs and scheduled tasks.
 :::
 
 To enable Telescope set the following in your `.env` file:
