@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-/**
- * Custom status response codes of the api
- */
-enum ServerHealth: int
+enum ServerConnectionStatus: int
 {
     case ONLINE = 1;
-    case UNHEALTHY = 0;
+    case FAULTY = 0;
     case OFFLINE = -1;
 }

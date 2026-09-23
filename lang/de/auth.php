@@ -42,6 +42,7 @@ return [
     'logout_success' => 'Erfolgreich abgemeldet',
     'new_password' => 'Neues Passwort',
     'new_password_confirmation' => 'Neues Passwort bestätigen',
+    'offer_login' => 'Mit dem Benutzerkonto anmelden',
     'oidc' => [
         'logout_incomplete' => 'Sie sind weiterhin beim OpenID Connect Anbieter angemeldet.',
         'redirect' => 'Anmelden',
@@ -68,6 +69,6 @@ return [
         'tab_title' => 'Shibboleth',
         'title' => 'Mit Shibboleth anmelden',
     ],
-    'throttle' => 'Zu viele Loginversuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.',
+    'throttle' => '[0,1] Zu viele Loginversuche. Bitte versuchen Sie es in 1 Sekunde erneut. |[2,*] Zu viele Loginversuche. Bitte versuchen Sie es in :count Sekunden erneut.',
     'throttle_email' => 'Sie haben bereits vor kurzem eine Anfrage zur Änderung der E-Mail-Adresse gestellt. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.',
 ];

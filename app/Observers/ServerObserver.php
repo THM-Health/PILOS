@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Enums\ServerStatus;
 use App\Models\Server;
 use Illuminate\Support\Facades\Log;
@@ -54,28 +54,28 @@ class ServerObserver
             ]);
         }
 
-        // Check if server health changed
-        $newHealth = Server::calcHealth($server->recover_count, $server->error_count);
-        $previousHealth = Server::calcHealth($server->getOriginal('recover_count'), $server->getOriginal('error_count'));
-        if ($newHealth != $previousHealth) {
-            if ($newHealth == ServerHealth::OFFLINE) {
-                Log::error('Server {server} health changed to offline', [
+        // Check if server connection status changed
+        $newConnectionStatus = Server::calculateConnectionStatus($server->recover_count, $server->error_count);
+        $previousConnectionStatus = Server::calculateConnectionStatus($server->getOriginal('recover_count'), $server->getOriginal('error_count'));
+        if ($newConnectionStatus != $previousConnectionStatus) {
+            if ($newConnectionStatus == ServerConnectionStatus::OFFLINE) {
+                Log::error('Server {server} changed to offline', [
                     'server' => $server->getLogLabel(),
-                    'old_health' => $previousHealth->name,
+                    'old_connection_status' => $previousConnectionStatus->name,
                 ]);
             }
 
-            if ($newHealth == ServerHealth::UNHEALTHY) {
-                Log::warning('Server {server} health changed to unhealthy', [
+            if ($newConnectionStatus == ServerConnectionStatus::FAULTY) {
+                Log::warning('Server {server} changed to faulty', [
                     'server' => $server->getLogLabel(),
-                    'old_health' => $previousHealth->name,
+                    'old_connection_status' => $previousConnectionStatus->name,
                 ]);
             }
 
-            if ($newHealth == ServerHealth::ONLINE) {
-                Log::notice('Server {server} health changed to healthy', [
+            if ($newConnectionStatus == ServerConnectionStatus::ONLINE) {
+                Log::notice('Server {server} changed to online', [
                     'server' => $server->getLogLabel(),
-                    'old_health' => $previousHealth->name,
+                    'old_connection_status' => $previousConnectionStatus->name,
                 ]);
             }
         }

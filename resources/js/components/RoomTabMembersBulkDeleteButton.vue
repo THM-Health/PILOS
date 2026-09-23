@@ -1,16 +1,8 @@
 <template>
   <Button
-    v-tooltip="
-      $t('rooms.members.bulk_remove_user', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    v-tooltip="$t('rooms.members.bulk_remove_user', props.userIds.length)"
     data-test="room-members-bulk-delete-button"
-    :aria-label="
-      $t('rooms.members.bulk_remove_user', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    :aria-label="$t('rooms.members.bulk_remove_user', props.userIds.length)"
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-users-slash"
@@ -22,11 +14,7 @@
     v-model:visible="modalVisible"
     data-test="room-members-bulk-delete-dialog"
     modal
-    :header="
-      $t('rooms.members.modals.remove.title_bulk', {
-        numberOfSelectedUsers: props.userIds.length,
-      })
-    "
+    :header="$t('rooms.members.modals.remove.title_bulk', props.userIds.length)"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -56,9 +44,7 @@
     <div class="field flex flex-col gap-2">
       <span>
         {{
-          $t("rooms.members.modals.remove.confirm_bulk", {
-            numberOfSelectedUsers: props.userIds.length,
-          })
+          $t("rooms.members.modals.remove.confirm_bulk", props.userIds.length)
         }}
       </span>
       <FormError :errors="formErrors.fieldError('users', true)" />

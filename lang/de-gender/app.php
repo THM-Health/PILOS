@@ -159,10 +159,6 @@ return [
     'user' => 'Benutzer',
     'user_name' => 'Name',
     'users' => 'Benutzer',
-    'validation' => [
-        'invalid_type' => 'Der Dateityp ist nicht erlaubt.',
-        'too_large' => 'Die ausgewählte Datei ist zu groß.',
-    ],
     'verify_email' => [
         'fail' => 'Ihre E-Mail konnte nicht verifiziert werden!',
         'invalid' => 'Der Verifizierungslink ist ungültig oder abgelaufen!',

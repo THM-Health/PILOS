@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Backend\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Enums\ServerStatus;
 use App\Models\Meeting;
 use App\Models\Permission;
@@ -55,7 +55,7 @@ class ServerTest extends TestCase
         $servers = Server::factory()->count(6)->create(['description' => 'test', 'version' => '2.4.5']);
         $serverOnline = Server::factory()->create(['name' => 'serverOnline', 'version' => '2.4.5']);
         $serverOffline = Server::factory()->create(['name' => 'serverOffline', 'version' => '2.4.5', 'error_count' => config('bigbluebutton.server_offline_threshold'), 'recover_count' => 0]);
-        $serverUnhealthy = Server::factory()->create(['name' => 'serverUnhealthy', 'version' => '2.4.5', 'error_count' => 1, 'recover_count' => 0]);
+        $serverFaulty = Server::factory()->create(['name' => 'serverFaulty', 'version' => '2.4.5', 'error_count' => 1, 'recover_count' => 0]);
         $serverDisabled = Server::factory()->create(['name' => 'serverDisabled', 'status' => ServerStatus::DISABLED, 'version' => null]);
         $serverDraining = Server::factory()->create(['name' => 'serverDraining', 'status' => ServerStatus::DRAINING, 'version' => null]);
 
@@ -94,7 +94,8 @@ class ServerTest extends TestCase
                         'name',
                         'description',
                         'strength',
-                        'health',
+                        'connection_status_always_online',
+                        'connection_status',
                         'status',
                         'participant_count',
                         'listener_count',
@@ -133,7 +134,7 @@ class ServerTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(5, 'data')
             ->assertJsonFragment(['id' => $serverOnline->id])
-            ->assertJsonFragment(['id' => $serverUnhealthy->id])
+            ->assertJsonFragment(['id' => $serverFaulty->id])
             ->assertJsonFragment(['id' => $serverOffline->id])
             ->assertJsonFragment(['id' => $serverDisabled->id])
             ->assertJsonFragment(['id' => $serverDraining->id]);
@@ -166,37 +167,38 @@ class ServerTest extends TestCase
             ->assertJsonFragment(['id' => Server::orderByDesc('name')->first()->id])
             ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
 
-        // Check server health
+        // Check server connection status
         $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server')
             ->assertSuccessful()
             ->assertJsonCount(5, 'data');
 
         // Disabled server
-        $this->assertNull($response->json('data.0.health'));
+        $this->assertNull($response->json('data.0.connection_status'));
         // Draining server
-        $this->assertEquals(ServerHealth::ONLINE->value, $response->json('data.1.health'));
+        $this->assertEquals(ServerConnectionStatus::ONLINE->value, $response->json('data.1.connection_status'));
+        // Faulty server
+        $this->assertEquals(ServerConnectionStatus::FAULTY->value, $response->json('data.2.connection_status'));
         // Offline server
-        $this->assertEquals(ServerHealth::OFFLINE->value, $response->json('data.2.health'));
+        $this->assertEquals(ServerConnectionStatus::OFFLINE->value, $response->json('data.3.connection_status'));
         // Online server
-        $this->assertEquals(ServerHealth::ONLINE->value, $response->json('data.3.health'));
-        // Unhealthy server
-        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.4.health'));
+        $this->assertEquals(ServerConnectionStatus::ONLINE->value, $response->json('data.4.connection_status'));
 
-        // Request with forced usage update, should see that the online servers are now unhealthy (because it's fake data)
+        // Request with forced usage update, should see that the online servers are now faulty (because it's fake data)
         $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&query=server&update_usage=1')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
 
         // Disabled server
-        $this->assertNull($response->json('data.0.health'));
+        $this->assertNull($response->json('data.0.connection_status'));
         // Draining server
-        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.1.health'));
+        $this->assertEquals(ServerConnectionStatus::FAULTY->value, $response->json('data.1.connection_status'));
+        // Faulty server
+        $this->assertEquals(ServerConnectionStatus::FAULTY->value, $response->json('data.2.connection_status'));
         // Offline server
-        $this->assertEquals(ServerHealth::OFFLINE->value, $response->json('data.2.health'));
+        $this->assertEquals(ServerConnectionStatus::OFFLINE->value, $response->json('data.3.connection_status'));
         // Online server
-        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.3.health'));
-        // Unhealthy server
-        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.4.health'));
+        $this->assertEquals(ServerConnectionStatus::FAULTY->value, $response->json('data.4.connection_status'));
+
     }
 
     /**
@@ -232,8 +234,9 @@ class ServerTest extends TestCase
                 'base_url' => $server->base_url,
                 'secret' => $server->secret,
                 'strength' => $server->strength,
+                'connection_status_always_online' => $server->connection_status_always_online,
                 'status' => $server->status,
-                'health' => $server->health->value,
+                'connection_status' => $server->connection_status->value,
                 'participant_count' => $server->participant_count,
                 'listener_count' => $server->listener_count,
                 'voice_participant_count' => $server->voice_participant_count,
@@ -271,6 +274,7 @@ class ServerTest extends TestCase
             'secret' => $server->secret,
             'strength' => 5,
             'status' => ServerStatus::ENABLED->value,
+            'connection_status_always_online' => false,
         ];
 
         // Test guests
@@ -291,7 +295,7 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url' => $server->base_url, 'description' => $server->description, 'secret' => $server->secret, 'strength' => 5, 'status' => ServerStatus::ENABLED->value, 'health' => ServerHealth::UNHEALTHY]
+                ['base_url' => $server->base_url, 'description' => $server->description, 'secret' => $server->secret, 'strength' => 5, 'status' => ServerStatus::ENABLED->value, 'connection_status' => ServerConnectionStatus::FAULTY]
             );
 
         // Test with some existing base url
@@ -315,8 +319,9 @@ class ServerTest extends TestCase
         $data['secret'] = '';
         $data['strength'] = 1000;
         $data['status'] = 10;
+        $data['connection_status_always_online'] = 'invalid';
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status', 'connection_status_always_online']);
     }
 
     /**
@@ -334,6 +339,7 @@ class ServerTest extends TestCase
             'secret' => $server->secret,
             'strength' => $server->strength,
             'status' => ServerStatus::DISABLED->value,
+            'connection_status_always_online' => false,
         ];
 
         // Test guests
@@ -363,7 +369,7 @@ class ServerTest extends TestCase
                 ['base_url' => $server->base_url, 'secret' => $server->secret, 'status' => $server->status->value]
             );
 
-        // Change health to offline if server is not reachable
+        // Change connection status to offline if server is not reachable
         $server->refresh();
         $data['status'] = ServerStatus::ENABLED->value;
         $data['updated_at'] = $server->updated_at;
@@ -371,8 +377,17 @@ class ServerTest extends TestCase
             ->assertSuccessful()
             ->assertJsonFragment([
                 'status' => ServerStatus::ENABLED->value,
-                'health' => ServerHealth::UNHEALTHY->value,
+                'connection_status' => ServerConnectionStatus::FAULTY->value,
             ]);
+
+        // Test with connection status always online is true
+        $server->refresh();
+        $data['connection_status_always_online'] = true;
+        $data['updated_at'] = $server->updated_at;
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
+            ->assertSuccessful()
+            ->assertJsonFragment(['connection_status' => ServerConnectionStatus::ONLINE->value])
+            ->assertJsonFragment(['connection_status_always_online' => true]);
 
         // Test with base url of an other server
         $server->refresh();
@@ -397,9 +412,10 @@ class ServerTest extends TestCase
         $data['secret'] = '';
         $data['strength'] = 1000;
         $data['status'] = 10;
+        $data['connection_status_always_online'] = 'invalid';
         $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status', 'connection_status_always_online']);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;

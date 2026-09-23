@@ -32,7 +32,7 @@ class StreamingTest extends TestCase
         $this->viewAnyPermission = Permission::where('name', 'streaming.viewAny')->first();
 
         $this->file_valid = UploadedFile::fake()->image('image.jpg', 1920, 1080);
-        $this->file_wrong_mime = UploadedFile::fake()->image('image.svg', 1920, 1080);
+        $this->file_wrong_mime = UploadedFile::fake()->image('image.tiff', 1920, 1080);
         $this->file_wrong_dimensions = UploadedFile::fake()->image('image.jpg', 1080, 1920);
         $this->file_too_big = UploadedFile::fake()->create('image.jpg', 5001, 'image/jpeg');
     }

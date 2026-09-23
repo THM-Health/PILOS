@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -120,14 +120,18 @@ const userPermissions = useUserPermissions();
 const { t } = useI18n();
 const hashParams = useUrlSearchParams("hash-params");
 
-onMounted(() => {
+onMounted(async () => {
   if (
     hashParams.tab &&
     availableTabs.value.some((tab) => tab.key === hashParams.tab)
   ) {
     activeTab.value = hashParams.tab;
     emit("activeTabChanged", activeTab.value);
+  } else {
+    await nextTick();
+    hashParams.tab = null;
   }
+
   loadUser();
 });
 

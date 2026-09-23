@@ -8,6 +8,8 @@ describe("Rooms view description", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
+
+    cy.setValidRememberedParticipantName("Laura Rivera");
   });
 
   it("view with different permissions", function () {

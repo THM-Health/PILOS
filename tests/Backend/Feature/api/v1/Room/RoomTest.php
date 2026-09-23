@@ -10,7 +10,7 @@ use App\Enums\RoomAuthTokenType;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Events\RoomEnded;
 use App\Http\Resources\RoomTypeResource;
 use App\Models\Meeting;
@@ -619,6 +619,60 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertForbidden()
             ->assertJsonFragment(['message' => CustomErrorMessages::GUESTS_NOT_ALLOWED->value]);
+    }
+
+    /**
+     * Test participant name validation
+     */
+    public function test_participant_name_validation()
+    {
+        // Valid names
+        $this->postJson(route('api.v1.participantName.check'), ['name' => 'John Doe'])
+            ->assertNoContent();
+
+        $this->postJson(route('api.v1.participantName.check'), [
+            'name' => 'AB',
+        ])->assertNoContent();
+
+        $this->postJson(route('api.v1.participantName.check'), [
+            'name' => str_repeat('A', 50),
+        ])->assertNoContent();
+
+        // Test without name
+        $this->postJson(route('api.v1.participantName.check'))
+            ->assertJsonValidationErrors(['name']);
+
+        $this->postJson(route('api.v1.participantName.check'), ['name' => ''])
+            ->assertJsonValidationErrors(['name']);
+
+        // Test with invalid name
+        $this->postJson(route('api.v1.participantName.check'), ['name' => 'A'])
+            ->assertJsonValidationErrors(['name']);
+
+        $this->postJson(route('api.v1.participantName.check'), ['name' => str_repeat('A', 51)])
+            ->assertJsonValidationErrors(['name']);
+
+        // Test with invalid / dangerous name
+        $this->postJson(route('api.v1.participantName.check'), ['name' => '<script>alert("HI");</script>'])
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        'Name contains the following non-permitted characters: <>";',
+                    ],
+                ],
+            ]);
+
+        // Test with invalid/dangerous name that contains non utf8 chars
+        $this->postJson(route('api.v1.participantName.check'), ['name' => '§´`'])
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        'Name contains non-permitted characters',
+                    ],
+                ],
+            ]);
     }
 
     /**
@@ -3573,14 +3627,14 @@ class RoomTest extends TestCase
         $server = Server::factory()->create();
         $room->roomType->serverPool->servers()->sync([$server->id]);
 
-        $this->assertEquals(ServerHealth::ONLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $server->connection_status);
 
         // Create meeting
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Create meeting
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => false, 'consent_record' => false, 'consent_record_video' => false])
@@ -4507,13 +4561,13 @@ class RoomTest extends TestCase
         $meeting->room->latestMeeting()->associate($meeting);
         $meeting->room->save();
 
-        $this->assertEquals(ServerHealth::ONLINE, $meeting->server->health);
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $meeting->server->connection_status);
 
         $this->actingAs($meeting->room->owner)->postJson(route('api.v1.rooms.join', ['room' => $meeting->room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::JOIN_FAILED->value);
 
         $meeting->server->refresh();
-        $this->assertEquals(ServerHealth::ONLINE, $meeting->server->health);
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $meeting->server->connection_status);
     }
 
     /**

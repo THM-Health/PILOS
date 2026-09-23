@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'attendance' => [
         'download' => 'Download',
+        'download_aria' => 'Download attendance list',
         'duration' => 'Attendance',
         'duration_minute' => ':duration min.',
         'filename' => 'Attendance_list',
@@ -20,6 +21,7 @@ return [
             'worksheet' => 'Attendance list',
         ],
         'view' => 'Show attendance',
+        'view_aria' => 'Show attendance for meeting :start',
     ],
     'currently_running' => 'Running meetings',
     'end' => 'End',
@@ -30,7 +32,10 @@ return [
     'now' => 'now',
     'owner' => 'Owner',
     'participant_count' => 'Participant(s)',
+    'participant_count_value' => '{0} 0 participants |{1} 1 participant |[2,*] :count participants',
+    'reload_aria' => 'Reload running meetings',
     'retention_period' => 'Retention period',
+    'search_aria' => 'Search running meetings',
     'start' => 'Begin',
     'stats' => [
         'amount' => 'Amount',
@@ -45,6 +50,7 @@ return [
     ],
     'video_count' => 'Participant with video',
     'view_meeting_stats' => 'Show utilisation',
+    'view_meeting_stats_aria' => 'Show utilisation for meeting :start',
     'view_room' => 'Show room: :name',
     'voice_participant_count' => 'Participant with microphone',
 ];

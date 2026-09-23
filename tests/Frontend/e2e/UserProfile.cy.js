@@ -63,8 +63,8 @@ describe("User Profile", function () {
     // Check that base tab is shown
     cy.get("#firstname").should("be.visible");
 
-    // Check that invalid tab hash stays in the hash
-    cy.url().should("include", "/profile#tab=invalid");
+    // Check that invalid tab hash is cleared
+    cy.url().should("not.include", "#tab=invalid");
   });
 
   it("open user profile errors", function () {

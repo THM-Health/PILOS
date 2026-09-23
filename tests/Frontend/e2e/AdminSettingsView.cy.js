@@ -727,6 +727,48 @@ describe("Admin settings with edit permission", function () {
           .should("be.checked")
           .and("be.disabled");
       });
+
+    cy.get('[data-test="user-search-by-name-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.user_search_by_name.title")
+      .and("include.text", "admin.settings.user_search_by_name.description")
+      .within(() => {
+        cy.get("#user-search-by-name").should("be.checked").and("be.disabled");
+      });
+
+    // Reload with different settings
+    cy.fixture("settings.json").then((settings) => {
+      settings.data.user_password_change_allowed = false;
+      settings.data.user_search_by_name = false;
+
+      cy.intercept("GET", "api/v1/settings", {
+        statusCode: 200,
+        body: settings,
+      }).as("settingsRequest");
+    });
+
+    cy.reload();
+
+    cy.wait("@settingsRequest");
+
+    cy.get('[data-test="password-change-allowed-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.password_change_allowed")
+      .within(() => {
+        cy.get("#password-change-allowed")
+          .should("not.be.checked")
+          .and("be.disabled");
+      });
+
+    cy.get('[data-test="user-search-by-name-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.user_search_by_name.title")
+      .and("include.text", "admin.settings.user_search_by_name.description")
+      .within(() => {
+        cy.get("#user-search-by-name")
+          .should("not.be.checked")
+          .and("be.disabled");
+      });
   });
 
   it("check recording and statistics settings with only view permission", function () {
@@ -867,12 +909,24 @@ describe("Admin settings with edit permission", function () {
         cy.checkSettingsFileSelectorOnlyView("");
       });
 
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":0,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "")
+          .and("be.disabled");
+      });
+
     // Reload with different settings
     cy.fixture("settings.json").then((settings) => {
       settings.data.bbb_logo = null;
       settings.data.bbb_logo_dark = null;
       settings.data.bbb_style = "/files/bbb_style.css";
       settings.data.bbb_default_presentation = "/files/testFile.txt";
+      settings.data.bbb_default_welcome_message =
+        "Welcome to our BigBlueButton meetings!";
 
       cy.intercept("GET", "api/v1/settings", {
         statusCode: 200,
@@ -910,6 +964,16 @@ describe("Admin settings with edit permission", function () {
       .and("include.text", "admin.settings.default_presentation")
       .within(() => {
         cy.checkSettingsFileSelectorOnlyView("/files/testFile.txt");
+      });
+
+    cy.get('[data-test="bbb-default-welcome-message-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.bbb.default_welcome_message.title")
+      .and("include.text", 'app.char_counter_{"chars":38,"max":500}')
+      .within(() => {
+        cy.get("#bbb-default-welcome-message")
+          .should("have.value", "Welcome to our BigBlueButton meetings!")
+          .and("be.disabled");
       });
   });
 });

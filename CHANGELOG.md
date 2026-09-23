@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.18.0] - 2026-09-23
+
+### Added
+
+- Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
+- System-wide default welcome message ([#3301])
+- Privacy setting to disable finding users by partial matches of their name or email address ([#2264], [#3316])
+- Hints in admin UI file uploads indicating supported file types and maximum allowed file size ([#3235])
+- Guests can now choose to remember their name for future video conferences ([#2450], [#3275])
+- Room access is now preserved across page reloads after entering via an access code or personalized link ([#3275])
+- Login button inside room access overlay to allow users to log in instead of accessing the room as a guest ([#2450], [#3275])
+- Option to set connection status of servers to always online ([#3317], [#3373])
+- Environment variable `PULSE_ENABLED` to disable Laravel Pulse ([#3476])
+- Docs: Horizon, Pulse and Telescope monitoring tools ([#3476])
+
+### Changed
+
+- Allow SVG and WebP images to be used as livestream pause images ([#3235])
+- Accessibility: aria-labels for filter and sort select elements in room tabs ([#3298])
+- Accessibility: Updated aria-label values for buttons and select controls to provide more descriptive context ([#3241], [#3242])
+- Guest name input was moved from join dialog to room access overlay ([#2450], [#3275])
+- Room share link now includes the access code, so users no longer need to enter it manually when opening the link ([#3275])
+- Improved fallback behavior for invalid room and user tab links ([#3275])
+- Prometheus metric label `pilos_servers_total{status="unhealthy"}` to `pilos_servers_total{status="faulty"}` ([#3373])
+- Connection status terminology in log messages (`unhealthy` to `faulty`; `healthy` to `online`; `old_health` to `old_connection_status`) ([#3373])
+
+### Fixed
+
+- Select dropdown border styles ([#3314], [#3315])
+- Accessibility: Aria-describedby for select and toggle switch input fields ([#3298])
+
 ## [v4.17.0] - 2026-07-09
 
 ### Added
@@ -755,6 +786,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2165]: https://github.com/THM-Health/PILOS/pull/2165
 [#2222]: https://github.com/THM-Health/PILOS/pull/2222
 [#2223]: https://github.com/THM-Health/PILOS/pull/2223
+[#2264]: https://github.com/THM-Health/PILOS/issues/2264
 [#2265]: https://github.com/THM-Health/PILOS/issues/2265
 [#2279]: https://github.com/THM-Health/PILOS/pull/2279
 [#2281]: https://github.com/THM-Health/PILOS/pull/2281
@@ -769,6 +801,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2383]: https://github.com/THM-Health/PILOS/issues/2383
 [#2433]: https://github.com/THM-Health/PILOS/pull/2433
 [#2449]: https://github.com/THM-Health/PILOS/pull/2449
+[#2450]: https://github.com/THM-Health/PILOS/issues/2450
 [#2476]: https://github.com/THM-Health/PILOS/issues/2476
 [#2477]: https://github.com/THM-Health/PILOS/pull/2477
 [#2478]: https://github.com/THM-Health/PILOS/issues/2478
@@ -856,10 +889,24 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3196]: https://github.com/THM-Health/PILOS/pull/3196
 [#3198]: https://github.com/THM-Health/PILOS/pull/3198
 [#3215]: https://github.com/THM-Health/PILOS/pull/3215
+[#3235]: https://github.com/THM-Health/PILOS/pull/3235
+[#3241]: https://github.com/THM-Health/PILOS/issues/3241
+[#3242]: https://github.com/THM-Health/PILOS/pull/3242
 [#3264]: https://github.com/THM-Health/PILOS/pull/3264
+[#3275]: https://github.com/THM-Health/PILOS/pull/3275
 [#3277]: https://github.com/THM-Health/PILOS/pull/3277
 [#3296]: https://github.com/THM-Health/PILOS/pull/3296
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
+[#3298]: https://github.com/THM-Health/PILOS/pull/3298
+[#3300]: https://github.com/THM-Health/PILOS/issues/3300
+[#3301]: https://github.com/THM-Health/PILOS/pull/3301
+[#3302]: https://github.com/THM-Health/PILOS/pull/3302
+[#3314]: https://github.com/THM-Health/PILOS/issues/3314
+[#3315]: https://github.com/THM-Health/PILOS/pull/3315
+[#3316]: https://github.com/THM-Health/PILOS/pull/3316
+[#3317]: https://github.com/THM-Health/PILOS/issues/3317
+[#3373]: https://github.com/THM-Health/PILOS/pull/3373
+[#3476]: https://github.com/THM-Health/PILOS/pull/3476
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -889,3 +936,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0
 [v4.16.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.16.0
 [v4.17.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.17.0
+[v4.18.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.0

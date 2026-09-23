@@ -551,8 +551,8 @@ describe("Admin users view", function () {
       .should("be.visible")
       .and("have.attr", "href", "/admin/users/2/edit#tab=base");
 
-    // Check that invalid tab stays in the hash
-    cy.url().should("include", "/admin/users/2#tab=invalid");
+    // Check that invalid tab is cleared
+    cy.url().should("not.include", "#tab=invalid");
   });
 
   it("open view errors", function () {

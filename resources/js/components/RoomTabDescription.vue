@@ -1,5 +1,5 @@
 <template>
-  <div class="px-2">
+  <div>
     <div
       v-if="userPermissions.can('manageSettings', room)"
       class="mb-4 flex justify-end gap-2"

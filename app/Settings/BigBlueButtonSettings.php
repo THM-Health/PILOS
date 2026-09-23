@@ -16,6 +16,8 @@ class BigBlueButtonSettings extends Settings
 
     public ?string $default_presentation;
 
+    public ?string $default_welcome_message;
+
     public static function group(): string
     {
         return 'bbb';

@@ -60,3 +60,25 @@ Cypress.Commands.add("checkToastMessage", (messages) => {
     cy.wrap($toast, { log: false }).should("not.exist");
   });
 });
+
+/**
+ * Set the hash without triggering a hashchange event and reload the page.
+ * @memberof cy
+ * @method reloadWithHash
+ * @param {string} hash
+ * @returns {Cypress.Chainable<Window>}
+ */
+Cypress.Commands.add("reloadWithHash", (hash) => {
+  return cy
+    .window({ log: false })
+    .then((win) => {
+      const url = new URL(win.location.href);
+      url.hash = hash;
+
+      // Replace the current history entry with the new URL to avoid triggering a hashchange event
+      win.history.replaceState(win.history.state, "", url.toString());
+    })
+    .then(() => {
+      cy.reload();
+    });
+});

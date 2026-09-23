@@ -5,8 +5,8 @@
 publiccodeYmlVersion: "0.2"
 name: PILOS
 url: "https://github.com/THM-Health/PILOS"
-softwareVersion: "4.16.0"
-releaseDate: "2026-06-12"
+softwareVersion: "4.17.0"
+releaseDate: "2026-07-09"
 logo: logo.svg
 platforms:
   - web
@@ -14,10 +14,15 @@ categories:
   - video-conferencing
 usedBy:
   - Technische Hochschule Mittelhessen
+  - Universität Osnabrück
   - Goethe-Universität Frankfurt am Main
   - Universität Innsbruck
-  - Universität Osnabrück
+  - Hochschule für nachhaltige Entwicklung Eberswalde
+  - Hochschule der Polizei des Landes Brandenburg
   - Kompetenzzentrum für Telemedizin und E-Health Hessen (KTE Hessen)
+  - IT-Dienstleistungszentrum des Freistaats Bayern (LDBV)
+  - infra.run Service GmbH
+  - Hosterra SAS
 developmentStatus: stable
 softwareType: standalone/web
 maintenance:

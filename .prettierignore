@@ -7,3 +7,5 @@ storage
 composer.lock
 package-lock.json
 .github/skills
+.vscode/mcp.json
+AGENTS.md

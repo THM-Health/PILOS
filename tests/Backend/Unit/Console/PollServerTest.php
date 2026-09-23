@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Backend\Unit\Console;
 
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\Server;
@@ -52,20 +52,20 @@ class PollServerTest extends TestCase
         // Poll server, first time failing
         $this->artisan('server:poll');
 
-        // Check if health is set to unhealthy
+        // Check if connection status is set to faulty
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
-        // Check if live usage data is not reset during unhealthy state
+        // Check if live usage data is not reset during faulty state
         $this->assertNotNull($server->participant_count);
         $this->assertNotNull($room->participant_count);
 
         // Poll server, second time failing
         $this->artisan('server:poll');
 
-        // Check if health is set to offline
+        // Check if connection status is set to offline
         $server->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
 
         // Check if live usage data is reset
         $this->assertNull($server->participant_count);

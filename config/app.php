@@ -82,7 +82,7 @@ return [
 
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
-    'version' => $appVersion,
+    'version' => env('VERSION', $appVersion),
 
     'whitelabel' => (bool) env('WHITELABEL', false),
 

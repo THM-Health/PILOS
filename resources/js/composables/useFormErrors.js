@@ -16,8 +16,8 @@ class FormError {
   /**
    * Returns the state for a field with the given name.
    *
-   * @param field Name of field to get the error state for.
-   * @param [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
+   * @param {string} field Name of field to get the error state for.
+   * @param {boolean} [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
    * @return {null|boolean} null if there is no errors object or there is no error
    *    for the passed field and otherwise false.
    */
@@ -32,27 +32,21 @@ class FormError {
   }
 
   /**
-   * Returns the error message for the passed field.
+   * Returns an array of error messages for the passed field.
    *
-   * Since a html list gets returned for the passed field the string cannot be used directly in the
-   * html code but the v-html tag must be used.
+   * The result should be passed to the FormError component to render
+   * the error list consistently and provide UX and A11y features
    *
    * @example
-   *    <b-form-group :state="fieldState('...')" ...>
-   *      <template #invalid-feedback><div v-html="fieldError('...')"></div></template>
-   *    </b-form-group>
+   *    <FormError :errors="formErrors.fieldError('FIELD_NAME')" />
    *
-   *    <!-- or -->
-   *    <b-form-invalid-feedback :state="fieldState('...')" v-html="fieldError('...')"></b-form-invalid-feedback>
-   *
-   * @param field Name of field to get the error message for.
-   * @param [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
-   * @return {string} Empty string if there is no error for the passed field otherwise a string with html
-   *    that contains a list of the messages for the passed field.
+   * @param {string} field Name of field to get the error message for.
+   * @param {boolean} [wildcard=false] Flag that indicates whether all errors that starting with the field name should be checked.
+   * @return {string[]} Empty array if there is no error for the passed field otherwise an array of strings with the messages for the passed field.
    */
   fieldError(field, wildcard = false) {
     if (!this.fieldInvalid(field, wildcard)) {
-      return {};
+      return [];
     }
 
     let errors = this.errors[field];

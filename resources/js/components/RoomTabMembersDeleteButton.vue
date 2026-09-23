@@ -3,7 +3,12 @@
   <Button
     v-tooltip="$t('rooms.members.remove_user')"
     data-test="room-members-delete-button"
-    :aria-label="$t('rooms.members.remove_user')"
+    :aria-label="
+      $t('rooms.members.remove_user_aria', {
+        firstname: firstname,
+        lastname: lastname,
+      })
+    "
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-trash"

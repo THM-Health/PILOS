@@ -2,7 +2,7 @@
   <!-- button -->
   <Button
     v-tooltip="$t('rooms.files.edit')"
-    :aria-label="$t('rooms.files.edit')"
+    :aria-label="$t('rooms.files.edit_aria', { filename: filename })"
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"

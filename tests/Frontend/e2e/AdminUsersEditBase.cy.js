@@ -435,7 +435,7 @@ describe("Admin users edit base", function () {
       expect(formData.get("updated_at")).to.eql("2024-09-13T14:20:26.000000Z");
 
       const uploadedFile = formData.get("image");
-      expect(uploadedFile.name).to.eql("image.png");
+      expect(uploadedFile.name).to.eql("image.jpg");
       expect(uploadedFile.type).to.eql("image/jpeg");
       cy.fixture("files/profileImagePreview.jpg", "base64").then((content) => {
         uploadedFile.arrayBuffer().then((arrayBuffer) => {

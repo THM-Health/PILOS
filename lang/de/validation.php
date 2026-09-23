@@ -354,7 +354,7 @@ return [
     'not_in' => 'Der gewählte Wert für :attribute ist ungültig.',
     'not_regex' => ':attribute hat ein ungültiges Format.',
     'numeric' => ':attribute muss eine Zahl sein.',
-    'one_more_error' => '(und einen weiteren Fehler)',
+    'one_more_error' => '(und ein weiterer Fehler)',
     'password' => 'Das Passwort ist falsch.',
     'password.letters' => ':attribute muss mindestens einen Buchstaben beinhalten.',
     'password.mixed' => ':attribute muss mindestens einen Großbuchstaben und einen Kleinbuchstaben beinhalten.',
@@ -400,6 +400,6 @@ return [
     'uppercase' => ':attribute muss in Großbuchstaben sein.',
     'url' => ':attribute muss eine URL sein.',
     'uuid' => ':attribute muss ein UUID sein.',
-    'validname' => ':attribute enthält die folgenden nicht erlaubten Zeichen: :chars',
+    'validname' => '{1} :attribute enthält das folgende nicht erlaubte Zeichen: :chars |[2,*] :attribute enthält die folgenden nicht erlaubten Zeichen: :chars',
     'validname_error' => ':attribute enthält nicht erlaubte Zeichen',
 ];

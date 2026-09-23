@@ -2,7 +2,7 @@
   <!-- button -->
   <Button
     v-tooltip="$t('rooms.files.delete')"
-    :aria-label="$t('rooms.files.delete')"
+    :aria-label="$t('rooms.files.delete_aria', { filename: filename })"
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-trash"

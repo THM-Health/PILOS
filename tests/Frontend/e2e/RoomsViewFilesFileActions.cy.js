@@ -1,12 +1,13 @@
 import { parseFormData } from "../support/utils/formData.js";
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
-
 describe("Rooms view files file actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
     cy.interceptRoomFilesRequest(true);
+
+    cy.setValidRememberedParticipantName("Laura Rivera");
   });
 
   it("upload file", function () {
@@ -21,9 +22,9 @@ describe("Rooms view files file actions", function () {
       .should("include.text", "rooms.files.upload")
       .should(
         "include.text",
-        'rooms.files.formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
+        'app.file.allowed_formats_{"formats":"pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf, odt, ods, odp, odg, odc, odi, jpg, jpeg, png"}',
       )
-      .should("include.text", 'rooms.files.size_{"size":30')
+      .should("include.text", 'app.file.max_size_{"size":"30 MB"')
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="drop-zone"]')
@@ -261,7 +262,7 @@ describe("Rooms view files file actions", function () {
     // Check that dialog stayed open and error message is shown
     cy.get('[data-test="room-files-upload-dialog"]')
       .should("be.visible")
-      .and("include.text", "app.validation.too_large");
+      .and("include.text", "app.file.too_large");
 
     // Check 422 error (validation error)
     cy.intercept("POST", "/api/v1/rooms/abc-def-123/files", {
@@ -911,24 +912,6 @@ describe("Rooms view files file actions", function () {
   });
 
   it("download file with access code errors", function () {
-    cy.fixture("room.json").then((room) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.authenticated = false;
-
-      cy.intercept("GET", "api/v1/rooms/abc-def-123", {
-        statusCode: 200,
-        body: room,
-      }).as("roomRequest");
-    });
-
-    cy.interceptRoomFilesRequest();
-
-    cy.visit("/rooms/abc-def-123");
-
-    // Type in access code to get access to the room
-    cy.wait("@roomRequest");
-    cy.get("#access-code").type("123456789");
-
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
       statusCode: 201,
       body: {
@@ -948,7 +931,9 @@ describe("Rooms view files file actions", function () {
       }).as("roomRequest");
     });
 
-    cy.get('[data-test="room-login-button"]').click();
+    cy.interceptRoomFilesRequest();
+
+    cy.visit("/rooms/abc-def-123#accessCode=123456789");
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -1053,7 +1038,7 @@ describe("Rooms view files file actions", function () {
 
     // Visit room with personalized link
     cy.visit(
-      "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     cy.wait("@roomAuthRequest");
@@ -1077,10 +1062,17 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@roomAuthRequest");
 
-    // Check if error message is shown
-    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
+    // Check that sessionStorage is cleared
+    cy.window().should((win) => {
+      expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
+        .be.null;
+    });
 
+    // Check that error message is shown and url changed
+    cy.checkToastMessage("rooms.flash.personalized_link_invalid");
     cy.contains("rooms.invalid_personalized_link").should("be.visible");
+
+    cy.url().should("include", "/rooms/abc-def-123/invalid_personalized_link");
 
     // Check with guests only error
     cy.intercept("POST", "api/v1/rooms/abc-def-123/auth", {
@@ -1093,7 +1085,9 @@ describe("Rooms view files file actions", function () {
       },
     }).as("roomAuthRequest");
 
-    cy.reload();
+    cy.visit(
+      "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+    );
 
     cy.wait("@roomAuthRequest");
     cy.wait("@roomRequest");
@@ -1240,6 +1234,10 @@ describe("Rooms view files file actions", function () {
 
       // Check that room and files are reloaded (because of changes in the room (current_user))
       cy.wait("@reloadRoomRequest");
+      cy.wait("@checkParticipantNameRequest");
+
+      cy.get('[data-test="room-access-overlay"]').should("not.exist");
+
       cy.wait("@roomFilesRequest");
 
       // Check that file list was updated again

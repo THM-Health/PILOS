@@ -68,9 +68,9 @@
     .multiselect__content-wrapper {
         margin: 3px 0;
         background: var(--p-overlay-select-background);
-        border: 1px solid var(--p-select-overlay-border-color);
-        border-radius: var(--p-select-overlay-border-radius);
-        box-shadow: var(--p-select-overlay-shadow);
+        border: 1px solid var(--p-overlay-select-border-color);
+        border-radius: var(--p-overlay-select-border-radius);
+        box-shadow: var(--p-overlay-select-shadow);
     }
 
     .multiselect__single {
@@ -93,7 +93,7 @@
     }
 
     .multiselect__spinner {
-        border-radius: var(--p-select-overlay-border-radius);
+        border-radius: var(--p-overlay-select-border-radius);
         background: var(--p-form-field-background);
     }
 

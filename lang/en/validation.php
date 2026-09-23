@@ -400,6 +400,6 @@ return [
     'uppercase' => 'The :attribute field must be uppercase.',
     'url' => 'The :attribute must be a valid URL.',
     'uuid' => 'The :attribute must be a valid UUID.',
-    'validname' => ':attribute contains the following non-permitted characters: :chars',
+    'validname' => '{1} :attribute contains the following non-permitted character: :chars |[2,*] :attribute contains the following non-permitted characters: :chars',
     'validname_error' => ':attribute contains non-permitted characters',
 ];

@@ -1,7 +1,11 @@
 <template>
   <Button
     v-tooltip="$t('meetings.attendance.view')"
-    :aria-label="$t('meetings.attendance.view')"
+    :aria-label="
+      $t('meetings.attendance.view_aria', {
+        start: $d(new Date(props.start), 'datetimeShort'),
+      })
+    "
     :disabled="disabled"
     icon="fa-solid fa-user-clock"
     data-test="room-history-attendance-button"
@@ -96,7 +100,7 @@
             :href="downloadUrl"
             icon="fa-solid fa-file-excel"
             severity="secondary"
-            :aria-label="$t('meetings.attendance.download')"
+            :aria-label="$t('meetings.attendance.download_aria')"
             data-test="room-history-attendance-download-button"
           />
         </div>

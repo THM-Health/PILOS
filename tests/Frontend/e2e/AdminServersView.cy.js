@@ -160,11 +160,11 @@ describe("Admin servers view", function () {
             );
           });
       });
-    cy.get('[data-test="health-status-field"]')
+    cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
       .within(() => {
-        cy.get("#healthStatus")
+        cy.get("#connectionStatus")
           .should("have.value", "admin.servers.online")
           .and("be.disabled");
         cy.get('[data-test="servers-test-connection-button"]')
@@ -244,11 +244,11 @@ describe("Admin servers view", function () {
             );
           });
       });
-    cy.get('[data-test="health-status-field"]')
+    cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
       .within(() => {
-        cy.get("#healthStatus")
+        cy.get("#connectionStatus")
           .should("have.value", "admin.servers.online")
           .and("be.disabled");
         cy.get('[data-test="servers-test-connection-button"]')
@@ -270,7 +270,7 @@ describe("Admin servers view", function () {
   it("check serverView shown correctly (server disabled)", function () {
     cy.fixture("server.json").then((server) => {
       server.data.status = -1;
-      server.data.health = 0;
+      server.data.connection_status = null;
 
       cy.intercept("GET", "api/v1/servers/1", {
         statusCode: 200,
@@ -304,12 +304,12 @@ describe("Admin servers view", function () {
           });
       });
 
-    cy.get('[data-test="health-status-field"]')
+    cy.get('[data-test="connection-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
       .within(() => {
-        cy.get("#healthStatus")
-          .should("have.value", "admin.servers.unhealthy")
+        cy.get("#connectionStatus")
+          .should("have.value", "admin.servers.unknown")
           .and("be.disabled");
         cy.get('[data-test="servers-test-connection-button"]')
           .should("be.visible")
@@ -327,6 +327,75 @@ describe("Admin servers view", function () {
 
     // Check that panic button is hidden (missing permissions)
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
+  });
+
+  it("check serverView shown correctly (server connection status always online)", function () {
+    cy.intercept("GET", "api/v1/servers/1", { fixture: "server.json" }).as(
+      "serverRequest",
+    );
+
+    cy.visit("/admin/servers/1");
+    cy.wait("@serverRequest");
+
+    // Check connection status always online field is not checked
+    cy.get('[data-test="connection-status-always-online-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection_status_always_online")
+      .and(
+        "include.text",
+        "admin.servers.connection_status_always_online_description",
+      )
+      .within(() => {
+        cy.get("#connection-status-always-online")
+          .should("not.be.checked")
+          .and("be.disabled");
+      });
+
+    // Check that the real connection status is shown
+    cy.get('[data-test="connection-status-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection")
+      .within(() => {
+        cy.get("#connectionStatus")
+          .should("have.value", "admin.servers.online")
+          .and("be.disabled");
+      });
+
+    cy.fixture("server.json").then((server) => {
+      server.data.connection_status_always_online = true;
+
+      cy.intercept("GET", "api/v1/servers/1", {
+        statusCode: 200,
+        body: server,
+      }).as("serverRequest");
+    });
+
+    cy.reload();
+    cy.wait("@serverRequest");
+
+    // Check connection status always online field is checked
+    cy.get('[data-test="connection-status-always-online-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection_status_always_online")
+      .and(
+        "include.text",
+        "admin.servers.connection_status_always_online_description",
+      )
+      .within(() => {
+        cy.get("#connection-status-always-online")
+          .should("be.checked")
+          .and("be.disabled");
+      });
+
+    // Check that the connection status is unknown because the server is always online
+    cy.get('[data-test="connection-status-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.servers.connection")
+      .within(() => {
+        cy.get("#connectionStatus")
+          .should("have.value", "admin.servers.unknown")
+          .and("be.disabled");
+      });
   });
 
   it("check button visibility with update permission", function () {

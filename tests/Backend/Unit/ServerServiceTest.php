@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Backend\Unit;
 
-use App\Enums\ServerHealth;
+use App\Enums\ServerConnectionStatus;
 use App\Enums\ServerStatus;
 use App\Events\RoomEnded;
 use App\Models\Meeting;
@@ -257,7 +257,7 @@ class ServerServiceTest extends TestCase
         $this->assertNull($server->version);
     }
 
-    public function test_server_health_failing()
+    public function test_server_connection_status_failing()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -280,28 +280,28 @@ class ServerServiceTest extends TestCase
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Recover
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Fail again (2 fail)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Fail again (3 fail)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
     }
 
-    public function test_server_health_single_failure()
+    public function test_server_connection_status_single_failure()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -324,28 +324,28 @@ class ServerServiceTest extends TestCase
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Recover (1 recover)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Recover (2 recover)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
 
         // Recover (3 recover)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::ONLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $server->connection_status);
     }
 
-    public function test_server_health_recovering()
+    public function test_server_connection_status_recovering()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -369,31 +369,31 @@ class ServerServiceTest extends TestCase
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
 
         // Fail again
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
 
         // Recover (1 new recover)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
 
         // Recover (2 new recover)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
 
         // Recover (3 new recover)
         $serverService->updateUsage();
 
         $server->refresh();
-        $this->assertEquals(ServerHealth::ONLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $server->connection_status);
     }
 
     public function test_detach_meeting_on_offline()
@@ -423,7 +423,7 @@ class ServerServiceTest extends TestCase
 
         $server->refresh();
         $meeting->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
         $this->assertNull($meeting->detached);
 
         // Recover
@@ -431,7 +431,7 @@ class ServerServiceTest extends TestCase
 
         $server->refresh();
         $meeting->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
         $this->assertNull($meeting->detached);
 
         // Fail again (2 fail)
@@ -439,7 +439,7 @@ class ServerServiceTest extends TestCase
 
         $server->refresh();
         $meeting->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $this->assertEquals(ServerConnectionStatus::FAULTY, $server->connection_status);
         $this->assertNull($meeting->detached);
 
         // Fail again (3 fail)
@@ -447,7 +447,7 @@ class ServerServiceTest extends TestCase
 
         $server->refresh();
         $meeting->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
         $this->assertNotNull($meeting->detached);
     }
 
@@ -481,7 +481,7 @@ class ServerServiceTest extends TestCase
 
         $server->refresh();
         $meeting->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
         $this->assertNotNull($meeting->detached);
         $this->assertNull($meeting->end);
 
@@ -490,7 +490,44 @@ class ServerServiceTest extends TestCase
 
         $server->refresh();
         $meeting->refresh();
-        $this->assertEquals(ServerHealth::OFFLINE, $server->health);
+        $this->assertEquals(ServerConnectionStatus::OFFLINE, $server->connection_status);
+        $this->assertNotNull($meeting->detached);
+        $this->assertNotNull($meeting->end);
+
+        // Check if meeting ended event is fired
+        Event::assertDispatched(RoomEnded::class);
+    }
+
+    public function test_end_detached_meeting_on_online_with_connection_status_always_online()
+    {
+        Event::fake([
+            RoomEnded::class,
+        ]);
+
+        config([
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
+            'test.notld/bigbluebutton/api/end?meetingID=409e94ee-e317-4040-8cb2-8000a289b49d&checksum=*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/EndMeeting.xml')),
+        ]);
+
+        // Create server
+        $server = Server::factory()->create(['connection_status_always_online' => true]);
+        $serverService = new ServerService($server);
+
+        // Create detached meeting
+        $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'server_id' => $server->id, 'end' => null, 'detached' => now()]);
+
+        // Update server usage
+        $serverService->updateUsage();
+
+        $server->refresh();
+        $meeting->refresh();
+        $this->assertEquals(ServerConnectionStatus::ONLINE, $server->connection_status);
         $this->assertNotNull($meeting->detached);
         $this->assertNotNull($meeting->end);
 
@@ -577,6 +614,32 @@ class ServerServiceTest extends TestCase
         ]);
 
         $server = Server::factory()->create(['status' => ServerStatus::DRAINING]);
+        $serverService = new ServerService($server);
+
+        // check if server is not disabled if meetings are left
+        Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'end' => null, 'server_id' => $server->id]);
+
+        $serverService->updateUsage();
+
+        $server->refresh();
+        $this->assertEquals(ServerStatus::DRAINING, $server->status);
+
+        // Test if server is disabled on next poll if meeting is ended
+        $serverService->updateUsage();
+
+        $server->refresh();
+        $this->assertEquals(ServerStatus::DISABLED, $server->status);
+    }
+
+    public function test_server_draining_with_connection_status_always_online()
+    {
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-End.xml')),
+        ]);
+
+        $server = Server::factory()->create(['status' => ServerStatus::DRAINING, 'connection_status_always_online' => true]);
         $serverService = new ServerService($server);
 
         // check if server is not disabled if meetings are left
@@ -712,5 +775,78 @@ class ServerServiceTest extends TestCase
         $request = $bbbfaker->getRequest(0);
         $hash = hash('sha512', 'getMeetings'.$server->secret);
         $this->assertEquals($hash, $request->data()['checksum']);
+    }
+
+    /**
+     * Test that connection status counters are not changed when connection_status_always_online is true on API failure
+     */
+    public function test_connection_status_always_online_on_api_failure()
+    {
+        config([
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out')),
+        ]);
+
+        $server = Server::factory()->create(['connection_status_always_online' => true]);
+        $serverService = new ServerService($server);
+
+        $initialErrorCount = $server->error_count;
+        $initialRecoverCount = $server->recover_count;
+        $initialLoad = $server->load;
+
+        // Call multiple times - counters should not change
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
+        $this->assertEquals($initialLoad, $server->load);
+
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
+        $this->assertEquals($initialLoad, $server->load);
+    }
+
+    /**
+     * Test that connection status counters are not changed when connection_status_always_online is true on successful API call
+     */
+    public function test_connection_status_always_online_on_api_success()
+    {
+        config([
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
+        ]);
+
+        $server = Server::factory()->create(['connection_status_always_online' => true, 'error_count' => 1, 'recover_count' => 0]);
+        $serverService = new ServerService($server);
+
+        $initialErrorCount = $server->error_count;
+        $initialRecoverCount = $server->recover_count;
+
+        // Call - counters should not change
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
+
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertEquals($initialErrorCount, $server->error_count);
+        $this->assertEquals($initialRecoverCount, $server->recover_count);
     }
 }

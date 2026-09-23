@@ -48,12 +48,7 @@
         type="file"
         class="sr-only"
         :disabled="disabled || isUploading"
-        :accept="
-          '.' +
-          String(settingsStore.getSetting('bbb.file_mimes'))
-            .split(',')
-            .join(',.')
-        "
+        :accept="'.' + settingsStore.getSetting('bbb.file_mimes').join(',.')"
         @input="fileSelected"
       />
       <div
@@ -83,14 +78,14 @@
       />
       <small
         >{{
-          $t("rooms.files.formats", {
-            formats: settingsStore
-              .getSetting("bbb.file_mimes")
-              .replaceAll(",", ", "),
+          $t("app.file.allowed_formats", {
+            formats: settingsStore.getSetting("bbb.file_mimes").join(", "),
           })
         }}<br />{{
-          $t("rooms.files.size", {
-            size: settingsStore.getSetting("bbb.max_filesize"),
+          $t("app.file.max_size", {
+            size: fileHelpers.fileSize(
+              settingsStore.getSetting("bbb.max_filesize") * 1_000_000,
+            ),
           })
         }}</small
       >
@@ -122,6 +117,9 @@ import {
   HTTP_STATUS_PAYLOAD_TOO_LARGE,
   HTTP_STATUS_UNPROCESSABLE_ENTITY,
 } from "../constants/httpStatusCodes.js";
+import { useFileHelpers } from "../composables/useFileHelpers.js";
+
+const fileHelpers = useFileHelpers();
 
 const props = defineProps({
   roomId: {
@@ -260,7 +258,7 @@ function uploadFile(file) {
       reset();
       if (error.response) {
         if (error.response.status === HTTP_STATUS_PAYLOAD_TOO_LARGE) {
-          formErrors.set({ file: [t("app.validation.too_large")] });
+          formErrors.set({ file: [t("app.file.too_large")] });
           return;
         }
         if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {

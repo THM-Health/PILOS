@@ -13,7 +13,7 @@
           <Button
             v-tooltip="$t('app.search')"
             :disabled="isBusy"
-            :aria-label="$t('app.search')"
+            :aria-label="$t('admin.users.search_aria')"
             icon="fa-solid fa-magnifying-glass"
             @click="loadData(1)"
           />
@@ -88,7 +88,7 @@
             outlined
             severity="secondary"
             icon="fa-solid fa-sync"
-            :aria-label="$t('app.reload')"
+            :aria-label="$t('admin.roles.reload_aria')"
             data-test="roles-reload-button"
             @click="loadRoles(rolesCurrentPage)"
           />

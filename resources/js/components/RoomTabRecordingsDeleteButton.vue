@@ -2,7 +2,9 @@
   <!-- button -->
   <Button
     v-tooltip="$t('rooms.recordings.delete_recording')"
-    :aria-label="$t('rooms.recordings.delete_recording')"
+    :aria-label="
+      $t('rooms.recordings.delete_recording_aria', { description: description })
+    "
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-trash"
@@ -61,6 +63,10 @@ const props = defineProps({
     required: true,
   },
   roomId: {
+    type: String,
+    required: true,
+  },
+  description: {
     type: String,
     required: true,
   },

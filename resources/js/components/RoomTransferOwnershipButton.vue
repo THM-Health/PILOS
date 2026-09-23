@@ -28,54 +28,16 @@
       @submit="transferOwnership"
     >
       <!--select new owner-->
-      <!-- select user -->
       <div class="field relative mt-2 flex flex-col gap-2 overflow-visible">
         <label id="user-label">{{ $t("app.user") }}</label>
-        <multiselect
+        <UserSearch
           v-model="newOwner"
-          aria-labelledby="user-label"
-          autofocus
-          data-test="new-owner-dropdown"
           :disabled="isLoadingAction"
-          label="lastname"
-          track-by="id"
-          :placeholder="$t('app.user_name')"
-          open-direction="bottom"
-          :options="users"
-          :multiple="false"
-          :searchable="true"
-          :loading="isLoadingSearch"
-          :internal-search="false"
-          :clear-on-select="false"
-          :preserve-search="true"
-          :close-on-select="true"
-          :options-limit="300"
-          :max-height="600"
-          :show-no-results="true"
-          :show-labels="false"
-          :class="{ 'is-invalid': formErrors.fieldInvalid('user') }"
-          @search-change="asyncFind"
-        >
-          <template #noResult>
-            <span v-if="tooManyResults" class="whitespace-normal">
-              {{ $t("rooms.members.modals.add.too_many_results") }}
-            </span>
-            <span v-else>
-              {{ $t("rooms.members.modals.add.no_result") }}
-            </span>
-          </template>
-          <template #noOptions>
-            {{ $t("rooms.members.modals.add.no_options") }}
-          </template>
-          <template #option="{ option }">
-            {{ option.firstname }} {{ option.lastname }}<br /><small>{{
-              option.email
-            }}</small>
-          </template>
-          <template #singleLabel="{ option }">
-            {{ option.firstname }} {{ option.lastname }}
-          </template>
-        </multiselect>
+          :disabled-users="[room.owner.id]"
+          :invalid="formErrors.fieldInvalid('user')"
+          aria-labelledby="user-label"
+          data-test="new-owner-dropdown"
+        />
         <FormError :errors="formErrors.fieldError('user')" />
       </div>
 
@@ -182,7 +144,6 @@
 </template>
 
 <script setup>
-import { Multiselect } from "vue-multiselect";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
@@ -203,10 +164,7 @@ const props = defineProps({
 const emit = defineEmits(["transferredOwnership"]);
 
 const isLoadingAction = ref(false);
-const isLoadingSearch = ref(false);
-const tooManyResults = ref(false);
 const modalVisible = ref(false);
-const users = ref([]);
 const newOwner = ref(null);
 const newRoleInRoom = ref(3);
 
@@ -262,49 +220,8 @@ function transferOwnership() {
  */
 function showModal() {
   newOwner.value = null;
-  users.value = [];
   newRoleInRoom.value = 3;
   formErrors.clear();
   modalVisible.value = true;
-}
-
-/**
- * Search for users in database
- * @param query
- */
-function asyncFind(query) {
-  isLoadingSearch.value = true;
-
-  const config = {
-    params: {
-      query,
-    },
-  };
-
-  api
-    .call("users/search", config)
-    .then((response) => {
-      if (response.status === 204) {
-        users.value = [];
-        tooManyResults.value = true;
-        return;
-      }
-
-      // disable user that is currently the owner of the room
-      users.value = response.data.data.map((user) => {
-        if (props.room.owner.id === user.id) {
-          user.$isDisabled = true;
-        }
-        return user;
-      });
-      tooManyResults.value = false;
-    })
-    .catch((error) => {
-      tooManyResults.value = false;
-      api.error(error, { redirectOnUnauthenticated: false });
-    })
-    .finally(() => {
-      isLoadingSearch.value = false;
-    });
 }
 </script>

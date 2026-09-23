@@ -39,7 +39,9 @@
           icon: { class: 'hidden' },
         }"
       >
-        {{ $t("admin.server_pools.delete.failed") }}
+        {{
+          $t("admin.server_pools.delete.failed", deleteFailedRoomTypes.length)
+        }}
         <ul>
           <li v-for="roomType in deleteFailedRoomTypes" :key="roomType.id">
             {{ roomType.name }}
