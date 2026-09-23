@@ -48,7 +48,7 @@ if (Cypress.browser.family === "chromium") {
     command: "Browser.grantPermissions",
     params: {
       permissions: ["clipboardReadWrite", "clipboardSanitizedWrite"],
-      origin: window.location.origin,
+      origin: new URL(Cypress.config("baseUrl")).origin,
     },
   });
 }
