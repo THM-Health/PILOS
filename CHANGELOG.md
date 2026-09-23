@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.18.0] - 2026-09-23
+
 ### Added
 
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
@@ -904,7 +906,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3317]: https://github.com/THM-Health/PILOS/issues/3317
 [#3373]: https://github.com/THM-Health/PILOS/pull/3373
 [#3476]: https://github.com/THM-Health/PILOS/pull/3476
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -934,3 +936,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0
 [v4.16.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.16.0
 [v4.17.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.17.0
+[v4.18.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.0
