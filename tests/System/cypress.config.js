@@ -1,6 +1,8 @@
+import path from "node:path";
 import { defineConfig } from "cypress";
 import { execFileSync } from "child_process";
 import dotenv from "dotenv";
+import { setupBrowserLaunch } from "../Utils/cypress/browser-launch.js";
 import { setupChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
 
 dotenv.config({ path: "../../.env" });
@@ -17,7 +19,9 @@ export default defineConfig({
 
   e2e: {
     async setupNodeEvents(on, config) {
-      await setupChromeForTesting(config);
+      await setupChromeForTesting(config, path.resolve("../../"));
+
+      setupBrowserLaunch(on);
 
       on("task", {
         seed() {
