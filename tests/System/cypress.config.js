@@ -15,8 +15,6 @@ export default defineConfig({
   screenshotsFolder: "screenshots",
   videosFolder: "videos",
 
-  allowCypressEnv: false,
-
   e2e: {
     async setupNodeEvents(on, config) {
       await setupChromeForTesting(config, path.resolve("../../"));
