@@ -1,11 +1,14 @@
 import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
 import * as fs from "fs";
+import path from "path";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import VueDevTools from "vite-plugin-vue-devtools";
+
+const resourcesRoot = `${path.resolve("resources")}${path.sep}`;
 
 export default (mode) => {
   const ENV_PREFIX = ["VITE_"];
@@ -52,11 +55,11 @@ export default (mode) => {
       rollupOptions: {
         output: {
           manualChunks: (path) => {
-            if (path.includes("node_modules")) {
-              return "vendor";
+            if (path.startsWith(resourcesRoot)) {
+              return "app";
             }
 
-            return "app";
+            return "vendor";
           },
         },
       },
