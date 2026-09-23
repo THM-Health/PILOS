@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to set connection status of servers to always online ([#3317], [#3373])
 - Environment variable `PULSE_ENABLED` to disable Laravel Pulse ([#3476])
 - Docs: Horizon, Pulse and Telescope monitoring tools ([#3476])
+- Pluralization support for localization strings ([#2520])
 
 ### Changed
 
@@ -812,6 +813,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2517]: https://github.com/THM-Health/PILOS/pull/2517
 [#2518]: https://github.com/THM-Health/PILOS/pull/2518
 [#2519]: https://github.com/THM-Health/PILOS/pull/2519
+[#2520]: https://github.com/THM-Health/PILOS/pull/2520
 [#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
