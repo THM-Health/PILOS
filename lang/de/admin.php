@@ -213,8 +213,11 @@ return [
         'view' => 'Detaillierte Informationen über Serverpool :name',
     ],
     'servers' => [
+        'always_online' => 'Immer online',
         'base_url' => 'API Endpunkt',
         'connection' => 'Verbindung',
+        'connection_status_always_online' => 'Verbindung immer online',
+        'connection_status_always_online_description' => 'Der Server gilt stets als online und für neue Meetings verfügbar; Verbindungsprobleme werden ignoriert',
         'current_usage' => 'Aktuelle Auslastung',
         'delete' => [
             'confirm' => 'Wollen Sie den Server :name wirklich entfernen?',
@@ -226,6 +229,7 @@ return [
         'draining' => 'Auslaufend',
         'edit' => 'Server :name bearbeiten',
         'enabled' => 'Aktiviert',
+        'faulty' => 'Fehlerhaft',
         'flash' => [
             'panic' => [
                 'description_meetings_successful' => '{0} Es konnten keine Meetings erfolgreich beendet werden. |{1} 1 Meeting konnte erfolgreich beendet werden. |[2,*] :count Meetings konnten erfolgreich beendet werden.',
