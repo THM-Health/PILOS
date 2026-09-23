@@ -89,6 +89,8 @@ class ApplicationTest extends TestCase
         config(['streaming.enabled' => false]);
         config(['streaming.refresh_interval' => 5]);
         config(['streaming.show_fps' => true]);
+        config(['pulse.enabled' => true]);
+        config(['telescope.enabled' => true]);
 
         $this->getJson(route('api.v1.config'))
             ->assertJson([
@@ -148,6 +150,11 @@ class ApplicationTest extends TestCase
                         'ldap' => false,
                         'shibboleth' => false,
                     ],
+                    'monitor' => [
+                        'horizon' => true,
+                        'pulse' => true,
+                        'telescope' => true,
+                    ],
                     'bbb' => [
                         'file_mimes' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'odt', 'ods', 'odp', 'odg', 'odc', 'odi', 'jpg', 'jpeg', 'png'],
                         'max_filesize' => 30,
@@ -183,6 +190,8 @@ class ApplicationTest extends TestCase
         config(['streaming.enabled' => true]);
         config(['streaming.refresh_interval' => 10]);
         config(['streaming.show_fps' => false]);
+        config(['pulse.enabled' => false]);
+        config(['telescope.enabled' => false]);
 
         $this->getJson(route('api.v1.config'))
             ->assertJson([
@@ -229,6 +238,11 @@ class ApplicationTest extends TestCase
                     'auth' => [
                         'local' => false,
                         'ldap' => true,
+                    ],
+                    'monitor' => [
+                        'horizon' => true,
+                        'pulse' => false,
+                        'telescope' => false,
                     ],
                 ],
             ])

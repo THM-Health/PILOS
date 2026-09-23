@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room access is now preserved across page reloads after entering via an access code or personalized link ([#3275])
 - Login button inside room access overlay to allow users to log in instead of accessing the room as a guest ([#2450], [#3275])
 - Option to set connection status of servers to always online ([#3317], [#3373])
+- Environment variable `PULSE_ENABLED` to disable Laravel Pulse ([#3476])
+- Docs: Horizon, Pulse and Telescope monitoring tools ([#3476])
 
 ### Changed
 
@@ -901,6 +903,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3316]: https://github.com/THM-Health/PILOS/pull/3316
 [#3317]: https://github.com/THM-Health/PILOS/issues/3317
 [#3373]: https://github.com/THM-Health/PILOS/pull/3373
+[#3476]: https://github.com/THM-Health/PILOS/pull/3476
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
