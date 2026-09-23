@@ -3,10 +3,10 @@
   <Button
     v-tooltip="$t('rooms.files.set_default')"
     :aria-label="$t('rooms.files.set_system_default_default_aria')"
-    :disabled="disabled || isLoadingAction || preferAsDefault"
+    :disabled="disabled || isLoadingAction"
     :loading="isLoadingAction"
-    :severity="preferAsDefault ? 'warn' : 'secondary'"
-    data-test="room-files-default-button"
+    severity="warn"
+    data-test="room-files-system-default-default-button"
     @click="setDefault"
   >
     <template #icon="{ class: iconClass }">
@@ -17,49 +17,6 @@
       />
     </template>
   </Button>
-
-  <!-- modal -->
-  <Dialog
-    v-model:visible="modalVisible"
-    modal
-    :header="$t('rooms.files.set_system_default_default_dialog_title')"
-    :style="{ width: '500px' }"
-    :breakpoints="{ '575px': '90vw' }"
-    :draggable="false"
-    :close-on-escape="!isLoadingAction"
-    :dismissable-mask="false"
-    :closable="!isLoadingAction"
-    data-test="room-files-default-dialog"
-  >
-    <template #footer>
-      <div class="flex justify-end gap-2">
-        <Button
-          :label="$t('app.cancel')"
-          severity="secondary"
-          :disabled="isLoadingAction"
-          data-test="dialog-cancel-button"
-          @click="modalVisible = false"
-        />
-        <Button
-          :label="$t('app.yes')"
-          severity="success"
-          :loading="isLoadingAction"
-          data-test="dialog-continue-button"
-          @click="saveDefault"
-        />
-      </div>
-    </template>
-
-    <div style="overflow-wrap: break-word" class="mb-4">
-      {{ $t("rooms.files.confirm_system_default_default") }}
-    </div>
-    <div v-if="!useInMeeting" style="overflow-wrap: break-word">
-      {{ $t("rooms.files.confirm_default_use_in_meeting") }}
-    </div>
-    <div v-if="defaultFile !== null" style="overflow-wrap: break-word">
-      {{ $t("rooms.files.confirm_system_default_default_current_default") }}
-    </div>
-  </Dialog>
 </template>
 <script setup>
 import { useApi } from "../composables/useApi.js";
@@ -74,21 +31,9 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  useInMeeting: {
-    type: Boolean,
-    default: false,
-  },
-  preferAsDefault: {
-    type: Boolean,
-    default: false,
-  },
   disabled: {
     type: Boolean,
     default: false,
-  },
-  defaultFile: {
-    type: Object,
-    default: null,
   },
 });
 
@@ -98,31 +43,12 @@ const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
-const modalVisible = ref(false);
 const isLoadingAction = ref(false);
-
-function setDefault() {
-  if (
-    !props.useInMeeting ||
-    (props.defaultFile !== null && !props.preferAsDefault)
-  ) {
-    showModal();
-  } else {
-    saveDefault();
-  }
-}
-
-/**
- * show modal
- */
-function showModal() {
-  modalVisible.value = true;
-}
 
 /**
  * Sends a request to the server to update the default file configuration for the specified room and file.
  */
-function saveDefault() {
+function setDefault() {
   isLoadingAction.value = true;
 
   api
@@ -130,8 +56,6 @@ function saveDefault() {
       method: "post",
     })
     .then(() => {
-      // operation successful, close modal and reload list
-      modalVisible.value = false;
       emit("edited");
     })
     .catch((error) => {
@@ -144,7 +68,6 @@ function saveDefault() {
         ) {
           toast.error(t("rooms.flash.default_presentation_not_set"));
           emit("systemDefaultPresentationNotSet");
-          modalVisible.value = false;
           return;
         }
       }

@@ -71,10 +71,8 @@
 
     <div class="flex shrink-0 flex-row items-start justify-end gap-1">
       <RoomTabFilesSystemDefaultDefaultButton
+        v-if="!preferAsDefault"
         :room-id="roomId"
-        :use-in-meeting="useInMeeting"
-        :prefer-as-default="preferAsDefault"
-        :default-file="defaultFile"
         @edited="$emit('edited')"
         @system-default-presentation-not-set="
           $emit('systemDefaultPresentationNotSet')

@@ -225,12 +225,12 @@
                     </p>
                     <div>
                       <Tag
-                        v-if="
-                          defaultFile?.id === item.id &&
-                          userPermissions.can('manageSettings', props.room) &&
-                          systemDefault.file !== null &&
-                          systemDefault.prefer_as_default
-                        "
+                      v-if="
+                        defaultFile?.id === item.id &&
+                        userPermissions.can('manageSettings', props.room) &&
+                        systemDefault.file !== null &&
+                        systemDefault.prefer_as_default
+                      "
                         severity="secondary"
                         :value="$t('rooms.files.default_fallback')"
                       >
@@ -238,14 +238,14 @@
                           <CircleNumberIcon
                             :number="2"
                             data-test="room-file-default-priority"
-                          />
+                    />
                         </template>
                       </Tag>
                       <Tag
-                        v-else-if="
-                          defaultFile?.id === item.id &&
-                          userPermissions.can('manageSettings', props.room)
-                        "
+                      v-else-if="
+                        defaultFile?.id === item.id &&
+                        userPermissions.can('manageSettings', props.room)
+                      "
                         severity="warn"
                         :value="$t('rooms.files.default')"
                       >
@@ -253,7 +253,7 @@
                           <CircleNumberIcon
                             :number="1"
                             data-test="room-file-default-priority"
-                          />
+                    />
                         </template>
                       </Tag>
                     </div>
@@ -265,15 +265,15 @@
                       userPermissions.can('manageSettings', props.room) &&
                       systemDefault.file !== null &&
                       systemDefault.prefer_as_default
-                    "
+                      "
                     class="flex flex-col items-start gap-2"
                   >
                     <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-info" />
                       <p class="m-0 text-sm">
                         {{ $t("rooms.files.default_fallback_description") }}
-                      </p>
-                    </div>
+                    </p>
+                  </div>
                   </div>
                   <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row items-center gap-2">
@@ -331,13 +331,14 @@
                   class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
                   <RoomTabFilesDefaultButton
-                    v-if="userPermissions.can('manageSettings', props.room)"
+                    v-if="
+                      (userPermissions.can('manageSettings', props.room) &&
+                        defaultFile?.id !== item.id) ||
+                      systemDefault.prefer_as_default
+                    "
                     :room-id="props.room.id"
                     :file-id="item.id"
                     :filename="item.filename"
-                    :use-in-meeting="item.use_in_meeting"
-                    :default="defaultFile?.id === item.id"
-                    :prefer-system-default="systemDefault.prefer_as_default"
                     :disabled="isBusy"
                     @edited="loadData()"
                     @not-found="loadData()"
