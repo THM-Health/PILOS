@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'attendance' => [
         'download' => 'Télécharger',
+        'download_aria' => 'Télécharger la liste des présences',
         'duration' => 'Présence',
         'duration_minute' => ':duration min.',
         'filename' => 'Liste_de_presence',
@@ -20,6 +21,7 @@ return [
             'worksheet' => 'Liste de présence',
         ],
         'view' => 'Voir les présences',
+        'view_aria' => 'Afficher le nombre de participants à la réunion :start',
     ],
     'currently_running' => 'Réunions en cours',
     'end' => 'Fin',
@@ -30,7 +32,10 @@ return [
     'now' => 'maintenant',
     'owner' => 'Propriétaire',
     'participant_count' => 'Participant',
+    'participant_count_value' => '{0} 0 participant |{1} 1 participant |[2,*] :count participants',
+    'reload_aria' => 'Actualiser les réunions en cours',
     'retention_period' => 'Période de conservation',
+    'search_aria' => 'Rechercher les réunions en cours',
     'start' => 'Commencer',
     'stats' => [
         'amount' => 'Total',
@@ -45,6 +50,7 @@ return [
     ],
     'video_count' => 'Participants avec la caméra',
     'view_meeting_stats' => 'Afficher les données d\'utilisation',
-    'view_room' => 'Voir la salle ":name"',
+    'view_meeting_stats_aria' => 'Afficher le taux d\'utilisation pour la réunion :start',
+    'view_room' => 'Voir la salle: :name',
     'voice_participant_count' => 'Participants avec la voix',
 ];
