@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 return [
     'actions' => 'Actions',
+    'aria' => [
+        'footer' => 'Pied de page',
+        'main' => 'Contenu principal',
+        'main_menu' => 'Menu principal',
+        'navigated_to_page' => 'Accès à la page :page',
+        'skip_links' => 'Ignorer les liens',
+        'user_menu' => 'Contenu utilisateur',
+    ],
     'back' => 'Retour',
     'browse' => 'Parcourir',
     'button_styles' => [
@@ -20,7 +28,7 @@ return [
     'cancel' => 'Annuler',
     'cancel_editing' => 'Annuler les modifications',
     'change_locale' => 'Choisir le language',
-    'char_counter' => 'Caractères: :chars',
+    'char_counter' => 'Caractères: :chars / :max',
     'close' => 'Fermer',
     'continue' => 'Continuer',
     'dark_mode_disable' => 'Désactiver le mode sombre',
@@ -61,6 +69,13 @@ return [
         'streaming_meeting_not_running' => 'La conférence n\'est pas démarrée.',
         'streaming_not_enabled_for_current_meeting_error' => 'Le streaming n\'est pas activité pour cette conférence.',
     ],
+    'file' => [
+        'allowed_formats' => 'Formats de fichiers autorisés: :formats',
+        'invalid_type' => 'Ce type de fichier n\'est pas autorisé.',
+        'max_size' => 'Taille maximale du fichier: :size',
+        'too_large' => 'Le fichier sélectionné est trop volumineux.',
+    ],
+    'filter' => 'Filtre',
     'filter_no_results' => 'Aucun résultat trouvé',
     'firstname' => 'Prénom',
     'flash' => [
@@ -118,10 +133,12 @@ return [
     'next_page' => 'Page suivante',
     'no' => 'Non',
     'not_found' => '404 | Cette resource n\'a pas été trouvé',
+    'or' => 'ou',
     'overwrite' => 'Écraser',
     'previous_page' => 'Page précédente',
     'profile' => 'Profil',
     'reload' => 'Recharger',
+    'reload_timezones_aria' => 'Actualiser les fuseaux horaires',
     'reset' => 'Réinitialiser',
     'roles' => 'Rôles',
     'room_limit' => 'Limitation de salle',
@@ -135,6 +152,9 @@ return [
     'server_pool' => 'Groupe de serveurs',
     'server_pools' => 'Groupes de serveurs',
     'servers' => 'Serveurs',
+    'sort_ascending' => 'Trier par ordre croissant',
+    'sort_by' => 'Trier par',
+    'sort_descending' => 'Trier par ordre décroissant',
     'streaming' => 'Streaming',
     'time_formats' => [
         'day' => 'Jour',
