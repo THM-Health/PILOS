@@ -42,3 +42,13 @@ Cypress.on("window:before:load", (win) => {
   // Patch the matchMedia function to allow simulating dark mode in tests
   patchMatchMedia(win);
 });
+
+if (Cypress.browser.family === "chromium") {
+  Cypress.automation("remote:debugger:protocol", {
+    command: "Browser.grantPermissions",
+    params: {
+      permissions: ["clipboardReadWrite", "clipboardSanitizedWrite"],
+      origin: new URL(Cypress.config("baseUrl")).origin,
+    },
+  });
+}

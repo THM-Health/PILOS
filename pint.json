@@ -8,7 +8,8 @@
     "db",
     "redis",
     "coverage",
-    ".github/skills"
+    ".github/skills",
+    "chrome"
   ],
   "preset": "laravel",
   "rules": {
