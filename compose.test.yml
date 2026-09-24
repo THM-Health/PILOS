@@ -21,7 +21,7 @@ services:
       redis:
         condition: service_healthy
   db:
-    image: "mariadb:11"
+    image: "mariadb:12"
     environment:
       MARIADB_DATABASE: "app"
       MARIADB_USER: "user"
