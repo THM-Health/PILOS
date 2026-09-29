@@ -2,6 +2,7 @@
   <Button
     v-tooltip="$t('rooms.files.configure_system_default')"
     :aria-label="$t('rooms.files.configure_system_default')"
+    :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"
     data-test="room-files-configure-system-default-button"
@@ -85,6 +86,10 @@ const props = defineProps({
   roomId: {
     type: String,
     required: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
   useInMeeting: {
     type: Boolean,

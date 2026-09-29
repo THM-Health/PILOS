@@ -163,7 +163,7 @@ class RoomFileController extends Controller
         $room->use_system_default_presentation_in_meeting = $request->use_in_meeting;
 
         // Reset prefer system default as default if use in meeting is set to false
-        if ($request->use_in_meeting === false) {
+        if ($room->use_system_default_presentation_in_meeting === false) {
             $room->prefer_system_default_presentation_as_default = false;
         }
 

@@ -1,22 +1,14 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.files.set_default')"
-    :aria-label="$t('rooms.files.set_default_aria', { filename: filename })"
     :disabled="disabled || isLoadingAction"
     :loading="isLoadingAction"
-    severity="warn"
+    severity="secondary"
     data-test="room-files-default-button"
+    icon="fa-solid fa-crown"
+    :label="$t('rooms.files.set_default')"
     @click="setDefault"
-  >
-    <template #icon="{ class: iconClass }">
-      <CircleNumberIcon
-        :class="iconClass"
-        :number="1"
-        data-test="room-file-default-button-priority"
-      />
-    </template>
-  </Button>
+  />
 </template>
 <script setup>
 import { useApi } from "../composables/useApi.js";
@@ -25,6 +17,7 @@ import { useToast } from "../composables/useToast.js";
 import { useI18n } from "vue-i18n";
 import { ROOM_FILE } from "../constants/modelNames.js";
 import { HTTP_STATUS_NOT_FOUND } from "../constants/httpStatusCodes.js";
+import { HTTP_ERROR_ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET } from "../constants/httpCustomErrorMessages.js";
 
 const props = defineProps({
   roomId: {
@@ -32,11 +25,7 @@ const props = defineProps({
     required: true,
   },
   fileId: {
-    type: Number,
-    required: true,
-  },
-  filename: {
-    type: String,
+    type: [Number, null],
     required: true,
   },
   disabled: {
@@ -45,7 +34,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edited", "notFound"]);
+const emit = defineEmits([
+  "edited",
+  "notFound",
+  "systemDefaultPresentationNotSet",
+]);
 
 const api = useApi();
 const toast = useToast();
@@ -59,8 +52,13 @@ const isLoadingAction = ref(false);
 function setDefault() {
   isLoadingAction.value = true;
 
+  const url =
+    props.fileId === null
+      ? `rooms/${props.roomId}/files/system_default/default`
+      : `rooms/${props.roomId}/files/${props.fileId}/default`;
+
   api
-    .call(`rooms/${props.roomId}/files/${props.fileId}/default`, {
+    .call(url, {
       method: "post",
     })
     .then(() => {
@@ -76,6 +74,17 @@ function setDefault() {
         ) {
           toast.error(t("rooms.flash.file_gone"));
           emit("notFound");
+          return;
+        }
+
+        // System default presentation not set
+        if (
+          error.response.status === HTTP_STATUS_NOT_FOUND &&
+          error.response.data?.message ===
+            HTTP_ERROR_ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET
+        ) {
+          toast.error(t("rooms.flash.default_presentation_not_set"));
+          emit("systemDefaultPresentationNotSet");
           return;
         }
       }

@@ -219,62 +219,24 @@
                 class="flex flex-col justify-between gap-4 border-t border-surface py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
-                  <div class="flex flex-col gap-2 md:flex-row md:items-center">
-                    <p class="text-word-break m-0 text-lg font-semibold">
-                      {{ item.filename }}
-                    </p>
-                    <div>
-                      <Tag
-                      v-if="
-                        defaultFile?.id === item.id &&
-                        userPermissions.can('manageSettings', props.room) &&
-                        systemDefault.file !== null &&
-                        systemDefault.prefer_as_default
-                      "
-                        severity="secondary"
-                        :value="$t('rooms.files.default_fallback')"
-                      >
-                        <template #icon>
-                          <CircleNumberIcon
-                            :number="2"
-                            data-test="room-file-default-priority"
-                    />
-                        </template>
-                      </Tag>
-                      <Tag
-                      v-else-if="
-                        defaultFile?.id === item.id &&
-                        userPermissions.can('manageSettings', props.room)
-                      "
-                        severity="warn"
-                        :value="$t('rooms.files.default')"
-                      >
-                        <template #icon>
-                          <CircleNumberIcon
-                            :number="1"
-                            data-test="room-file-default-priority"
-                    />
-                        </template>
-                      </Tag>
-                    </div>
-                  </div>
+                  <p class="text-word-break m-0 text-lg font-semibold">
+                    {{ item.filename }}
+                  </p>
 
                   <div
                     v-if="
                       defaultFile?.id === item.id &&
                       userPermissions.can('manageSettings', props.room) &&
-                      systemDefault.file !== null &&
-                      systemDefault.prefer_as_default
-                      "
-                    class="flex flex-col items-start gap-2"
+                      !systemDefaultIsPreferred
+                    "
                   >
-                    <div class="flex flex-row items-center gap-2">
-                      <i class="fa-solid fa-info" />
-                      <p class="m-0 text-sm">
-                        {{ $t("rooms.files.default_fallback_description") }}
-                    </p>
+                    <Tag
+                      severity="info"
+                      icon="fa-solid fa-crown"
+                      :value="$t('rooms.files.default')"
+                    />
                   </div>
-                  </div>
+
                   <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row items-center gap-2">
                       <i class="fa-solid fa-clock" />
@@ -332,13 +294,11 @@
                 >
                   <RoomTabFilesDefaultButton
                     v-if="
-                      (userPermissions.can('manageSettings', props.room) &&
-                        defaultFile?.id !== item.id) ||
-                      systemDefault.prefer_as_default
+                      userPermissions.can('manageSettings', props.room) &&
+                      (defaultFile?.id !== item.id || systemDefaultIsPreferred)
                     "
                     :room-id="props.room.id"
                     :file-id="item.id"
-                    :filename="item.filename"
                     :disabled="isBusy"
                     @edited="loadData()"
                     @not-found="loadData()"
@@ -471,6 +431,12 @@ const requireAgreement = computed(() => {
   return (
     !userPermissions.can("manageSettings", props.room) &&
     settingsStore.getSetting("room.file_terms_of_use") !== null
+  );
+});
+
+const systemDefaultIsPreferred = computed(() => {
+  return (
+    systemDefault.value.file !== null && systemDefault.value.prefer_as_default
   );
 });
 
