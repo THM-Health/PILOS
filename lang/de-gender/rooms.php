@@ -122,10 +122,8 @@ return [
             'downloadable' => 'Herunterladbare Dateien',
             'use_in_meeting' => 'In Videokonferenz verfügbare Dateien',
         ],
-        'formats' => 'Erlaubte Dateiformate: :formats',
         'nodata' => 'Keine Dateien vorhanden',
         'select_or_drag' => 'Wählen Sie eine Datei aus, oder ziehen Sie eine Datei per Drag & Drop in dieses Feld ...',
-        'size' => 'Max. Dateigröße: :size MB',
         'sort' => [
             'filename' => 'Dateiname',
             'uploaded_at' => 'Hinzugefügt',
@@ -470,7 +468,6 @@ return [
             'enabled' => 'Aktiviert',
             'pause_image' => 'Pausebild',
             'pause_image_alt' => 'Pausebild',
-            'pause_image_format' => 'Format: PNG, JPEG, GIF, BMP; Auflösung: 1920x1080px',
             'title' => 'Streaming-Konfiguration',
             'url' => 'RTMP(S)-URL',
         ],

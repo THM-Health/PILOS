@@ -28,6 +28,7 @@
           id="participant-name"
           v-model="participantNameInput"
           :disabled="loading"
+          autofocus
           :invalid="formErrors.fieldInvalid('name')"
         />
         <div class="flex items-center gap-2">

@@ -133,7 +133,7 @@ describe("Admin servers index", function () {
       .should("have.text", "admin.servers.video_count");
 
     // Check that servers are displayed correctly
-    cy.get('[data-test="server-item"]').should("have.length", 4);
+    cy.get('[data-test="server-item"]').should("have.length", 5);
 
     cy.get('[data-test="server-item"]')
       .eq(0)
@@ -147,12 +147,17 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(1)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.enabled");
+          .should("include.attr", "aria-label", "admin.servers.enabled")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-play");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(2)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.online");
+          .should("include.attr", "aria-label", "admin.servers.online")
+          .should("not.include.text", "()")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-check");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(3)
@@ -179,12 +184,16 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(1)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.enabled");
+          .should("include.attr", "aria-label", "admin.servers.enabled")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-play");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(2)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.unhealthy");
+          .should("include.attr", "aria-label", "admin.servers.faulty")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-triangle-exclamation");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(3)
@@ -213,12 +222,13 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(1)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.disabled");
+          .should("include.attr", "aria-label", "admin.servers.disabled")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-stop");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(2)
-          .find("span")
-          .should("include.attr", "aria-label", "admin.servers.offline");
+          .should("have.text", " --- ");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(3)
@@ -249,12 +259,57 @@ describe("Admin servers index", function () {
         cy.get('[data-test="server-item-cell"]')
           .eq(1)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.draining");
+          .should("include.attr", "aria-label", "admin.servers.draining")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-pause");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(2)
           .find("span")
-          .should("include.attr", "aria-label", "admin.servers.online");
+          .should("include.attr", "aria-label", "admin.servers.offline")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-xmark");
+
+        cy.get('[data-test="server-item-cell"]')
+          .eq(3)
+          .should("have.text", " --- ");
+
+        cy.get('[data-test="server-item-cell"]')
+          .eq(4)
+          .should("have.text", " --- ");
+
+        cy.get('[data-test="server-item-cell"]')
+          .eq(5)
+          .should("have.text", " --- ");
+
+        cy.get('[data-test="server-item-cell"]')
+          .eq(6)
+          .should("have.text", " --- ");
+      });
+
+    cy.get('[data-test="server-item"]')
+      .eq(4)
+      .within(() => {
+        cy.get('[data-test="server-item-cell"]').should("have.length", 7);
+
+        cy.get('[data-test="server-item-cell"]')
+          .eq(0)
+          .should("have.text", "Server 05");
+
+        cy.get('[data-test="server-item-cell"]')
+          .eq(1)
+          .find("span")
+          .should("include.attr", "aria-label", "admin.servers.enabled")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-play");
+
+        cy.get('[data-test="server-item-cell"]')
+          .eq(2)
+          .find("span")
+          .should("include.attr", "aria-label", "admin.servers.always_online")
+          .should("include.text", "()")
+          .find(".p-tag-icon")
+          .should("have.class", "fa-check");
 
         cy.get('[data-test="server-item-cell"]')
           .eq(3)
@@ -312,7 +367,7 @@ describe("Admin servers index", function () {
 
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -384,7 +439,7 @@ describe("Admin servers index", function () {
 
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -777,7 +832,7 @@ describe("Admin servers index", function () {
     // Change sorting type and respond with 4 servers on 4 different pages
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -813,7 +868,7 @@ describe("Admin servers index", function () {
       .should("include.text", "Server 01");
 
     // Check that pagination shows the correct number of pages
-    cy.get('[data-test="paginator-page"]').should("have.length", 4);
+    cy.get('[data-test="paginator-page"]').should("have.length", 5);
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]')
@@ -825,7 +880,7 @@ describe("Admin servers index", function () {
       servers.data = servers.data.slice(1, 2);
       servers.meta.current_page = 2;
       servers.meta.from = 2;
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 2;
 
@@ -866,7 +921,7 @@ describe("Admin servers index", function () {
     // Change sorting direction and make sure that the page is reset
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -930,7 +985,7 @@ describe("Admin servers index", function () {
       servers.data = servers.data.slice(1, 2);
       servers.meta.current_page = 2;
       servers.meta.from = 2;
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 2;
 
@@ -971,7 +1026,7 @@ describe("Admin servers index", function () {
     // Change sorting and make sure that the page is reset
     cy.fixture("servers.json").then((servers) => {
       servers.data = servers.data.slice(0, 1);
-      servers.meta.last_page = 4;
+      servers.meta.last_page = 5;
       servers.meta.per_page = 1;
       servers.meta.to = 1;
 
@@ -1068,7 +1123,7 @@ describe("Admin servers index", function () {
 
     cy.get('[data-test="servers-add-button"]').should("not.exist");
 
-    cy.get('[data-test="server-item"]').should("have.length", 4);
+    cy.get('[data-test="server-item"]').should("have.length", 5);
 
     cy.get('[data-test="server-item"]')
       .eq(0)
@@ -1131,7 +1186,7 @@ describe("Admin servers index", function () {
 
     cy.get('[data-test="servers-add-button"]').should("not.exist");
 
-    cy.get('[data-test="server-item"]').should("have.length", 4);
+    cy.get('[data-test="server-item"]').should("have.length", 5);
 
     cy.get('[data-test="server-item"]')
       .eq(0)
@@ -1213,7 +1268,7 @@ describe("Admin servers index", function () {
       .and("not.be.disabled")
       .and("have.attr", "href", "/admin/servers/new");
 
-    cy.get('[data-test="server-item"]').should("have.length", 4);
+    cy.get('[data-test="server-item"]').should("have.length", 5);
 
     cy.get('[data-test="server-item"]')
       .eq(0)
@@ -1295,7 +1350,7 @@ describe("Admin servers index", function () {
       .should("be.visible")
       .and("have.attr", "href", "/admin/servers/new");
 
-    cy.get('[data-test="server-item"]').should("have.length", 4);
+    cy.get('[data-test="server-item"]').should("have.length", 5);
 
     cy.get('[data-test="server-item"]')
       .eq(0)

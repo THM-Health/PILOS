@@ -252,7 +252,6 @@ return [
         'strength_description' => 'Facteur d\'équilibrage de charge, plus le facteur est élevé, plus le serveur peut gérer de participants et de réunions',
         'test_connection' => 'Test de connexion',
         'tile_description' => 'Les serveurs fournissent l\'infrastructure BBB pour les réunions.',
-        'unhealthy' => 'Défectueux',
         'unknown' => 'Inconnu',
         'usage_info' => 'L\'utilisation (réunions, participants, vidéos) contient également des réunions qui sont gérées par d\'autres systèmes.',
         'version' => 'Version',

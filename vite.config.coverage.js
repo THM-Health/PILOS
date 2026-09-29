@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import commonConfig from "./vite.config.common";
+import commonConfig from "./vite.config.common.js";
 import istanbul from "vite-plugin-istanbul";
 export default ({ mode }) => {
   const config = commonConfig(mode);

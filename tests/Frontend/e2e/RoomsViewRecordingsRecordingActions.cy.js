@@ -423,7 +423,7 @@ describe("Rooms view recordings recording actions", function () {
     cy.wait("@roomAuthRequest");
 
     // Check that sessionStorage is cleared
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
         .be.null;
     });

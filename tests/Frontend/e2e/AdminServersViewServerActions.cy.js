@@ -186,7 +186,7 @@ describe("Admin servers view server actions", function () {
     cy.visit("/admin/servers/1");
     cy.wait("@serverRequest");
 
-    cy.get("#healthStatus")
+    cy.get("#connectionStatus")
       .should("have.value", "admin.servers.online")
       .and("be.disabled");
 
@@ -230,11 +230,11 @@ describe("Admin servers view server actions", function () {
     );
 
     // Check that connection status is updated
-    cy.get("#healthStatus")
+    cy.get("#connectionStatus")
       .should("have.value", "admin.servers.offline")
       .and("be.disabled");
 
-    cy.get('[data-test="health-status-field"]').should(
+    cy.get('[data-test="connection-status-field"]').should(
       "include.text",
       "admin.servers.offline_reason.connection",
     );
@@ -258,11 +258,11 @@ describe("Admin servers view server actions", function () {
     });
 
     // Check that connection status is updated
-    cy.get("#healthStatus")
+    cy.get("#connectionStatus")
       .should("have.value", "admin.servers.offline")
       .and("be.disabled");
 
-    cy.get('[data-test="health-status-field"]').should(
+    cy.get('[data-test="connection-status-field"]').should(
       "include.text",
       "admin.servers.offline_reason.secret",
     );
@@ -286,11 +286,11 @@ describe("Admin servers view server actions", function () {
     });
 
     // Check that connection status is updated
-    cy.get("#healthStatus")
+    cy.get("#connectionStatus")
       .should("have.value", "admin.servers.online")
       .and("be.disabled");
 
-    cy.get('[data-test="health-status-field"]').should(
+    cy.get('[data-test="connection-status-field"]').should(
       "not.include.text",
       "admin.servers.offline_reason",
     );
@@ -300,7 +300,7 @@ describe("Admin servers view server actions", function () {
     cy.visit("/admin/servers/1");
     cy.wait("@serverRequest");
 
-    cy.get("#healthStatus")
+    cy.get("#connectionStatus")
       .should("have.value", "admin.servers.online")
       .and("be.disabled");
 
@@ -317,7 +317,7 @@ describe("Admin servers view server actions", function () {
     cy.wait("@checkConnectionRequest");
 
     // Check that connection status is updated
-    cy.get("#healthStatus")
+    cy.get("#connectionStatus")
       .should("have.value", "admin.servers.unknown")
       .and("be.disabled");
 
@@ -362,7 +362,7 @@ describe("Admin servers view server actions", function () {
 
     cy.fixture("server.json").then((server) => {
       server.data.status = -1;
-      server.data.health = null;
+      server.data.connection_status = null;
       server.data.participant_count = null;
       server.data.listener_count = null;
       server.data.voice_participant_count = null;
@@ -400,8 +400,8 @@ describe("Admin servers view server actions", function () {
       "admin.servers.disabled",
     );
 
-    // Check that server health is updated
-    cy.get("#healthStatus")
+    // Check that server connection status is updated
+    cy.get("#connectionStatus")
       .should("have.value", "admin.servers.unknown")
       .and("be.disabled");
 

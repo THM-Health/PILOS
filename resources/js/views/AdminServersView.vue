@@ -200,16 +200,48 @@
 
         <div
           class="field grid grid-cols-12 gap-4"
-          data-test="health-status-field"
+          data-test="connection-status-always-online-field"
         >
-          <label class="col-span-12 md:col-span-4 md:mb-0" for="healthStatus">{{
-            $t("admin.servers.connection")
-          }}</label>
+          <label
+            for="connection-status-always-online"
+            class="col-span-12 items-start md:col-span-4 md:mb-0"
+            >{{ $t("admin.servers.connection_status_always_online") }}</label
+          >
+          <div class="col-span-12 md:col-span-8">
+            <div>
+              <ToggleSwitch
+                v-model="model.connection_status_always_online"
+                input-id="connection-status-always-online"
+                :invalid="
+                  formErrors.fieldInvalid('connection_status_always_online')
+                "
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                aria-describedby="connection-status-always-online-help"
+              />
+            </div>
+            <FormError
+              :errors="formErrors.fieldError('connection_status_always_online')"
+            />
+            <small id="connection-status-always-online-help">{{
+              $t("admin.servers.connection_status_always_online_description")
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="connection-status-field"
+        >
+          <label
+            class="col-span-12 md:col-span-4 md:mb-0"
+            for="connectionStatus"
+            >{{ $t("admin.servers.connection") }}</label
+          >
           <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <InputText
-                id="healthStatus"
-                v-model="healthStatus"
+                id="connectionStatus"
+                v-model="connectionStatusLabel"
                 :disabled="true"
                 type="text"
               />
@@ -422,6 +454,7 @@ const props = defineProps({
 
 const model = ref({
   id: null,
+  connection_status_always_online: false,
 });
 const name = ref("");
 
@@ -438,16 +471,16 @@ const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);
 const panicking = ref(false);
-const health = ref(null);
+const connectionStatus = ref(null);
 const isDisabled = ref(false);
 const offlineReason = ref(null);
 
-const healthStatus = computed(() => {
-  switch (health.value) {
+const connectionStatusLabel = computed(() => {
+  switch (connectionStatus.value) {
     case -1:
       return t("admin.servers.offline");
     case 0:
-      return t("admin.servers.unhealthy");
+      return t("admin.servers.faulty");
     case 1:
       return t("admin.servers.online");
     default:
@@ -522,20 +555,20 @@ function testConnection() {
     .call("servers/check", config)
     .then((response) => {
       if (response.data.connection_ok && response.data.secret_ok) {
-        health.value = 1;
+        connectionStatus.value = 1;
         offlineReason.value = null;
       } else {
         if (response.data.connection_ok && !response.data.secret_ok) {
-          health.value = -1;
+          connectionStatus.value = -1;
           offlineReason.value = "secret";
         } else {
-          health.value = -1;
+          connectionStatus.value = -1;
           offlineReason.value = "connection";
         }
       }
     })
     .catch((error) => {
-      health.value = null;
+      connectionStatus.value = null;
       offlineReason.value = null;
 
       api.error(error);
@@ -560,7 +593,9 @@ function load() {
         model.value = response.data.data;
         isDisabled.value = model.value.status === -1;
         name.value = response.data.data.name;
-        health.value = model.value.health;
+        connectionStatus.value = model.value.connection_status_always_online
+          ? null
+          : model.value.connection_status;
         offlineReason.value = null;
       })
       .catch((error) => {
@@ -644,7 +679,7 @@ function handleStaleError(staleError) {
     reject: () => {
       model.value = staleError.new_model;
       name.value = staleError.new_model.name;
-      health.value = model.value.health;
+      connectionStatus.value = model.value.connection_status;
       offlineReason.value = null;
     },
   });

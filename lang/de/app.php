@@ -69,6 +69,12 @@ return [
         'streaming_meeting_not_running' => 'Das Meeting läuft gerade nicht.',
         'streaming_not_enabled_for_current_meeting_error' => 'Streaming ist für das aktuelle Meeting nicht aktiviert.',
     ],
+    'file' => [
+        'allowed_formats' => 'Erlaubte Dateiformate: :formats',
+        'invalid_type' => 'Der Dateityp ist nicht erlaubt.',
+        'max_size' => 'Max. Dateigröße: :size',
+        'too_large' => 'Die ausgewählte Datei ist zu groß.',
+    ],
     'filter' => 'Filter',
     'filter_no_results' => 'Keine Ergebnisse gefunden',
     'firstname' => 'Vorname',
@@ -127,6 +133,7 @@ return [
     'next_page' => 'Nächste Seite',
     'no' => 'Nein',
     'not_found' => '404 | Die aufgerufene Adresse wurde nicht gefunden',
+    'or' => 'oder',
     'overwrite' => 'Überschreiben',
     'previous_page' => 'Vorherige Seite',
     'profile' => 'Profil',
@@ -164,10 +171,6 @@ return [
     'user' => 'Benutzer',
     'user_name' => 'Name',
     'users' => 'Benutzer',
-    'validation' => [
-        'invalid_type' => 'Der Dateityp ist nicht erlaubt.',
-        'too_large' => 'Die ausgewählte Datei ist zu groß.',
-    ],
     'verify_email' => [
         'fail' => 'Ihre E-Mail konnte nicht verifiziert werden!',
         'invalid' => 'Der Verifizierungslink ist ungültig oder abgelaufen!',

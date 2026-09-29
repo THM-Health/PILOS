@@ -20,24 +20,21 @@ return new class extends Migration
             $table->integer('recover_count')->default(0);
         });
 
-        // Migrate the status column to health counters and status
+        // Migrate the status column to connection status counters and status
         foreach (Server::all() as $server) {
 
             switch ($server->getRawOriginal('status')) {
-                // Disabled
-                case -1:
+                case -1: // Disabled
                     $server->status = ServerStatus::DISABLED;
                     break;
-                    // Offline
-                case 0:
-                    // Server is unhealthy, but not offline yet
+                case 0: // Offline
+                    // Server is faulty, but not offline yet
                     $server->recover_count = 0;
                     $server->error_count = 0;
                     $server->status = ServerStatus::ENABLED;
                     break;
-                    // Online
-                case 1:
-                    // Server is healthy
+                case 1: // Online
+                    // Server is online
                     $server->recover_count = config('bigbluebutton.server_online_threshold');
                     $server->error_count = 0;
                     $server->status = ServerStatus::ENABLED;

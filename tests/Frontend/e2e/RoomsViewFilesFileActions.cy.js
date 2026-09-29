@@ -1,7 +1,6 @@
 import { parseFormData } from "../support/utils/formData.js";
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
-
 describe("Rooms view files file actions", function () {
   beforeEach(function () {
     cy.init();
@@ -75,11 +74,12 @@ describe("Rooms view files file actions", function () {
           }).as("roomFilesRequest");
         });
 
-        cy.get("#file")
-          .should("not.be.visible")
-          .selectFile("tests/Frontend/fixtures/files/testFile.txt", {
+        cy.get("#file").selectFile(
+          "tests/Frontend/fixtures/files/testFile.txt",
+          {
             force: true,
-          });
+          },
+        );
 
         // Check loading
         cy.get('[data-test="upload-file-button"]').should(
@@ -164,11 +164,12 @@ describe("Rooms view files file actions", function () {
         });
 
         // Upload another file
-        cy.get("#file")
-          .should("not.be.visible")
-          .selectFile("tests/Frontend/fixtures/files/testFile2.txt", {
+        cy.get("#file").selectFile(
+          "tests/Frontend/fixtures/files/testFile2.txt",
+          {
             force: true,
-          });
+          },
+        );
       });
 
     // Check that file is uploaded correctly
@@ -1064,7 +1065,7 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomAuthRequest");
 
     // Check that sessionStorage is cleared
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123")).to
         .be.null;
     });

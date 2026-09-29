@@ -29,6 +29,10 @@ RUN apk --no-cache add \
     mysql-client postgresql-client \
     nodejs npm
 
+# Install latest npm and remove alpine version
+RUN npm install -g npm
+RUN apk del npm
+
 # Add PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions \

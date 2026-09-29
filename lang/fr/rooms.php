@@ -120,10 +120,8 @@ return [
             'downloadable' => 'Fichiers téléchargeables',
             'use_in_meeting' => 'Fichiers disponible dans la vidéo conférence',
         ],
-        'formats' => 'Formats de fichier autorisés: :formats',
         'nodata' => 'Aucun fichier disponible',
         'select_or_drag' => 'Sélectionnez un fichier ou faites-le glisser et déposez-le ici...',
-        'size' => 'Taille de fichier max. : :size Mo',
         'sort' => [
             'filename' => 'Nom de fichier',
             'uploaded_at' => 'Transmis',
@@ -464,7 +462,6 @@ return [
             'enabled' => 'Activé',
             'pause_image' => 'Image de pause',
             'pause_image_alt' => 'Image de pause',
-            'pause_image_format' => 'Format: PNG, JPEG, GIF, BMP; Résolution: 1920x1080px',
             'title' => 'Configuration du streaming',
             'url' => 'URL RTMP(S)',
         ],
