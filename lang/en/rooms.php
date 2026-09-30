@@ -117,8 +117,8 @@ return [
         'configure_dialog_title' => 'Configure ":name"',
         'configure_system_default' => 'Configure system-wide default presentation',
         'confirm_delete' => 'Do you want to delete this file :filename?',
-        'default' => 'Default presentation',
-        'default_automatic' => 'Default presentation (Automatic)',
+        'default' => 'Start presentation',
+        'default_automatic' => 'Start presentation (Automatic)',
         'delete' => 'Delete file',
         'delete_aria' => 'Delete file: :filename',
         'download_allowed' => 'Download allowed',
@@ -134,7 +134,7 @@ return [
         'reload_aria' => 'Reload files',
         'search_aria' => 'Search files',
         'select_or_drag' => 'Select a file or drag and drop it here...',
-        'set_default' => 'Set as default',
+        'set_default' => 'Set as start',
         'sort' => [
             'filename' => 'Filename',
             'uploaded_at' => 'Added',
@@ -143,7 +143,7 @@ return [
         'sort_by' => 'Sort files by',
         'sort_descending' => 'Sort files descending',
         'system_default' => 'System-wide default presentation',
-        'system_default_description' => 'Automatically used as default when no other presentation is enabled for the next video conference',
+        'system_default_description' => 'Automatically used as start presentation when no other presentation is enabled for the next video conference',
         'terms_of_use' => [
             'accept' => 'I accept the terms of use',
             'close' => 'Close terms of use',
