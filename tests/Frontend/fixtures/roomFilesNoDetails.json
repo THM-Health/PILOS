@@ -13,6 +13,11 @@
       "url": "https://example.com/files/File2.pdf?signature=def456"
     }
   ],
+  "system_default": {
+    "file": "Default.pdf",
+    "use_in_meeting": true,
+    "use_as_default": false
+  },
   "meta": {
     "current_page": 1,
     "from": 1,
