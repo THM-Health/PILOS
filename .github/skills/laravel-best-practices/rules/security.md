@@ -130,10 +130,10 @@ Do not commit populated environment files or hard-code credentials. Read environ
 
 ## Audit Dependencies
 
-Run `composer audit` regularly and in continuous integration. Review findings for exploitability and update or mitigate affected packages promptly.
+Run `vendor/bin/sail composer audit` regularly and in continuous integration. Review findings for exploitability and update or mitigate affected packages promptly.
 
 ```bash
-composer audit
+vendor/bin/sail composer audit
 ```
 
 ## Encrypt Sensitive Attributes When Appropriate
