@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Downloading recording ZIP files for large recordings (increased PHP `max_execution_time` to 3600 seconds) ([#3412], [#3500])
+
 ## [v4.18.0] - 2026-09-23
 
 ### Added
@@ -907,7 +911,9 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3316]: https://github.com/THM-Health/PILOS/pull/3316
 [#3317]: https://github.com/THM-Health/PILOS/issues/3317
 [#3373]: https://github.com/THM-Health/PILOS/pull/3373
+[#3412]: https://github.com/THM-Health/PILOS/issues/3412
 [#3476]: https://github.com/THM-Health/PILOS/pull/3476
+[#3500]: https://github.com/THM-Health/PILOS/pull/3500
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
