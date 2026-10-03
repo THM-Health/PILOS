@@ -46,29 +46,38 @@
       :disabled="isLoadingAction"
       @submit="save"
     >
-      <!-- first name -->
-      <div class="field mt-6 flex flex-col gap-2" data-test="firstname-field">
-        <label for="firstname">{{ $t("app.firstname") }}</label>
+      <!-- description -->
+      <div class="field mt-6 flex flex-col gap-2" data-test="description-field">
+        <label for="description">{{ $t("app.description") }}</label>
         <InputText
-          id="firstname"
-          v-model.trim="firstname"
+          id="description"
+          v-model.trim="description"
           autofocus
           :disabled="isLoadingAction"
-          :invalid="formErrors.fieldInvalid('firstname')"
+          :invalid="formErrors.fieldInvalid('description')"
         />
-        <FormError :errors="formErrors.fieldError('firstname')" />
+        <FormError :errors="formErrors.fieldError('description')" />
       </div>
 
-      <!-- last name -->
-      <div class="field mt-6 flex flex-col gap-2" data-test="lastname-field">
-        <label for="lastname">{{ $t("app.lastname") }}</label>
+      <!-- enforced name -->
+      <div
+        class="field mt-6 flex flex-col gap-2"
+        data-test="enforced-name-field"
+      >
+        <label for="enforced-name">{{
+          $t("rooms.personalized_links.enforced_name")
+        }}</label>
         <InputText
-          id="lastname"
-          v-model.trim="lastname"
+          id="enforced-name"
+          v-model.trim="enforced_name"
+          aria-describedby="enforced-name-hint"
           :disabled="isLoadingAction"
-          :invalid="formErrors.fieldInvalid('lastname')"
+          :invalid="formErrors.fieldInvalid('enforced_name')"
         />
-        <FormError :errors="formErrors.fieldError('lastname')" />
+        <small id="enforced-name-hint">{{
+          $t("rooms.personalized_links.enforced_name_hint")
+        }}</small>
+        <FormError :errors="formErrors.fieldError('enforced_name')" />
       </div>
 
       <!-- select role -->
@@ -136,8 +145,8 @@ const api = useApi();
 const formErrors = useFormErrors();
 
 const modalVisible = ref(false);
-const firstname = ref(null);
-const lastname = ref(null);
+const description = ref(null);
+const enforced_name = ref(null);
 const role = ref(null);
 const isLoadingAction = ref(false);
 
@@ -145,8 +154,8 @@ const isLoadingAction = ref(false);
  * show modal
  */
 function showModal() {
-  firstname.value = null;
-  lastname.value = null;
+  description.value = null;
+  enforced_name.value = null;
   role.value = null;
   formErrors.clear();
   modalVisible.value = true;
@@ -162,8 +171,8 @@ function save() {
   const config = {
     method: "post",
     data: {
-      firstname: firstname.value,
-      lastname: lastname.value,
+      description: description.value,
+      enforced_name: enforced_name.value,
       role: role.value,
     },
   };
