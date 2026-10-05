@@ -1,6 +1,9 @@
+import path from "node:path";
 import { defineConfig } from "cypress";
 import "dotenv/config";
 import happoTask from "happo/cypress/task";
+import { setupBrowserLaunch } from "../Utils/cypress/browser-launch.js";
+import { setupChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
 
 const baseUrl = process.env.APP_URL || "http://localhost";
 export default defineConfig({
@@ -9,11 +12,13 @@ export default defineConfig({
   screenshotsFolder: "screenshots",
   videosFolder: "videos",
 
-  allowCypressEnv: false,
-
   e2e: {
-    setupNodeEvents(on, config) {
+    async setupNodeEvents(on, config) {
       happoTask.register(on);
+
+      await setupChromeForTesting(config, path.resolve("../../"));
+
+      setupBrowserLaunch(on);
 
       // It's IMPORTANT to return the config object
       // with any changed environment variables

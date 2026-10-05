@@ -156,7 +156,7 @@ jobs:
           LOG_CHANNEL: stack
         run: php artisan test --parallel --testsuite=Unit,Feature
       - name: Upload coverage
-        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7.1.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           fail_ci_if_error: true
       - name: Upload laravel logs
@@ -196,10 +196,10 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build and export
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           file: docker/app/Dockerfile
           context: .
@@ -267,6 +267,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -301,7 +302,7 @@ jobs:
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
       - name: Cypress run frontend tests
-        uses: cypress-io/github-action@09090944bd8aaa2a517cefb6e38bf1aae336b42b # v7.4.3
+        uses: cypress-io/github-action@01e3b659a495b41649cdd0aa82e1d1624e26520b # v7.4.4
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.frontend_group }}
@@ -316,7 +317,6 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
@@ -324,7 +324,7 @@ jobs:
           name: cypress-frontend-screenshots
           path: tests/Frontend/screenshots
       - name: Upload coverage
-        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7.1.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           fail_ci_if_error: true
           directory: coverage
@@ -339,6 +339,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -375,7 +376,7 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Run cypress
-        uses: cypress-io/github-action@09090944bd8aaa2a517cefb6e38bf1aae336b42b # v7.4.3
+        uses: cypress-io/github-action@01e3b659a495b41649cdd0aa82e1d1624e26520b # v7.4.4
         with:
           command-prefix: npx happo -- npx
           group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
@@ -396,7 +397,6 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
   system-tests:
     name: System Tests
     runs-on: ubuntu-latest
@@ -410,6 +410,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -446,7 +447,7 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Cypress run system tests
-        uses: cypress-io/github-action@09090944bd8aaa2a517cefb6e38bf1aae336b42b # v7.4.3
+        uses: cypress-io/github-action@01e3b659a495b41649cdd0aa82e1d1624e26520b # v7.4.4
         with:
           wait-on: "http://localhost:9080" # Waits for above
           group: ${{ needs.generate-frontend-matrix.outputs.system_group }}
@@ -461,7 +462,6 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
-          ELECTRON_EXTRA_LAUNCH_ARGS: "--lang=en --force-prefers-reduced-motion"
       - name: Upload screenshots
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
