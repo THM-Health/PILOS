@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Backend\Unit;
+namespace Tests\Backend\Unit;
 
 use App\Models\Room;
 use App\Models\Server;
