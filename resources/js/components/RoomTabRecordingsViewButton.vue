@@ -1,7 +1,11 @@
 <template>
   <Button
     v-tooltip="$t('rooms.recordings.view_recording')"
-    :aria-label="$t('rooms.recordings.view_recording')"
+    :aria-label="
+      $t('rooms.recordings.view_recording_aria', {
+        description: props.description,
+      })
+    "
     icon="fa-solid fa-eye"
     :disabled="props.disabled"
     data-test="room-recordings-view-button"

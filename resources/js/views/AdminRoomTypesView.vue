@@ -223,7 +223,7 @@
                   severity="secondary"
                   outlined
                   icon="fa-solid fa-sync"
-                  :aria-label="$t('app.reload')"
+                  :aria-label="$t('admin.server_pools.reload_aria')"
                   data-test="server-pools-reload-button"
                   @click="loadServerPools(serverPoolsCurrentPage)"
                 />
@@ -249,7 +249,11 @@
                   input-id="restrict"
                   :invalid="formErrors.fieldInvalid('restrict')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
-                  aria-describedby="restrict-help"
+                  :pt="{
+                    input: {
+                      'aria-describedby': 'restrict-help',
+                    },
+                  }"
                 />
               </div>
               <FormError :errors="formErrors.fieldError('restrict')" />
@@ -1452,11 +1456,11 @@
                     : 'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'
                 "
               />
-              <p id="create-parameters-help">
+              <small id="create-parameters-help" class="block">
                 {{
                   $t("admin.room_types.bbb_api.create_parameters_description")
                 }}
-              </p>
+              </small>
               <FormError :errors="formErrors.fieldError('create_parameters')" />
             </div>
           </div>
@@ -1484,9 +1488,9 @@
                     : 'userdata-bbb_show_session_details_on_join=false'
                 "
               />
-              <p id="join-parameters-help">
+              <small id="join-parameters-help" class="block">
                 {{ $t("admin.room_types.bbb_api.join_parameters_description") }}
-              </p>
+              </small>
               <FormError :errors="formErrors.fieldError('join_parameters')" />
             </div>
           </div>

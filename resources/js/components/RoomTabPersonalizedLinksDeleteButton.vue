@@ -5,7 +5,12 @@
     severity="danger"
     :disabled="disabled"
     icon="fa-solid fa-trash"
-    :aria-label="$t('rooms.personalized_links.delete')"
+    :aria-label="
+      $t('rooms.personalized_links.delete_aria', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     data-test="room-personalized-links-delete-button"
     @click="showModal"
   />

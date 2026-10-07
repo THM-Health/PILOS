@@ -91,7 +91,7 @@
       severity="secondary"
       outlined
       icon="fa-solid fa-sync"
-      :aria-label="$t('app.reload')"
+      :aria-label="$t('admin.roles.reload_aria')"
       data-test="roles-reload-button"
       @click="loadRoles(currentPage)"
     />

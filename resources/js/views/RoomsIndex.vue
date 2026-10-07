@@ -46,7 +46,7 @@
                 v-tooltip="$t('app.search')"
                 icon="fa-solid fa-magnifying-glass"
                 :disabled="loadingRooms"
-                :aria-label="$t('app.search')"
+                :aria-label="$t('rooms.index.search_aria')"
                 @click="loadRooms(1)"
               />
             </InputGroup>
@@ -126,7 +126,7 @@
               v-if="!onlyShowFavorites"
               data-test="room-type-inputgroup"
             >
-              <InputGroupAddon>
+              <InputGroupAddon aria-hidden="true">
                 <i class="fa-solid fa-tag"></i>
               </InputGroupAddon>
               <InputGroupAddon
@@ -150,6 +150,7 @@
                 option-group-label="index"
                 option-group-children="items"
                 option-value="id"
+                :aria-label="$t('rooms.index.filter_by_room_type')"
                 :pt="{
                   listContainer: {
                     'data-test': 'room-type-dropdown-items',
@@ -174,12 +175,12 @@
               <!-- reload the room types -->
               <Button
                 v-if="roomTypesLoadingError"
-                v-tooltip="$t('rooms.room_types.reload')"
+                v-tooltip="$t('app.reload')"
                 :disabled="roomTypesBusy || onlyShowFavorites"
                 severity="secondary"
                 outlined
                 icon="fa-solid fa-sync"
-                :aria-label="$t('app.reload')"
+                :aria-label="$t('rooms.room_types.reload')"
                 :loading="roomTypesBusy"
                 @click="loadRoomTypes"
               />
@@ -187,7 +188,7 @@
 
             <!--dropdown for sorting type (on small devices only shown, when filter menu is open)-->
             <InputGroup>
-              <InputGroupAddon>
+              <InputGroupAddon aria-hidden="true">
                 <i class="fa-solid fa-sort"></i>
               </InputGroupAddon>
               <Select
@@ -197,6 +198,7 @@
                 :options="sortingTypes"
                 option-label="label"
                 option-value="type"
+                :aria-label="$t('rooms.index.sort_by')"
                 :pt="{
                   listContainer: {
                     'data-test': 'sorting-type-dropdown-items',

@@ -69,6 +69,7 @@ class ConfigResource extends JsonResource
             ],
             'user' => [
                 'password_change_allowed' => $userSettings->password_change_allowed,
+                'search_by_name' => $userSettings->search_by_name,
             ],
             'bbb' => [
                 'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
@@ -78,7 +79,7 @@ class ConfigResource extends JsonResource
             ],
             'monitor' => [
                 'horizon' => true,
-                'pulse' => true,
+                'pulse' => config('pulse.enabled'),
                 'telescope' => config('telescope.enabled'),
             ],
             'banner' => [

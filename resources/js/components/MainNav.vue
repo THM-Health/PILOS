@@ -16,6 +16,9 @@
           action: {
             class: 'p-2',
           },
+          submenu: {
+            'data-test': 'submenu',
+          },
         }"
       >
         <template #start>
@@ -212,12 +215,6 @@ const mainMenuItems = computed(() => {
         dataTest: "navbar-monitor",
         items: [
           {
-            label: t("system.monitor.pulse"),
-            url: "/pulse",
-            target: "_blank",
-            dataTest: "navbar-monitor-pulse",
-          },
-          {
             label: t("system.monitor.horizon"),
             url: "/horizon",
             target: "_blank",
@@ -225,6 +222,15 @@ const mainMenuItems = computed(() => {
           },
         ],
       };
+
+      if (settingsStore.getSetting("monitor.pulse")) {
+        menuItem.items.push({
+          label: t("system.monitor.pulse"),
+          url: "/pulse",
+          target: "_blank",
+          dataTest: "navbar-monitor-pulse",
+        });
+      }
 
       if (settingsStore.getSetting("monitor.telescope")) {
         menuItem.items.push({

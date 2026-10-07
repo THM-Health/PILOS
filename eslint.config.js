@@ -28,6 +28,7 @@ export default defineConfig([
       "postcss.config.js",
       "eslint.config.js",
       "tailwind.config.js",
+      "chrome/",
     ],
   },
   {
@@ -112,8 +113,10 @@ export default defineConfig([
     ],
     rules: {
       "no-unused-expressions": "off",
+      "mocha/no-async-in-sync-tests": "off", // for Cypress compatibility
       "mocha/no-exclusive-tests": "error",
       "mocha/no-pending-tests": "error",
+      "mocha/no-mocha-arrows": "off",
     },
   },
   eslintConfigPrettier,

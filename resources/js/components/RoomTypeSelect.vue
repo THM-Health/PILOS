@@ -7,7 +7,7 @@
     <Button
       v-if="modelLoadingError"
       v-tooltip="$t('app.reload')"
-      :aria-label="$t('app.reload')"
+      :aria-label="$t('rooms.room_types.reload')"
       :disabled="disabled || isLoadingAction"
       :loading="isLoadingAction"
       icon="fa-solid fa-sync"

@@ -1,75 +1,82 @@
 <template>
-  <div class="grid grid-cols-12 gap-4">
-    <div class="col-span-12 flex flex-col gap-2">
-      <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
-        <FileInput
-          v-if="!fileDeleted && !readonly"
-          v-model="file"
-          v-model:too-big="fileTooBig"
-          v-model:invalid-extension="fileInvalidExtension"
-          :disabled="disabled"
-          :allowed-extensions="allowedExtensions"
-          :max-file-size="maxFileSize"
-          :invalid="fileInvalid"
-        />
+  <div class="flex flex-col">
+    <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
+      <FileInput
+        v-if="!fileDeleted && !readonly"
+        v-model="file"
+        v-model:too-big="fileTooBig"
+        v-model:invalid-extension="fileInvalidExtension"
+        :disabled="disabled"
+        :allowed-extensions="allowedExtensions"
+        :max-file-size="maxFileSize"
+        :invalid="fileInvalid"
+      />
 
-        <Button
-          v-if="file"
-          :disabled="disabled"
-          severity="danger"
-          :label="$t('app.cancel')"
-          icon="fa-solid fa-times"
-          data-test="settings-file-cancel-button"
-          @click="resetFileUpload"
-        />
+      <Button
+        v-if="file"
+        :disabled="disabled"
+        severity="danger"
+        :label="$t('app.cancel')"
+        icon="fa-solid fa-times"
+        data-test="settings-file-cancel-button"
+        @click="resetFileUpload"
+      />
 
-        <Button
-          v-if="!file && showDelete && fileUrl && !fileDeleted && !readonly"
-          :disabled="disabled"
-          severity="danger"
-          :label="$t('app.delete')"
-          icon="fa-solid fa-trash"
-          data-test="settings-file-delete-button"
-          @click="fileDeleted = true"
-        />
-        <Button
-          v-if="fileDeleted"
-          :disabled="disabled"
-          severity="secondary"
-          icon="fa-solid fa-undo"
-          :label="$t('app.undo_delete')"
-          data-test="settings-file-undo-delete-button"
-          @click="fileDeleted = false"
-        />
+      <Button
+        v-if="!file && showDelete && fileUrl && !fileDeleted && !readonly"
+        :disabled="disabled"
+        severity="danger"
+        :label="$t('app.delete')"
+        icon="fa-solid fa-trash"
+        data-test="settings-file-delete-button"
+        @click="fileDeleted = true"
+      />
+      <Button
+        v-if="fileDeleted"
+        :disabled="disabled"
+        severity="secondary"
+        icon="fa-solid fa-undo"
+        :label="$t('app.undo_delete')"
+        data-test="settings-file-undo-delete-button"
+        @click="fileDeleted = false"
+      />
 
-        <Button
-          v-if="fileUrl && !file && !fileDeleted && showView"
-          :as="disabled ? 'button' : 'a'"
-          :disabled="disabled"
-          severity="secondary"
-          :href="fileUrl"
-          target="_blank"
-          :label="$t('app.view')"
-          data-test="settings-file-view-button"
-          icon="fa-solid fa-eye"
-        />
-      </div>
-      <div>
-        <p v-if="fileTooBig" class="text-red-500" role="alert">
-          {{ $t("app.validation.too_large") }}
-        </p>
-        <p v-if="fileInvalidExtension" class="text-red-500" role="alert">
-          {{ $t("app.validation.invalid_type") }}
-        </p>
-        <FormError :errors="fileError" />
-      </div>
+      <Button
+        v-if="fileUrl && !file && !fileDeleted && showView"
+        :as="disabled ? 'button' : 'a'"
+        :disabled="disabled"
+        severity="secondary"
+        :href="fileUrl"
+        target="_blank"
+        :label="$t('app.view')"
+        data-test="settings-file-view-button"
+        icon="fa-solid fa-eye"
+      />
     </div>
+    <div>
+      <FormError :errors="fileErrors" />
+      <FormError :errors="frontendFileError" />
+    </div>
+    <small class="mt-2 block">{{
+      $t("app.file.allowed_formats", {
+        formats: allowedExtensions.join(", "),
+      })
+    }}</small>
+    <small class="block">{{
+      $t("app.file.max_size", {
+        size: fileHelpers.fileSize(maxFileSize),
+      })
+    }}</small>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import { useFileHelpers } from "../composables/useFileHelpers.js";
+import { useI18n } from "vue-i18n";
 
+const fileHelpers = useFileHelpers();
+const { t } = useI18n();
 const file = defineModel("file", { type: File });
 const fileUrl = defineModel("fileUrl", { type: String });
 const fileDeleted = defineModel("fileDeleted", { type: Boolean });
@@ -77,7 +84,7 @@ const fileDeleted = defineModel("fileDeleted", { type: Boolean });
 const fileTooBig = ref(false);
 const fileInvalidExtension = ref(false);
 
-defineProps({
+const props = defineProps({
   showDelete: {
     type: Boolean,
     default: false,
@@ -98,9 +105,9 @@ defineProps({
     type: Boolean,
     default: false,
   },
-  fileError: {
-    type: [Object, null],
-    default: null,
+  fileErrors: {
+    type: Array,
+    required: true,
   },
   disabled: {
     type: Boolean,
@@ -110,6 +117,23 @@ defineProps({
     type: Boolean,
     default: false,
   },
+});
+
+const frontendFileError = computed(() => {
+  if (props.fileErrors.length > 0) {
+    return [];
+  }
+
+  const errors = [];
+
+  if (fileTooBig.value) {
+    errors.push(t("app.file.too_large"));
+  }
+  if (fileInvalidExtension.value) {
+    errors.push(t("app.file.invalid_type"));
+  }
+
+  return errors;
 });
 
 function resetFileUpload() {

@@ -1,6 +1,6 @@
 describe("Login", function () {
   beforeEach(function () {
-    cy.seed();
+    cy.task("seed");
   });
 
   it("local login", function () {

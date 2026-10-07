@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
-    <div class="col-span-12 flex flex-col gap-2 lg:col-span-9">
+    <div class="col-span-12 flex flex-col lg:col-span-9">
       <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
         <InputText
           v-if="!image && !imageDeleted && !readonly && !hideUrl"
@@ -55,18 +55,23 @@
         />
       </div>
       <div>
-        <p v-if="fileTooBig" class="text-red-500" role="alert">
-          {{ $t("app.validation.too_large") }}
-        </p>
-        <p v-if="fileInvalidExtension" class="text-red-500" role="alert">
-          {{ $t("app.validation.invalid_type") }}
-        </p>
-        <FormError :errors="fileError" />
-        <FormError :errors="urlError" />
+        <FormError :errors="fileErrors" />
+        <FormError :errors="urlErrors" />
+        <FormError :errors="frontendFileError" />
       </div>
+      <small class="mt-2 block">{{
+        $t("app.file.allowed_formats", {
+          formats: allowedExtensions.join(", "),
+        })
+      }}</small>
+      <small class="block">{{
+        $t("app.file.max_size", {
+          size: fileHelpers.fileSize(maxFileSize),
+        })
+      }}</small>
     </div>
     <div
-      class="col-span-12 flex justify-center rounded-border border border-surface p-2 lg:col-span-3"
+      class="col-span-12 flex items-center justify-center rounded-border border border-surface p-2 lg:col-span-3"
       :class="previewBgClass"
     >
       <img
@@ -81,8 +86,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import { useFileHelpers } from "../composables/useFileHelpers.js";
+import { useI18n } from "vue-i18n";
 
+const fileHelpers = useFileHelpers();
+const { t } = useI18n();
 const image = defineModel("image", { type: File });
 const imageUrl = defineModel("imageUrl", { type: String });
 const imageDeleted = defineModel("imageDeleted", { type: Boolean });
@@ -92,7 +101,7 @@ const newImageUrl = ref(null);
 const fileTooBig = ref(false);
 const fileInvalidExtension = ref(false);
 
-defineProps({
+const props = defineProps({
   showDelete: {
     type: Boolean,
     default: false,
@@ -125,13 +134,13 @@ defineProps({
     type: Boolean,
     default: false,
   },
-  urlError: {
-    type: [Object, null],
-    default: null,
+  urlErrors: {
+    type: Array,
+    default: () => [],
   },
-  fileError: {
-    type: [Object, null],
-    default: null,
+  fileErrors: {
+    type: Array,
+    required: true,
   },
   disabled: {
     type: Boolean,
@@ -162,4 +171,21 @@ function resetFileUpload() {
   image.value = null;
   newImageUrl.value = null;
 }
+
+const frontendFileError = computed(() => {
+  if (props.fileErrors.length > 0) {
+    return [];
+  }
+
+  const errors = [];
+
+  if (fileTooBig.value) {
+    errors.push(t("app.file.too_large"));
+  }
+  if (fileInvalidExtension.value) {
+    errors.push(t("app.file.invalid_type"));
+  }
+
+  return errors;
+});
 </script>

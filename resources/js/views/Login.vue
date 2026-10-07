@@ -200,13 +200,13 @@ async function handleLogin({ data, id }) {
         error.response !== undefined &&
         error.response.status === HTTP_STATUS_TOO_MANY_REQUESTS
       ) {
-        const retryAfter = error.response.headers["retry-after"];
+        const retryAfter = Number(error.response.headers["retry-after"]);
         if (data.username) {
           errors[id] = {
-            username: [t("auth.throttle", { seconds: retryAfter })],
+            username: [t("auth.throttle", retryAfter)],
           };
         } else {
-          errors[id] = { email: [t("auth.throttle", { seconds: retryAfter })] };
+          errors[id] = { email: [t("auth.throttle", retryAfter)] };
         }
       } else {
         api.error(error);

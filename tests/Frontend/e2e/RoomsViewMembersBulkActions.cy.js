@@ -70,7 +70,7 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":1}',
+          'rooms.members.modals.edit.title_bulk_{"count":1,"n":1}',
         ).should("be.visible");
 
         // Check that roles are shown correctly
@@ -187,7 +187,7 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":3}',
+          'rooms.members.modals.edit.title_bulk_{"count":3,"n":3}',
         ).should("be.visible");
 
         // Select participant role and save
@@ -500,10 +500,10 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.remove.title_bulk_{"numberOfSelectedUsers":1}',
+          'rooms.members.modals.remove.title_bulk_{"count":1,"n":1}',
         ).should("be.visible");
         cy.contains(
-          'rooms.members.modals.remove.confirm_bulk_{"numberOfSelectedUsers":1}',
+          'rooms.members.modals.remove.confirm_bulk_{"count":1,"n":1}',
         ).should("be.visible");
 
         const bulkDeleteRequest = interceptIndefinitely(
@@ -575,10 +575,10 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains(
-          'rooms.members.modals.remove.title_bulk_{"numberOfSelectedUsers":2}',
+          'rooms.members.modals.remove.title_bulk_{"count":2,"n":2}',
         ).should("be.visible");
         cy.contains(
-          'rooms.members.modals.remove.confirm_bulk_{"numberOfSelectedUsers":2}',
+          'rooms.members.modals.remove.confirm_bulk_{"count":2,"n":2}',
         ).should("be.visible");
 
         cy.intercept("DELETE", "api/v1/rooms/abc-def-123/member/bulk", {
@@ -1081,7 +1081,7 @@ describe("Rooms view members bulk actions", function () {
         cy.get('[data-test="dialog-continue-button"]')
           .should(
             "have.text",
-            "rooms.members.modals.bulk_import.import_importable_button",
+            'rooms.members.modals.bulk_import.import_importable_button_{"count":2,"n":2}',
           )
           .click();
 
@@ -1166,7 +1166,7 @@ describe("Rooms view members bulk actions", function () {
         cy.get('[data-test="room-members-copy-and-close-button"]')
           .should(
             "have.text",
-            "rooms.members.modals.bulk_import.copy_and_close",
+            'rooms.members.modals.bulk_import.copy_and_close_{"count":2,"n":2}',
           )
           .click();
 
@@ -1181,7 +1181,7 @@ describe("Rooms view members bulk actions", function () {
     cy.get('[data-test="room-members-bulk-import-dialog"]').should("not.exist");
 
     cy.checkToastMessage(
-      "rooms.members.modals.bulk_import.copied_invalid_users",
+      'rooms.members.modals.bulk_import.copied_invalid_users_{"count":2,"n":2}',
     );
 
     // Check that members are shown correctly

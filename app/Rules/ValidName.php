@@ -20,7 +20,7 @@ class ValidName implements ValidationRule
         $invalidChars = implode('', $failedChars);
         $validUTF8 = mb_check_encoding($invalidChars, 'UTF-8');
         if ($validUTF8) {
-            $fail(__('validation.validname', ['attribute' => __('validation.attributes.'.$attribute), 'chars' => $invalidChars]));
+            $fail(trans_choice('validation.validname', mb_strlen($invalidChars, 'UTF-8'), ['attribute' => __('validation.attributes.'.$attribute), 'chars' => $invalidChars]));
         } else {
             $fail(__('validation.validname_error', ['attribute' => __('validation.attributes.'.$attribute)]));
         }

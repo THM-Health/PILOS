@@ -19,6 +19,7 @@ use App\Notifications\UserWelcome;
 use App\Services\AuthenticationService;
 use App\Services\EmailVerification\EmailVerificationService;
 use App\Settings\GeneralSettings;
+use App\Settings\UserSettings;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -41,18 +42,26 @@ class UserController extends Controller
     }
 
     /**
-     * Search for users in the whole database, based on first name and last name
+     * Search for users in the whole database
+     * Depending on the search_by_name setting it will either search for partial matches of firstname, lastname and email
+     * or only for an exact email match
      *
      * @param  UserSearchRequest  $request  query parameter with search query
      * @return AnonymousResourceCollection
      */
     public function search(UserSearchRequest $request)
     {
+        $userSettings = app(UserSettings::class);
+
         if (! $request->filled('query')) {
             abort(204, 'Too many results');
         }
 
-        $query = User::withNameOrEmail($request->query('query'));
+        if ($userSettings->search_by_name) {
+            $query = User::withNameOrEmail($request->query('query'));
+        } else {
+            $query = User::whereRaw('LOWER(email) = ?', [strtolower($request->query('query'))]);
+        }
 
         if ($query->count() > config('bigbluebutton.user_search_limit')) {
             abort(204, 'Too many results');

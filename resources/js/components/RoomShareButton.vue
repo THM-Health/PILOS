@@ -21,7 +21,7 @@
         <Button
           class="popover-close-button"
           data-test="popover-close-button"
-          :aria-label="$t('app.close')"
+          :aria-label="$t('rooms.invitation.close_aria')"
           text
           rounded
           severity="secondary"
@@ -216,6 +216,9 @@ const roomUrl = computed(() => {
     router.resolve({
       name: "rooms.view",
       params: { id: props.room.id },
+      hash: props.room.access_code
+        ? "#accessCode=" + props.room.access_code
+        : "",
     }).href
   );
 });

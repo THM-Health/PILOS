@@ -3,8 +3,12 @@ title: Locales
 description: Contribute to the translation of PILOS and add custom locales
 ---
 
-PILOS is available in multiple languages. By default, PILOS comes with English and German translations.
-Other locales are maintained by the community using [PoEditor](https://poeditor.com/join/project/gWkaFBI8OH).
+PILOS supports multiple languages, with English and German officially maintained.
+
+English serves as the reference language and can only be changed in the source code.
+
+All translations are managed in the [POEditor Project](https://poeditor.com/projects/view?id=700042).
+To contribute, [join the project](https://poeditor.com/join/project/gWkaFBI8OH).
 
 ## Locale structure
 
@@ -15,10 +19,72 @@ For example, the string `auth.ldap.username_help` would be stored in the file `a
 
 Within the file, the keys are organized in nested php arrays.
 
+### Placeholders
+
+Placeholders in localization strings are defined using the `:placeholder` syntax.
+
+**DO NOT** use `:n` and `:count` as these are reserved for pluralization.
+
+For example:
+
+```
+"Welcome, :name!"
+```
+
+Both frontend and backend code can replace `:name` with a dynamic value, producing:
+
+```
+"Welcome, John!"
+```
+
+The capitalization of a placeholder controls how the replacement value is inserted.
+
+If the placeholder is written in lowercase, the value is inserted without modification.
+For example, given the replacement value `John`:
+
+```
+"Welcome, :name!" // Welcome, John!
+```
+
+If the first letter of the placeholder is uppercase, the first letter of the value is converted to uppercase.
+For example, given the replacement value `john`:
+
+```
+"Welcome, :Name!" // Welcome, John!
+```
+
+If the entire placeholder is uppercase, the entire value is converted to uppercase.
+For example, given the replacement value `john`:
+
+```
+"Welcome, :NAME!" // Welcome, JOHN!
+```
+
+When translating, ensure that placeholder names remain unchanged and are correctly positioned within the sentence structure of the target language.
+Only adjust their capitalization if the replacement value should be transformed accordingly.
+
+### Pluralization
+
+Pluralization can be complex, and we currently support a subset of the **flexible pluralization format used by [Laravel](https://laravel.com/docs/13.x/localization#pluralization)**.
+
+#### Format
+
+```text
+{0} No items |{1} One item |[2,*] :count items
+```
+
+Each plural form is separated by a pipe (`|`):
+
+- **Curly braces `{}`** define exact numbers.
+- **Square brackets `[]`** define numeric ranges.
+- The **asterisk (`*`)** denotes an open upper / lower range.
+
+Pluralization forms must be listed in ascending order, and you can define as many as required for a given locale.
+
 ## Overriding locales
 
 You can override the default locales by creating custom locale files in the `resources/custom/lang` directory.
-This directory need to be mounted to the container by adjusting the docker-compose file.
+This directory needs to be mounted to the container by adjusting the docker-compose file.
 
 ```yaml
 - "./resources/custom:/var/www/html/resources/custom"

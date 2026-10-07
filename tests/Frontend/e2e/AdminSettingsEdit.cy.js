@@ -2279,9 +2279,17 @@ describe("Admin settings with edit permission", function () {
         cy.get("#password-change-allowed").should("be.checked").click();
       });
 
+    cy.get('[data-test="user-search-by-name-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.user_search_by_name.title")
+      .within(() => {
+        cy.get("#user-search-by-name").should("be.checked").click();
+      });
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.user_password_change_allowed = false;
+      settings.data.user_search_by_name = false;
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
@@ -2313,6 +2321,7 @@ describe("Admin settings with edit permission", function () {
       );
 
       expect(formData.get("user_password_change_allowed")).to.equal("0");
+      expect(formData.get("user_search_by_name")).to.equal("0");
     });
 
     // Check that config is loaded
@@ -2324,6 +2333,7 @@ describe("Admin settings with edit permission", function () {
 
     // Check that settings are shown correctly
     cy.get("#password-change-allowed").should("not.be.checked");
+    cy.get("#user-search-by-name").should("not.be.checked");
   });
 
   it("change recording and statistics settings", function () {

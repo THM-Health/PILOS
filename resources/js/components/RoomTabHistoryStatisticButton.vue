@@ -1,7 +1,11 @@
 <template>
   <Button
     v-tooltip="$t('meetings.view_meeting_stats')"
-    :aria-label="$t('meetings.view_meeting_stats')"
+    :aria-label="
+      $t('meetings.view_meeting_stats_aria', {
+        start: $d(new Date(props.start), 'datetimeShort'),
+      })
+    "
     :disabled="disabled"
     icon="fa-solid fa-chart-line"
     data-test="room-history-statistic-button"

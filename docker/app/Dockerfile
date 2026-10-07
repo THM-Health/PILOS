@@ -5,7 +5,7 @@ LABEL description="Development and production container for PILOS, compatible wi
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
-ARG PLAYBACK_PLAYER_VERSION=5.4.7
+ARG PLAYBACK_PLAYER_VERSION=5.4.8
 ARG VITE_COVERAGE="false"
 
 WORKDIR /var/www/html
@@ -28,6 +28,10 @@ RUN apk --no-cache add \
     nginx \
     mysql-client postgresql-client \
     nodejs npm
+
+# Install latest npm and remove alpine version
+RUN npm install -g npm
+RUN apk del npm
 
 # Add PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/

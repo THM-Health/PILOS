@@ -2,7 +2,12 @@
   <Button
     v-tooltip="$t('rooms.members.edit_user')"
     data-test="room-members-edit-button"
-    :aria-label="$t('rooms.members.edit_user')"
+    :aria-label="
+      $t('rooms.members.edit_user_aria', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"

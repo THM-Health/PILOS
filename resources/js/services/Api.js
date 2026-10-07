@@ -169,8 +169,14 @@ export class Api {
     this.toast.error(this.t("app.flash.too_large"));
   }
 
-  handleTooManyRequests() {
-    this.toast.error(this.t("app.flash.too_many_requests"));
+  handleTooManyRequests(error) {
+    // Retry-After Header is in seconds
+    // Minutes are always rounded up to avoid user retrying again too early
+    const tryAgainMinutes = Math.ceil(
+      error.response.headers["retry-after"] / 60,
+    );
+
+    this.toast.error(this.t("app.flash.too_many_requests", tryAgainMinutes));
   }
 
   handleMaintenance() {

@@ -141,7 +141,11 @@
                   input-id="generate_password"
                   :invalid="formErrors.fieldInvalid('generate_password')"
                   :disabled="isBusy"
-                  aria-describedby="generate_password-help"
+                  :pt="{
+                    input: {
+                      'aria-describedby': 'generate_password-help',
+                    },
+                  }"
                 />
               </div>
               <FormError :errors="formErrors.fieldError('generate_password')" />

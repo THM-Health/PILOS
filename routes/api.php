@@ -26,6 +26,7 @@ use App\Http\Controllers\api\v1\SessionController;
 use App\Http\Controllers\api\v1\SettingsController;
 use App\Http\Controllers\api\v1\StreamingController;
 use App\Http\Controllers\api\v1\UserController;
+use App\Http\Requests\ValidateParticipantNameRequest;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -174,6 +175,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             return response()->json(['data' => timezone_identifiers_list()]);
         });
     });
+
+    Route::post('participantName/check', function (ValidateParticipantNameRequest $request) {
+        return response()->noContent();
+    })->name('participantName.check');
 
     Route::middleware('throttle:room-enumeration')->group(function () {
         Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');

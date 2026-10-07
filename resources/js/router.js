@@ -5,6 +5,7 @@ import Logout from "./views/Logout.vue";
 import NotFound from "./views/NotFound.vue";
 import RoomsIndex from "./views/RoomsIndex.vue";
 import RoomView from "./views/RoomsView.vue";
+import InvalidPersonalizedRoomLink from "./views/InvalidPersonalizedRoomLink.vue";
 import AdminLayout from "./views/AdminLayout.vue";
 import RolesIndex from "./views/AdminRolesIndex.vue";
 import RolesView from "./views/AdminRolesView.vue";
@@ -144,16 +145,42 @@ export const routes = [
     },
   },
   {
-    path: "/rooms/:id/:token?",
+    path: "/rooms/:id/invalid_personalized_link",
+    name: "rooms.invalid_personalized_link",
+    component: InvalidPersonalizedRoomLink,
+  },
+  {
+    path: "/rooms/:id",
     name: "rooms.view",
     component: RoomView,
     meta: { redirectBackAfterLogin: true },
     props: (route) => {
       return {
         id: route.params.id,
-        token: route.params.token,
         bbbReason: route.query.reason,
         bbbErrors: route.query.errors,
+      };
+    },
+  },
+  /**
+   * Legacy personalized link compatibility route.
+   *
+   * Old links used /rooms/:id/:token. Redirect them to the current hash-based
+   * format so RoomsView can handle authentication through the regular flow.
+   */
+  {
+    path: "/rooms/:id/:token",
+    redirect: (route) => {
+      // Parse hash parameters
+      const searchParams = new URLSearchParams(route.hash.substring(1));
+
+      // Append or overwrite personalizedLink parameter
+      searchParams.set("personalizedLink", route.params.token);
+
+      return {
+        name: "rooms.view",
+        params: { id: route.params.id },
+        hash: "#" + searchParams.toString(),
       };
     },
   },
