@@ -1,6 +1,6 @@
 describe("Room Join with lobby settings", function () {
   beforeEach(function () {
-    cy.seed();
+    cy.task("seed");
   });
 
   it("Lobby disabled", function () {

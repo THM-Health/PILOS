@@ -1,6 +1,6 @@
 describe("Room View general", function () {
   beforeEach(function () {
-    cy.seed();
+    cy.task("seed");
   });
 
   it("open room as owner", function () {

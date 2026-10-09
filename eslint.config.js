@@ -28,6 +28,7 @@ export default defineConfig([
       "postcss.config.js",
       "eslint.config.js",
       "tailwind.config.js",
+      "chrome/",
     ],
   },
   {

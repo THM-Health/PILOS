@@ -1,5 +1,9 @@
+import path from "node:path";
 import { defineConfig } from "cypress";
+import { execFileSync } from "child_process";
 import dotenv from "dotenv";
+import { setupBrowserLaunch } from "../Utils/cypress/browser-launch.js";
+import { setupChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
 
 dotenv.config({ path: "../../.env" });
 
@@ -12,8 +16,38 @@ export default defineConfig({
   videosFolder: "videos",
 
   e2e: {
+    async setupNodeEvents(on, config) {
+      await setupChromeForTesting(config, path.resolve("../../"));
+
+      setupBrowserLaunch(on);
+
+      on("task", {
+        seed() {
+          execFileSync(
+            "docker",
+            [
+              "compose",
+              "-f",
+              "../../compose.test.yml",
+              "exec",
+              "app",
+              "pilos-cli",
+              "demo:create",
+              "--force",
+              "--disable-bbb-session-check",
+            ],
+            {
+              stdio: "pipe",
+            },
+          );
+
+          return null;
+        },
+      });
+
+      return config;
+    },
     baseUrl: "http://localhost:9080",
-    experimentalStudio: true,
     supportFile: "support/e2e.{js,jsx,ts,tsx}",
     specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
   },

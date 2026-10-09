@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Keyboard and focus support for the user avatar cropper to improve accessibility ([#3386])
+
+### Changed
+
+- User avatar cropper and preview now displayed in circular shape ([#3386])
+
+## [v4.18.1] - 2026-10-05
+
+### Fixed
+
+- Downloading recording ZIP files for large recordings (increased PHP `max_execution_time` to 3600 seconds) ([#3412], [#3500])
+
+## [v4.18.0] - 2026-09-23
+
+### Added
+
 - Environment variable `VERSION` to change the displayed version in the footer ([#3300], [#3302])
 - System-wide default welcome message ([#3301])
 - Privacy setting to disable finding users by partial matches of their name or email address ([#2264], [#3316])
@@ -17,7 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room access is now preserved across page reloads after entering via an access code or personalized link ([#3275])
 - Login button inside room access overlay to allow users to log in instead of accessing the room as a guest ([#2450], [#3275])
 - Option to set connection status of servers to always online ([#3317], [#3373])
-- Keyboard and focus support for the user avatar cropper to improve accessibility ([#3386])
+- Environment variable `PULSE_ENABLED` to disable Laravel Pulse ([#3476])
+- Docs: Horizon, Pulse and Telescope monitoring tools ([#3476])
+- Pluralization support for localization strings ([#2520])
 
 ### Changed
 
@@ -29,7 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved fallback behavior for invalid room and user tab links ([#3275])
 - Prometheus metric label `pilos_servers_total{status="unhealthy"}` to `pilos_servers_total{status="faulty"}` ([#3373])
 - Connection status terminology in log messages (`unhealthy` to `faulty`; `healthy` to `online`; `old_health` to `old_connection_status`) ([#3373])
-- User avatar cropper and preview now displayed in circular shape ([#3386])
 
 ### Fixed
 
@@ -810,6 +827,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2517]: https://github.com/THM-Health/PILOS/pull/2517
 [#2518]: https://github.com/THM-Health/PILOS/pull/2518
 [#2519]: https://github.com/THM-Health/PILOS/pull/2519
+[#2520]: https://github.com/THM-Health/PILOS/pull/2520
 [#2551]: https://github.com/THM-Health/PILOS/pull/2551
 [#2553]: https://github.com/THM-Health/PILOS/pull/2553
 [#2554]: https://github.com/THM-Health/PILOS/issues/2554
@@ -904,7 +922,10 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3317]: https://github.com/THM-Health/PILOS/issues/3317
 [#3373]: https://github.com/THM-Health/PILOS/pull/3373
 [#3386]: https://github.com/THM-Health/PILOS/pull/3386
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.17.0...develop
+[#3412]: https://github.com/THM-Health/PILOS/issues/3412
+[#3476]: https://github.com/THM-Health/PILOS/pull/3476
+[#3500]: https://github.com/THM-Health/PILOS/pull/3500
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -934,3 +955,5 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.15.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.15.0
 [v4.16.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.16.0
 [v4.17.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.17.0
+[v4.18.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.0
+[v4.18.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.1

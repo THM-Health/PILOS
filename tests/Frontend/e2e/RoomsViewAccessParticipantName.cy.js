@@ -229,7 +229,7 @@ describe("Rooms View access participant name", function () {
       });
 
     // Check that localStorage was cleared
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -286,7 +286,7 @@ describe("Rooms View access participant name", function () {
           .and("have.value", "Laura Rivera");
       });
 
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.eq(
         "Laura Rivera",
       );
@@ -476,7 +476,7 @@ describe("Rooms View access participant name", function () {
     cy.get('[data-test="change-participant-name-button"]').should("be.visible");
 
     // Check that name was not set in local storage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -532,7 +532,7 @@ describe("Rooms View access participant name", function () {
     cy.contains("Laura Rivera").should("be.visible");
 
     // Check that name was not set in local storage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -577,7 +577,7 @@ describe("Rooms View access participant name", function () {
     );
 
     // Check that name was not set in local storage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -604,6 +604,8 @@ describe("Rooms View access participant name", function () {
     cy.setValidRememberedParticipantName("Laura Rivera");
 
     cy.reload();
+
+    cy.wait("@checkParticipantNameRequest");
 
     // Check that room Header is shown correctly
     cy.contains("Meeting One").should("be.visible");
@@ -655,7 +657,7 @@ describe("Rooms View access participant name", function () {
     );
 
     // Check that name saved in localStorage was updated
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.eq("Max Doe");
     });
 
@@ -728,7 +730,7 @@ describe("Rooms View access participant name", function () {
     cy.get('[data-test="change-participant-name-button"]').should("be.visible");
 
     // Check that name was not set in local storage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -774,7 +776,7 @@ describe("Rooms View access participant name", function () {
     cy.contains("Laura Rivera").should("be.visible");
 
     // Check that name was set in localStorage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.equal(
         "Laura Rivera",
       );
@@ -810,7 +812,7 @@ describe("Rooms View access participant name", function () {
     );
 
     // Check that name was removed from localStorage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -886,7 +888,7 @@ describe("Rooms View access participant name", function () {
     );
 
     // Check that name was removed from localStorage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -1009,7 +1011,7 @@ describe("Rooms View access participant name", function () {
     cy.contains("Laura Rivera").should("be.visible");
 
     // Check that name in localStorage is still the same
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.eq(
         "Laura Rivera",
       );
@@ -1125,7 +1127,7 @@ describe("Rooms View access participant name", function () {
     });
 
     // Check that sessionStorage was set
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(
         win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
       ).to.eq(
@@ -1134,7 +1136,7 @@ describe("Rooms View access participant name", function () {
     });
 
     // Check that local storage was cleared
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.be.null;
     });
 
@@ -1192,7 +1194,7 @@ describe("Rooms View access participant name", function () {
     });
 
     // Check that sessionStorage was set
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(
         win.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
       ).to.eq(
@@ -1201,7 +1203,7 @@ describe("Rooms View access participant name", function () {
     });
 
     // Check that guest name is still set in localStorage
-    cy.window().then((win) => {
+    cy.window().should((win) => {
       expect(win.localStorage.getItem("pilos_guest_name")).to.eql(
         "Laura Rivera",
       );

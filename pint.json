@@ -7,7 +7,9 @@
     "docker",
     "db",
     "redis",
-    "coverage"
+    "coverage",
+    ".github/skills",
+    "chrome"
   ],
   "preset": "laravel",
   "rules": {
