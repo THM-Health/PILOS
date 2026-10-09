@@ -126,7 +126,7 @@
         :quality="1"
         :image="selectedFile"
         :aria-label="t('admin.users.image.aria_instructions')"
-        class="aspect-square max-h-[30vh] min-h-30 w-full bg-surface-200 focus-within:outline-1! focus-within:outline-offset-2 focus-within:outline-primary! dark:bg-surface-900"
+        class="aspect-square max-h-[30vh] min-h-30 w-full rounded-border bg-surface-200 focus-within:outline-1! focus-within:outline-offset-2 focus-within:outline-primary! dark:bg-surface-900"
         mask-class="rounded-full shadow-[0_0_0_9999px_rgb(0_0_0_/_0.4)]"
         ring-class="rounded-full border-2 border-white"
         @position="position = $event"
