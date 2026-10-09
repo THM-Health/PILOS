@@ -1,11 +1,11 @@
 <template>
-  <Avatar v-if="props.image" :image="props.image" :size="size" :shape="shape" />
+  <Avatar v-if="props.image" :image="props.image" :size="size" shape="circle" />
   <Avatar
     v-else
     :label="avatarLabel"
     class="select-none"
     :size="size"
-    :shape="shape"
+    shape="circle"
   />
 </template>
 
@@ -29,10 +29,6 @@ const props = defineProps({
   size: {
     type: [String, null],
     default: null,
-  },
-  shape: {
-    type: String,
-    default: "circle",
   },
 });
 
