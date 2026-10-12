@@ -6,6 +6,7 @@
     >
       <FileUpload
         v-if="!imageDeleted"
+        ref="fileUploadRef"
         mode="basic"
         accept=".jpg,.jpeg,.png"
         custom-upload
@@ -43,6 +44,7 @@
       />
       <Button
         v-if="!imageDeleted && !croppedImage && props.image"
+        ref="deleteImageButtonRef"
         :disabled="disabled"
         severity="danger"
         :label="$t('admin.users.image.delete')"
@@ -52,6 +54,7 @@
       />
       <Button
         v-if="imageDeleted"
+        ref="undoDeleteImageButtonRef"
         :disabled="disabled"
         severity="secondary"
         :label="$t('app.undo_delete')"
@@ -98,93 +101,119 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          :disabled="isLoadingAction || isLoadingCropper"
+          :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
           @click="closeModal"
         />
-        <LoadingButton
-          autofocus
+        <Button
           :label="$t('admin.users.image.save')"
           :loading="isLoadingAction || isLoadingCropper"
+          :disabled="isLoadingAction || isLoadingCropper || errorLoadingCropper"
           data-test="dialog-save-button"
           @click="save"
         />
       </div>
     </template>
+    <OverlayComponent :show="isLoadingCropper">
+      <template #overlay>
+        <div class="flex flex-col items-center gap-2">
+          <i class="fa-solid fa-circle-notch fa-spin text-3xl" />
+          <span tabindex="-1" autofocus>{{ $t("app.loading") }}</span>
+        </div>
+      </template>
 
-    <div v-if="selectedFile" class="flex flex-col gap-4 py-4">
-      <ProfileImageCropper
-        ref="cropperRef"
-        v-model:zoom="cropperZoom"
-        :min-zoom="MIN_ZOOM / 100"
-        :max-zoom="MAX_ZOOM / 100"
-        :zoom-step="ZOOM_STEP / 100"
-        :output-size="100"
-        :keyboard-step="8"
-        :disabled="isLoadingAction"
-        mime-type="image/jpeg"
-        :quality="1"
-        :image="selectedFile"
-        :aria-label="t('admin.users.image.aria_instructions')"
-        class="aspect-square max-h-[30vh] min-h-30 w-full rounded-border bg-surface-200 focus-within:outline-1! focus-within:outline-offset-2 focus-within:outline-primary! dark:bg-surface-900"
-        mask-class="rounded-full shadow-[0_0_0_9999px_rgb(0_0_0_/_0.4)]"
-        ring-class="rounded-full border-2 border-white"
-        @position="position = $event"
-        @loading="(loading) => (isLoadingCropper = loading)"
-      />
-      <span
-        v-if="!isLoadingCropper"
-        aria-live="polite"
-        aria-atomic="true"
-        class="sr-only"
-        >{{ ariaPosition }}</span
+      <div
+        v-if="!errorLoadingCropper"
+        class="flex flex-col gap-4 py-4"
+        :inert="isLoadingCropper"
       >
-
-      <div class="flex items-center gap-2">
-        <label id="zoom-label"> {{ $t("admin.users.image.zoom") }}</label>
-        <Button
-          variant="text"
-          :disabled="zoom == MIN_ZOOM || isLoadingAction || isLoadingCropper"
-          severity="secondary"
-          rounded
-          class="shrink-0"
-          icon="fa-solid fa-minus"
-          :aria-label="$t('admin.users.image.zoom_decrease')"
-          @click="zoom -= ZOOM_STEP"
+        <ProfileImageCropper
+          ref="cropperRef"
+          v-model:zoom="cropperZoom"
+          :min-zoom="MIN_ZOOM / 100"
+          :max-zoom="MAX_ZOOM / 100"
+          :zoom-step="ZOOM_STEP / 100"
+          :output-size="100"
+          :keyboard-step="8"
+          :disabled="isLoadingAction"
+          mime-type="image/jpeg"
+          :quality="1"
+          :image="selectedFile"
+          :aria-label="t('admin.users.image.aria_instructions')"
+          class="aspect-square max-h-[30vh] min-h-30 w-full rounded-border bg-surface-200 focus-within:outline-1! focus-within:outline-offset-2 focus-within:outline-primary! dark:bg-surface-900"
+          mask-class="rounded-full shadow-[0_0_0_9999px_rgb(0_0_0_/_0.4)]"
+          ring-class="rounded-full border-2 border-white"
+          @position="position = $event"
+          @loading="handleImageCropperLoading"
+          @error="handleImageCropperLoadingError"
         />
-        <Slider
-          v-model="zoom"
-          data-test="image-zoom"
-          :disabled="isLoadingAction || isLoadingCropper"
-          aria-labelledby="zoom-label"
-          :min="MIN_ZOOM"
-          :max="MAX_ZOOM"
-          :step="ZOOM_STEP"
-          class="w-full"
-          :pt="{
-            handle: {
-              tabindex: isLoadingAction || isLoadingCropper ? '-1' : '0',
-            },
-          }"
-        />
-        <Button
-          variant="text"
-          severity="secondary"
-          :disabled="zoom == MAX_ZOOM || isLoadingAction || isLoadingCropper"
-          rounded
-          class="shrink-0"
-          icon="fa-solid fa-plus"
-          :aria-label="$t('admin.users.image.zoom_increase')"
-          @click="zoom += ZOOM_STEP"
-        />
-        <Badge
-          data-test="image-zoom-display"
-          severity="secondary"
-          class="shrink-0"
-          >{{ zoom }}<raw-text>%</raw-text></Badge
+        <span
+          v-if="!isLoadingCropper"
+          aria-live="polite"
+          aria-atomic="true"
+          class="sr-only"
+          >{{ ariaPosition }}</span
         >
+
+        <div class="flex items-center gap-2">
+          <label id="zoom-label"> {{ $t("admin.users.image.zoom") }}</label>
+          <Button
+            variant="text"
+            :disabled="zoom == MIN_ZOOM || isLoadingAction || isLoadingCropper"
+            severity="secondary"
+            rounded
+            class="shrink-0"
+            icon="fa-solid fa-minus"
+            :aria-label="$t('admin.users.image.zoom_decrease')"
+            @click="zoom -= ZOOM_STEP"
+          />
+          <Slider
+            v-model="zoom"
+            data-test="image-zoom"
+            :disabled="isLoadingAction || isLoadingCropper"
+            aria-labelledby="zoom-label"
+            :min="MIN_ZOOM"
+            :max="MAX_ZOOM"
+            :step="ZOOM_STEP"
+            class="w-full"
+            :pt="{
+              handle: {
+                tabindex: isLoadingAction ? '-1' : '0',
+              },
+            }"
+          />
+          <Button
+            variant="text"
+            severity="secondary"
+            :disabled="zoom == MAX_ZOOM || isLoadingAction || isLoadingCropper"
+            rounded
+            class="shrink-0"
+            icon="fa-solid fa-plus"
+            :aria-label="$t('admin.users.image.zoom_increase')"
+            @click="zoom += ZOOM_STEP"
+          />
+          <Badge
+            data-test="image-zoom-display"
+            severity="secondary"
+            class="shrink-0"
+            >{{ zoom }}<raw-text>%</raw-text></Badge
+          >
+        </div>
+        <Message
+          v-if="errorCroppingImage"
+          severity="error"
+          :closable="false"
+          icon="fa-solid fa-triangle-exclamation"
+        >
+          {{ $t("admin.users.image.crop_error") }}
+        </Message>
       </div>
-    </div>
+      <div v-else ref="errorLoadingCropperRef" tabindex="-1">
+        <InlineNote severity="error" icon="fa-solid fa-triangle-exclamation">
+          {{ $t("admin.users.image.cropper_error") }}
+        </InlineNote>
+      </div>
+    </OverlayComponent>
   </Dialog>
 </template>
 
@@ -224,13 +253,20 @@ const { t } = useI18n();
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const isLoadingCropper = ref(false);
+const errorLoadingCropper = ref(false);
+const errorCroppingImage = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
+
+const fileUploadRef = ref(null);
+const deleteImageButtonRef = ref(null);
+const undoDeleteImageButtonRef = ref(null);
+const errorLoadingCropperRef = ref(null);
+const cropperRef = ref(null);
 
 const MIN_ZOOM = 100;
 const MAX_ZOOM = 300;
 const ZOOM_STEP = 10;
-const cropperRef = ref(null);
 const zoom = ref(MIN_ZOOM);
 const cropperZoom = computed({
   get: () => zoom.value / 100,
@@ -266,6 +302,8 @@ watch(
   () => {
     croppedImage.value = null;
     selectedFile.value = null;
+    errorLoadingCropper.value = false;
+    errorCroppingImage.value = false;
   },
 );
 
@@ -275,13 +313,20 @@ watch(
  */
 async function save() {
   isLoadingAction.value = true;
-  const result = await cropperRef.value.cropImage();
+  errorCroppingImage.value = false;
 
-  croppedImage.value = URL.createObjectURL(result.blob);
-  emit("newImage", result.blob);
+  try {
+    const result = await cropperRef.value.cropImage();
 
-  isLoadingAction.value = false;
-  closeModal();
+    croppedImage.value = URL.createObjectURL(result.blob);
+    emit("newImage", result.blob);
+
+    isLoadingAction.value = false;
+    closeModal();
+  } catch {
+    errorCroppingImage.value = true;
+    isLoadingAction.value = false;
+  }
 }
 
 /**
@@ -294,32 +339,57 @@ async function resetFileUpload() {
 
   await nextTick();
 
-  document.querySelector("[data-test='upload-file-button']")?.focus();
+  fileUploadRef.value?.$el
+    ?.querySelector("[data-test='upload-file-button']")
+    ?.focus();
 }
 
 function closeModal() {
   modalVisible.value = false;
   selectedFile.value = null;
+  errorLoadingCropper.value = false;
+  errorCroppingImage.value = false;
 }
 
 async function onFileSelect(event) {
-  modalVisible.value = true;
   isLoadingCropper.value = true;
-  selectedFile.value = null;
-
   selectedFile.value = event.files[0];
   zoom.value = MIN_ZOOM;
+  modalVisible.value = true;
 }
 
 async function deleteImage() {
   emit("deleteImage", true);
   await nextTick();
-  document.querySelector("[data-test='undo-delete-button']")?.focus();
+  undoDeleteImageButtonRef.value?.$el?.focus();
 }
 
 async function undoDeleteImage() {
   emit("deleteImage", false);
   await nextTick();
-  document.querySelector("[data-test='delete-image-button']")?.focus();
+  deleteImageButtonRef.value?.$el?.focus();
+}
+
+async function handleImageCropperLoading(loading) {
+  isLoadingCropper.value = loading;
+
+  await nextTick();
+
+  // Focus cropper when it is loaded and modal is visible
+  if (!loading && modalVisible.value) {
+    cropperRef.value?.$el?.focus();
+  }
+}
+
+async function handleImageCropperLoadingError() {
+  errorLoadingCropper.value = true;
+  isLoadingCropper.value = false;
+
+  await nextTick();
+
+  // Focus error message
+  if (modalVisible.value) {
+    errorLoadingCropperRef.value?.focus();
+  }
 }
 </script>

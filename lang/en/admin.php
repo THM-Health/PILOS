@@ -487,6 +487,8 @@ return [
             'aria_instructions' => 'Image cropper. Drag or use arrow keys to reposition the image. Use plus or minus keys to zoom in or out',
             'crop' => 'Crop profile picture',
             'crop_area' => 'Crop: :pos_string_x, :pos_string_y, :zoom% zoom',
+            'crop_error' => 'The image could not be cropped. Please try again.',
+            'cropper_error' => 'The cropper could not be initialized. Please try again.',
             'delete' => 'Delete picture',
             'invalid_mime' => 'The file format is not supported. Please select a jpg or png file.',
             'position_horizontal' => ':x% horizontal',
