@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Content Security Policy error when loading room utilisation chart ([#3534], [#3535])
 - Docs: Default value of `ROOM_REFRESH_RATE` ([#3533])
 
 ## [v4.18.1] - 2026-10-05
@@ -925,6 +926,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3476]: https://github.com/THM-Health/PILOS/pull/3476
 [#3500]: https://github.com/THM-Health/PILOS/pull/3500
 [#3533]: https://github.com/THM-Health/PILOS/pull/3533
+[#3534]: https://github.com/THM-Health/PILOS/issues/3534
+[#3535]: https://github.com/THM-Health/PILOS/pull/3535
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
