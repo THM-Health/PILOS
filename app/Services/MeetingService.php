@@ -642,8 +642,8 @@ class MeetingService
         $personalizedLink = Context::getHidden("room.{$this->meeting->room->id}.personalized_link");
 
         if (Auth::guest()) {
-            if ($personalizedLink) {
-                $name = $personalizedLink->fullname;
+            if ($personalizedLink?->enforced_name) {
+                $name = $personalizedLink->enforced_name;
             } else {
                 $name = $request->name;
             }

@@ -163,7 +163,7 @@
               >
                 <div class="flex flex-col gap-2">
                   <p class="m-0 text-lg font-semibold">
-                    {{ item.firstname }} {{ item.lastname }}
+                    {{ item.description }}
                   </p>
                   <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row items-center gap-2">
@@ -209,8 +209,7 @@
                   <RoomTabPersonalizedLinksCopyButton
                     :room-id="props.room.id"
                     :token="item.token"
-                    :firstname="item.firstname"
-                    :lastname="item.lastname"
+                    :description="item.description"
                     :disabled="isBusy"
                   />
                   <!-- edit -->
@@ -218,8 +217,8 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :id="item.id"
                     :room-id="props.room.id"
-                    :firstname="item.firstname"
-                    :lastname="item.lastname"
+                    :description="item.description"
+                    :enforced-name="item.enforced_name"
                     :role="item.role"
                     :disabled="isBusy"
                     @edited="loadData()"
@@ -230,8 +229,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :id="item.id"
                     :room-id="props.room.id"
-                    :firstname="item.firstname"
-                    :lastname="item.lastname"
+                    :description="item.description"
                     :disabled="isBusy"
                     @deleted="loadData()"
                     @not-found="loadData()"
@@ -268,14 +266,13 @@ const { t } = useI18n();
 const personalizedLinks = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const sortField = ref("lastname");
+const sortField = ref("description");
 const sortOrder = ref(1);
 const search = ref("");
 const filter = ref("all");
 
 const sortFields = computed(() => [
-  { name: t("app.firstname"), value: "firstname" },
-  { name: t("app.lastname"), value: "lastname" },
+  { name: t("app.description"), value: "description" },
   { name: t("rooms.personalized_links.last_usage"), value: "last_usage" },
 ]);
 
