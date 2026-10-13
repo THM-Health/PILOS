@@ -99,6 +99,7 @@
     <template #footer>
       <div class="mt-2 flex justify-end gap-2">
         <Button
+          ref="dialogCancelButtonRef"
           :label="$t('app.cancel')"
           severity="secondary"
           :disabled="isLoadingAction"
@@ -208,11 +209,14 @@
           {{ $t("admin.users.image.crop_error") }}
         </Message>
       </div>
-      <div v-else ref="errorLoadingCropperRef" tabindex="-1">
-        <InlineNote severity="error" icon="fa-solid fa-triangle-exclamation">
-          {{ $t("admin.users.image.cropper_error") }}
-        </InlineNote>
-      </div>
+      <Message
+        v-else
+        severity="error"
+        :closable="false"
+        icon="fa-solid fa-triangle-exclamation"
+      >
+        {{ $t("admin.users.image.cropper_error") }}
+      </Message>
     </OverlayComponent>
   </Dialog>
 </template>
@@ -261,7 +265,7 @@ const croppedImage = ref(null);
 const fileUploadRef = ref(null);
 const deleteImageButtonRef = ref(null);
 const undoDeleteImageButtonRef = ref(null);
-const errorLoadingCropperRef = ref(null);
+const dialogCancelButtonRef = ref(null);
 const cropperRef = ref(null);
 
 const MIN_ZOOM = 100;
@@ -389,7 +393,7 @@ async function handleImageCropperLoadingError() {
 
   // Focus error message
   if (modalVisible.value) {
-    errorLoadingCropperRef.value?.focus();
+    dialogCancelButtonRef.value?.$el?.focus();
   }
 }
 </script>
