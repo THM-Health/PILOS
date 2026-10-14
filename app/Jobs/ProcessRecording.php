@@ -127,13 +127,11 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             $archivePath = Storage::disk('recordings-spool')->path($this->file);
 
             // Reject archives that contain symbolic links
-            $symlinkCheck = Process::pipe(function ($pipe) use ($archivePath) {
-                $pipe->timeout($this->timeout)->command(['tar', '-tvf', $archivePath]);
-                $pipe->command(['grep', '-E', '^l']);
-            });
+            $tarFileContents = preg_split("/\n/", Process::timeout($this->timeout)->run(['tar', '-tvf', $archivePath])->output());
+            $symlinks = preg_grep('/^l/', $tarFileContents);
 
-            if ($symlinkCheck->successful()) {
-                Log::error('Recording file '.$this->file.' contains symbolic links: '.trim($symlinkCheck->output()));
+            if (count($symlinks) > 0) {
+                Log::error('Recording file '.$this->file.' contains symbolic links: '.implode(', ', $symlinks));
                 $this->fail('Recording archive contains symbolic links');
 
                 return;
