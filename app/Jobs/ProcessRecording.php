@@ -139,9 +139,13 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
                 return;
             }
 
-            // Extract the tar file to a temp directory using GNU tar
+            // Clean up old temp directory
+            Storage::disk('recordings')->deleteDirectory($this->tempPath);
+
+            // Create the temp directory
             Storage::disk('recordings')->makeDirectory(dirname($this->tempPath));
 
+            // Extract the tar file to the temp directory using GNU tar
             Process::timeout($this->timeout)->run([
                 'tar',
                 '-xf',
@@ -188,6 +192,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
         } catch (Exception $e) {
             // Extraction failed, retry the job later (.tar file might be incomplete yet)
             Log::error('Extracting recording file '.$this->file.' failed: '.$e->getMessage());
+
             $this->cleanup();
 
             throw new RecordingExtractionFailed($this->file, previous: $e);
