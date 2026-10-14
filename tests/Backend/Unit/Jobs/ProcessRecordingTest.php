@@ -33,15 +33,16 @@ class ProcessRecordingTest extends TestCase
 
     public function test_process_invalid_recording_file()
     {
+        $recordingFile = 'invalid-recording.tar';
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
 
         Log::swap(new LogFake);
         Queue::fake();
 
-        copy(base_path('tests/Backend/Fixtures/Recordings/invalid-recording.tar'), Storage::disk('recordings-spool')->path('invalid-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
 
-        $job = (new ProcessRecording('invalid-recording.tar'))->withFakeQueueInteractions();
+        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
 
         $failed = false;
         try {
@@ -53,7 +54,7 @@ class ProcessRecordingTest extends TestCase
         $this->assertTrue($failed);
 
         Log::assertLogged(
-            fn (LogEntry $log) => str_starts_with($log->message, 'Extracting recording file invalid-recording.tar failed')
+            fn (LogEntry $log) => str_starts_with($log->message, "Extracting recording file $recordingFile failed")
                 && str_contains($log->message, 'This does not look like a tar archive')
         );
 
@@ -63,105 +64,74 @@ class ProcessRecordingTest extends TestCase
 
     public function test_rejects_recording_archive_with_symbolic_links()
     {
+        $recordingFile = 'symlink-recording.tar';
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
 
         Log::swap(new LogFake);
         Queue::fake();
 
-        copy(base_path('tests/Backend/Fixtures/Recordings/symlink-recording.tar'), Storage::disk('recordings-spool')->path('symlink-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
 
-        $job = (new ProcessRecording('symlink-recording.tar'))->withFakeQueueInteractions();
+        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
 
         $job->handle();
 
         Log::assertLogged(
-            fn (LogEntry $log) => str_starts_with($log->message, 'Recording file symlink-recording.tar contains symbolic links:')
-                && str_contains($log->message, 'content/evil-link -> /etc/passwd')
+            fn (LogEntry $log) => $log->message === "Recording file $recordingFile contains symbolic links: content/evil-link -> /etc/passwd"
         );
 
         $job->assertFailed();
         $this->assertCount(0, Storage::disk('recordings')->allFiles());
-        $this->assertCount(1, Storage::disk('recordings-spool')->files(''));
+        $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
     }
 
-    /**
-     * Test that recording tar files that contain files with absolute paths extracted
-     * but the leading slash is stripped and resolved to a relative path
-     *
-     * When tar extracts archive members from an archive, it strips any leading slashes (‘/’) from the member name.
-     * This causes absolute member names in the archive to be treated as relative file names.
-     *
-     * @see https://www.gnu.org/software/tar/manual/tar.html#Absolute-File-Names
-     */
-    public function test_strips_leading_slash_on_absolute_path_in_recording_tar()
+    public function test_rejects_absolute_path_in_recording_tar()
     {
+        $recordingFile = 'absolute-path-recording.tar';
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
-
-        Meeting::factory()->create([
-            'id' => self::EXTERNAL_MEETING_ID,
-        ]);
 
         Log::swap(new LogFake);
         Queue::fake();
 
-        // cleanup old /tmp/evil file
-        if (file_exists('/tmp/evil')) {
-            unlink('/tmp/evil');
-        }
+        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
 
-        copy(base_path('tests/Backend/Fixtures/Recordings/absolute-path-recording.tar'), Storage::disk('recordings-spool')->path('absolute-path-recording.tar'));
-
-        $job = (new ProcessRecording('absolute-path-recording.tar'))->withFakeQueueInteractions();
+        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
 
         $job->handle();
 
-        // Check file was not written to absolute path
-        $this->assertFileDoesNotExist('/tmp/evil', 'Absolute path in recording tar should be rejected');
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->message === "Recording file $recordingFile contains absolute paths: /tmp/evil"
+        );
 
-        // Check if other tar files are correctly extracted
-        $this->assertTrue(Storage::disk('recordings')->directoryExists(self::INTERNAL_MEETING_ID));
-        $this->assertFileExists(Storage::disk('recordings')->path(self::INTERNAL_MEETING_ID.'/notes/notes.pdf'));
+        $job->assertFailed();
+        $this->assertCount(0, Storage::disk('recordings')->allFiles());
+        $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
     }
 
-    /**
-     * Test that recording tar files that contain files with ".." in the path are rejected
-     *
-     * File names containing ‘..’ can cause problems when extracting, so tar [...] prevents attempts to extract such files if that would affect files outside the working directory.
-     *
-     * @see https://www.gnu.org/software/tar/manual/tar.html#Absolute-File-Names
-     */
-    public function test_fails_on_relative_path_in_recording_tar()
+    public function test_fails_on_parent_path_in_recording_tar()
     {
+        $recordingFile = 'parent-path-recording.tar';
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
-
-        Meeting::factory()->create([
-            'id' => self::EXTERNAL_MEETING_ID,
-        ]);
 
         Log::swap(new LogFake);
         Queue::fake();
 
-        copy(base_path('tests/Backend/Fixtures/Recordings/relative-path-recording.tar'), Storage::disk('recordings-spool')->path('relative-path-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
 
-        $job = (new ProcessRecording('relative-path-recording.tar'))->withFakeQueueInteractions();
+        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
 
-        $exception = null;
-
-        try {
-            $job->handle();
-        } catch (RecordingExtractionFailed $e) {
-            $exception = $e;
-        }
-
-        $this->assertInstanceOf(RecordingExtractionFailed::class, $exception);
+        $job->handle();
 
         Log::assertLogged(
-            fn (LogEntry $log) => str_starts_with($log->message, 'Extracting recording file relative-path-recording.tar failed:')
-                && str_contains($log->message, "../evil: Member name contains '..'")
+            fn (LogEntry $log) => $log->message === "Recording file $recordingFile contains parent paths: ../evil"
         );
+
+        $job->assertFailed();
+        $this->assertCount(0, Storage::disk('recordings')->allFiles());
+        $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
     }
 
     public function test_process_valid_recording_file_but_not_meeting()
