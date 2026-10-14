@@ -169,14 +169,16 @@ class FileTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonMissingPaths(['default', 'system_default']);
 
         // Testing users
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonMissingPaths(['default', 'system_default']);
         Auth::logout();
 
         $this->room->access_code = $this->createAccessCode();
@@ -212,7 +214,8 @@ class FileTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonMissingPaths(['default', 'system_default']);
 
         // Testing users with room auth token (access code)
         $currentSession = $this->startNewSession($this->user);
@@ -231,7 +234,8 @@ class FileTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonMissingPaths(['default', 'system_default']);
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
@@ -239,7 +243,8 @@ class FileTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonMissingPaths(['default', 'system_default']);
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
@@ -247,7 +252,8 @@ class FileTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]));
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonMissingPaths(['default', 'system_default']);
 
         // Testing co-owner member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
@@ -256,7 +262,18 @@ class FileTest extends TestCase
             ->assertJsonCount(3, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
             ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
-            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]));
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]))
+            ->assertJsonStructure([
+                'system_default' => [
+                    'file',
+                    'use_in_meeting',
+                    'prefer_as_default',
+                ],
+            ])
+            ->assertJsonPaths([
+                'default.id' => $document->id,
+                'system_default.file' => null,
+            ]);
 
         // Testing owner
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
@@ -264,7 +281,18 @@ class FileTest extends TestCase
             ->assertJsonCount(3, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
             ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
-            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]));
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]))
+            ->assertJsonStructure([
+                'system_default' => [
+                    'file',
+                    'use_in_meeting',
+                    'prefer_as_default',
+                ],
+            ])
+            ->assertJsonPaths([
+                'default.id' => $document->id,
+                'system_default.file' => null,
+            ]);
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
@@ -275,7 +303,18 @@ class FileTest extends TestCase
             ->assertJsonCount(3, 'data')
             ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
             ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
-            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]));
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]))
+            ->assertJsonStructure([
+                'system_default' => [
+                    'file',
+                    'use_in_meeting',
+                    'prefer_as_default',
+                ],
+            ])
+            ->assertJsonPaths([
+                'default.id' => $document->id,
+                'system_default.file' => null,
+            ]);
 
         $this->role->permissions()->detach($this->viewAllPermission);
 
@@ -1187,7 +1226,6 @@ class FileTest extends TestCase
         $params = [
             'use_in_meeting' => true,
             'download' => true,
-            'default' => false,
         ];
 
         // Testing guest
@@ -1237,6 +1275,14 @@ class FileTest extends TestCase
         $this->assertTrue($room_file->download);
         $this->assertTrue($room_file->default); // Manually setting default to false is forbidden
 
+        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => false, 'download' => false])
+            ->assertSuccessful();
+
+        $room_file->refresh();
+        $this->assertFalse($room_file->use_in_meeting);
+        $this->assertFalse($room_file->download);
+        $this->assertFalse($room_file->default);
+
         // Testing for other room
         $other_room = Room::factory()->create();
         // Testing for room without permission
@@ -1266,17 +1312,16 @@ class FileTest extends TestCase
         // Testing missing properties
         $params = [];
         $this->actingAs($this->room->owner)->putJson($route, $params)
-            ->assertJsonValidationErrors(['use_in_meeting', 'download', 'default']);
+            ->assertJsonValidationErrors(['use_in_meeting', 'download']);
 
         // Testing invalid properties
         $params = [
             'use_in_meeting' => 'invalid',
             'download' => 'invalid',
-            'default' => 'invalid',
         ];
 
         $this->actingAs($this->room->owner)->putJson($route, $params)
-            ->assertJsonValidationErrors(['use_in_meeting', 'download', 'default']);
+            ->assertJsonValidationErrors(['use_in_meeting', 'download']);
 
         // Test deleted
         $room_file->delete();
@@ -1307,7 +1352,7 @@ class FileTest extends TestCase
     /**
      * Test setting file default
      */
-    public function test_update_default()
+    public function test_set_default()
     {
         $file_1 = UploadedFile::fake()->create('document1.pdf', config('bigbluebutton.max_filesize') - 1, 'application/pdf');
         $file_2 = UploadedFile::fake()->create('document2.pdf', config('bigbluebutton.max_filesize') - 1, 'application/pdf');
@@ -1326,34 +1371,385 @@ class FileTest extends TestCase
         $this->assertFalse($room_file_2->default);
         $this->assertFalse($room_file_2->use_in_meeting);
 
-        // Set new default without use_in_meeting
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), ['download' => false, 'default' => true, 'use_in_meeting' => false])
+        Auth::logout();
+
+        // Testing guest
+        $this->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+            ->assertUnauthorized();
+
+        // Testing user
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+            ->assertForbidden();
+
+        // Testing member
+        $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+            ->assertForbidden();
+
+        // Testing moderator member
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+            ->assertForbidden();
+
+        // Testing co-owner
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
             ->assertSuccessful();
+
+        // Testing owner
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+            ->assertSuccessful();
+
+        // Remove membership roles and test with view all permission
+        $this->room->members()->sync([]);
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_2]))
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Test with manage permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+            ->assertSuccessful();
+        $this->role->permissions()->detach($this->managePermission);
+
         $room_file_1->refresh();
         $room_file_2->refresh();
-        $this->assertFalse($room_file_1->default);
-        $this->assertFalse($room_file_1->use_in_meeting);
+
+        // Check that only one file is set as default and use_in_meeting was set
+        $this->assertTrue($room_file_1->default);
+        $this->assertTrue($room_file_1->use_in_meeting);
         $this->assertFalse($room_file_2->default);
         $this->assertFalse($room_file_2->use_in_meeting);
 
         // Set new default with use_in_meeting
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_1]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
-            ->assertSuccessful();
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
+        $room_file_2->use_in_meeting = true;
+        $room_file_2->save();
+
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_2]))
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
-        $this->assertTrue($room_file_1->default);
+        $this->assertFalse($room_file_1->default);
         $this->assertTrue($room_file_1->use_in_meeting);
-        $this->assertFalse($room_file_2->default);
-        $this->assertTrue($room_file_2->use_in_meeting);
-
-        // Remove current default
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $this->room->id, 'file' => $room_file_1]))
-            ->assertSuccessful();
-        $room_file_2->refresh();
         $this->assertTrue($room_file_2->default);
         $this->assertTrue($room_file_2->use_in_meeting);
+
+        // Testing for other room
+        $other_room = Room::factory()->create();
+        // Testing for room without permission
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.default.set', ['room' => $other_room->id, 'file' => $room_file_1]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file_1->id,
+                ],
+            ]);
+
+        // Testing for room with permission
+        $other_room->owner()->associate($this->room->owner);
+        $other_room->save();
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.default.set', ['room' => $other_room->id, 'file' => $room_file_1]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file_1->id,
+                ],
+            ]);
+
+        // Test deleted file
+        $room_file_1->delete();
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room_file',
+                'ids' => [
+                    $room_file_1->id,
+                ],
+            ]);
+
+        // Test deleted room
+        $this->room->delete();
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $room_file_2]))
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [
+                    $this->room->id,
+                ],
+            ]);
+    }
+
+    public function test_update_system_default()
+    {
+        $systemWideDefaultUrl = url('system-wide-default.pdf');
+
+        $this->bigBlueButtonSettings->default_presentation = $systemWideDefaultUrl;
+        $this->bigBlueButtonSettings->save();
+
+        $route = route('api.v1.rooms.files.updateSystemDefault', ['room' => $this->room->id]);
+        $params = [
+            'use_in_meeting' => true,
+        ];
+
+        // Testing guest
+        $this->putJson($route, $params)
+            ->assertUnauthorized();
+
+        // Testing user
+        $this->actingAs($this->user)->putJson($route, $params)
+            ->assertForbidden();
+
+        // Testing member
+        $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->actingAs($this->user)->putJson($route, $params)
+            ->assertForbidden();
+
+        // Testing moderator member
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->actingAs($this->user)->putJson($route, $params)
+            ->assertForbidden();
+
+        // Testing co-owner
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->putJson($route, $params)
+            ->assertSuccessful();
+
+        // Testing owner
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertSuccessful();
+
+        // Remove membership roles and test with view all permission
+        $this->room->members()->sync([]);
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->putJson($route, $params)
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // test with manage permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->putJson($route, $params)
+            ->assertSuccessful();
+        $this->role->permissions()->detach($this->managePermission);
+
+        $this->room->refresh();
+
+        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
+
+        $this->room->prefer_system_default_presentation_as_default = true;
+        $this->room->save();
+
+        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => false])
+            ->assertSuccessful();
+
+        $this->room->refresh();
+        $this->assertFalse($this->room->use_system_default_presentation_in_meeting);
+        $this->assertFalse($this->room->prefer_system_default_presentation_as_default);
+
+        // Testing missing properties
+        $params = [];
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertJsonValidationErrors(['use_in_meeting']);
+
+        // Testing invalid properties
+        $params = [
+            'use_in_meeting' => 'invalid',
+        ];
+
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertJsonValidationErrors(['use_in_meeting']);
+
+        // Test no system default set
+        $this->bigBlueButtonSettings->default_presentation = null;
+        $this->bigBlueButtonSettings->save();
+        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => true])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'system_default_presentation_not_set',
+            ]);
+
+        // Test deleted room
+        $this->room->delete();
+        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => true])
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [
+                    $this->room->id,
+                ],
+            ]);
+    }
+
+    public function test_set_system_default_as_default_presentation()
+    {
+        $systemWideDefaultUrl = url('system-wide-default.pdf');
+
+        $this->bigBlueButtonSettings->default_presentation = $systemWideDefaultUrl;
+        $this->bigBlueButtonSettings->save();
+
+        $route = route('api.v1.rooms.files.system_default.set', ['room' => $this->room->id]);
+
+        // Testing guest
+        $this->postJson($route)
+            ->assertUnauthorized();
+
+        // Testing user
+        $this->actingAs($this->user)->postJson($route)
+            ->assertForbidden();
+
+        // Testing member
+        $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->actingAs($this->user)->postJson($route)
+            ->assertForbidden();
+
+        // Testing moderator member
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->actingAs($this->user)->postJson($route)
+            ->assertForbidden();
+
+        // Testing co-owner
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->postJson($route)
+            ->assertSuccessful();
+
+        // Testing owner
+        $this->actingAs($this->room->owner)->postJson($route)
+            ->assertSuccessful();
+
+        // Remove membership roles and test with view all permission
+        $this->room->members()->sync([]);
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->postJson($route)
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // test with manage permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->postJson($route)
+            ->assertSuccessful();
+        $this->role->permissions()->detach($this->managePermission);
+
+        $this->room->refresh();
+
+        // Check that the system default is set as the default presentation and use_in_meeting is set to true
+        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
+        $this->assertTrue($this->room->prefer_system_default_presentation_as_default);
+
+        // Set prefer_system_default_presentation_as_default to false and test again with use_in_meeting true
+        $this->room->prefer_system_default_presentation_as_default = false;
+        $this->room->save();
+
+        $this->actingAs($this->room->owner)->postJson($route)
+            ->assertSuccessful();
+
+        $this->room->refresh();
+
+        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
+        $this->assertTrue($this->room->prefer_system_default_presentation_as_default);
+
+        // Test no system default set
+        $this->bigBlueButtonSettings->default_presentation = null;
+        $this->bigBlueButtonSettings->save();
+        $this->actingAs($this->room->owner)->postJson($route)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'system_default_presentation_not_set',
+            ]);
+
+        // Test deleted room
+        $this->room->delete();
+        $this->actingAs($this->room->owner)->postJson($route)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'model_not_found',
+                'model' => 'room',
+                'ids' => [
+                    $this->room->id,
+                ],
+            ]);
+    }
+
+    public function test_disabling_default_file_selects_another_active_file(): void
+    {
+        $defaultFile = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'default' => true,
+            'use_in_meeting' => true,
+        ]);
+        $otherFile = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'use_in_meeting' => true,
+        ]);
+
+        $this->actingAs($this->room->owner)
+            ->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $defaultFile]), [
+                'use_in_meeting' => false,
+                'download' => false,
+            ])
+            ->assertSuccessful();
+
+        $defaultFile->refresh();
+        $otherFile->refresh();
+        $this->assertFalse($defaultFile->use_in_meeting);
+        $this->assertFalse($defaultFile->default);
+        $this->assertTrue($otherFile->use_in_meeting);
+        $this->assertTrue($otherFile->default);
+    }
+
+    public function test_setting_default_file_overrides_system_default_preference(): void
+    {
+        $this->bigBlueButtonSettings->default_presentation = url('system-wide-default.pdf');
+        $this->bigBlueButtonSettings->save();
+        $this->room->use_system_default_presentation_in_meeting = true;
+        $this->room->prefer_system_default_presentation_as_default = true;
+        $this->room->save();
+        $file = RoomFile::factory()->create(['room_id' => $this->room->id]);
+
+        $this->actingAs($this->room->owner)
+            ->postJson(route('api.v1.rooms.files.default.set', ['room' => $this->room->id, 'file' => $file]))
+            ->assertSuccessful();
+
+        $this->room->refresh();
+        $file->refresh();
+        $this->assertFalse($this->room->prefer_system_default_presentation_as_default);
+        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
+        $this->assertTrue($file->default);
+        $this->assertTrue($file->use_in_meeting);
+    }
+
+    public function test_setting_system_default_preserves_default_file(): void
+    {
+        $this->bigBlueButtonSettings->default_presentation = url('system-wide-default.pdf');
+        $this->bigBlueButtonSettings->save();
+        $this->room->use_system_default_presentation_in_meeting = false;
+        $this->room->prefer_system_default_presentation_as_default = false;
+        $this->room->save();
+        $file = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'default' => true,
+            'use_in_meeting' => true,
+        ]);
+
+        $this->actingAs($this->room->owner)
+            ->postJson(route('api.v1.rooms.files.system_default.set', ['room' => $this->room->id]))
+            ->assertSuccessful();
+
+        $this->room->refresh();
+        $file->refresh();
+        $this->assertTrue($this->room->prefer_system_default_presentation_as_default);
+        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
+        $this->assertTrue($file->default);
+        $this->assertTrue($file->use_in_meeting);
     }
 
     /**

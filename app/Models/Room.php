@@ -33,6 +33,8 @@ class Room extends Model
     {
         $casts = [
             'expert_mode' => 'boolean',
+            'use_system_default_presentation_in_meeting' => 'boolean',
+            'prefer_system_default_presentation_as_default' => 'boolean',
             'delete_inactive' => 'datetime',
         ];
 
@@ -206,7 +208,9 @@ class Room extends Model
             $currentDefault->default = false;
             $currentDefault->save();
         }
-        // If any other files are found that are used in the next meeting, select the first one to become new default
+
+        // If no default file is explicitly set
+        // look for the first file that is set to be used in the meeting and set it as default
         $newDefaultFile = $this->files()->firstWhere('use_in_meeting', true);
         if ($newDefaultFile != null) {
             $newDefaultFile->default = true;
