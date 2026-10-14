@@ -184,7 +184,7 @@ describe("User Profile Base", function () {
       .should("have.attr", "src");
 
     // Zoom with plus/minus keys on the cropper
-    cy.get('[role="application"]').focus();
+    cy.get('[role="application"]').should("have.focus");
     cy.get('[role="application"]').press("+").press("+");
     cy.get('[data-test="image-zoom-display"]').should("have.text", "120%");
     cy.get('[role="application"]').press("-").press("-");
@@ -689,6 +689,81 @@ describe("User Profile Base", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("change profile image with image cropper errors", function () {
+    cy.visit("/profile");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="crop-image-dialog"]').should("not.exist");
+
+    cy.get('[data-test="profile-image-field"]')
+      .should("be.visible")
+      .within(() => {
+        // Upload invalid profile image
+        cy.get('[data-test="upload-file-input"]').selectFile(
+          {
+            contents: Cypress.Buffer.from("This is an invalid image"),
+            fileName: "invalid.jpg",
+            mimeType: "image/jpeg",
+          },
+          { force: true },
+        );
+      });
+
+    cy.get('[data-test="crop-image-dialog"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.image.crop")
+      .and("include.text", "admin.users.image.cropper_error")
+      .within(() => {
+        // Check that image cropper and zoom slider are hidden
+        cy.get('[role="application"]').should("not.exist");
+        cy.get('[data-test="image-zoom"]').should("not.exist");
+        cy.get('[data-test="image-zoom-display"]').should("not.exist");
+      });
+
+    // Check that save button is disabled
+    cy.get('[data-test="dialog-save-button"]').should("be.disabled");
+
+    // Check that cancel button has focus and is enabled and click it
+    cy.get('[data-test="dialog-cancel-button"]')
+      .should("have.focus")
+      .and("not.be.disabled")
+      .click();
+
+    cy.get('[data-test="crop-image-dialog"]').should("not.exist");
+
+    // Upload valid profile image again
+    cy.get('[data-test="profile-image-field"]').within(() => {
+      cy.get('[data-test="upload-file-input"]').selectFile(
+        "tests/Frontend/fixtures/files/profileImage.jpg",
+        { force: true },
+      );
+    });
+
+    cy.get('[data-test="crop-image-dialog"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.image.crop")
+      .and("not.include.text", "admin.users.image.cropper_error");
+
+    // Check if image is loaded
+    cy.get('[data-test="crop-image-dialog"]')
+      .find("img")
+      .should("have.attr", "src");
+
+    cy.get('[data-test="crop-image-dialog"]').within(() => {
+      // Check that image cropper and zoom slider are visible
+      cy.get('[role="application"]').should("be.visible");
+      cy.get('[data-test="image-zoom"]').should("be.visible");
+      cy.get('[data-test="image-zoom-display"]')
+        .should("be.visible")
+        .and("have.text", "100%");
+
+      // Check that buttons are enabled
+      cy.get('[data-test="dialog-save-button"]').should("not.be.disabled");
+      cy.get('[data-test="dialog-cancel-button"]').should("not.be.disabled");
+    });
   });
 
   it("view without users.updateOwnAttributes permission", function () {
