@@ -54,7 +54,32 @@ class ProcessRecordingTest extends TestCase
 
         Log::assertLogged(
             fn (LogEntry $log) => str_starts_with($log->message, 'Extracting recording file invalid-recording.tar failed')
+                && str_contains($log->message, 'This does not look like a tar archive')
         );
+    }
+
+    public function test_rejects_recording_archive_with_symbolic_links()
+    {
+        Storage::fake('recordings');
+        Storage::fake('recordings-spool');
+
+        Log::swap(new LogFake);
+        Queue::fake();
+
+        copy(base_path('tests/Backend/Fixtures/Recordings/symlink-recording.tar'), Storage::disk('recordings-spool')->path('symlink-recording.tar'));
+
+        $job = (new ProcessRecording('symlink-recording.tar'))->withFakeQueueInteractions();
+
+        $job->handle();
+
+        Log::assertLogged(
+            fn (LogEntry $log) => str_starts_with($log->message, 'Recording file symlink-recording.tar contains symbolic links:')
+                && str_contains($log->message, 'content/evil-link -> /etc/passwd')
+        );
+
+        $job->assertFailed();
+        $this->assertCount(0, Storage::disk('recordings')->allFiles());
+        $this->assertCount(1, Storage::disk('recordings-spool')->files(''));
     }
 
     public function test_process_valid_recording_file_but_not_meeting()

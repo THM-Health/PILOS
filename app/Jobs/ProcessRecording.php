@@ -16,8 +16,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
-use PharData;
 use Throwable;
 
 class ProcessRecording implements ShouldBeUnique, ShouldQueue
@@ -124,9 +124,32 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
         }
 
         try {
-            // Extract the tar file to a temp directory
-            $phar = new PharData(Storage::disk('recordings-spool')->path($this->file));
-            $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
+            $archivePath = Storage::disk('recordings-spool')->path($this->file);
+
+            // Reject archives that contain symbolic links
+            $symlinkCheck = Process::pipe(function ($pipe) use ($archivePath) {
+                $pipe->timeout($this->timeout)->command(['tar', '-tvf', $archivePath]);
+                $pipe->command(['grep', '-E', '^l']);
+            });
+
+            if ($symlinkCheck->successful()) {
+                Log::error('Recording file '.$this->file.' contains symbolic links: '.trim($symlinkCheck->output()));
+                $this->fail('Recording archive contains symbolic links');
+
+                return;
+            }
+
+            // Extract the tar file to a temp directory using GNU tar
+            Storage::disk('recordings')->makeDirectory(dirname($this->tempPath));
+
+            Process::timeout($this->timeout)->run([
+                'tar',
+                '-xf',
+                $archivePath,
+                '-C',
+                Storage::disk('recordings')->path(dirname($this->tempPath)),
+                '--one-top-level='.basename($this->tempPath),
+            ])->throw();
 
             // Find metadata.xml files
             $metadataFiles = array_filter(Storage::disk('recordings')->allFiles($this->tempPath), function ($file) {
@@ -164,7 +187,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             }
         } catch (Exception $e) {
             // Extraction failed, retry the job later (.tar file might be incomplete yet)
-            Log::error('Extracting recording file '.$this->file.' failed');
+            Log::error('Extracting recording file '.$this->file.' failed: '.$e->getMessage());
             $this->cleanup();
 
             throw new RecordingExtractionFailed($this->file, previous: $e);
