@@ -134,6 +134,7 @@ return [
             ],
         ],
         'permissions_title' => 'Permissions',
+        'reload_aria' => 'Actualiser les rôles',
         'room_limit' => [
             'custom' => 'Total personnalisé',
             'default' => 'Valeur par défaut (:value)',
@@ -146,6 +147,7 @@ return [
                 'system_default' => 'Valeur par défaut',
             ],
         ],
+        'search_aria' => 'Rechercher des rôles',
         'select_roles' => 'Merci de choisir au moins un rôle',
         'superuser' => 'Administrateur',
         'tile_description' => 'Les rôles attribuent des autorisations, organisent les utilisateurs et définissent le nombre maximum de salles par utilisateur.',
@@ -184,6 +186,7 @@ return [
         'preview' => 'Aperçu',
         'restrict' => 'Restreindre l\'utilisation',
         'restrict_description' => 'L\'utilisation de ce type de salle et des serveurs correspondants sera limitée aux rôles sélectionnés.',
+        'search_aria' => 'Rechercher des types de salles',
         'select_roles' => 'Selection des rôles',
         'select_server_pool' => 'Selection du groupe de serveurs',
         'server_pool_description' => 'Les serveurs de ce groupe seront utilisés pour l\'équilibrage de charge',
@@ -201,15 +204,20 @@ return [
         'new' => 'Créer un nouveau groupe de serveur',
         'no_data' => 'Aucun groupe de serveur trouvé !',
         'no_data_filtered' => 'Aucun groupe de serveur trouvé avec ces filtres sélectionnés !',
+        'reload_aria' => 'Actualiser les pools de serveurs',
         'remove_server' => 'Supprimer le serveur :name',
+        'search_aria' => 'Rechercher des pools de serveurs',
         'select_servers' => 'Selection du serveur',
         'server_count' => 'Nombre de serveurs',
         'tile_description' => 'Pour l\'équilibrage de charge, plusieurs serveurs sont regroupés et attribués à chaque salle via le type de salle.',
         'view' => 'Informations détaillées sur le groupe de serveurs :name',
     ],
     'servers' => [
+        'always_online' => 'Toujours en ligne',
         'base_url' => 'URL de l\'API',
         'connection' => 'Connexion',
+        'connection_status_always_online' => 'Connexion toujours active',
+        'connection_status_always_online_description' => 'Le serveur est toujours considéré comme en ligne et disponible pour de nouvelles réunions ; les problèmes de connexion sont ignorés.',
         'current_usage' => 'Utilisation actuelle',
         'delete' => [
             'confirm' => 'Voulez-vous vraiment supprimer le serveur :name?',
@@ -221,8 +229,11 @@ return [
         'draining' => 'Évacuation',
         'edit' => 'Modifier le serveur :name',
         'enabled' => 'Activé',
+        'faulty' => 'Défectueux',
         'flash' => [
             'panic' => [
+                'description_meetings_successful' => '{0} Aucune réunion n\'a pu être interrompue. |{1} 1 réunion a pu être interrompue. |[2,*] :count réunions ont pu être interrompues.',
+                'description_meetings_total' => '{0} Aucune réunion n\'a été trouvée. |{1} 1 réunion a été trouvée. |[2,*] :count réunions ont été trouvées.',
                 'title' => 'Le serveur a été désactivé.',
             ],
         ],
@@ -245,6 +256,8 @@ return [
         'panic_server' => 'Désactiver le serveur et mettre fin à toutes les réunions',
         'participant_count' => 'Participants',
         'reload' => 'Recalculer l\'utilisation',
+        'reload_list_aria' => 'Actualiser les serveurs',
+        'search_aria' => 'Rechercher les serveurs',
         'secret' => 'Secret pour l\'API',
         'show_secret' => 'Afficher le texte en clair',
         'status' => 'Statut',
@@ -285,6 +298,9 @@ return [
             'title' => 'Bannière pour les messages',
         ],
         'bbb' => [
+            'default_welcome_message' => [
+                'title' => 'Message d\'accueil par défaut',
+            ],
             'logo' => [
                 'alt' => 'Aperçu du logo',
                 'hint' => 'https://domaine.fr/chemin/logo.svg',
@@ -421,6 +437,10 @@ return [
         ],
         'two_weeks' => '2 semaines (14 jours)',
         'two_years' => '2 ans (730 jours)',
+        'user_search_by_name' => [
+            'description' => 'Permet aux utilisateurs de rechercher d\'autres utilisateurs à partir d\'une correspondance partielle de leur nom ou de leur adresse e-mail. Lorsque cette fonctionnalité est désactivée, les utilisateurs ne peuvent être trouvés qu\'en saisissant leur adresse e-mail exacte.',
+            'title' => 'Autoriser la recherche d\'utilisateurs par nom',
+        ],
         'user_settings' => 'Paramètres utilisateur',
     ],
     'streaming' => [
@@ -481,6 +501,7 @@ return [
         'no_data_filtered' => 'Aucun utilisateur trouvé avec ces filtres sélectionnés !',
         'other_settings' => 'Autre paramètres',
         'password_reset_success' => 'L\'e-mail de réinitialisation du mot de passe a été envoyé avec succès à :mail!',
+        'reload_aria' => 'Actualiser les utilisateurs',
         'remove_role' => 'Supprimer le rôle  :name',
         'reset_password' => [
             'confirm' => 'Voulez-vous vraiment réinitialiser le mot de passe de :firstname :lastname?',
@@ -489,6 +510,7 @@ return [
         ],
         'role_filter' => 'Sélectionnez le rôle pour le filtrage',
         'roles_and_permissions' => 'Rôles et permissions',
+        'search_aria' => 'Rechercher les utilisateurs',
         'show_password' => 'Afficher le mot de passe',
         'skip_check_audio' => 'Désactiver le test audio d\'écho',
         'tile_description' => 'Les utilisateurs peuvent se connecter au système et utiliser différentes fonctionnalités selon leur rôle.',

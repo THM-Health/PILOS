@@ -403,6 +403,6 @@ return [
     'uppercase' => 'Le champ « :attribute » doit être en majuscule.',
     'url' => 'Le champ :attribute doit être une URL valide.',
     'uuid' => 'Le champ :attribute doit être une UUID valide.',
-    'validname' => ':attribute contient les caractères non autorisés suivants: :chars',
+    'validname' => ':attribute contient les caractères non autorisés suivants: :chars |[2,*] : l\'attribut contient les caractères non autorisés suivants : :chars',
     'validname_error' => ':attribute contient des caractères non autorisés',
 ];

@@ -46,7 +46,7 @@ Mail::assertQueued(OrderShipped::class);
 Markdown mailables render HTML and plain-text versions from Laravel's mail components and support publishable themes. They are useful for conventional transactional messages, but a custom HTML and text pair may be more appropriate for a specialized design.
 
 ```bash
-php artisan make:mail OrderShipped --markdown=mail.orders.shipped
+vendor/bin/sail artisan make:mail OrderShipped --markdown=mail.orders.shipped
 ```
 
 ## Separate Content and Delivery Tests

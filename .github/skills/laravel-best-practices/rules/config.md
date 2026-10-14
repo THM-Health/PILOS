@@ -37,8 +37,8 @@ AWS_SECRET_ACCESS_KEY=<your-aws-secret>
 Encrypted environment file:
 
 ```bash
-php artisan env:encrypt --env=production --readable
-php artisan env:decrypt --env=production
+vendor/bin/sail artisan env:encrypt --env=production --readable
+vendor/bin/sail artisan env:decrypt --env=production
 ```
 
 For hosted deployments, consider the platform's native secret store, such as AWS Secrets Manager or Vault, and inject secrets at runtime.

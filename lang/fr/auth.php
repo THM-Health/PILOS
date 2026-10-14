@@ -42,6 +42,7 @@ return [
     'logout_success' => 'Déconnexion réussie',
     'new_password' => 'Nouveau mot de passe',
     'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
+    'offer_login' => 'Connectez-vous avec votre compte utilisateur',
     'oidc' => [
         'logout_incomplete' => 'Vous êtes toujours connecté au fournisseur OpenID Connect.',
         'redirect' => 'Connexion',
