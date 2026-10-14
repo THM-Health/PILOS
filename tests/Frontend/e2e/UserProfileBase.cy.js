@@ -1,6 +1,9 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 import { parseFormData } from "../support/utils/formData.js";
-import { _arrayBufferToBase64 } from "../support/utils/fileHelper.js";
+import {
+  _arrayBufferToBase64,
+  _compareBase64Images,
+} from "../support/utils/fileHelper.js";
 
 describe("User Profile Base", function () {
   beforeEach(function () {
@@ -90,13 +93,34 @@ describe("User Profile Base", function () {
       .should("be.visible")
       .and("include.text", "admin.users.image.crop");
 
-    // Check if correct image is shown
-    cy.fixture("files/profileImage.jpg", "base64").then((content) => {
-      cy.get('[data-test="crop-image-dialog"]')
-        .find("img")
-        .should("have.attr", "src")
-        .and("include", content);
-    });
+    // Check if image is loaded
+    cy.get('[data-test="crop-image-dialog"]')
+      .find("img")
+      .should("have.attr", "src");
+
+    cy.get('[role="application"]').should(
+      "have.attr",
+      "aria-label",
+      "admin.users.image.aria_instructions",
+    );
+
+    // Zoom into the image
+    cy.get('[role="slider"]').focus();
+    cy.get('[role="slider"]').press("ArrowRight").press("ArrowRight");
+
+    // See zoom updated
+    cy.get('[data-test="image-zoom-display"]').should("have.text", "120%");
+
+    // Move image
+    cy.get('[role="application"]').focus();
+    cy.get('[role="application"]')
+      .press("ArrowRight")
+      .press("ArrowRight")
+      .press("ArrowLeft")
+      .press("ArrowRight")
+      .press("ArrowDown")
+      .press("ArrowDown")
+      .press("ArrowUp");
 
     cy.get('[data-test="dialog-save-button"]')
       .should("have.text", "admin.users.image.save")
@@ -111,11 +135,15 @@ describe("User Profile Base", function () {
         .find("img")
         .should("have.attr", "src")
         .then((src) => {
-          cy.fixture("files/profileImagePreview.jpg", "base64").then(
-            (content) => {
-              expect(src).to.eql("data:image/jpeg;base64," + content);
-            },
-          );
+          cy.fixture(
+            "files/profileImagePreview-moved-zoomed.jpg",
+            "base64",
+          ).then(async (content) => {
+            await _compareBase64Images(
+              "data:image/jpeg;base64," + content,
+              src,
+            );
+          });
         });
 
       cy.get('[data-test="upload-file-button"]').should("be.visible");
@@ -150,13 +178,17 @@ describe("User Profile Base", function () {
       .should("be.visible")
       .and("include.text", "admin.users.image.crop");
 
-    // Check if correct image is shown
-    cy.fixture("files/profileImage.jpg", "base64").then((content) => {
-      cy.get('[data-test="crop-image-dialog"]')
-        .find("img")
-        .should("have.attr", "src")
-        .and("include", content);
-    });
+    // Check if image is loaded
+    cy.get('[data-test="crop-image-dialog"]')
+      .find("img")
+      .should("have.attr", "src");
+
+    // Zoom with plus/minus keys on the cropper
+    cy.get('[role="application"]').should("have.focus");
+    cy.get('[role="application"]').press("+").press("+");
+    cy.get('[data-test="image-zoom-display"]').should("have.text", "120%");
+    cy.get('[role="application"]').press("-").press("-");
+    cy.get('[data-test="image-zoom-display"]').should("have.text", "100%");
 
     cy.get('[data-test="dialog-save-button"]')
       .should("have.text", "admin.users.image.save")
@@ -173,8 +205,11 @@ describe("User Profile Base", function () {
         .should("have.attr", "src")
         .then((src) => {
           cy.fixture("files/profileImagePreview.jpg", "base64").then(
-            (content) => {
-              expect(src).to.eql("data:image/jpeg;base64," + content);
+            async (content) => {
+              await _compareBase64Images(
+                "data:image/jpeg;base64," + content,
+                src,
+              );
             },
           );
         });
@@ -379,12 +414,18 @@ describe("User Profile Base", function () {
       const uploadedFile = formData.get("image");
       expect(uploadedFile.name).to.eql("image.jpg");
       expect(uploadedFile.type).to.eql("image/jpeg");
-      cy.fixture("files/profileImagePreview.jpg", "base64").then((content) => {
-        uploadedFile.arrayBuffer().then((arrayBuffer) => {
-          const base64 = _arrayBufferToBase64(arrayBuffer);
-          expect(content).to.eql(base64);
-        });
-      });
+      cy.fixture("files/profileImagePreview.jpg", "base64").then(
+        (referenceImageBase64) => {
+          uploadedFile.arrayBuffer().then(async (actualImageBuffer) => {
+            const actualImageBase64 = _arrayBufferToBase64(actualImageBuffer);
+
+            await _compareBase64Images(
+              "data:image/jpeg;base64," + referenceImageBase64,
+              "data:image/jpeg;base64," + actualImageBase64,
+            );
+          });
+        },
+      );
     });
 
     cy.wait("@currentUserRequest");
@@ -648,6 +689,81 @@ describe("User Profile Base", function () {
     cy.url().should("include", "/login?redirect=/profile");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  it("change profile image with image cropper errors", function () {
+    cy.visit("/profile");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="crop-image-dialog"]').should("not.exist");
+
+    cy.get('[data-test="profile-image-field"]')
+      .should("be.visible")
+      .within(() => {
+        // Upload invalid profile image
+        cy.get('[data-test="upload-file-input"]').selectFile(
+          {
+            contents: Cypress.Buffer.from("This is an invalid image"),
+            fileName: "invalid.jpg",
+            mimeType: "image/jpeg",
+          },
+          { force: true },
+        );
+      });
+
+    cy.get('[data-test="crop-image-dialog"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.image.crop")
+      .and("include.text", "admin.users.image.cropper_error")
+      .within(() => {
+        // Check that image cropper and zoom slider are hidden
+        cy.get('[role="application"]').should("not.exist");
+        cy.get('[data-test="image-zoom"]').should("not.exist");
+        cy.get('[data-test="image-zoom-display"]').should("not.exist");
+      });
+
+    // Check that save button is disabled
+    cy.get('[data-test="dialog-save-button"]').should("be.disabled");
+
+    // Check that cancel button has focus and is enabled and click it
+    cy.get('[data-test="dialog-cancel-button"]')
+      .should("have.focus")
+      .and("not.be.disabled")
+      .click();
+
+    cy.get('[data-test="crop-image-dialog"]').should("not.exist");
+
+    // Upload valid profile image again
+    cy.get('[data-test="profile-image-field"]').within(() => {
+      cy.get('[data-test="upload-file-input"]').selectFile(
+        "tests/Frontend/fixtures/files/profileImage.jpg",
+        { force: true },
+      );
+    });
+
+    cy.get('[data-test="crop-image-dialog"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.image.crop")
+      .and("not.include.text", "admin.users.image.cropper_error");
+
+    // Check if image is loaded
+    cy.get('[data-test="crop-image-dialog"]')
+      .find("img")
+      .should("have.attr", "src");
+
+    cy.get('[data-test="crop-image-dialog"]').within(() => {
+      // Check that image cropper and zoom slider are visible
+      cy.get('[role="application"]').should("be.visible");
+      cy.get('[data-test="image-zoom"]').should("be.visible");
+      cy.get('[data-test="image-zoom-display"]')
+        .should("be.visible")
+        .and("have.text", "100%");
+
+      // Check that buttons are enabled
+      cy.get('[data-test="dialog-save-button"]').should("not.be.disabled");
+      cy.get('[data-test="dialog-cancel-button"]').should("not.be.disabled");
+    });
   });
 
   it("view without users.updateOwnAttributes permission", function () {

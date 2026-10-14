@@ -228,7 +228,6 @@
   </div>
 </template>
 <script setup>
-import "cropperjs/dist/cropper.css";
 import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useSettingsStore } from "../stores/settings";
