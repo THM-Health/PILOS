@@ -126,21 +126,22 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
         try {
             $archivePath = Storage::disk('recordings-spool')->path($this->file);
 
-            // Reject archives that contain symbolic links
-            $tarFileContents = preg_split("/\n/", Process::timeout($this->timeout)->run(['tar', '-tvf', $archivePath])->output());
-            $symlinks = preg_grep('/^l/', $tarFileContents);
+            // Reject archives that contain special files
+            $subprocess = Process::timeout($this->timeout)->run(['tar', '-tvf', $archivePath])->throw();
+            $symlinks = preg_grep('/^[^-d]/', preg_split("/\n/", $subprocess->output()));
             if (count($symlinks) > 0) {
-                $symlinks = preg_replace('/.*\d\d:\d\d\s+/', '', $symlinks);
-                Log::error('Recording file '.$this->file.' contains symbolic links: '.implode(', ', $symlinks));
-                $this->fail('Recording archive contains symbolic links');
+                $symlinks = preg_replace('/.*\s+\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d\s+/', '', $symlinks);
+                Log::error('Recording file '.$this->file.' contains special files: '.implode(', ', $symlinks));
+                $this->fail('Recording archive contains special files');
                 $this->deleteFile();
 
                 return;
             }
 
             // Reject archives containing absolute paths
-            $tarFileContents = preg_split("/\n/", Process::timeout($this->timeout)->run(['tar', '-tf', $archivePath])->output());
-            $absolutePaths = preg_grep('/^\//', $tarFileContents);
+            $subprocess = Process::timeout($this->timeout)->run(['tar', '-tf', $archivePath])->throw();
+            $memberPaths = preg_split("/\n/", $subprocess->output());
+            $absolutePaths = preg_grep('/^\//', $memberPaths);
             if (count($absolutePaths) > 0) {
                 Log::error('Recording file '.$this->file.' contains absolute paths: '.implode(', ', $absolutePaths));
                 $this->fail('Recording archive contains absolute paths');
@@ -150,7 +151,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             }
 
             // Reject archives containing parent paths
-            $parentPaths = preg_grep('/\.\./', $tarFileContents);
+            $parentPaths = preg_grep(':(^|/)\.\.(/|$):', $memberPaths);
             if (count($parentPaths) > 0) {
                 Log::error('Recording file '.$this->file.' contains parent paths: '.implode(', ', $parentPaths));
                 $this->fail('Recording archive contains parent paths');

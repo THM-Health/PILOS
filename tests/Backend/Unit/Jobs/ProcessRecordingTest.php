@@ -66,7 +66,11 @@ class ProcessRecordingTest extends TestCase
     public static function dangerousRecordingFileProvider(): array
     {
         return [
-            'symlink' => ['symlink-recording.tar', 'Recording file symlink-recording.tar contains symbolic links: content/evil-link -> /etc/passwd'],
+            'symlink' => ['symlink-recording.tar', 'Recording file symlink-recording.tar contains special files: content/evil-link -> /etc/passwd'],
+            'hardlink' => ['hardlink-recording.tar', 'Recording file hardlink-recording.tar contains special files: evil-hardlink link to etc/passwd'],
+            'pipe' => ['pipe-recording.tar', 'Recording file pipe-recording.tar contains special files: content/fifo'],
+            'blockdev' => ['blockdev-recording.tar', 'Recording file blockdev-recording.tar contains special files: content/blockdev'],
+            'chardev' => ['chardev-recording.tar', 'Recording file chardev-recording.tar contains special files: content/chardev'],
             'absolute-path' => ['absolute-path-recording.tar', 'Recording file absolute-path-recording.tar contains absolute paths: /tmp/evil'],
             'parent-path' => ['parent-path-recording.tar', 'Recording file parent-path-recording.tar contains parent paths: ../evil'],
         ];
