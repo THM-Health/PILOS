@@ -34,6 +34,13 @@ export function updateTheme(color, rounded) {
       },
     },
     components: {
+      drawer: {
+        title: {
+          font: {
+            size: "1.25rem",
+          },
+        },
+      },
       toast: {
         colorScheme: {
           dark: {
