@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Enums\RecordingAccess;
 use App\Exceptions\RecordingExtractionFailed;
+use App\Exceptions\UnsafeArchiveEntryException;
 use App\Models\RecordingFormat;
 use DateTime;
 use Exception;
@@ -132,8 +133,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             if (count($specialFiles) > 0) {
                 $specialFiles = preg_replace('/.*\s+\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d\s+/', '', $specialFiles);
                 Log::error('Recording file '.$this->file.' contains special files: '.implode(', ', $specialFiles));
-                $this->deleteFile();
-                $this->fail('Recording archive contains special files');
+                $this->fail(new UnsafeArchiveEntryException('Recording archive contains special files'));
 
                 return;
             }
@@ -144,8 +144,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             $absolutePaths = preg_grep('/^\//', $memberPaths);
             if (count($absolutePaths) > 0) {
                 Log::error('Recording file '.$this->file.' contains absolute paths: '.implode(', ', $absolutePaths));
-                $this->deleteFile();
-                $this->fail('Recording archive contains absolute paths');
+                $this->fail(new UnsafeArchiveEntryException('Recording archive contains absolute paths'));
 
                 return;
             }
@@ -154,8 +153,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             $parentPaths = preg_grep(':(^|/)\.\.(/|$):', $memberPaths);
             if (count($parentPaths) > 0) {
                 Log::error('Recording file '.$this->file.' contains parent paths: '.implode(', ', $parentPaths));
-                $this->deleteFile();
-                $this->fail('Recording archive contains parent paths');
+                $this->fail(new UnsafeArchiveEntryException('Recording archive contains parent paths'));
 
                 return;
             }
@@ -230,7 +228,11 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
      */
     public function failed(?Throwable $exception): void
     {
-        Storage::disk('recordings-spool')->move($this->file, 'failed/'.$this->file);
+        if ($exception instanceof UnsafeArchiveEntryException) {
+            $this->deleteFile();
+        } else {
+            Storage::disk('recordings-spool')->move($this->file, 'failed/'.$this->file);
+        }
     }
 
     /**

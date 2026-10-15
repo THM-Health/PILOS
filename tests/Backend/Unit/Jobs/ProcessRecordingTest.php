@@ -6,6 +6,7 @@ namespace Tests\Backend\Unit\Jobs;
 
 use App\Enums\RecordingAccess;
 use App\Exceptions\RecordingExtractionFailed;
+use App\Exceptions\UnsafeArchiveEntryException;
 use App\Jobs\ProcessRecording;
 use App\Models\Meeting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,7 +96,11 @@ class ProcessRecordingTest extends TestCase
             fn (LogEntry $log) => $log->message === $expectedMessage
         );
 
-        $job->assertFailed();
+        $job->assertFailedWith(UnsafeArchiveEntryException::class);
+
+        // Simulate how the queue would handle the failed job
+        $job->failed(new UnsafeArchiveEntryException);
+
         $this->assertCount(0, Storage::disk('recordings')->allFiles());
         $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
     }
