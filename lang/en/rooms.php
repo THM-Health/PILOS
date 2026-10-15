@@ -355,7 +355,7 @@ return [
         'pin' => 'Pin',
         'qrcode' => 'QR-Code',
         'scan_qr_code' => 'Scan this QR code with your smartphone to join the meeting by phone',
-        'title' => 'Phone number and Pin',
+        'title' => 'Phone number and pin',
     ],
     'placeholder_name' => 'John Doe',
     'recording_accept' => 'I consent to the recording.',
