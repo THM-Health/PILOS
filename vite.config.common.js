@@ -52,14 +52,16 @@ export default (mode) => {
       }),
     ],
     build: {
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks: (path) => {
-            if (path.startsWith(resourcesRoot)) {
-              return "app";
-            }
-
-            return "vendor";
+          codeSplitting: {
+            minSize: 20000,
+            groups: [
+              {
+                name: "vendor",
+                test: /node_modules/,
+              },
+            ],
           },
         },
       },
