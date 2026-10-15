@@ -127,14 +127,34 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             $archivePath = Storage::disk('recordings-spool')->path($this->file);
 
             // Reject archives that contain symbolic links
-            $symlinkCheck = Process::pipe(function ($pipe) use ($archivePath) {
-                $pipe->timeout($this->timeout)->command(['tar', '-tvf', $archivePath]);
-                $pipe->command(['grep', '-E', '^l']);
-            });
-
-            if ($symlinkCheck->successful()) {
-                Log::error('Recording file '.$this->file.' contains symbolic links: '.trim($symlinkCheck->output()));
+            $tarFileContents = preg_split("/\n/", Process::timeout($this->timeout)->run(['tar', '-tvf', $archivePath])->output());
+            $symlinks = preg_grep('/^l/', $tarFileContents);
+            if (count($symlinks) > 0) {
+                $symlinks = preg_replace('/.*\d\d:\d\d\s+/', '', $symlinks);
+                Log::error('Recording file '.$this->file.' contains symbolic links: '.implode(', ', $symlinks));
                 $this->fail('Recording archive contains symbolic links');
+                $this->deleteFile();
+
+                return;
+            }
+
+            // Reject archives containing absolute paths
+            $tarFileContents = preg_split("/\n/", Process::timeout($this->timeout)->run(['tar', '-tf', $archivePath])->output());
+            $absolutePaths = preg_grep('/^\//', $tarFileContents);
+            if (count($absolutePaths) > 0) {
+                Log::error('Recording file '.$this->file.' contains absolute paths: '.implode(', ', $absolutePaths));
+                $this->fail('Recording archive contains absolute paths');
+                $this->deleteFile();
+
+                return;
+            }
+
+            // Reject archives containing parent paths
+            $parentPaths = preg_grep('/\.\./', $tarFileContents);
+            if (count($parentPaths) > 0) {
+                Log::error('Recording file '.$this->file.' contains parent paths: '.implode(', ', $parentPaths));
+                $this->fail('Recording archive contains parent paths');
+                $this->deleteFile();
 
                 return;
             }
@@ -199,10 +219,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
         }
 
         // Remove .tar file as extraction was successful
-        $delete = Storage::disk('recordings-spool')->delete($this->file);
-        if (! $delete) {
-            Log::error('Deleting recording file '.$this->file.' failed');
-        }
+        $this->deleteFile();
 
         $this->cleanup();
     }
@@ -221,6 +238,17 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
     public function cleanup(): void
     {
         Storage::disk('recordings')->deleteDirectory($this->tempPath);
+    }
+
+    /**
+     * Remove the extracted files
+     */
+    public function deleteFile(): void
+    {
+        $delete = Storage::disk('recordings-spool')->delete($this->file);
+        if (! $delete) {
+            Log::error('Deleting recording file '.$this->file.' failed');
+        }
     }
 
     public function getFile(): string
