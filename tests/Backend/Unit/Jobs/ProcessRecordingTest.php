@@ -13,6 +13,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -62,33 +63,18 @@ class ProcessRecordingTest extends TestCase
         $this->assertCount(1, Storage::disk('recordings-spool')->files(''));
     }
 
-    public function test_rejects_recording_archive_with_symbolic_links()
+    public static function dangerousRecordingFileProvider(): array
     {
-        $recordingFile = 'symlink-recording.tar';
-        Storage::fake('recordings');
-        Storage::fake('recordings-spool');
-
-        Log::swap(new LogFake);
-        Queue::fake();
-
-        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
-
-        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
-
-        $job->handle();
-
-        Log::assertLogged(
-            fn (LogEntry $log) => $log->message === "Recording file $recordingFile contains symbolic links: content/evil-link -> /etc/passwd"
-        );
-
-        $job->assertFailed();
-        $this->assertCount(0, Storage::disk('recordings')->allFiles());
-        $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
+        return [
+            'symlink' => ['symlink-recording.tar', 'Recording file symlink-recording.tar contains symbolic links: content/evil-link -> /etc/passwd'],
+            'absolute-path' => ['absolute-path-recording.tar', 'Recording file absolute-path-recording.tar contains absolute paths: /tmp/evil'],
+            'parent-path' => ['parent-path-recording.tar', 'Recording file parent-path-recording.tar contains parent paths: ../evil'],
+        ];
     }
 
-    public function test_rejects_absolute_path_in_recording_tar()
+    #[DataProvider('dangerousRecordingFileProvider')]
+    public function test_rejects_dangerous_recording_file(string $recordingFile, string $expectedMessage)
     {
-        $recordingFile = 'absolute-path-recording.tar';
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
 
@@ -102,31 +88,7 @@ class ProcessRecordingTest extends TestCase
         $job->handle();
 
         Log::assertLogged(
-            fn (LogEntry $log) => $log->message === "Recording file $recordingFile contains absolute paths: /tmp/evil"
-        );
-
-        $job->assertFailed();
-        $this->assertCount(0, Storage::disk('recordings')->allFiles());
-        $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
-    }
-
-    public function test_fails_on_parent_path_in_recording_tar()
-    {
-        $recordingFile = 'parent-path-recording.tar';
-        Storage::fake('recordings');
-        Storage::fake('recordings-spool');
-
-        Log::swap(new LogFake);
-        Queue::fake();
-
-        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
-
-        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
-
-        $job->handle();
-
-        Log::assertLogged(
-            fn (LogEntry $log) => $log->message === "Recording file $recordingFile contains parent paths: ../evil"
+            fn (LogEntry $log) => $log->message === $expectedMessage
         );
 
         $job->assertFailed();
