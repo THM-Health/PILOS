@@ -244,7 +244,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Remove the extracted files
+     * Remove the unprocessed file
      */
     public function deleteFile(): void
     {
