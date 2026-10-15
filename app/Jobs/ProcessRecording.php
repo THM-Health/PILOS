@@ -128,10 +128,10 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
 
             // Reject archives that contain special files
             $subprocess = Process::timeout($this->timeout)->run(['tar', '-tvf', $archivePath])->throw();
-            $symlinks = preg_grep('/^[^-d]/', preg_split("/\n/", $subprocess->output()));
-            if (count($symlinks) > 0) {
-                $symlinks = preg_replace('/.*\s+\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d\s+/', '', $symlinks);
-                Log::error('Recording file '.$this->file.' contains special files: '.implode(', ', $symlinks));
+            $specialFiles = preg_grep('/^[^-d]/', preg_split("/\n/", $subprocess->output()));
+            if (count($specialFiles) > 0) {
+                $specialFiles = preg_replace('/.*\s+\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d\s+/', '', $specialFiles);
+                Log::error('Recording file '.$this->file.' contains special files: '.implode(', ', $specialFiles));
                 $this->fail('Recording archive contains special files');
                 $this->deleteFile();
 
