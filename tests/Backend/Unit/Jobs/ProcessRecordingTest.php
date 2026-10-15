@@ -6,6 +6,7 @@ namespace Tests\Backend\Unit\Jobs;
 
 use App\Enums\RecordingAccess;
 use App\Exceptions\RecordingExtractionFailed;
+use App\Exceptions\UnsafeArchiveEntryException;
 use App\Jobs\ProcessRecording;
 use App\Models\Meeting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Backend\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -33,15 +35,16 @@ class ProcessRecordingTest extends TestCase
 
     public function test_process_invalid_recording_file()
     {
+        $recordingFile = 'invalid-recording.tar';
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
 
         Log::swap(new LogFake);
         Queue::fake();
 
-        copy(base_path('tests/Backend/Fixtures/Recordings/invalid-recording.tar'), Storage::disk('recordings-spool')->path('invalid-recording.tar'));
+        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
 
-        $job = (new ProcessRecording('invalid-recording.tar'))->withFakeQueueInteractions();
+        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
 
         $failed = false;
         try {
@@ -53,8 +56,53 @@ class ProcessRecordingTest extends TestCase
         $this->assertTrue($failed);
 
         Log::assertLogged(
-            fn (LogEntry $log) => str_starts_with($log->message, 'Extracting recording file invalid-recording.tar failed')
+            fn (LogEntry $log) => str_starts_with($log->message, "Extracting recording file $recordingFile failed")
+                && str_contains($log->message, 'This does not look like a tar archive')
         );
+
+        $this->assertCount(0, Storage::disk('recordings')->allFiles());
+        $this->assertCount(1, Storage::disk('recordings-spool')->files(''));
+    }
+
+    public static function dangerousRecordingFileProvider(): array
+    {
+        return [
+            'symlink' => ['symlink-recording.tar', 'Recording file symlink-recording.tar contains special files: content/evil-link -> /etc/passwd'],
+            'hardlink' => ['hardlink-recording.tar', 'Recording file hardlink-recording.tar contains special files: evil-hardlink link to etc/passwd'],
+            'pipe' => ['pipe-recording.tar', 'Recording file pipe-recording.tar contains special files: content/fifo'],
+            'blockdev' => ['blockdev-recording.tar', 'Recording file blockdev-recording.tar contains special files: content/blockdev'],
+            'chardev' => ['chardev-recording.tar', 'Recording file chardev-recording.tar contains special files: content/chardev'],
+            'absolute-path' => ['absolute-path-recording.tar', 'Recording file absolute-path-recording.tar contains absolute paths: /tmp/evil'],
+            'parent-path' => ['parent-path-recording.tar', 'Recording file parent-path-recording.tar contains parent paths: ../evil'],
+        ];
+    }
+
+    #[DataProvider('dangerousRecordingFileProvider')]
+    public function test_rejects_dangerous_recording_file(string $recordingFile, string $expectedMessage)
+    {
+        Storage::fake('recordings');
+        Storage::fake('recordings-spool');
+
+        Log::swap(new LogFake);
+        Queue::fake();
+
+        copy(base_path('tests/Backend/Fixtures/Recordings/'.$recordingFile), Storage::disk('recordings-spool')->path($recordingFile));
+
+        $job = (new ProcessRecording($recordingFile))->withFakeQueueInteractions();
+
+        $job->handle();
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->message === $expectedMessage
+        );
+
+        $job->assertFailedWith(UnsafeArchiveEntryException::class);
+
+        // Simulate how the queue would handle the failed job
+        $job->failed(new UnsafeArchiveEntryException);
+
+        $this->assertCount(0, Storage::disk('recordings')->allFiles());
+        $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
     }
 
     public function test_process_valid_recording_file_but_not_meeting()
