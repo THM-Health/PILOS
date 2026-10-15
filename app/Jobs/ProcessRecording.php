@@ -132,8 +132,8 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             if (count($specialFiles) > 0) {
                 $specialFiles = preg_replace('/.*\s+\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d\s+/', '', $specialFiles);
                 Log::error('Recording file '.$this->file.' contains special files: '.implode(', ', $specialFiles));
-                $this->fail('Recording archive contains special files');
                 $this->deleteFile();
+                $this->fail('Recording archive contains special files');
 
                 return;
             }
@@ -144,8 +144,8 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             $absolutePaths = preg_grep('/^\//', $memberPaths);
             if (count($absolutePaths) > 0) {
                 Log::error('Recording file '.$this->file.' contains absolute paths: '.implode(', ', $absolutePaths));
-                $this->fail('Recording archive contains absolute paths');
                 $this->deleteFile();
+                $this->fail('Recording archive contains absolute paths');
 
                 return;
             }
@@ -154,8 +154,8 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             $parentPaths = preg_grep(':(^|/)\.\.(/|$):', $memberPaths);
             if (count($parentPaths) > 0) {
                 Log::error('Recording file '.$this->file.' contains parent paths: '.implode(', ', $parentPaths));
-                $this->fail('Recording archive contains parent paths');
                 $this->deleteFile();
+                $this->fail('Recording archive contains parent paths');
 
                 return;
             }
