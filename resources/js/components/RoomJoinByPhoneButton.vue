@@ -1,38 +1,24 @@
 <template>
   <Button
+    ref="joinByPhoneButtonRef"
     data-test="room-join-by-phone-button"
     :label="$t('rooms.phone.join_by_phone')"
     icon="fa-solid fa-phone"
     severity="secondary"
     class="shrink-0"
-    @click="toggle"
+    @click="showDrawer = true"
   />
-  <OverlayPanel
-    ref="op"
+  <Drawer
+    v-model:visible="showDrawer"
+    :position="isMobile ? 'bottom' : 'left'"
     data-test="room-join-by-phone-overlay"
-    aria-labelledby="room-join-by-phone-title"
+    :header="$t('rooms.phone.title')"
+    :aria-label="$t('rooms.phone.title')"
+    block-scroll
+    :class="{ 'h-auto! max-h-[90dvh]': isMobile }"
+    @hide="closeDrawer"
   >
-    <div class="flex w-min max-w-full min-w-sm flex-col p-2">
-      <div class="flex w-full justify-between gap-4">
-        <h2
-          id="room-join-by-phone-title"
-          tabindex="-1"
-          autofocus
-          class="block font-bold whitespace-nowrap"
-        >
-          {{ $t("rooms.phone.title") }}
-        </h2>
-        <Button
-          class="popover-close-button"
-          data-test="popover-close-button"
-          :aria-label="$t('app.close')"
-          text
-          rounded
-          severity="secondary"
-          icon="fas fa-xmark"
-          @click="closePopover"
-        />
-      </div>
+    <div class="flex flex-col">
       <div class="grow">
         <div class="mt-2 flex flex-row items-center">
           <InputGroup>
@@ -99,19 +85,23 @@
         :label="$t('rooms.phone.call')"
       />
     </div>
-  </OverlayPanel>
+  </Drawer>
 </template>
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { useDark } from "@vueuse/core";
+import { breakpointsTailwind, useBreakpoints, useDark } from "@vueuse/core";
 import QRCode from "qrcode";
 
 const isDark = useDark();
-const op = ref();
-const triggerButton = ref(null);
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isMobile = breakpoints.smaller("sm");
+
 const textColor = ref("#000");
 const backgroundColor = ref("#FFF");
 const qrcode = ref();
+const showDrawer = ref(false);
+const joinByPhoneButtonRef = ref(null);
 
 const props = defineProps({
   number: {
@@ -128,16 +118,10 @@ onMounted(() => {
   setColors();
 });
 
-const toggle = (event) => {
-  triggerButton.value = event.currentTarget;
-  op.value.toggle(event);
-};
+async function closeDrawer() {
+  await nextTick();
 
-function closePopover() {
-  op.value.hide();
-  if (triggerButton.value != null) {
-    triggerButton.value.focus();
-  }
+  joinByPhoneButtonRef.value?.$el?.focus();
 }
 
 const link = computed(() => {
@@ -149,7 +133,7 @@ const link = computed(() => {
 function setColors() {
   const style = getComputedStyle(document.body);
   textColor.value = style.getPropertyValue("--p-text-color");
-  backgroundColor.value = style.getPropertyValue("--p-popover-background");
+  backgroundColor.value = style.getPropertyValue("--p-drawer-background");
 }
 
 watch(
