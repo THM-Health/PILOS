@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Option in room file management to always use system-wide default presentation ([#2662], [#2746])
 - Option in room file management to set system-wide default presentation as default ([#2662], [#2746])
+
+### Changed
+
+- Always make system-wide default presentation available in video conferences if it is set instead of only when no other presentation is available ([#2662], [#2746])
 
 ## [v4.18.2] - 2026-10-13
 

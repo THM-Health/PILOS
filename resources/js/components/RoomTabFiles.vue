@@ -50,7 +50,6 @@
       "
       :room-id="props.room.id"
       :file="systemDefault.file"
-      :use-in-meeting="systemDefault.use_in_meeting"
       :prefer-as-default="systemDefault.prefer_as_default"
       :default-file="defaultFile"
       :disabled="isBusy"
@@ -405,7 +404,6 @@ const filter = ref("all");
 
 const systemDefault = ref({
   file: null,
-  use_in_meeting: false,
   prefer_as_default: false,
 });
 

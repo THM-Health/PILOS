@@ -128,10 +128,7 @@ class MeetingService
 
         // Add system default presentation
         // Only add it, if not already added as default file
-        // and if no other files are present or the room is set to always include the system default in meetings
-        if (! $useSystemDefaultFileAsDefault && app(BigBlueButtonSettings::class)->default_presentation && (
-            empty($files->toArray()) || $this->meeting->room->use_system_default_presentation_in_meeting
-        )) {
+        if (! $useSystemDefaultFileAsDefault && app(BigBlueButtonSettings::class)->default_presentation) {
             $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
         }
 

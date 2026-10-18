@@ -15,8 +15,7 @@
   ],
   "system_default": {
     "file": "Default.pdf",
-    "use_in_meeting": true,
-    "use_as_default": false
+    "prefer_as_default": false
   },
   "meta": {
     "current_page": 1,

@@ -266,7 +266,6 @@ class FileTest extends TestCase
             ->assertJsonStructure([
                 'system_default' => [
                     'file',
-                    'use_in_meeting',
                     'prefer_as_default',
                 ],
             ])
@@ -285,7 +284,6 @@ class FileTest extends TestCase
             ->assertJsonStructure([
                 'system_default' => [
                     'file',
-                    'use_in_meeting',
                     'prefer_as_default',
                 ],
             ])
@@ -307,7 +305,6 @@ class FileTest extends TestCase
             ->assertJsonStructure([
                 'system_default' => [
                     'file',
-                    'use_in_meeting',
                     'prefer_as_default',
                 ],
             ])
@@ -1487,108 +1484,6 @@ class FileTest extends TestCase
             ]);
     }
 
-    public function test_update_system_default()
-    {
-        $systemWideDefaultUrl = url('system-wide-default.pdf');
-
-        $this->bigBlueButtonSettings->default_presentation = $systemWideDefaultUrl;
-        $this->bigBlueButtonSettings->save();
-
-        $route = route('api.v1.rooms.files.updateSystemDefault', ['room' => $this->room->id]);
-        $params = [
-            'use_in_meeting' => true,
-        ];
-
-        // Testing guest
-        $this->putJson($route, $params)
-            ->assertUnauthorized();
-
-        // Testing user
-        $this->actingAs($this->user)->putJson($route, $params)
-            ->assertForbidden();
-
-        // Testing member
-        $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->putJson($route, $params)
-            ->assertForbidden();
-
-        // Testing moderator member
-        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->putJson($route, $params)
-            ->assertForbidden();
-
-        // Testing co-owner
-        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->putJson($route, $params)
-            ->assertSuccessful();
-
-        // Testing owner
-        $this->actingAs($this->room->owner)->putJson($route, $params)
-            ->assertSuccessful();
-
-        // Remove membership roles and test with view all permission
-        $this->room->members()->sync([]);
-        $this->user->roles()->attach($this->role);
-        $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->putJson($route, $params)
-            ->assertForbidden();
-        $this->role->permissions()->detach($this->viewAllPermission);
-
-        // test with manage permission
-        $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->putJson($route, $params)
-            ->assertSuccessful();
-        $this->role->permissions()->detach($this->managePermission);
-
-        $this->room->refresh();
-
-        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
-
-        $this->room->prefer_system_default_presentation_as_default = true;
-        $this->room->save();
-
-        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => false])
-            ->assertSuccessful();
-
-        $this->room->refresh();
-        $this->assertFalse($this->room->use_system_default_presentation_in_meeting);
-        $this->assertFalse($this->room->prefer_system_default_presentation_as_default);
-
-        // Testing missing properties
-        $params = [];
-        $this->actingAs($this->room->owner)->putJson($route, $params)
-            ->assertJsonValidationErrors(['use_in_meeting']);
-
-        // Testing invalid properties
-        $params = [
-            'use_in_meeting' => 'invalid',
-        ];
-
-        $this->actingAs($this->room->owner)->putJson($route, $params)
-            ->assertJsonValidationErrors(['use_in_meeting']);
-
-        // Test no system default set
-        $this->bigBlueButtonSettings->default_presentation = null;
-        $this->bigBlueButtonSettings->save();
-        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => true])
-            ->assertNotFound()
-            ->assertJson([
-                'message' => 'system_default_presentation_not_set',
-            ]);
-
-        // Test deleted room
-        $this->room->delete();
-        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => true])
-            ->assertNotFound()
-            ->assertJson([
-                'message' => 'model_not_found',
-                'model' => 'room',
-                'ids' => [
-                    $this->room->id,
-                ],
-            ]);
-    }
-
     public function test_set_system_default_as_default_presentation()
     {
         $systemWideDefaultUrl = url('system-wide-default.pdf');
@@ -1641,20 +1536,7 @@ class FileTest extends TestCase
 
         $this->room->refresh();
 
-        // Check that the system default is set as the default presentation and use_in_meeting is set to true
-        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
-        $this->assertTrue($this->room->prefer_system_default_presentation_as_default);
-
-        // Set prefer_system_default_presentation_as_default to false and test again with use_in_meeting true
-        $this->room->prefer_system_default_presentation_as_default = false;
-        $this->room->save();
-
-        $this->actingAs($this->room->owner)->postJson($route)
-            ->assertSuccessful();
-
-        $this->room->refresh();
-
-        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
+        // Check that the system default is set as the default presentation
         $this->assertTrue($this->room->prefer_system_default_presentation_as_default);
 
         // Test no system default set
@@ -1710,7 +1592,6 @@ class FileTest extends TestCase
     {
         $this->bigBlueButtonSettings->default_presentation = url('system-wide-default.pdf');
         $this->bigBlueButtonSettings->save();
-        $this->room->use_system_default_presentation_in_meeting = true;
         $this->room->prefer_system_default_presentation_as_default = true;
         $this->room->save();
         $file = RoomFile::factory()->create(['room_id' => $this->room->id]);
@@ -1722,7 +1603,6 @@ class FileTest extends TestCase
         $this->room->refresh();
         $file->refresh();
         $this->assertFalse($this->room->prefer_system_default_presentation_as_default);
-        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
         $this->assertTrue($file->default);
         $this->assertTrue($file->use_in_meeting);
     }
@@ -1731,7 +1611,6 @@ class FileTest extends TestCase
     {
         $this->bigBlueButtonSettings->default_presentation = url('system-wide-default.pdf');
         $this->bigBlueButtonSettings->save();
-        $this->room->use_system_default_presentation_in_meeting = false;
         $this->room->prefer_system_default_presentation_as_default = false;
         $this->room->save();
         $file = RoomFile::factory()->create([
@@ -1747,7 +1626,6 @@ class FileTest extends TestCase
         $this->room->refresh();
         $file->refresh();
         $this->assertTrue($this->room->prefer_system_default_presentation_as_default);
-        $this->assertTrue($this->room->use_system_default_presentation_in_meeting);
         $this->assertTrue($file->default);
         $this->assertTrue($file->use_in_meeting);
     }

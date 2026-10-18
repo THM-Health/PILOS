@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomFileIndexRequest;
 use App\Http\Requests\StoreRoomFileRequest;
 use App\Http\Requests\UpdateRoomFileRequest;
-use App\Http\Requests\UpdateRoomSystemDefaultPresentation;
 use App\Http\Resources\PrivateRoomFileResource;
 use App\Http\Resources\RoomFileResource;
 use App\Models\Room;
@@ -77,7 +76,6 @@ class RoomFileController extends Controller
             $additional['default'] = $room->files()->where('default', true)->first();
             $additional['system_default'] = [
                 'file' => app(BigBlueButtonSettings::class)->default_presentation,
-                'use_in_meeting' => $room->use_system_default_presentation_in_meeting,
                 'prefer_as_default' => $room->prefer_system_default_presentation_as_default,
             ];
 
@@ -151,29 +149,6 @@ class RoomFileController extends Controller
         return response()->noContent();
     }
 
-    public function updateSystemDefault(UpdateRoomSystemDefaultPresentation $request, Room $room)
-    {
-        if (! app(BigBlueButtonSettings::class)->default_presentation) {
-            // No system default presentation is set, return error
-            return response()->json([
-                'message' => CustomErrorMessages::ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET->value,
-            ], 404);
-        }
-
-        $room->use_system_default_presentation_in_meeting = $request->use_in_meeting;
-
-        // Reset prefer system default as default if use in meeting is set to false
-        if ($room->use_system_default_presentation_in_meeting === false) {
-            $room->prefer_system_default_presentation_as_default = false;
-        }
-
-        $room->save();
-
-        Log::info('Changed system default presentation settings in room {room}', ['room' => $room->getLogLabel()]);
-
-        return response()->noContent();
-    }
-
     public function setPreferSystemDefault(Room $room)
     {
         if (! app(BigBlueButtonSettings::class)->default_presentation) {
@@ -184,11 +159,6 @@ class RoomFileController extends Controller
         }
 
         $room->prefer_system_default_presentation_as_default = true;
-
-        // If use system default in meeting is false, set it to true, because a default file must be used in the next meeting
-        if ($room->use_system_default_presentation_in_meeting === false) {
-            $room->use_system_default_presentation_in_meeting = true;
-        }
 
         $room->save();
 

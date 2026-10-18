@@ -27,19 +27,8 @@
           <i class="fa-solid fa-chalkboard-user"></i>
           <p class="m-0 flex flex-col gap-2 text-sm">
             <Tag
-              v-if="useInMeeting"
               severity="success"
-              :value="$t('rooms.files.always_available_in_meeting')"
-            />
-            <Tag
-              v-else-if="defaultFile === null"
-              severity="success"
-              :value="$t('rooms.files.available_in_next_meeting_automatic')"
-            />
-            <Tag
-              v-else
-              severity="secondary"
-              :value="$t('rooms.files.not_available_in_next_meeting')"
+              :value="$t('rooms.files.available_in_next_meeting')"
             />
           </p>
         </div>
@@ -69,16 +58,6 @@
         :as="disabled ? 'button' : 'a'"
         :href="file"
       />
-
-      <RoomTabFilesSystemDefaultConfigureButton
-        :room-id="roomId"
-        :use-in-meeting="useInMeeting"
-        :disabled="disabled"
-        @edited="$emit('edited')"
-        @system-default-presentation-not-set="
-          $emit('systemDefaultPresentationNotSet')
-        "
-      />
     </div>
   </div>
 
@@ -95,10 +74,6 @@ defineProps({
     required: true,
   },
   disabled: {
-    type: Boolean,
-    default: false,
-  },
-  useInMeeting: {
     type: Boolean,
     default: false,
   },

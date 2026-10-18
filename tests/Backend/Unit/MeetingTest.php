@@ -292,7 +292,6 @@ class MeetingTest extends TestCase
     {
         $meeting = $this->meeting;
 
-        $meeting->room->use_system_default_presentation_in_meeting = false;
         $meeting->room->prefer_system_default_presentation_as_default = false;
         $meeting->room->save();
 
@@ -343,7 +342,7 @@ class MeetingTest extends TestCase
         $xml = simplexml_load_string($body);
         $docs = $xml->module->document;
 
-        $this->assertCount(3, $docs);
+        $this->assertCount(4, $docs);
 
         // Check request is POST and has content type and body
         $this->assertEquals('POST', $request->method());
@@ -353,6 +352,7 @@ class MeetingTest extends TestCase
         $this->assertEquals('file2', $docs[0]->attributes()->filename);
         $this->assertEquals('file1', $docs[1]->attributes()->filename);
         $this->assertEquals('file3', $docs[2]->attributes()->filename);
+        $this->assertEquals(url('default.pdf'), $docs[3]->attributes()->url);
     }
 
     /**
@@ -425,7 +425,6 @@ class MeetingTest extends TestCase
     {
         $meeting = $this->meeting;
 
-        $meeting->room->use_system_default_presentation_in_meeting = false;
         $meeting->room->prefer_system_default_presentation_as_default = false;
         $meeting->room->save();
 
@@ -493,7 +492,6 @@ class MeetingTest extends TestCase
         $file4->use_in_meeting = false;
         $meeting->room->files()->save($file4);
 
-        $meeting->room->use_system_default_presentation_in_meeting = true;
         $meeting->room->prefer_system_default_presentation_as_default = true;
         $meeting->room->save();
 
@@ -542,10 +540,9 @@ class MeetingTest extends TestCase
         $this->assertEquals(url('default.pdf'), $docs[3]->attributes()->url);
 
         // Check that system default presentation is not used in the meeting, if it is not set in the global settings
-        // even though prefer_system_default_presentation_as_default and use_system_default_presentation_in_meeting are set to true
+        // even though prefer_system_default_presentation_as_default is set to true
         $this->bigBlueButtonSettings->default_presentation = null;
         $this->bigBlueButtonSettings->save();
-        $meeting->room->use_system_default_presentation_in_meeting = true;
         $meeting->room->prefer_system_default_presentation_as_default = true;
         $meeting->room->save();
 

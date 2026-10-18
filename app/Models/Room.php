@@ -33,7 +33,6 @@ class Room extends Model
     {
         $casts = [
             'expert_mode' => 'boolean',
-            'use_system_default_presentation_in_meeting' => 'boolean',
             'prefer_system_default_presentation_as_default' => 'boolean',
             'delete_inactive' => 'datetime',
         ];
