@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Option in room file management to set system-wide default presentation as start presentation ([#2662], [#2746])
+- Option to enforce light or dark color mode ([#3557])
 
 ### Changed
 
@@ -985,6 +986,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3535]: https://github.com/THM-Health/PILOS/pull/3535
 [#3537]: https://github.com/THM-Health/PILOS/issues/3537
 [#3540]: https://github.com/THM-Health/PILOS/pull/3540
+[#3557]: https://github.com/THM-Health/PILOS/pull/3557
 [#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [#3561]: https://github.com/THM-Health/PILOS/pull/3561
 [#3588]: https://github.com/THM-Health/PILOS/pull/3588
