@@ -160,7 +160,7 @@ jobs:
         with:
           fail_ci_if_error: true
       - name: Upload laravel logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: laravel-backend-tests.log
@@ -211,7 +211,7 @@ jobs:
           build-args: |
             VITE_COVERAGE=true
       - name: Upload artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pilos-image.tar
           path: /tmp/pilos-image.tar
@@ -318,7 +318,7 @@ jobs:
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
       - name: Upload screenshots
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: cypress-frontend-screenshots
@@ -463,13 +463,13 @@ jobs:
           APP_URL: "http://localhost:9080"
           TZ: "America/New_York"
       - name: Upload screenshots
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: cypress-system-screenshots
           path: tests/System/screenshots
       - name: Upload laravel logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: laravel-system-tests.log
