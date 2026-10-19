@@ -198,6 +198,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
 
                     // Move the recording to the final destination
                     $formatDirectory = dirname($metadataFile);
+                    Storage::disk('recordings')->deleteDirectory($recordingFormat->recording->id.'/'.$recordingFormat->format);
                     Storage::disk('recordings')->move($formatDirectory, $recordingFormat->recording->id.'/'.$recordingFormat->format);
                 } else {
                     // No room found for the recording format, fail whole file
