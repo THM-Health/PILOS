@@ -158,6 +158,7 @@ return [
         'theme_logo_dark' => 'Dark version logo',
         'theme_logo_dark_file' => 'Dark version logo file',
         'theme_logo_file' => 'Logo file',
+        'theme_enforced_color_mode' => 'Enforced color mode',
         'theme_primary_color' => 'Primary color',
         'theme_rounded' => 'Rounded corners',
         'time' => 'Time',

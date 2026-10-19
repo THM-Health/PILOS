@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Enums\ColorMode;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
@@ -55,6 +56,7 @@ class UpdateSettingsRequest extends FormRequest
             'theme_favicon_dark_file' => ['bail', 'required_without:theme_favicon_dark', Image::favicon(), new Antivirus],
             'theme_primary_color' => ['required', 'string', 'hex_color'],
             'theme_rounded' => ['required', 'boolean'],
+            'theme_enforced_color_mode' => ['nullable', Rule::enum(ColorMode::class)],
             'theme_custom_css' => ['bail', 'nullable', File::types(['css', 'txt'])->extensions('css')->max('500kb'), new Antivirus],
 
             'banner_enabled' => ['required', 'boolean'],
