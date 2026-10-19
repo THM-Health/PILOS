@@ -15,6 +15,7 @@
     "theme_favicon_dark": "/images/favicon-dark.ico",
     "theme_primary_color": "#22c55e",
     "theme_rounded": true,
+    "theme_enforced_color_mode": null,
     "banner_enabled": false,
     "banner_message": null,
     "banner_link": null,
