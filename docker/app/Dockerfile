@@ -24,6 +24,7 @@ RUN apk --no-cache add \
     shadow \
     bash su-exec gettext libintl git \
     pv \
+    tar \
     supervisor \
     nginx \
     mysql-client postgresql-client \
