@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Extract recording archives using GNU tar instead of PHP Phar ([#3537], [#3540])
+- Re-importing the same recording format now replaces existing files ([#3537], [#3540])
 
 ### Security
 
