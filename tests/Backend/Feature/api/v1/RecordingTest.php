@@ -1500,6 +1500,8 @@ class RecordingTest extends TestCase
 
         $zip = new ZipArchive;
         $zip->open($tempFile);
+        $this->assertSame(ZipArchive::CM_STORE, $zip->statName('notes/notes.pdf')['comp_method']);
+        $this->assertSame(ZipArchive::CM_STORE, $zip->statName('podcast/audio.ogg')['comp_method']);
         $zip->extractTo($tempDir);
         $zip->close();
 
