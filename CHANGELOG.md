@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Disabled ZIP compression for recording downloads to improve performance ([#3412], [#3558])
 - Extract recording archives using GNU tar instead of PHP Phar ([#3537], [#3540])
 - Re-importing the same recording format now replaces existing files ([#3537], [#3540])
 
@@ -941,6 +942,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3535]: https://github.com/THM-Health/PILOS/pull/3535
 [#3537]: https://github.com/THM-Health/PILOS/issues/3537
 [#3540]: https://github.com/THM-Health/PILOS/pull/3540
+[#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
