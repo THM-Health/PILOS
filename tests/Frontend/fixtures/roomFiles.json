@@ -28,7 +28,14 @@
       "url": "https://example.com/files/File3.pdf?signature=ghi789"
     }
   ],
-  "default": 2,
+  "default": {
+    "id": 2,
+    "filename": "File2.pdf",
+    "room_id": "abc-def-123",
+    "download": true,
+    "use_in_meeting": true,
+    "default": true
+  },
   "system_default": {
     "file": "Default.pdf",
     "prefer_as_default": false

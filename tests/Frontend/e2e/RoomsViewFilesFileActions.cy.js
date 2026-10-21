@@ -612,12 +612,6 @@ describe("Rooms view files file actions", function () {
           .should("not.be.checked")
           .click();
 
-        cy.get('[data-test="default-field"]')
-          .should("include.text", "rooms.files.default")
-          .find("#default")
-          .should("not.be.checked")
-          .click();
-
         const editFileRequest = interceptIndefinitely(
           "PUT",
           "/api/v1/rooms/abc-def-123/files/1",
@@ -630,7 +624,6 @@ describe("Rooms view files file actions", function () {
         cy.fixture("roomFiles.json").then((roomFiles) => {
           roomFiles.data[0].download = false;
           roomFiles.data[0].use_in_meeting = true;
-          roomFiles.data[0].default = true;
 
           cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
             statusCode: 200,
@@ -647,7 +640,6 @@ describe("Rooms view files file actions", function () {
 
         cy.get("#download").should("be.disabled");
         cy.get("#use_in_meeting").should("be.disabled");
-        cy.get("#default").should("be.disabled");
 
         cy.get('[data-test="dialog-cancel-button"]')
           .should("have.text", "app.cancel")
@@ -659,7 +651,6 @@ describe("Rooms view files file actions", function () {
 
     cy.wait("@editFileRequest").then((interception) => {
       expect(interception.request.body).to.eql({
-        default: true,
         download: false,
         use_in_meeting: true,
       });
@@ -738,7 +729,6 @@ describe("Rooms view files file actions", function () {
         errors: {
           download: ["The Downloadable field is required."],
           use_in_meeting: ["The Use in the next meeting field is required."],
-          default: ["The Default field is required."],
         },
       },
     }).as("editFileRequest");
@@ -753,8 +743,7 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="room-files-configure-dialog"]')
       .should("be.visible")
       .and("include.text", "The Downloadable field is required.")
-      .and("include.text", "The Use in the next meeting field is required.")
-      .and("include.text", "The Default field is required.");
+      .and("include.text", "The Use in the next meeting field is required.");
 
     // Check with 500 error
     cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/2", {
@@ -774,8 +763,10 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="room-files-configure-dialog"]')
       .should("be.visible")
       .and("not.include.text", "The Downloadable field is required.")
-      .and("not.include.text", "The Use in the next meeting field is required.")
-      .and("not.include.text", "The Default field is required.");
+      .and(
+        "not.include.text",
+        "The Use in the next meeting field is required.",
+      );
 
     // Check that error message gets shown
     cy.checkToastMessage([
@@ -835,6 +826,409 @@ describe("Rooms view files file actions", function () {
       .click();
 
     cy.wait("@editFileRequest");
+
+    // Check that redirect to room index page worked
+    cy.url().should("include", "/rooms").and("not.include", "abc-def-123");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+  });
+
+  it("set start presentation file", function () {
+    cy.visit("/rooms/abc-def-123#tab=files");
+
+    cy.wait("@roomFilesRequest");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .should("include.text", "File1.pdf")
+      .and("include.text", "rooms.files.not_available_in_next_meeting")
+      .and("not.include.text", "rooms.files.default")
+      .and("include.text", "rooms.files.not_available_in_next_meeting");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(1)
+      .should("include.text", "File2.pdf")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .and("include.text", "rooms.files.default")
+      .find('[data-test="room-files-default-button"]')
+      .should("not.exist");
+
+    const setAsDefaultRequest = interceptIndefinitely(
+      "POST",
+      "/api/v1/rooms/abc-def-123/files/1/default",
+      {
+        statusCode: 204,
+      },
+      "setAsDefaultRequest",
+    );
+
+    cy.fixture("roomFiles.json").then((roomFiles) => {
+      roomFiles.data[0].default = true;
+      roomFiles.data[0].use_in_meeting = true;
+      roomFiles.data[1].default = false;
+
+      roomFiles.default = {
+        ...roomFiles.data[0],
+        room_id: "abc-def-123",
+      };
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+        statusCode: 200,
+        body: roomFiles,
+      }).as("roomFilesRequest");
+    });
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    // Check loading
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-default-button"]')
+      .should("be.disabled")
+      .then(() => {
+        setAsDefaultRequest.sendResponse();
+      });
+
+    cy.wait("@setAsDefaultRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check that file is set as default
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .should("include.text", "rooms.files.default")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .find('[data-test="room-files-default-button"]')
+      .should("not.exist");
+
+    // Check that other file is not default anymore
+    cy.get('[data-test="room-file-item"]')
+      .eq(1)
+      .should("not.include.text", "rooms.files.default")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .find('[data-test="room-files-default-button"]')
+      .should("be.visible")
+      .and("have.text", "rooms.files.set_default");
+  });
+
+  it("set start presentation file errors", function () {
+    cy.visit("/rooms/abc-def-123#tab=files");
+
+    cy.wait("@roomFilesRequest");
+
+    // Check with 404 error (file not found / already deleted)
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/files/3/default", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room_file",
+        ids: [3],
+      },
+    }).as("setAsDefaultRequest");
+
+    cy.fixture("roomFiles.json").then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(0, 2);
+      roomFiles.meta.to = 2;
+      roomFiles.meta.total = 2;
+      roomFiles.meta.total_no_filter = 2;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+        statusCode: 200,
+        body: roomFiles,
+      }).as("roomFilesRequest");
+    });
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(2)
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    cy.wait("@setAsDefaultRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check that file is not shown anymore
+    cy.get('[data-test="room-file-item"]').should("have.length", 2);
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.file_gone");
+
+    // Check with 500 error
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/files/1/default", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("setAsDefaultRequest");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    cy.wait("@setAsDefaultRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check auth errors
+    cy.checkRoomAuthErrors(
+      () => {
+        cy.get('[data-test="room-file-item"]')
+          .eq(0)
+          .find('[data-test="room-files-default-button"]')
+          .click();
+      },
+      "POST",
+      "/api/v1/rooms/abc-def-123/files/1/default",
+      "files",
+    );
+
+    // Reload page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
+    cy.reload();
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/files/1/default", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
+      },
+    }).as("setAsDefaultRequest");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(0)
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    cy.wait("@setAsDefaultRequest");
+
+    // Check that redirect to room index page worked
+    cy.url().should("include", "/rooms").and("not.include", "abc-def-123");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
+  });
+
+  it("set system wide default presentation as start presentation", function () {
+    cy.visit("/rooms/abc-def-123#tab=files");
+
+    cy.wait("@roomFilesRequest");
+
+    cy.get('[data-test="room-file-system-default"]')
+      .should("include.text", "rooms.files.system_default")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .and("not.include.text", "rooms.files.default")
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(1)
+      .should("include.text", "File2.pdf")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .and("include.text", "rooms.files.default")
+      .find('[data-test="room-files-default-button"]')
+      .should("not.exist");
+
+    const setSystemDefaultRequest = interceptIndefinitely(
+      "POST",
+      "/api/v1/rooms/abc-def-123/files/system_default/default",
+      {
+        statusCode: 204,
+      },
+      "setSystemDefaultRequest",
+    );
+
+    cy.fixture("roomFiles.json").then((roomFiles) => {
+      roomFiles.system_default.prefer_as_default = true;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+        statusCode: 200,
+        body: roomFiles,
+      }).as("roomFilesRequest");
+    });
+
+    cy.get('[data-test="room-file-system-default"]')
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    // Check loading
+    cy.get('[data-test="room-file-system-default"]')
+      .find('[data-test="room-files-default-button"]')
+      .should("be.disabled")
+      .then(() => {
+        setSystemDefaultRequest.sendResponse();
+      });
+
+    cy.wait("@setSystemDefaultRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check that system default file is set as default
+    cy.get('[data-test="room-file-system-default"]')
+      .should("include.text", "rooms.files.default")
+      .and("not.include.text", "rooms.files.default_automatic")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .find('[data-test="room-files-default-button"]')
+      .should("not.exist");
+
+    // Check that other file is not shown as default anymore
+    cy.get('[data-test="room-file-item"]')
+      .eq(1)
+      .should("not.include.text", "rooms.files.default")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .find('[data-test="room-files-default-button"]')
+      .should("be.visible")
+      .and("have.text", "rooms.files.set_default");
+  });
+
+  it("set system wide default presentation as start presentation errors", function () {
+    cy.visit("/rooms/abc-def-123#tab=files");
+
+    cy.wait("@roomFilesRequest");
+
+    cy.get('[data-test="room-file-item"]')
+      .eq(1)
+      .should("include.text", "rooms.files.default")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .find('[data-test="room-files-default-button"]')
+      .should("not.exist");
+
+    // Check with 404 error (system default file not set)
+    cy.intercept(
+      "POST",
+      "/api/v1/rooms/abc-def-123/files/system_default/default",
+      {
+        statusCode: 404,
+        body: {
+          message: "system_default_presentation_not_set",
+        },
+      },
+    ).as("setAsDefaultRequest");
+
+    cy.fixture("roomFiles.json").then((roomFiles) => {
+      roomFiles.system_default.file = null;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+        statusCode: 200,
+        body: roomFiles,
+      }).as("roomFilesRequest");
+    });
+
+    cy.get('[data-test="room-file-system-default"]')
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    cy.wait("@setAsDefaultRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check that system default file is not shown anymore
+    cy.get('[data-test="room-file-system-default"]').should("not.exist");
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.default_presentation_not_set");
+
+    // Check that other file is still default
+    cy.get('[data-test="room-file-item"]')
+      .eq(1)
+      .should("include.text", "rooms.files.default")
+      .and("include.text", "rooms.files.available_in_next_meeting")
+      .find('[data-test="room-files-default-button"]')
+      .should("not.exist");
+
+    // Reload page with system default file set
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
+    cy.reload();
+
+    cy.wait("@roomFilesRequest");
+
+    // Check with 500 error
+    cy.intercept(
+      "POST",
+      "/api/v1/rooms/abc-def-123/files/system_default/default",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
+      },
+    ).as("setAsDefaultRequest");
+
+    cy.get('[data-test="room-file-system-default"]')
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    cy.wait("@setAsDefaultRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check auth errors
+    cy.checkRoomAuthErrors(
+      () => {
+        cy.get('[data-test="room-file-system-default"]')
+          .find('[data-test="room-files-default-button"]')
+          .click();
+      },
+      "POST",
+      "/api/v1/rooms/abc-def-123/files/system_default/default",
+      "files",
+    );
+
+    // Reload page
+    cy.interceptRoomViewRequests();
+    cy.interceptRoomFilesRequest(true);
+    cy.reload();
+
+    // Check with 404 error (room not found)
+    cy.interceptRoomIndexRequests();
+
+    cy.intercept(
+      "POST",
+      "/api/v1/rooms/abc-def-123/files/system_default/default",
+      {
+        statusCode: 404,
+        body: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      },
+    ).as("setAsDefaultRequest");
+
+    cy.get('[data-test="room-file-system-default"]')
+      .find('[data-test="room-files-default-button"]')
+      .should("have.text", "rooms.files.set_default")
+      .click();
+
+    cy.wait("@setAsDefaultRequest");
 
     // Check that redirect to room index page worked
     cy.url().should("include", "/rooms").and("not.include", "abc-def-123");
