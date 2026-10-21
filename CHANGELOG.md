@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.18.3] - 2026-10-21
+
+### Security
+
+- Updated PHP to 8.5.12 to fix CVE-2026-109618 (9.2) + CVE-2026-109619 (9.2) ([#3561])
+
 ## [v4.18.2] - 2026-10-13
 
 ### Changed
@@ -930,7 +936,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3533]: https://github.com/THM-Health/PILOS/pull/3533
 [#3534]: https://github.com/THM-Health/PILOS/issues/3534
 [#3535]: https://github.com/THM-Health/PILOS/pull/3535
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.2...develop
+[#3561]: https://github.com/THM-Health/PILOS/pull/3561
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -963,3 +970,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.18.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.0
 [v4.18.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.1
 [v4.18.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.2
+[v4.18.3]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.3
