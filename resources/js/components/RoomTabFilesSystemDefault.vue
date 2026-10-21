@@ -7,18 +7,18 @@
       <p class="text-word-break m-0 text-lg font-semibold">
         {{ $t("rooms.files.system_default") }}
       </p>
-      <div v-if="preferAsDefault || defaultFile === null">
+      <div v-if="preferAsStart || startFile === null">
         <Tag
-          v-if="preferAsDefault"
+          v-if="preferAsStart"
           severity="info"
           icon="fa-solid fa-crown"
-          :value="$t('rooms.files.default')"
+          :value="$t('rooms.files.start_file')"
         />
         <Tag
-          v-else-if="defaultFile === null"
+          v-else-if="startFile === null"
           severity="info"
           icon="fa-solid fa-crown"
-          :value="$t('rooms.files.default_automatic')"
+          :value="$t('rooms.files.start_file_automatic')"
         />
       </div>
 
@@ -36,8 +36,8 @@
     </div>
 
     <div class="flex shrink-0 flex-row items-start justify-end gap-1">
-      <RoomTabFilesDefaultButton
-        v-if="!preferAsDefault"
+      <RoomTabFilesStartFileButton
+        v-if="!preferAsStart"
         :room-id="roomId"
         :file-id="null"
         :disabled="disabled"
@@ -77,11 +77,11 @@ defineProps({
     type: Boolean,
     default: false,
   },
-  preferAsDefault: {
+  preferAsStart: {
     type: Boolean,
     default: false,
   },
-  defaultFile: {
+  startFile: {
     type: Object,
     default: null,
   },

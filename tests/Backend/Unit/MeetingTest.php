@@ -292,7 +292,7 @@ class MeetingTest extends TestCase
     {
         $meeting = $this->meeting;
 
-        $meeting->room->prefer_system_default_presentation_as_default = false;
+        $meeting->room->prefer_system_default_presentation_as_start = false;
         $meeting->room->save();
 
         $this->bigBlueButtonSettings->default_presentation = url('default.pdf');
@@ -314,7 +314,7 @@ class MeetingTest extends TestCase
         $file2->path = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
         $file2->filename = 'file2';
         $file2->use_in_meeting = true;
-        $file2->default = true;
+        $file2->is_start_file = true;
         $meeting->room->files()->save($file2);
 
         $file3 = new RoomFile;
@@ -348,7 +348,7 @@ class MeetingTest extends TestCase
         $this->assertEquals('POST', $request->method());
         $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
 
-        // check order based on default and missing file 4 because use_in_meeting disabled
+        // check order based on start file and missing file 4 because use_in_meeting disabled
         $this->assertEquals('file2', $docs[0]->attributes()->filename);
         $this->assertEquals('file1', $docs[1]->attributes()->filename);
         $this->assertEquals('file3', $docs[2]->attributes()->filename);
@@ -425,7 +425,7 @@ class MeetingTest extends TestCase
     {
         $meeting = $this->meeting;
 
-        $meeting->room->prefer_system_default_presentation_as_default = false;
+        $meeting->room->prefer_system_default_presentation_as_start = false;
         $meeting->room->save();
 
         $this->bigBlueButtonSettings->default_presentation = url('default.pdf');
@@ -450,7 +450,7 @@ class MeetingTest extends TestCase
 
         $this->assertCount(1, $docs);
 
-        // check order based on default and missing file 4 because use_in_meeting disabled
+        // Check that the system default presentation is the only document.
         $this->assertEquals(url('default.pdf'), $docs[0]->attributes()->url);
     }
 
@@ -477,7 +477,7 @@ class MeetingTest extends TestCase
         $file2->path = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
         $file2->filename = 'file2';
         $file2->use_in_meeting = true;
-        $file2->default = true;
+        $file2->is_start_file = true;
         $meeting->room->files()->save($file2);
 
         $file3 = new RoomFile;
@@ -492,7 +492,7 @@ class MeetingTest extends TestCase
         $file4->use_in_meeting = false;
         $meeting->room->files()->save($file4);
 
-        $meeting->room->prefer_system_default_presentation_as_default = true;
+        $meeting->room->prefer_system_default_presentation_as_start = true;
         $meeting->room->save();
 
         $server = Server::factory()->create();
@@ -502,7 +502,7 @@ class MeetingTest extends TestCase
 
         $meetingService = new MeetingService($meeting);
 
-        // Check that system default presentation is used in the meeting and is the first document, because prefer_system_default_presentation_as_default is set to true
+        // Check that system default presentation is used in the meeting and is the first document, because prefer_system_default_presentation_as_start is set to true
         $meetingService->setServerService($serverService)->start();
 
         $request = Http::recorded()[0][0];
@@ -516,15 +516,15 @@ class MeetingTest extends TestCase
         $this->assertEquals('POST', $request->method());
         $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
 
-        // check order based on default and missing file 4 because use_in_meeting disabled
+        // check order based on start file and missing file 4 because use_in_meeting disabled
         $this->assertEquals(url('default.pdf'), $docs[0]->attributes()->url);
         $this->assertEquals('file2', $docs[1]->attributes()->filename);
         $this->assertEquals('file1', $docs[2]->attributes()->filename);
         $this->assertEquals('file3', $docs[3]->attributes()->filename);
 
-        // Check that default file is still file2, when prefer_system_default_presentation_as_default is set to false
+        // Check that start file is still file2, when prefer_system_default_presentation_as_start is set to false
         // but system default presentation is still used in the meeting
-        $meeting->room->prefer_system_default_presentation_as_default = false;
+        $meeting->room->prefer_system_default_presentation_as_start = false;
         $meeting->room->save();
 
         $meetingService->start();
@@ -540,10 +540,10 @@ class MeetingTest extends TestCase
         $this->assertEquals(url('default.pdf'), $docs[3]->attributes()->url);
 
         // Check that system default presentation is not used in the meeting, if it is not set in the global settings
-        // even though prefer_system_default_presentation_as_default is set to true
+        // even though prefer_system_default_presentation_as_start is set to true
         $this->bigBlueButtonSettings->default_presentation = null;
         $this->bigBlueButtonSettings->save();
-        $meeting->room->prefer_system_default_presentation_as_default = true;
+        $meeting->room->prefer_system_default_presentation_as_start = true;
         $meeting->room->save();
 
         $meetingService->start();

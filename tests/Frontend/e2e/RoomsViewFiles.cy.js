@@ -80,7 +80,7 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.system_default")
       .and("include.text", "rooms.files.available_in_next_meeting")
-      .and("not.include.text", "rooms.files.default")
+      .and("not.include.text", "rooms.files.start_file")
       .find('a[data-test="room-files-view-system-default-button"]')
       .should("have.attr", "href", "Default.pdf");
 
@@ -93,7 +93,7 @@ describe("Rooms View Files", function () {
       .and("include.text", "Sep 21, 2020, 09:08")
       .and("include.text", "rooms.files.download_allowed")
       .and("include.text", "rooms.files.not_available_in_next_meeting")
-      .and("not.include.text", "rooms.files.default")
+      .and("not.include.text", "rooms.files.start_file")
       .find('a[data-test="room-files-view-button"]')
       .should(
         "have.attr",
@@ -109,7 +109,7 @@ describe("Rooms View Files", function () {
       .and("include.text", "Sep 21, 2020, 09:08")
       .and("include.text", "rooms.files.download_allowed")
       .and("include.text", "rooms.files.available_in_next_meeting")
-      .and("include.text", "rooms.files.default")
+      .and("include.text", "rooms.files.start_file")
       .find('a[data-test="room-files-view-button"]')
       .should(
         "have.attr",
@@ -125,7 +125,7 @@ describe("Rooms View Files", function () {
       .and("include.text", "Sep 21, 2020, 09:09")
       .and("include.text", "rooms.files.download_not_allowed")
       .and("include.text", "rooms.files.not_available_in_next_meeting")
-      .and("not.include.text", "rooms.files.default")
+      .and("not.include.text", "rooms.files.start_file")
       .find('a[data-test="room-files-view-button"]')
       .should(
         "have.attr",
@@ -155,7 +155,7 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-default-button"]')
+      .find('[data-test="room-files-start-file-button"]')
       .should("be.disabled");
 
     cy.get('[data-test="room-file-item"]')
@@ -188,7 +188,7 @@ describe("Rooms View Files", function () {
     // Check buttons are enabled again after loading
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-default-button"]')
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.be.disabled");
 
     cy.get('[data-test="room-file-item"]')
@@ -205,10 +205,10 @@ describe("Rooms View Files", function () {
   it("system default is shown as start presentation when no file is available", function () {
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.data.forEach((file) => {
-        file.default = false;
+        file.is_start_file = false;
         file.use_in_meeting = false;
       });
-      roomFiles.default = null;
+      roomFiles.start_file = null;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
         statusCode: 200,
@@ -221,15 +221,15 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.system_default")
-      .and("include.text", "rooms.files.default_automatic")
+      .and("include.text", "rooms.files.start_file_automatic")
       .and("include.text", "rooms.files.available_in_next_meeting")
-      .find('[data-test="room-files-default-button"]')
+      .find('[data-test="room-files-start-file-button"]')
       .should("be.visible");
 
     cy.get('[data-test="room-file-item"]').each(($file) => {
       cy.wrap($file)
-        .should("not.include.text", "rooms.files.default")
-        .find('[data-test="room-files-default-button"]')
+        .should("not.include.text", "rooms.files.start_file")
+        .find('[data-test="room-files-start-file-button"]')
         .should("be.visible");
     });
 
@@ -240,7 +240,7 @@ describe("Rooms View Files", function () {
       roomFiles.meta.to = null;
       roomFiles.meta.total = 0;
       roomFiles.meta.total_no_filter = 0;
-      roomFiles.default = null;
+      roomFiles.start_file = null;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
         statusCode: 200,
@@ -255,9 +255,9 @@ describe("Rooms View Files", function () {
     // Check that system default presentation is shown as start presentation
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.system_default")
-      .and("include.text", "rooms.files.default_automatic")
+      .and("include.text", "rooms.files.start_file_automatic")
       .and("include.text", "rooms.files.available_in_next_meeting")
-      .find('[data-test="room-files-default-button"]')
+      .find('[data-test="room-files-start-file-button"]')
       .should("be.visible");
 
     // Check if correct message is shown and no files are displayed
@@ -268,7 +268,7 @@ describe("Rooms View Files", function () {
   it("file is shown as starting presentation when preferring system wide default but no system wide default is present", function () {
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.system_default.file = null;
-      roomFiles.system_default.prefer_as_default = true;
+      roomFiles.system_default.prefer_as_start = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
         statusCode: 200,
@@ -289,8 +289,8 @@ describe("Rooms View Files", function () {
       .and("include.text", "Sep 21, 2020, 09:08")
       .and("include.text", "rooms.files.download_allowed")
       .and("include.text", "rooms.files.available_in_next_meeting")
-      .and("include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .and("include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
   });
 
@@ -386,8 +386,8 @@ describe("Rooms View Files", function () {
       .find('[data-test="room-files-delete-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
-      .should("not.include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("not.include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
   });
 
@@ -617,8 +617,8 @@ describe("Rooms View Files", function () {
       .find('[data-test="room-files-delete-button"]')
       .should("not.exist");
     cy.get('[data-test="room-file-item"]')
-      .should("not.include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("not.include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
   });
 
@@ -1032,8 +1032,8 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="-message"]').should("not.exist");
 
     cy.get('[data-test="room-file-item"]')
-      .should("not.include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("not.include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
 
     // Check that system default presentation is hidden
@@ -1195,8 +1195,8 @@ describe("Rooms View Files", function () {
       .should("not.exist");
 
     cy.get('[data-test="room-file-item"]')
-      .should("not.include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("not.include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
 
     // Reload with terms of use
@@ -1426,8 +1426,8 @@ describe("Rooms View Files", function () {
       .should("not.exist");
 
     cy.get('[data-test="room-file-item"]')
-      .should("not.include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("not.include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
 
     // Accept terms of use
@@ -1469,15 +1469,15 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.system_default")
       .and("include.text", "rooms.files.available_in_next_meeting")
-      .and("not.include.text", "rooms.files.default");
+      .and("not.include.text", "rooms.files.start_file");
 
     cy.get('[data-test="room-file-system-default"]')
       .find('[data-test="room-files-view-system-default-button"]')
       .should("not.be.disabled");
 
     cy.get('[data-test="room-file-system-default"]')
-      .find('[data-test="room-files-default-button"]')
-      .should("have.text", "rooms.files.set_default")
+      .find('[data-test="room-files-start-file-button"]')
+      .should("have.text", "rooms.files.set_start_file")
       .and("not.be.disabled");
 
     // Check that files are shown correctly and buttons are enabled
@@ -1559,14 +1559,14 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("not.include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("be.visible")
       .and("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
 
     // Check view with rooms.manage permission
@@ -1600,15 +1600,15 @@ describe("Rooms View Files", function () {
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.system_default")
       .and("include.text", "rooms.files.available_in_next_meeting")
-      .and("not.include.text", "rooms.files.default");
+      .and("not.include.text", "rooms.files.start_file");
 
     cy.get('[data-test="room-file-system-default"]')
       .find('[data-test="room-files-view-system-default-button"]')
       .should("not.be.disabled");
 
     cy.get('[data-test="room-file-system-default"]')
-      .find('[data-test="room-files-default-button"]')
-      .should("have.text", "rooms.files.set_default")
+      .find('[data-test="room-files-start-file-button"]')
+      .should("have.text", "rooms.files.set_start_file")
       .and("not.be.disabled");
 
     // Check that files are shown correctly and buttons are enabled
@@ -1689,14 +1689,14 @@ describe("Rooms View Files", function () {
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .should("not.include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("not.include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("be.visible")
       .and("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(1)
-      .should("include.text", "rooms.files.default")
-      .find('[data-test="room-files-default-button"]')
+      .should("include.text", "rooms.files.start_file")
+      .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");
   });
 

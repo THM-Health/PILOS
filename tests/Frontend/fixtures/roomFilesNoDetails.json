@@ -15,7 +15,7 @@
   ],
   "system_default": {
     "file": "Default.pdf",
-    "prefer_as_default": false
+    "prefer_as_start": false
   },
   "meta": {
     "current_page": 1,

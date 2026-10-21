@@ -50,8 +50,8 @@
       "
       :room-id="props.room.id"
       :file="systemDefault.file"
-      :prefer-as-default="systemDefault.prefer_as_default"
-      :default-file="defaultFile"
+      :prefer-as-start="systemDefault.prefer_as_start"
+      :start-file="startFile"
       :disabled="isBusy"
       @edited="loadData()"
       @system-default-presentation-not-set="loadData()"
@@ -224,7 +224,7 @@
 
                   <div
                     v-if="
-                      defaultFile?.id === item.id &&
+                      startFile?.id === item.id &&
                       userPermissions.can('manageSettings', props.room) &&
                       !systemDefaultIsPreferred
                     "
@@ -232,7 +232,7 @@
                     <Tag
                       severity="info"
                       icon="fa-solid fa-crown"
-                      :value="$t('rooms.files.default')"
+                      :value="$t('rooms.files.start_file')"
                     />
                   </div>
 
@@ -291,10 +291,10 @@
                 <div
                   class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
-                  <RoomTabFilesDefaultButton
+                  <RoomTabFilesStartFileButton
                     v-if="
                       userPermissions.can('manageSettings', props.room) &&
-                      (defaultFile?.id !== item.id || systemDefaultIsPreferred)
+                      (startFile?.id !== item.id || systemDefaultIsPreferred)
                     "
                     :room-id="props.room.id"
                     :file-id="item.id"
@@ -392,7 +392,7 @@ const settingsStore = useSettingsStore();
 const toast = useToast();
 
 const files = ref([]);
-const defaultFile = ref(null);
+const startFile = ref(null);
 const isBusy = ref(false);
 const loadingError = ref(false);
 const sortField = ref("uploaded");
@@ -404,7 +404,7 @@ const filter = ref("all");
 
 const systemDefault = ref({
   file: null,
-  prefer_as_default: false,
+  prefer_as_start: false,
 });
 
 const sortFields = computed(() => [
@@ -434,7 +434,7 @@ const requireAgreement = computed(() => {
 
 const systemDefaultIsPreferred = computed(() => {
   return (
-    systemDefault.value.file !== null && systemDefault.value.prefer_as_default
+    systemDefault.value.file !== null && systemDefault.value.prefer_as_start
   );
 });
 
@@ -467,7 +467,7 @@ function loadData(page = null) {
     .then((response) => {
       // Fetch successful
       files.value = response.data.data;
-      defaultFile.value = response.data.default;
+      startFile.value = response.data.start_file;
       systemDefault.value = response.data.system_default;
       paginator.updateMeta(response.data.meta).then(() => {
         if (paginator.isOutOfRange()) {

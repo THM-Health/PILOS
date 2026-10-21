@@ -116,8 +116,6 @@ return [
         'configure_aria' => 'Configure file: :filename',
         'configure_dialog_title' => 'Configure ":name"',
         'confirm_delete' => 'Do you want to delete this file :filename?',
-        'default' => 'Start presentation',
-        'default_automatic' => 'Start presentation (Automatic)',
         'delete' => 'Delete file',
         'delete_aria' => 'Delete file: :filename',
         'download_allowed' => 'Download allowed',
@@ -133,7 +131,7 @@ return [
         'reload_aria' => 'Reload files',
         'search_aria' => 'Search files',
         'select_or_drag' => 'Select a file or drag and drop it here...',
-        'set_default' => 'Set as start',
+        'set_start_file' => 'Set as start',
         'sort' => [
             'filename' => 'Filename',
             'uploaded_at' => 'Added',
@@ -141,6 +139,8 @@ return [
         'sort_ascending' => 'Sort files ascending',
         'sort_by' => 'Sort files by',
         'sort_descending' => 'Sort files descending',
+        'start_file' => 'Start presentation',
+        'start_file_automatic' => 'Start presentation (Automatic)',
         'system_default' => 'System-wide default presentation',
         'terms_of_use' => [
             'accept' => 'I accept the terms of use',

@@ -32,7 +32,7 @@ class RoomFileTest extends TestCase
 
         $file = $room->files->first();
 
-        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file]), ['download' => false, 'use_in_meeting' => true])
             ->assertSuccessful();
 
         // Adding server(s)

@@ -4,10 +4,10 @@
     :disabled="disabled || isLoadingAction"
     :loading="isLoadingAction"
     severity="secondary"
-    data-test="room-files-default-button"
+    data-test="room-files-start-file-button"
     icon="fa-solid fa-crown"
-    :label="$t('rooms.files.set_default')"
-    @click="setDefault"
+    :label="$t('rooms.files.set_start_file')"
+    @click="setStartFile"
   />
 </template>
 <script setup>
@@ -47,15 +47,15 @@ const { t } = useI18n();
 const isLoadingAction = ref(false);
 
 /**
- * Sends a request to the server to update the default file configuration for the specified room and file.
+ * Sends a request to the server to update the start file configuration for the specified room and file.
  */
-function setDefault() {
+function setStartFile() {
   isLoadingAction.value = true;
 
   const url =
     props.fileId === null
-      ? `rooms/${props.roomId}/files/system_default/default`
-      : `rooms/${props.roomId}/files/${props.fileId}/default`;
+      ? `rooms/${props.roomId}/files/system_default/start`
+      : `rooms/${props.roomId}/files/${props.fileId}/start`;
 
   api
     .call(url, {
@@ -65,7 +65,7 @@ function setDefault() {
       emit("edited");
     })
     .catch((error) => {
-      // setting default failed
+      // setting start file failed
       if (error.response) {
         // file not found
         if (

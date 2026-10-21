@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->boolean('prefer_system_default_presentation_as_default')->default(true);
+            $table->boolean('prefer_system_default_presentation_as_start')->default(true);
         });
 
         DB::table('rooms')
@@ -24,7 +24,7 @@ return new class extends Migration
                     ->where('default', true)
                     ->where('use_in_meeting', true);
             })
-            ->update(['prefer_system_default_presentation_as_default' => false]);
+            ->update(['prefer_system_default_presentation_as_start' => false]);
     }
 
     /**
@@ -33,7 +33,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->dropColumn('prefer_system_default_presentation_as_default');
+            $table->dropColumn('prefer_system_default_presentation_as_start');
         });
     }
 };
