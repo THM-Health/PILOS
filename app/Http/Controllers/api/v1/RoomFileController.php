@@ -136,11 +136,7 @@ class RoomFileController extends Controller
 
         // Set this file as default
         $file->default = true;
-
-        // If use_in_meeting is false, set it to true, because a default file must be used in the next meeting
-        if ($file->use_in_meeting === false) {
-            $file->use_in_meeting = true;
-        }
+        $file->use_in_meeting = true;
 
         $file->save();
 
