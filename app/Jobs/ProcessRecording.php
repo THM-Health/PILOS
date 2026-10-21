@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Enums\RecordingAccess;
 use App\Exceptions\RecordingExtractionFailed;
+use App\Exceptions\UnsafeArchiveEntryException;
 use App\Models\RecordingFormat;
 use DateTime;
 use Exception;
@@ -16,8 +17,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
-use PharData;
 use Throwable;
 
 class ProcessRecording implements ShouldBeUnique, ShouldQueue
@@ -124,9 +125,54 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
         }
 
         try {
-            // Extract the tar file to a temp directory
-            $phar = new PharData(Storage::disk('recordings-spool')->path($this->file));
-            $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
+            $archivePath = Storage::disk('recordings-spool')->path($this->file);
+
+            // Reject archives that contain special files
+            $subprocess = Process::timeout($this->timeout)->run(['tar', '-tvf', $archivePath])->throw();
+            $specialFiles = preg_grep('/^[^-d]/', preg_split("/\n/", $subprocess->output()));
+            if (count($specialFiles) > 0) {
+                $specialFiles = preg_replace('/.*\s+\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d\s+/', '', $specialFiles);
+                Log::error('Recording file '.$this->file.' contains special files: '.implode(', ', $specialFiles));
+                $this->fail(new UnsafeArchiveEntryException('Recording archive contains special files'));
+
+                return;
+            }
+
+            // Reject archives containing absolute paths
+            $subprocess = Process::timeout($this->timeout)->run(['tar', '-tf', $archivePath])->throw();
+            $memberPaths = preg_split("/\n/", $subprocess->output());
+            $absolutePaths = preg_grep('/^\//', $memberPaths);
+            if (count($absolutePaths) > 0) {
+                Log::error('Recording file '.$this->file.' contains absolute paths: '.implode(', ', $absolutePaths));
+                $this->fail(new UnsafeArchiveEntryException('Recording archive contains absolute paths'));
+
+                return;
+            }
+
+            // Reject archives containing parent paths
+            $parentPaths = preg_grep(':(^|/)\.\.(/|$):', $memberPaths);
+            if (count($parentPaths) > 0) {
+                Log::error('Recording file '.$this->file.' contains parent paths: '.implode(', ', $parentPaths));
+                $this->fail(new UnsafeArchiveEntryException('Recording archive contains parent paths'));
+
+                return;
+            }
+
+            // Clean up old temp directory
+            Storage::disk('recordings')->deleteDirectory($this->tempPath);
+
+            // Create the temp directory
+            Storage::disk('recordings')->makeDirectory(dirname($this->tempPath));
+
+            // Extract the tar file to the temp directory using GNU tar
+            Process::timeout($this->timeout)->run([
+                'tar',
+                '-xf',
+                $archivePath,
+                '-C',
+                Storage::disk('recordings')->path(dirname($this->tempPath)),
+                '--one-top-level='.basename($this->tempPath),
+            ])->throw();
 
             // Find metadata.xml files
             $metadataFiles = array_filter(Storage::disk('recordings')->allFiles($this->tempPath), function ($file) {
@@ -152,6 +198,7 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
 
                     // Move the recording to the final destination
                     $formatDirectory = dirname($metadataFile);
+                    Storage::disk('recordings')->deleteDirectory($recordingFormat->recording->id.'/'.$recordingFormat->format);
                     Storage::disk('recordings')->move($formatDirectory, $recordingFormat->recording->id.'/'.$recordingFormat->format);
                 } else {
                     // No room found for the recording format, fail whole file
@@ -164,17 +211,15 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             }
         } catch (Exception $e) {
             // Extraction failed, retry the job later (.tar file might be incomplete yet)
-            Log::error('Extracting recording file '.$this->file.' failed');
+            Log::error('Extracting recording file '.$this->file.' failed: '.$e->getMessage());
+
             $this->cleanup();
 
             throw new RecordingExtractionFailed($this->file, previous: $e);
         }
 
         // Remove .tar file as extraction was successful
-        $delete = Storage::disk('recordings-spool')->delete($this->file);
-        if (! $delete) {
-            Log::error('Deleting recording file '.$this->file.' failed');
-        }
+        $this->deleteFile();
 
         $this->cleanup();
     }
@@ -184,7 +229,11 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
      */
     public function failed(?Throwable $exception): void
     {
-        Storage::disk('recordings-spool')->move($this->file, 'failed/'.$this->file);
+        if ($exception instanceof UnsafeArchiveEntryException) {
+            $this->deleteFile();
+        } else {
+            Storage::disk('recordings-spool')->move($this->file, 'failed/'.$this->file);
+        }
     }
 
     /**
@@ -193,6 +242,17 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
     public function cleanup(): void
     {
         Storage::disk('recordings')->deleteDirectory($this->tempPath);
+    }
+
+    /**
+     * Remove the unprocessed file
+     */
+    public function deleteFile(): void
+    {
+        $delete = Storage::disk('recordings-spool')->delete($this->file);
+        if (! $delete) {
+            Log::error('Deleting recording file '.$this->file.' failed');
+        }
     }
 
     public function getFile(): string
