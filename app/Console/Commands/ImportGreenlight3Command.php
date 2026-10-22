@@ -377,7 +377,7 @@ class ImportGreenlight3Command extends Command
 
                     // Save file and room
                     $room->files()->save($file);
-                    $room->updateDefaultFile();
+                    $room->updateStartFile();
                     $this->importedPresentationFiles[] = $file->path;
 
                     $created++;

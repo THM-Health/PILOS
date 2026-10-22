@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomErrorMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomFileIndexRequest;
 use App\Http\Requests\StoreRoomFileRequest;
@@ -12,6 +13,7 @@ use App\Http\Resources\PrivateRoomFileResource;
 use App\Http\Resources\RoomFileResource;
 use App\Models\Room;
 use App\Models\RoomFile;
+use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -21,7 +23,7 @@ use Illuminate\Support\Facades\Log;
 class RoomFileController extends Controller
 {
     /**
-     * Return a list of all files of a room and id of the default file
+     * Return a list of all files of a room and id of the start file
      *
      * @return AnonymousResourceCollection
      */
@@ -71,7 +73,11 @@ class RoomFileController extends Controller
 
         // If user is allowed to view all files, return PrivateRoomFile resource to show additional information
         if (Gate::allows('viewAllFiles', $room)) {
-            $additional['default'] = $room->files()->where('default', true)->first();
+            $additional['start_file'] = $room->files()->where('is_start_file', true)->first();
+            $additional['system_default'] = [
+                'file' => app(BigBlueButtonSettings::class)->default_presentation,
+                'prefer_as_start' => $room->prefer_system_default_presentation_as_start,
+            ];
 
             return PrivateRoomFileResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
         }
@@ -93,7 +99,7 @@ class RoomFileController extends Controller
         $file->path = $path;
         $file->filename = $name;
         $room->files()->save($file);
-        $room->updateDefaultFile();
+        $room->updateStartFile();
 
         Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
@@ -107,30 +113,52 @@ class RoomFileController extends Controller
      */
     public function update(UpdateRoomFileRequest $request, Room $room, RoomFile $file)
     {
-        if ($request->has('use_in_meeting')) {
-            $file->use_in_meeting = $request->use_in_meeting;
-            // If no default file for this room is set, set this file as default
-            if (! $room->files()->where('default', true)->exists()) {
-                $file->default = true;
-            }
-        }
-
-        if ($request->has('download')) {
-            $file->download = $request->download;
-        }
-
-        if ($request->has('default') && $request->default === true) {
-            // Make other files not the default
-            $room->files()->update(['default' => false]);
-            // Set this file as default
-            $file->default = true;
-        }
+        $file->use_in_meeting = $request->boolean('use_in_meeting');
+        $file->download = $request->boolean('download');
 
         $file->save();
 
         Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
-        $room->updateDefaultFile();
+        $room->updateStartFile();
+
+        return response()->noContent();
+    }
+
+    public function setStartFile(Room $room, RoomFile $file)
+    {
+        // Make other files not the start file anymore
+        $room->files()->whereNot('id', $file->id)->update(['is_start_file' => false]);
+
+        // Remove system default preference
+        $room->prefer_system_default_presentation_as_start = false;
+        $room->save();
+
+        // Set this file as start
+        $file->is_start_file = true;
+        $file->use_in_meeting = true;
+
+        $file->save();
+
+        Log::info('Set file {file} as start file in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
+
+        return response()->noContent();
+    }
+
+    public function setPreferSystemDefault(Room $room)
+    {
+        if (! app(BigBlueButtonSettings::class)->default_presentation) {
+            // No system default presentation is set, return error
+            return response()->json([
+                'message' => CustomErrorMessages::ROOM_FILES_SYSTEM_DEFAULT_PRESENTATION_NOT_SET->value,
+            ], 404);
+        }
+
+        $room->prefer_system_default_presentation_as_start = true;
+
+        $room->save();
+
+        Log::info('Set room {room} to prefer system default presentation as start', ['room' => $room->getLogLabel()]);
 
         return response()->noContent();
     }
@@ -145,7 +173,7 @@ class RoomFileController extends Controller
     public function destroy(Room $room, RoomFile $file)
     {
         $file->delete();
-        $room->updateDefaultFile();
+        $room->updateStartFile();
 
         Log::info('Deleted file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 

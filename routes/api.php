@@ -138,6 +138,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             // File operations
             Route::middleware('can:manageFiles,room')->group(function () {
                 Route::post('rooms/{room}/files', [RoomFileController::class, 'store'])->name('rooms.files.add');
+                Route::post('rooms/{room}/files/system_default/start', [RoomFileController::class, 'setPreferSystemDefault'])->name('rooms.files.system_default.set');
+                Route::post('rooms/{room}/files/{file}/start', [RoomFileController::class, 'setStartFile'])->name('rooms.files.start_file.set');
                 Route::put('rooms/{room}/files/{file}', [RoomFileController::class, 'update'])->name('rooms.files.update');
                 Route::delete('rooms/{room}/files/{file}', [RoomFileController::class, 'destroy'])->name('rooms.files.destroy');
             });

@@ -33,6 +33,7 @@ class Room extends Model
     {
         $casts = [
             'expert_mode' => 'boolean',
+            'prefer_system_default_presentation_as_start' => 'boolean',
             'delete_inactive' => 'datetime',
         ];
 
@@ -191,26 +192,28 @@ class Room extends Model
     }
 
     /**
-     * Correct the default file settings after every file setting change
+     * Correct the start file settings after every file setting change
      */
-    public function updateDefaultFile()
+    public function updateStartFile()
     {
-        // Check if a file is currently default
-        $currentDefault = $this->files()->firstWhere('default', true);
-        if ($currentDefault != null) {
-            // If the default file is also used in the next meeting, it can stay the default, otherwise remove default
+        // Check if a file is currently start
+        $currentStart = $this->files()->firstWhere('is_start_file', true);
+        if ($currentStart != null) {
+            // If the start file is also used in the next meeting, it can stay the start, otherwise remove start
             // and look for alternative
-            if ($currentDefault->use_in_meeting == true) {
+            if ($currentStart->use_in_meeting == true) {
                 return;
             }
-            $currentDefault->default = false;
-            $currentDefault->save();
+            $currentStart->is_start_file = false;
+            $currentStart->save();
         }
-        // If any other files are found that are used in the next meeting, select the first one to become new default
-        $newDefaultFile = $this->files()->firstWhere('use_in_meeting', true);
-        if ($newDefaultFile != null) {
-            $newDefaultFile->default = true;
-            $newDefaultFile->save();
+
+        // If no start file is explicitly set
+        // look for the first file that is set to be used in the meeting and set it as start file
+        $newStartFile = $this->files()->firstWhere('use_in_meeting', true);
+        if ($newStartFile != null) {
+            $newStartFile->is_start_file = true;
+            $newStartFile->save();
         }
     }
 

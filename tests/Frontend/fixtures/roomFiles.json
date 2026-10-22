@@ -5,7 +5,7 @@
       "filename": "File1.pdf",
       "download": true,
       "use_in_meeting": false,
-      "default": false,
+      "is_start_file": false,
       "uploaded": "2020-09-21T07:08:00.000000Z",
       "url": "https://example.com/files/File1.pdf?signature=abc123"
     },
@@ -14,7 +14,7 @@
       "filename": "File2.pdf",
       "download": true,
       "use_in_meeting": true,
-      "default": true,
+      "is_start_file": true,
       "uploaded": "2020-09-21T07:08:00.000000Z",
       "url": "https://example.com/files/File2.pdf?signature=def456"
     },
@@ -23,12 +23,23 @@
       "filename": "File3.pdf",
       "download": false,
       "use_in_meeting": false,
-      "default": false,
+      "is_start_file": false,
       "uploaded": "2020-09-21T07:09:00.000000Z",
       "url": "https://example.com/files/File3.pdf?signature=ghi789"
     }
   ],
-  "default": 2,
+  "start_file": {
+    "id": 2,
+    "filename": "File2.pdf",
+    "room_id": "abc-def-123",
+    "download": true,
+    "use_in_meeting": true,
+    "is_start_file": true
+  },
+  "system_default": {
+    "file": "Default.pdf",
+    "prefer_as_start": false
+  },
   "meta": {
     "current_page": 1,
     "from": 1,
