@@ -31,12 +31,14 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Laravel\Passport\Http\Middleware\CheckToken;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 class Kernel extends HttpKernel
@@ -52,6 +54,7 @@ class Kernel extends HttpKernel
         InvokeDeferredCallbacks::class,
         TrustHosts::class,
         TrustProxies::class,
+        HandleCors::class,
         PreventRequestsDuringMaintenance::class,
         ValidatePostSize::class,
         TrimStrings::class,
@@ -89,6 +92,13 @@ class Kernel extends HttpKernel
             SetApplicationLocale::class,
             LogContext::class,
         ],
+
+        'external_api' => [
+            ThrottleRequests::class.':external_api',
+            SubstituteBindings::class,
+            SetApplicationLocale::class,
+            LogContext::class,
+        ],
     ];
 
     /**
@@ -113,5 +123,6 @@ class Kernel extends HttpKernel
         'check.stale' => EnsureModelNotStale::class,
         'enable_if_config' => RouteEnableIfConfig::class,
         'shibboleth' => ShibbolethSessionMiddleware::class,
+        'scope' => CheckToken::class,
     ];
 }

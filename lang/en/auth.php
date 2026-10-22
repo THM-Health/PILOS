@@ -71,4 +71,22 @@ return [
     ],
     'throttle' => '[0,1] Too many login attempts. Please try again in 1 second. |[2,*] Too many login attempts. Please try again in :count seconds.',
     'throttle_email' => 'You have recently requested an email change. Please wait and try again later.',
+    'tokens' => [
+        'active' => 'Connected Applications',
+        'created_at' => 'Created at',
+        'expires_at' => 'Expires at',
+        'last_used_at' => 'Last used at',
+        'never_used' => 'Never used',
+        'revoke' => 'Revoke',
+        'scopes' => 'Permissions',
+        'nodata' => 'No connected applications',
+    ],
+    'oauth' => [
+        'authorize_client' => ':client is requesting permission to access your account.',
+        'scopes' => [
+            'user_own_read' => 'Access your profile information',
+            'room_own_read' => 'Access your rooms',
+            'room_create' => 'Create rooms',
+        ],
+    ],
 ];

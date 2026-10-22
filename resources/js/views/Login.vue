@@ -182,6 +182,7 @@ async function handleLogin({ data, id }) {
     errors[id] = null;
     loading.value = true;
     await authStore.login(data, id);
+
     toast.success(t("auth.flash.login"));
     // check if user should be redirected back after login
     if (route.query.redirect !== undefined) {

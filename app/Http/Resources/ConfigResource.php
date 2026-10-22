@@ -113,6 +113,7 @@ class ConfigResource extends JsonResource
                 'ldap' => config('ldap.enabled'),
                 'shibboleth' => config('services.shibboleth.enabled'),
                 'oidc' => config('services.oidc.enabled'),
+                'oauth' => config('passport.enabled'),
             ],
         ];
     }

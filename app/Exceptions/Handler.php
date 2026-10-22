@@ -10,8 +10,10 @@ use Illuminate\Foundation\ViteException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Laravel\Passport\Exceptions\MissingScopeException;
 use Psr\Log\LogLevel;
 use Spatie\LaravelIgnition\Exceptions\ViewException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -96,5 +98,17 @@ class Handler extends ExceptionHandler
                 }
             }
         });
+    }
+
+    public function render($request, Throwable $e): Response
+    {
+        // Overwrite default rendering of the MissingScopeException
+        if ($e instanceof MissingScopeException) {
+            return response()->json([
+                'message' => 'Missing required scope(s): '.implode(', ', $e->scopes()),
+            ], 403);
+        }
+
+        return parent::render($request, $e);
     }
 }
