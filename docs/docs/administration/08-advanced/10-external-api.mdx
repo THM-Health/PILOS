@@ -1,0 +1,107 @@
+---
+title: External API
+description: Guide on how to connect third-party applications to PILOS
+hide_table_of_contents: true
+---
+
+import ApiDocMdx from "@theme/ApiDocMdx";
+import openApi from "../../../openapi/openapi.json";
+
+:::note
+
+This is a new experimental feature and therefore not enabled by default.
+
+:::
+
+## Introduction
+
+PILOS supports third-party applications to connect to the PILOS using a dedicated API.
+This API is different from the internal API used by the frontend and still limited in its capabilities.
+
+## Authentication and Authorization
+
+Third party applications can authenticate themselves using OAuth 2.0.
+User can grant different scopes to the third-party applications, which allows them to access different parts of the PILOS API.
+
+Scopes limit the capabilities of the third-party applications, however the permissions inherited to the user
+based on his role(s) are still applied. Therefore, an access token with a given scope does not necessarily allow the third-party application to perform any action.
+
+## Versioning
+
+The external API will be subject to change. All routes are currently prefixed with `/external-api/v1`.
+
+You can call `GET /external-api` to receive the current version and check if the external api is enabled.
+:::note
+In case the route doesn't respond with `content-type: application/json`, the PILOS version you are using does not support the external API.
+:::
+
+```json
+{
+    "version": "1",
+    "enabled": true
+}
+```
+
+## Configuration
+
+To enable OAuth 2.0 authentication and the external API, the following environment variables have to be set:
+
+```bash
+OAUTH_ENABLED=true
+```
+
+Next, create a RSA private keys for the OAuth 2.0 authentication using OpenSSL.
+
+```bash
+openssl genrsa 4096
+```
+
+Store the generated private key in the `OAUTH_PRIVATE_KEY` environment variable:
+
+```bash
+OAUTH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+<private key here>
+-----END RSA PRIVATE KEY-----"
+```
+
+:::warning
+
+Overwriting an existing key will invalidate all existing access tokens, which will require all third-party applications to re-authenticate.
+
+:::
+
+## OAuth 2.0
+
+### Supported grant types
+
+- Authorization Code Grant
+- Authorization Code Grant with PKCE
+
+### Endpoints
+
+- Authorization Endpoint: `/oauth/authorize`
+- Token Endpoint: `/oauth/token`
+
+## Clients
+
+Third-party applications can be registered as clients in PILOS.
+To register a new client, you can use the `pilos-cli` tool:
+
+```bash
+docker compose exec app pilos-cli passport:client
+```
+
+To create a public client, pass the `--public` flag:
+
+```bash
+docker compose exec app pilos-cli passport:client --public
+```
+
+### Official clients
+
+- Thunderbird Add-on
+    - Client-ID: `019d2999-80a3-73e3-9905-263deb882b25`
+
+## API Documentation
+
+<ApiDocMdx spec={openApi} />

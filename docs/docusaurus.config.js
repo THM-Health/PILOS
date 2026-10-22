@@ -55,6 +55,7 @@ const config = {
         },
       }),
     ],
+    ["redocusaurus", {}],
   ],
 
   future: {
@@ -149,6 +150,11 @@ const config = {
           "json",
           "scss",
         ],
+      },
+      docs: {
+        sidebar: {
+          hideable: true,
+        },
       },
     }),
 };
