@@ -16,5 +16,6 @@ class PreventRequestForgery extends Middleware
     protected $except = [
         'auth/shibboleth/logout',
         'auth/oidc/logout',
+        'oauth/token',
     ];
 }
