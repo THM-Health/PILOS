@@ -88,17 +88,13 @@
   </Drawer>
 </template>
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { breakpointsTailwind, useBreakpoints, useDark } from "@vueuse/core";
+import { computed, nextTick, ref, watch } from "vue";
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 import QRCode from "qrcode";
-
-const isDark = useDark();
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smaller("sm");
 
-const textColor = ref("#000");
-const backgroundColor = ref("#FFF");
 const qrcode = ref();
 const showDrawer = ref(false);
 const joinByPhoneButtonRef = ref(null);
@@ -114,10 +110,6 @@ const props = defineProps({
   },
 });
 
-onMounted(() => {
-  setColors();
-});
-
 async function closeDrawer() {
   await nextTick();
 
@@ -130,27 +122,11 @@ const link = computed(() => {
   return `tel:${cleanNumber},${props.pin}#`;
 });
 
-function setColors() {
-  const style = getComputedStyle(document.body);
-  textColor.value = style.getPropertyValue("--p-text-color");
-  backgroundColor.value = style.getPropertyValue("--p-drawer-background");
-}
-
 watch(
-  [link, textColor, backgroundColor],
+  link,
   async () => {
-    qrcode.value = await QRCode.toDataURL(link.value, {
-      color: {
-        dark: textColor.value,
-        light: backgroundColor.value,
-      },
-    });
+    qrcode.value = await QRCode.toDataURL(link.value);
   },
   { immediate: true },
 );
-
-watch(isDark, async () => {
-  await nextTick();
-  setColors();
-});
 </script>
