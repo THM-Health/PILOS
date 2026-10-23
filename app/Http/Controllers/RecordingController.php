@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipStream\CompressionMethod;
 use ZipStream\ZipStream;
 
 class RecordingController extends Controller
@@ -89,6 +90,7 @@ class RecordingController extends Controller
             $zip = new ZipStream(
                 outputName: __('rooms.recordings.filename').'_'.$recording->start->format('Y-m-d').'.zip',
                 contentType: 'application/octet-stream',
+                defaultCompressionMethod: CompressionMethod::STORE,
             );
 
             // add all filtered files
