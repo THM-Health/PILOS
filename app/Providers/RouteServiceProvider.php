@@ -39,6 +39,10 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
 
+            Route::middleware('external_api')
+                ->prefix('external-api')
+                ->group(base_path('routes/external_api.php'));
+
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
@@ -57,6 +61,10 @@ class RouteServiceProvider extends ServiceProvider
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
+        });
+
+        RateLimiter::for('external_api', function (Request $request) {
+            return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
         });
 
         RateLimiter::for('password_reset', function (Request $request) {

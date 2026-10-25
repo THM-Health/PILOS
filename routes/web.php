@@ -11,6 +11,7 @@ use App\Http\Controllers\RecordingController;
 use App\Http\Controllers\RecordingFormatController;
 use App\Http\Controllers\RoomFileController;
 use Illuminate\Support\Facades\Route;
+use Laravel\Passport\Http\Controllers\AccessTokenController;
 use Spatie\Csp\AddCspHeaders;
 
 /*
@@ -44,6 +45,10 @@ Route::middleware('enable_if_config:services.oidc.enabled')->group(function () {
     Route::get('auth/oidc/redirect', [OIDCController::class, 'redirect'])->name('auth.oidc.redirect');
     Route::get('auth/oidc/callback', [OIDCController::class, 'callback'])->name('auth.oidc.callback');
     Route::post('auth/oidc/logout', [OIDCController::class, 'logout'])->name('auth.oidc.logout');
+});
+
+Route::middleware('enable_if_config:passport.enabled')->group(function () {
+    Route::post('oauth/token', [AccessTokenController::class, 'issueToken'])->name('token');
 });
 
 if (config('greenlight.compatibility')) {

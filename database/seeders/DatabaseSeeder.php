@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(RoomTypeSeeder::class);
         $this->call(RolesAndPermissionsSeeder::class);
         $this->call(ServerPoolSeeder::class);
+        $this->call(OAuthClientSeeder::class);
     }
 }
