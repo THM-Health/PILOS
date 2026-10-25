@@ -14,8 +14,8 @@ class RoomPersonalizedLinkRequest extends FormRequest
     public function rules()
     {
         return [
-            'firstname' => ['bail', 'required', 'min:2', 'max:50', new ValidName],
-            'lastname' => ['bail', 'required', 'min:2', 'max:50', new ValidName],
+            'description' => ['bail', 'required', 'min:2', 'max:50'],
+            'enforced_name' => ['bail', 'nullable', 'min:2', 'max:50', new ValidName],
             'role' => ['required', Rule::in([RoomUserRole::USER, RoomUserRole::MODERATOR])],
         ];
     }
