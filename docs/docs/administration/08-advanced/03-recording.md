@@ -204,7 +204,16 @@ You can check the queue status using Horizon (Main menu -> System Monitoring -> 
 
 The import script expects the recording files to be inside a .tar archive file.
 Each archive file should only contain the recording files of one meeting.
+:::warning
+For security reasons archives may not contain special files, such as links, devices and pipes, nor files/directories with absolute or parent (`../`) paths.
+Any archive containing one or more of these will be rejected and deleted immediately.
+:::
 The script will try to extract the archive file to a temporary directory, import the recording files from there into the database and the application storage.
+
+:::warning
+If the same format for the same recording is imported again, the existing files for that format are replaced.
+This allows repairing broken recording imports, but be careful as it can also cause permanent data loss.
+:::
 
 If the import was successful, the archive file will be deleted.
 

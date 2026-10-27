@@ -116,6 +116,8 @@ The main parts of the application are:
 3. [Laravel](https://laravel.com/) - Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.
 4. [Vue](https://vuejs.org/) - a progressive Javascript framework for building user interfaces.
 
+This project is tested with BrowserStack.
+
 A almost full list of libraries and other software components can be found [here](https://github.com/THM-Health/PILOS/wiki/Libraries)!
 
 ## Contributing
