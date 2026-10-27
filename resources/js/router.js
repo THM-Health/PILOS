@@ -139,18 +139,18 @@ export const routes = [
    * Greenlight v3 compatibility
    */
   {
-    path: "/rooms/:id/join",
+    path: "/rooms/:id([a-z0-9-]+)/join",
     redirect: (to) => {
       return { name: "rooms.view", params: { id: to.params.id } };
     },
   },
   {
-    path: "/rooms/:id/invalid_personalized_link",
+    path: "/rooms/:id([a-z0-9-]+)/invalid_personalized_link",
     name: "rooms.invalid_personalized_link",
     component: InvalidPersonalizedRoomLink,
   },
   {
-    path: "/rooms/:id",
+    path: "/rooms/:id([a-z0-9-]+)",
     name: "rooms.view",
     component: RoomView,
     meta: { redirectBackAfterLogin: true },
@@ -169,7 +169,7 @@ export const routes = [
    * format so RoomsView can handle authentication through the regular flow.
    */
   {
-    path: "/rooms/:id/:token",
+    path: "/rooms/:id([a-z0-9-]+)/:token([A-Za-z0-9]+)",
     redirect: (route) => {
       // Parse hash parameters
       const searchParams = new URLSearchParams(route.hash.substring(1));
@@ -238,7 +238,7 @@ export const routes = [
         },
       },
       {
-        path: "users/:id",
+        path: "users/:id(\\d+)",
         name: "admin.users.view",
         component: UsersView,
         props: (route) => {
@@ -260,7 +260,7 @@ export const routes = [
         },
       },
       {
-        path: "users/:id/edit",
+        path: "users/:id(\\d+)/edit",
         name: "admin.users.edit",
         component: UsersView,
         props: (route) => {
@@ -315,7 +315,7 @@ export const routes = [
         },
       },
       {
-        path: "roles/:id",
+        path: "roles/:id(\\d+)",
         name: "admin.roles.view",
         component: RolesView,
         props: (route) => {
@@ -335,7 +335,7 @@ export const routes = [
         },
       },
       {
-        path: "roles/:id/edit",
+        path: "roles/:id(\\d+)/edit",
         name: "admin.roles.edit",
         component: RolesView,
         props: (route) => {
@@ -398,7 +398,7 @@ export const routes = [
         },
       },
       {
-        path: "room_types/:id",
+        path: "room_types/:id(\\d+)",
         name: "admin.room_types.view",
         component: RoomTypesView,
         props: (route) => {
@@ -418,7 +418,7 @@ export const routes = [
         },
       },
       {
-        path: "room_types/:id/edit",
+        path: "room_types/:id(\\d+)/edit",
         name: "admin.room_types.edit",
         component: RoomTypesView,
         props: (route) => {
@@ -471,7 +471,7 @@ export const routes = [
         },
       },
       {
-        path: "servers/:id",
+        path: "servers/:id(\\d+)",
         name: "admin.servers.view",
         component: ServersView,
         props: (route) => {
@@ -491,7 +491,7 @@ export const routes = [
         },
       },
       {
-        path: "servers/:id/edit",
+        path: "servers/:id(\\d+)/edit",
         name: "admin.servers.edit",
         component: ServersView,
         props: (route) => {
@@ -544,7 +544,7 @@ export const routes = [
         },
       },
       {
-        path: "server_pools/:id",
+        path: "server_pools/:id(\\d+)",
         name: "admin.server_pools.view",
         component: ServerPoolsView,
         props: (route) => {
@@ -564,7 +564,7 @@ export const routes = [
         },
       },
       {
-        path: "server_pools/:id/edit",
+        path: "server_pools/:id(\\d+)/edit",
         name: "admin.server_pools.edit",
         component: ServerPoolsView,
         props: (route) => {
