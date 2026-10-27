@@ -49,7 +49,7 @@ describe("Rooms view personalized links actions", function () {
         // Add new personalized link
         const addLinkRequest = interceptIndefinitely(
           "POST",
-          "/api/v1/rooms/abc-def-123/personalizedLinks/",
+          "/api/v1/rooms/abc-def-123/personalizedLinks",
           {
             statusCode: 201,
             body: {
@@ -154,7 +154,7 @@ describe("Rooms view personalized links actions", function () {
     );
 
     // Try to add new personalized link with 422 error (missing firstname, lastname, role)
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks", {
       statusCode: 422,
       body: {
         message: "The firstname field is required. (and 2 more errors)",
@@ -186,7 +186,7 @@ describe("Rooms view personalized links actions", function () {
       });
 
     // Try to add new personalized link with 500 error
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -232,7 +232,7 @@ describe("Rooms view personalized links actions", function () {
         cy.get('[data-test="dialog-save-button"]').click();
       },
       "POST",
-      "/api/v1/rooms/abc-def-123/personalizedLinks/",
+      "/api/v1/rooms/abc-def-123/personalizedLinks",
       "tokens",
     );
 
@@ -246,7 +246,7 @@ describe("Rooms view personalized links actions", function () {
     // Test add personalized link with 404 error (room not found)
     cy.interceptRoomIndexRequests();
 
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks/", {
+    cy.intercept("POST", "/api/v1/rooms/abc-def-123/personalizedLinks", {
       statusCode: 404,
       body: {
         message: "model_not_found",
