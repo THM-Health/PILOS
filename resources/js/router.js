@@ -41,6 +41,25 @@ const Home = Object.values(
   }),
 )[0].default;
 
+/**
+ * Route param constraints (security):
+ *
+ * Every dynamic path segment that is later used in API URLs (or otherwise
+ * trusted as an identifier) MUST use a restrictive vue-router param regex.
+ * Unconstrained params are percent-decoded by vue-router, so values like
+ * encoded "/", "?", "&", or ".." can retarget same-origin API calls.
+ *
+ * When adding or changing routes:
+ * - Prefer the tightest charset that matches the real identifier format
+ *   (e.g. room ids: [a-z0-9-]+, numeric admin ids: \\d+, tokens: [A-Za-z0-9]+).
+ * - Do not introduce :param without a regex unless the value is never used
+ *   in a request path and cannot influence routing to another resource.
+ * - Extend tests/Frontend/e2e/GeneralApplication.cy.js ("rejects urls with
+ *   invalid route params") for new constrained params.
+ *
+ * Reviewers / AI: reject PRs that add unconstrained :id / :token / similar
+ * params on routes whose params flow into Api.call or equivalent URL building.
+ */
 export const routes = [
   {
     path: "/",
