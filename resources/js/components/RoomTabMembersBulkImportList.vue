@@ -29,7 +29,7 @@
             :pt="{
               toggleIcon: {
                 class: {
-                  '!hidden': !user.error,
+                  'hidden!': !user.error,
                 },
               },
             }"

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.19.0] - 2026-10-28
+
+### Changed
+
+- Disabled ZIP compression for recording downloads to improve performance ([#3412], [#3558])
+- Extract recording archives using GNU tar instead of PHP Phar ([#3537], [#3540])
+- Re-importing the same recording format now replaces existing files ([#3537], [#3540])
+
+### Security
+
+- Reject recording archives that contain special files (symlinks, devices, pipes) or absolute/parent paths ([#3537], [#3540])
+
 ## [v4.18.3] - 2026-10-21
 
 ### Security
@@ -936,8 +948,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3533]: https://github.com/THM-Health/PILOS/pull/3533
 [#3534]: https://github.com/THM-Health/PILOS/issues/3534
 [#3535]: https://github.com/THM-Health/PILOS/pull/3535
+[#3537]: https://github.com/THM-Health/PILOS/issues/3537
+[#3540]: https://github.com/THM-Health/PILOS/pull/3540
+[#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [#3561]: https://github.com/THM-Health/PILOS/pull/3561
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.3...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.19.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -971,3 +986,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.18.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.1
 [v4.18.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.2
 [v4.18.3]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.3
+[v4.19.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.19.0
