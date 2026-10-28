@@ -13,7 +13,6 @@ class UpdateRoomFileRequest extends FormRequest
         return [
             'use_in_meeting' => ['required', 'boolean'],
             'download' => ['required', 'boolean'],
-            'default' => ['required', 'boolean'],
         ];
     }
 }
