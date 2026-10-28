@@ -30,6 +30,7 @@ return [
     'change_locale' => 'Change language',
     'char_counter' => 'Characters: :chars / :max',
     'close' => 'Close',
+    'content_loading' => 'Content is loading',
     'continue' => 'Continue',
     'dark_mode_disable' => 'Disable Dark mode',
     'dark_mode_enable' => 'Enable Dark mode',

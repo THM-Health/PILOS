@@ -3,7 +3,9 @@
     class="overlay-wrap relative"
     :style="{ 'min-height': props.show ? '3rem' : null }"
   >
-    <slot />
+    <div class="contents" :inert="show">
+      <slot />
+    </div>
     <div
       v-if="props.show"
       data-test="overlay"
@@ -19,7 +21,16 @@
 
       <div class="overlay-wrapper absolute inset-0" :class="wrapperClass">
         <slot name="overlay">
-          <i class="fa-solid fa-circle-notch fa-spin text-3xl" />
+          <span
+            role="progressbar"
+            tabindex="0"
+            :aria-label="$t('app.content_loading')"
+          >
+            <i
+              class="fa-solid fa-circle-notch fa-spin text-3xl"
+              aria-hidden="true"
+            />
+          </span>
         </slot>
       </div>
     </div>
