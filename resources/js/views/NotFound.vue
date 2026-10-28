@@ -8,7 +8,7 @@
       <template #header>
         <Badge
           severity="danger"
-          class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
+          class="-mt-8 flex h-16! w-16! items-center justify-center rounded-full"
         >
           <i class="fa-solid fa-unlink text-2xl text-white"></i>
         </Badge>
