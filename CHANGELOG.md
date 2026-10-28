@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Option to enforce light or dark color mode ([#3557])
+
 ### Changed
 
 - Disabled ZIP compression for recording downloads to improve performance ([#3412], [#3558])
@@ -948,6 +952,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3535]: https://github.com/THM-Health/PILOS/pull/3535
 [#3537]: https://github.com/THM-Health/PILOS/issues/3537
 [#3540]: https://github.com/THM-Health/PILOS/pull/3540
+[#3557]: https://github.com/THM-Health/PILOS/pull/3557
 [#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [#3561]: https://github.com/THM-Health/PILOS/pull/3561
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.3...develop

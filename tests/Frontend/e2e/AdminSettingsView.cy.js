@@ -230,6 +230,21 @@ describe("Admin settings with edit permission", function () {
         cy.get("#theme-rounded").should("be.checked").and("be.disabled");
       });
 
+    cy.get('[data-test="theme-enforced-color-mode-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.enforced_color_mode.title")
+      .within(() => {
+        cy.get('[data-test="theme-enforced-color-mode-dropdown"]')
+          .should("have.text", "admin.settings.theme.enforced_color_mode.null")
+          .within(() => {
+            cy.get(".p-select-label").should(
+              "have.attr",
+              "aria-disabled",
+              "true",
+            );
+          });
+      });
+
     cy.get('[data-test="theme-custom-css-field"]')
       .should("be.visible")
       .and("include.text", "admin.settings.theme.custom_css")
