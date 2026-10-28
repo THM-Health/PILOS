@@ -14,11 +14,11 @@ change_permissions() {
 case $ACTION in
 
   frontend:build)
-    su-exec www-data npm run build
+    gosu www-data npm run build
     ;;
 
   playback-player:build)
-    su-exec www-data /usr/local/etc/playback-player/build.sh "$2"
+    gosu www-data /usr/local/etc/playback-player/build.sh "$2"
     ;;
 
   fix-permissions)
@@ -35,13 +35,13 @@ case $ACTION in
     # PILOS_SPOOL_GID is 2000 by default
     if ! getent group pilos-spool > /dev/null; then
         echo "Creating spool group with GID $PILOS_SPOOL_GID"
-        addgroup pilos-spool --gid "${PILOS_SPOOL_GID}"
+        groupadd --gid "${PILOS_SPOOL_GID}" pilos-spool
     else
         echo "Group 'pilos-spool' already exists."
     fi
 
     # Add www-data to the spool group
-    adduser www-data pilos-spool
+    usermod -aG pilos-spool www-data
     ;;
 
   optimize)
@@ -53,7 +53,7 @@ case $ACTION in
     ;;
 
   optimize:clear)
-      su-exec www-data composer dump-autoload
+      gosu www-data composer dump-autoload
       pilos-cli config:clear
       pilos-cli route:clear
       pilos-cli view:clear
@@ -68,15 +68,15 @@ case $ACTION in
 
   run:horizon)
     pilos-cli create-spool-group
-    su-exec www-data php artisan horizon
+    gosu www-data php artisan horizon
     ;;
 
   run:cron)
     pilos-cli create-spool-group
-    /usr/sbin/crond -f
+    /usr/sbin/cron -f
     ;;
 
   *)
-    su-exec www-data php artisan "$@"
+    gosu www-data php artisan "$@"
     ;;
 esac

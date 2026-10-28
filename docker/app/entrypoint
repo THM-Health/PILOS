@@ -2,7 +2,7 @@
 
 # If there is a command line argument, run it as the www-data user
 if [ $# -gt 0 ]; then
-    exec su-exec www-data "$@"
+    exec gosu www-data "$@"
 fi
 
 

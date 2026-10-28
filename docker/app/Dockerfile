@@ -1,11 +1,58 @@
-FROM php:8.5.12-fpm-alpine
+# -----------------------------------------------------------------------------
+# Stage: build PHP extensions (discarded; only .so / .ini are copied forward)
+# -----------------------------------------------------------------------------
+FROM php:8.5.12-fpm-bookworm AS php-extensions
+
+RUN --mount=type=bind,from=ghcr.io/php/pie:bin,source=/pie,target=/usr/local/bin/pie \
+    apt-get update \
+    && apt-get install -y --no-install-recommends \
+        $PHPIZE_DEPS \
+        libfreetype6-dev \
+        libicu-dev \
+        libjpeg62-turbo-dev \
+        libldap2-dev \
+        libmagickwand-dev \
+        libpng-dev \
+        libpq-dev \
+        libwebp-dev \
+        libxml2-dev \
+        libzip-dev \
+        unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-configure ldap --with-libdir=lib/$(uname -m)-linux-gnu \
+    && docker-php-ext-install -j$(nproc) pcntl bcmath pdo_mysql pdo_pgsql pgsql ldap zip soap gd exif intl \
+    && pie install \
+        phpredis/phpredis \
+        imagick/imagick \
+        xdebug/xdebug \
+    && rm -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# -----------------------------------------------------------------------------
+# Stage: build BBB recording player
+# -----------------------------------------------------------------------------
+FROM node:24-bookworm-slim AS playback-player
+
+ARG PLAYBACK_PLAYER_VERSION=5.4.8
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ./docker/app/playback-player/build.sh /usr/local/bin/build-playback-player
+RUN chmod +x /usr/local/bin/build-playback-player \
+    && mkdir -p /var/www/html/public \
+    && build-playback-player "$PLAYBACK_PLAYER_VERSION"
+
+# -----------------------------------------------------------------------------
+# Stage: final runtime image
+# -----------------------------------------------------------------------------
+FROM php:8.5.12-fpm-bookworm
 
 LABEL maintainer="Samuel Weirich"
 LABEL description="Development and production container for PILOS, compatible with laravel sail; heavily inspired by offical image"
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
-ARG PLAYBACK_PLAYER_VERSION=5.4.8
 ARG VITE_COVERAGE="false"
 
 WORKDIR /var/www/html
@@ -19,68 +66,53 @@ ENV TZ=UTC \
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Add system dependencies
-RUN apk --no-cache add \
-    shadow \
-    bash su-exec gettext libintl git \
-    pv \
-    tar \
-    supervisor \
-    nginx \
-    mysql-client postgresql-client \
-    nodejs npm
-
-# Install latest npm and remove alpine version
-RUN npm install -g npm
-RUN apk del npm
-
-# Add PHP extensions
-RUN --mount=type=bind,from=ghcr.io/php/pie:bin,source=/pie,target=/usr/local/bin/pie \
-    apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \
-        postgresql-dev \
-        openldap-dev \
-        libzip-dev \
-        libxml2-dev \
-        freetype-dev \
-        libjpeg-turbo-dev \
-        libpng-dev \
-        libwebp-dev \
-        icu-dev \
-        imagemagick-dev \
-        linux-headers \
-    && apk add --no-cache \
-        libpq \
-        libldap \
-        libzip \
-        freetype \
-        libjpeg-turbo \
-        libpng \
-        libwebp \
-        icu-libs \
+# Runtime system packages (no build toolchain)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash \
+        cron \
+        curl \
+        default-mysql-client \
+        gettext-base \
+        git \
+        gosu \
         imagemagick \
-        libgomp \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) pcntl bcmath pdo_mysql pdo_pgsql pgsql ldap zip soap gd exif intl \
-    && pie install \
-        phpredis/phpredis \
-        imagick/imagick \
-        xdebug/xdebug \
-    && rm -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && apk del .build-deps
+        libfreetype6 \
+        libicu72 \
+        libjpeg62-turbo \
+        libldap-2.5-0 \
+        libmagickwand-6.q16-6 \
+        libpng16-16 \
+        libpq5 \
+        libwebp7 \
+        libxml2 \
+        libzip4 \
+        nginx \
+        postgresql-client \
+        pv \
+        supervisor \
+        unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Built PHP extensions (xdebug.so present but not enabled by default)
+COPY --from=php-extensions /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=php-extensions /usr/local/etc/php/conf.d/docker-php-ext-*.ini /usr/local/etc/php/conf.d/
+
+# Install Node.js (same Debian release as the PHP image)
+COPY --from=node:24-bookworm-slim /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:24-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
-
 # Change www-data user and group id
-RUN apk add --no-cache --virtual .mod-deps shadow \
-  && usermod -d /var/www www-data \
+RUN usermod -d /var/www www-data \
   && usermod -u $WWWUSER www-data \
   && groupmod -o -g $WWWGROUP www-data \
   && chown www-data:www-data /var/www/ \
-  && chown www-data:www-data -R /var/lib/nginx/ \
-  && apk del .mod-deps
+  && chown -R www-data:www-data /var/lib/nginx/
 
 # Copy entrypoint
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
@@ -95,15 +127,10 @@ COPY ./docker/app/cron/scheduler /etc/cron.d/scheduler
 RUN chmod 644 /etc/cron.d/scheduler
 RUN crontab /etc/cron.d/scheduler
 
-# Copy bbb-player script
+# Copy bbb-player script (for optional runtime rebuilds via pilos-cli)
 COPY ./docker/app/playback-player /usr/local/etc/playback-player
-RUN chmod +x /usr/local/etc/playback-player/build.sh
-RUN chown www-data:www-data /usr/local/etc/playback-player/
-
-# Install BBB Recording Player
-RUN mkdir -p /var/www/html/public/playback-player
-RUN chown -R www-data:www-data /var/www/html
-RUN pilos-cli playback-player:build $PLAYBACK_PLAYER_VERSION
+RUN chmod +x /usr/local/etc/playback-player/build.sh \
+    && chown www-data:www-data /usr/local/etc/playback-player/
 
 # Copy supervisor config
 RUN mkdir -p /var/log/supervisor
@@ -124,27 +151,29 @@ COPY ./docker/app/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 RUN mkdir -p /var/log/php
 
 # Copy ldap config files
-COPY ./docker/app/ldap/ /etc/openldap
+COPY ./docker/app/ldap/ /etc/ldap
+
+COPY --from=playback-player --chown=www-data:www-data /var/www/html/public/playback-player /var/www/html/public/playback-player
 
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
 # Add folder to git safe.directory
-RUN su-exec www-data git config --global --add safe.directory /var/www/html
+RUN gosu www-data git config --global --add safe.directory /var/www/html
 
 # Build frontend
 RUN if [ "$VITE_COVERAGE" != "true" ] ; then \
-    su-exec www-data npm install --omit=dev && \
-    su-exec www-data npm run build; \
+    gosu www-data npm install --omit=dev && \
+    gosu www-data npm run build; \
   else \
     echo "Build frontend for coverage (instrumented and with sourcemap)" && \
-    su-exec www-data npm install && \
-    su-exec www-data npm run build -- --config vite.config.coverage.js; \
+    gosu www-data npm install && \
+    gosu www-data npm run build -- --config vite.config.coverage.js; \
   fi
 
 # Run and optimize composer for production
-RUN su-exec www-data composer install --no-dev
-RUN su-exec www-data composer dump-autoload -o
+RUN gosu www-data composer install --no-dev
+RUN gosu www-data composer dump-autoload -o
 
 EXPOSE 80
 EXPOSE 443

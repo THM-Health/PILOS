@@ -19,7 +19,7 @@ temporaryDirectory=$(mktemp -d)
 downloadFileName="$temporaryDirectory/player.zip"
 folderName="$temporaryDirectory/bbb-playback-$tag"
 
-wget -O "$downloadFileName" "$downloadBase"
+curl -fsSL -o "$downloadFileName" "$downloadBase"
 
 echo "Extracting..."
 if unzip -q -d "$temporaryDirectory" "$downloadFileName"; then
