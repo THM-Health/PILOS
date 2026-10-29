@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room authentication failing when the session is not yet persisted ([#3603], [#3604])
 - Downloading room files with special or non-Latin characters (including quotes) in the filename ([#3588])
 
+### Security
+
+- Validate return URL of Shibboleth front-channel logout to prevent open redirects (GHSA-46f6-vjh7-jg8f)
+
 ## [v4.19.0] - 2026-10-28
 
 ### Changed
