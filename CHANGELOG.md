@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room authentication failing when the session is not yet persisted ([#3603], [#3604])
 - Downloading room files with special or non-Latin characters (including quotes) in the filename ([#3588])
 
+### Security
+
+- Store default presentation using content-based file extension instead of client Content-Type (GHSA-qr8q-4pjq-4r52)
+- Configure nginx so only `index.php` is executed; other `.php` files under `public/` return 404 (GHSA-qr8q-4pjq-4r52)
+
 ## [v4.19.0] - 2026-10-28
 
 ### Changed
