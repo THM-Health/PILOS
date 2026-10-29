@@ -399,6 +399,19 @@ class FileTest extends TestCase
         $this->room->save();
         $response = $this->get($download_link);
         $response->assertSuccessful();
+        $response->assertHeader('content-disposition', 'inline; filename=document.pdf');
+
+        // Non-Latin basename must keep a usable ASCII fallback (not just ".pdf")
+        $room_file->filename = '文件.pdf';
+        $room_file->save();
+        $download_link = URL::signedRoute('rooms.files.download', [
+            'room' => $this->room,
+            'file' => $room_file,
+            'filename' => $room_file->filename,
+        ]);
+        $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('content-disposition', 'inline; filename=_.pdf; filename*=utf-8\'\'%E6%96%87%E4%BB%B6.pdf');
     }
 
     /**
