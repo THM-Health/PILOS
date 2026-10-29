@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Downloading room files with special or non-Latin characters in the filename ([#3588])
+
 ## [v4.19.0] - 2026-10-28
 
 ### Changed
@@ -952,6 +956,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3540]: https://github.com/THM-Health/PILOS/pull/3540
 [#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [#3561]: https://github.com/THM-Health/PILOS/pull/3561
+[#3588]: https://github.com/THM-Health/PILOS/pull/3588
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.19.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
