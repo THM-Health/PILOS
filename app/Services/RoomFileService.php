@@ -9,6 +9,8 @@ use App\Models\RoomFile;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class RoomFileService
 {
@@ -49,15 +51,30 @@ class RoomFileService
         }
 
         $fileAlias = config('filesystems.x-accel.url_prefix').'/app/'.$this->file->path;
-        $fileName = $this->file->filename;
         $fileSize = Storage::size($this->file->path);
         $fileMime = Storage::mimeType($this->file->path);
 
-        return response(null, 200)
+        // path separators are invalid in makeDisposition; ASCII fallback is for legacy clients.
+        $sanitizedFilename = str_replace(['/', '\\'], '-', $this->file->filename);
+        $fallbackFilename = str_replace('%', '', Str::ascii($sanitizedFilename));
+        // e.g. "文件" → ascii '' → "__" so makeDisposition does not throw
+        $fallbackFilename = $fallbackFilename !== '' ? $fallbackFilename : str_repeat('_', mb_strlen($sanitizedFilename));
+
+        $response = response(null, 200)
             ->header('Content-Type', $fileMime)
             ->header('Content-Length', $fileSize)
-            ->header('Content-Disposition', 'inline; filename="'.$fileName.'"')
             ->header('Content-Transfer-Encoding', 'binary')
             ->header('X-Accel-Redirect', $fileAlias);
+
+        $response->headers->set(
+            'Content-Disposition',
+            HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_INLINE,
+                $sanitizedFilename,
+                $fallbackFilename
+            )
+        );
+
+        return $response;
     }
 }
