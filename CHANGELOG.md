@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room authentication failing when the session is not yet persisted ([#3603], [#3604])
 - Downloading room files with special or non-Latin characters (including quotes) in the filename ([#3588])
 
+### Security
+
+- Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade
+
 ## [v4.19.0] - 2026-10-28
 
 ### Changed
