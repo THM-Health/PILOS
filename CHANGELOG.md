@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room authentication failing when the session is not yet persisted ([#3603], [#3604])
 - Downloading room files with special or non-Latin characters (including quotes) in the filename ([#3588])
 
+### Security
+
+- **Breaking:** Changed the meeting end callback URL signature (callbacks for already running meetings fail, but the server poll detects that the meeting has ended within a minute) (GHSA-f7w5-8x3r-fmrf)
+- Pass the meeting end callback to BigBlueButton as `meetingEndedURL` instead of the `endCallbackUrl` meta parameter (GHSA-mg6m-xfw5-h98w)
+
 ## [v4.19.0] - 2026-10-28
 
 ### Changed
