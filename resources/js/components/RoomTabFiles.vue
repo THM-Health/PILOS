@@ -51,7 +51,6 @@
       :room-id="props.room.id"
       :file="systemDefault.file"
       :prefer-as-start="systemDefault.prefer_as_start"
-      :start-file="startFile"
       :disabled="isBusy"
       @edited="loadData()"
       @system-default-presentation-not-set="loadData()"

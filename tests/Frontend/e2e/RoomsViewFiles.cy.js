@@ -209,6 +209,7 @@ describe("Rooms View Files", function () {
         file.use_in_meeting = false;
       });
       roomFiles.start_file = null;
+      roomFiles.system_default.prefer_as_start = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
         statusCode: 200,
@@ -241,6 +242,7 @@ describe("Rooms View Files", function () {
       roomFiles.meta.total = 0;
       roomFiles.meta.total_no_filter = 0;
       roomFiles.start_file = null;
+      roomFiles.system_default.prefer_as_start = true;
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
         statusCode: 200,

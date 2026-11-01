@@ -7,7 +7,7 @@
       <p class="text-word-break m-0 text-lg font-semibold">
         {{ $t("rooms.files.system_default") }}
       </p>
-      <div v-if="preferAsStart || startFile === null">
+      <div v-if="preferAsStart">
         <Tag
           severity="info"
           icon="fa-solid fa-crown"
@@ -30,7 +30,7 @@
 
     <div class="flex shrink-0 flex-row items-start justify-end gap-1">
       <RoomTabFilesStartFileButton
-        v-if="!preferAsStart && startFile !== null"
+        v-if="!preferAsStart"
         :room-id="roomId"
         :file-id="null"
         :disabled="disabled"
@@ -73,10 +73,6 @@ defineProps({
   preferAsStart: {
     type: Boolean,
     default: false,
-  },
-  startFile: {
-    type: Object,
-    default: null,
   },
 });
 
