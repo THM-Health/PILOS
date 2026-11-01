@@ -1088,7 +1088,6 @@ describe("Rooms view files file actions", function () {
     // Check that system default file is set as start file
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.start_file")
-      .and("not.include.text", "rooms.files.start_file_automatic")
       .and("include.text", "rooms.files.available_in_next_meeting")
       .find('[data-test="room-files-start-file-button"]')
       .should("not.exist");

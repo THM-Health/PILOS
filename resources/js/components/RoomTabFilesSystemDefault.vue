@@ -9,16 +9,9 @@
       </p>
       <div v-if="preferAsStart || startFile === null">
         <Tag
-          v-if="preferAsStart"
           severity="info"
           icon="fa-solid fa-crown"
           :value="$t('rooms.files.start_file')"
-        />
-        <Tag
-          v-else-if="startFile === null"
-          severity="info"
-          icon="fa-solid fa-crown"
-          :value="$t('rooms.files.start_file_automatic')"
         />
       </div>
 
@@ -37,7 +30,7 @@
 
     <div class="flex shrink-0 flex-row items-start justify-end gap-1">
       <RoomTabFilesStartFileButton
-        v-if="!preferAsStart"
+        v-if="!preferAsStart && startFile !== null"
         :room-id="roomId"
         :file-id="null"
         :disabled="disabled"

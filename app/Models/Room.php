@@ -214,6 +214,10 @@ class Room extends Model
         if ($newStartFile != null) {
             $newStartFile->is_start_file = true;
             $newStartFile->save();
+        } else {
+            // No other file is set to be used in meeting set prefer_system_default_presentation_as_start to true
+            $this->prefer_system_default_presentation_as_start = true;
+            $this->save();
         }
     }
 

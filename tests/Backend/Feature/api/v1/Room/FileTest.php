@@ -1588,6 +1588,41 @@ class FileTest extends TestCase
         $this->assertTrue($otherFile->is_start_file);
     }
 
+    public function test_disabling_start_file_without_other_active_files(): void
+    {
+        $this->bigBlueButtonSettings->default_presentation = url('system-wide-default.pdf');
+        $this->bigBlueButtonSettings->save();
+        $this->room->prefer_system_default_presentation_as_start = false;
+        $this->room->save();
+
+        $startFile = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'is_start_file' => true,
+            'use_in_meeting' => true,
+        ]);
+        $otherFile = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'use_in_meeting' => false,
+        ]);
+
+        $this->actingAs($this->room->owner)
+            ->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $startFile]), [
+                'use_in_meeting' => false,
+                'download' => false,
+            ])
+            ->assertSuccessful();
+
+        $startFile->refresh();
+        $otherFile->refresh();
+        $this->assertFalse($startFile->use_in_meeting);
+        $this->assertFalse($startFile->is_start_file);
+        $this->assertFalse($otherFile->use_in_meeting);
+        $this->assertFalse($otherFile->is_start_file);
+
+        $this->room->refresh();
+        $this->assertTrue($this->room->prefer_system_default_presentation_as_start);
+    }
+
     public function test_setting_start_file_overrides_system_default_preference(): void
     {
         $this->bigBlueButtonSettings->default_presentation = url('system-wide-default.pdf');

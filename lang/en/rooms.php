@@ -140,7 +140,6 @@ return [
         'sort_by' => 'Sort files by',
         'sort_descending' => 'Sort files descending',
         'start_file' => 'Start presentation',
-        'start_file_automatic' => 'Start presentation (Automatic)',
         'system_default' => 'System-wide default presentation',
         'terms_of_use' => [
             'accept' => 'I accept the terms of use',

@@ -221,10 +221,10 @@ describe("Rooms View Files", function () {
 
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.system_default")
-      .and("include.text", "rooms.files.start_file_automatic")
+      .and("include.text", "rooms.files.start_file")
       .and("include.text", "rooms.files.available_in_next_meeting")
       .find('[data-test="room-files-start-file-button"]')
-      .should("be.visible");
+      .should("not.exist");
 
     cy.get('[data-test="room-file-item"]').each(($file) => {
       cy.wrap($file)
@@ -255,10 +255,10 @@ describe("Rooms View Files", function () {
     // Check that system default presentation is shown as start presentation
     cy.get('[data-test="room-file-system-default"]')
       .should("include.text", "rooms.files.system_default")
-      .and("include.text", "rooms.files.start_file_automatic")
+      .and("include.text", "rooms.files.start_file")
       .and("include.text", "rooms.files.available_in_next_meeting")
       .find('[data-test="room-files-start-file-button"]')
-      .should("be.visible");
+      .should("not.exist");
 
     // Check if correct message is shown and no files are displayed
     cy.get('[data-test="room-file-item"]').should("have.length", 0);
