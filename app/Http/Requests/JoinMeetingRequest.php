@@ -14,7 +14,7 @@ class JoinMeetingRequest extends FormRequest
         $personalizedLink = Context::getHidden("room.{$this->room->id}.personalized_link");
 
         $rules = [
-            'name' => auth()->check() || $personalizedLink ? [] : ValidateParticipantNameRequest::participantNameValidationRules(),
+            'name' => auth()->check() || $personalizedLink?->enforced_name ? [] : ValidateParticipantNameRequest::participantNameValidationRules(),
             'dark_mode' => ['sometimes', 'boolean'],
         ];
 

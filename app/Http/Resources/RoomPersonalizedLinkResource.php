@@ -20,8 +20,8 @@ class RoomPersonalizedLinkResource extends JsonResource
         return [
             'id' => $this->id,
             'token' => $this->token,
-            'firstname' => $this->firstname,
-            'lastname' => $this->lastname,
+            'description' => $this->description,
+            'enforced_name' => $this->enforced_name,
             'role' => $this->role,
             'expires' => $this->expires,
             'last_usage' => $this->last_usage,
