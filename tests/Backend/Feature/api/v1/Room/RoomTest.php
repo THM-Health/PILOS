@@ -21,6 +21,7 @@ use App\Models\RoomAuthToken;
 use App\Models\RoomPersonalizedLink;
 use App\Models\RoomType;
 use App\Models\Server;
+use App\Models\Session;
 use App\Models\User;
 use App\Services\MeetingService;
 use App\Services\ServerService;
@@ -815,6 +816,33 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Authenticate with an access code when the session has not been persisted yet.
+     * Room auth tokens reference sessions via foreign key, so the session must be saved first.
+     */
+    public function test_auth_with_access_code_persists_missing_session()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code' => $this->createAccessCode(),
+        ]);
+
+        $this->assertDatabaseCount('sessions', 0);
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::CODE->value,
+            'access_code' => $room->access_code,
+        ])->assertStatus(201);
+
+        $this->assertDatabaseCount('sessions', 1);
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+        $this->assertDatabaseHas('room_auth_tokens', [
+            'room_id' => $room->id,
+            'session_id' => Session::first()->id,
+            'type' => RoomAuthTokenType::CODE->value,
+        ]);
+    }
+
+    /**
      * Test access code authentication rate limiting
      */
     public function test_auth_with_access_code_rate_limit()
@@ -1322,6 +1350,39 @@ class RoomTest extends TestCase
             'personalized_link_token' => $link->token,
         ])
             ->assertStatus(CustomStatusCodes::GUESTS_ONLY->value);
+    }
+
+    /**
+     * Authenticate with a personalized link when the session has not been persisted yet.
+     * Room auth tokens reference sessions via foreign key, so the session must be saved first.
+     */
+    public function test_auth_with_personalized_link_persists_missing_session()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+        ]);
+        $link = RoomPersonalizedLink::factory()->create([
+            'room_id' => $room->id,
+            'role' => RoomUserRole::USER,
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+        ]);
+
+        $this->assertDatabaseCount('sessions', 0);
+
+        $this->postJson(route('api.v1.rooms.authenticate', ['room' => $room]), [
+            'type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
+            'personalized_link_token' => $link->token,
+        ])->assertStatus(201);
+
+        $this->assertDatabaseCount('sessions', 1);
+        $this->assertDatabaseCount('room_auth_tokens', 1);
+        $this->assertDatabaseHas('room_auth_tokens', [
+            'room_id' => $room->id,
+            'session_id' => Session::first()->id,
+            'room_personalized_link_id' => $link->id,
+            'type' => RoomAuthTokenType::PERSONALIZED_LINK->value,
+        ]);
     }
 
     public function test_room_auth_token_with_personalized_link()

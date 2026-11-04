@@ -169,7 +169,7 @@ function save() {
   };
 
   api
-    .call(`rooms/${props.roomId}/personalizedLinks/`, config)
+    .call(`rooms/${props.roomId}/personalizedLinks`, config)
     .then(() => {
       // operation successful, close modal and reload list
       modalVisible.value = false;

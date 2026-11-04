@@ -473,6 +473,9 @@ class RoomController extends Controller
             $accessCode = $request->string('access_code')->value();
 
             if ($room->access_code === $accessCode) {
+                // Persist the session before linking a room auth token to it
+                session()->save();
+
                 // Generate new room auth token or retrieve existing one
                 $roomAuthToken = RoomAuthToken::firstOrCreate([
                     'room_id' => $room->id,
@@ -515,6 +518,9 @@ class RoomController extends Controller
 
             $personalizedLink->last_usage = now();
             $personalizedLink->save();
+
+            // Persist the session before linking a room auth token to it
+            session()->save();
 
             // Generate new room auth token
             $roomAuthToken = RoomAuthToken::firstOrCreate([
