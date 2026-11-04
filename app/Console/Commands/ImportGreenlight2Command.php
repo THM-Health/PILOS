@@ -459,6 +459,10 @@ class ImportGreenlight2Command extends Command
 
                     // Save file and room
                     $room->files()->save($file);
+
+                    $room->prefer_system_default_presentation_as_start = false;
+                    $room->save();
+
                     $room->updateStartFile();
                     $this->importedPresentationFiles[] = $file->path;
 

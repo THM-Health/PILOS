@@ -120,6 +120,7 @@ class CreateDemoSystem extends Command
         $anatomyRoom->owner()->associate($daniel);
         $anatomyRoom->roomType()->associate($lecture);
         $anatomyRoom->expert_mode = true;
+        $anatomyRoom->prefer_system_default_presentation_as_start = false;
         $anatomyRoom->save();
 
         $mathRoom = new Room;
