@@ -359,10 +359,20 @@ class ImportGreenlight3Test extends TestCase
         $this->assertTrue($storageMock->fileExists('migration/presentations/xi/ve/xivei7mi0cohtoecacahyaich8ohzaed'));
         $this->assertNotEmpty($storageMock->files('abc-def-xyz-123'));
         $this->assertNotEmpty($storageMock->files('abc-def-xyz-234'));
-        $this->assertEquals('1testvongpresiher.pdf', Room::find('abc-def-xyz-123')->files()->first()->filename);
-        $this->assertEquals('2testvongpresiher.pdf', Room::find('abc-def-xyz-234')->files()->first()->filename);
+
+        $firstPresentationFile = Room::find('abc-def-xyz-123')->files()->first();
+        $secondPresentationFile = Room::find('abc-def-xyz-234')->files()->first();
+
+        $this->assertEquals('1testvongpresiher.pdf', $firstPresentationFile->filename);
+        $this->assertEquals('2testvongpresiher.pdf', $secondPresentationFile->filename);
         $this->assertEmpty(Room::find('abc-def-xyz-345')->files()->get());
         $this->assertEmpty(Room::find('hij-klm-xyz-123')->files()->get());
+
+        $this->assertTrue($firstPresentationFile->use_in_meeting);
+        $this->assertTrue($firstPresentationFile->is_start_file);
+
+        $this->assertTrue($secondPresentationFile->use_in_meeting);
+        $this->assertTrue($secondPresentationFile->is_start_file);
 
         $this->assertFalse(Room::find('abc-def-xyz-123')->prefer_system_default_presentation_as_start);
         $this->assertFalse(Room::find('abc-def-xyz-234')->prefer_system_default_presentation_as_start);
