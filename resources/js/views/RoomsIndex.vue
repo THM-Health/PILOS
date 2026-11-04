@@ -223,12 +223,7 @@
         >
           <template #overlay>
             <div class="py-20 text-center">
-              <i
-                v-if="loadingRooms"
-                class="fa-solid fa-circle-notch fa-spin text-3xl"
-              />
               <Button
-                v-else
                 data-test="reload-button"
                 :label="$t('app.reload')"
                 icon="fa-solid fa-sync"
@@ -241,6 +236,7 @@
           <div
             v-if="loadingRooms || loadingRoomsError"
             class="grid grid-cols-12 gap-4 p-1"
+            data-test="room-skeletons"
           >
             <div
               v-for="i in rooms?.length || 3"
