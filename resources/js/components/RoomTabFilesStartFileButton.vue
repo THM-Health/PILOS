@@ -52,15 +52,19 @@ const isLoadingAction = ref(false);
 function setStartFile() {
   isLoadingAction.value = true;
 
-  const url =
-    props.fileId === null
-      ? `rooms/${props.roomId}/files/system_default/start`
-      : `rooms/${props.roomId}/files/${props.fileId}/start`;
+  const isSystemDefault = props.fileId === null;
+
+  const url = isSystemDefault
+    ? `rooms/${props.roomId}/files/system_default`
+    : `rooms/${props.roomId}/files/${props.fileId}`;
+
+  const config = {
+    method: "patch",
+    data: isSystemDefault ? { prefer_as_start: true } : { is_start_file: true },
+  };
 
   api
-    .call(url, {
-      method: "post",
-    })
+    .call(url, config)
     .then(() => {
       emit("edited");
     })

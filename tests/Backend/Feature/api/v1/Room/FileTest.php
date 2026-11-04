@@ -1226,43 +1226,43 @@ class FileTest extends TestCase
         ];
 
         // Testing guest
-        $this->putJson($route, $params)
+        $this->patchJson($route, $params)
             ->assertUnauthorized();
 
         // Testing user
-        $this->actingAs($this->user)->putJson($route, $params)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->putJson($route, $params)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->putJson($route, $params)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing co-owner
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->putJson($route, $params)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertSuccessful();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->putJson($route, $params)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertSuccessful();
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->putJson($route, $params)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // test with manage permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->putJson($route, $params)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertSuccessful();
         $this->role->permissions()->detach($this->managePermission);
 
@@ -1272,7 +1272,7 @@ class FileTest extends TestCase
         $this->assertTrue($room_file->download);
         $this->assertTrue($room_file->is_start_file); // Manually setting is_start_file to false is forbidden
 
-        $this->actingAs($this->room->owner)->putJson($route, ['use_in_meeting' => false, 'download' => false])
+        $this->actingAs($this->room->owner)->patchJson($route, ['use_in_meeting' => false, 'download' => false])
             ->assertSuccessful();
 
         $room_file->refresh();
@@ -1283,7 +1283,7 @@ class FileTest extends TestCase
         // Testing for other room
         $other_room = Room::factory()->create();
         // Testing for room without permission
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
+        $this->actingAs($this->room->owner)->patchJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1296,7 +1296,7 @@ class FileTest extends TestCase
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
+        $this->actingAs($this->room->owner)->patchJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1308,7 +1308,21 @@ class FileTest extends TestCase
 
         // Testing missing properties
         $params = [];
-        $this->actingAs($this->room->owner)->putJson($route, $params)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertNoContent();
+
+        // Check that the properties are unchanged
+        $room_file->refresh();
+        $this->assertFalse($room_file->use_in_meeting);
+        $this->assertFalse($room_file->download);
+        $this->assertFalse($room_file->is_start_file);
+
+        $params = [
+            'use_in_meeting' => null,
+            'download' => null,
+        ];
+
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertJsonValidationErrors(['use_in_meeting', 'download']);
 
         // Testing invalid properties
@@ -1317,12 +1331,12 @@ class FileTest extends TestCase
             'download' => 'invalid',
         ];
 
-        $this->actingAs($this->room->owner)->putJson($route, $params)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertJsonValidationErrors(['use_in_meeting', 'download']);
 
         // Test deleted
         $room_file->delete();
-        $this->actingAs($this->room->owner)->putJson($route, $params)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1335,7 +1349,7 @@ class FileTest extends TestCase
         // Test deleted room
         $this->room->delete();
 
-        $this->actingAs($this->room->owner)->putJson($route, $params)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1344,6 +1358,48 @@ class FileTest extends TestCase
                     $this->room->id,
                 ],
             ]);
+    }
+
+    public function test_only_updating_download(): void
+    {
+        $file = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'download' => true,
+            'use_in_meeting' => true,
+            'is_start_file' => false,
+        ]);
+
+        $this->actingAs($this->room->owner)
+            ->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $file]), [
+                'download' => false,
+            ])
+            ->assertNoContent();
+
+        $file->refresh();
+        $this->assertTrue($file->use_in_meeting);
+        $this->assertFalse($file->download);
+        $this->assertFalse($file->is_start_file);
+    }
+
+    public function test_only_updating_use_in_meeting(): void
+    {
+        $file = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'download' => true,
+            'use_in_meeting' => true,
+            'is_start_file' => true,
+        ]);
+
+        $this->actingAs($this->room->owner)
+            ->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $file]), [
+                'use_in_meeting' => false,
+            ])
+            ->assertNoContent();
+
+        $file->refresh();
+        $this->assertFalse($file->use_in_meeting);
+        $this->assertTrue($file->download);
+        $this->assertFalse($file->is_start_file);
     }
 
     /**
@@ -1370,44 +1426,49 @@ class FileTest extends TestCase
 
         Auth::logout();
 
+        $route = route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_1]);
+        $params = [
+            'is_start_file' => true,
+        ];
+
         // Testing guest
-        $this->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->patchJson($route, $params)
             ->assertUnauthorized();
 
         // Testing user
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing co-owner
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertSuccessful();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertSuccessful();
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_2]))
+        $this->actingAs($this->user)->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), $params)
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Test with manage permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertSuccessful();
         $this->role->permissions()->detach($this->managePermission);
 
@@ -1424,7 +1485,7 @@ class FileTest extends TestCase
         $room_file_2->use_in_meeting = true;
         $room_file_2->save();
 
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_2]))
+        $this->actingAs($this->room->owner)->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), $params)
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
@@ -1436,7 +1497,7 @@ class FileTest extends TestCase
         // Testing for other room
         $other_room = Room::factory()->create();
         // Testing for room without permission
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $other_room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->room->owner)->patchJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file_1]), $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1449,7 +1510,7 @@ class FileTest extends TestCase
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $other_room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->room->owner)->patchJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file_1]), $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1459,9 +1520,43 @@ class FileTest extends TestCase
                 ],
             ]);
 
+        // Testing missing properties
+        $params = [];
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertNoContent();
+
+        // Check that the properties are unchanged
+        $room_file_1->refresh();
+        $this->assertFalse($room_file_1->is_start_file);
+        $this->assertTrue($room_file_1->use_in_meeting);
+
+        // Testing invalid properties
+        $params = [
+            'is_start_file' => null,
+        ];
+
+        // Test invalid is_start_file value
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertJsonValidationErrors(['is_start_file']);
+
+        $params = [
+            'is_start_file' => 'invalid',
+        ];
+
+        // Test invalid is_start_file value
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertJsonValidationErrors(['is_start_file']);
+
+        $params = [
+            'is_start_file' => false,
+        ];
+
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertJsonValidationErrors(['is_start_file']);
+
         // Test deleted file
         $room_file_1->delete();
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1473,7 +1568,7 @@ class FileTest extends TestCase
 
         // Test deleted room
         $this->room->delete();
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $room_file_2]))
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1491,46 +1586,49 @@ class FileTest extends TestCase
         $this->bigBlueButtonSettings->default_presentation = $systemWideDefaultUrl;
         $this->bigBlueButtonSettings->save();
 
-        $route = route('api.v1.rooms.files.system_default.set', ['room' => $this->room->id]);
+        $route = route('api.v1.rooms.files.system_default.update', ['room' => $this->room->id]);
+        $params = [
+            'prefer_as_start' => true,
+        ];
 
         // Testing guest
-        $this->postJson($route)
+        $this->patchJson($route, $params)
             ->assertUnauthorized();
 
         // Testing user
-        $this->actingAs($this->user)->postJson($route)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->postJson($route)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->postJson($route)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
 
         // Testing co-owner
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->postJson($route)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertSuccessful();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->postJson($route)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertSuccessful();
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->postJson($route)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // test with manage permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->postJson($route)
+        $this->actingAs($this->user)->patchJson($route, $params)
             ->assertSuccessful();
         $this->role->permissions()->detach($this->managePermission);
 
@@ -1542,15 +1640,59 @@ class FileTest extends TestCase
         // Test no system default set
         $this->bigBlueButtonSettings->default_presentation = null;
         $this->bigBlueButtonSettings->save();
-        $this->actingAs($this->room->owner)->postJson($route)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'system_default_presentation_not_set',
             ]);
 
+        $this->actingAs($this->room->owner)->patchJson($route)
+            ->assertNotFound()
+            ->assertJson([
+                'message' => 'system_default_presentation_not_set',
+            ]);
+
+        // Reset system default for further tests
+        $this->bigBlueButtonSettings->default_presentation = $systemWideDefaultUrl;
+        $this->bigBlueButtonSettings->save();
+
+        $this->room->prefer_system_default_presentation_as_start = false;
+        $this->room->save();
+
+        // Test without prefer_as_start parameter
+        $this->actingAs($this->room->owner)->patchJson($route)
+            ->assertNoContent();
+
+        // Check that the system default is still not set as the start presentation
+        $this->room->refresh();
+        $this->assertFalse($this->room->prefer_system_default_presentation_as_start);
+
+        // Test with missing prefer_as_start parameter
+        $params = [
+            'prefer_as_start' => null,
+        ];
+
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertJsonValidationErrors(['prefer_as_start']);
+
+        // Testing invalid properties
+        $params = [
+            'prefer_as_start' => 'invalid',
+        ];
+
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertJsonValidationErrors(['prefer_as_start']);
+
+        $params = [
+            'prefer_as_start' => false,
+        ];
+
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
+            ->assertJsonValidationErrors(['prefer_as_start']);
+
         // Test deleted room
         $this->room->delete();
-        $this->actingAs($this->room->owner)->postJson($route)
+        $this->actingAs($this->room->owner)->patchJson($route, $params)
             ->assertNotFound()
             ->assertJson([
                 'message' => 'model_not_found',
@@ -1559,6 +1701,27 @@ class FileTest extends TestCase
                     $this->room->id,
                 ],
             ]);
+    }
+
+    public function test_setting_start_file_takes_precedence_over_disabling_use_in_meeting()
+    {
+
+        $file = RoomFile::factory()->create([
+            'room_id' => $this->room->id,
+            'use_in_meeting' => false,
+            'is_start_file' => false,
+        ]);
+
+        $this->actingAs($this->room->owner)
+            ->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $file]), [
+                'use_in_meeting' => false,
+                'is_start_file' => true,
+            ])
+            ->assertSuccessful();
+
+        $file->refresh();
+        $this->assertTrue($file->use_in_meeting);
+        $this->assertTrue($file->is_start_file);
     }
 
     public function test_disabling_start_file_selects_another_active_file(): void
@@ -1574,7 +1737,7 @@ class FileTest extends TestCase
         ]);
 
         $this->actingAs($this->room->owner)
-            ->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $startFile]), [
+            ->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $startFile]), [
                 'use_in_meeting' => false,
                 'download' => false,
             ])
@@ -1606,7 +1769,7 @@ class FileTest extends TestCase
         ]);
 
         $this->actingAs($this->room->owner)
-            ->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $startFile]), [
+            ->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $startFile]), [
                 'use_in_meeting' => false,
                 'download' => false,
             ])
@@ -1632,7 +1795,9 @@ class FileTest extends TestCase
         $file = RoomFile::factory()->create(['room_id' => $this->room->id]);
 
         $this->actingAs($this->room->owner)
-            ->postJson(route('api.v1.rooms.files.start_file.set', ['room' => $this->room->id, 'file' => $file]))
+            ->patchJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $file]), [
+                'is_start_file' => true,
+            ])
             ->assertSuccessful();
 
         $this->room->refresh();
@@ -1655,7 +1820,9 @@ class FileTest extends TestCase
         ]);
 
         $this->actingAs($this->room->owner)
-            ->postJson(route('api.v1.rooms.files.system_default.set', ['room' => $this->room->id]))
+            ->patchJson(route('api.v1.rooms.files.system_default.update', ['room' => $this->room->id]), [
+                'prefer_as_start' => true,
+            ])
             ->assertSuccessful();
 
         $this->room->refresh();
@@ -1686,7 +1853,7 @@ class FileTest extends TestCase
         $file = $room->files->first();
 
         // Set file to be used in next meeting
-        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file->id]), ['download' => false, 'use_in_meeting' => true])
+        $this->actingAs($room->owner)->patchJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file->id]), ['download' => false, 'use_in_meeting' => true])
             ->assertSuccessful();
 
         // Start room

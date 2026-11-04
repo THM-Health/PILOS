@@ -613,7 +613,7 @@ describe("Rooms view files file actions", function () {
           .click();
 
         const editFileRequest = interceptIndefinitely(
-          "PUT",
+          "PATCH",
           "/api/v1/rooms/abc-def-123/files/1",
           {
             statusCode: 204,
@@ -680,7 +680,7 @@ describe("Rooms view files file actions", function () {
       .click();
     cy.get('[data-test="room-files-configure-dialog"]').should("be.visible");
 
-    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/3", {
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/3", {
       statusCode: 404,
       body: {
         message: "model_not_found",
@@ -722,7 +722,7 @@ describe("Rooms view files file actions", function () {
       .click();
     cy.get('[data-test="room-files-configure-dialog"]').should("be.visible");
 
-    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/2", {
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/2", {
       statusCode: 422,
       body: {
         message: "The Downloadable field is required. (and 2 more errors)",
@@ -746,7 +746,7 @@ describe("Rooms view files file actions", function () {
       .and("include.text", "The Use in the next meeting field is required.");
 
     // Check with 500 error
-    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/2", {
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/2", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -793,7 +793,7 @@ describe("Rooms view files file actions", function () {
           .find('[data-test="dialog-save-button"]')
           .click();
       },
-      "PUT",
+      "PATCH",
       "/api/v1/rooms/abc-def-123/files/1",
       "files",
     );
@@ -806,7 +806,7 @@ describe("Rooms view files file actions", function () {
     // Check with 404 error (room not found)
     cy.interceptRoomIndexRequests();
 
-    cy.intercept("PUT", "/api/v1/rooms/abc-def-123/files/1", {
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 404,
       body: {
         message: "model_not_found",
@@ -858,8 +858,8 @@ describe("Rooms view files file actions", function () {
       .should("not.exist");
 
     const setAsStartFileRequest = interceptIndefinitely(
-      "POST",
-      "/api/v1/rooms/abc-def-123/files/1/start",
+      "PATCH",
+      "/api/v1/rooms/abc-def-123/files/1",
       {
         statusCode: 204,
       },
@@ -898,7 +898,11 @@ describe("Rooms view files file actions", function () {
         setAsStartFileRequest.sendResponse();
       });
 
-    cy.wait("@setAsStartFileRequest");
+    cy.wait("@setAsStartFileRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        is_start_file: true,
+      });
+    });
     cy.wait("@roomFilesRequest");
 
     // Check that file is set as start file
@@ -925,7 +929,7 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomFilesRequest");
 
     // Check with 404 error (file not found / already deleted)
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/files/3/start", {
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/3", {
       statusCode: 404,
       body: {
         message: "model_not_found",
@@ -962,7 +966,7 @@ describe("Rooms view files file actions", function () {
     cy.checkToastMessage("rooms.flash.file_gone");
 
     // Check with 500 error
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/files/1/start", {
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -991,8 +995,8 @@ describe("Rooms view files file actions", function () {
           .find('[data-test="room-files-start-file-button"]')
           .click();
       },
-      "POST",
-      "/api/v1/rooms/abc-def-123/files/1/start",
+      "PATCH",
+      "/api/v1/rooms/abc-def-123/files/1",
       "files",
     );
 
@@ -1004,7 +1008,7 @@ describe("Rooms view files file actions", function () {
     // Check with 404 error (room not found)
     cy.interceptRoomIndexRequests();
 
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/files/1/start", {
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/1", {
       statusCode: 404,
       body: {
         message: "model_not_found",
@@ -1052,8 +1056,8 @@ describe("Rooms view files file actions", function () {
       .should("not.exist");
 
     const setSystemDefaultRequest = interceptIndefinitely(
-      "POST",
-      "/api/v1/rooms/abc-def-123/files/system_default/start",
+      "PATCH",
+      "/api/v1/rooms/abc-def-123/files/system_default",
       {
         statusCode: 204,
       },
@@ -1082,7 +1086,11 @@ describe("Rooms view files file actions", function () {
         setSystemDefaultRequest.sendResponse();
       });
 
-    cy.wait("@setSystemDefaultRequest");
+    cy.wait("@setSystemDefaultRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        prefer_as_start: true,
+      });
+    });
     cy.wait("@roomFilesRequest");
 
     // Check that system default file is set as start file
@@ -1115,16 +1123,12 @@ describe("Rooms view files file actions", function () {
       .should("not.exist");
 
     // Check with 404 error (system default file not set)
-    cy.intercept(
-      "POST",
-      "/api/v1/rooms/abc-def-123/files/system_default/start",
-      {
-        statusCode: 404,
-        body: {
-          message: "system_default_presentation_not_set",
-        },
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/system_default", {
+      statusCode: 404,
+      body: {
+        message: "system_default_presentation_not_set",
       },
-    ).as("setAsStartFileRequest");
+    }).as("setAsStartFileRequest");
 
     cy.fixture("roomFiles.json").then((roomFiles) => {
       roomFiles.system_default.file = null;
@@ -1165,16 +1169,12 @@ describe("Rooms view files file actions", function () {
     cy.wait("@roomFilesRequest");
 
     // Check with 500 error
-    cy.intercept(
-      "POST",
-      "/api/v1/rooms/abc-def-123/files/system_default/start",
-      {
-        statusCode: 500,
-        body: {
-          message: "Test",
-        },
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/system_default", {
+      statusCode: 500,
+      body: {
+        message: "Test",
       },
-    ).as("setAsStartFileRequest");
+    }).as("setAsStartFileRequest");
 
     cy.get('[data-test="room-file-system-default"]')
       .find('[data-test="room-files-start-file-button"]')
@@ -1196,8 +1196,8 @@ describe("Rooms view files file actions", function () {
           .find('[data-test="room-files-start-file-button"]')
           .click();
       },
-      "POST",
-      "/api/v1/rooms/abc-def-123/files/system_default/start",
+      "PATCH",
+      "/api/v1/rooms/abc-def-123/files/system_default",
       "files",
     );
 
@@ -1209,18 +1209,14 @@ describe("Rooms view files file actions", function () {
     // Check with 404 error (room not found)
     cy.interceptRoomIndexRequests();
 
-    cy.intercept(
-      "POST",
-      "/api/v1/rooms/abc-def-123/files/system_default/start",
-      {
-        statusCode: 404,
-        body: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
+    cy.intercept("PATCH", "/api/v1/rooms/abc-def-123/files/system_default", {
+      statusCode: 404,
+      body: {
+        message: "model_not_found",
+        model: "room",
+        ids: ["abc-def-123"],
       },
-    ).as("setAsStartFileRequest");
+    }).as("setAsStartFileRequest");
 
     cy.get('[data-test="room-file-system-default"]')
       .find('[data-test="room-files-start-file-button"]')

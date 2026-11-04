@@ -159,7 +159,7 @@ function save() {
   formErrors.clear();
 
   const config = {
-    method: "put",
+    method: "patch",
     data: {
       use_in_meeting: newUseInMeeting.value,
       download: newDownload.value,

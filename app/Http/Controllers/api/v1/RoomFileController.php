@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomFileIndexRequest;
 use App\Http\Requests\StoreRoomFileRequest;
 use App\Http\Requests\UpdateRoomFileRequest;
+use App\Http\Requests\UpdateRoomSystemDefaultRequest;
 use App\Http\Resources\PrivateRoomFileResource;
 use App\Http\Resources\RoomFileResource;
 use App\Models\Room;
@@ -113,19 +114,34 @@ class RoomFileController extends Controller
      */
     public function update(UpdateRoomFileRequest $request, Room $room, RoomFile $file)
     {
-        $file->use_in_meeting = $request->boolean('use_in_meeting');
-        $file->download = $request->boolean('download');
+        if ($request->hasAny(['use_in_meeting', 'download'])) {
+            $this->updateRoomFileConfig($room, $file, $request);
+        }
 
-        $file->save();
-
-        Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
-
-        $room->updateStartFile();
+        if ($request->has('is_start_file')) {
+            $this->setAsStartFile($room, $file);
+        } elseif ($request->has('use_in_meeting')) {
+            $room->updateStartFile();
+        }
 
         return response()->noContent();
     }
 
-    public function setStartFile(Room $room, RoomFile $file)
+    private function updateRoomFileConfig(Room $room, RoomFile $file, UpdateRoomFileRequest $request): void
+    {
+        if ($request->has('use_in_meeting')) {
+            $file->use_in_meeting = $request->boolean('use_in_meeting');
+        }
+        if ($request->has('download')) {
+            $file->download = $request->boolean('download');
+        }
+
+        $file->save();
+
+        Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
+    }
+
+    private function setAsStartFile(Room $room, RoomFile $file): void
     {
         // Make other files not the start file anymore
         $room->files()->whereNot('id', $file->id)->update(['is_start_file' => false]);
@@ -141,11 +157,9 @@ class RoomFileController extends Controller
         $file->save();
 
         Log::info('Set file {file} as start file in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
-
-        return response()->noContent();
     }
 
-    public function setPreferSystemDefault(Room $room)
+    public function updateSystemDefault(UpdateRoomSystemDefaultRequest $request, Room $room)
     {
         if (! app(BigBlueButtonSettings::class)->default_presentation) {
             // No system default presentation is set, return error
@@ -154,11 +168,13 @@ class RoomFileController extends Controller
             ], 404);
         }
 
-        $room->prefer_system_default_presentation_as_start = true;
+        if ($request->has('prefer_as_start')) {
+            $room->prefer_system_default_presentation_as_start = true;
 
-        $room->save();
+            $room->save();
 
-        Log::info('Set room {room} to prefer system default presentation as start', ['room' => $room->getLogLabel()]);
+            Log::info('Set room {room} to prefer system default presentation as start', ['room' => $room->getLogLabel()]);
+        }
 
         return response()->noContent();
     }
