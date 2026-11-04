@@ -364,6 +364,11 @@ class ImportGreenlight3Test extends TestCase
         $this->assertEmpty(Room::find('abc-def-xyz-345')->files()->get());
         $this->assertEmpty(Room::find('hij-klm-xyz-123')->files()->get());
 
+        $this->assertFalse(Room::find('abc-def-xyz-123')->prefer_system_default_presentation_as_start);
+        $this->assertFalse(Room::find('abc-def-xyz-234')->prefer_system_default_presentation_as_start);
+        $this->assertTrue(Room::find('abc-def-xyz-345')->prefer_system_default_presentation_as_start);
+        $this->assertTrue(Room::find('hij-klm-xyz-123')->prefer_system_default_presentation_as_start);
+
         // Testing room ownership
         $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'local')->first(), Room::find('abc-def-xyz-123')->owner);
         $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'local')->first(), Room::find('abc-def-xyz-234')->owner);
