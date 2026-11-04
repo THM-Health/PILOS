@@ -115,48 +115,38 @@ class RoomFileController extends Controller
     public function update(UpdateRoomFileRequest $request, Room $room, RoomFile $file)
     {
         if ($request->hasAny(['use_in_meeting', 'download'])) {
-            $this->updateRoomFileConfig($room, $file, $request);
+            if ($request->has('use_in_meeting')) {
+                $file->use_in_meeting = $request->boolean('use_in_meeting');
+            }
+            if ($request->has('download')) {
+                $file->download = $request->boolean('download');
+            }
+
+            $file->save();
+
+            Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
         }
 
         if ($request->has('is_start_file')) {
-            $this->setAsStartFile($room, $file);
+            // Make other files not the start file anymore
+            $room->files()->whereNot('id', $file->id)->update(['is_start_file' => false]);
+
+            // Remove system default preference
+            $room->prefer_system_default_presentation_as_start = false;
+            $room->save();
+
+            // Set this file as start
+            $file->is_start_file = true;
+            $file->use_in_meeting = true;
+
+            $file->save();
+
+            Log::info('Set file {file} as start file in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
         } elseif ($request->has('use_in_meeting')) {
             $room->updateStartFile();
         }
 
         return response()->noContent();
-    }
-
-    private function updateRoomFileConfig(Room $room, RoomFile $file, UpdateRoomFileRequest $request): void
-    {
-        if ($request->has('use_in_meeting')) {
-            $file->use_in_meeting = $request->boolean('use_in_meeting');
-        }
-        if ($request->has('download')) {
-            $file->download = $request->boolean('download');
-        }
-
-        $file->save();
-
-        Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
-    }
-
-    private function setAsStartFile(Room $room, RoomFile $file): void
-    {
-        // Make other files not the start file anymore
-        $room->files()->whereNot('id', $file->id)->update(['is_start_file' => false]);
-
-        // Remove system default preference
-        $room->prefer_system_default_presentation_as_start = false;
-        $room->save();
-
-        // Set this file as start
-        $file->is_start_file = true;
-        $file->use_in_meeting = true;
-
-        $file->save();
-
-        Log::info('Set file {file} as start file in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
     }
 
     public function updateSystemDefault(UpdateRoomSystemDefaultRequest $request, Room $room)
