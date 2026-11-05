@@ -18,6 +18,12 @@ return [
         'version' => env('LDAP_VERSION', 3),
         'use_tls' => env('LDAP_SSL', false), // LDAPS / TLS connection
         'use_starttls' => env('LDAP_TLS', false), // STARTTLS upgrade
+
+        'options' => [
+            LDAP_OPT_X_TLS_REQUIRE_CERT => env('LDAP_VERIFY_CERT', false) ? LDAP_OPT_X_TLS_HARD : LDAP_OPT_X_TLS_NEVER,
+            LDAP_OPT_X_TLS_CACERTFILE => env('LDAP_CA_CERT_FILE', null),
+            LDAP_OPT_DEBUG_LEVEL => env('LDAP_DEBUG_LEVEL', null),
+        ],
     ],
 
     /*
