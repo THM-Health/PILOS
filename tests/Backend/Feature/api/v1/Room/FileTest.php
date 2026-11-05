@@ -397,9 +397,10 @@ class FileTest extends TestCase
         // Allow guest access
         $this->room->allow_guests = true;
         $this->room->save();
-        $response = $this->get($download_link);
-        $response->assertSuccessful();
-        $response->assertHeader('content-disposition', 'inline; filename=document.pdf');
+        $response = $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path)
+            ->assertHeader('content-disposition', 'attachment; filename=document.pdf');
 
         // Non-Latin basename must keep a usable ASCII fallback (not just ".pdf")
         $room_file->filename = '文件.pdf';
@@ -410,7 +411,7 @@ class FileTest extends TestCase
         ]);
         $this->get($download_link)
             ->assertSuccessful()
-            ->assertHeader('content-disposition', 'inline; filename=_.pdf; filename*=utf-8\'\'%E6%96%87%E4%BB%B6.pdf');
+            ->assertHeader('content-disposition', 'attachment; filename=_.pdf; filename*=utf-8\'\'%E6%96%87%E4%BB%B6.pdf');
 
         // Non-Latin filename without extension
         $room_file->filename = '文件';
@@ -421,7 +422,8 @@ class FileTest extends TestCase
         ]);
         $this->get($download_link)
             ->assertSuccessful()
-            ->assertHeader('content-disposition', 'inline; filename=_; filename*=utf-8\'\'%E6%96%87%E4%BB%B6');
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path)
+            ->assertHeader('content-disposition', 'attachment; filename=_; filename*=utf-8\'\'%E6%96%87%E4%BB%B6');
 
         // Filename with invalid characters (/, \, % and non-ASCII)
         $room_file->filename = 'demo-100%\\文件/test.pdf';
@@ -432,7 +434,8 @@ class FileTest extends TestCase
         ]);
         $this->get($download_link)
             ->assertSuccessful()
-            ->assertHeader('content-disposition', 'inline; filename=demo-100--test.pdf; filename*=utf-8\'\'demo-100%25-%E6%96%87%E4%BB%B6-test.pdf');
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path)
+            ->assertHeader('content-disposition', 'attachment; filename=demo-100--test.pdf; filename*=utf-8\'\'demo-100%25-%E6%96%87%E4%BB%B6-test.pdf');
     }
 
     /**
@@ -1016,8 +1019,10 @@ class FileTest extends TestCase
             'roomFile' => $room_file->id,
         ]);
 
-        $this->get($downloadLink)
-            ->assertSuccessful();
+        $response = $this->get($downloadLink)
+            ->assertSuccessful()
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path);
+        $this->assertStringStartsWith('attachment;', $response->headers->get('Content-Disposition'));
     }
 
     /**

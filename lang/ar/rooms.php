@@ -136,7 +136,8 @@ return [
         'uploaded' => 'تم رفع الملف \':name\'',
         'use_in_next_meeting' => 'استخدام في الاجتماع القادم',
         'use_in_next_meeting_disabled' => 'غير متاح في مؤتمر الفيديو',
-        'view' => 'عرض الملف',
+        'download' => 'تنزيل الملف',
+        'download_aria' => 'تنزيل الملف: :filename',
     ],
     'first_and_lastname' => 'الاسم الأول واسم العائلة',
     'flash' => [

@@ -149,8 +149,8 @@ return [
         'uploaded' => 'File \':name\' uploaded',
         'use_in_next_meeting' => 'Use in the next meeting',
         'use_in_next_meeting_disabled' => 'Not available in video conference',
-        'view' => 'View file',
-        'view_aria' => 'View file: :filename',
+        'download' => 'Download file',
+        'download_aria' => 'Download file: :filename',
     ],
     'first_and_lastname' => 'First- and last name',
     'flash' => [

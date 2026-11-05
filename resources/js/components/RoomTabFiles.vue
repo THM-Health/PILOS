@@ -262,7 +262,7 @@
                 <div
                   class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
-                  <RoomTabFilesViewButton
+                  <RoomTabFilesDownloadButton
                     :room-id="props.room.id"
                     :file-url="item.url"
                     :filename="item.filename"

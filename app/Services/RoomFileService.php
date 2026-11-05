@@ -75,7 +75,7 @@ class RoomFileService
         $response->headers->set(
             'Content-Disposition',
             HeaderUtils::makeDisposition(
-                HeaderUtils::DISPOSITION_INLINE,
+                HeaderUtils::DISPOSITION_ATTACHMENT,
                 $sanitizedFilename,
                 $fallbackFilename
             )
