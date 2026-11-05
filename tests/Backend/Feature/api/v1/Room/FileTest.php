@@ -411,6 +411,28 @@ class FileTest extends TestCase
         $this->get($download_link)
             ->assertSuccessful()
             ->assertHeader('content-disposition', 'inline; filename=_.pdf; filename*=utf-8\'\'%E6%96%87%E4%BB%B6.pdf');
+
+        // Non-Latin filename without extension
+        $room_file->filename = '文件';
+        $room_file->save();
+        $download_link = URL::signedRoute('rooms.files.download', [
+            'room' => $this->room,
+            'file' => $room_file,
+        ]);
+        $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('content-disposition', 'inline; filename=_; filename*=utf-8\'\'%E6%96%87%E4%BB%B6');
+
+        // Filename with invalid characters (/, \, % and non-ASCII)
+        $room_file->filename = 'demo-100%\\文件/test.pdf';
+        $room_file->save();
+        $download_link = URL::signedRoute('rooms.files.download', [
+            'room' => $this->room,
+            'file' => $room_file,
+        ]);
+        $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('content-disposition', 'inline; filename=demo-100--test.pdf; filename*=utf-8\'\'demo-100%25-%E6%96%87%E4%BB%B6-test.pdf');
     }
 
     /**

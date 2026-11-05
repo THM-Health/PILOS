@@ -62,8 +62,8 @@ class RoomFileService
         $extension = pathinfo($sanitizedFilename, PATHINFO_EXTENSION);
 
         // If after the conversion, only the extension is left, fallback to _.<extension>
-        if ($fallbackFilename === ('.'.$extension)) {
-            $fallbackFilename = '_.'.$extension;
+        if ($fallbackFilename === '' || $fallbackFilename === ('.'.$extension)) {
+            $fallbackFilename = $extension === '' ? '_' : ('_.'.$extension);
         }
 
         $response = response(null, 200)
