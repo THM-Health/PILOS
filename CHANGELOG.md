@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Environment variables `LDAP_VERIFY_CERT`, `LDAP_CA_CERT_FILE` and `LDAP_DEBUG_LEVEL` for LDAP TLS certificate verification, custom CA certificates and connection debugging ([#3609], [#3610])
+- Docs: LDAP TLS certificate verification and mounting a custom CA with Docker Compose ([#3609], [#3610])
+
+### Deprecated
+
+- Disabling LDAP TLS certificate verification by default; the next major version will enable `LDAP_VERIFY_CERT` by default and require an explicit opt-out ([#3609], [#3610])
+
+### Removed
+
+- Bundled OpenLDAP client config (`/etc/openldap/ldap.conf` with `TLS_REQCERT never`) from the application container image ([#3609], [#3610])
+
 ### Fixed
 
 - Room authentication failing when the session is not yet persisted ([#3603], [#3604])
