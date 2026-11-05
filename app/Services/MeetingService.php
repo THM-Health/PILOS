@@ -113,7 +113,6 @@ class MeetingService
             // Create file download url
             $fileUrl = URL::signedRoute('rooms.files.download.bbb', [
                 'roomFile' => $file->id,
-                'filename' => $file->filename,
             ]);
 
             // Add download url to meeting params
