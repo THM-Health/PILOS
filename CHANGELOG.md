@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced the room file "view" button with a download button ([#3588])
+
 ### Fixed
 
 - Room authentication failing when the session is not yet persisted ([#3603], [#3604])
