@@ -474,7 +474,7 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.files.get', ['room' => 999999]))
             ->assertStatus(429);
 
-        $this->putJson(route('api.v1.rooms.files.update', ['room' => 999999, 'file' => 999999]))
+        $this->patchJson(route('api.v1.rooms.files.update', ['room' => 999999, 'file' => 999999]))
             ->assertStatus(429);
 
         // Time travel 1 minute to reset rate limit
@@ -502,7 +502,7 @@ class RoomTest extends TestCase
         // Check calling routes for an existing room that also result in a 404
         // due to other reasons than the room not existing are not so strictly rate limited
         for ($i = 0; $i < 50; $i++) {
-            $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => 999999]))
+            $this->actingAs($room->owner)->patchJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => 999999]))
                 ->assertNotFound()
                 ->assertJson([
                     'message' => 'model_not_found',

@@ -8,7 +8,11 @@ defineProps({
 </script>
 
 <template>
-  <Message :severity="severity" aria-live="off" role="presentation"
+  <Message
+    :severity="severity"
+    class="inline-note"
+    aria-live="off"
+    role="presentation"
     ><slot
   /></Message>
 </template>
