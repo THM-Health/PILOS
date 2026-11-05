@@ -113,6 +113,26 @@ class FileTest extends TestCase
     }
 
     /**
+     * Browsers send quotes in multipart filenames as %22; store a sanitized name instead.
+     */
+    public function test_upload_sanitizes_percent_encoded_quotes_in_filename()
+    {
+        $upload = UploadedFile::fake()->create('%22Test%22.pdf', 100, 'application/pdf');
+
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $upload])
+            ->assertSuccessful();
+
+        $this->assertDatabaseHas('room_files', [
+            'room_id' => $this->room->id,
+            'filename' => '-Test-.pdf',
+        ]);
+        $this->assertDatabaseMissing('room_files', [
+            'room_id' => $this->room->id,
+            'filename' => '%22Test%22.pdf',
+        ]);
+    }
+
+    /**
      * Test to upload different invalid files
      */
     public function test_upload_invalid_file()

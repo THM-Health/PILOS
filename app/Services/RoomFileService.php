@@ -21,6 +21,18 @@ class RoomFileService
         $this->file = $file;
     }
 
+    /**
+     * Normalize a client-provided filename for storage and Content-Disposition.
+     *
+     * Browsers percent-encode ", CR and LF in multipart filenames (WHATWG)
+     * These characters are handled differently in the Content-Disposition header
+     * by browsers. We replace to get a consistent behavior across browsers.
+     */
+    public static function sanitizeFilename(string $filename): string
+    {
+        return str_replace(['%22', '%0D', '%0A', '/', '\\', '"', "\r", "\n"], '-', $filename);
+    }
+
     protected function checkFileExists(): bool
     {
         // Handle missing file on drive
@@ -54,11 +66,11 @@ class RoomFileService
         $fileSize = Storage::size($this->file->path);
         $fileMime = Storage::mimeType($this->file->path);
 
-        // Sanitize the filename to remove path separators and replace them with hyphens.
-        $sanitizedFilename = str_replace(['/', '\\'], '-', $this->file->filename);
+        $sanitizedFilename = self::sanitizeFilename($this->file->filename);
 
-        // Convert the filename to ASCII and remove any percentage signs
-        $fallbackFilename = str_replace('%', '', Str::ascii($sanitizedFilename));
+        // Convert the filename to ASCII and remove any percentage signs.
+        // Str::ascii may turn curly quotes into ", which must not remain in the fallback.
+        $fallbackFilename = str_replace(['%', '"'], '', Str::ascii($sanitizedFilename));
         $extension = pathinfo($sanitizedFilename, PATHINFO_EXTENSION);
 
         // If after the conversion, only the extension is left, fallback to _.<extension>
