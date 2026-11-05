@@ -35,10 +35,43 @@ RUN npm install -g npm
 RUN apk del npm
 
 # Add PHP extensions
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions \
-    && install-php-extensions redis pcntl bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap xdebug gd imagick exif intl @composer \
-    && rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN --mount=type=bind,from=ghcr.io/php/pie:bin,source=/pie,target=/usr/local/bin/pie \
+    apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
+        postgresql-dev \
+        openldap-dev \
+        libzip-dev \
+        libxml2-dev \
+        freetype-dev \
+        libjpeg-turbo-dev \
+        libpng-dev \
+        libwebp-dev \
+        icu-dev \
+        imagemagick-dev \
+        linux-headers \
+    && apk add --no-cache \
+        libpq \
+        libldap \
+        libzip \
+        freetype \
+        libjpeg-turbo \
+        libpng \
+        libwebp \
+        icu-libs \
+        imagemagick \
+        libgomp \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) pcntl bcmath pdo_mysql pdo_pgsql pgsql ldap zip soap gd exif intl \
+    && pie install \
+        phpredis/phpredis \
+        imagick/imagick \
+        xdebug/xdebug \
+    && rm -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && apk del .build-deps
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
 
 # Change www-data user and group id
 RUN apk add --no-cache --virtual .mod-deps shadow \
