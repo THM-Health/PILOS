@@ -5,20 +5,20 @@ declare(strict_types=1);
 return [
     'action_url' => 'Wenn Sie Probleme haben, den ":actionText" Button zu drücken, kopieren Sie die nachfolgende URL und fügen diese in Ihren Browser ein:',
     'email_changed' => [
-        'description' => 'Die E-Mail-Adresse Ihres Benutzerkontos wurde geändert.',
+        'description' => 'Die E-Mail-Adresse Ihres Kontos wurde geändert.',
         'new_email' => 'Neue E-Mail-Adresse: :email',
         'signature' => 'Wenn Sie keine Anfrage zum Ändern der E-Mail-Adresse gestellt haben, wenden Sie sich bitte an den Support.',
         'subject' => 'E-Mail-Adresse geändert',
     ],
     'greeting' => 'Hallo :name,',
     'password_changed' => [
-        'description' => 'Das Passwort Ihres Benutzerkontos wurde geändert.',
+        'description' => 'Das Passwort Ihres Kontos wurde geändert.',
         'signature' => 'Wenn Sie keine Anfrage zum Ändern des Passworts gestellt haben, wenden Sie sich bitte an den Support.',
         'subject' => 'Passwort geändert',
     ],
     'password_reset' => [
         'action' => 'Passwort zurücksetzen',
-        'description' => 'Sie erhalten diese E-Mail, weil eine Anfrage zum Zurücksetzen des Passworts für Ihr Benutzerkonto gestellt wurde.',
+        'description' => 'Sie erhalten diese E-Mail, weil eine Anfrage zum Zurücksetzen des Passworts für Ihr Konto gestellt wurde.',
         'expire' => 'Der Rücksetz-Link wird am :date ablaufen.',
         'signature' => 'Wenn Sie keine Anfrage zum Zurücksetzen des Passworts gestellt haben, ist keine weitere Aktion nötig.',
         'subject' => 'Passwort-Rücksetz-Benachrichtigung',
@@ -36,9 +36,9 @@ return [
     ],
     'user_welcome' => [
         'action' => 'Passwort ändern',
-        'description' => 'Sie erhalten diese E-Mail, weil ein neues Benutzerkonto für Ihre E-Mail-Adresse erstellt wurde.',
+        'description' => 'Sie erhalten diese E-Mail, weil ein neues Konto für Ihre E-Mail-Adresse erstellt wurde.',
         'expire' => 'Sie haben bis zum :date Zeit, Ihr Passwort zu ändern.',
-        'subject' => 'Benutzerkonto wurde erstellt',
+        'subject' => 'Konto wurde erstellt',
     ],
     'verify_email' => [
         'action' => 'E-Mail-Adresse verifizieren',
