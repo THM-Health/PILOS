@@ -24,9 +24,24 @@ class RoomFileService
     /**
      * Normalize a client-provided filename for storage and Content-Disposition.
      *
-     * Browsers percent-encode ", CR and LF in multipart filenames (WHATWG)
-     * These characters are handled differently in the Content-Disposition header
-     * by browsers. We replace to get a consistent behavior across browsers.
+     * 1) Browsers percent-encode ", CR and LF in multipart filenames during upload
+     *
+     * "For field names and filenames for file fields, the result of the encoding
+     *  in the previous bullet point must be escaped by replacing any 0x0A (LF)
+     *  bytes with the byte sequence `%0A`, 0x0D (CR) with `%0D` and 0x22 (")
+     *  with `%22`. The user agent must not perform any other escapes."
+     *  - https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#multipart-form-data
+     *
+     * 2) Path separators / and \ should be stripped or replaced
+     *
+     * "Recipients MUST NOT be able to write into any location other than
+     *  one to which they are specifically entitled. [...] One strategy
+     *  to achieve this is to never trust folder name information in the
+     *  filename parameter, for instance by stripping all but the last
+     *  path segment and only considering the actual filename (where 'path
+     *  segments' are the components of the field value delimited by the
+     *  path separator characters "\" and "/").
+     *  - https://datatracker.ietf.org/doc/html/rfc6266/#section-4.3
      */
     public static function sanitizeFilename(string $filename): string
     {
