@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade
+- Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade (GHSA-74cm-rg6m-4g87)
 
 ## [v4.19.0] - 2026-10-28
 
