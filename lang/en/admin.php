@@ -423,6 +423,12 @@ return [
         'theme' => [
             'custom_color' => 'Custom color',
             'custom_css' => 'Custom CSS style file',
+            'enforced_color_mode' => [
+                'dark' => 'Dark',
+                'light' => 'Light',
+                'null' => 'None',
+                'title' => 'Enforced color mode',
+            ],
             'primary_color' => 'Primary color',
             'rounded' => 'Rounded corners',
             'title' => 'Theme',

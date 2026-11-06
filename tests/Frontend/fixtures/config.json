@@ -16,7 +16,8 @@
     },
     "theme": {
       "primary_color": "#14b8a6",
-      "rounded": true
+      "rounded": true,
+      "enforced_color_mode": null
     },
     "room": {
       "limit": -1,

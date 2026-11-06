@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Backend\Feature\api\v1;
 
+use App\Enums\ColorMode;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
@@ -65,6 +66,7 @@ class SettingsTest extends TestCase
         $this->themeSettings->favicon_dark = 'testfavicon-dark.ico';
         $this->themeSettings->primary_color = '#4a5c66';
         $this->themeSettings->rounded = true;
+        $this->themeSettings->enforced_color_mode = ColorMode::DARK;
         $this->themeSettings->custom_css = '/storage/styles/theme-custom-css.css';
         $this->themeSettings->save();
 
@@ -144,6 +146,7 @@ class SettingsTest extends TestCase
                     'theme_favicon_dark' => 'testfavicon-dark.ico',
                     'theme_primary_color' => '#4a5c66',
                     'theme_rounded' => true,
+                    'theme_enforced_color_mode' => 'dark',
                     'theme_custom_css' => '/storage/styles/theme-custom-css.css',
 
                     'banner_enabled' => true,
@@ -211,6 +214,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark' => 'testfavicon-dark.ico',
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -278,6 +282,7 @@ class SettingsTest extends TestCase
                     'theme_favicon_dark' => 'testfavicon-dark.ico',
                     'theme_primary_color' => '#4a5c66',
                     'theme_rounded' => true,
+                    'theme_enforced_color_mode' => 'dark',
 
                     'banner_enabled' => 0,
                     'banner_message' => 'Welcome to Test!',
@@ -315,6 +320,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->privacy_policy_url);
         $this->assertEquals('http://localhost', app(GeneralSettings::class)->accessibility_statement_url);
         $this->assertTrue(app(UserSettings::class)->search_by_name);
+        $this->assertEquals(ColorMode::DARK, app(ThemeSettings::class)->enforced_color_mode);
 
         $payload['general_help_url'] = '';
         $payload['general_legal_notice_url'] = '';
@@ -323,6 +329,7 @@ class SettingsTest extends TestCase
         $payload['room_file_terms_of_use'] = '';
         $payload['user_search_by_name'] = 0;
         $payload['bbb_default_welcome_message'] = '';
+        $payload['theme_enforced_color_mode'] = '';
 
         $this->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
@@ -334,6 +341,7 @@ class SettingsTest extends TestCase
         $this->assertNull(app(RoomSettings::class)->file_terms_of_use);
         $this->assertFalse(app(UserSettings::class)->search_by_name);
         $this->assertNull(app(BigBlueButtonSettings::class)->default_welcome_message);
+        $this->assertNull(app(ThemeSettings::class)->enforced_color_mode);
     }
 
     /**
@@ -362,6 +370,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark_file' => UploadedFile::fake()->create('favicon-dark.ico', 100, 'image/x-icon'),
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -442,6 +451,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark_file' => UploadedFile::fake()->create('favicon_dark.ico', 100, 'image/x-icon'),
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -527,6 +537,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark_file' => 'notimagefile',
             'theme_primary_color' => 'notcolor',
             'theme_rounded' => 'notbool',
+            'theme_enforced_color_mode' => 'notmode',
 
             'banner_enabled' => 'foo',
             'banner_title' => str_repeat('a', 256),
@@ -581,6 +592,7 @@ class SettingsTest extends TestCase
                 'theme_favicon_dark_file',
                 'theme_primary_color',
                 'theme_rounded',
+                'theme_enforced_color_mode',
 
                 'banner_enabled',
                 'banner_title',
@@ -665,6 +677,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark' => 'favicon_dark.ico',
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
             'theme_custom_css' => $style,
 
             'banner_enabled' => 0,
@@ -913,6 +926,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark' => 'favicon_dark.ico',
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -1026,6 +1040,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark' => 'favicon_dark.ico',
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -1124,6 +1139,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark' => 'favicon_dark.ico',
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -1209,6 +1225,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark' => 'favicon_dark.ico',
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -1299,6 +1316,7 @@ class SettingsTest extends TestCase
             'theme_favicon_dark_file' => $favicon,
             'theme_primary_color' => '#4a5c66',
             'theme_rounded' => true,
+            'theme_enforced_color_mode' => 'dark',
             'theme_custom_css' => $themeCustomCss,
 
             'banner_enabled' => 0,
