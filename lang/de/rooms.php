@@ -149,8 +149,8 @@ return [
         'uploaded' => 'Datei ":name" hochgeladen',
         'use_in_next_meeting' => 'In Videokonferenz verfügbar',
         'use_in_next_meeting_disabled' => 'In Videokonferenz nicht verfügbar',
-        'view' => 'Datei anzeigen',
-        'view_aria' => 'Datei anzeigen: :filename',
+        'download' => 'Datei herunterladen',
+        'download_aria' => 'Datei herunterladen: :filename',
     ],
     'first_and_lastname' => 'Vor- und Nachname',
     'flash' => [

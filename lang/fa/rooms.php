@@ -136,7 +136,8 @@ return [
         'uploaded' => 'فایل \':name\' آپلود شد',
         'use_in_next_meeting' => 'استفاده در جلسه بعدی',
         'use_in_next_meeting_disabled' => 'در کنفرانس ویدئویی موجود نیست',
-        'view' => 'مشاهده فایل',
+        'download' => 'دانلود فایل',
+        'download_aria' => 'دانلود فایل: :filename',
     ],
     'first_and_lastname' => 'نام و نام خانوادگی',
     'flash' => [

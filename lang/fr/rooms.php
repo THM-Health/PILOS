@@ -149,8 +149,8 @@ return [
         'uploaded' => 'Fichier \':name\' transmis',
         'use_in_next_meeting' => 'À utiliser lors de la prochaine réunion',
         'use_in_next_meeting_disabled' => 'Non disponible dans la vidéo conférence',
-        'view' => 'Voir le fichier',
-        'view_aria' => 'Afficher le fichier : :filename',
+        'download' => 'Télécharger le fichier',
+        'download_aria' => 'Télécharger le fichier: :filename',
     ],
     'first_and_lastname' => 'Prénom et nom',
     'flash' => [

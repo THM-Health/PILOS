@@ -872,12 +872,12 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-view-button"]')
+      .find('[data-test="room-files-download-button"]')
       .should("not.have.attr", "href");
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-view-button"]')
+      .find('[data-test="room-files-download-button"]')
       .click();
 
     // Check that require terms of use info is shown
@@ -891,10 +891,10 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="popover-close-button"]').click();
     cy.get('[data-test="terms-of-use-required-info"]').should("not.exist");
 
-    // Focus should be back on the view button
+    // Focus should be back on the download button
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-view-button"]')
+      .find('[data-test="room-files-download-button"]')
       .should("have.focus");
 
     cy.get('[data-test="terms-of-use-message"]').find("#terms_of_use").click();
@@ -903,7 +903,7 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-file-item"]')
       .eq(0)
-      .find('[data-test="room-files-view-button"]')
+      .find('[data-test="room-files-download-button"]')
       .should(
         "have.attr",
         "href",
@@ -1250,7 +1250,7 @@ describe("Rooms view files file actions", function () {
       cy.get('[data-test="terms-of-use-message"]').should("be.visible");
       cy.get('[data-test="room-file-item"]')
         .eq(0)
-        .find('[data-test="room-files-view-button"]')
+        .find('[data-test="room-files-download-button"]')
         .should("not.be.disabled");
       cy.get('[data-test="room-file-item"]')
         .eq(0)
