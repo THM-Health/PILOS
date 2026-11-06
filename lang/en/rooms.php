@@ -116,6 +116,8 @@ return [
         'default' => 'Default',
         'delete' => 'Delete file',
         'delete_aria' => 'Delete file: :filename',
+        'download' => 'Download file',
+        'download_aria' => 'Download file: :filename',
         'download_hidden' => 'Download hidden',
         'download_visible' => 'Download visible',
         'downloadable' => 'Downloadable',
@@ -149,8 +151,6 @@ return [
         'uploaded' => 'File \':name\' uploaded',
         'use_in_next_meeting' => 'Use in the next meeting',
         'use_in_next_meeting_disabled' => 'Not available in video conference',
-        'download' => 'Download file',
-        'download_aria' => 'Download file: :filename',
     ],
     'first_and_lastname' => 'First- and last name',
     'flash' => [

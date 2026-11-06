@@ -116,6 +116,8 @@ return [
         'default' => 'Par défaut',
         'delete' => 'Supprimer le fichier',
         'delete_aria' => 'Supprimer le fichier: :filename',
+        'download' => 'Télécharger le fichier',
+        'download_aria' => 'Télécharger le fichier: :filename',
         'download_hidden' => 'Téléchargement masqué',
         'download_visible' => 'Téléchargement visible',
         'downloadable' => 'Téléchargeable',
@@ -149,8 +151,6 @@ return [
         'uploaded' => 'Fichier \':name\' transmis',
         'use_in_next_meeting' => 'À utiliser lors de la prochaine réunion',
         'use_in_next_meeting_disabled' => 'Non disponible dans la vidéo conférence',
-        'download' => 'Télécharger le fichier',
-        'download_aria' => 'Télécharger le fichier: :filename',
     ],
     'first_and_lastname' => 'Prénom et nom',
     'flash' => [
