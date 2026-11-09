@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Store default presentation using content-based file extension instead of client Content-Type (GHSA-qr8q-4pjq-4r52)
 - Configure nginx so only `index.php` is executed; other `.php` files under `public/` return 404 (GHSA-qr8q-4pjq-4r52)
+- Only accept requests for the exact host of `APP_URL` to prevent host header injection (GHSA-m8w4-4h4c-mpp3)
+- Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade (GHSA-74cm-rg6m-4g87)
+- **Breaking:** Changed the meeting end callback URL signature (callbacks for already running meetings fail, but the server poll detects that the meeting has ended within a minute) (GHSA-f7w5-8x3r-fmrf)
+- Pass the meeting end callback to BigBlueButton as `meetingEndedURL` instead of the `endCallbackUrl` meta parameter (GHSA-mg6m-xfw5-h98w)
+- Validate return URL of Shibboleth front-channel logout to prevent open redirects (GHSA-46f6-vjh7-jg8f)
+- Constrain Vue Router path parameters to valid identifier formats (GHSA-2rf6-6cmc-3767)
+- Prevent spreadsheet formula injection in attendance exports (GHSA-rx2m-63p9-vh9f)
 
 ## [v4.19.0] - 2026-10-28
 
