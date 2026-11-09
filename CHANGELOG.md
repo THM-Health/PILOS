@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Only accept requests for the exact host of `APP_URL` to prevent host header injection (GHSA-m8w4-4h4c-mpp3)
 - Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade (GHSA-74cm-rg6m-4g87)
 - **Breaking:** Changed the meeting end callback URL signature (callbacks for already running meetings fail, but the server poll detects that the meeting has ended within a minute) (GHSA-f7w5-8x3r-fmrf)
 - Pass the meeting end callback to BigBlueButton as `meetingEndedURL` instead of the `endCallbackUrl` meta parameter (GHSA-mg6m-xfw5-h98w)
