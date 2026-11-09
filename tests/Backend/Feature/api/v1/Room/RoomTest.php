@@ -2366,11 +2366,11 @@ class RoomTest extends TestCase
 
         $url = (new MeetingService($meeting))->getCallbackUrl();
 
-        // check with invalid salt
+        // check with invalid signature
         $this->getJson($url.'test')
             ->assertUnauthorized();
 
-        // check with valid salt
+        // check with valid signed URL
         $this->getJson($url)
             ->assertSuccessful();
 

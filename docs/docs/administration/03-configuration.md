@@ -4,13 +4,13 @@ title: Configuration
 
 ## Application Configuration
 
-| Option      | Default Value      | Description                                                                                         |
-| ----------- | ------------------ | --------------------------------------------------------------------------------------------------- |
-| `APP_NAME`  | `PILOS`            | Name of the application shown in page title, messages, emails, etc.                                 |
-| `APP_ENV`   | `production`       | Application environment (`local` or `production`).                                                  |
-| `APP_KEY`   |                    | Encryption key for the application.                                                                 |
-| `APP_DEBUG` | `false`            | Enable/disable debug mode.<br/>May contain sensitive information (do **not** enable in production!) |
-| `APP_URL`   | `http://localhost` | Application URL. Should be http://                                                                  |
+| Option      | Default Value      | Description                                                                                                                                            |
+| ----------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `APP_NAME`  | `PILOS`            | Name of the application shown in page title, messages, emails, etc.                                                                                    |
+| `APP_ENV`   | `production`       | Application environment (`local` or `production`).                                                                                                     |
+| `APP_KEY`   |                    | Encryption key for the application.                                                                                                                    |
+| `APP_DEBUG` | `false`            | Enable/disable debug mode.<br/>May contain sensitive information (do **not** enable in production!)                                                    |
+| `APP_URL`   | `http://localhost` | Public URL of the application, including the scheme and hostname (e.g. `https://pilos.example.com`).<br/>Requests for any other hostname are rejected. |
 
 ## Container Configuration
 
