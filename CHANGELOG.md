@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - Validate return URL of Shibboleth front-channel logout to prevent open redirects (GHSA-46f6-vjh7-jg8f)
+- Constrain Vue Router path parameters to valid identifier formats (GHSA-2rf6-6cmc-3767)
+- Prevent spreadsheet formula injection in attendance exports (GHSA-rx2m-63p9-vh9f)
 
 ## [v4.19.0] - 2026-10-28
 
