@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Provider for visual tests to percy.io
+
 ## [v4.20.0] - 2026-11-09
 
 ### Changed

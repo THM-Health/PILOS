@@ -45,9 +45,9 @@ describe("Rooms view history meeting actions", function () {
       1163 * window.devicePixelRatio,
     );
 
-    cy.get('[data-test="chart"] > canvas').happoScreenshot({
-      component: "RoomHistoryChart",
-    });
+    cy.get('[data-test="chart"] > canvas').percySnapshot(
+      "RoomHistoryChart:light",
+    );
   });
 
   it("show stats dark mode", function () {
@@ -100,9 +100,8 @@ describe("Rooms view history meeting actions", function () {
       1163 * window.devicePixelRatio,
     );
 
-    cy.get('[data-test="chart"] > canvas').happoScreenshot({
-      component: "RoomHistoryChart",
-      variant: "dark",
-    });
+    cy.get('[data-test="chart"] > canvas').percySnapshot(
+      "RoomHistoryChart:dark",
+    );
   });
 });

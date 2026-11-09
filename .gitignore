@@ -26,7 +26,6 @@ tests/Frontend/videos
 _ide_helper.php
 _ide_helper_models.php
 .phpstorm.meta.php
-tests/Visual/.happo-tmp
 
 # AI-Tools and helper files
 boost.json
