@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Constrain Vue Router path parameters to valid identifier formats (GHSA-2rf6-6cmc-3767)
 - Prevent spreadsheet formula injection in attendance exports (GHSA-rx2m-63p9-vh9f)
 
 ## [v4.19.0] - 2026-10-28
