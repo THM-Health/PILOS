@@ -20,3 +20,7 @@ Check UI permissions with useUserPermissions().can(method, policy) — pass a Po
 ## Frontend views, components, stores, and API
 
 Put routable pages in views/; reusable UI in components/; use Admin*Index/View/New naming for admin CRUD. Use Pinia stores for shared app state. HTTP calls go through useApi() → Api class.
+
+## Vue Router params must be constrained
+
+In `resources/js/router.js`, every dynamic segment that can flow into an API URL (or other request path) must use a restrictive param regex (e.g. `:id([a-z0-9-]+)`, `:id(\\d+)`, `:token([A-Za-z0-9]+)`). Unconstrained params are percent-decoded and can inject `/`, `?`, `&`, or `..` into same-origin API calls. Do not add `:id` / `:token` / similar without a charset regex. Update `tests/Frontend/e2e/GeneralApplication.cy.js` (“rejects urls with invalid route params”) when adding constrained params. See the comment above `export const routes` in `router.js`.
