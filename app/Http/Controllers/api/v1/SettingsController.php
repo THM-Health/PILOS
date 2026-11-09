@@ -122,7 +122,7 @@ class SettingsController extends Controller
             }
             if (! empty($request->file('bbb_default_presentation'))) {
                 $file = $request->file('bbb_default_presentation');
-                $path = $file->storeAs('default_presentation', 'default.'.$file->clientExtension(), 'public');
+                $path = $file->storeAs('default_presentation', 'default.'.$file->guessExtension(), 'public');
                 $bigBlueButtonSettings->default_presentation = Storage::disk('public')->url($path);
             } else {
                 $bigBlueButtonSettings->default_presentation = null;
