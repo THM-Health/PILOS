@@ -45,8 +45,10 @@ class ShibbolethController extends Controller
     public function logout(Request $request)
     {
         // Front channel logout
-        if ($request->query('return') && $request->query('action') == 'logout') {
-            return $this->provider->frontChannelLogout($request->query('return'));
+        $returnUrl = $request->query('return');
+        $action = $request->query('action');
+        if (is_string($returnUrl) && $returnUrl !== '' && is_string($action) && $action === 'logout') {
+            return $this->provider->frontChannelLogout($returnUrl);
         }
 
         // Back channel logout
