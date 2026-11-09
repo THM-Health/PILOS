@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce37f1f489a57cad8ef5cd065a5ed5d8",
+    "content-hash": "78da2a3bc1cbdf59f7a307f26abd8238",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3029,16 +3029,16 @@
         },
         {
             "name": "littleredbutton/bigbluebutton-api-php",
-            "version": "6.2.2",
+            "version": "7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/littleredbutton/bigbluebutton-api-php.git",
-                "reference": "0178d70c05c2bcf35efbfe57a423e068c6edb15e"
+                "reference": "8b9d9013770679e1f02b1839221120b0207f9bfd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/0178d70c05c2bcf35efbfe57a423e068c6edb15e",
-                "reference": "0178d70c05c2bcf35efbfe57a423e068c6edb15e",
+                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/8b9d9013770679e1f02b1839221120b0207f9bfd",
+                "reference": "8b9d9013770679e1f02b1839221120b0207f9bfd",
                 "shasum": ""
             },
             "require": {
@@ -3047,7 +3047,7 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
-                "php": ">=8.1"
+                "php": ">=8.2"
             },
             "require-dev": {
                 "nyholm/psr7": "^1.4",
@@ -3071,13 +3071,13 @@
                 "cotor": {
                     "extensions": {
                         "phpunit/phpunit": {
-                            "fakerphp/faker": "1.20.*"
+                            "fakerphp/faker": "1.24.*"
                         }
                     },
-                    "vimeo/psalm": "^5.23",
-                    "rector/rector": "^1.0",
-                    "phpstan/phpstan": "^1.10",
-                    "phpunit/phpunit": "^9",
+                    "vimeo/psalm": "^6.0",
+                    "rector/rector": "^2.0",
+                    "phpstan/phpstan": "^2.0",
+                    "phpunit/phpunit": "^11",
                     "friendsofphp/php-cs-fixer": "^3.3",
                     "brainmaestro/composer-git-hooks": "^2.8"
                 },
@@ -3156,7 +3156,8 @@
                 "issues": "https://github.com/littleredbutton/bigbluebutton-api-php/issues",
                 "source": "https://github.com/littleredbutton/bigbluebutton-api-php/"
             },
-            "time": "2025-11-17T12:30:55+00:00"
+            "time": "2026-11-09T16:52:22+00:00",
+            "published-time": "2026-11-09T17:07:06+00:00"
         },
         {
             "name": "livewire/livewire",
@@ -13241,5 +13242,5 @@
         "ext-zip": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }
