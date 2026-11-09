@@ -100,9 +100,8 @@ class MeetingController extends Controller
         Log::info('Received end meeting request from BBB sever for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
 
         $meetingService = new MeetingService($meeting);
-        // Validate request
-        if (! $meetingService->validateCallbackSalt($request->salt)) {
-            Log::warning('Invalid end meeting request; invalid salt');
+        if (! $meetingService->isValidEndCallbackRequest($request)) {
+            Log::warning('Invalid end meeting request; invalid signature');
             abort(401);
         }
 

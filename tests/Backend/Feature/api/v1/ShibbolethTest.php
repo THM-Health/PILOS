@@ -588,7 +588,7 @@ class ShibbolethTest extends TestCase
     }
 
     /**
-     * Test IDP initiated logout via front channel
+     * Test IDP initiated logout via front channel with an allowed return URL
      *
      * @return void
      */
@@ -609,10 +609,68 @@ class ShibbolethTest extends TestCase
         $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
         $this->assertAuthenticated();
 
-        // Try to logout with front channel logout
-        $response = $this->get(route('auth.shibboleth.logout', ['action' => 'logout', 'return' => 'http://idp.org']), $header);
-        $response->assertRedirect('http://idp.org');
+        // Allowed return URL must match host, port, scheme and path of the configured logout URL;
+        // query parameters used by the SP logout notification chain are preserved
+        $returnUrl = 'http://localhost/Shibboleth.sso/Logout?notifying=1&index=1';
+
+        $response = $this->get(route('auth.shibboleth.logout', ['action' => 'logout', 'return' => $returnUrl]), $header);
+        $response->assertRedirect($returnUrl);
         $this->assertGuest();
+    }
+
+    /**
+     * Test that front channel logout rejects an untrusted return URL and falls back to the safe logout URL
+     *
+     * @return void
+     */
+    public function test_front_channel_logout_rejects_untrusted_return_url()
+    {
+        $header = [
+            'Accept-Language' => 'fr',
+            'shib-session-id' => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname' => 'johnd@university.org',
+            'givenname' => 'John',
+            'surname' => 'Doe',
+            'mail' => 'john.doe@domain.tld',
+            'scoped-affiliation' => 'student@university.org;staff@university.org',
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+
+        $response = $this->get(route('auth.shibboleth.logout', ['action' => 'logout', 'return' => 'http://idp.org']), $header);
+        $response->assertRedirect('http://localhost/Shibboleth.sso/Logout');
+        $this->assertGuest();
+    }
+
+    /**
+     * Test that front channel logout rejects a non-string return parameter
+     *
+     * @return void
+     */
+    public function test_front_channel_logout_rejects_non_string_return()
+    {
+        $header = [
+            'Accept-Language' => 'fr',
+            'shib-session-id' => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname' => 'johnd@university.org',
+            'givenname' => 'John',
+            'surname' => 'Doe',
+            'mail' => 'john.doe@domain.tld',
+            'scoped-affiliation' => 'student@university.org;staff@university.org',
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+
+        $response = $this->get(route('auth.shibboleth.logout', ['action' => 'logout', 'return' => ['http://idp.org']]), $header);
+        $response->assertOk();
+        $response->assertHeaderMissing('Location');
+        $this->assertAuthenticated();
     }
 
     /**
