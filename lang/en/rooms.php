@@ -118,6 +118,8 @@ return [
         'confirm_delete' => 'Do you want to delete this file :filename?',
         'delete' => 'Delete file',
         'delete_aria' => 'Delete file: :filename',
+        'download' => 'Download file',
+        'download_aria' => 'Download file: :filename',
         'download_allowed' => 'Download allowed',
         'download_not_allowed' => 'Download not allowed',
         'downloadable' => 'Downloadable',
@@ -152,8 +154,6 @@ return [
         'uploaded' => 'File \':name\' uploaded',
         'available_in_next_meeting' => 'Available in next video conference',
         'not_available_in_next_meeting' => 'Not available in next video conference',
-        'view' => 'View file',
-        'view_aria' => 'View file: :filename',
     ],
     'first_and_lastname' => 'First- and last name',
     'flash' => [

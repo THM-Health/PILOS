@@ -25,7 +25,7 @@ class PrivateRoomFileResource extends JsonResource
             'use_in_meeting' => $this->use_in_meeting,
             'is_start_file' => $this->is_start_file,
             'uploaded' => $this->created_at,
-            'url' => URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $this->id, 'filename' => $this->filename]),
+            'url' => URL::signedRoute('rooms.files.download', ['room' => $this->room->id, 'file' => $this->id]),
         ];
     }
 }

@@ -994,6 +994,92 @@ class SettingsTest extends TestCase
     }
 
     /**
+     * Ensure a spoofed multipart Content-Type cannot force a .php extension on the stored default presentation.
+     *
+     * clientExtension() follows Content-Type; storage must use content-based guessExtension() instead.
+     */
+    public function test_update_default_presentation_ignores_spoofed_client_mime_type()
+    {
+        $role = Role::factory()->create();
+        $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
+        $this->user->roles()->attach($role);
+
+        config(['bigbluebutton.allowed_file_mimes' => ['pdf', 'jpg']]);
+        config(['bigbluebutton.max_filesize' => 5]);
+        config(['recording.max_retention_period' => -1]);
+
+        $tempPath = tempnam(sys_get_temp_dir(), 'pilos-pdf');
+        file_put_contents($tempPath, "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n");
+
+        $upload = new UploadedFile(
+            $tempPath,
+            'demo.pdf',
+            'application/x-httpd-php',
+            null,
+            true
+        );
+
+        $this->assertSame('php', $upload->clientExtension());
+        $this->assertSame('pdf', $upload->guessExtension());
+
+        $payload = [
+            'general_name' => 'test',
+            'general_pagination_page_size' => 10,
+            'general_toast_lifetime' => 10,
+            'general_default_timezone' => 'Europe/Berlin',
+            'general_help_url' => 'http://localhost',
+            'general_legal_notice_url' => 'http://localhost',
+            'general_privacy_policy_url' => 'http://localhost',
+            'general_accessibility_statement_url' => 'http://localhost',
+            'general_no_welcome_page' => false,
+
+            'theme_logo' => 'testlogo.svg',
+            'theme_logo_dark' => 'testlogo-dark.svg',
+            'theme_favicon' => 'favicon.ico',
+            'theme_favicon_dark' => 'favicon_dark.ico',
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
+
+            'banner_enabled' => 0,
+            'banner_message' => 'Welcome to Test!',
+            'banner_title' => 'Welcome',
+            'banner_color' => '#fff',
+            'banner_background' => '#4a5c66',
+            'banner_link' => 'http://localhost',
+            'banner_link_target' => 'self',
+            'banner_link_style' => 'primary',
+            'banner_icon' => 'fas fa-door-open',
+
+            'room_limit' => -1,
+            'room_personalized_link_expiration' => -1,
+            'room_auto_delete_inactive_period' => 14,
+            'room_auto_delete_never_used_period' => 30,
+            'room_auto_delete_deadline_period' => 7,
+            'room_hide_owner_from_guests' => false,
+
+            'user_password_change_allowed' => 1,
+            'user_search_by_name' => 1,
+
+            'recording_server_usage_enabled' => 0,
+            'recording_server_usage_retention_period' => 7,
+            'recording_meeting_usage_enabled' => 1,
+            'recording_meeting_usage_retention_period' => 90,
+            'recording_attendance_retention_period' => 14,
+            'recording_recording_retention_period' => 7,
+
+            'bbb_logo' => 'bbblogo.png',
+            'bbb_default_presentation' => $upload,
+        ];
+
+        $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload)
+            ->assertSuccessful()
+            ->assertJsonPath('data.bbb_default_presentation', Storage::disk('public')->url('default_presentation/default.pdf'));
+
+        Storage::disk('public')->assertExists('default_presentation/default.pdf');
+        Storage::disk('public')->assertMissing('default_presentation/default.php');
+    }
+
+    /**
      * Test to update the custom bbb style sheet
      *
      * @throws FileNotFoundException

@@ -301,7 +301,7 @@
                     @edited="loadData()"
                     @not-found="loadData()"
                   />
-                  <RoomTabFilesViewButton
+                  <RoomTabFilesDownloadButton
                     :room-id="props.room.id"
                     :file-url="item.url"
                     :filename="item.filename"

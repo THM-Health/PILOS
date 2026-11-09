@@ -16,6 +16,7 @@ use App\Services\MeetingService;
 use App\Services\ServerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
@@ -79,9 +80,45 @@ class MeetingTest extends TestCase
         $this->assertStringContainsString('Link: http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
         $this->assertStringContainsString('Access code: 123-456-789', $data['moderatorOnlyMessage']);
 
-        $salt = urldecode(explode('?salt=', $data['meta_endCallbackUrl'])[1]);
-        $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
+        $callbackUrl = $data['meetingEndedURL'];
+        $this->assertStringContainsString('signature=', $callbackUrl);
+        $this->assertTrue(
+            (new MeetingService($meeting))->isValidEndCallbackRequest(
+                Request::create($callbackUrl)
+            )
+        );
         $this->assertArrayNotHasKey('logo', $data);
+    }
+
+    /**
+     * Signed end-callback URLs remain valid when BBB appends extra query params
+     */
+    public function test_accepts_signed_callback_url_with_extra_query_params()
+    {
+        $server = Server::factory()->create();
+        $this->meeting->server()->associate($server);
+        $this->meeting->start = now();
+        $this->meeting->save();
+
+        $url = (new MeetingService($this->meeting))->getCallbackUrl().'&recordingmarks=true&meetingID='.$this->meeting->id;
+
+        $this->get($url)->assertSuccessful();
+        $this->assertNotNull($this->meeting->fresh()->end);
+    }
+
+    /**
+     * Reject unsigned end-callback URLs (e.g. legacy salt-only callbacks)
+     */
+    public function test_rejects_unsigned_callback_url()
+    {
+        $server = Server::factory()->create();
+        $this->meeting->server()->associate($server);
+        $this->meeting->save();
+
+        $this->get(route('api.v1.meetings.endcallback', ['meeting' => $this->meeting]))
+            ->assertUnauthorized();
+
+        $this->assertNull($this->meeting->fresh()->end);
     }
 
     /**

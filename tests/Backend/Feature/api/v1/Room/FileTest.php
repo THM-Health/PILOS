@@ -113,6 +113,26 @@ class FileTest extends TestCase
     }
 
     /**
+     * Browsers send quotes in multipart filenames as %22; store a sanitized name instead.
+     */
+    public function test_upload_sanitizes_percent_encoded_quotes_in_filename()
+    {
+        $upload = UploadedFile::fake()->create('%22Test%22.pdf', 100, 'application/pdf');
+
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $this->room]), ['file' => $upload])
+            ->assertSuccessful();
+
+        $this->assertDatabaseHas('room_files', [
+            'room_id' => $this->room->id,
+            'filename' => '-Test-.pdf',
+        ]);
+        $this->assertDatabaseMissing('room_files', [
+            'room_id' => $this->room->id,
+            'filename' => '%22Test%22.pdf',
+        ]);
+    }
+
+    /**
      * Test to upload different invalid files
      */
     public function test_upload_invalid_file()
@@ -168,16 +188,16 @@ class FileTest extends TestCase
         $this->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
             ->assertJsonMissingPaths(['start_file', 'system_default']);
 
         // Testing users
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
             ->assertJsonMissingPaths(['start_file', 'system_default']);
         Auth::logout();
 
@@ -213,8 +233,8 @@ class FileTest extends TestCase
             ]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
             ->assertJsonMissingPaths(['start_file', 'system_default']);
 
         // Testing users with room auth token (access code)
@@ -233,8 +253,8 @@ class FileTest extends TestCase
         ]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
             ->assertJsonMissingPaths(['start_file', 'system_default']);
 
         // Testing member
@@ -242,8 +262,8 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
             ->assertJsonMissingPaths(['start_file', 'system_default']);
 
         // Testing moderator member
@@ -251,8 +271,8 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
             ->assertJsonMissingPaths(['start_file', 'system_default']);
 
         // Testing co-owner member
@@ -260,9 +280,9 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(3, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
-            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation]))
             ->assertJsonStructure([
                 'system_default' => [
                     'file',
@@ -278,9 +298,9 @@ class FileTest extends TestCase
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(3, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
-            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation]))
             ->assertJsonStructure([
                 'system_default' => [
                     'file',
@@ -299,9 +319,9 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonCount(3, 'data')
-            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document, 'filename' => $document->filename]))
-            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes, 'filename' => $notes->filename]))
-            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation, 'filename' => $presentation->filename]))
+            ->assertJsonPath('data.0.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $document]))
+            ->assertJsonPath('data.1.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $notes]))
+            ->assertJsonPath('data.2.url', URL::signedRoute('rooms.files.download', ['room' => $this->room, 'file' => $presentation]))
             ->assertJsonStructure([
                 'system_default' => [
                     'file',
@@ -433,8 +453,45 @@ class FileTest extends TestCase
         // Allow guest access
         $this->room->allow_guests = true;
         $this->room->save();
-        $response = $this->get($download_link);
-        $response->assertSuccessful();
+        $response = $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path)
+            ->assertHeader('content-disposition', 'attachment; filename=document.pdf');
+
+        // Non-Latin basename must keep a usable ASCII fallback (not just ".pdf")
+        $room_file->filename = '文件.pdf';
+        $room_file->save();
+        $download_link = URL::signedRoute('rooms.files.download', [
+            'room' => $this->room,
+            'file' => $room_file,
+        ]);
+        $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('content-disposition', 'attachment; filename=_.pdf; filename*=utf-8\'\'%E6%96%87%E4%BB%B6.pdf');
+
+        // Non-Latin filename without extension
+        $room_file->filename = '文件';
+        $room_file->save();
+        $download_link = URL::signedRoute('rooms.files.download', [
+            'room' => $this->room,
+            'file' => $room_file,
+        ]);
+        $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path)
+            ->assertHeader('content-disposition', 'attachment; filename=_; filename*=utf-8\'\'%E6%96%87%E4%BB%B6');
+
+        // Filename with invalid characters (/, \, % and non-ASCII)
+        $room_file->filename = 'demo-100%\\文件/test.pdf';
+        $room_file->save();
+        $download_link = URL::signedRoute('rooms.files.download', [
+            'room' => $this->room,
+            'file' => $room_file,
+        ]);
+        $this->get($download_link)
+            ->assertSuccessful()
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path)
+            ->assertHeader('content-disposition', 'attachment; filename=demo-100--test.pdf; filename*=utf-8\'\'demo-100%25-%E6%96%87%E4%BB%B6-test.pdf');
     }
 
     /**
@@ -988,7 +1045,7 @@ class FileTest extends TestCase
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
-        $download_link = URL::signedRoute('rooms.files.download', ['room' => $other_room->id, 'file' => $room_file->id, 'filename' => $room_file->filename]);
+        $download_link = URL::signedRoute('rooms.files.download', ['room' => $other_room->id, 'file' => $room_file->id]);
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->get($download_link)
@@ -1016,11 +1073,12 @@ class FileTest extends TestCase
 
         $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
             'roomFile' => $room_file->id,
-            'filename' => $room_file->filename,
         ]);
 
-        $this->get($downloadLink)
-            ->assertSuccessful();
+        $response = $this->get($downloadLink)
+            ->assertSuccessful()
+            ->assertHeader('X-Accel-Redirect', '/private-storage/app/'.$room_file->path);
+        $this->assertStringStartsWith('attachment;', $response->headers->get('Content-Disposition'));
     }
 
     /**
@@ -1041,7 +1099,6 @@ class FileTest extends TestCase
 
         $downloadLink = URL::signedRoute('rooms.files.download.bbb', [
             'roomFile' => $room_file->id,
-            'filename' => $room_file->filename,
         ]);
 
         $this->get($downloadLink)

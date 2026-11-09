@@ -21,9 +21,9 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use BigBlueButton\Responses\CreateMeetingResponse;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -49,21 +49,19 @@ class MeetingService
     }
 
     /**
-     * Callback-salt for meeting and server
+     * Validate an end-meeting callback from BBB or a load balancer.
+     *
+     * Extra query params BBB/LBs may append (e.g. recordingmarks) are ignored.
+     * Missed callbacks are recovered within about a minute by PollServerCommand.
      */
-    protected function getCallbackSalt(): string
+    public function isValidEndCallbackRequest(Request $request): bool
     {
-        return $this->meeting->id.$this->meeting->server->secret;
-    }
-
-    public function validateCallbackSalt(string $salt): bool
-    {
-        return Hash::check($this->getCallbackSalt(), $salt);
+        return $request->hasValidSignatureWhileIgnoring(fn (string $parameter): bool => true);
     }
 
     public function getCallbackUrl(): string
     {
-        return url()->route('api.v1.meetings.endcallback', ['meeting' => $this->meeting, 'salt' => Hash::make($this->getCallbackSalt())]);
+        return URL::signedRoute('api.v1.meetings.endcallback', ['meeting' => $this->meeting]);
     }
 
     /**
@@ -90,7 +88,7 @@ class MeetingService
             ->setRecord($this->meeting->record)
             ->setAutoStartRecording($this->meeting->room->auto_start_recording)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
-            ->setEndCallbackUrl($this->getCallbackUrl())
+            ->setMeetingEndedURL($this->getCallbackUrl())
             ->setDuration($this->meeting->room->roomType->max_duration)
             ->setMaxParticipants($this->meeting->room->roomType->max_participants)
             ->setModeratorOnlyMessage($this->meeting->room->getModeratorOnlyMessage())
@@ -119,7 +117,6 @@ class MeetingService
             // Create file download url
             $fileUrl = URL::signedRoute('rooms.files.download.bbb', [
                 'roomFile' => $file->id,
-                'filename' => $file->filename,
             ]);
 
             // Add download url to meeting params
