@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Force download and strict CSP for user-uploaded files to prevent stored XSS (GHSA-597h-vmjv-9494)
 - Store default presentation using content-based file extension instead of client Content-Type (GHSA-qr8q-4pjq-4r52)
 - Configure nginx so only `index.php` is executed; other `.php` files under `public/` return 404 (GHSA-qr8q-4pjq-4r52)
 - Only accept requests for the exact host of `APP_URL` to prevent host header injection (GHSA-m8w4-4h4c-mpp3)
