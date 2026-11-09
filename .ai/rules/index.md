@@ -23,4 +23,5 @@ Before planning or editing, find the row whose globs match the file's path and r
 | routes/api.php                 | .ai/rules/routes.md        |
 | app/Services/**                | .ai/rules/services.md      |
 | app/Settings/**                | .ai/rules/settings.md      |
+| app/**, tests/** (uploads)     | .ai/rules/uploads.md       |
 | app/Http/Controllers/api/v1/** | .ai/rules/v1.md            |

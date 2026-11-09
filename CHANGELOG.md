@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Store default presentation using content-based file extension instead of client Content-Type (GHSA-qr8q-4pjq-4r52)
+- Configure nginx so only `index.php` is executed; other `.php` files under `public/` return 404 (GHSA-qr8q-4pjq-4r52)
 - Only accept requests for the exact host of `APP_URL` to prevent host header injection (GHSA-m8w4-4h4c-mpp3)
 - Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade (GHSA-74cm-rg6m-4g87)
 - **Breaking:** Changed the meeting end callback URL signature (callbacks for already running meetings fail, but the server poll detects that the meeting has ended within a minute) (GHSA-f7w5-8x3r-fmrf)
