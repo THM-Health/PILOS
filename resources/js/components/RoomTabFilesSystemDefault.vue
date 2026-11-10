@@ -40,14 +40,14 @@
         "
       />
 
-      <!-- view -->
+      <!-- download -->
       <Button
-        v-tooltip="$t('rooms.files.view')"
-        :aria-label="$t('rooms.files.view')"
+        v-tooltip="$t('rooms.files.download')"
+        :aria-label="$t('rooms.files.download')"
         target="_blank"
         :disabled="disabled"
-        icon="fa-solid fa-eye"
-        data-test="room-files-view-system-default-button"
+        icon="fa-solid fa-download"
+        data-test="room-files-download-system-default-button"
         :as="disabled ? 'button' : 'a'"
         :href="file"
       />

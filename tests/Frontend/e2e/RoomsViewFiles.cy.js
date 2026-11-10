@@ -81,7 +81,7 @@ describe("Rooms View Files", function () {
       .should("include.text", "rooms.files.system_default")
       .and("include.text", "rooms.files.available_in_next_meeting")
       .and("not.include.text", "rooms.files.start_file")
-      .find('a[data-test="room-files-view-system-default-button"]')
+      .find('a[data-test="room-files-download-system-default-button"]')
       .should("have.attr", "href", "Default.pdf");
 
     // Check files
@@ -1185,7 +1185,7 @@ describe("Rooms View Files", function () {
       .and("include.text", "Sep 21, 2020, 09:09")
       .and("not.include.text", "rooms.files.download_not_allowed")
       .and("not.include.text", "rooms.files.not_available_in_next_meeting")
-      .find('[data-test="room-files-view-button"]')
+      .find('[data-test="room-files-download-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
@@ -1416,7 +1416,7 @@ describe("Rooms View Files", function () {
       .and("include.text", "Sep 21, 2020, 09:09")
       .and("not.include.text", "rooms.files.download_not_allowed")
       .and("not.include.text", "rooms.files.not_available_in_next_meeting")
-      .find('[data-test="room-files-view-button"]')
+      .find('[data-test="room-files-download-button"]')
       .should("not.be.disabled");
     cy.get('[data-test="room-file-item"]')
       .eq(2)
@@ -1474,7 +1474,7 @@ describe("Rooms View Files", function () {
       .and("not.include.text", "rooms.files.start_file");
 
     cy.get('[data-test="room-file-system-default"]')
-      .find('[data-test="room-files-view-system-default-button"]')
+      .find('[data-test="room-files-download-system-default-button"]')
       .should("not.be.disabled");
 
     cy.get('[data-test="room-file-system-default"]')
@@ -1605,7 +1605,7 @@ describe("Rooms View Files", function () {
       .and("not.include.text", "rooms.files.start_file");
 
     cy.get('[data-test="room-file-system-default"]')
-      .find('[data-test="room-files-view-system-default-button"]')
+      .find('[data-test="room-files-download-system-default-button"]')
       .should("not.be.disabled");
 
     cy.get('[data-test="room-file-system-default"]')
