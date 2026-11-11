@@ -197,8 +197,12 @@ const hashParams = useUrlSearchParams("hash-params");
 onMounted(async () => {
   // Check if tab selection is saved in URL hash and try to select it if it exists
   if (hashParams.tab) {
-    if (availableTabs.value.find((tab) => tab.key === hashParams.tab)) {
+    const tabIndex = availableTabs.value.findIndex(
+      (tab) => tab.key === hashParams.tab,
+    );
+    if (tabIndex !== -1) {
       activeTabKey.value = hashParams.tab;
+      tabFocus.value = tabIndex;
       return;
     }
   }
@@ -218,6 +222,7 @@ function onRoomChanged() {
   // If active tab has become undefined, fallback to first tab
   if (activeTab.value === undefined) {
     activeTabKey.value = availableTabs.value[0].key;
+    tabFocus.value = 0;
     hashParams.tab = activeTabKey.value;
   }
 }
@@ -304,7 +309,7 @@ const availableTabs = computed(() => {
 
       return true;
     })
-    .map((tab) => {
+    .map((tab, index) => {
       const classes = [];
       if (tab.disabled) {
         classes.push("opacity-60");
@@ -325,7 +330,7 @@ const availableTabs = computed(() => {
             showDisabledFeatureModal(tab.label, tab.disabled);
             return;
           }
-
+          tabFocus.value = index;
           activeTabKey.value = tab.key;
           // Save tab selection in URL hash
           hashParams.tab = tab.key;
