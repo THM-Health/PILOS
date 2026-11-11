@@ -13,6 +13,7 @@ use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
+use BigBlueButton\Core\UrlPresentation;
 use BigBlueButton\Enum\Feature;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
@@ -108,7 +109,7 @@ class MeetingService
         // Use system default presentation as start file, if explicitly set
         $useSystemDefaultFileAsStart = app(BigBlueButtonSettings::class)->default_presentation && $this->meeting->room->prefer_system_default_presentation_as_start;
         if ($useSystemDefaultFileAsStart) {
-            $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
+            $meetingParams->addPresentation(new UrlPresentation(app(BigBlueButtonSettings::class)->default_presentation));
         }
 
         // Get files that should be used in this meeting and add links to the files
@@ -120,13 +121,17 @@ class MeetingService
             ]);
 
             // Add download url to meeting params
-            $meetingParams->addPresentation($fileUrl, null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
+
+            $presentation = new UrlPresentation($fileUrl);
+            $presentation->setFilename(preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
+
+            $meetingParams->addPresentation($presentation);
         }
 
         // Add system default presentation
         // Only add it, if not already added as start file
         if (! $useSystemDefaultFileAsStart && app(BigBlueButtonSettings::class)->default_presentation) {
-            $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
+            $meetingParams->addPresentation(new UrlPresentation(app(BigBlueButtonSettings::class)->default_presentation));
         }
 
         // Set default welcome message
