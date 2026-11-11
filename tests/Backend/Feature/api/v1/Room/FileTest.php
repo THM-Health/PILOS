@@ -1924,12 +1924,25 @@ class FileTest extends TestCase
 
         // Get xml from request (presentation data)
         $xml = simplexml_load_string($request->body());
+        $docs = $xml->module->document;
 
-        $downloadUrl = (string) $xml->module->document->attributes()->url;
-        $fileName = (string) $xml->module->document->attributes()->filename;
+        $documents = [];
+        foreach ($docs as $doc) {
+            $documents[(string) $doc->attributes()->filename] = $doc;
+        }
 
-        // Check if file name is correctly send to BBB Server
-        $this->assertEquals($this->file_valid->name, $fileName);
+        $this->assertCount(1, $documents);
+
+        $fileName = $this->file_valid->name;
+        $this->assertArrayHasKey($fileName, $documents);
+
+        $document = $documents[$fileName];
+        $downloadUrl = (string) $document->attributes()->url;
+
+        // Check presentation attributes sent to BBB
+        $this->assertEquals('true', (string) $document->attributes()->current);
+        $this->assertEquals('false', (string) $document->attributes()->downloadable);
+        $this->assertEquals('true', (string) $document->attributes()->removable);
 
         // Simulate BBB-Server downloading file
         $fileResponse = $this->get($downloadUrl);
