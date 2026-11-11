@@ -113,6 +113,8 @@ return [
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
         'default' => 'Standard',
         'delete' => 'Datei löschen',
+        'download' => 'Datei herunterladen',
+        'download_aria' => 'Datei herunterladen: :filename',
         'download_hidden' => 'Download verborgen',
         'download_visible' => 'Download sichtbar',
         'downloadable' => 'Herunterladbar',
@@ -138,7 +140,6 @@ return [
         'uploaded' => 'Datei ":name" hochgeladen',
         'use_in_next_meeting' => 'In Videokonferenz verfügbar',
         'use_in_next_meeting_disabled' => 'In Videokonferenz nicht verfügbar',
-        'view' => 'Datei anzeigen',
     ],
     'first_and_lastname' => 'Vor- und Nachname',
     'flash' => [

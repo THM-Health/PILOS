@@ -12,6 +12,7 @@ use App\Http\Resources\PrivateRoomFileResource;
 use App\Http\Resources\RoomFileResource;
 use App\Models\Room;
 use App\Models\RoomFile;
+use App\Services\RoomFileService;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -86,7 +87,7 @@ class RoomFileController extends Controller
      */
     public function store(Room $room, StoreRoomFileRequest $request)
     {
-        $name = $request->file('file')->getClientOriginalName();
+        $name = RoomFileService::sanitizeFilename($request->file('file')->getClientOriginalName());
         $path = $request->file('file')->store($room->id);
 
         $file = new RoomFile;

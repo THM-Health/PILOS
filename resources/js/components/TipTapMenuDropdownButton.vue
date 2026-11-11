@@ -16,7 +16,7 @@
     v-if="dropdown"
     ref="dropdownMenu"
     :style="floatingStyles"
-    class="absolute z-10 w-full px-4 max-sm:!left-0 sm:w-60 sm:px-0"
+    class="absolute z-10 w-full px-4 max-sm:left-0! sm:w-60 sm:px-0"
   >
     <ul
       v-on-click-outside="onClickOutsideHandler"

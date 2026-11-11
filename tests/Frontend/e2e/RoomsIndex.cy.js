@@ -23,8 +23,11 @@ describe("Room Index", function () {
 
     // Test loading
 
-    // Check that overlay is shown
-    cy.get('[data-test="overlay"]').should("be.visible");
+    // Check that general overlay is hidden
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check that room skeletons are shown
+    cy.get('[data-test="room-skeletons"]').should("be.visible");
 
     // Room search field
     cy.get("[data-test=room-search]")
@@ -61,8 +64,9 @@ describe("Room Index", function () {
 
     cy.wait("@roomRequest");
 
-    // Check that overlay is hidden
+    // Check that room skeletons and overlay are hidden
     cy.get('[data-test="overlay"]').should("not.exist");
+    cy.get('[data-test="room-skeletons"]').should("not.exist");
 
     // Make sure that components are not disabled after response
     // Room search field
@@ -204,8 +208,12 @@ describe("Room Index", function () {
     cy.visit("/rooms");
 
     // Check loading
-    // Check that overlay is shown
-    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Check that general overlay is hidden
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Check that room skeletons are shown
+    cy.get('[data-test="room-skeletons"]').should("be.visible");
 
     // Room search field
     cy.get('[data-test="room-search"]')
@@ -245,7 +253,9 @@ describe("Room Index", function () {
 
     cy.wait("@roomRequest");
 
+    // Check that room skeletons and overlay are hidden
     cy.get('[data-test="overlay"]').should("not.exist");
+    cy.get('[data-test="room-skeletons"]').should("not.exist");
 
     // Make sure that components are not disabled after response
     // Room search field
@@ -2471,8 +2481,9 @@ describe("Room Index", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that overlay is shown
+    // Check that overlay and room skeletons are shown
     cy.get('[data-test="overlay"]').should("be.visible");
+    cy.get('[data-test="room-skeletons"]').should("be.visible");
 
     // Check that components are not disabled
     // Room search field
@@ -2522,8 +2533,9 @@ describe("Room Index", function () {
       .click();
     cy.wait("@roomRequest");
 
-    // Check that overlay is hidden
+    // Check that overlay and room skeletons are hidden
     cy.get('[data-test="overlay"]').should("not.exist");
+    cy.get('[data-test="room-skeletons"]').should("not.exist");
 
     // Check if rooms are shown and contain the correct data
     cy.get('[data-test="room-card"]').should("have.length", 1);
@@ -2552,8 +2564,9 @@ describe("Room Index", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
-    // Check that overlay is shown
+    // Check that overlay and room skeletons are shown
     cy.get('[data-test="overlay"]').should("be.visible");
+    cy.get('[data-test="room-skeletons"]').should("be.visible");
 
     // Check that components are not disabled
     // Room search field
@@ -2637,8 +2650,9 @@ describe("Room Index", function () {
       });
     });
 
-    // Check that overlay is hidden
+    // Check that overlay and room skeletons are hidden
     cy.get('[data-test="overlay"]').should("not.exist");
+    cy.get('[data-test="room-skeletons"]').should("not.exist");
 
     // Check if rooms are shown and contain the correct data
     cy.get('[data-test="room-card"]').should("have.length", 1);

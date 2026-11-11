@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.20.0] - 2026-11-09
+
+### Changed
+
+- Replaced the room file "view" button with a download button ([#3588])
+- Remove invalid characters from room file filenames on upload; existing files are rewritten using a DB migration ([#3588])
+
+### Fixed
+
+- Room authentication failing when the session is not yet persisted ([#3603], [#3604])
+- Downloading room files with special or non-Latin characters (including quotes) in the filename ([#3588])
+
+### Security
+
+- Force download and strict CSP for user-uploaded files to prevent stored XSS (GHSA-597h-vmjv-9494)
+- Store default presentation using content-based file extension instead of client Content-Type (GHSA-qr8q-4pjq-4r52)
+- Configure nginx so only `index.php` is executed; other `.php` files under `public/` return 404 (GHSA-qr8q-4pjq-4r52)
+- Only accept requests for the exact host of `APP_URL` to prevent host header injection (GHSA-m8w4-4h4c-mpp3)
+- Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade (GHSA-74cm-rg6m-4g87)
+- **Breaking:** Changed the meeting end callback URL signature (callbacks for already running meetings fail, but the server poll detects that the meeting has ended within a minute) (GHSA-f7w5-8x3r-fmrf)
+- Pass the meeting end callback to BigBlueButton as `meetingEndedURL` instead of the `endCallbackUrl` meta parameter (GHSA-mg6m-xfw5-h98w)
+- Validate return URL of Shibboleth front-channel logout to prevent open redirects (GHSA-46f6-vjh7-jg8f)
+- Constrain Vue Router path parameters to valid identifier formats (GHSA-2rf6-6cmc-3767)
+- Prevent spreadsheet formula injection in attendance exports (GHSA-rx2m-63p9-vh9f)
+
+## [v4.19.0] - 2026-10-28
+
 ### Changed
 
 - Disabled ZIP compression for recording downloads to improve performance ([#3412], [#3558])
@@ -950,7 +977,10 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3540]: https://github.com/THM-Health/PILOS/pull/3540
 [#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [#3561]: https://github.com/THM-Health/PILOS/pull/3561
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.18.3...develop
+[#3588]: https://github.com/THM-Health/PILOS/pull/3588
+[#3603]: https://github.com/THM-Health/PILOS/issues/3603
+[#3604]: https://github.com/THM-Health/PILOS/pull/3604
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -984,3 +1014,5 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.18.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.1
 [v4.18.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.2
 [v4.18.3]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.3
+[v4.19.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.19.0
+[v4.20.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.20.0

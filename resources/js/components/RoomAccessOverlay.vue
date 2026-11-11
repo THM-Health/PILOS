@@ -8,7 +8,7 @@
       <Badge
         v-if="!room.authenticated"
         severity="danger"
-        class="-mt-8 flex !h-16 !w-16 items-center justify-center rounded-full"
+        class="-mt-8 flex h-16! w-16! items-center justify-center rounded-full"
       >
         <i class="fa-solid fa-lock text-2xl text-white"></i>
       </Badge>
