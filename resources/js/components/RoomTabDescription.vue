@@ -24,7 +24,11 @@
       />
     </div>
 
-    <OverlayComponent :show="isBusy" :z-index="20">
+    <OverlayComponent
+      :show="isBusy"
+      :z-index="20"
+      :announcement="statusAnnouncement"
+    >
       <div v-if="!editorOpen">
         <RoomTabDescriptionViewer
           v-if="room.description !== null"
@@ -65,6 +69,7 @@
 <script setup>
 import createDOMPurify from "dompurify";
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { useApi } from "../composables/useApi.js";
 import { useUserPermissions } from "../composables/useUserPermission.js";
@@ -85,10 +90,12 @@ const emit = defineEmits(["settingsChanged"]);
 const editorOpen = ref(false);
 const newContent = ref("");
 const isBusy = ref(false);
+const statusAnnouncement = ref("");
 
 const api = useApi();
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
+const { t } = useI18n();
 
 // Create a new DOMPurify instance
 const domPurify = createDOMPurify();
@@ -205,6 +212,7 @@ function edit() {
 function save() {
   // Set saving indicator
   isBusy.value = true;
+  statusAnnouncement.value = t("rooms.description.saving");
   formErrors.clear();
 
   const data = {
@@ -222,8 +230,11 @@ function save() {
       // inform parent component about changed description
       emit("settingsChanged");
       editorOpen.value = false;
+      statusAnnouncement.value = t("rooms.description.saved");
     })
     .catch((error) => {
+      statusAnnouncement.value = "";
+
       // Description couldn't be saved due to validation errors
       if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);

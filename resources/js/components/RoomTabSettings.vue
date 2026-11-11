@@ -1,7 +1,10 @@
 <template>
   <div>
     <Form :aria-hidden="loadingError" :disabled="disabled" @submit="save">
-      <OverlayComponent :show="isBusy || loadingError">
+      <OverlayComponent
+        :show="isBusy || loadingError"
+        :announcement="statusAnnouncement"
+      >
         <template #overlay>
           <LoadingRetryButton :error="loadingError" @reload="load" />
         </template>
@@ -151,6 +154,7 @@ const settingsHash = ref(null);
 
 const isBusy = ref(false);
 const loadingError = ref(false);
+const statusAnnouncement = ref("");
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -360,6 +364,7 @@ const form = computed(() => {
 function save() {
   // Set busy indicator
   isBusy.value = true;
+  statusAnnouncement.value = t("rooms.settings.saving");
 
   const newSettings = _.clone(settings.value);
   newSettings.room_type = newSettings.room_type
@@ -381,8 +386,11 @@ function save() {
       // inform parent component about changed settings
       emit("settingsChanged");
       settingsHash.value = getSettingsHash(settings.value);
+      statusAnnouncement.value = t("rooms.settings.saved");
     })
     .catch((error) => {
+      statusAnnouncement.value = "";
+
       // Settings couldn't be saved
       if (error.response.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
         formErrors.set(error.response.data.errors);
@@ -415,6 +423,7 @@ function load() {
   // Set busy indicator
   isBusy.value = true;
   loadingError.value = false;
+  statusAnnouncement.value = t("rooms.settings.loading");
 
   // Load all room settings
   api
@@ -424,8 +433,10 @@ function load() {
       settings.value = response.data.data;
       settingsHash.value = getSettingsHash(settings.value);
       loaded.value = true;
+      statusAnnouncement.value = t("rooms.settings.loaded");
     })
     .catch((error) => {
+      statusAnnouncement.value = "";
       api.error(error, { redirectOnUnauthenticated: false });
       loadingError.value = true;
     })

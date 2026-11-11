@@ -111,7 +111,11 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
+    <OverlayComponent
+      :show="isBusy || loadingError"
+      :z-index="1"
+      :announcement="statusAnnouncement"
+    >
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
@@ -409,6 +413,18 @@ const selectableMembers = computed(() => {
   return members.value
     .map((member) => member.id)
     .filter((id) => id !== authStore.currentUser?.id);
+});
+
+const statusAnnouncement = computed(() => {
+  if (isBusy.value) {
+    return t("rooms.members.loading");
+  }
+
+  if (loadingError.value) {
+    return "";
+  }
+
+  return t("rooms.members.loaded");
 });
 
 onMounted(() => {

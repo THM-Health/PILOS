@@ -72,6 +72,8 @@ return [
         ],
         'paragraph' => 'Paragraph',
         'save' => 'Save',
+        'saved' => 'Description saved',
+        'saving' => 'Saving description',
         'title' => 'Description',
         'tooltips' => [
             'bold' => 'Bold',
@@ -129,6 +131,8 @@ return [
             'use_in_meeting' => 'Files available in video conference',
         ],
         'filter_aria' => 'Filter files',
+        'loaded' => 'Files loaded',
+        'loading' => 'Loading files',
         'nodata' => 'No files available',
         'reload_aria' => 'Reload files',
         'search_aria' => 'Search files',
@@ -216,6 +220,8 @@ return [
     'join_room' => 'Join room',
     'login' => 'Login',
     'meeting_history' => [
+        'loaded' => 'History loaded',
+        'loading' => 'Loading history',
         'reload_aria' => 'Reload history',
         'sort_ascending' => 'Sort history ascending',
         'sort_by' => 'Sort history by',
@@ -238,6 +244,8 @@ return [
         ],
         'filter_aria' => 'Filter members',
         'image' => 'Picture',
+        'loaded' => 'Members loaded',
+        'loading' => 'Loading members',
         'modals' => [
             'add' => [
                 'add' => 'Add',
@@ -338,6 +346,8 @@ return [
         'last_usage' => 'Last used',
         'last_used_at' => 'Last used at :date',
         'last_used_never' => 'Never used',
+        'loaded' => 'Personalized room links loaded',
+        'loading' => 'Loading personalized room links',
         'nodata' => 'No personalized room links available!',
         'reload_aria' => 'Reload personalized room links',
         'room_link_copied' => 'The personalized room link for :firstname :lastname was copied to your clipboard.',
@@ -389,6 +399,8 @@ return [
             'video' => 'Video',
         ],
         'formats' => 'Formats',
+        'loaded' => 'Recordings loaded',
+        'loading' => 'Loading recordings',
         'modals' => [
             'delete' => [
                 'confirm' => 'Should the recording be irrevocably deleted?',
@@ -476,6 +488,8 @@ return [
             'type' => 'Type',
             'unprotected_placeholder' => '-- unprotected --',
         ],
+        'loaded' => 'Settings loaded',
+        'loading' => 'Loading settings',
         'none_placeholder' => '-- none --',
         'participants' => [
             'allow_membership' => 'Allow new members',
@@ -501,6 +515,8 @@ return [
             'title' => 'Restrict participant rights in video conferences',
             'webcams_only_for_moderator' => 'Only moderators can see the webcam',
         ],
+        'saved' => 'Settings saved',
+        'saving' => 'Saving settings',
         'title' => 'Settings',
         'unsaved_changes' => 'Caution! Room settings have been changed but not yet saved.',
         'video_conference' => [

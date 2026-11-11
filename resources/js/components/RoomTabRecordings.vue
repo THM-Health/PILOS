@@ -104,7 +104,11 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
+    <OverlayComponent
+      :show="isBusy || loadingError"
+      :z-index="1"
+      :announcement="statusAnnouncement"
+    >
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
@@ -396,6 +400,18 @@ const filterOptions = computed(() => [
   },
   { name: t("rooms.recordings.filter.owner_access"), value: "owner_access" },
 ]);
+
+const statusAnnouncement = computed(() => {
+  if (isBusy.value) {
+    return t("rooms.recordings.loading");
+  }
+
+  if (loadingError.value) {
+    return "";
+  }
+
+  return t("rooms.recordings.loaded");
+});
 
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 1 ? 0 : 1;

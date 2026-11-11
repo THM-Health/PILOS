@@ -20,12 +20,6 @@ const emit = defineEmits(["reload"]);
     />
   </div>
   <div v-else>
-    <span
-      role="progressbar"
-      tabindex="0"
-      :aria-label="$t('app.content_loading')"
-    >
-      <i class="fa-solid fa-circle-notch fa-spin text-3xl" aria-hidden="true" />
-    </span>
+    <i class="fa-solid fa-circle-notch fa-spin text-3xl" aria-hidden="true" />
   </div>
 </template>

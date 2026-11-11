@@ -66,7 +66,11 @@
     </div>
 
     <!-- List of all meetings -->
-    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
+    <OverlayComponent
+      :show="isBusy || loadingError"
+      :z-index="1"
+      :announcement="statusAnnouncement"
+    >
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
@@ -269,6 +273,18 @@ const sortOrder = ref(0);
 const sortFields = computed(() => [
   { name: t("meetings.start"), value: "start" },
 ]);
+
+const statusAnnouncement = computed(() => {
+  if (isBusy.value) {
+    return t("rooms.meeting_history.loading");
+  }
+
+  if (loadingError.value) {
+    return "";
+  }
+
+  return t("rooms.meeting_history.loaded");
+});
 
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 1 ? 0 : 1;

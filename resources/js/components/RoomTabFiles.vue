@@ -155,7 +155,11 @@
     </div>
 
     <!-- Display files -->
-    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
+    <OverlayComponent
+      :show="isBusy || loadingError"
+      :z-index="1"
+      :announcement="statusAnnouncement"
+    >
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
@@ -503,4 +507,16 @@ onRoomHasChanged(
   () => props.room,
   () => loadData(),
 );
+
+const statusAnnouncement = computed(() => {
+  if (isBusy.value) {
+    return t("rooms.files.loading");
+  }
+
+  if (loadingError.value) {
+    return "";
+  }
+
+  return t("rooms.files.loaded");
+});
 </script>

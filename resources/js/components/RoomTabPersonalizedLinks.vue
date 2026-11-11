@@ -112,7 +112,11 @@
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
+    <OverlayComponent
+      :show="isBusy || loadingError"
+      :z-index="1"
+      :announcement="statusAnnouncement"
+    >
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
@@ -332,6 +336,18 @@ function loadData(page = null) {
       isBusy.value = false;
     });
 }
+
+const statusAnnouncement = computed(() => {
+  if (isBusy.value) {
+    return t("rooms.personalized_links.loading");
+  }
+
+  if (loadingError.value) {
+    return "";
+  }
+
+  return t("rooms.personalized_links.loaded");
+});
 
 function onPage(event) {
   loadData(event.page + 1);
