@@ -34,7 +34,7 @@
         />
         <Button
           :label="$t('app.save')"
-          severity="success"
+          severity="primary"
           :loading="isLoadingAction"
           data-test="dialog-save-button"
           form="room-files-edit-form"
