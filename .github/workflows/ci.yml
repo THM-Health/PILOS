@@ -284,7 +284,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Wait for app
-        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+        run: timeout 120 sh -c 'until curl -sf -o /dev/null http://localhost:9080/; do sleep 2; done'
       - name: Playwright run frontend tests
         run: npx playwright test --project=frontend --shard=${{ matrix.containers }}/${{ strategy.job-total }}
         env:
@@ -352,7 +352,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Wait for app
-        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+        run: timeout 120 sh -c 'until curl -sf -o /dev/null http://localhost:9080/; do sleep 2; done'
       - name: Playwright run visual tests
         run: npx playwright test --project=visual
         env:
@@ -416,7 +416,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Wait for app
-        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+        run: timeout 120 sh -c 'until curl -sf -o /dev/null http://localhost:9080/; do sleep 2; done'
       - name: Playwright run system tests
         run: npm run playwright:run:system
         env:

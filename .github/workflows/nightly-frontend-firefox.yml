@@ -56,7 +56,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps firefox
       - name: Wait for app
-        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+        run: timeout 120 sh -c 'until curl -sf -o /dev/null http://localhost:9080/; do sleep 2; done'
       - name: Playwright run frontend tests in Firefox
         run: npx playwright test --project=frontend-firefox
         env:
