@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+import { _compareBase64Images } from "../support/utils/fileHelper.js";
 
 describe("Rooms view meetings", function () {
   beforeEach(function () {
@@ -1762,8 +1763,11 @@ describe("Rooms view meetings", function () {
             cy.get('[data-test="join-by-phone-qr-code"]')
               .should("be.visible")
               .should("have.attr", "src")
-              .then((src) => {
-                expect(src).to.equal("data:image/png;base64," + qrCodeImage);
+              .then(async (src) => {
+                await _compareBase64Images(
+                  "data:image/png;base64," + qrCodeImage,
+                  src,
+                );
               });
           },
         );
