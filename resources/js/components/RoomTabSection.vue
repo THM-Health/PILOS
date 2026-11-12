@@ -13,7 +13,10 @@
         <!-- Tab navigation -->
         <div v-if="availableTabs.length > 1" role="tablist">
           <!-- Desktop layout, icons only-->
-          <div class="hidden flex-row gap-2 md:flex" @keydown="keydownHandler">
+          <div
+            class="room-tabs hidden flex-row gap-2 md:flex"
+            @keydown="keydownHandler"
+          >
             <Button
               v-for="tab in availableTabs"
               :id="'tab-' + tab.key"
