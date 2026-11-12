@@ -2,15 +2,17 @@
   "name": "pilos",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.28.11",
   "scripts": {
+    "preinstall": "pnpx only-allow pnpm",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "prettier": "prettier . --check  --experimental-cli",
+    "prettier": "prettier . --check --experimental-cli",
     "prettier:fix": "prettier . --write --experimental-cli",
-    "docs:install": "cd docs && npm install",
-    "docs:dev": "cd docs && npm run start -- --host 0.0.0.0",
+    "docs:install": "cd docs && pnpm install",
+    "docs:dev": "cd docs && pnpm run start --host 0.0.0.0",
     "cypress:open": "TZ=America/New_York cypress open",
     "cypress:run": "TZ=America/New_York cypress run",
     "create-coverage-report": "nyc report --reporter html -t coverage",
@@ -83,6 +85,7 @@
     "vue-router": "^5.4.0"
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
   }
 }

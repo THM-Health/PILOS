@@ -14,7 +14,7 @@ change_permissions() {
 case $ACTION in
 
   frontend:build)
-    su-exec www-data npm run build
+    su-exec www-data pnpm run build
     ;;
 
   playback-player:build)

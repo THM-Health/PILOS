@@ -31,8 +31,8 @@ if unzip -q -d "$temporaryDirectory" "$downloadFileName"; then
         echo "Entering directory $folderName failed"
         exit 2
     fi
-    npm install
-    npm run build
+    pnpm install
+    pnpm run build
 
     # clear old public folder
     echo "Clearing old player..."

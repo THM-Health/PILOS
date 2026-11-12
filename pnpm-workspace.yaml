@@ -1,0 +1,14 @@
+packages:
+  - "docs"
+
+sideEffectsCache: false
+engineStrict: true
+
+# Explicit allow/deny for dependency build scripts (pnpm 11).
+allowBuilds:
+  '@swc/core': false
+  '@thm-health/vue-profile-image-cropper': false
+  core-js: false
+  cypress: true
+  esbuild: false
+  vue-demi: false

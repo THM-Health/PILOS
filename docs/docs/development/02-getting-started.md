@@ -80,7 +80,7 @@ The docker container will detect the certificate and key on the next start and u
 
 ```bash
 ./sail composer install
-./sail npm install
+./sail pnpm install
 ```
 
 ## Adjust config
@@ -266,13 +266,13 @@ The production container automatically runs the `pilos-cli frontend:build` comma
 In the development environment you can build the frontend with the following command:
 
 ```bash
-./sail npm run build
+./sail pnpm run build
 ```
 
 However, for development it is recommended to use the development server for hot reloading:
 
 ```bash
-./sail npm run dev
+./sail pnpm run dev
 ```
 
 For the development you can use any editor of your choice but please do not check in any configuration files for your editor. In this case you may want to

@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
 
 permissions:
   contents: read
@@ -20,16 +23,21 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          cache: true
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: ./docs/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: ./pnpm-lock.yaml
       - name: Install dependencies
-        run: npm ci
+        working-directory: ./
+        run: pnpm install
 
       # Build static docs
       - name: Build all versions
         run: ./build.sh
       - name: Build website
-        run: npm run docusaurus build
+        run: pnpm run docusaurus build
