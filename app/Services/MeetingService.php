@@ -115,7 +115,7 @@ class MeetingService
 
             $url = app(BigBlueButtonSettings::class)->default_presentation;
             $extension = pathinfo($url, PATHINFO_EXTENSION);
-            $filename = '_System-Default.' . $extension;
+            $filename = '_System-Default.'.$extension;
 
             $presentation = new UrlPresentation($url);
             $presentation->setCurrent($useSystemDefaultFileAsStart);
