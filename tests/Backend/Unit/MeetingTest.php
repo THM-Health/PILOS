@@ -323,11 +323,29 @@ class MeetingTest extends TestCase
     }
 
     /**
+     * Index BBB presentation documents by filename.
+     *
+     * @return array<string, \SimpleXMLElement>
+     */
+    private function documentsByFilename(\SimpleXMLElement $docs): array
+    {
+        $documents = [];
+        foreach ($docs as $doc) {
+            $documents[(string) $doc->attributes()->filename] = $doc;
+        }
+
+        return $documents;
+    }
+
+    /**
      * Test room start with own presentations
      */
     public function test_start_parameters_with_own_presentation()
     {
         $meeting = $this->meeting;
+
+        $meeting->room->prefer_system_default_presentation_as_start = false;
+        $meeting->room->save();
 
         $this->bigBlueButtonSettings->default_presentation = url('default.pdf');
         $this->bigBlueButtonSettings->save();
@@ -342,19 +360,22 @@ class MeetingTest extends TestCase
         $file1->path = UploadedFile::fake()->image('file1.pdf')->store($meeting->room->id);
         $file1->filename = 'file1';
         $file1->use_in_meeting = true;
+        $file1->download = true;
         $meeting->room->files()->save($file1);
 
         $file2 = new RoomFile;
         $file2->path = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
         $file2->filename = 'file2';
         $file2->use_in_meeting = true;
-        $file2->default = true;
+        $file2->is_start_file = true;
+        $file2->download = false;
         $meeting->room->files()->save($file2);
 
         $file3 = new RoomFile;
         $file3->path = UploadedFile::fake()->image('file3.pdf')->store($meeting->room->id);
         $file3->filename = 'file3';
         $file3->use_in_meeting = true;
+        $file3->download = true;
         $meeting->room->files()->save($file3);
 
         $file4 = new RoomFile;
@@ -376,16 +397,35 @@ class MeetingTest extends TestCase
         $xml = simplexml_load_string($body);
         $docs = $xml->module->document;
 
-        $this->assertCount(3, $docs);
+        $this->assertCount(4, $docs);
 
         // Check request is POST and has content type and body
         $this->assertEquals('POST', $request->method());
         $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
 
-        // check order based on default and missing file 4 because use_in_meeting disabled
-        $this->assertEquals('file2', $docs[0]->attributes()->filename);
-        $this->assertEquals('file1', $docs[1]->attributes()->filename);
-        $this->assertEquals('file3', $docs[2]->attributes()->filename);
+        $documents = $this->documentsByFilename($docs);
+
+        // System default is included but not current when prefer_system_default_presentation_as_start is false
+        $this->assertEquals(url('default.pdf'), (string) $documents['_System-Default.pdf']->attributes()->url);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->downloadable);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->removable);
+
+        // Start file is marked current; downloadable follows room file settings
+        $this->assertEquals('false', (string) $documents['file1']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file1']->attributes()->downloadable);
+        $this->assertEquals('true', (string) $documents['file1']->attributes()->removable);
+
+        $this->assertEquals('true', (string) $documents['file2']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['file2']->attributes()->downloadable);
+        $this->assertEquals('true', (string) $documents['file2']->attributes()->removable);
+
+        $this->assertEquals('false', (string) $documents['file3']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file3']->attributes()->downloadable);
+        $this->assertEquals('true', (string) $documents['file3']->attributes()->removable);
+
+        // file4 is missing because use_in_meeting is disabled
+        $this->assertArrayNotHasKey('file4', $documents);
     }
 
     /**
@@ -458,6 +498,9 @@ class MeetingTest extends TestCase
     {
         $meeting = $this->meeting;
 
+        $meeting->room->prefer_system_default_presentation_as_start = false;
+        $meeting->room->save();
+
         $this->bigBlueButtonSettings->default_presentation = url('default.pdf');
         $this->bigBlueButtonSettings->save();
 
@@ -480,8 +523,160 @@ class MeetingTest extends TestCase
 
         $this->assertCount(1, $docs);
 
-        // check order based on default and missing file 4 because use_in_meeting disabled
-        $this->assertEquals(url('default.pdf'), $docs[0]->attributes()->url);
+        $documents = $this->documentsByFilename($docs);
+
+        // Check that the system default presentation is the only document.
+        $this->assertEquals(url('default.pdf'), (string) $documents['_System-Default.pdf']->attributes()->url);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->downloadable);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->removable);
+    }
+
+    public function test_start_parameters_with_own_presentation_and_system_default()
+    {
+        $meeting = $this->meeting;
+
+        $this->bigBlueButtonSettings->default_presentation = url('default.pdf');
+        $this->bigBlueButtonSettings->save();
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        Storage::fake('local');
+
+        $file1 = new RoomFile;
+        $file1->path = UploadedFile::fake()->image('file1.pdf')->store($meeting->room->id);
+        $file1->filename = 'file1';
+        $file1->use_in_meeting = true;
+        $file1->download = true;
+        $meeting->room->files()->save($file1);
+
+        $file2 = new RoomFile;
+        $file2->path = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
+        $file2->filename = 'file2';
+        $file2->use_in_meeting = true;
+        $file2->is_start_file = true;
+        $file2->download = false;
+        $meeting->room->files()->save($file2);
+
+        $file3 = new RoomFile;
+        $file3->path = UploadedFile::fake()->image('file3.pdf')->store($meeting->room->id);
+        $file3->filename = 'file3';
+        $file3->use_in_meeting = true;
+        $file3->download = true;
+        $meeting->room->files()->save($file3);
+
+        $file4 = new RoomFile;
+        $file4->path = UploadedFile::fake()->image('file4.pdf')->store($meeting->room->id);
+        $file4->filename = 'file4';
+        $file4->use_in_meeting = false;
+        $meeting->room->files()->save($file4);
+
+        $meeting->room->prefer_system_default_presentation_as_start = true;
+        $meeting->room->save();
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+
+        // System default is current because prefer_system_default_presentation_as_start is true
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $body = $request->body();
+        $xml = simplexml_load_string($body);
+        $docs = $xml->module->document;
+
+        $this->assertCount(4, $docs);
+
+        // Check request is POST and has content type and body
+        $this->assertEquals('POST', $request->method());
+        $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
+
+        $documents = $this->documentsByFilename($docs);
+
+        $this->assertEquals(url('default.pdf'), (string) $documents['_System-Default.pdf']->attributes()->url);
+        $this->assertEquals('true', (string) $documents['_System-Default.pdf']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->downloadable);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->removable);
+
+        // Room start file is not current while system default is preferred
+        $this->assertEquals('false', (string) $documents['file1']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file1']->attributes()->downloadable);
+        $this->assertEquals('true', (string) $documents['file1']->attributes()->removable);
+
+        $this->assertEquals('false', (string) $documents['file2']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['file2']->attributes()->downloadable);
+        $this->assertEquals('true', (string) $documents['file2']->attributes()->removable);
+
+        $this->assertEquals('false', (string) $documents['file3']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file3']->attributes()->downloadable);
+        $this->assertEquals('true', (string) $documents['file3']->attributes()->removable);
+
+        // file4 is missing because use_in_meeting is disabled
+        $this->assertArrayNotHasKey('file4', $documents);
+
+        // Start file is file2 again when prefer_system_default_presentation_as_start is false,
+        // but system default presentation is still used in the meeting
+        $meeting->room->prefer_system_default_presentation_as_start = false;
+        $meeting->room->save();
+
+        $meetingService->start();
+
+        $request = Http::recorded()[1][0];
+        $xml = simplexml_load_string($request->body());
+        $docs = $xml->module->document;
+
+        $this->assertCount(4, $docs);
+
+        $documents = $this->documentsByFilename($docs);
+
+        $this->assertEquals(url('default.pdf'), (string) $documents['_System-Default.pdf']->attributes()->url);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->downloadable);
+        $this->assertEquals('false', (string) $documents['_System-Default.pdf']->attributes()->removable);
+
+        $this->assertEquals('false', (string) $documents['file1']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file1']->attributes()->downloadable);
+
+        $this->assertEquals('true', (string) $documents['file2']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['file2']->attributes()->downloadable);
+
+        $this->assertEquals('false', (string) $documents['file3']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file3']->attributes()->downloadable);
+
+        // System default is not used if it is not set in global settings,
+        // even though prefer_system_default_presentation_as_start is true
+        $this->bigBlueButtonSettings->default_presentation = null;
+        $this->bigBlueButtonSettings->save();
+        $meeting->room->prefer_system_default_presentation_as_start = true;
+        $meeting->room->save();
+
+        $meetingService->start();
+
+        $request = Http::recorded()[2][0];
+        $xml = simplexml_load_string($request->body());
+        $docs = $xml->module->document;
+
+        $this->assertCount(3, $docs);
+
+        $documents = $this->documentsByFilename($docs);
+
+        $this->assertArrayNotHasKey('_System-Default.pdf', $documents);
+
+        // Without a system default, the room start file remains current
+        $this->assertEquals('false', (string) $documents['file1']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file1']->attributes()->downloadable);
+
+        $this->assertEquals('true', (string) $documents['file2']->attributes()->current);
+        $this->assertEquals('false', (string) $documents['file2']->attributes()->downloadable);
+
+        $this->assertEquals('false', (string) $documents['file3']->attributes()->current);
+        $this->assertEquals('true', (string) $documents['file3']->attributes()->downloadable);
     }
 
     public function test_join_parameters_authenticated_user()

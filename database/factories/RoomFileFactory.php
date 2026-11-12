@@ -17,7 +17,7 @@ class RoomFileFactory extends Factory
         return [
             'path' => 'placeholder',
             'filename' => $this->faker->word.'.'.$this->faker->fileExtension(),
-            'default' => false,
+            'is_start_file' => false,
             'download' => false,
             'use_in_meeting' => false,
             'room_id' => Room::factory(),
