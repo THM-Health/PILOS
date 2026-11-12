@@ -296,17 +296,19 @@ const userMenuItems = computed(() => {
     });
   }
 
-  items.push({
-    type: "darkMode",
-    dataTest: "navbar-dark-mode",
-    label: isDark.value
-      ? t("app.dark_mode_disable")
-      : t("app.dark_mode_enable"),
-    command: () => {
-      changeDarkMode();
-      emit("routeChanged");
-    },
-  });
+  if (!settingsStore.getSetting("theme.enforced_color_mode")) {
+    items.push({
+      type: "darkMode",
+      dataTest: "navbar-dark-mode",
+      label: isDark.value
+        ? t("app.dark_mode_disable")
+        : t("app.dark_mode_enable"),
+      command: () => {
+        changeDarkMode();
+        emit("routeChanged");
+      },
+    });
+  }
 
   // Only show the locale menu if more than one locale is enabled
   if (locales.value.length > 1) {
