@@ -1,7 +1,6 @@
 import path from "node:path";
 import { defineConfig } from "cypress";
 import "dotenv/config";
-import happoTask from "happo/cypress/task";
 import { setupBrowserLaunch } from "../Utils/cypress/browser-launch.js";
 import { setupChromeForTesting } from "../Utils/cypress/chrome-for-testing.js";
 
@@ -14,8 +13,6 @@ export default defineConfig({
 
   e2e: {
     async setupNodeEvents(on, config) {
-      happoTask.register(on);
-
       await setupChromeForTesting(config, path.resolve("../../"));
 
       setupBrowserLaunch(on);

@@ -378,17 +378,14 @@ jobs:
       - name: Run cypress
         uses: cypress-io/github-action@18016a55674bd02cabf197de5762a1710cb5577c # v7.4.9
         with:
-          command-prefix: npx happo -- npx
+          command-prefix: npx percy exec -- npx
           group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
           record: ${{ needs.generate-frontend-matrix.outputs.record }}
           tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
           project: ./tests/Visual
         env:
           NODE_OPTIONS: "--experimental-require-module"
-          HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
-          HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
-          HAPPO_DELETE_OLD_COMMENTS: true
-          HAPPO_CONFIG_FILE: "./tests/Visual/happo.config.js"
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
           BASE_BRANCH: origin/develop
           CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

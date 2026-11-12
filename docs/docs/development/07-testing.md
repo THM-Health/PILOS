@@ -144,17 +144,17 @@ Or you can run the tests headless with:
 npm run cypress:run -- -P ./tests/System
 ```
 
-## Visual Regression Testing with Happo.io
+## Visual Regression Testing with Percy
 
 We aim to cover as much functionality as possible with our frontend tests. However, testing every aspect of the application can be challenging and sometimes simply not possible, e.g. layout shifts, svg rendered charts, etc.
 
 PILOS relies on several third-party libraries, such as UI components (PrimeVue), charts (Chart.js) and others. While these libraries are generally high quality and well tested, they may occasionally introduce bugs, regressions or integration issues into our application. Frequent updates to these libraries also require us to ensure that our application continues to look and behave as expected.
 
-Manually identifying visual regressions is a time-consuming and error-prone process that has been a significant pain point in the past. To address this, we implemented visual regression testing using [Happo](https://happo.io/).
+Manually identifying visual regressions is a time-consuming and error-prone process that has been a significant pain point in the past. To address this, we implemented visual regression testing using [Percy](https://percy.io/).
 
-Happo is a powerful tool that allows us to take screenshots of our application and compare them to previous versions to detect visual changes. Integrating Happo into our existing Cypress test system was straightforward and we will extend its use to all areas of the application where visual changes are expected.
+Percy is a powerful tool that allows us to take screenshots of our application and compare them to previous versions to detect visual changes.
 
-By using Happo for visual regression testing, we can maintain a high standard of visual quality in our application while minimising manual effort.
+By using Percy for visual regression testing, we can maintain a high standard of visual quality in our application while minimising manual effort.
 
 ### Automated Testing Environment
 
@@ -164,10 +164,10 @@ If a screenshot differs from the baseline, we can review the changes and determi
 
 ### Adding Screenshots in Tests
 
-To capture a screenshot for visual regression testing, simply add the `.happoScreenshot()` command to the Cypress chain. For example:
+To capture a screenshot for visual regression testing, simply add the `.percySnapshot()` command to the Cypress chain. For example:
 
 ```javascript
-cy.get("button").happoScreenshot();
+cy.get("button").percySnapshot("Unique-Name");
 ```
 
 ### Debugging Tests Locally
@@ -177,7 +177,7 @@ Although visual regression tests run exclusively in the GitHub Action runner, yo
 Before running the tests make sure you have correctly installed cypress as described in the [Installing cypress](#installing-cypress) section.
 
 ```bash
-npm run cypress:open -- -P ./tests/Visual --config experimentalInteractiveRunEvents=true
+npm run cypress:open -- -P ./tests/Visual
 ```
 
 This setup allows you to ensure your tests are functioning correctly before committing changes.
