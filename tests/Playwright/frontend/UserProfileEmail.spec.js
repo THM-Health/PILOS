@@ -1,22 +1,11 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptUserProfileRequests } from "../support/mocks.js";
+import { test } from "../support/fixtures/userProfile.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const EMAIL_URL = "**/api/v1/users/1/email";
-const USER_URL = "**/api/v1/users/1";
 
 test.use({ authenticated: true });
 
 test.describe("User profile email", () => {
-  test.beforeEach(async ({ page }) => {
-    await interceptUserProfileRequests(page);
-  });
-
   test("selecting the tab sets the hash", async ({ page }) => {
     await page.goto("/profile");
     await page.getByTestId("email-tab-button").click();
@@ -43,7 +32,7 @@ test.describe("User profile email", () => {
     });
 
     test("fields are disabled while saving", async ({ page }) => {
-      const mock = await mockMethod(page, "PUT", EMAIL_URL, {
+      const mock = await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
         status: 202,
         hold: true,
       });
@@ -65,7 +54,9 @@ test.describe("User profile email", () => {
     test("save changes sends the new email and resets the fields", async ({
       page,
     }) => {
-      const mock = await mockMethod(page, "PUT", EMAIL_URL, { status: 202 });
+      const mock = await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
+        status: 202,
+      });
 
       await page.locator("#current_password").fill("secretPassword123#");
       await page.locator("#email").fill("john.doe@example.com");
@@ -91,8 +82,9 @@ test.describe("User profile email", () => {
 
     test("confirmation message is hidden if the server already changed the email", async ({
       page,
+      profileUser,
     }) => {
-      await mockMethod(page, "PUT", EMAIL_URL, { status: 202 });
+      await mockMethod(page, "PUT", "**/api/v1/users/1/email", { status: 202 });
 
       await page.locator("#current_password").fill("secretPassword123#");
       await page.locator("#email").fill("john.doe@example.com");
@@ -101,9 +93,9 @@ test.describe("User profile email", () => {
         page.getByTestId("email-confirmation-message"),
       ).toBeVisible();
 
-      const user = readFixture("userDataCurrentUser.json");
+      const user = structuredClone(profileUser);
       user.data.email = "john.doe@example.com";
-      await mockMethod(page, "PUT", EMAIL_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
         status: 200,
         json: { data: user.data },
       });
@@ -125,14 +117,16 @@ test.describe("User profile email", () => {
       });
 
       test("throttle error (471)", async ({ page }) => {
-        await mockMethod(page, "PUT", EMAIL_URL, { status: 471 });
+        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
+          status: 471,
+        });
         await page.getByTestId("user-tab-email-save-button").click();
 
         await expectToastAndClose(page, "auth.throttle_email");
       });
 
       test("validation error (422)", async ({ page }) => {
-        await mockMethod(page, "PUT", EMAIL_URL, {
+        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
           status: 422,
           json: {
             message: "The email field is required. (and 1 more error)",
@@ -159,7 +153,7 @@ test.describe("User profile email", () => {
       test("server error (500) hides previous validation errors", async ({
         page,
       }) => {
-        await mockMethod(page, "PUT", EMAIL_URL, {
+        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
           status: 422,
           json: {
             message: "The email field is required. (and 1 more error)",
@@ -178,7 +172,7 @@ test.describe("User profile email", () => {
           "The email field is required.",
         );
 
-        await mockMethod(page, "PUT", EMAIL_URL, {
+        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
           status: 500,
           json: { message: "Test" },
         });
@@ -198,7 +192,9 @@ test.describe("User profile email", () => {
       });
 
       test("unauthenticated (401) redirects to login", async ({ page }) => {
-        await mockMethod(page, "PUT", EMAIL_URL, { status: 401 });
+        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
+          status: 401,
+        });
         await page.getByTestId("user-tab-email-save-button").click();
 
         await expectLoginRedirect(page, "/profile");
@@ -222,19 +218,15 @@ test.describe("User profile email", () => {
       page,
       currentUser,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/currentUser", {
-        json: currentUser,
-      });
+      currentUser.data.permissions = [];
 
       await page.goto("/profile#tab=email");
       await expect(page.locator("#email")).toBeVisible();
     });
 
-    test("as external user", async ({ page }) => {
-      const user = readFixture("userDataCurrentUser.json");
-      user.data.authenticator = "ldap";
-      user.data.external_id = "jdo";
-      await mockMethod(page, "GET", USER_URL, { json: user });
+    test("as external user", async ({ page, profileUser }) => {
+      profileUser.data.authenticator = "ldap";
+      profileUser.data.external_id = "jdo";
 
       await page.goto("/profile#tab=email");
       await expect(page.locator("#email")).toBeVisible();

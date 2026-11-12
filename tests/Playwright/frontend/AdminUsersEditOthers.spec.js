@@ -1,23 +1,13 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptAdminUsersViewRequests,
-  interceptAdminUsersIndexRequests,
-} from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminUsersEdit.js";
+import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-
-const USER_URL = "**/api/v1/users/2";
-
-const readUser = () =>
-  JSON.parse(
-    readFileSync("tests/Playwright/fixtures/userDataUser.json", "utf8"),
-  );
 
 test.use({ authenticated: true });
 
 test.describe("Admin users edit others", () => {
-  test.beforeEach(async ({ page, currentUser, config }) => {
+  test.beforeEach(async ({ currentUser, config }) => {
     currentUser.data.permissions = [
       "admin.view",
       "users.viewAny",
@@ -28,7 +18,6 @@ test.describe("Admin users edit others", () => {
       "roles.viewAny",
     ];
     config.data.auth.local = true;
-    await interceptAdminUsersViewRequests(page);
   });
 
   test("view others tab and set the tab hash", async ({ page }) => {
@@ -54,14 +43,13 @@ test.describe("Admin users edit others", () => {
 
     test("loading state disables tabs, header buttons and form", async ({
       page,
+      user,
     }) => {
-      const user = readUser();
       user.data.bbb_skip_check_audio = true;
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
         json: user,
         hold: true,
       });
-      await mockMethod(page, "GET", USER_URL, { json: user });
 
       await page.getByTestId("user-tab-others-save-button").click();
       await nthRequest(save);
@@ -89,11 +77,14 @@ test.describe("Admin users edit others", () => {
       save.release();
     });
 
-    test("save changes and redirect to the user view", async ({ page }) => {
-      const user = readUser();
+    test("save changes and redirect to the user view", async ({
+      page,
+      user,
+    }) => {
       user.data.bbb_skip_check_audio = true;
-      const save = await mockMethod(page, "POST", USER_URL, { json: user });
-      await mockMethod(page, "GET", USER_URL, { json: user });
+      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
+        json: user,
+      });
 
       const userRequest = page.waitForRequest(
         (request) =>
@@ -113,7 +104,7 @@ test.describe("Admin users edit others", () => {
     });
 
     test("validation error (422) is shown in the field", async ({ page }) => {
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 422,
         json: {
           message: "The bbb skip check audio field is required.",
@@ -140,7 +131,7 @@ test.describe("Admin users edit others", () => {
     test("server error (500) shows a toast and hides previous field errors", async ({
       page,
     }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 422,
         json: {
           message: "The bbb skip check audio field is required.",
@@ -163,7 +154,7 @@ test.describe("Admin users edit others", () => {
       );
       expect(save.requests).toHaveLength(1);
 
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 500,
         json: { message: "Test" },
       });
@@ -180,14 +171,13 @@ test.describe("Admin users edit others", () => {
 
     test("stale model (428) shows the stale dialog and reloads", async ({
       page,
+      user,
     }) => {
-      const user = readUser();
       user.data.bbb_skip_check_audio = true;
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 428,
         json: { message: "stale_model", new_model: user.data },
       });
-      await mockMethod(page, "GET", USER_URL, { json: user });
 
       await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
       await page.getByTestId("user-tab-others-save-button").click();
@@ -219,7 +209,7 @@ test.describe("Admin users edit others", () => {
           request.method() === "GET" &&
           new URL(request.url()).pathname === "/api/v1/users",
       );
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 404,
         json: { message: "model_not_found", model: "user", ids: [2] },
       });
@@ -239,7 +229,10 @@ test.describe("Admin users edit others", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", USER_URL, { status: 401, json: {} });
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
+        status: 401,
+        json: {},
+      });
 
       await page.getByTestId("user-tab-others-save-button").click();
 

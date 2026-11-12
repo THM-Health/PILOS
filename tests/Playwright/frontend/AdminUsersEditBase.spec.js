@@ -1,9 +1,6 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptAdminUsersViewRequests,
-  interceptAdminUsersIndexRequests,
-} from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminUsersEdit.js";
+import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
@@ -14,27 +11,10 @@ import {
   IMAGE_SNAPSHOT_OPTIONS,
 } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const USER_URL = "**/api/v1/users/2";
-const TIMEZONES_URL = "**/api/v1/getTimezones";
-const IMAGE = "tests/Playwright/fixtures/files/profileImage.jpg";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const editBreadcrumb =
-  'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}';
-const viewBreadcrumbJuanWalter =
-  'admin.breadcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}';
-
 test.use({ authenticated: true });
 
 test.describe("Admin users edit base", () => {
-  test.beforeEach(async ({ page, currentUser, config }) => {
+  test.beforeEach(async ({ currentUser, config }) => {
     currentUser.data.permissions = [
       "admin.view",
       "users.viewAny",
@@ -45,7 +25,6 @@ test.describe("Admin users edit base", () => {
       "roles.viewAny",
     ];
     config.data.auth.local = true;
-    await interceptAdminUsersViewRequests(page);
   });
 
   test("view base data", async ({ page }) => {
@@ -60,7 +39,7 @@ test.describe("Admin users edit base", () => {
     await expectAdminBreadcrumbs(
       page,
       "admin.breadcrumbs.users.index",
-      editBreadcrumb,
+      'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
     );
 
     const firstname = page.getByTestId("firstname-field");
@@ -112,7 +91,10 @@ test.describe("Admin users edit base", () => {
     page,
   }) => {
     await page.goto("/admin/users/2/edit");
-    await expectAdminBreadcrumbs(page, editBreadcrumb);
+    await expectAdminBreadcrumbs(
+      page,
+      'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
+    );
 
     await page.locator("#firstname").fill("Juan");
     await page.locator("#lastname").fill("Walter");
@@ -120,7 +102,7 @@ test.describe("Admin users edit base", () => {
     await expectAdminBreadcrumbs(
       page,
       "admin.breadcrumbs.users.index",
-      editBreadcrumb,
+      'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
     );
     await expect(
       page
@@ -144,7 +126,9 @@ test.describe("Admin users edit base", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto("/admin/users/2/edit");
       await expect(page.locator("#firstname")).toHaveValue("Laura");
-      await page.getByTestId("upload-file-input").setInputFiles(IMAGE);
+      await page
+        .getByTestId("upload-file-input")
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
     });
 
     test("shows the crop dialog", async ({ page }) => {
@@ -209,7 +193,9 @@ test.describe("Admin users edit base", () => {
       await expect(imageField.getByTestId("undo-delete-button")).toHaveCount(0);
       await expect(reset).toHaveCount(0);
 
-      await imageField.getByTestId("upload-file-input").setInputFiles(IMAGE);
+      await imageField
+        .getByTestId("upload-file-input")
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
 
       const dialog = page.getByTestId("crop-image-dialog");
       await expect(dialog).toBeVisible();
@@ -291,17 +277,7 @@ test.describe("Admin users edit base", () => {
   });
 
   test.describe("save changes", () => {
-    let savedUser;
-
-    test.beforeEach(async ({ page, baseURL }) => {
-      savedUser = readFixture("userDataUser.json");
-      savedUser.data.firstname = "Juan";
-      savedUser.data.lastname = "Walter";
-      savedUser.data.user_locale = "de";
-      savedUser.data.timezone = "Europe/Berlin";
-      savedUser.data.image = baseURL + "/test.jpg";
-      savedUser.data.updated_at = "2024-09-13T14:22:26.000000Z";
-
+    test.beforeEach(async ({ page }) => {
       await page.goto("/admin/users/2/edit");
       await expect(page.locator("#firstname")).toHaveValue("Laura");
 
@@ -313,17 +289,26 @@ test.describe("Admin users edit base", () => {
       await page.getByTestId("timezone-dropdown").click();
       await page.getByTestId("timezone-dropdown-option").nth(2).click();
 
-      await page.getByTestId("upload-file-input").setInputFiles(IMAGE);
+      await page
+        .getByTestId("upload-file-input")
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
       await page.getByTestId("dialog-save-button").click();
       await expect(page.getByTestId("crop-image-dialog")).toHaveCount(0);
     });
 
-    test("loading state while saving", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
-        json: savedUser,
+    test("loading state while saving", async ({ page, user, baseURL }) => {
+      Object.assign(user.data, {
+        firstname: "Juan",
+        lastname: "Walter",
+        user_locale: "de",
+        timezone: "Europe/Berlin",
+        image: baseURL + "/test.jpg",
+        updated_at: "2024-09-13T14:22:26.000000Z",
+      });
+      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
+        json: user,
         hold: true,
       });
-      await mockMethod(page, "GET", USER_URL, { json: savedUser });
 
       const saveButton = page.getByTestId("user-tab-profile-save-button");
       await expect(saveButton).toHaveText("app.save");
@@ -362,11 +347,20 @@ test.describe("Admin users edit base", () => {
 
     test("sends the changes and redirects to the view page", async ({
       page,
+      user,
+      baseURL,
     }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
-        json: savedUser,
+      Object.assign(user.data, {
+        firstname: "Juan",
+        lastname: "Walter",
+        user_locale: "de",
+        timezone: "Europe/Berlin",
+        image: baseURL + "/test.jpg",
+        updated_at: "2024-09-13T14:22:26.000000Z",
       });
-      await mockMethod(page, "GET", USER_URL, { json: savedUser });
+      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
+        json: user,
+      });
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
@@ -391,23 +385,21 @@ test.describe("Admin users edit base", () => {
       await expectAdminBreadcrumbs(
         page,
         "admin.breadcrumbs.users.index",
-        viewBreadcrumbJuanWalter,
+        'admin.breadcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
       );
     });
   });
 
   test.describe("saved user", () => {
-    let savedUser;
-
-    test.beforeEach(async ({ page, baseURL }) => {
-      savedUser = readFixture("userDataUser.json");
-      savedUser.data.firstname = "Juan";
-      savedUser.data.lastname = "Walter";
-      savedUser.data.user_locale = "de";
-      savedUser.data.timezone = "Europe/Berlin";
-      savedUser.data.image = baseURL + "/test.jpg";
-      savedUser.data.updated_at = "2024-09-13T14:22:26.000000Z";
-      await mockMethod(page, "GET", USER_URL, { json: savedUser });
+    test.beforeEach(async ({ page, user, baseURL }) => {
+      Object.assign(user.data, {
+        firstname: "Juan",
+        lastname: "Walter",
+        user_locale: "de",
+        timezone: "Europe/Berlin",
+        image: baseURL + "/test.jpg",
+        updated_at: "2024-09-13T14:22:26.000000Z",
+      });
 
       await page.goto("/admin/users/2/edit");
       await expect(page.locator("#firstname")).toHaveValue("Juan");
@@ -477,16 +469,14 @@ test.describe("Admin users edit base", () => {
       ).toHaveAttribute("src", baseURL + "/test.jpg");
     });
 
-    test("save with deleted profile image", async ({ page }) => {
+    test("save with deleted profile image", async ({ page, user }) => {
       await page.getByTestId("delete-image-button").click();
 
-      const userWithoutImage = structuredClone(savedUser);
-      userWithoutImage.data.image = null;
-      userWithoutImage.data.updated_at = "2024-09-13T14:24:26.000000Z";
-      const save = await mockMethod(page, "POST", USER_URL, {
-        json: userWithoutImage,
+      user.data.image = null;
+      user.data.updated_at = "2024-09-13T14:24:26.000000Z";
+      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
+        json: user,
       });
-      await mockMethod(page, "GET", USER_URL, { json: userWithoutImage });
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
@@ -510,12 +500,12 @@ test.describe("Admin users edit base", () => {
       await expectAdminBreadcrumbs(
         page,
         "admin.breadcrumbs.users.index",
-        editBreadcrumb,
+        'admin.breadcrumbs.users.edit_{"firstname":"Laura","lastname":"Rivera"}',
       );
     });
 
     test("validation errors (422)", async ({ page }) => {
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 422,
         json: {
           message: "The firstname field is required. (and 3 more errors)",
@@ -551,7 +541,7 @@ test.describe("Admin users edit base", () => {
     test("server error (500) hides previous validation errors", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 422,
         json: {
           message: "The firstname field is required. (and 3 more errors)",
@@ -572,13 +562,16 @@ test.describe("Admin users edit base", () => {
         "The firstname field is required.",
       );
 
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 500,
         json: { message: "Test" },
       });
       await page.getByTestId("user-tab-profile-save-button").click();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("firstname-field")).not.toContainText(
         "The firstname field is required.",
@@ -595,30 +588,32 @@ test.describe("Admin users edit base", () => {
     });
 
     test("server error (500)", async ({ page }) => {
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 500,
         json: { message: "Test" },
       });
       await page.getByTestId("user-tab-profile-save-button").click();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("firstname-field")).toBeVisible();
     });
 
     test("stale model (428) shows the stale dialog and reloads", async ({
       page,
+      user,
     }) => {
-      const user = readFixture("userDataUser.json");
       user.data.firstname = "Juan";
       user.data.lastname = "Walter";
       user.data.user_locale = "de";
       user.data.timezone = "Europe/Berlin";
 
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 428,
         json: { message: "stale_model", new_model: user.data },
       });
-      await mockMethod(page, "GET", USER_URL, { json: user });
 
       await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
       await page.getByTestId("user-tab-profile-save-button").click();
@@ -636,7 +631,7 @@ test.describe("Admin users edit base", () => {
       await expectAdminBreadcrumbs(
         page,
         "admin.breadcrumbs.users.index",
-        viewBreadcrumbJuanWalter,
+        'admin.breadcrumbs.users.view_{"firstname":"Juan","lastname":"Walter"}',
       );
     });
 
@@ -649,7 +644,7 @@ test.describe("Admin users edit base", () => {
           new URL(request.url()).pathname === "/api/v1/users" &&
           request.method() === "GET",
       );
-      await mockMethod(page, "POST", USER_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
         status: 404,
         json: { message: "model_not_found", model: "user", ids: [2] },
       });
@@ -669,7 +664,10 @@ test.describe("Admin users edit base", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", USER_URL, { status: 401, json: {} });
+      await mockMethod(page, "POST", "**/api/v1/users/2", {
+        status: 401,
+        json: {},
+      });
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
@@ -677,11 +675,9 @@ test.describe("Admin users edit base", () => {
     });
   });
 
-  test("view as external user", async ({ page }) => {
-    const user = readFixture("userDataUser.json");
+  test("view as external user", async ({ page, user }) => {
     user.data.authenticator = "ldap";
     user.data.external_id = "lwr";
-    await mockMethod(page, "GET", USER_URL, { json: user });
 
     await page.goto("/admin/users/2/edit");
 
@@ -724,11 +720,16 @@ test.describe("Admin users edit base", () => {
 
   test.describe("load timezones error", () => {
     test("loading state and server error (500)", async ({ page }) => {
-      const timezones = await mockMethod(page, "GET", TIMEZONES_URL, {
-        status: 500,
-        json: { message: "Test" },
-        hold: true,
-      });
+      const timezones = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/getTimezones",
+        {
+          status: 500,
+          json: { message: "Test" },
+          hold: true,
+        },
+      );
 
       await page.goto("/admin/users/2/edit");
       await nthRequest(timezones);
@@ -743,7 +744,10 @@ test.describe("Admin users edit base", () => {
 
       timezones.release();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("timezone-dropdown")).toHaveText(
         "admin.users.timezone",
@@ -752,15 +756,18 @@ test.describe("Admin users edit base", () => {
     });
 
     test("reload timezones", async ({ page }) => {
-      await mockMethod(page, "GET", TIMEZONES_URL, {
+      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.goto("/admin/users/2/edit");
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      await mockMethod(page, "GET", TIMEZONES_URL, {
+      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
         path: "tests/Playwright/fixtures/timezones.json",
       });
       await page.getByTestId("timezone-reload-button").click();
@@ -787,7 +794,10 @@ test.describe("Admin users edit base", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      await mockMethod(page, "GET", TIMEZONES_URL, { status: 401, json: {} });
+      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+        status: 401,
+        json: {},
+      });
 
       await page.goto("/admin/users/2/edit");
 

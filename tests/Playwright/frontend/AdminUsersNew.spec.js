@@ -1,83 +1,29 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminUsersOther.js";
 import {
   expectAdminBreadcrumbs,
   expectMultiselectOptions,
 } from "../support/admin.js";
-import { interceptAdminUsersNewRequests } from "../support/mocks.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const ROLES_URL = "**/api/v1/roles*";
-const TIMEZONES_URL = "**/api/v1/getTimezones";
-const USERS_URL = "**/api/v1/users";
-const NO_ROLES_TEXT = "admin.roles.no_data";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const secondRolesPage = {
-  data: [
-    {
-      id: 4,
-      name: "Dean",
-      default: false,
-      updated_at: "2021-01-08T15:51:08.000000Z",
-      model_name: "Role",
-      room_limit: 20,
-    },
-    {
-      id: 5,
-      name: "Faculty",
-      default: false,
-      updated_at: "2021-03-19T09:12:44.000000Z",
-      model_name: "Role",
-      room_limit: 20,
-    },
-    {
-      id: 6,
-      name: "Manager",
-      default: false,
-      updated_at: "2021-05-22T11:55:21.000000Z",
-      model_name: "Role",
-      room_limit: -1,
-    },
-  ],
-  meta: {
-    current_page: 2,
-    from: 4,
-    last_page: 2,
-    per_page: 3,
-    to: 6,
-    total: 6,
-  },
-};
-
-const defaultPermissions = [
-  "admin.view",
-  "users.viewAny",
-  "users.view",
-  "users.update",
-  "users.create",
-  "users.delete",
-  "roles.viewAny",
-];
-
 test.use({ authenticated: true });
 
 test.describe("Admin users new", () => {
-  test.beforeEach(async ({ page, currentUser, config }) => {
-    currentUser.data.permissions = [...defaultPermissions];
+  test.beforeEach(async ({ currentUser, config }) => {
+    currentUser.data.permissions = [
+      "admin.view",
+      "users.viewAny",
+      "users.view",
+      "users.update",
+      "users.create",
+      "users.delete",
+      "roles.viewAny",
+    ];
     config.data.auth.local = true;
-    await interceptAdminUsersNewRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -244,7 +190,7 @@ test.describe("Admin users new", () => {
       await expectMultiselectOptions(
         content,
         ["Superuser", "Staff", "Students"],
-        NO_ROLES_TEXT,
+        "admin.roles.no_data",
       );
       await expect(
         content.locator(".multiselect__option").first(),
@@ -303,7 +249,10 @@ test.describe("Admin users new", () => {
       ).toBeVisible();
     });
 
-    test("add new user with custom password and 1 role", async ({ page }) => {
+    test("add new user with custom password and 1 role", async ({
+      page,
+      user,
+    }) => {
       await page.locator("#firstname").fill("Max");
       await page.locator("#lastname").fill("Doe");
       await page.locator("#email").fill("maxdoe@domain.tld");
@@ -328,7 +277,6 @@ test.describe("Admin users new", () => {
       await page.locator("#new_password").fill("Password!123");
       await page.locator("#new_password_confirmation").fill("Password!123");
 
-      const user = readFixture("userDataUser.json");
       user.data.id = 20;
       user.data.firstname = "Max";
       user.data.lastname = "Doe";
@@ -337,7 +285,7 @@ test.describe("Admin users new", () => {
       user.data.locale = "de";
       user.data.timezone = "Europe/Berlin";
 
-      const newUser = await mockMethod(page, "POST", USERS_URL, {
+      const newUser = await mockMethod(page, "POST", "**/api/v1/users", {
         status: 201,
         json: user,
       });
@@ -366,11 +314,10 @@ test.describe("Admin users new", () => {
       );
     });
 
-    test("loading state while saving", async ({ page }) => {
-      const user = readFixture("userDataUser.json");
+    test("loading state while saving", async ({ page, user }) => {
       user.data.id = 20;
 
-      const newUser = await mockMethod(page, "POST", USERS_URL, {
+      const newUser = await mockMethod(page, "POST", "**/api/v1/users", {
         status: 201,
         json: user,
         hold: true,
@@ -408,6 +355,8 @@ test.describe("Admin users new", () => {
 
     test("add new user with generated password and several roles", async ({
       page,
+      user,
+      secondRoles,
     }) => {
       await page.locator("#firstname").fill("Max");
       await page.locator("#lastname").fill("Doe");
@@ -424,13 +373,13 @@ test.describe("Admin users new", () => {
       await expect(content).toBeVisible();
 
       // Switch to next page
-      await mockMethod(page, "GET", ROLES_URL, { json: secondRolesPage });
+      await mockMethod(page, "GET", "**/api/v1/roles*", { json: secondRoles });
       await content.getByTestId("next-page-button").click();
 
       await expectMultiselectOptions(
         content,
         ["Dean", "Faculty", "Manager"],
-        NO_ROLES_TEXT,
+        "admin.roles.no_data",
       );
 
       await content.locator(".multiselect__option").nth(0).click();
@@ -454,13 +403,12 @@ test.describe("Admin users new", () => {
 
       await page.locator("#generate_password").click();
 
-      const user = readFixture("userDataUser.json");
       user.data.id = 20;
       user.data.roles = [
         { id: 4, name: "Dean" },
         { id: 6, name: "Manager" },
       ];
-      const newUser = await mockMethod(page, "POST", USERS_URL, {
+      const newUser = await mockMethod(page, "POST", "**/api/v1/users", {
         status: 201,
         json: user,
       });
@@ -481,7 +429,10 @@ test.describe("Admin users new", () => {
       await expect(page).toHaveURL(/\/admin\/users\/20/);
     });
 
-    test("roles pagination and loading state", async ({ page }) => {
+    test("roles pagination and loading state", async ({
+      page,
+      secondRoles,
+    }) => {
       await page
         .getByTestId("role-dropdown")
         .locator(".multiselect__tags")
@@ -496,8 +447,8 @@ test.describe("Admin users new", () => {
       await expect(next).toContainText("app.next_page");
       await expect(next).toBeEnabled();
 
-      const rolesRequest = await mockMethod(page, "GET", ROLES_URL, {
-        json: secondRolesPage,
+      const rolesRequest = await mockMethod(page, "GET", "**/api/v1/roles*", {
+        json: secondRoles,
         hold: true,
       });
 
@@ -519,7 +470,7 @@ test.describe("Admin users new", () => {
       await expectMultiselectOptions(
         content,
         ["Dean", "Faculty", "Manager"],
-        NO_ROLES_TEXT,
+        "admin.roles.no_data",
       );
     });
   });
@@ -557,7 +508,7 @@ test.describe("Admin users new", () => {
     });
 
     test("422 error shows messages at the fields", async ({ page }) => {
-      const newUser = await mockMethod(page, "POST", USERS_URL, {
+      const newUser = await mockMethod(page, "POST", "**/api/v1/users", {
         status: 422,
         json: {
           message: "The Firstname field is required. (and 8 more errors)",
@@ -591,25 +542,30 @@ test.describe("Admin users new", () => {
     });
 
     test("500 error hides the 422 error messages", async ({ page }) => {
-      const validationError = await mockMethod(page, "POST", USERS_URL, {
-        status: 422,
-        json: {
-          message: "The Firstname field is required.",
-          errors: {
-            firstname: ["The Firstname field is required."],
-            lastname: ["The Lastname field is required."],
-            email: ["The Email field is required."],
-            user_locale: ["The user locale field is required."],
-            timezone: ["The timezone field is required."],
-            roles: ["The Roles field is required."],
-            generate_password: ["The generate password field is required."],
-            new_password: [errorMessages["new-password-field"]],
-            new_password_confirmation: [
-              errorMessages["new-password-confirmation-field"],
-            ],
+      const validationError = await mockMethod(
+        page,
+        "POST",
+        "**/api/v1/users",
+        {
+          status: 422,
+          json: {
+            message: "The Firstname field is required.",
+            errors: {
+              firstname: ["The Firstname field is required."],
+              lastname: ["The Lastname field is required."],
+              email: ["The Email field is required."],
+              user_locale: ["The user locale field is required."],
+              timezone: ["The timezone field is required."],
+              roles: ["The Roles field is required."],
+              generate_password: ["The generate password field is required."],
+              new_password: [errorMessages["new-password-field"]],
+              new_password_confirmation: [
+                errorMessages["new-password-confirmation-field"],
+              ],
+            },
           },
         },
-      });
+      );
       await page.getByTestId("users-new-save-button").click();
       await nthRequest(validationError);
       await expectToastAndClose(page, "The Firstname field is required.");
@@ -617,14 +573,17 @@ test.describe("Admin users new", () => {
         errorMessages["firstname-field"],
       );
 
-      const serverError = await mockMethod(page, "POST", USERS_URL, {
+      const serverError = await mockMethod(page, "POST", "**/api/v1/users", {
         status: 500,
         json: { message: "Test" },
       });
       await page.getByTestId("users-new-save-button").click();
       await nthRequest(serverError);
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       for (const [field, message] of Object.entries(errorMessages)) {
         await expect(page.getByTestId(field)).not.toContainText(message);
@@ -632,7 +591,7 @@ test.describe("Admin users new", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "POST", USERS_URL, { status: 401 });
+      await mockMethod(page, "POST", "**/api/v1/users", { status: 401 });
 
       await page.getByTestId("users-new-save-button").click();
 
@@ -641,12 +600,17 @@ test.describe("Admin users new", () => {
   });
 
   test.describe("load timezones errors", () => {
-    test("500 error and reload", async ({ page }) => {
-      const timezones = await mockMethod(page, "GET", TIMEZONES_URL, {
-        status: 500,
-        json: { message: "Test" },
-        hold: true,
-      });
+    test("500 error and reload", async ({ page, timezones }) => {
+      const timezonesRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/getTimezones",
+        {
+          status: 500,
+          json: { message: "Test" },
+          hold: true,
+        },
+      );
 
       await page.goto("/admin/users/new");
 
@@ -657,10 +621,13 @@ test.describe("Admin users new", () => {
         .locator(".p-select-label");
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
 
-      timezones.release();
-      await nthRequest(timezones);
+      timezonesRequest.release();
+      await nthRequest(timezonesRequest);
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("timezone-dropdown")).toHaveText(
         "admin.users.timezone",
@@ -669,8 +636,8 @@ test.describe("Admin users new", () => {
       await expect(page.getByTestId("users-new-save-button")).toBeDisabled();
 
       // Reload timezones without errors
-      const reloaded = await mockMethod(page, "GET", TIMEZONES_URL, {
-        json: readFixture("timezones.json"),
+      const reloaded = await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+        json: timezones,
       });
       await page.getByTestId("timezone-reload-button").click();
       await nthRequest(reloaded);
@@ -685,7 +652,7 @@ test.describe("Admin users new", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", TIMEZONES_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/getTimezones", { status: 401 });
 
       await page.goto("/admin/users/new");
 
@@ -698,9 +665,14 @@ test.describe("Admin users new", () => {
     currentUser,
   }) => {
     currentUser.data.superuser = false;
-    currentUser.data.permissions = defaultPermissions.filter(
-      (permission) => permission !== "users.delete",
-    );
+    currentUser.data.permissions = [
+      "admin.view",
+      "users.viewAny",
+      "users.view",
+      "users.update",
+      "users.create",
+      "roles.viewAny",
+    ];
 
     await page.goto("/admin/users/new");
     await page.getByTestId("role-dropdown").click();
@@ -710,7 +682,7 @@ test.describe("Admin users new", () => {
     await expectMultiselectOptions(
       content,
       ["Superuser", "Staff", "Students"],
-      NO_ROLES_TEXT,
+      "admin.roles.no_data",
     );
 
     const options = content.locator(".multiselect__option");
@@ -731,8 +703,8 @@ test.describe("Admin users new", () => {
   });
 
   test.describe("load roles errors", () => {
-    test("500 error and reload", async ({ page }) => {
-      const roles = await mockMethod(page, "GET", ROLES_URL, {
+    test("500 error and reload", async ({ page, roles }) => {
+      const rolesRequest = await mockMethod(page, "GET", "**/api/v1/roles*", {
         status: 500,
         json: { message: "Test" },
         hold: true,
@@ -746,10 +718,13 @@ test.describe("Admin users new", () => {
         /multiselect--disabled/,
       );
 
-      roles.release();
-      await nthRequest(roles);
+      rolesRequest.release();
+      await nthRequest(rolesRequest);
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("role-dropdown")).toHaveClass(
         /multiselect--disabled/,
@@ -757,8 +732,8 @@ test.describe("Admin users new", () => {
       await expect(page.getByTestId("users-new-save-button")).toBeDisabled();
 
       // Reload roles without errors
-      const reloaded = await mockMethod(page, "GET", ROLES_URL, {
-        json: readFixture("roles.json"),
+      const reloaded = await mockMethod(page, "GET", "**/api/v1/roles*", {
+        json: roles,
       });
       await page.getByTestId("roles-reload-button").click();
       await nthRequest(reloaded);
@@ -779,14 +754,17 @@ test.describe("Admin users new", () => {
       await page.getByTestId("role-dropdown").click();
       await expect(page.locator(".multiselect__content")).toBeVisible();
 
-      const roles = await mockMethod(page, "GET", ROLES_URL, {
+      const roles = await mockMethod(page, "GET", "**/api/v1/roles*", {
         status: 500,
         json: { message: "Test" },
       });
       await page.getByTestId("next-page-button").click();
       await nthRequest(roles);
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("role-dropdown")).toHaveClass(
         /multiselect--disabled/,
@@ -796,7 +774,7 @@ test.describe("Admin users new", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", ROLES_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
 
       await page.goto("/admin/users/new");
 
@@ -810,7 +788,7 @@ test.describe("Admin users new", () => {
       await page.getByTestId("role-dropdown").click();
       await expect(page.locator(".multiselect__content")).toBeVisible();
 
-      await mockMethod(page, "GET", ROLES_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
       await page.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/users/new");

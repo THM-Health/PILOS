@@ -1,4 +1,14 @@
+import { readFileSync } from "node:fs";
 import { expect } from "@playwright/test";
+
+/**
+ * Reads a JSON fixture from `tests/Playwright/fixtures`. Returns a new object each time, so tests can change it.
+ * @param {string} name e.g. "room.json"
+ * @returns {any}
+ */
+export function readFixture(name) {
+  return JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
+}
 
 /**
  * Query parameters of a request as a plain object.

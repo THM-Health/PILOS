@@ -1,45 +1,12 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminServerPools.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
-import {
-  interceptAdminServerPoolsViewRequests,
-  interceptAdminServerPoolsIndexRequests,
-} from "../support/mocks.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
 
-const SERVER_POOL_URL = "**/api/v1/serverPools/1";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-/**
- * Expect the original server pool values (fixture) in the form, optionally disabled (view mode).
- */
-async function expectOriginalValues(page, disabled) {
-  const state = disabled ? "toBeDisabled" : "toBeEnabled";
-  await expect(page.locator("#name")).toHaveValue("Test");
-  await expect(page.locator("#name"))[state]();
-  await expect(page.locator("#description")).toHaveValue("Pool for testing");
-  await expect(page.locator("#description"))[state]();
-
-  const dropdown = page.getByTestId("server-dropdown");
-  const chips = dropdown.getByTestId("server-chip");
-  await expect(chips).toHaveCount(2);
-  await expect(dropdown).toHaveClass(
-    disabled ? /multiselect--disabled/ : /^((?!multiselect--disabled).)*$/,
-  );
-  for (const [index, name] of ["Server 01", "Server 02"].entries()) {
-    await expect(chips.nth(index)).toContainText(name);
-    await expect(
-      chips.nth(index).getByTestId("remove-server-button"),
-    ).toHaveCount(disabled ? 0 : 1);
-  }
-}
+test.use({ authenticated: true });
 
 test.describe("Admin server pools view", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "servers.viewAny",
@@ -49,7 +16,6 @@ test.describe("Admin server pools view", () => {
       "serverPools.create",
       "serverPools.delete",
     ];
-    await interceptAdminServerPoolsViewRequests(page);
   });
 
   test.describe("delete", () => {
@@ -76,20 +42,20 @@ test.describe("Admin server pools view", () => {
 
     test("delete the server pool and redirect to the index", async ({
       page,
+      serverPools,
     }) => {
-      const deleteRequest = await mockMethod(page, "DELETE", SERVER_POOL_URL, {
-        status: 204,
-        hold: true,
-      });
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/serverPools/1",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
 
-      const serverPools = readFixture("serverPools.json");
       serverPools.data = serverPools.data.slice(1, 2);
-      serverPools.meta.to = 1;
-      serverPools.meta.total = 1;
-      serverPools.meta.total_no_filter = 1;
-      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
-        json: serverPools,
-      });
+      Object.assign(serverPools.meta, { to: 1, total: 1, total_no_filter: 1 });
 
       const dialog = page.getByTestId("server-pools-delete-dialog");
       await expect(dialog).toBeVisible();
@@ -117,31 +83,36 @@ test.describe("Admin server pools view", () => {
     test("server pool attached to room types (428) shows the room types", async ({
       page,
     }) => {
-      const deleteRequest = await mockMethod(page, "DELETE", SERVER_POOL_URL, {
-        status: 428,
-        json: {
-          error: 428,
-          message: "app.errors.server_pool_delete_failed",
-          room_types: [
-            {
-              id: 1,
-              name: "Lecture",
-              description: null,
-              color: "#80BA27",
-              model_name: "RoomType",
-              updated_at: "2021-01-12T14:35:11.000000Z",
-            },
-            {
-              id: 2,
-              name: "Meeting",
-              description: null,
-              color: "#4a5c66",
-              model_name: "RoomType",
-              updated_at: "2021-01-12T14:35:11.000000Z",
-            },
-          ],
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/serverPools/1",
+        {
+          status: 428,
+          json: {
+            error: 428,
+            message: "app.errors.server_pool_delete_failed",
+            room_types: [
+              {
+                id: 1,
+                name: "Lecture",
+                description: null,
+                color: "#80BA27",
+                model_name: "RoomType",
+                updated_at: "2021-01-12T14:35:11.000000Z",
+              },
+              {
+                id: 2,
+                name: "Meeting",
+                description: null,
+                color: "#4a5c66",
+                model_name: "RoomType",
+                updated_at: "2021-01-12T14:35:11.000000Z",
+              },
+            ],
+          },
         },
-      });
+      );
 
       await page.getByTestId("dialog-continue-button").click();
       await nthRequest(deleteRequest);
@@ -164,10 +135,15 @@ test.describe("Admin server pools view", () => {
     });
 
     test("server error (500) keeps the dialog open", async ({ page }) => {
-      const deleteRequest = await mockMethod(page, "DELETE", SERVER_POOL_URL, {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/serverPools/1",
+        {
+          status: 500,
+          json: { message: "Test" },
+        },
+      );
 
       await page.getByTestId("dialog-continue-button").click();
       await nthRequest(deleteRequest);
@@ -184,11 +160,15 @@ test.describe("Admin server pools view", () => {
     test("server pool not found (404) redirects to the index", async ({
       page,
     }) => {
-      await interceptAdminServerPoolsIndexRequests(page);
-      const deleteRequest = await mockMethod(page, "DELETE", SERVER_POOL_URL, {
-        status: 404,
-        json: { message: "model_not_found", model: "server_pool", ids: [1] },
-      });
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/serverPools/1",
+        {
+          status: 404,
+          json: { message: "model_not_found", model: "server_pool", ids: [1] },
+        },
+      );
 
       await page.getByTestId("dialog-continue-button").click();
       await nthRequest(deleteRequest);
@@ -202,9 +182,14 @@ test.describe("Admin server pools view", () => {
     });
 
     test("unauthenticated (401) redirects to the login", async ({ page }) => {
-      const deleteRequest = await mockMethod(page, "DELETE", SERVER_POOL_URL, {
-        status: 401,
-      });
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/serverPools/1",
+        {
+          status: 401,
+        },
+      );
 
       await page.getByTestId("dialog-continue-button").click();
       await nthRequest(deleteRequest);
@@ -216,35 +201,42 @@ test.describe("Admin server pools view", () => {
   test.describe("switch between edit and view", () => {
     test("edit changes are discarded when switching to view", async ({
       page,
+      serverSelect,
     }) => {
       await page.goto("/admin/server_pools/1/edit");
-      await expectOriginalValues(page, false);
+      await expect(page.locator("#name")).toHaveValue("Test");
+      await expect(page.locator("#name")).toBeEnabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Pool for testing",
+      );
+      await expect(page.locator("#description")).toBeEnabled();
+      await expect(serverSelect.dropdown).not.toHaveClass(
+        /multiselect--disabled/,
+      );
+      await expect(serverSelect.chips).toContainText([
+        "Server 01",
+        "Server 02",
+      ]);
+      await expect(serverSelect.visibleRemoveButtons).toHaveCount(2);
 
       await page.locator("#name").fill("Server Pool 1");
       await page.locator("#description").fill("Server Pool 1 description");
 
-      const dropdown = page.getByTestId("server-dropdown");
-      await dropdown.click();
-      await expect(page.locator(".multiselect__content")).toBeVisible();
-      await page.locator(".multiselect__option").nth(2).click();
-      await expect(page.locator(".multiselect__content")).toBeVisible();
+      await serverSelect.open();
+      await expect(serverSelect.content).toBeVisible();
+      await serverSelect.selectOption(2);
+      await expect(serverSelect.content).toBeVisible();
 
-      const chips = dropdown.getByTestId("server-chip");
-      await expect(chips).toHaveCount(3);
-      for (const [index, name] of [
+      await expect(serverSelect.chips).toContainText([
         "Server 01",
         "Server 02",
         "Server 03",
-      ].entries()) {
-        await expect(chips.nth(index)).toContainText(name);
-        await expect(
-          chips.nth(index).getByTestId("remove-server-button"),
-        ).toBeVisible();
-      }
+      ]);
+      await expect(serverSelect.visibleRemoveButtons).toHaveCount(3);
 
       // Close dropdown
-      await page.locator(".multiselect__select").click();
-      await expect(page.locator(".multiselect__content")).toHaveCount(0);
+      await serverSelect.close();
+      await expect(serverSelect.content).toHaveCount(0);
 
       await expect(page.getByTestId("server-pools-save-button")).toBeEnabled();
 
@@ -253,21 +245,57 @@ test.describe("Admin server pools view", () => {
       await expect(page).toHaveURL(/\/admin\/server_pools\/1$/);
 
       // Changes were not saved
-      await expectOriginalValues(page, true);
+      await expect(page.locator("#name")).toHaveValue("Test");
+      await expect(page.locator("#name")).toBeDisabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Pool for testing",
+      );
+      await expect(page.locator("#description")).toBeDisabled();
+      await expect(serverSelect.dropdown).toHaveClass(/multiselect--disabled/);
+      await expect(serverSelect.chips).toContainText([
+        "Server 01",
+        "Server 02",
+      ]);
+      await expect(serverSelect.removeButtons).toHaveCount(0);
       await expect(page.getByTestId("server-pools-save-button")).toHaveCount(0);
     });
 
     test("switch from view back to edit shows the original values", async ({
       page,
+      serverSelect,
     }) => {
       await page.goto("/admin/server_pools/1");
-      await expectOriginalValues(page, true);
+      await expect(page.locator("#name")).toHaveValue("Test");
+      await expect(page.locator("#name")).toBeDisabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Pool for testing",
+      );
+      await expect(page.locator("#description")).toBeDisabled();
+      await expect(serverSelect.dropdown).toHaveClass(/multiselect--disabled/);
+      await expect(serverSelect.chips).toContainText([
+        "Server 01",
+        "Server 02",
+      ]);
+      await expect(serverSelect.removeButtons).toHaveCount(0);
       await expect(page.getByTestId("server-pools-save-button")).toHaveCount(0);
 
       await page.getByTestId("server-pools-edit-button").click();
       await expect(page).toHaveURL(/\/admin\/server_pools\/1\/edit$/);
 
-      await expectOriginalValues(page, false);
+      await expect(page.locator("#name")).toHaveValue("Test");
+      await expect(page.locator("#name")).toBeEnabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Pool for testing",
+      );
+      await expect(page.locator("#description")).toBeEnabled();
+      await expect(serverSelect.dropdown).not.toHaveClass(
+        /multiselect--disabled/,
+      );
+      await expect(serverSelect.chips).toContainText([
+        "Server 01",
+        "Server 02",
+      ]);
+      await expect(serverSelect.visibleRemoveButtons).toHaveCount(2);
       await expect(page.getByTestId("server-pools-save-button")).toBeEnabled();
     });
   });

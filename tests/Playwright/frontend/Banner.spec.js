@@ -1,7 +1,5 @@
 import { test, expect } from "../support/test.js";
-
-const redirectBaseUrl =
-  "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 
 test.describe("Banner", () => {
   test.use({ authenticated: true });
@@ -13,7 +11,7 @@ test.describe("Banner", () => {
         title: "Banner title",
         icon: "fa-solid fa-door-open",
         message: "Banner text message",
-        link: `${redirectBaseUrl}/?foo=a&bar=b`,
+        link: `https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b`,
         link_text: "Example link",
         link_style: "link",
         link_target: "blank",
@@ -53,7 +51,7 @@ test.describe("Banner", () => {
         .getByTestId("banner-link-button");
       await expect(link).toHaveAttribute(
         "href",
-        `${redirectBaseUrl}/?foo=a&bar=b`,
+        `https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b`,
       );
       await expect(link).toHaveAttribute("target", "_blank");
       await expect(link).toHaveText("Example link");
@@ -116,12 +114,7 @@ test.describe("Banner", () => {
     });
 
     // Requests needed to show the room index page (target of the link)
-    await page.route("**/api/v1/roomTypes*", (route) =>
-      route.fulfill({ path: "tests/Playwright/fixtures/roomTypes.json" }),
-    );
-    await page.route("**/api/v1/rooms*", (route) =>
-      route.fulfill({ path: "tests/Playwright/fixtures/rooms.json" }),
-    );
+    await interceptRoomIndexRequests(page);
 
     await page.goto("/");
 

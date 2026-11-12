@@ -1,36 +1,23 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import {
+  test,
+  expect,
+  expectToastAndClose,
+} from "../support/fixtures/adminRoomTypes.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
-  interceptAdminRoomTypesViewRequests,
-  interceptAdminRoomTypesIndexRequests,
-} from "../support/mocks.js";
-import {
   roomTypeCheckDefaultRoomSettingCheckboxField,
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
-import { holdRequest } from "../support/utils.js";
-
-const ROOM_TYPE_FIXTURE = "tests/Playwright/fixtures/roomType.json";
-
-/**
- * Mocks the GET request of the room type (overrides the default mock).
- * @param {import("@playwright/test").Page} page
- * @param {object} response - options for `route.fulfill()`
- */
-async function mockRoomTypeGet(page, response) {
-  await page.route("**/api/v1/roomTypes/3", (route) => route.fulfill(response));
-}
+import { holdRequest, mockMethod } from "../support/utils.js";
 
 test.describe("Admin room types view", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = ["admin.view", "roomTypes.view"];
-    await interceptAdminRoomTypesViewRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -54,9 +41,10 @@ test.describe("Admin room types view", () => {
 
   test("shows loading state and hides buttons while loading and without permissions", async ({
     page,
+    roomType,
   }) => {
     const release = await holdRequest(page, "**/api/v1/roomTypes/3", {
-      path: ROOM_TYPE_FIXTURE,
+      json: roomType,
     });
 
     await page.goto("/admin/room_types/3");
@@ -425,14 +413,12 @@ test.describe("Admin room types view", () => {
     });
   });
 
-  test("shows restriction and roles read-only", async ({ page }) => {
-    const roomType = JSON.parse(readFileSync(ROOM_TYPE_FIXTURE, "utf8"));
+  test("shows restriction and roles read-only", async ({ page, roomType }) => {
     roomType.data.restrict = true;
     roomType.data.roles = [
       { id: 1, name: "Superuser" },
       { id: 2, name: "Staff" },
     ];
-    await mockRoomTypeGet(page, { json: roomType });
 
     await page.goto("/admin/room_types/3");
 
@@ -457,8 +443,14 @@ test.describe("Admin room types view", () => {
   });
 
   test.describe("load errors", () => {
-    test("shows the error and allows to reload on 500", async ({ page }) => {
-      await mockRoomTypeGet(page, { status: 500, json: { message: "Test" } });
+    test("shows the error and allows to reload on 500", async ({
+      page,
+      roomType,
+    }) => {
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
+        status: 500,
+        json: { message: "Test" },
+      });
       await page.goto("/admin/room_types/3");
 
       // Check that overlay is shown
@@ -471,7 +463,9 @@ test.describe("Admin room types view", () => {
       ]);
 
       // Reload with correct data
-      await mockRoomTypeGet(page, { path: ROOM_TYPE_FIXTURE });
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
+        json: roomType,
+      });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -485,8 +479,7 @@ test.describe("Admin room types view", () => {
     });
 
     test("redirects to the index page on 404", async ({ page }) => {
-      await interceptAdminRoomTypesIndexRequests(page);
-      await mockRoomTypeGet(page, {
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
         status: 404,
         json: { message: "model_not_found", model: "room_type", ids: [3] },
       });
@@ -504,7 +497,7 @@ test.describe("Admin room types view", () => {
     });
 
     test("redirects to the login page on 401", async ({ page }) => {
-      await mockRoomTypeGet(page, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", { status: 401 });
 
       await page.goto("/admin/room_types/3");
 

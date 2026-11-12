@@ -1,10 +1,11 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsGeneralMisc.js";
 import {
   holdRequest,
   expectActivePage,
   queryOf,
   mockMethod,
+  readFixture,
 } from "../support/utils.js";
 import {
   interceptRoomFilesRequest,
@@ -15,118 +16,42 @@ import {
   selectSortType,
 } from "../support/room.js";
 
-const ROOM_PATH = "/api/v1/rooms/abc-def-123";
-const HISTORY_URL = "**/api/v1/rooms/abc-def-123/meetings*";
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-function isRoomRequest(request) {
-  return (
-    request.method() === "GET" && new URL(request.url()).pathname === ROOM_PATH
-  );
-}
-
-function isHistoryRequest(request) {
-  return (
-    request.method() === "GET" &&
-    new URL(request.url()).pathname === `${ROOM_PATH}/meetings`
-  );
-}
-
-/**
- * Show one meeting per page
- */
-function onePerPage({ lastPage, currentPage = 1, total } = {}) {
-  return (history) => {
-    history.data = history.data.slice(currentPage - 1, currentPage);
-    history.meta.current_page = currentPage;
-    history.meta.from = currentPage;
-    history.meta.to = currentPage;
-    history.meta.last_page = lastPage;
-    history.meta.per_page = 1;
-    if (total !== undefined) {
-      history.meta.total = total;
-    }
-  };
-}
-
-async function mockRoom(page, mutate = () => {}) {
-  const room = readFixture("room.json");
-  mutate(room);
-  return mockMethod(page, "GET", (url) => url.pathname === ROOM_PATH, {
-    status: 200,
-    json: room,
-  });
-}
-
-function mockRoomError(page, status, json) {
-  return mockMethod(page, "GET", (url) => url.pathname === ROOM_PATH, {
-    status,
-    json,
-  });
-}
-
-async function mockHistory(page, mutate = () => {}) {
-  const history = readFixture("roomHistory.json");
-  mutate(history);
-  return mockMethod(page, "GET", HISTORY_URL, { status: 200, json: history });
-}
-
-function mockHistoryError(page, status, json) {
-  return mockMethod(page, "GET", HISTORY_URL, { status, json });
-}
-
-async function expectControls(page, enabled) {
-  const sortGroup = page.getByTestId("sorting-type-inputgroup");
-  const sortLabel = sortGroup
-    .getByTestId("sorting-type-dropdown")
-    .locator(".p-select-label");
-  const reload = page.getByTestId("room-history-reload-button");
-
-  if (enabled) {
-    await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
-    await expect(sortGroup.locator("button")).toBeEnabled();
-    await expect(reload).toBeEnabled();
-  } else {
-    await expect(sortLabel).toHaveAttribute("aria-disabled", "true");
-    await expect(sortGroup.locator("button")).toBeDisabled();
-    await expect(reload).toBeDisabled();
-  }
-}
-
 test.describe("Rooms view history", () => {
   test.use({ authenticated: true });
 
   test.beforeEach(async ({ page }) => {
     await page.clock.setFixedTime(Date.UTC(2021, 5, 25));
-    await mockRoom(page);
     await interceptRoomFilesRequest(page);
-    await mockHistory(page);
   });
 
   test.describe("load history", () => {
     test("shows the loading state", async ({ page }) => {
-      const release = await holdRequest(page, HISTORY_URL, {
-        json: readFixture("roomHistory.json"),
-      });
+      const release = await holdRequest(
+        page,
+        "**/api/v1/rooms/abc-def-123/meetings*",
+        { json: readFixture("roomHistory.json") },
+      );
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-history").click();
       await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=history/);
 
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectControls(page, false);
+      const sortGroup = page.getByTestId("sorting-type-inputgroup");
+      const sortLabel = sortGroup
+        .getByTestId("sorting-type-dropdown")
+        .locator(".p-select-label");
+      const reload = page.getByTestId("room-history-reload-button");
+      await expect(sortLabel).toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeDisabled();
+      await expect(reload).toBeDisabled();
 
       release();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectControls(page, true);
+      await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeEnabled();
+      await expect(reload).toBeEnabled();
       await expect(page.getByTestId("room-history-item")).toHaveCount(5);
     });
 
@@ -208,17 +133,18 @@ test.describe("Rooms view history", () => {
 
     test("shows a message if there is no history after reloading", async ({
       page,
+      roomHistory,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=history");
       await expect(page.getByTestId("room-history-item")).toHaveCount(5);
 
-      await mockHistory(page, (history) => {
-        history.data = [];
-        history.meta.from = null;
-        history.meta.to = null;
-        history.meta.total = 0;
-      });
-      const historyRequest = page.waitForRequest(isHistoryRequest);
+      roomHistory.json.data = [];
+      roomHistory.json.meta.from = null;
+      roomHistory.json.meta.to = null;
+      roomHistory.json.meta.total = 0;
+      const historyRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/meetings*",
+      );
       await page.getByTestId("room-history-reload-button").click();
       await historyRequest;
 
@@ -271,27 +197,48 @@ test.describe("Rooms view history", () => {
   test.describe("load errors", () => {
     test("shows the overlay and the error on a server error", async ({
       page,
+      roomHistory,
     }) => {
-      await mockHistoryError(page, 500, { message: "Test" });
+      roomHistory.status = 500;
+      roomHistory.json = { message: "Test" };
 
       await page.goto("/rooms/abc-def-123#tab=history");
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(page.getByTestId("loading-retry-button")).toContainText(
         "app.reload",
       );
-      await expectControls(page, true);
+      const sortGroup = page.getByTestId("sorting-type-inputgroup");
+      const sortLabel = sortGroup
+        .getByTestId("sorting-type-dropdown")
+        .locator(".p-select-label");
+      await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeEnabled();
+      await expect(
+        page.getByTestId("room-history-reload-button"),
+      ).toBeEnabled();
     });
 
-    test("reloads the history after a server error", async ({ page }) => {
-      await mockHistoryError(page, 500, { message: "Test" });
+    test("reloads the history after a server error", async ({
+      page,
+      roomHistory,
+    }) => {
+      roomHistory.status = 500;
+      roomHistory.json = { message: "Test" };
 
       await page.goto("/rooms/abc-def-123#tab=history");
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      await mockHistory(page, onePerPage({ lastPage: 5 }));
+      roomHistory.status = 200;
+      roomHistory.showOnePerPage({ lastPage: 5 });
 
       await page.getByTestId("loading-retry-button").click();
 
@@ -304,14 +251,19 @@ test.describe("Rooms view history", () => {
     });
 
     test.describe("on changing the page", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockHistory(page, onePerPage({ lastPage: 5 }));
+      test.beforeEach(async ({ page, roomHistory }) => {
+        roomHistory.status = 200;
+        roomHistory.showOnePerPage({ lastPage: 5 });
         await page.goto("/rooms/abc-def-123#tab=history");
         await expect(page.getByTestId("room-history-item")).toHaveCount(1);
 
-        await mockHistoryError(page, 500, { message: "Test" });
+        roomHistory.status = 500;
+        roomHistory.json = { message: "Test" };
         await page.getByTestId("paginator-next-button").nth(1).click();
-        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
       });
 
       test("shows the overlay and the error on a server error", async ({
@@ -321,13 +273,24 @@ test.describe("Rooms view history", () => {
         await expect(page.getByTestId("loading-retry-button")).toContainText(
           "app.reload",
         );
-        await expectControls(page, true);
+        const sortGroup = page.getByTestId("sorting-type-inputgroup");
+        const sortLabel = sortGroup
+          .getByTestId("sorting-type-dropdown")
+          .locator(".p-select-label");
+        await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
+        await expect(sortGroup.locator("button")).toBeEnabled();
+        await expect(
+          page.getByTestId("room-history-reload-button"),
+        ).toBeEnabled();
       });
 
-      test("reloads the first page", async ({ page }) => {
-        await mockHistory(page, onePerPage({ lastPage: 5 }));
+      test("reloads the first page", async ({ page, roomHistory }) => {
+        roomHistory.status = 200;
+        roomHistory.showOnePerPage({ lastPage: 5 });
 
-        const historyRequest = page.waitForRequest(isHistoryRequest);
+        const historyRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/meetings*",
+        );
         await page.getByTestId("loading-retry-button").click();
 
         expect(queryOf(await historyRequest)).toMatchObject({ page: "1" });
@@ -343,25 +306,26 @@ test.describe("Rooms view history", () => {
     });
 
     test.describe("on changing the page with an unauthenticated error", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockHistory(page, onePerPage({ lastPage: 3 }));
+      test.beforeEach(async ({ page, roomHistory }) => {
+        roomHistory.status = 200;
+        roomHistory.showOnePerPage({ lastPage: 3 });
         await page.goto("/rooms/abc-def-123#tab=history");
         await expect(page.getByTestId("room-history-item")).toHaveCount(1);
 
-        await mockHistoryError(page, 401);
+        roomHistory.status = 401;
+        roomHistory.json = undefined;
       });
 
       test("asks for the guest name if the room has no access code", async ({
         page,
+        room,
       }) => {
-        await mockRoom(page, (room) => {
-          room.data.current_user = null;
-        });
+        room.data.current_user = null;
 
         const filesRequest = page.waitForRequest((request) =>
           new URL(request.url()).pathname.endsWith("/rooms/abc-def-123/files"),
         );
-        const roomRequest = page.waitForRequest(isRoomRequest);
+        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -394,13 +358,12 @@ test.describe("Rooms view history", () => {
 
       test("shows the access code overlay if the room has an access code", async ({
         page,
+        room,
       }) => {
-        await mockRoom(page, (room) => {
-          room.data.current_user = null;
-          room.data.authenticated = false;
-        });
+        room.data.current_user = null;
+        room.data.authenticated = false;
 
-        const roomRequest = page.waitForRequest(isRoomRequest);
+        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -410,9 +373,12 @@ test.describe("Rooms view history", () => {
       });
 
       test("shows an error if guests are forbidden", async ({ page }) => {
-        await mockRoomError(page, 403, { message: "guests_not_allowed" });
+        await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123", {
+          status: 403,
+          json: { message: "guests_not_allowed" },
+        });
 
-        const roomRequest = page.waitForRequest(isRoomRequest);
+        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -426,18 +392,18 @@ test.describe("Rooms view history", () => {
 
     test("redirects to the files tab on a forbidden error when changing the page", async ({
       page,
+      roomHistory,
+      room,
     }) => {
-      await mockHistory(page, onePerPage({ lastPage: 3 }));
+      roomHistory.status = 200;
+      roomHistory.showOnePerPage({ lastPage: 3 });
       await page.goto("/rooms/abc-def-123#tab=history");
       await expect(page.getByTestId("room-history-item")).toHaveCount(1);
 
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.is_member = true;
-      });
-      await mockHistoryError(page, 403, {
-        message: "This action is unauthorized.",
-      });
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.is_member = true;
+      roomHistory.status = 403;
+      roomHistory.json = { message: "This action is unauthorized." };
 
       const filesRequest = page.waitForRequest((request) =>
         new URL(request.url()).pathname.endsWith("/rooms/abc-def-123/files"),
@@ -462,16 +428,18 @@ test.describe("Rooms view history", () => {
 
     test("redirects to the room index page if the room is not found", async ({
       page,
+      roomHistory,
     }) => {
       await page.goto("/rooms/abc-def-123");
       await expect(page.locator("#tab-history")).toBeVisible();
 
       await interceptRoomIndexRequests(page);
-      await mockHistoryError(page, 404, {
+      roomHistory.status = 404;
+      roomHistory.json = {
         message: "model_not_found",
         model: "room",
         ids: ["abc-def-123"],
-      });
+      };
 
       await page.locator("#tab-history").click();
 
@@ -485,18 +453,17 @@ test.describe("Rooms view history", () => {
 
   test("resets the page if the requested page is out of range", async ({
     page,
+    roomHistory,
   }) => {
-    await mockHistory(page, (history) => {
-      onePerPage({ lastPage: 2, total: 2 })(history);
-      history.data[0].role = 3;
-    });
+    roomHistory.showOnePerPage({ lastPage: 2, total: 2 });
+    roomHistory.json.data[0].role = 3;
 
     await page.goto("/rooms/abc-def-123#tab=history");
     await expect(page.getByTestId("room-history-item")).toHaveCount(1);
 
     // The second page is empty, the following request (first page) returns the meetings
     const requests = [];
-    await page.route(HISTORY_URL, (route) => {
+    await page.route("**/api/v1/rooms/abc-def-123/meetings*", (route) => {
       requests.push(queryOf(route.request()));
       const history = readFixture("roomHistory.json");
       if (requests.length === 1) {
@@ -528,10 +495,10 @@ test.describe("Rooms view history", () => {
   });
 
   test.describe("sort history", () => {
-    const sortDropdown = (page) => page.getByTestId("sorting-type-dropdown");
-
     test("loads the history sorted by start descending", async ({ page }) => {
-      const historyRequest = page.waitForRequest(isHistoryRequest);
+      const historyRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/meetings*",
+      );
 
       await page.goto("/rooms/abc-def-123#tab=history");
 
@@ -549,8 +516,10 @@ test.describe("Rooms view history", () => {
       await expect(page.getByTestId("sorting-type-dropdown-items")).toHaveCount(
         0,
       );
-      await expect(sortDropdown(page)).toHaveText("meetings.start");
-      await sortDropdown(page).click();
+      await expect(page.getByTestId("sorting-type-dropdown")).toHaveText(
+        "meetings.start",
+      );
+      await page.getByTestId("sorting-type-dropdown").click();
 
       await expect(
         page.getByTestId("sorting-type-dropdown-items"),
@@ -563,12 +532,16 @@ test.describe("Rooms view history", () => {
 
     test("reloads the history when selecting the sorting type", async ({
       page,
+      roomHistory,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=history");
       await expect(page.getByTestId("room-history-item")).toHaveCount(5);
 
-      await mockHistory(page, onePerPage({ lastPage: 5 }));
-      const historyRequest = page.waitForRequest(isHistoryRequest);
+      roomHistory.status = 200;
+      roomHistory.showOnePerPage({ lastPage: 5 });
+      const historyRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/meetings*",
+      );
       await selectSortType(page, 0);
 
       expect(queryOf(await historyRequest)).toMatchObject({
@@ -580,7 +553,9 @@ test.describe("Rooms view history", () => {
       await expect(page.getByTestId("sorting-type-dropdown-items")).toHaveCount(
         0,
       );
-      await expect(sortDropdown(page)).toHaveText("meetings.start");
+      await expect(page.getByTestId("sorting-type-dropdown")).toHaveText(
+        "meetings.start",
+      );
 
       await expect(page.getByTestId("room-history-item")).toHaveCount(1);
       await expect(page.getByTestId("room-history-item").first()).toContainText(
@@ -591,16 +566,19 @@ test.describe("Rooms view history", () => {
     });
 
     test.describe("with multiple pages", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockHistory(page, onePerPage({ lastPage: 5 }));
+      test.beforeEach(async ({ page, roomHistory }) => {
+        roomHistory.status = 200;
+        roomHistory.showOnePerPage({ lastPage: 5 });
         await page.goto("/rooms/abc-def-123#tab=history");
         await expect(page.getByTestId("room-history-item")).toHaveCount(1);
         await expectActivePage(page, 0);
       });
 
-      test("loads the next page", async ({ page }) => {
-        await mockHistory(page, onePerPage({ lastPage: 3, currentPage: 2 }));
-        const historyRequest = page.waitForRequest(isHistoryRequest);
+      test("loads the next page", async ({ page, roomHistory }) => {
+        roomHistory.showOnePerPage({ lastPage: 3, currentPage: 2 });
+        const historyRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/meetings*",
+        );
         // there are two paginator components, the first one for small devices and the second one for larger devices
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -610,7 +588,9 @@ test.describe("Rooms view history", () => {
           page: "2",
         });
 
-        await expect(sortDropdown(page)).toHaveText("meetings.start");
+        await expect(page.getByTestId("sorting-type-dropdown")).toHaveText(
+          "meetings.start",
+        );
         await expectActivePage(page, 1);
         await expect(page.getByTestId("room-history-item")).toHaveCount(1);
         await expect(
@@ -620,13 +600,17 @@ test.describe("Rooms view history", () => {
 
       test("resets the page when changing the sorting direction", async ({
         page,
+        roomHistory,
       }) => {
-        await mockHistory(page, onePerPage({ lastPage: 3, currentPage: 2 }));
+        roomHistory.showOnePerPage({ lastPage: 3, currentPage: 2 });
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockHistory(page, onePerPage({ lastPage: 3 }));
-        const historyRequest = page.waitForRequest(isHistoryRequest);
+        roomHistory.status = 200;
+        roomHistory.showOnePerPage({ lastPage: 3 });
+        const historyRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/meetings*",
+        );
         await page
           .getByTestId("sorting-type-inputgroup")
           .locator("button")
@@ -641,9 +625,12 @@ test.describe("Rooms view history", () => {
       });
 
       test.describe("with ascending direction", () => {
-        test.beforeEach(async ({ page }) => {
-          await mockHistory(page, onePerPage({ lastPage: 3 }));
-          const historyRequest = page.waitForRequest(isHistoryRequest);
+        test.beforeEach(async ({ page, roomHistory }) => {
+          roomHistory.status = 200;
+          roomHistory.showOnePerPage({ lastPage: 3 });
+          const historyRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/meetings*",
+          );
           await page
             .getByTestId("sorting-type-inputgroup")
             .locator("button")
@@ -656,9 +643,12 @@ test.describe("Rooms view history", () => {
 
         test("keeps the sorting direction when loading the next page", async ({
           page,
+          roomHistory,
         }) => {
-          await mockHistory(page, onePerPage({ lastPage: 3, currentPage: 2 }));
-          const historyRequest = page.waitForRequest(isHistoryRequest);
+          roomHistory.showOnePerPage({ lastPage: 3, currentPage: 2 });
+          const historyRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/meetings*",
+          );
           await page.getByTestId("paginator-next-button").nth(1).click();
 
           expect(queryOf(await historyRequest)).toMatchObject({
@@ -671,13 +661,17 @@ test.describe("Rooms view history", () => {
 
         test("resets the page when selecting the sorting type again", async ({
           page,
+          roomHistory,
         }) => {
-          await mockHistory(page, onePerPage({ lastPage: 3, currentPage: 2 }));
+          roomHistory.showOnePerPage({ lastPage: 3, currentPage: 2 });
           await page.getByTestId("paginator-next-button").nth(1).click();
           await expectActivePage(page, 1);
 
-          await mockHistory(page, onePerPage({ lastPage: 3 }));
-          const historyRequest = page.waitForRequest(isHistoryRequest);
+          roomHistory.status = 200;
+          roomHistory.showOnePerPage({ lastPage: 3 });
+          const historyRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/meetings*",
+          );
           await selectSortType(page, 0);
 
           expect(queryOf(await historyRequest)).toMatchObject({
@@ -685,7 +679,9 @@ test.describe("Rooms view history", () => {
             sort_direction: "asc",
             page: "1",
           });
-          await expect(sortDropdown(page)).toHaveText("meetings.start");
+          await expect(page.getByTestId("sorting-type-dropdown")).toHaveText(
+            "meetings.start",
+          );
           await expectActivePage(page, 0);
         });
       });

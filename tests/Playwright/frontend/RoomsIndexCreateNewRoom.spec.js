@@ -1,73 +1,20 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomIndexRequests,
-  interceptRoomViewRequests,
-} from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsIndexMeetingsRooms.js";
+import { interceptRoomViewRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { checkDefaultRoomSettingField } from "../support/room.js";
-import { mockMethod, nthRequest, queryOf } from "../support/utils.js";
+import {
+  mockMethod,
+  nthRequest,
+  queryOf,
+  readFixture,
+} from "../support/utils.js";
 
-const ROOMS_URL = "**/api/v1/rooms";
-const ROOM_TYPES_URL = "**/api/v1/roomTypes*";
-const ROOMS_LIST_URL = (url) => url.pathname === "/api/v1/rooms";
-
-const CREATED_ROOM = {
-  status: 201,
-  json: {
-    data: {
-      id: "abc-def-123",
-      owner: { id: 1, name: "John Doe" },
-      type: { id: 2, name: "Meeting", color: "#4a5c66" },
-    },
-  },
-};
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const ROOM_TYPE_NAMES = ["Lecture", "Meeting", "Exam", "Seminar"];
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-/**
- * Mock the room list with the rooms fixture, changed by `mutate`.
- */
-async function mockRooms(page, mutate = () => {}) {
-  const rooms = readFixture("rooms.json");
-  mutate(rooms);
-  await page.route(ROOMS_LIST_URL, (route) =>
-    route.request().method() === "GET"
-      ? route.fulfill({ json: rooms })
-      : route.fallback(),
-  );
-}
-
-function noRooms(rooms) {
-  rooms.data = [];
-  rooms.meta.total = 0;
-  rooms.meta.total_no_filter = 0;
-  rooms.meta.total_own = 0;
-}
-
-/**
- * Mock the room types with the fixture, changed by `mutate`.
- */
-function mockRoomTypes(page, fixture, mutate = () => {}) {
-  const roomTypes = readFixture(fixture);
-  mutate(roomTypes);
-  return mockMethod(page, "GET", ROOM_TYPES_URL, { json: roomTypes });
-}
+test.use({ authenticated: true });
 
 test.describe("Rooms index create new room", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = ["rooms.create"];
-    await interceptRoomIndexRequests(page);
   });
 
   test("button to create new room hidden", async ({ page, currentUser }) => {
@@ -97,12 +44,13 @@ test.describe("Rooms index create new room", () => {
       await expect(page.getByText("rooms.room_limit")).toHaveCount(0);
     });
 
-    test("open dialog and load room types", async ({ page }) => {
-      const roomTypes = await mockRoomTypes(page, "roomTypesWithSettings.json");
+    test("open dialog and load room types", async ({ page, roomTypes }) => {
+      roomTypes.withSettings();
+      const loadedBefore = roomTypes.requests.length;
 
       await page.getByTestId("room-create-button").click();
 
-      const request = await nthRequest(roomTypes);
+      const request = await nthRequest(roomTypes, loadedBefore + 1);
       expect(queryOf(request)).toEqual({
         with_room_settings: "1",
         with_features: "1",
@@ -117,7 +65,12 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("room-type-details")).toHaveCount(0);
 
       const options = dialog.getByTestId("room-type-select-option");
-      await expect(options).toHaveText(ROOM_TYPE_NAMES);
+      await expect(options).toHaveText([
+        "Lecture",
+        "Meeting",
+        "Exam",
+        "Seminar",
+      ]);
     });
 
     test("cancel resets the dialog", async ({ page }) => {
@@ -146,8 +99,8 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("room type details", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomTypes(page, "roomTypesWithSettings.json");
+    test.beforeEach(async ({ page, roomTypes }) => {
+      roomTypes.withSettings();
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
       await page.getByTestId("room-create-button").click();
@@ -320,33 +273,22 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("room type features", () => {
-    function mockStreaming(
-      page,
-      config,
-      { configEnabled, hideDisabled = true },
-    ) {
-      config.data.streaming.enabled = configEnabled;
-      config.data.general.hide_disabled_features = hideDisabled;
-      return mockRoomTypes(page, "roomTypesWithSettings.json", (roomTypes) => {
-        roomTypes.data[0].features.streaming.enabled = true;
-      });
-    }
+    test.beforeEach(async ({ roomTypes }) => {
+      roomTypes.withSettings();
+      roomTypes.json.data[0].features.streaming.enabled = true;
+    });
 
-    async function openDialogAndSelect(page, index) {
+    test("features enabled", async ({ page, config }) => {
+      config.data.streaming.enabled = true;
+      config.data.general.hide_disabled_features = true;
+
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
       await page.getByTestId("room-create-button").click();
       const dialog = page.getByTestId("room-create-dialog");
       await expect(dialog.getByTestId("room-type-details")).toHaveCount(0);
-      await dialog.getByTestId("room-type-select-option").nth(index).click();
+      await dialog.getByTestId("room-type-select-option").nth(0).click();
       await expect(dialog.getByTestId("room-type-details")).toBeVisible();
-      return dialog;
-    }
-
-    test("features enabled", async ({ page, config }) => {
-      await mockStreaming(page, config, { configEnabled: true });
-
-      const dialog = await openDialogAndSelect(page, 0);
 
       // Streaming is enabled for the room type
       const features = dialog.getByTestId("room-type-features");
@@ -366,20 +308,31 @@ test.describe("Rooms index create new room", () => {
     });
 
     test("features hidden if disabled", async ({ page, config }) => {
-      await mockStreaming(page, config, { configEnabled: false });
+      config.data.streaming.enabled = false;
+      config.data.general.hide_disabled_features = true;
 
-      const dialog = await openDialogAndSelect(page, 0);
+      await page.goto("/rooms");
+      await expect(page.getByTestId("room-card")).toHaveCount(3);
+      await page.getByTestId("room-create-button").click();
+      const dialog = page.getByTestId("room-create-dialog");
+      await expect(dialog.getByTestId("room-type-details")).toHaveCount(0);
+      await dialog.getByTestId("room-type-select-option").nth(0).click();
+      await expect(dialog.getByTestId("room-type-details")).toBeVisible();
 
       await expect(dialog.getByTestId("room-type-features")).toHaveCount(0);
     });
 
     test("disabled features shown if configured", async ({ page, config }) => {
-      await mockStreaming(page, config, {
-        configEnabled: false,
-        hideDisabled: false,
-      });
+      config.data.streaming.enabled = false;
+      config.data.general.hide_disabled_features = false;
 
-      const dialog = await openDialogAndSelect(page, 0);
+      await page.goto("/rooms");
+      await expect(page.getByTestId("room-card")).toHaveCount(3);
+      await page.getByTestId("room-create-button").click();
+      const dialog = page.getByTestId("room-create-dialog");
+      await expect(dialog.getByTestId("room-type-details")).toHaveCount(0);
+      await dialog.getByTestId("room-type-select-option").nth(0).click();
+      await expect(dialog.getByTestId("room-type-details")).toBeVisible();
 
       const features = dialog.getByTestId("room-type-features");
       await expect(features).toBeVisible();
@@ -391,8 +344,8 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("create room", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomTypes(page, "roomTypesWithSettings.json");
+    test.beforeEach(async ({ page, roomTypes }) => {
+      roomTypes.withSettings();
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
       await page.getByTestId("room-create-button").click();
@@ -402,8 +355,15 @@ test.describe("Rooms index create new room", () => {
       page,
     }) => {
       await interceptRoomViewRequests(page);
-      const createRoom = await mockMethod(page, "POST", ROOMS_URL, {
-        ...CREATED_ROOM,
+      const createRoom = await mockMethod(page, "POST", "**/api/v1/rooms", {
+        status: 201,
+        json: {
+          data: {
+            id: "abc-def-123",
+            owner: { id: 1, name: "John Doe" },
+            type: { id: 2, name: "Meeting", color: "#4a5c66" },
+          },
+        },
         hold: true,
       });
 
@@ -435,13 +395,13 @@ test.describe("Rooms index create new room", () => {
 
     test("422 errors are shown and replaced, room types are not reloaded", async ({
       page,
+      roomTypes,
     }) => {
-      const roomTypes = await mockRoomTypes(page, "roomTypes.json", (types) => {
-        const invalidType = structuredClone(types.data[0]);
-        invalidType.id = 999;
-        invalidType.name = "Invalid Type";
-        types.data.unshift(invalidType);
-      });
+      roomTypes.json = readFixture("roomTypes.json");
+      const invalidType = structuredClone(roomTypes.json.data[0]);
+      invalidType.id = 999;
+      invalidType.name = "Invalid Type";
+      roomTypes.json.data.unshift(invalidType);
       // Reload the page so that the dialog requests the room types with the invalid type
       await page.reload();
       await expect(page.getByTestId("room-card")).toHaveCount(3);
@@ -453,7 +413,7 @@ test.describe("Rooms index create new room", () => {
       const roomTypesCount = roomTypes.requests.length;
 
       // Create new room without room type
-      await mockMethod(page, "POST", ROOMS_URL, {
+      await mockMethod(page, "POST", "**/api/v1/rooms", {
         status: 422,
         json: {
           message: "The Room type field is required.",
@@ -468,7 +428,7 @@ test.describe("Rooms index create new room", () => {
       expect(roomTypes.requests).toHaveLength(roomTypesCount);
 
       // Create new room with invalid room type
-      await mockMethod(page, "POST", ROOMS_URL, {
+      await mockMethod(page, "POST", "**/api/v1/rooms", {
         status: 422,
         json: {
           message: "The selected Room type is invalid.",
@@ -480,7 +440,7 @@ test.describe("Rooms index create new room", () => {
         dialog.locator('[data-test="room-type-details"] > h3'),
       ).toContainText("Invalid Type");
       // The reloaded list has no invalid type anymore
-      const reloadedRoomTypes = await mockRoomTypes(page, "roomTypes.json");
+      roomTypes.json = readFixture("roomTypes.json");
       await dialog.getByTestId("dialog-save-button").click();
 
       // New error is shown, old error is gone
@@ -489,7 +449,7 @@ test.describe("Rooms index create new room", () => {
         "The Room type field is required.",
       );
       // Room types are reloaded and the selection is reset
-      await nthRequest(reloadedRoomTypes);
+      await nthRequest(roomTypes, roomTypesCount + 1);
       await expect(dialog.getByTestId("room-type-select-option")).toHaveCount(
         4,
       );
@@ -499,7 +459,7 @@ test.describe("Rooms index create new room", () => {
     test("422 name error replaces previous errors", async ({ page }) => {
       const dialog = page.getByTestId("room-create-dialog");
 
-      await mockMethod(page, "POST", ROOMS_URL, {
+      await mockMethod(page, "POST", "**/api/v1/rooms", {
         status: 422,
         json: {
           message: "The selected Room type is invalid.",
@@ -511,7 +471,7 @@ test.describe("Rooms index create new room", () => {
       await dialog.getByTestId("dialog-save-button").click();
       await expect(dialog).toContainText("The selected Room type is invalid.");
 
-      await mockMethod(page, "POST", ROOMS_URL, {
+      await mockMethod(page, "POST", "**/api/v1/rooms", {
         status: 422,
         json: {
           message: "The Name field is required.",
@@ -532,7 +492,7 @@ test.describe("Rooms index create new room", () => {
       const dialog = page.getByTestId("room-create-dialog");
 
       // Previous 422 error is hidden by the next request
-      await mockMethod(page, "POST", ROOMS_URL, {
+      await mockMethod(page, "POST", "**/api/v1/rooms", {
         status: 422,
         json: {
           message: "The Name field is required.",
@@ -543,14 +503,17 @@ test.describe("Rooms index create new room", () => {
       await dialog.getByTestId("dialog-save-button").click();
       await expect(dialog).toContainText("The Name field is required.");
 
-      await mockMethod(page, "POST", ROOMS_URL, {
+      await mockMethod(page, "POST", "**/api/v1/rooms", {
         status: 500,
         json: { message: "Test" },
       });
       await dialog.locator("#room-name").fill("New Room");
       await dialog.getByTestId("dialog-save-button").click();
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(dialog).toBeVisible();
       await expect(dialog).not.toContainText("The Name field is required.");
     });
@@ -560,7 +523,7 @@ test.describe("Rooms index create new room", () => {
       currentUser,
     }) => {
       const dialog = page.getByTestId("room-create-dialog");
-      await mockMethod(page, "POST", ROOMS_URL, { status: 403 });
+      await mockMethod(page, "POST", "**/api/v1/rooms", { status: 403 });
       currentUser.data.permissions = [];
 
       await dialog.getByTestId("dialog-save-button").click();
@@ -572,7 +535,7 @@ test.describe("Rooms index create new room", () => {
 
     test("401 error redirects to login", async ({ page }) => {
       const dialog = page.getByTestId("room-create-dialog");
-      await mockMethod(page, "POST", ROOMS_URL, { status: 401 });
+      await mockMethod(page, "POST", "**/api/v1/rooms", { status: 401 });
 
       await dialog.locator("#room-name").fill("New Room");
       await dialog.getByTestId("room-type-select-option").nth(0).click();
@@ -583,17 +546,17 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("room limit", () => {
-    test.beforeEach(async ({ page, currentUser }) => {
+    test.beforeEach(async ({ currentUser, rooms }) => {
       currentUser.data.room_limit = 1;
-      await mockRooms(page, noRooms);
+      rooms.json.data = [];
+      rooms.json.meta.total = 0;
+      rooms.json.meta.total_no_filter = 0;
+      rooms.json.meta.total_own = 0;
     });
 
-    test("limit reached when visiting", async ({ page }) => {
+    test("limit reached when visiting", async ({ page, rooms }) => {
       // The user already has a room
-      await mockRooms(page, (rooms) => {
-        noRooms(rooms);
-        rooms.meta.total_own = 1;
-      });
+      rooms.json.meta.total_own = 1;
       await page.goto("/rooms");
 
       await expect(
@@ -612,12 +575,11 @@ test.describe("Rooms index create new room", () => {
     });
 
     test.describe("limit reached on creation", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockMethod(page, "POST", ROOMS_URL, {
+      test.beforeEach(async ({ page, rooms }) => {
+        await mockMethod(page, "POST", "**/api/v1/rooms", {
           status: 463,
           json: { message: "Test" },
         });
-        await mockRoomTypes(page, "roomTypes.json");
         await page.goto("/rooms");
         await expect(
           page.getByText('rooms.room_limit_{"has":0,"max":1}'),
@@ -629,12 +591,7 @@ test.describe("Rooms index create new room", () => {
         await dialog.getByTestId("room-type-select-option").nth(0).click();
 
         // Change the response so that the room limit gets reached
-        await mockRooms(page, (rooms) => {
-          rooms.data = rooms.data.slice(0, 1);
-          rooms.meta.last_page = 3;
-          rooms.meta.per_page = 1;
-          rooms.meta.to = 1;
-        });
+        rooms.showPage(1, 3);
 
         await dialog.getByTestId("dialog-save-button").click();
 
@@ -649,15 +606,8 @@ test.describe("Rooms index create new room", () => {
         ).toBeVisible();
       });
 
-      test("limit stays the same on the next page", async ({ page }) => {
-        await mockRooms(page, (rooms) => {
-          rooms.data = rooms.data.slice(1, 2);
-          rooms.meta.current_page = 2;
-          rooms.meta.from = 2;
-          rooms.meta.last_page = 3;
-          rooms.meta.per_page = 1;
-          rooms.meta.to = 2;
-        });
+      test("limit stays the same on the next page", async ({ page, rooms }) => {
+        rooms.showPage(2, 3);
 
         // two paginator components (first one for small devices, second one for larger devices)
         await page.getByTestId("paginator-next-button").nth(1).click();
@@ -671,12 +621,13 @@ test.describe("Rooms index create new room", () => {
         ).toBeVisible();
       });
 
-      test("limit is independent of the search query", async ({ page }) => {
-        await mockRooms(page, (rooms) => {
-          rooms.data = [];
-          rooms.meta.total = 0;
-          rooms.meta.total_no_filter = 0;
-        });
+      test("limit is independent of the search query", async ({
+        page,
+        rooms,
+      }) => {
+        rooms.json.data = [];
+        rooms.json.meta.total = 0;
+        rooms.json.meta.total_no_filter = 0;
 
         const search = page.getByTestId("room-search").locator("input");
         await search.fill("Test");
@@ -696,7 +647,7 @@ test.describe("Rooms index create new room", () => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      const failing = await mockMethod(page, "GET", ROOM_TYPES_URL, {
+      const failing = await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
         status: 500,
         json: { message: "Test" },
         hold: true,
@@ -715,7 +666,10 @@ test.describe("Rooms index create new room", () => {
       failing.release();
       await nthRequest(failing);
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Dialog after the error
       await expect(dialog).toBeVisible();
@@ -725,19 +679,24 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       // Reload with valid room types
-      await mockRoomTypes(page, "roomTypesWithSettings.json");
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
+        json: readFixture("roomTypesWithSettings.json"),
+      });
       await dialog.getByTestId("reload-room-types-button").click();
 
-      await expect(dialog.getByTestId("room-type-select-option")).toHaveText(
-        ROOM_TYPE_NAMES,
-      );
+      await expect(dialog.getByTestId("room-type-select-option")).toHaveText([
+        "Lecture",
+        "Meeting",
+        "Exam",
+        "Seminar",
+      ]);
     });
 
     test("401 error redirects to login", async ({ page }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      await mockMethod(page, "GET", ROOM_TYPES_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", { status: 401 });
       await page.getByTestId("room-create-button").click();
 
       await expectLoginRedirect(page, "/rooms");

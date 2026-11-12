@@ -1,22 +1,7 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/authGeneral.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import { mockMethod } from "../support/utils.js";
-
-async function mockCsrfCookie(page) {
-  await page.route("**/sanctum/csrf-cookie", (route) =>
-    route.fulfill({
-      headers: { "Set-Cookie": "XSRF-TOKEN=test-csrf; Path=/" },
-    }),
-  );
-}
-
-// Requests needed after a successful login (the guest user becomes a logged in user, the room index is shown)
-async function mockPostLoginPages(page, currentUser) {
-  await page.route("**/api/v1/currentUser", (route) =>
-    route.fulfill({ json: currentUser }),
-  );
-  await interceptRoomIndexRequests(page);
-}
 
 test.describe("Login tabs", () => {
   test("hide ldap login if disabled", async ({ page, config }) => {
@@ -60,7 +45,7 @@ test.describe("Login tabs", () => {
   });
 });
 
-const forms = [
+for (const form of [
   {
     name: "ldap",
     loginUrl: "**/api/v1/login/ldap",
@@ -83,14 +68,11 @@ const forms = [
     userValue: "john.doe@domain.tld",
     wrongCredentials: "Password or Email wrong!",
   },
-];
-
-for (const form of forms) {
+]) {
   test.describe(`Login ${form.name}`, () => {
     test.beforeEach(async ({ page, config }) => {
       config.data.auth[form.name] = true;
       config.data.user.password_change_allowed = false;
-      await mockCsrfCookie(page);
 
       await page.goto("/login");
       await page.getByTestId(`login-tab-button-${form.name}`).click();
@@ -118,7 +100,10 @@ for (const form of forms) {
         status: 200,
         hold: true,
       });
-      await mockPostLoginPages(page, currentUser);
+      await page.route("**/api/v1/currentUser", (route) =>
+        route.fulfill({ json: currentUser }),
+      );
+      await interceptRoomIndexRequests(page);
 
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
@@ -141,7 +126,10 @@ for (const form of forms) {
       await page.route(form.loginUrl, (route) =>
         route.fulfill({ status: 200 }),
       );
-      await mockPostLoginPages(page, currentUser);
+      await page.route("**/api/v1/currentUser", (route) =>
+        route.fulfill({ json: currentUser }),
+      );
+      await interceptRoomIndexRequests(page);
 
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
@@ -165,7 +153,10 @@ for (const form of forms) {
       await page.route(form.loginUrl, (route) =>
         route.fulfill({ status: 200 }),
       );
-      await mockPostLoginPages(page, currentUser);
+      await page.route("**/api/v1/currentUser", (route) =>
+        route.fulfill({ json: currentUser }),
+      );
+      await interceptRoomIndexRequests(page);
 
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
@@ -329,7 +320,6 @@ for (const form of forms) {
       currentUser,
     }) => {
       config.data.auth[form.name] = true;
-      await mockCsrfCookie(page);
       await page.route(form.loginUrl, (route) =>
         route.fulfill({ status: 200 }),
       );
@@ -340,7 +330,10 @@ for (const form of forms) {
 
       // User that has the permission to show the admin page
       currentUser.data.permissions = ["admin.view"];
-      await mockPostLoginPages(page, currentUser);
+      await page.route("**/api/v1/currentUser", (route) =>
+        route.fulfill({ json: currentUser }),
+      );
+      await interceptRoomIndexRequests(page);
 
       await page.getByTestId(`login-tab-button-${form.name}`).click();
       await page.locator(form.userInput).fill(form.userValue);

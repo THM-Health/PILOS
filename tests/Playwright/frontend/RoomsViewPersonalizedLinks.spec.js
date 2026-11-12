@@ -1,214 +1,91 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsMembersLinks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  holdRequest,
   expectActivePage,
-  queryOf,
   mockMethod,
+  queryOf,
+  readFixture,
 } from "../support/utils.js";
-import {
-  interceptRoomFilesRequest,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
   checkRoomAuthErrorsLoadingTab,
   selectFilter,
   selectSortType,
 } from "../support/room.js";
 
-const ROOM_PATH = "/api/v1/rooms/abc-def-123";
-const LINKS_URL = "**/api/v1/rooms/abc-def-123/personalizedLinks*";
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const MODEL_NOT_FOUND_TOAST = [
-  'app.flash.model_not_found.title_{"model":"app.model.room"}',
-  'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
-];
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-function isLinksRequest(request) {
-  return (
-    request.method() === "GET" && request.url().includes("/personalizedLinks")
-  );
-}
-
-function isRoomRequest(request) {
-  const url = request.url();
-  return (
-    request.method() === "GET" &&
-    url.includes("/api/v1/rooms/abc-def-123") &&
-    !url.includes("/personalizedLinks") &&
-    !url.includes("/files")
-  );
-}
-
-/**
- * Changes for the personalized links fixture: one link per page.
- */
-function onePerPage({ lastPage = 3, total, currentPage = 1, role } = {}) {
-  return (links) => {
-    links.data = links.data.slice(currentPage - 1, currentPage);
-    if (role !== undefined) {
-      links.data[0].role = role;
-    }
-    links.meta.current_page = currentPage;
-    links.meta.last_page = lastPage;
-    links.meta.per_page = 1;
-    links.meta.from = currentPage;
-    links.meta.to = currentPage;
-    if (total !== undefined) {
-      links.meta.total = total;
-    }
-  };
-}
-
-function noLinks(filtered) {
-  return (links) => {
-    links.data = [];
-    links.meta.from = null;
-    links.meta.to = null;
-    links.meta.total = 0;
-    if (!filtered) {
-      links.meta.total_no_filter = 0;
-    }
-  };
-}
-
-async function mockRoom(page, changes = () => {}) {
-  // Match the room path only (not /personalizedLinks, /files, …); query params are allowed
-  await page.route(
-    (url) => url.pathname === ROOM_PATH,
-    async (route) => {
-      if (route.request().method() !== "GET") {
-        return route.fallback();
-      }
-      const room = readFixture("room.json");
-      changes(room);
-      await route.fulfill({ status: 200, json: room });
-    },
-  );
-}
-
-async function mockRoomError(page, status, json) {
-  return mockMethod(page, "GET", (url) => url.pathname === ROOM_PATH, {
-    status,
-    json,
-  });
-}
-
-async function mockLinks(page, changes = () => {}) {
-  const links = readFixture("roomPersonalizedLinks.json");
-  changes(links);
-  return mockMethod(page, "GET", LINKS_URL, { status: 200, json: links });
-}
-
-async function mockLinksError(page, status, json = {}) {
-  return mockMethod(page, "GET", LINKS_URL, { status, json });
-}
-
-async function expectControls(page, enabled) {
-  const search = page.getByTestId("room-personalized-links-search");
-  const filterLabel = page
-    .getByTestId("filter-dropdown")
-    .locator(".p-select-label");
-  const sortGroup = page.getByTestId("sorting-type-inputgroup");
-  const sortLabel = sortGroup
-    .getByTestId("sorting-type-dropdown")
-    .locator(".p-select-label");
-  const add = page.getByTestId("room-personalized-links-add-button");
-  const reload = page.getByTestId("room-personalized-links-reload-button");
-
-  if (enabled) {
-    await expect(search.locator("input")).toBeEnabled();
-    await expect(search.locator("button")).toBeEnabled();
-    await expect(filterLabel).not.toHaveAttribute("aria-disabled", "true");
-    await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
-    await expect(sortGroup.locator("button")).toBeEnabled();
-    await expect(add).toBeEnabled();
-    await expect(reload).toBeEnabled();
-  } else {
-    await expect(search.locator("input")).toBeDisabled();
-    await expect(search.locator("button")).toBeDisabled();
-    await expect(filterLabel).toHaveAttribute("aria-disabled", "true");
-    await expect(sortLabel).toHaveAttribute("aria-disabled", "true");
-    await expect(sortGroup.locator("button")).toBeDisabled();
-    await expect(add).toBeDisabled();
-    await expect(reload).toBeDisabled();
-  }
-}
-
-async function expectLinkButtons(item, { manage }) {
-  await expect(
-    item.getByTestId("room-personalized-links-copy-button"),
-  ).toBeVisible();
-  for (const name of ["delete", "edit"]) {
-    const button = item.getByTestId(`room-personalized-links-${name}-button`);
-    if (manage) {
-      await expect(button).toBeVisible();
-    } else {
-      await expect(button).toHaveCount(0);
-    }
-  }
-}
-
-const LINKS = [
-  {
-    name: "John Doe",
-    role: "rooms.roles.participant",
-    lastUsed:
-      'rooms.personalized_links.last_used_at_{"date":"09/17/2021, 16:36"}',
-    expires: 'rooms.personalized_links.expires_at_{"date":"10/17/2021, 14:21"}',
-  },
-  { name: "Max Doe", role: "rooms.roles.moderator" },
-  {
-    name: "Tammy Law",
-    role: "rooms.roles.moderator",
-    lastUsed:
-      'rooms.personalized_links.last_used_at_{"date":"10/03/2021, 19:24"}',
-    expires: 'rooms.personalized_links.expires_at_{"date":"10/20/2021, 11:17"}',
-  },
-];
+test.use({ authenticated: true });
 
 // There are two paginator components, the first one for small devices and the second one for larger devices
 
 test.describe("Rooms view personalized links", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page }) => {
-    await mockRoom(page);
-    await interceptRoomFilesRequest(page);
-    await mockLinks(page);
-  });
-
   test.describe("load personalized links", () => {
-    test("shows the loading state", async ({ page }) => {
-      const release = await holdRequest(page, LINKS_URL, {
-        json: readFixture("roomPersonalizedLinks.json"),
-      });
+    test("shows the loading state", async ({ page, personalizedLinks }) => {
+      const linksRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/rooms/abc-def-123/personalizedLinks*",
+        { json: personalizedLinks, hold: true },
+      );
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-tokens").click();
       await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=tokens/);
 
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectControls(page, false);
+      const search = page.getByTestId("room-personalized-links-search");
+      const filterLabel = page
+        .getByTestId("filter-dropdown")
+        .locator(".p-select-label");
+      const sortGroup = page.getByTestId("sorting-type-inputgroup");
+      const sortLabel = sortGroup
+        .getByTestId("sorting-type-dropdown")
+        .locator(".p-select-label");
+      const addButton = page.getByTestId("room-personalized-links-add-button");
+      const reloadButton = page.getByTestId(
+        "room-personalized-links-reload-button",
+      );
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
+      await expect(filterLabel).toHaveAttribute("aria-disabled", "true");
+      await expect(sortLabel).toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeDisabled();
+      await expect(addButton).toBeDisabled();
+      await expect(reloadButton).toBeDisabled();
 
-      release();
+      linksRequest.release();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectControls(page, true);
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(filterLabel).not.toHaveAttribute("aria-disabled", "true");
+      await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeEnabled();
+      await expect(addButton).toBeEnabled();
+      await expect(reloadButton).toBeEnabled();
       await expect(page.getByTestId("room-personalized-link-item")).toHaveCount(
         3,
       );
     });
 
-    for (const [index, link] of LINKS.entries()) {
+    for (const [index, link] of [
+      {
+        name: "John Doe",
+        role: "rooms.roles.participant",
+        lastUsed:
+          'rooms.personalized_links.last_used_at_{"date":"09/17/2021, 16:36"}',
+        expires:
+          'rooms.personalized_links.expires_at_{"date":"10/17/2021, 14:21"}',
+      },
+      { name: "Max Doe", role: "rooms.roles.moderator" },
+      {
+        name: "Tammy Law",
+        role: "rooms.roles.moderator",
+        lastUsed:
+          'rooms.personalized_links.last_used_at_{"date":"10/03/2021, 19:24"}',
+        expires:
+          'rooms.personalized_links.expires_at_{"date":"10/20/2021, 11:17"}',
+      },
+    ].entries()) {
       test(`shows ${link.name}`, async ({ page }) => {
         await page.goto("/rooms/abc-def-123#tab=tokens");
 
@@ -236,29 +113,64 @@ test.describe("Rooms view personalized links", () => {
   test.describe("load errors", () => {
     test("shows the overlay and the error on a server error", async ({
       page,
+      personalizedLinksFailure,
     }) => {
-      await mockLinksError(page, 500, { message: "Test" });
+      personalizedLinksFailure.response = {
+        status: 500,
+        json: { message: "Test" },
+      };
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(page.getByTestId("loading-retry-button")).toContainText(
         "app.reload",
       );
-      await expectControls(page, true);
+      const search = page.getByTestId("room-personalized-links-search");
+      const filterLabel = page
+        .getByTestId("filter-dropdown")
+        .locator(".p-select-label");
+      const sortGroup = page.getByTestId("sorting-type-inputgroup");
+      const sortLabel = sortGroup
+        .getByTestId("sorting-type-dropdown")
+        .locator(".p-select-label");
+      const addButton = page.getByTestId("room-personalized-links-add-button");
+      const reloadButton = page.getByTestId(
+        "room-personalized-links-reload-button",
+      );
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(filterLabel).not.toHaveAttribute("aria-disabled", "true");
+      await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeEnabled();
+      await expect(addButton).toBeEnabled();
+      await expect(reloadButton).toBeEnabled();
     });
 
     test("reloads the personalized links after a server error", async ({
       page,
+      personalizedLinks,
+      personalizedLinksFailure,
     }) => {
-      await mockLinksError(page, 500, { message: "Test" });
+      personalizedLinksFailure.response = {
+        status: 500,
+        json: { message: "Test" },
+      };
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      await mockLinks(page, onePerPage({ lastPage: 3 }));
+      personalizedLinks.meta.per_page = 1;
+      personalizedLinks.meta.last_page = 3;
+      personalizedLinksFailure.response = null;
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toContainText("app.reload");
@@ -276,17 +188,26 @@ test.describe("Rooms view personalized links", () => {
     });
 
     test.describe("on changing the page", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockLinks(page, onePerPage({ lastPage: 3 }));
-        await page.goto("/rooms/abc-def-123#tab=tokens");
-        await expect(
-          page.getByTestId("room-personalized-link-item"),
-        ).toHaveCount(1);
+      test.beforeEach(
+        async ({ page, personalizedLinks, personalizedLinksFailure }) => {
+          personalizedLinks.meta.per_page = 1;
+          personalizedLinks.meta.last_page = 3;
+          await page.goto("/rooms/abc-def-123#tab=tokens");
+          await expect(
+            page.getByTestId("room-personalized-link-item"),
+          ).toHaveCount(1);
 
-        await mockLinksError(page, 500, { message: "Test" });
-        await page.getByTestId("paginator-next-button").nth(1).click();
-        await expectToastAndClose(page, SERVER_ERROR_TOAST);
-      });
+          personalizedLinksFailure.response = {
+            status: 500,
+            json: { message: "Test" },
+          };
+          await page.getByTestId("paginator-next-button").nth(1).click();
+          await expectToastAndClose(page, [
+            'app.flash.server_error.message_{"message":"Test"}',
+            'app.flash.server_error.error_code_{"statusCode":500}',
+          ]);
+        },
+      );
 
       test("shows the overlay and the error on a server error", async ({
         page,
@@ -295,13 +216,38 @@ test.describe("Rooms view personalized links", () => {
         await expect(page.getByTestId("loading-retry-button")).toContainText(
           "app.reload",
         );
-        await expectControls(page, true);
+        const search = page.getByTestId("room-personalized-links-search");
+        const filterLabel = page
+          .getByTestId("filter-dropdown")
+          .locator(".p-select-label");
+        const sortGroup = page.getByTestId("sorting-type-inputgroup");
+        const sortLabel = sortGroup
+          .getByTestId("sorting-type-dropdown")
+          .locator(".p-select-label");
+        const addButton = page.getByTestId(
+          "room-personalized-links-add-button",
+        );
+        const reloadButton = page.getByTestId(
+          "room-personalized-links-reload-button",
+        );
+        await expect(search.locator("input")).toBeEnabled();
+        await expect(search.locator("button")).toBeEnabled();
+        await expect(filterLabel).not.toHaveAttribute("aria-disabled", "true");
+        await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
+        await expect(sortGroup.locator("button")).toBeEnabled();
+        await expect(addButton).toBeEnabled();
+        await expect(reloadButton).toBeEnabled();
       });
 
-      test("reloads the first page", async ({ page }) => {
-        await mockLinks(page, onePerPage({ lastPage: 3 }));
+      test("reloads the first page", async ({
+        page,
+        personalizedLinksFailure,
+      }) => {
+        personalizedLinksFailure.response = null;
 
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
         await expect(page.getByTestId("overlay")).toBeVisible();
         await page.getByTestId("loading-retry-button").click();
 
@@ -321,24 +267,28 @@ test.describe("Rooms view personalized links", () => {
     });
 
     test.describe("on changing the page with an unauthenticated error", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockLinks(page, onePerPage({ lastPage: 3 }));
-        await page.goto("/rooms/abc-def-123#tab=tokens");
-        await expect(
-          page.getByTestId("room-personalized-link-item"),
-        ).toHaveCount(1);
+      test.beforeEach(
+        async ({ page, personalizedLinks, personalizedLinksFailure }) => {
+          personalizedLinks.meta.per_page = 1;
+          personalizedLinks.meta.last_page = 3;
+          await page.goto("/rooms/abc-def-123#tab=tokens");
+          await expect(
+            page.getByTestId("room-personalized-link-item"),
+          ).toHaveCount(1);
 
-        await mockLinksError(page, 401);
-      });
+          personalizedLinksFailure.response = { status: 401, json: {} };
+        },
+      );
 
       test("asks for the guest name if the room has no access code", async ({
         page,
+        room,
       }) => {
-        await mockRoom(page, (room) => {
-          room.data.current_user = null;
-        });
+        room.data.current_user = null;
 
-        const roomRequest = page.waitForRequest(isRoomRequest);
+        const roomRequest = page.waitForRequest(
+          /\/api\/v1\/rooms\/abc-def-123(\?.*)?$/,
+        );
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -368,13 +318,14 @@ test.describe("Rooms view personalized links", () => {
 
       test("shows the access code overlay if the room has an access code", async ({
         page,
+        room,
       }) => {
-        await mockRoom(page, (room) => {
-          room.data.current_user = null;
-          room.data.authenticated = false;
-        });
+        room.data.current_user = null;
+        room.data.authenticated = false;
 
-        const roomRequest = page.waitForRequest(isRoomRequest);
+        const roomRequest = page.waitForRequest(
+          /\/api\/v1\/rooms\/abc-def-123(\?.*)?$/,
+        );
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -384,9 +335,16 @@ test.describe("Rooms view personalized links", () => {
       });
 
       test("shows an error if guests are forbidden", async ({ page }) => {
-        await mockRoomError(page, 403, { message: "guests_not_allowed" });
+        await mockMethod(
+          page,
+          "GET",
+          (url) => url.pathname === "/api/v1/rooms/abc-def-123",
+          { status: 403, json: { message: "guests_not_allowed" } },
+        );
 
-        const roomRequest = page.waitForRequest(isRoomRequest);
+        const roomRequest = page.waitForRequest(
+          /\/api\/v1\/rooms\/abc-def-123(\?.*)?$/,
+        );
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -400,20 +358,25 @@ test.describe("Rooms view personalized links", () => {
 
     test("redirects to the files tab on a forbidden error when changing the page", async ({
       page,
+      room,
+      personalizedLinks,
+      personalizedLinksFailure,
     }) => {
-      await mockLinks(page, onePerPage({ lastPage: 3 }));
+      personalizedLinks.meta.per_page = 1;
+      personalizedLinks.meta.last_page = 3;
       await page.goto("/rooms/abc-def-123#tab=tokens");
       await expect(page.getByTestId("room-personalized-link-item")).toHaveCount(
         1,
       );
 
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.is_member = true;
-      });
-      await mockLinksError(page, 403, {
-        message: "This action is unauthorized.",
-      });
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.is_member = true;
+      personalizedLinksFailure.response = {
+        status: 403,
+        json: {
+          message: "This action is unauthorized.",
+        },
+      };
 
       await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -434,25 +397,36 @@ test.describe("Rooms view personalized links", () => {
 
     test("redirects to the room index page if the room is not found", async ({
       page,
+      personalizedLinksFailure,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockLinksError(page, 404, {
-        message: "model_not_found",
-        model: "room",
-        ids: ["abc-def-123"],
-      });
+      personalizedLinksFailure.response = {
+        status: 404,
+        json: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      };
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-      await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.room"}',
+        'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+      ]);
     });
   });
 
   test("resets the page if the requested page is out of range", async ({
     page,
+    personalizedLinks,
   }) => {
-    await mockLinks(page, onePerPage({ lastPage: 2, total: 2, role: 3 }));
+    personalizedLinks.meta.per_page = 1;
+    personalizedLinks.meta.last_page = 2;
+    personalizedLinks.meta.total = 2;
+    personalizedLinks.data[0].role = 3;
 
     await page.goto("/rooms/abc-def-123#tab=tokens");
     await expect(page.getByTestId("room-personalized-link-item")).toHaveCount(
@@ -461,26 +435,29 @@ test.describe("Rooms view personalized links", () => {
 
     // The second page is empty, the following request (first page) returns the links
     const requests = [];
-    await page.route(LINKS_URL, (route) => {
-      requests.push(queryOf(route.request()));
-      const links = readFixture("roomPersonalizedLinks.json");
-      if (requests.length === 1) {
-        links.data = [];
-        links.meta.current_page = 2;
-        links.meta.from = null;
-        links.meta.per_page = 2;
-        links.meta.to = null;
-        links.meta.total = 2;
-        links.meta.total_no_filter = 2;
-      } else {
-        links.data = links.data.slice(0, 2);
-        links.meta.per_page = 2;
-        links.meta.to = 2;
-        links.meta.total = 2;
-        links.meta.total_no_filter = 2;
-      }
-      return route.fulfill({ json: links });
-    });
+    await page.route(
+      "**/api/v1/rooms/abc-def-123/personalizedLinks*",
+      (route) => {
+        requests.push(queryOf(route.request()));
+        const links = readFixture("roomPersonalizedLinks.json");
+        if (requests.length === 1) {
+          links.data = [];
+          links.meta.current_page = 2;
+          links.meta.from = null;
+          links.meta.per_page = 2;
+          links.meta.to = null;
+          links.meta.total = 2;
+          links.meta.total_no_filter = 2;
+        } else {
+          links.data = links.data.slice(0, 2);
+          links.meta.per_page = 2;
+          links.meta.to = 2;
+          links.meta.total = 2;
+          links.meta.total_no_filter = 2;
+        }
+        return route.fulfill({ json: links });
+      },
+    );
 
     await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -498,12 +475,11 @@ test.describe("Rooms view personalized links", () => {
     test("rooms.viewAll only allows to copy the links", async ({
       page,
       currentUser,
+      room,
     }) => {
       currentUser.data.permissions = ["rooms.viewAll"];
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = ["rooms.viewAll"];
-      });
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = ["rooms.viewAll"];
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
@@ -514,20 +490,27 @@ test.describe("Rooms view personalized links", () => {
       ).toHaveCount(0);
 
       for (let index = 0; index < 3; index++) {
-        await expectLinkButtons(items.nth(index), { manage: false });
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-copy-button"),
+        ).toBeVisible();
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-delete-button"),
+        ).toHaveCount(0);
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-edit-button"),
+        ).toHaveCount(0);
       }
     });
 
     test("co-owner can add, edit and delete links", async ({
       page,
       currentUser,
+      room,
     }) => {
       currentUser.data.permissions = ["rooms.viewAll"];
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.is_member = true;
-        room.data.is_co_owner = true;
-      });
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.is_member = true;
+      room.data.is_co_owner = true;
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
@@ -538,20 +521,27 @@ test.describe("Rooms view personalized links", () => {
       ).toBeVisible();
 
       for (let index = 0; index < 3; index++) {
-        await expectLinkButtons(items.nth(index), { manage: true });
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-copy-button"),
+        ).toBeVisible();
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-delete-button"),
+        ).toBeVisible();
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-edit-button"),
+        ).toBeVisible();
       }
     });
 
     test("rooms.manage can add, edit and delete links", async ({
       page,
       currentUser,
+      room,
     }) => {
       const permissions = ["rooms.create", "rooms.viewAll", "rooms.manage"];
       currentUser.data.permissions = permissions;
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = permissions;
-      });
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = permissions;
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
@@ -562,21 +552,26 @@ test.describe("Rooms view personalized links", () => {
       ).toBeVisible();
 
       for (let index = 0; index < 3; index++) {
-        await expectLinkButtons(items.nth(index), { manage: true });
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-copy-button"),
+        ).toBeVisible();
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-delete-button"),
+        ).toBeVisible();
+        await expect(
+          items.nth(index).getByTestId("room-personalized-links-edit-button"),
+        ).toBeVisible();
       }
     });
   });
 
   test.describe("search", () => {
-    const searchInput = (page) =>
-      page.getByTestId("room-personalized-links-search").locator("input");
-    const searchButton = (page) =>
-      page.getByTestId("room-personalized-links-search").locator("button");
-
     test("loads the personalized links without a search query", async ({
       page,
     }) => {
-      const linksRequest = page.waitForRequest(isLinksRequest);
+      const linksRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+      );
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
@@ -587,17 +582,27 @@ test.describe("Rooms view personalized links", () => {
 
     test("shows a message if no links match the search query", async ({
       page,
+      personalizedLinks,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=tokens");
       await expect(page.getByTestId("room-personalized-link-item")).toHaveCount(
         3,
       );
 
-      await mockLinks(page, noLinks(true));
-      const linksRequest = page.waitForRequest(isLinksRequest);
+      personalizedLinks.data = [];
+      personalizedLinks.meta.total = 0;
+      const linksRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+      );
 
-      await searchInput(page).fill("Test");
-      await searchButton(page).click();
+      await page
+        .getByTestId("room-personalized-links-search")
+        .locator("input")
+        .fill("Test");
+      await page
+        .getByTestId("room-personalized-links-search")
+        .locator("button")
+        .click();
 
       expect(queryOf(await linksRequest)).toMatchObject({
         query: "Test",
@@ -612,17 +617,28 @@ test.describe("Rooms view personalized links", () => {
 
     test("shows a message if there are no links in the room", async ({
       page,
+      personalizedLinks,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=tokens");
       await expect(page.getByTestId("room-personalized-link-item")).toHaveCount(
         3,
       );
 
-      await mockLinks(page, noLinks(false));
-      const linksRequest = page.waitForRequest(isLinksRequest);
+      personalizedLinks.data = [];
+      personalizedLinks.meta.total = 0;
+      personalizedLinks.meta.total_no_filter = 0;
+      const linksRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+      );
 
-      await searchInput(page).fill("Test2");
-      await searchInput(page).press("Enter");
+      await page
+        .getByTestId("room-personalized-links-search")
+        .locator("input")
+        .fill("Test2");
+      await page
+        .getByTestId("room-personalized-links-search")
+        .locator("input")
+        .press("Enter");
 
       expect(queryOf(await linksRequest)).toMatchObject({
         query: "Test2",
@@ -638,17 +654,27 @@ test.describe("Rooms view personalized links", () => {
     });
 
     test.describe("with multiple pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, personalizedLinks }) => {
         await page.goto("/rooms/abc-def-123#tab=tokens");
         await expect(
           page.getByTestId("room-personalized-link-item"),
         ).toHaveCount(3);
 
-        await mockLinks(page, onePerPage({ lastPage: 2, total: 2 }));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        personalizedLinks.meta.per_page = 1;
+        personalizedLinks.meta.last_page = 2;
+        personalizedLinks.meta.total = 2;
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
-        await searchInput(page).fill("Doe");
-        await searchButton(page).click();
+        await page
+          .getByTestId("room-personalized-links-search")
+          .locator("input")
+          .fill("Doe");
+        await page
+          .getByTestId("room-personalized-links-search")
+          .locator("button")
+          .click();
 
         expect(queryOf(await linksRequest)).toMatchObject({
           query: "Doe",
@@ -671,11 +697,9 @@ test.describe("Rooms view personalized links", () => {
       test("keeps the search query when changing the page", async ({
         page,
       }) => {
-        await mockLinks(
-          page,
-          onePerPage({ lastPage: 2, total: 2, currentPage: 2 }),
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
         );
-        const linksRequest = page.waitForRequest(isLinksRequest);
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -684,7 +708,9 @@ test.describe("Rooms view personalized links", () => {
           page: "2",
         });
 
-        await expect(searchInput(page)).toHaveValue("Doe");
+        await expect(
+          page.getByTestId("room-personalized-links-search").locator("input"),
+        ).toHaveValue("Doe");
         await expectActivePage(page, 1);
         await expect(
           page.getByTestId("room-personalized-link-item"),
@@ -696,22 +722,29 @@ test.describe("Rooms view personalized links", () => {
 
       test("resets the page when changing the search query", async ({
         page,
+        personalizedLinks,
       }) => {
-        await mockLinks(
-          page,
-          onePerPage({ lastPage: 2, total: 2, currentPage: 2 }),
-        );
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
         await expect(
           page.getByTestId("room-personalized-link-item").first(),
         ).toContainText("Max Doe");
 
-        await mockLinks(page, onePerPage({ lastPage: 2, total: 2 }));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        personalizedLinks.meta.per_page = 1;
+        personalizedLinks.meta.last_page = 2;
+        personalizedLinks.meta.total = 2;
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
-        await searchInput(page).fill("Do");
-        await searchButton(page).click();
+        await page
+          .getByTestId("room-personalized-links-search")
+          .locator("input")
+          .fill("Do");
+        await page
+          .getByTestId("room-personalized-links-search")
+          .locator("button")
+          .click();
 
         expect(queryOf(await linksRequest)).toMatchObject({
           query: "Do",
@@ -725,7 +758,9 @@ test.describe("Rooms view personalized links", () => {
 
   test.describe("filter", () => {
     test("loads the personalized links without a filter", async ({ page }) => {
-      const linksRequest = page.waitForRequest(isLinksRequest);
+      const linksRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+      );
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
@@ -765,9 +800,15 @@ test.describe("Rooms view personalized links", () => {
         ).toHaveCount(3);
       });
 
-      test("shows a message if no links match the filter", async ({ page }) => {
-        await mockLinks(page, noLinks(true));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+      test("shows a message if no links match the filter", async ({
+        page,
+        personalizedLinks,
+      }) => {
+        personalizedLinks.data = [];
+        personalizedLinks.meta.total = 0;
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
         await selectFilter(page, 1);
 
@@ -788,9 +829,14 @@ test.describe("Rooms view personalized links", () => {
 
       test("shows a message if there are no links in the room", async ({
         page,
+        personalizedLinks,
       }) => {
-        await mockLinks(page, noLinks(false));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        personalizedLinks.data = [];
+        personalizedLinks.meta.total = 0;
+        personalizedLinks.meta.total_no_filter = 0;
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
         await selectFilter(page, 2);
 
@@ -812,9 +858,13 @@ test.describe("Rooms view personalized links", () => {
       });
 
       test.describe("with multiple pages", () => {
-        test.beforeEach(async ({ page }) => {
-          await mockLinks(page, onePerPage({ lastPage: 2, total: 2 }));
-          const linksRequest = page.waitForRequest(isLinksRequest);
+        test.beforeEach(async ({ page, personalizedLinks }) => {
+          personalizedLinks.meta.per_page = 1;
+          personalizedLinks.meta.last_page = 2;
+          personalizedLinks.meta.total = 2;
+          const linksRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+          );
 
           await selectFilter(page, 1);
 
@@ -839,12 +889,14 @@ test.describe("Rooms view personalized links", () => {
           await expectActivePage(page, 0);
         });
 
-        test("keeps the filter when changing the page", async ({ page }) => {
-          await mockLinks(
-            page,
-            onePerPage({ lastPage: 2, total: 2, currentPage: 2, role: 1 }),
+        test("keeps the filter when changing the page", async ({
+          page,
+          personalizedLinks,
+        }) => {
+          personalizedLinks.data[1].role = 1;
+          const linksRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
           );
-          const linksRequest = page.waitForRequest(isLinksRequest);
 
           await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -867,19 +919,21 @@ test.describe("Rooms view personalized links", () => {
 
         test("resets the filter and the page when selecting all", async ({
           page,
+          personalizedLinks,
         }) => {
-          await mockLinks(
-            page,
-            onePerPage({ lastPage: 2, total: 2, currentPage: 2, role: 1 }),
-          );
+          personalizedLinks.data[1].role = 1;
           await page.getByTestId("paginator-next-button").nth(1).click();
           await expectActivePage(page, 1);
           await expect(
             page.getByTestId("room-personalized-link-item").first(),
           ).toContainText("Max Doe");
 
-          await mockLinks(page, onePerPage({ lastPage: 2, total: 2 }));
-          const linksRequest = page.waitForRequest(isLinksRequest);
+          personalizedLinks.meta.per_page = 1;
+          personalizedLinks.meta.last_page = 2;
+          personalizedLinks.meta.total = 2;
+          const linksRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+          );
 
           await selectFilter(page, 0);
 
@@ -900,7 +954,9 @@ test.describe("Rooms view personalized links", () => {
     test("loads the personalized links sorted by lastname", async ({
       page,
     }) => {
-      const linksRequest = page.waitForRequest(isLinksRequest);
+      const linksRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+      );
 
       await page.goto("/rooms/abc-def-123#tab=tokens");
 
@@ -939,14 +995,17 @@ test.describe("Rooms view personalized links", () => {
     });
 
     test.describe("after loading", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, personalizedLinks }) => {
         await page.goto("/rooms/abc-def-123#tab=tokens");
         await expect(
           page.getByTestId("room-personalized-link-item"),
         ).toHaveCount(3);
 
-        await mockLinks(page, onePerPage({ lastPage: 3 }));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        personalizedLinks.meta.per_page = 1;
+        personalizedLinks.meta.last_page = 3;
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
         await selectSortType(page, 0);
 
@@ -976,8 +1035,9 @@ test.describe("Rooms view personalized links", () => {
       });
 
       test("keeps the sorting when changing the page", async ({ page }) => {
-        await mockLinks(page, onePerPage({ lastPage: 3, currentPage: 2 }));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -1001,13 +1061,16 @@ test.describe("Rooms view personalized links", () => {
 
       test("resets the page when changing the sorting direction", async ({
         page,
+        personalizedLinks,
       }) => {
-        await mockLinks(page, onePerPage({ lastPage: 3, currentPage: 2 }));
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockLinks(page, onePerPage({ lastPage: 3 }));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        personalizedLinks.meta.per_page = 1;
+        personalizedLinks.meta.last_page = 3;
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
         await page
           .getByTestId("sorting-type-inputgroup")
@@ -1033,10 +1096,10 @@ test.describe("Rooms view personalized links", () => {
         await expect(
           page.getByTestId("room-personalized-link-item"),
         ).toHaveCount(1);
-
-        await mockLinks(page, onePerPage({ lastPage: 3, currentPage: 2 }));
         const linksRequest = page.waitForRequest(
-          (request) => isLinksRequest(request) && queryOf(request).page === "2",
+          (request) =>
+            request.url().includes("/personalizedLinks?") &&
+            queryOf(request).page === "2",
         );
 
         await page.getByTestId("paginator-next-button").nth(1).click();
@@ -1052,6 +1115,7 @@ test.describe("Rooms view personalized links", () => {
 
       test("resets the page when changing the sorting type", async ({
         page,
+        personalizedLinks,
       }) => {
         // The direction was changed before, the sorting type is then sorted descending
         await page
@@ -1061,13 +1125,14 @@ test.describe("Rooms view personalized links", () => {
         await expect(
           page.getByTestId("room-personalized-link-item"),
         ).toHaveCount(1);
-
-        await mockLinks(page, onePerPage({ lastPage: 3, currentPage: 2 }));
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockLinks(page, onePerPage({ lastPage: 3 }));
-        const linksRequest = page.waitForRequest(isLinksRequest);
+        personalizedLinks.meta.per_page = 1;
+        personalizedLinks.meta.last_page = 3;
+        const linksRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/personalizedLinks?*",
+        );
 
         await selectSortType(page, 2);
 

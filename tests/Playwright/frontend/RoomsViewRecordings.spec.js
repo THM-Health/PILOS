@@ -1,325 +1,160 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsFilesRecordings.js";
 import {
   holdRequest,
   expectActivePage,
   queryOf,
   mockMethod,
+  readFixture,
 } from "../support/utils.js";
-import { interceptRoomFilesRequest } from "../support/mocks.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
   setValidRememberedParticipantName,
   selectFilter,
   selectSortType,
 } from "../support/room.js";
 
-const ROOM_PATH = "/api/v1/rooms/abc-def-123";
-const ROOM_AUTH_URL = "**/api/v1/rooms/abc-def-123/auth";
-const RECORDINGS_URL = "**/api/v1/rooms/abc-def-123/recordings*";
-
-const PERSONALIZED_LINK =
-  "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR";
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const MODEL_NOT_FOUND_TOAST = [
-  'app.flash.model_not_found.title_{"model":"app.model.room"}',
-  'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
-];
-
-const FORMAT = "rooms.recordings.format_types.";
-const ACCESS = "rooms.recordings.access_types.";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const RECORDINGS = [
-  {
-    id: "e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
-    description: "Recording 1",
-    date: "08/17/2022, 11:20",
-    guestDate: "08/17/2022, 05:20",
-    duration: "20 app.time_formats.minutes",
-    access: ACCESS + "everyone",
-    enabledFormats: ["notes", "podcast", "presentation", "screenshare"],
-    disabledFormats: [],
-  },
-  {
-    id: "0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
-    description: "Recording 2",
-    date: "08/17/2022, 10:00",
-    duration: "1 app.time_formats.hour, 0 app.time_formats.minutes",
-    access: ACCESS + "participant",
-    enabledFormats: [],
-    disabledFormats: ["notes", "podcast", "presentation", "screenshare"],
-  },
-  {
-    id: "66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975",
-    description: "Recording 3",
-    date: "08/18/2022, 10:39",
-    duration: "1 app.time_formats.hour, 1 app.time_formats.minute",
-    access: ACCESS + "moderator",
-    enabledFormats: ["podcast", "presentation"],
-    disabledFormats: ["notes", "screenshare"],
-  },
-  {
-    id: "f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775",
-    description: "Recording 4",
-    date: "09/20/2022, 11:39",
-    duration: "1 app.time_formats.minute",
-    access: ACCESS + "owner",
-    enabledFormats: ["notes", "screenshare"],
-    disabledFormats: ["podcast", "presentation"],
-  },
-];
-
-function isRoomRequest(request) {
-  const url = request.url();
-  return (
-    request.method() === "GET" &&
-    url.includes("/api/v1/rooms/abc-def-123") &&
-    !url.includes("/recordings") &&
-    !url.includes("/auth")
-  );
-}
-
-function isRecordingsRequest(request) {
-  return request.method() === "GET" && request.url().includes("/recordings");
-}
-
-function hasRoomAuthToken(request) {
-  return queryOf(request).room_auth_token !== undefined;
-}
-
-function onePerPage({ lastPage = 3, total, currentPage = 1 } = {}) {
-  return (recordings) => {
-    recordings.data = recordings.data.slice(currentPage - 1, currentPage);
-    recordings.meta.current_page = currentPage;
-    recordings.meta.last_page = lastPage;
-    recordings.meta.per_page = 1;
-    recordings.meta.from = currentPage;
-    recordings.meta.to = currentPage;
-    recordings.meta.total = total ?? lastPage;
-    recordings.meta.total_no_filter = total ?? lastPage;
-  };
-}
-
-function firstRecordingOnly(recordings) {
-  recordings.data = recordings.data.slice(0, 1);
-  recordings.meta.total = 1;
-  recordings.meta.total_no_filter = 1;
-  recordings.meta.to = 1;
-}
-
-function noRecordings(filtered) {
-  return (recordings) => {
-    recordings.data = [];
-    recordings.meta.from = null;
-    recordings.meta.to = null;
-    recordings.meta.total = 0;
-    if (!filtered) {
-      recordings.meta.total_no_filter = 0;
-    }
-  };
-}
-
-async function mockRoom(page, changes = {}) {
-  // Match the room path only (not /recordings, /auth, …); query params are allowed
-  await page.route(
-    (url) => url.pathname === ROOM_PATH,
-    async (route) => {
-      if (route.request().method() !== "GET") {
-        return route.fallback();
-      }
-      const room = readFixture("room.json");
-      const request = route.request();
-      if (typeof changes === "function") {
-        if (changes.length >= 2) {
-          changes(room, request);
-        } else {
-          changes(room);
-        }
-      } else {
-        Object.assign(room.data, changes);
-      }
-      await route.fulfill({ status: 200, json: room });
-    },
-  );
-}
-
-async function mockRecordings(page, changes = () => {}) {
-  const recordings = readFixture("roomRecordings.json");
-  changes(recordings);
-  return mockMethod(page, "GET", RECORDINGS_URL, {
-    status: 200,
-    json: recordings,
-  });
-}
-
-async function mockRecordingsError(page, status, json = {}) {
-  return mockMethod(page, "GET", RECORDINGS_URL, { status, json });
-}
-
-async function expectControls(page, enabled, { strict = false } = {}) {
-  const search = page.getByTestId("room-recordings-search");
-  const filterLabel = page
-    .getByTestId("filter-dropdown")
-    .locator(".p-select-label");
-  const sortGroup = page.getByTestId("sorting-type-inputgroup");
-  const sortLabel = sortGroup
-    .getByTestId("sorting-type-dropdown")
-    .locator(".p-select-label");
-  const reload = page.getByTestId("room-recordings-reload-button");
-
-  if (enabled) {
-    await expect(search.locator("input")).toBeEnabled();
-    await expect(search.locator("button")).toBeEnabled();
-    if (strict) {
-      await expect(filterLabel).toHaveAttribute("aria-disabled", "false");
-      await expect(sortLabel).toHaveAttribute("aria-disabled", "false");
-    } else {
-      await expect(filterLabel).not.toHaveAttribute("aria-disabled", "true");
-      await expect(sortLabel).not.toHaveAttribute("aria-disabled", "true");
-    }
-    await expect(sortGroup.locator("button")).toBeEnabled();
-    await expect(reload).toBeEnabled();
-  } else {
-    await expect(search.locator("input")).toBeDisabled();
-    await expect(search.locator("button")).toBeDisabled();
-    await expect(filterLabel).toHaveAttribute("aria-disabled", "true");
-    await expect(sortLabel).toHaveAttribute("aria-disabled", "true");
-    await expect(sortGroup.locator("button")).toBeDisabled();
-    await expect(reload).toBeDisabled();
-  }
-}
-
-async function expectFormats(item, testId, formats) {
-  const locator = item.getByTestId(testId);
-  if (formats.length === 0) {
-    await expect(locator).toHaveCount(0);
-  } else {
-    await expect(locator).toHaveCount(formats.length);
-    await expect(locator).toContainText(
-      formats.map((format) => FORMAT + format),
-    );
-  }
-}
-
-async function expectRecording(
-  page,
-  index,
-  view,
-  { baseURL, guest = false } = {},
-) {
-  const expected = RECORDINGS[index];
-  const item = page.getByTestId("room-recording-item").nth(index);
-
-  await expect(item).toContainText(expected.description);
-  await expect(item).toContainText(
-    guest && expected.guestDate ? expected.guestDate : expected.date,
-  );
-  await expect(item).toContainText(expected.duration);
-
-  const view_button = item.getByTestId("room-recordings-view-button");
-  const download = item.getByTestId("room-recordings-download-button");
-  const edit = item.getByTestId("room-recordings-edit-button");
-  const remove = item.getByTestId("room-recordings-delete-button");
-
-  await expect(view_button).toBeVisible();
-
-  if (view === "full") {
-    await expect(item).toContainText(expected.access);
-    await expectFormats(
-      item,
-      "recording-format-enabled",
-      expected.enabledFormats,
-    );
-    await expectFormats(
-      item,
-      "recording-format-disabled",
-      expected.disabledFormats,
-    );
-
-    await expect(edit).toBeVisible();
-    await expect(remove).toBeVisible();
-    await expect(download).toBeVisible();
-    if (baseURL) {
-      const link = item.locator(
-        'a[data-test="room-recordings-download-button"]',
-      );
-      await expect(link).toHaveAttribute(
-        "href",
-        baseURL + "/download/recording/" + expected.id,
-      );
-      await expect(link).toHaveAttribute("target", "_blank");
-    }
-  } else {
-    await expect(item).not.toContainText(expected.access);
-    await expect(item.getByTestId("recording-format-enabled")).toHaveCount(0);
-    await expect(item.getByTestId("recording-format-disabled")).toHaveCount(0);
-
-    await expect(download).toHaveCount(0);
-    await expect(edit).toHaveCount(0);
-    await expect(remove).toHaveCount(0);
-  }
-}
-
-async function expectRetentionPeriod(page, text) {
-  const message = page.getByTestId("retention-period-message");
-  await expect(message).toBeVisible();
-  await expect(message).toContainText(
-    "rooms.recordings.retention_period.title",
-  );
-  await expect(message).toContainText(text);
-}
-
-// There are two paginator components, the first one for small devices and the second one for larger devices
-
-async function toggleSortDirection(page) {
-  const recordingsRequest = page.waitForRequest(isRecordingsRequest);
-  await page.getByTestId("sorting-type-inputgroup").locator("button").click();
-  await recordingsRequest;
-}
+test.use({ authenticated: true });
 
 test.describe("Rooms view recordings", () => {
-  test.use({ authenticated: true });
-
   test.beforeEach(async ({ page }) => {
-    await mockRoom(page);
-    await interceptRoomFilesRequest(page);
-    await mockRecordings(page);
     await setValidRememberedParticipantName(page, "Laura Rivera");
   });
 
   test.describe("load recordings", () => {
-    test("shows the loading state", async ({ page }) => {
-      const release = await holdRequest(page, RECORDINGS_URL, {
-        json: readFixture("roomRecordings.json"),
-      });
+    test("shows the loading state", async ({ page, roomRecordings }) => {
+      const release = await holdRequest(
+        page,
+        "**/api/v1/rooms/abc-def-123/recordings*",
+        { json: roomRecordings },
+      );
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-recordings").click();
       await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=recordings/);
 
+      const search = page.getByTestId("room-recordings-search");
+      const sortGroup = page.getByTestId("sorting-type-inputgroup");
+      const filterLabel = page
+        .getByTestId("filter-dropdown")
+        .locator(".p-select-label");
+      const sortLabel = sortGroup
+        .getByTestId("sorting-type-dropdown")
+        .locator(".p-select-label");
+
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectControls(page, false);
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
+      await expect(filterLabel).toHaveAttribute("aria-disabled", "true");
+      await expect(sortLabel).toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeDisabled();
+      await expect(
+        page.getByTestId("room-recordings-reload-button"),
+      ).toBeDisabled();
 
       release();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectControls(page, true, { strict: true });
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(filterLabel).toHaveAttribute("aria-disabled", "false");
+      await expect(sortLabel).toHaveAttribute("aria-disabled", "false");
+      await expect(sortGroup.locator("button")).toBeEnabled();
+      await expect(
+        page.getByTestId("room-recordings-reload-button"),
+      ).toBeEnabled();
       await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
     });
 
-    for (const [index, recording] of RECORDINGS.entries()) {
-      test(`shows ${recording.description}`, async ({ page, baseURL }) => {
+    for (const [index, recording] of [
+      {
+        description: "Recording 1",
+        date: "08/17/2022, 11:20",
+        duration: "20 app.time_formats.minutes",
+        access: "rooms.recordings.access_types.everyone",
+        enabledFormats: ["notes", "podcast", "presentation", "screenshare"],
+        disabledFormats: [],
+      },
+      {
+        description: "Recording 2",
+        date: "08/17/2022, 10:00",
+        duration: "1 app.time_formats.hour, 0 app.time_formats.minutes",
+        access: "rooms.recordings.access_types.participant",
+        enabledFormats: [],
+        disabledFormats: ["notes", "podcast", "presentation", "screenshare"],
+      },
+      {
+        description: "Recording 3",
+        date: "08/18/2022, 10:39",
+        duration: "1 app.time_formats.hour, 1 app.time_formats.minute",
+        access: "rooms.recordings.access_types.moderator",
+        enabledFormats: ["podcast", "presentation"],
+        disabledFormats: ["notes", "screenshare"],
+      },
+      {
+        description: "Recording 4",
+        date: "09/20/2022, 11:39",
+        duration: "1 app.time_formats.minute",
+        access: "rooms.recordings.access_types.owner",
+        enabledFormats: ["notes", "screenshare"],
+        disabledFormats: ["podcast", "presentation"],
+      },
+    ].entries()) {
+      test(`shows ${recording.description}`, async ({
+        page,
+        baseURL,
+        roomRecordings,
+      }) => {
         await page.goto("/rooms/abc-def-123#tab=recordings");
 
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
-        await expectRecording(page, index, "full", { baseURL });
+
+        const item = page.getByTestId("room-recording-item").nth(index);
+        await expect(item).toContainText(recording.description);
+        await expect(item).toContainText(recording.date);
+        await expect(item).toContainText(recording.duration);
+        await expect(item).toContainText(recording.access);
+
+        const enabledFormats = item.getByTestId("recording-format-enabled");
+        await expect(enabledFormats).toHaveCount(
+          recording.enabledFormats.length,
+        );
+        await expect(enabledFormats).toContainText(
+          recording.enabledFormats.map(
+            (format) => "rooms.recordings.format_types." + format,
+          ),
+        );
+        const disabledFormats = item.getByTestId("recording-format-disabled");
+        await expect(disabledFormats).toHaveCount(
+          recording.disabledFormats.length,
+        );
+        await expect(disabledFormats).toContainText(
+          recording.disabledFormats.map(
+            (format) => "rooms.recordings.format_types." + format,
+          ),
+        );
+
+        await expect(
+          item.getByTestId("room-recordings-view-button"),
+        ).toBeVisible();
+        await expect(
+          item.getByTestId("room-recordings-edit-button"),
+        ).toBeVisible();
+        await expect(
+          item.getByTestId("room-recordings-delete-button"),
+        ).toBeVisible();
+        await expect(
+          item.getByTestId("room-recordings-download-button"),
+        ).toBeVisible();
+
+        const download = item.locator(
+          'a[data-test="room-recordings-download-button"]',
+        );
+        await expect(download).toHaveAttribute(
+          "href",
+          baseURL + "/download/recording/" + roomRecordings.data[index].id,
+        );
+        await expect(download).toHaveAttribute("target", "_blank");
       });
     }
 
@@ -327,8 +162,13 @@ test.describe("Rooms view recordings", () => {
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
       await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
-      await expectRetentionPeriod(
-        page,
+
+      const message = page.getByTestId("retention-period-message");
+      await expect(message).toBeVisible();
+      await expect(message).toContainText(
+        "rooms.recordings.retention_period.title",
+      );
+      await expect(message).toContainText(
         "rooms.recordings.retention_period.unlimited",
       );
     });
@@ -341,10 +181,13 @@ test.describe("Rooms view recordings", () => {
 
       test("disables the buttons and shows the overlay while reloading", async ({
         page,
+        roomRecordings,
       }) => {
-        const release = await holdRequest(page, RECORDINGS_URL, {
-          json: readFixture("roomRecordings.json"),
-        });
+        const release = await holdRequest(
+          page,
+          "**/api/v1/rooms/abc-def-123/recordings*",
+          { json: roomRecordings },
+        );
 
         await page.getByTestId("room-recordings-reload-button").click();
 
@@ -368,10 +211,16 @@ test.describe("Rooms view recordings", () => {
         await expect(page.getByTestId("overlay")).toBeHidden();
       });
 
-      test("enables the buttons after reloading", async ({ page, baseURL }) => {
-        const release = await holdRequest(page, RECORDINGS_URL, {
-          json: readFixture("roomRecordings.json"),
-        });
+      test("enables the buttons after reloading", async ({
+        page,
+        baseURL,
+        roomRecordings,
+      }) => {
+        const release = await holdRequest(
+          page,
+          "**/api/v1/rooms/abc-def-123/recordings*",
+          { json: roomRecordings },
+        );
 
         await page.getByTestId("room-recordings-reload-button").click();
         await expect(page.getByTestId("overlay")).toBeVisible();
@@ -388,7 +237,7 @@ test.describe("Rooms view recordings", () => {
         );
         await expect(download).toHaveAttribute(
           "href",
-          baseURL + "/download/recording/" + RECORDINGS[0].id,
+          baseURL + "/download/recording/" + roomRecordings.data[0].id,
         );
         await expect(download).toHaveAttribute("target", "_blank");
         await expect(
@@ -402,23 +251,29 @@ test.describe("Rooms view recordings", () => {
   });
 
   test.describe("access code", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.route(ROOM_AUTH_URL, (route) =>
-        route.fulfill({
-          status: 201,
-          json: { data: { id: "roomAuthToken", type: 0 } },
-        }),
-      );
+    test.beforeEach(async ({ page, room }) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+        status: 201,
+        json: { data: { id: "roomAuthToken", type: 0 } },
+      });
     });
 
-    test("loads the recordings with the room auth token", async ({ page }) => {
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-      });
-      await mockRecordings(page, firstRecordingOnly);
+    test("loads the recordings with the room auth token", async ({
+      page,
+      roomRecordings,
+    }) => {
+      roomRecordings.data = roomRecordings.data.slice(0, 1);
+      roomRecordings.meta.to = 1;
+      roomRecordings.meta.total = 1;
+      roomRecordings.meta.total_no_filter = 1;
 
-      const authRequest = page.waitForRequest(ROOM_AUTH_URL);
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      const authRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/auth",
+      );
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
 
@@ -431,26 +286,65 @@ test.describe("Rooms view recordings", () => {
       await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=recordings/);
 
       await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
-      await expectRecording(page, 0, "limited");
-      await expectRetentionPeriod(
-        page,
+      const item = page.getByTestId("room-recording-item").first();
+      await expect(item).toContainText("Recording 1");
+      await expect(item).toContainText("08/17/2022, 11:20");
+      await expect(item).toContainText("20 app.time_formats.minutes");
+      await expect(
+        item.getByTestId("room-recordings-view-button"),
+      ).toBeVisible();
+      await expect(item).not.toContainText(
+        "rooms.recordings.access_types.everyone",
+      );
+      await expect(item.getByTestId("recording-format-enabled")).toHaveCount(0);
+      await expect(item.getByTestId("recording-format-disabled")).toHaveCount(
+        0,
+      );
+      await expect(
+        item.getByTestId("room-recordings-download-button"),
+      ).toHaveCount(0);
+      await expect(item.getByTestId("room-recordings-edit-button")).toHaveCount(
+        0,
+      );
+      await expect(
+        item.getByTestId("room-recordings-delete-button"),
+      ).toHaveCount(0);
+
+      const message = page.getByTestId("retention-period-message");
+      await expect(message).toBeVisible();
+      await expect(message).toContainText(
+        "rooms.recordings.retention_period.title",
+      );
+      await expect(message).toContainText(
         "rooms.recordings.retention_period.unlimited",
       );
     });
 
     test("resets the room auth token and shows an error on an invalid token", async ({
       page,
+      room,
     }) => {
       // The room is only authenticated with the token, it gets reloaded without it after the error
-      await mockRoom(page, (room, request) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.authenticated = hasRoomAuthToken(request);
+      await page.route(
+        (url) => url.pathname === "/api/v1/rooms/abc-def-123",
+        (route) => {
+          room.data.authenticated =
+            queryOf(route.request()).room_auth_token !== undefined;
+          return route.fulfill({ json: room });
+        },
+      );
+      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
+        status: 401,
+        json: { message: "invalid_auth_token" },
       });
-      await mockRecordingsError(page, 401, { message: "invalid_auth_token" });
 
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
       const roomReloadRequest = page.waitForRequest(
-        (request) => isRoomRequest(request) && !hasRoomAuthToken(request),
+        (request) =>
+          new URL(request.url()).pathname === "/api/v1/rooms/abc-def-123" &&
+          queryOf(request).room_auth_token === undefined,
       );
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
@@ -472,18 +366,29 @@ test.describe("Rooms view recordings", () => {
 
     test("resets the room auth token and shows an error if a code is required", async ({
       page,
+      room,
     }) => {
       // First the room is authenticated, after the error the reloaded room is not
       let roomRequests = 0;
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.authenticated = roomRequests++ === 0;
+      await page.route(
+        (url) => url.pathname === "/api/v1/rooms/abc-def-123",
+        (route) => {
+          room.data.authenticated = roomRequests++ === 0;
+          return route.fulfill({ json: room });
+        },
+      );
+      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
+        status: 403,
+        json: { message: "require_code" },
       });
-      await mockRecordingsError(page, 403, { message: "require_code" });
 
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
       const roomReloadRequest = page.waitForRequest(
-        (request) => isRoomRequest(request) && roomRequests >= 1,
+        (request) =>
+          new URL(request.url()).pathname === "/api/v1/rooms/abc-def-123" &&
+          roomRequests >= 1,
       );
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
@@ -508,26 +413,30 @@ test.describe("Rooms view recordings", () => {
   test.describe("personalized link", () => {
     test.use({ authenticated: false });
 
-    test.beforeEach(async ({ page }) => {
-      await mockRoom(page, (room) => {
-        room.data.username = "Max Doe";
-        room.data.current_user = null;
-      });
+    test.beforeEach(async ({ room }) => {
+      room.data.username = "Max Doe";
+      room.data.current_user = null;
     });
 
-    test("loads the recordings with the room auth token", async ({ page }) => {
-      await page.route(ROOM_AUTH_URL, (route) =>
-        route.fulfill({
-          status: 201,
-          json: { data: { id: "roomAuthToken", type: 1 } },
-        }),
-      );
-      await mockRecordings(page, firstRecordingOnly);
+    test("loads the recordings with the room auth token", async ({
+      page,
+      roomRecordings,
+    }) => {
+      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+        status: 201,
+        json: { data: { id: "roomAuthToken", type: 1 } },
+      });
+      roomRecordings.data = roomRecordings.data.slice(0, 1);
+      roomRecordings.meta.to = 1;
+      roomRecordings.meta.total = 1;
+      roomRecordings.meta.total_no_filter = 1;
 
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
 
       await page.goto(
-        `/rooms/abc-def-123#personalizedLink=${PERSONALIZED_LINK}&tab=recordings`,
+        "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
       );
 
       expect(queryOf(await recordingsRequest)).toMatchObject({
@@ -540,9 +449,36 @@ test.describe("Rooms view recordings", () => {
       ).toBeVisible();
 
       await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
-      await expectRecording(page, 0, "limited", { guest: true });
-      await expectRetentionPeriod(
-        page,
+      const item = page.getByTestId("room-recording-item").first();
+      await expect(item).toContainText("Recording 1");
+      await expect(item).toContainText("08/17/2022, 05:20");
+      await expect(item).toContainText("20 app.time_formats.minutes");
+      await expect(
+        item.getByTestId("room-recordings-view-button"),
+      ).toBeVisible();
+      await expect(item).not.toContainText(
+        "rooms.recordings.access_types.everyone",
+      );
+      await expect(item.getByTestId("recording-format-enabled")).toHaveCount(0);
+      await expect(item.getByTestId("recording-format-disabled")).toHaveCount(
+        0,
+      );
+      await expect(
+        item.getByTestId("room-recordings-download-button"),
+      ).toHaveCount(0);
+      await expect(item.getByTestId("room-recordings-edit-button")).toHaveCount(
+        0,
+      );
+      await expect(
+        item.getByTestId("room-recordings-delete-button"),
+      ).toHaveCount(0);
+
+      const message = page.getByTestId("retention-period-message");
+      await expect(message).toBeVisible();
+      await expect(message).toContainText(
+        "rooms.recordings.retention_period.title",
+      );
+      await expect(message).toContainText(
         "rooms.recordings.retention_period.unlimited",
       );
     });
@@ -552,7 +488,7 @@ test.describe("Rooms view recordings", () => {
     }) => {
       // The first authentication is valid, the authentication after the recordings error is not
       let authRequests = 0;
-      await page.route(ROOM_AUTH_URL, (route) =>
+      await page.route("**/api/v1/rooms/abc-def-123/auth", (route) =>
         authRequests++ === 0
           ? route.fulfill({
               status: 201,
@@ -563,10 +499,13 @@ test.describe("Rooms view recordings", () => {
               json: { message: "invalid_personalized_link" },
             }),
       );
-      await mockRecordingsError(page, 401, { message: "invalid_auth_token" });
+      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
+        status: 401,
+        json: { message: "invalid_auth_token" },
+      });
 
       await page.goto(
-        `/rooms/abc-def-123#personalizedLink=${PERSONALIZED_LINK}&tab=recordings`,
+        "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
       );
 
       await expectToastAndClose(page, "rooms.flash.personalized_link_invalid");
@@ -589,16 +528,17 @@ test.describe("Rooms view recordings", () => {
     test("shows an error and redirects to the home page if only guests are allowed", async ({
       page,
     }) => {
-      await page.route(ROOM_AUTH_URL, (route) =>
-        route.fulfill({
-          status: 201,
-          json: { data: { id: "roomAuthToken", type: 1 } },
-        }),
-      );
-      await mockRecordingsError(page, 420, { message: "guests_only" });
+      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+        status: 201,
+        json: { data: { id: "roomAuthToken", type: 1 } },
+      });
+      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
+        status: 420,
+        json: { message: "guests_only" },
+      });
 
       await page.goto(
-        `/rooms/abc-def-123#personalizedLink=${PERSONALIZED_LINK}&tab=recordings`,
+        "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
       );
 
       await expectToastAndClose(page, "app.flash.guests_only");
@@ -611,26 +551,62 @@ test.describe("Rooms view recordings", () => {
     test("shows the overlay and the error on a server error", async ({
       page,
     }) => {
-      await mockRecordingsError(page, 500, { message: "Test" });
+      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(page.getByTestId("loading-retry-button")).toContainText(
         "app.reload",
       );
-      await expectControls(page, true);
+
+      const search = page.getByTestId("room-recordings-search");
+      const sortGroup = page.getByTestId("sorting-type-inputgroup");
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(
+        page.getByTestId("filter-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
+      await expect(
+        sortGroup
+          .getByTestId("sorting-type-dropdown")
+          .locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
+      await expect(sortGroup.locator("button")).toBeEnabled();
+      await expect(
+        page.getByTestId("room-recordings-reload-button"),
+      ).toBeEnabled();
     });
 
-    test("reloads the recordings after a server error", async ({ page }) => {
-      await mockRecordingsError(page, 500, { message: "Test" });
+    test("reloads the recordings after a server error", async ({
+      page,
+      roomRecordings,
+    }) => {
+      await page.route(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+        (route) => route.fulfill({ status: 500, json: { message: "Test" } }),
+        { times: 1 },
+      );
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      await mockRecordings(page, onePerPage({ lastPage: 3 }));
+      // The reload is answered with the first of three pages
+      roomRecordings.meta.per_page = 1;
+      roomRecordings.meta.last_page = 3;
+      roomRecordings.meta.total = 3;
+      roomRecordings.meta.total_no_filter = 3;
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toContainText("app.reload");
@@ -646,14 +622,24 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("on changing the page", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockRecordings(page, onePerPage({ lastPage: 3 }));
+      test.beforeEach(async ({ page, roomRecordings }) => {
+        roomRecordings.meta.per_page = 1;
+        roomRecordings.meta.last_page = 3;
+        roomRecordings.meta.total = 3;
+        roomRecordings.meta.total_no_filter = 3;
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
 
-        await mockRecordingsError(page, 500, { message: "Test" });
+        await page.route(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+          (route) => route.fulfill({ status: 500, json: { message: "Test" } }),
+          { times: 1 },
+        );
         await page.getByTestId("paginator-next-button").nth(1).click();
-        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
       });
 
       test("shows the overlay and the error on a server error", async ({
@@ -663,13 +649,29 @@ test.describe("Rooms view recordings", () => {
         await expect(page.getByTestId("loading-retry-button")).toContainText(
           "app.reload",
         );
-        await expectControls(page, true);
+
+        const search = page.getByTestId("room-recordings-search");
+        const sortGroup = page.getByTestId("sorting-type-inputgroup");
+        await expect(search.locator("input")).toBeEnabled();
+        await expect(search.locator("button")).toBeEnabled();
+        await expect(
+          page.getByTestId("filter-dropdown").locator(".p-select-label"),
+        ).not.toHaveAttribute("aria-disabled", "true");
+        await expect(
+          sortGroup
+            .getByTestId("sorting-type-dropdown")
+            .locator(".p-select-label"),
+        ).not.toHaveAttribute("aria-disabled", "true");
+        await expect(sortGroup.locator("button")).toBeEnabled();
+        await expect(
+          page.getByTestId("room-recordings-reload-button"),
+        ).toBeEnabled();
       });
 
       test("reloads the first page", async ({ page }) => {
-        await mockRecordings(page, onePerPage({ lastPage: 3 }));
-
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
         await expect(page.getByTestId("overlay")).toBeVisible();
         await page.getByTestId("loading-retry-button").click();
 
@@ -689,22 +691,23 @@ test.describe("Rooms view recordings", () => {
     test("redirects to the room index page if the room is not found", async ({
       page,
     }) => {
-      await page.route("**/api/v1/roomTypes*", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/roomTypes.json" }),
-      );
-      await page.route("**/api/v1/rooms?*", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/rooms.json" }),
-      );
-      await mockRecordingsError(page, 404, {
-        message: "model_not_found",
-        model: "room",
-        ids: ["abc-def-123"],
+      await interceptRoomIndexRequests(page);
+      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
+        status: 404,
+        json: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
       });
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-      await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.room"}',
+        'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+      ]);
     });
 
     test.describe("as guest", () => {
@@ -712,37 +715,49 @@ test.describe("Rooms view recordings", () => {
 
       test("redirects to the 404 page if the room is not found", async ({
         page,
+        room,
       }) => {
-        await mockRoom(page, (room) => {
-          room.data.current_user = null;
-        });
-        await mockRecordingsError(page, 404, {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        });
+        room.data.current_user = null;
+        await mockMethod(
+          page,
+          "GET",
+          "**/api/v1/rooms/abc-def-123/recordings*",
+          {
+            status: 404,
+            json: {
+              message: "model_not_found",
+              model: "room",
+              ids: ["abc-def-123"],
+            },
+          },
+        );
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
 
         await expect(page).toHaveURL((url) => url.pathname === "/404");
-        await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.model_not_found.title_{"model":"app.model.room"}',
+          'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+        ]);
       });
     });
   });
 
   test("resets the page if the requested page is out of range", async ({
     page,
+    roomRecordings,
   }) => {
-    await mockRecordings(page, (recordings) => {
-      onePerPage({ lastPage: 2, total: 2 })(recordings);
-    });
+    roomRecordings.meta.per_page = 1;
+    roomRecordings.meta.last_page = 2;
+    roomRecordings.meta.total = 2;
+    roomRecordings.meta.total_no_filter = 2;
 
     await page.goto("/rooms/abc-def-123#tab=recordings");
     await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
 
     // The second page is empty, the following request (first page) returns the recordings
     const requests = [];
-    await page.route(RECORDINGS_URL, (route) => {
+    await page.route("**/api/v1/rooms/abc-def-123/recordings*", (route) => {
       requests.push(queryOf(route.request()));
       const recordings = readFixture("roomRecordings.json");
       if (requests.length === 1) {
@@ -781,105 +796,327 @@ test.describe("Rooms view recordings", () => {
     test.describe("as guest", () => {
       test.use({ authenticated: false });
 
-      test("shows only the view button", async ({ page }) => {
-        await mockRoom(page, (room) => {
-          room.data.current_user = null;
-        });
-        await mockRecordings(page, firstRecordingOnly);
+      test("shows only the view button", async ({
+        page,
+        room,
+        roomRecordings,
+      }) => {
+        room.data.current_user = null;
+        roomRecordings.data = roomRecordings.data.slice(0, 1);
+        roomRecordings.meta.to = 1;
+        roomRecordings.meta.total = 1;
+        roomRecordings.meta.total_no_filter = 1;
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
 
         await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
-        await expectRecording(page, 0, "limited", { guest: true });
-        await expectRetentionPeriod(
-          page,
+        const item = page.getByTestId("room-recording-item").first();
+        await expect(item).toContainText("Recording 1");
+        await expect(item).toContainText("08/17/2022, 05:20");
+        await expect(item).toContainText("20 app.time_formats.minutes");
+        await expect(
+          item.getByTestId("room-recordings-view-button"),
+        ).toBeVisible();
+        await expect(item).not.toContainText(
+          "rooms.recordings.access_types.everyone",
+        );
+        await expect(item.getByTestId("recording-format-enabled")).toHaveCount(
+          0,
+        );
+        await expect(item.getByTestId("recording-format-disabled")).toHaveCount(
+          0,
+        );
+        await expect(
+          item.getByTestId("room-recordings-download-button"),
+        ).toHaveCount(0);
+        await expect(
+          item.getByTestId("room-recordings-edit-button"),
+        ).toHaveCount(0);
+        await expect(
+          item.getByTestId("room-recordings-delete-button"),
+        ).toHaveCount(0);
+
+        const message = page.getByTestId("retention-period-message");
+        await expect(message).toBeVisible();
+        await expect(message).toContainText(
+          "rooms.recordings.retention_period.title",
+        );
+        await expect(message).toContainText(
           'rooms.recordings.retention_period.days_{"days":365}',
         );
       });
     });
 
     test.describe("with rooms.viewAll permission", () => {
-      test.beforeEach(async ({ page, currentUser }) => {
+      test.beforeEach(async ({ page, room, currentUser }) => {
         currentUser.data.permissions = ["rooms.viewAll"];
-        await mockRoom(page, (room) => {
-          room.data.owner = { id: 2, name: "Max Doe" };
-          room.data.current_user.permissions = ["rooms.viewAll"];
-        });
+        room.data.owner = { id: 2, name: "Max Doe" };
+        room.data.current_user.permissions = ["rooms.viewAll"];
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
       });
 
-      for (const [index, recording] of RECORDINGS.entries()) {
+      for (const [index, recording] of [
+        {
+          description: "Recording 1",
+          date: "08/17/2022, 11:20",
+          duration: "20 app.time_formats.minutes",
+          access: "rooms.recordings.access_types.everyone",
+        },
+        {
+          description: "Recording 2",
+          date: "08/17/2022, 10:00",
+          duration: "1 app.time_formats.hour, 0 app.time_formats.minutes",
+          access: "rooms.recordings.access_types.participant",
+        },
+        {
+          description: "Recording 3",
+          date: "08/18/2022, 10:39",
+          duration: "1 app.time_formats.hour, 1 app.time_formats.minute",
+          access: "rooms.recordings.access_types.moderator",
+        },
+        {
+          description: "Recording 4",
+          date: "09/20/2022, 11:39",
+          duration: "1 app.time_formats.minute",
+          access: "rooms.recordings.access_types.owner",
+        },
+      ].entries()) {
         test(`shows only the view button for ${recording.description}`, async ({
           page,
         }) => {
-          await expectRecording(page, index, "limited");
+          const item = page.getByTestId("room-recording-item").nth(index);
+          await expect(item).toContainText(recording.description);
+          await expect(item).toContainText(recording.date);
+          await expect(item).toContainText(recording.duration);
+          await expect(
+            item.getByTestId("room-recordings-view-button"),
+          ).toBeVisible();
+          await expect(item).not.toContainText(recording.access);
+          await expect(
+            item.getByTestId("recording-format-enabled"),
+          ).toHaveCount(0);
+          await expect(
+            item.getByTestId("recording-format-disabled"),
+          ).toHaveCount(0);
+          await expect(
+            item.getByTestId("room-recordings-download-button"),
+          ).toHaveCount(0);
+          await expect(
+            item.getByTestId("room-recordings-edit-button"),
+          ).toHaveCount(0);
+          await expect(
+            item.getByTestId("room-recordings-delete-button"),
+          ).toHaveCount(0);
         });
       }
 
       test("shows the retention period message", async ({ page }) => {
-        await expectRetentionPeriod(
-          page,
+        const message = page.getByTestId("retention-period-message");
+        await expect(message).toBeVisible();
+        await expect(message).toContainText(
+          "rooms.recordings.retention_period.title",
+        );
+        await expect(message).toContainText(
           'rooms.recordings.retention_period.days_{"days":365}',
         );
       });
     });
 
     test.describe("as co-owner", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockRoom(page, (room) => {
-          room.data.owner = { id: 2, name: "Max Doe" };
-          room.data.is_member = true;
-          room.data.is_co_owner = true;
-        });
+      test.beforeEach(async ({ page, room }) => {
+        room.data.owner = { id: 2, name: "Max Doe" };
+        room.data.is_member = true;
+        room.data.is_co_owner = true;
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
       });
 
-      for (const [index, recording] of RECORDINGS.entries()) {
+      for (const [index, recording] of [
+        {
+          description: "Recording 1",
+          date: "08/17/2022, 11:20",
+          duration: "20 app.time_formats.minutes",
+          access: "rooms.recordings.access_types.everyone",
+          enabledFormats: ["notes", "podcast", "presentation", "screenshare"],
+          disabledFormats: [],
+        },
+        {
+          description: "Recording 2",
+          date: "08/17/2022, 10:00",
+          duration: "1 app.time_formats.hour, 0 app.time_formats.minutes",
+          access: "rooms.recordings.access_types.participant",
+          enabledFormats: [],
+          disabledFormats: ["notes", "podcast", "presentation", "screenshare"],
+        },
+        {
+          description: "Recording 3",
+          date: "08/18/2022, 10:39",
+          duration: "1 app.time_formats.hour, 1 app.time_formats.minute",
+          access: "rooms.recordings.access_types.moderator",
+          enabledFormats: ["podcast", "presentation"],
+          disabledFormats: ["notes", "screenshare"],
+        },
+        {
+          description: "Recording 4",
+          date: "09/20/2022, 11:39",
+          duration: "1 app.time_formats.minute",
+          access: "rooms.recordings.access_types.owner",
+          enabledFormats: ["notes", "screenshare"],
+          disabledFormats: ["podcast", "presentation"],
+        },
+      ].entries()) {
         test(`shows all details and buttons for ${recording.description}`, async ({
           page,
         }) => {
-          await expectRecording(page, index, "full");
+          const item = page.getByTestId("room-recording-item").nth(index);
+          await expect(item).toContainText(recording.description);
+          await expect(item).toContainText(recording.date);
+          await expect(item).toContainText(recording.duration);
+          await expect(item).toContainText(recording.access);
+
+          const enabledFormats = item.getByTestId("recording-format-enabled");
+          await expect(enabledFormats).toHaveCount(
+            recording.enabledFormats.length,
+          );
+          await expect(enabledFormats).toContainText(
+            recording.enabledFormats.map(
+              (format) => "rooms.recordings.format_types." + format,
+            ),
+          );
+          const disabledFormats = item.getByTestId("recording-format-disabled");
+          await expect(disabledFormats).toHaveCount(
+            recording.disabledFormats.length,
+          );
+          await expect(disabledFormats).toContainText(
+            recording.disabledFormats.map(
+              (format) => "rooms.recordings.format_types." + format,
+            ),
+          );
+
+          await expect(
+            item.getByTestId("room-recordings-view-button"),
+          ).toBeVisible();
+          await expect(
+            item.getByTestId("room-recordings-edit-button"),
+          ).toBeVisible();
+          await expect(
+            item.getByTestId("room-recordings-delete-button"),
+          ).toBeVisible();
+          await expect(
+            item.getByTestId("room-recordings-download-button"),
+          ).toBeVisible();
         });
       }
 
       test("shows the retention period message", async ({ page }) => {
-        await expectRetentionPeriod(
-          page,
+        const message = page.getByTestId("retention-period-message");
+        await expect(message).toBeVisible();
+        await expect(message).toContainText(
+          "rooms.recordings.retention_period.title",
+        );
+        await expect(message).toContainText(
           'rooms.recordings.retention_period.days_{"days":365}',
         );
       });
     });
 
     test.describe("with rooms.manage permission", () => {
-      test.beforeEach(async ({ page, currentUser }) => {
+      test.beforeEach(async ({ page, room, currentUser }) => {
         currentUser.data.permissions = ["rooms.viewAll", "rooms.manage"];
-        await mockRoom(page, (room) => {
-          room.data.owner = { id: 2, name: "Max Doe" };
-          room.data.current_user.permissions = [
-            "rooms.viewAll",
-            "rooms.manage",
-          ];
-        });
+        room.data.owner = { id: 2, name: "Max Doe" };
+        room.data.current_user.permissions = ["rooms.viewAll", "rooms.manage"];
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
       });
 
-      for (const [index, recording] of RECORDINGS.entries()) {
+      for (const [index, recording] of [
+        {
+          description: "Recording 1",
+          date: "08/17/2022, 11:20",
+          duration: "20 app.time_formats.minutes",
+          access: "rooms.recordings.access_types.everyone",
+          enabledFormats: ["notes", "podcast", "presentation", "screenshare"],
+          disabledFormats: [],
+        },
+        {
+          description: "Recording 2",
+          date: "08/17/2022, 10:00",
+          duration: "1 app.time_formats.hour, 0 app.time_formats.minutes",
+          access: "rooms.recordings.access_types.participant",
+          enabledFormats: [],
+          disabledFormats: ["notes", "podcast", "presentation", "screenshare"],
+        },
+        {
+          description: "Recording 3",
+          date: "08/18/2022, 10:39",
+          duration: "1 app.time_formats.hour, 1 app.time_formats.minute",
+          access: "rooms.recordings.access_types.moderator",
+          enabledFormats: ["podcast", "presentation"],
+          disabledFormats: ["notes", "screenshare"],
+        },
+        {
+          description: "Recording 4",
+          date: "09/20/2022, 11:39",
+          duration: "1 app.time_formats.minute",
+          access: "rooms.recordings.access_types.owner",
+          enabledFormats: ["notes", "screenshare"],
+          disabledFormats: ["podcast", "presentation"],
+        },
+      ].entries()) {
         test(`shows all details and buttons for ${recording.description}`, async ({
           page,
         }) => {
-          await expectRecording(page, index, "full");
+          const item = page.getByTestId("room-recording-item").nth(index);
+          await expect(item).toContainText(recording.description);
+          await expect(item).toContainText(recording.date);
+          await expect(item).toContainText(recording.duration);
+          await expect(item).toContainText(recording.access);
+
+          const enabledFormats = item.getByTestId("recording-format-enabled");
+          await expect(enabledFormats).toHaveCount(
+            recording.enabledFormats.length,
+          );
+          await expect(enabledFormats).toContainText(
+            recording.enabledFormats.map(
+              (format) => "rooms.recordings.format_types." + format,
+            ),
+          );
+          const disabledFormats = item.getByTestId("recording-format-disabled");
+          await expect(disabledFormats).toHaveCount(
+            recording.disabledFormats.length,
+          );
+          await expect(disabledFormats).toContainText(
+            recording.disabledFormats.map(
+              (format) => "rooms.recordings.format_types." + format,
+            ),
+          );
+
+          await expect(
+            item.getByTestId("room-recordings-view-button"),
+          ).toBeVisible();
+          await expect(
+            item.getByTestId("room-recordings-edit-button"),
+          ).toBeVisible();
+          await expect(
+            item.getByTestId("room-recordings-delete-button"),
+          ).toBeVisible();
+          await expect(
+            item.getByTestId("room-recordings-download-button"),
+          ).toBeVisible();
         });
       }
 
       test("shows the retention period message", async ({ page }) => {
-        await expectRetentionPeriod(
-          page,
+        const message = page.getByTestId("retention-period-message");
+        await expect(message).toBeVisible();
+        await expect(message).toContainText(
+          "rooms.recordings.retention_period.title",
+        );
+        await expect(message).toContainText(
           'rooms.recordings.retention_period.days_{"days":365}',
         );
       });
@@ -887,13 +1124,10 @@ test.describe("Rooms view recordings", () => {
   });
 
   test.describe("search", () => {
-    const searchInput = (page) =>
-      page.getByTestId("room-recordings-search").locator("input");
-    const searchButton = (page) =>
-      page.getByTestId("room-recordings-search").locator("button");
-
     test("loads the recordings without a search query", async ({ page }) => {
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
@@ -904,15 +1138,27 @@ test.describe("Rooms view recordings", () => {
 
     test("shows a message if no recordings match the search query", async ({
       page,
+      roomRecordings,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=recordings");
       await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-      await mockRecordings(page, noRecordings(true));
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      roomRecordings.data = [];
+      roomRecordings.meta.from = null;
+      roomRecordings.meta.to = null;
+      roomRecordings.meta.total = 0;
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
 
-      await searchInput(page).fill("Test");
-      await searchButton(page).click();
+      await page
+        .getByTestId("room-recordings-search")
+        .locator("input")
+        .fill("Test");
+      await page
+        .getByTestId("room-recordings-search")
+        .locator("button")
+        .click();
 
       expect(queryOf(await recordingsRequest)).toMatchObject({
         query: "Test",
@@ -925,15 +1171,28 @@ test.describe("Rooms view recordings", () => {
 
     test("shows a message if there are no recordings in the room", async ({
       page,
+      roomRecordings,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=recordings");
       await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-      await mockRecordings(page, noRecordings(false));
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      roomRecordings.data = [];
+      roomRecordings.meta.from = null;
+      roomRecordings.meta.to = null;
+      roomRecordings.meta.total = 0;
+      roomRecordings.meta.total_no_filter = 0;
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
 
-      await searchInput(page).fill("Test2");
-      await searchInput(page).press("Enter");
+      await page
+        .getByTestId("room-recordings-search")
+        .locator("input")
+        .fill("Test2");
+      await page
+        .getByTestId("room-recordings-search")
+        .locator("input")
+        .press("Enter");
 
       expect(queryOf(await recordingsRequest)).toMatchObject({
         query: "Test2",
@@ -945,15 +1204,26 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("with multiple pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, roomRecordings }) => {
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-        await mockRecordings(page, onePerPage({ lastPage: 2, total: 2 }));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        roomRecordings.meta.per_page = 1;
+        roomRecordings.meta.last_page = 2;
+        roomRecordings.meta.total = 2;
+        roomRecordings.meta.total_no_filter = 2;
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
-        await searchInput(page).fill("Recording");
-        await searchButton(page).click();
+        await page
+          .getByTestId("room-recordings-search")
+          .locator("input")
+          .fill("Recording");
+        await page
+          .getByTestId("room-recordings-search")
+          .locator("button")
+          .click();
 
         expect(queryOf(await recordingsRequest)).toMatchObject({
           query: "Recording",
@@ -974,11 +1244,9 @@ test.describe("Rooms view recordings", () => {
       test("keeps the search query when changing the page", async ({
         page,
       }) => {
-        await mockRecordings(
-          page,
-          onePerPage({ currentPage: 2, lastPage: 2, total: 2 }),
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
         );
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -987,7 +1255,9 @@ test.describe("Rooms view recordings", () => {
           page: "2",
         });
 
-        await expect(searchInput(page)).toHaveValue("Recording");
+        await expect(
+          page.getByTestId("room-recordings-search").locator("input"),
+        ).toHaveValue("Recording");
         await expectActivePage(page, 1);
         await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
         await expect(
@@ -998,21 +1268,24 @@ test.describe("Rooms view recordings", () => {
       test("resets the page when changing the search query", async ({
         page,
       }) => {
-        await mockRecordings(
-          page,
-          onePerPage({ currentPage: 2, lastPage: 2, total: 2 }),
-        );
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
         await expect(
           page.getByTestId("room-recording-item").first(),
         ).toContainText("Recording 2");
 
-        await mockRecordings(page, onePerPage({ lastPage: 2, total: 2 }));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
-        await searchInput(page).fill("Record");
-        await searchButton(page).click();
+        await page
+          .getByTestId("room-recordings-search")
+          .locator("input")
+          .fill("Record");
+        await page
+          .getByTestId("room-recordings-search")
+          .locator("button")
+          .click();
 
         expect(queryOf(await recordingsRequest)).toMatchObject({
           query: "Record",
@@ -1026,7 +1299,9 @@ test.describe("Rooms view recordings", () => {
 
   test.describe("filter", () => {
     test("loads the recordings without a filter", async ({ page }) => {
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
@@ -1068,9 +1343,15 @@ test.describe("Rooms view recordings", () => {
 
       test("shows a message if no recordings match the filter", async ({
         page,
+        roomRecordings,
       }) => {
-        await mockRecordings(page, noRecordings(true));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        roomRecordings.data = [];
+        roomRecordings.meta.from = null;
+        roomRecordings.meta.to = null;
+        roomRecordings.meta.total = 0;
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
         await selectFilter(page, 1);
 
@@ -1088,9 +1369,16 @@ test.describe("Rooms view recordings", () => {
 
       test("shows a message if there are no recordings in the room", async ({
         page,
+        roomRecordings,
       }) => {
-        await mockRecordings(page, noRecordings(false));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        roomRecordings.data = [];
+        roomRecordings.meta.from = null;
+        roomRecordings.meta.to = null;
+        roomRecordings.meta.total = 0;
+        roomRecordings.meta.total_no_filter = 0;
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
         await selectFilter(page, 2);
 
@@ -1107,9 +1395,14 @@ test.describe("Rooms view recordings", () => {
       });
 
       test.describe("with multiple pages", () => {
-        test.beforeEach(async ({ page }) => {
-          await mockRecordings(page, onePerPage({ lastPage: 2, total: 2 }));
-          const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        test.beforeEach(async ({ page, roomRecordings }) => {
+          roomRecordings.meta.per_page = 1;
+          roomRecordings.meta.last_page = 2;
+          roomRecordings.meta.total = 2;
+          roomRecordings.meta.total_no_filter = 2;
+          const recordingsRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/recordings*",
+          );
 
           await selectFilter(page, 3);
 
@@ -1132,11 +1425,9 @@ test.describe("Rooms view recordings", () => {
         });
 
         test("keeps the filter when changing the page", async ({ page }) => {
-          await mockRecordings(
-            page,
-            onePerPage({ currentPage: 2, lastPage: 2, total: 2 }),
+          const recordingsRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/recordings*",
           );
-          const recordingsRequest = page.waitForRequest(isRecordingsRequest);
 
           await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -1156,18 +1447,15 @@ test.describe("Rooms view recordings", () => {
         });
 
         test("resets the page when changing the filter", async ({ page }) => {
-          await mockRecordings(
-            page,
-            onePerPage({ currentPage: 2, lastPage: 2, total: 2 }),
-          );
           await page.getByTestId("paginator-next-button").nth(1).click();
           await expectActivePage(page, 1);
           await expect(
             page.getByTestId("room-recording-item").first(),
           ).toContainText("Recording 2");
 
-          await mockRecordings(page, onePerPage({ lastPage: 2, total: 2 }));
-          const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+          const recordingsRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/recordings*",
+          );
 
           await selectFilter(page, 4);
 
@@ -1183,15 +1471,12 @@ test.describe("Rooms view recordings", () => {
         });
 
         test("resets the filter and the page", async ({ page }) => {
-          await mockRecordings(
-            page,
-            onePerPage({ currentPage: 2, lastPage: 2, total: 2 }),
-          );
           await page.getByTestId("paginator-next-button").nth(1).click();
           await expectActivePage(page, 1);
 
-          await mockRecordings(page, onePerPage({ lastPage: 2, total: 2 }));
-          const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+          const recordingsRequest = page.waitForRequest(
+            "**/api/v1/rooms/abc-def-123/recordings*",
+          );
 
           await selectFilter(page, 0);
 
@@ -1210,7 +1495,9 @@ test.describe("Rooms view recordings", () => {
 
   test.describe("sort", () => {
     test("loads the recordings sorted by start", async ({ page }) => {
-      const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+      const recordingsRequest = page.waitForRequest(
+        "**/api/v1/rooms/abc-def-123/recordings*",
+      );
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
@@ -1246,12 +1533,17 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("after changing the sorting type", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, roomRecordings }) => {
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-        await mockRecordings(page, onePerPage({ lastPage: 4 }));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        roomRecordings.meta.per_page = 1;
+        roomRecordings.meta.last_page = 4;
+        roomRecordings.meta.total = 4;
+        roomRecordings.meta.total_no_filter = 4;
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
         await selectSortType(page, 0);
 
@@ -1278,8 +1570,9 @@ test.describe("Rooms view recordings", () => {
       });
 
       test("keeps the sorting when changing the page", async ({ page }) => {
-        await mockRecordings(page, onePerPage({ currentPage: 2, lastPage: 4 }));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -1302,17 +1595,20 @@ test.describe("Rooms view recordings", () => {
       test("resets the page when changing the sorting direction", async ({
         page,
       }) => {
-        await mockRecordings(page, onePerPage({ currentPage: 2, lastPage: 4 }));
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
         await expect(
           page.getByTestId("room-recording-item").first(),
         ).toContainText("Recording 2");
 
-        await mockRecordings(page, onePerPage({ lastPage: 4 }));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
-        await toggleSortDirection(page);
+        await page
+          .getByTestId("sorting-type-inputgroup")
+          .locator("button")
+          .click();
 
         expect(queryOf(await recordingsRequest)).toMatchObject({
           sort_by: "description",
@@ -1326,11 +1622,19 @@ test.describe("Rooms view recordings", () => {
       test("keeps the sorting direction when changing the page", async ({
         page,
       }) => {
-        await toggleSortDirection(page);
+        const sortRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
+        await page
+          .getByTestId("sorting-type-inputgroup")
+          .locator("button")
+          .click();
+        await sortRequest;
         await expectActivePage(page, 0);
 
-        await mockRecordings(page, onePerPage({ currentPage: 2, lastPage: 4 }));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -1346,14 +1650,21 @@ test.describe("Rooms view recordings", () => {
       test("resets the page when changing the sorting type", async ({
         page,
       }) => {
-        await toggleSortDirection(page);
+        const sortRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
+        await page
+          .getByTestId("sorting-type-inputgroup")
+          .locator("button")
+          .click();
+        await sortRequest;
 
-        await mockRecordings(page, onePerPage({ currentPage: 2, lastPage: 4 }));
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockRecordings(page, onePerPage({ lastPage: 4 }));
-        const recordingsRequest = page.waitForRequest(isRecordingsRequest);
+        const recordingsRequest = page.waitForRequest(
+          "**/api/v1/rooms/abc-def-123/recordings*",
+        );
 
         await selectSortType(page, 1);
 

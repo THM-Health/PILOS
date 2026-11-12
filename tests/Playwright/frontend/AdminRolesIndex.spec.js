@@ -1,100 +1,22 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminRoles.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import { holdRequest, expectActivePage, queryOf } from "../support/utils.js";
-
-const ROLES_PATH = "/api/v1/roles";
-
-const readRoles = () =>
-  JSON.parse(readFileSync("tests/Playwright/fixtures/roles.json", "utf8"));
-
-const isRolesRequest = (request) =>
-  request.method() === "GET" && new URL(request.url()).pathname === ROLES_PATH;
-
-/**
- * Answer GET requests of the roles list, later mocks win.
- */
-async function mockRoles(page, { status = 200, json = readRoles() } = {}) {
-  await page.route(
-    (url) => url.pathname === ROLES_PATH,
-    (route) =>
-      route.request().method() === "GET"
-        ? route.fulfill({ status, json })
-        : route.fallback(),
-  );
-}
-
-/**
- * Roles response with only the given roles of the fixture
- */
-function rolesPage(slice, meta = {}) {
-  const roles = readRoles();
-  roles.data = roles.data.slice(...slice);
-  Object.assign(roles.meta, meta);
-  return roles;
-}
-
-const noRolesFound = () =>
-  rolesPage([0, 0], { from: null, per_page: 1, to: null, total: 0 });
-
-const serverError = { message: "Test" };
-const serverErrorTexts = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-async function expectRolesRequestAfter(page, action) {
-  const request = page.waitForRequest(isRolesRequest);
-  await action();
-  return queryOf(await request);
-}
-
-async function expectSearchDisabled(page, disabled) {
-  const search = page.getByTestId("role-search");
-  await expect(search.locator("input")).toBeVisible();
-  await expect(search.locator("button")).toBeVisible();
-  if (disabled) {
-    await expect(search.locator("input")).toBeDisabled();
-    await expect(search.locator("button")).toBeDisabled();
-  } else {
-    await expect(search.locator("input")).toBeEnabled();
-    await expect(search.locator("button")).toBeEnabled();
-  }
-}
-
-async function expectRoleActions(page, index, { view, edit, remove }) {
-  const row = page.getByTestId("role-item").nth(index);
-  await expect(row.getByTestId("roles-view-button")).toBeVisible();
-  await expect(row.getByTestId("roles-view-button")).toHaveAttribute(
-    "href",
-    view,
-  );
-  if (edit) {
-    await expect(row.getByTestId("roles-edit-button")).toBeVisible();
-    await expect(row.getByTestId("roles-edit-button")).toHaveAttribute(
-      "href",
-      edit,
-    );
-  } else {
-    await expect(row.getByTestId("roles-edit-button")).toHaveCount(0);
-  }
-  if (remove) {
-    await expect(row.getByTestId("roles-delete-button")).toBeVisible();
-  } else {
-    await expect(row.getByTestId("roles-delete-button")).toHaveCount(0);
-  }
-}
+import {
+  mockMethod,
+  expectActivePage,
+  queryOf,
+  readFixture,
+} from "../support/utils.js";
 
 // Two paginator components exist (small devices, larger devices), the second one is used (nth(1))
 test.describe("Admin roles index", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = ["admin.view", "roles.viewAny"];
-    await mockRoles(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -117,28 +39,35 @@ test.describe("Admin roles index", () => {
   });
 
   test.describe("load roles", () => {
-    test("loading state", async ({ page }) => {
-      const release = await holdRequest(
-        page,
-        (url) => url.pathname === ROLES_PATH,
-        { json: readRoles() },
-      );
+    test("loading state", async ({ page, roles }) => {
+      const rolesRequest = await mockMethod(page, "GET", "**/api/v1/roles*", {
+        json: roles,
+        hold: true,
+      });
 
       await page.goto("/admin/roles");
 
       await expect(
         page.getByRole("heading", { name: "admin.title" }),
       ).toBeVisible();
-      await expectSearchDisabled(page, true);
+
+      const search = page.getByTestId("role-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
       await expect(page.getByTestId("roles-add-button")).toHaveCount(0);
       await expect(page.getByTestId("overlay")).toBeVisible();
 
-      const response = page.waitForResponse((r) => isRolesRequest(r.request()));
-      release();
+      const response = page.waitForResponse("**/api/v1/roles?*");
+      rolesRequest.release();
       await response;
 
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectSearchDisabled(page, false);
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
       await expect(page.getByTestId("role-item")).toHaveCount(3);
       await expect(page.getByTestId("roles-add-button")).toHaveCount(0);
     });
@@ -178,18 +107,28 @@ test.describe("Admin roles index", () => {
   });
 
   test.describe("load roles errors", () => {
-    test("error on initial load can be retried", async ({ page }) => {
-      await mockRoles(page, { status: 500, json: serverError });
+    test("error on initial load can be retried", async ({ page, roles }) => {
+      await mockMethod(page, "GET", "**/api/v1/roles*", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/admin/roles");
 
-      await expectToastAndClose(page, serverErrorTexts);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Overlay is shown, but the search is not disabled
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectSearchDisabled(page, false);
+      const search = page.getByTestId("role-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
 
-      await mockRoles(page);
+      await mockMethod(page, "GET", "**/api/v1/roles*", { json: roles });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -212,36 +151,48 @@ test.describe("Admin roles index", () => {
         await page.goto("/admin/roles");
         await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-        await mockRoles(page, { status: 500, json: serverError });
+        await mockMethod(page, "GET", "**/api/v1/roles*", {
+          status: 500,
+          json: { message: "Test" },
+        });
       });
 
       test("error is shown and loading can be retried", async ({ page }) => {
-        const query = await expectRolesRequestAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        expect(query).toMatchObject({ page: "2" });
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({ page: "2" });
 
-        await expectToastAndClose(page, serverErrorTexts);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
 
         await expect(page.getByTestId("overlay")).toBeVisible();
-        await expectSearchDisabled(page, false);
+        const search = page.getByTestId("role-search");
+        await expect(search.locator("input")).toBeVisible();
+        await expect(search.locator("button")).toBeVisible();
+        await expect(search.locator("input")).toBeEnabled();
+        await expect(search.locator("button")).toBeEnabled();
+
         await expect(page.getByTestId("loading-retry-button")).toBeVisible();
       });
 
-      test("retry resets to the first page", async ({ page }) => {
+      test("retry resets to the first page", async ({ page, roles }) => {
         await page.getByTestId("paginator-next-button").nth(1).click();
-        await expectToastAndClose(page, serverErrorTexts);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
 
-        await mockRoles(page, {
-          json: rolesPage([0, 1], { last_page: 1, per_page: 1, to: 1 }),
-        });
+        roles.data = roles.data.slice(0, 1);
+        Object.assign(roles.meta, { last_page: 1, per_page: 1, to: 1 });
+        await mockMethod(page, "GET", "**/api/v1/roles*", { json: roles });
 
         const retryButton = page.getByTestId("loading-retry-button");
         await expect(retryButton).toHaveText("app.reload");
-        const query = await expectRolesRequestAfter(page, () =>
-          retryButton.click(),
-        );
-        expect(query).toMatchObject({ page: "1" });
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await retryButton.click();
+        expect(queryOf(await request)).toMatchObject({ page: "1" });
 
         await expect(page.getByTestId("overlay")).toBeHidden();
         await expect(retryButton).toHaveCount(0);
@@ -257,7 +208,10 @@ test.describe("Admin roles index", () => {
       });
 
       test("401 on page change redirects to login", async ({ page }) => {
-        await mockRoles(page, { status: 401, json: {} });
+        await mockMethod(page, "GET", "**/api/v1/roles*", {
+          status: 401,
+          json: {},
+        });
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -266,7 +220,10 @@ test.describe("Admin roles index", () => {
     });
 
     test("401 on visit redirects to login", async ({ page }) => {
-      await mockRoles(page, { status: 401, json: {} });
+      await mockMethod(page, "GET", "**/api/v1/roles*", {
+        status: 401,
+        json: {},
+      });
 
       await page.goto("/admin/roles");
 
@@ -274,45 +231,42 @@ test.describe("Admin roles index", () => {
     });
   });
 
-  test("page out of bounds is reset to the first page", async ({ page }) => {
-    await mockRoles(page, {
-      json: rolesPage([0, 1], {
-        last_page: 2,
-        per_page: 1,
-        to: 1,
-        total: 2,
-      }),
-    });
+  test("page out of bounds is reset to the first page", async ({
+    page,
+    roles,
+  }) => {
+    const all = readFixture("roles.json");
+    roles.data = all.data.slice(0, 1);
+    roles.meta = { ...all.meta, last_page: 2, per_page: 1, to: 1, total: 2 };
 
     await page.goto("/admin/roles");
     await expect(page.getByTestId("role-item")).toHaveCount(1);
 
     // Page 2 is empty, afterwards the page is reset to page 1
-    const emptyPage = rolesPage([0, 0], {
-      current_page: 2,
-      last_page: 1,
-      from: null,
-      per_page: 2,
-      to: null,
-      total: 2,
-      total_no_filter: 2,
-    });
-    const resetPage = rolesPage([0, 2], {
-      per_page: 2,
-      to: 2,
-      total: 2,
-      total_no_filter: 2,
-    });
-    const queries = [];
-    await page.route(
-      (url) => url.pathname === ROLES_PATH,
-      (route) => {
-        queries.push(queryOf(route.request()));
-        return route.fulfill({
-          json: queries.length === 1 ? emptyPage : resetPage,
-        });
+    const emptyPage = {
+      data: [],
+      meta: {
+        ...all.meta,
+        current_page: 2,
+        last_page: 1,
+        from: null,
+        per_page: 2,
+        to: null,
+        total: 2,
+        total_no_filter: 2,
       },
-    );
+    };
+    const resetPage = {
+      data: all.data.slice(0, 2),
+      meta: { ...all.meta, per_page: 2, to: 2, total: 2, total_no_filter: 2 },
+    };
+    const queries = [];
+    await page.route("**/api/v1/roles?*", (route) => {
+      queries.push(queryOf(route.request()));
+      return route.fulfill({
+        json: queries.length === 1 ? emptyPage : resetPage,
+      });
+    });
 
     await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -327,7 +281,7 @@ test.describe("Admin roles index", () => {
 
   test.describe("role search", () => {
     test("initial request has no query", async ({ page }) => {
-      const request = page.waitForRequest(isRolesRequest);
+      const request = page.waitForRequest("**/api/v1/roles?*");
       await page.goto("/admin/roles");
       const query = queryOf(await request);
 
@@ -338,16 +292,22 @@ test.describe("Admin roles index", () => {
       ).toHaveValue("");
     });
 
-    test("no roles found for search query", async ({ page }) => {
+    test("no roles found for search query", async ({ page, roles }) => {
       await page.goto("/admin/roles");
       await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-      await mockRoles(page, { json: noRolesFound() });
+      roles.data = [];
+      Object.assign(roles.meta, {
+        from: null,
+        per_page: 1,
+        to: null,
+        total: 0,
+      });
 
       await page.getByTestId("role-search").locator("input").fill("Test");
-      const query = await expectRolesRequestAfter(page, () =>
-        page.getByTestId("role-search").locator("button").click(),
-      );
+      const request = page.waitForRequest("**/api/v1/roles?*");
+      await page.getByTestId("role-search").locator("button").click();
+      const query = queryOf(await request);
       expect(query).toMatchObject({ query: "Test", page: "1" });
 
       await expect(
@@ -356,19 +316,27 @@ test.describe("Admin roles index", () => {
       await expect(page.getByTestId("role-item")).toHaveCount(0);
     });
 
-    test("no roles available, search with enter key", async ({ page }) => {
+    test("no roles available, search with enter key", async ({
+      page,
+      roles,
+    }) => {
       await page.goto("/admin/roles");
       await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-      const noRoles = noRolesFound();
-      noRoles.meta.total_no_filter = 0;
-      await mockRoles(page, { json: noRoles });
+      roles.data = [];
+      Object.assign(roles.meta, {
+        from: null,
+        per_page: 1,
+        to: null,
+        total: 0,
+        total_no_filter: 0,
+      });
 
       const input = page.getByTestId("role-search").locator("input");
       await input.fill("Test2");
-      const query = await expectRolesRequestAfter(page, () =>
-        input.press("Enter"),
-      );
+      const request = page.waitForRequest("**/api/v1/roles?*");
+      await input.press("Enter");
+      const query = queryOf(await request);
       expect(query).toMatchObject({ query: "Test2", page: "1" });
 
       await expect(
@@ -378,23 +346,22 @@ test.describe("Admin roles index", () => {
     });
 
     test.describe("with multiple pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, roles }) => {
         await page.goto("/admin/roles");
         await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-        await mockRoles(page, {
-          json: rolesPage([0, 1], {
-            last_page: 2,
-            per_page: 1,
-            to: 1,
-            total: 2,
-          }),
+        roles.data = roles.data.slice(0, 1);
+        Object.assign(roles.meta, {
+          last_page: 2,
+          per_page: 1,
+          to: 1,
+          total: 2,
         });
 
         await page.getByTestId("role-search").locator("input").fill("e");
-        const query = await expectRolesRequestAfter(page, () =>
-          page.getByTestId("role-search").locator("button").click(),
-        );
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await page.getByTestId("role-search").locator("button").click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({ query: "e", page: "1" });
       });
 
@@ -410,21 +377,25 @@ test.describe("Admin roles index", () => {
         await expectActivePage(page, 0);
       });
 
-      test("search query stays after changing the page", async ({ page }) => {
-        await mockRoles(page, {
-          json: rolesPage([1, 2], {
-            current_page: 2,
-            from: 2,
-            last_page: 2,
-            per_page: 1,
-            to: 2,
-            total: 2,
-          }),
-        });
+      test("search query stays after changing the page", async ({
+        page,
+        roles,
+      }) => {
+        const all = readFixture("roles.json");
+        roles.data = all.data.slice(1, 2);
+        roles.meta = {
+          ...all.meta,
+          current_page: 2,
+          from: 2,
+          last_page: 2,
+          per_page: 1,
+          to: 2,
+          total: 2,
+        };
 
-        const query = await expectRolesRequestAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({ query: "e", page: "2" });
 
         await expectActivePage(page, 1);
@@ -437,34 +408,39 @@ test.describe("Admin roles index", () => {
         );
       });
 
-      test("page is reset when the search query changes", async ({ page }) => {
-        await mockRoles(page, {
-          json: rolesPage([1, 2], {
-            current_page: 2,
-            from: 2,
-            last_page: 2,
-            per_page: 1,
-            to: 2,
-            total: 2,
-          }),
-        });
+      test("page is reset when the search query changes", async ({
+        page,
+        roles,
+      }) => {
+        const all = readFixture("roles.json");
+        await expect(page.getByTestId("paginator-page")).toHaveCount(2);
+        roles.data = all.data.slice(1, 2);
+        roles.meta = {
+          ...all.meta,
+          current_page: 2,
+          from: 2,
+          last_page: 2,
+          per_page: 1,
+          to: 2,
+          total: 2,
+        };
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockRoles(page, {
-          json: rolesPage([0, 1], {
-            last_page: 2,
-            per_page: 1,
-            to: 1,
-            total: 2,
-          }),
-        });
+        roles.data = all.data.slice(0, 1);
+        roles.meta = {
+          ...all.meta,
+          last_page: 2,
+          per_page: 1,
+          to: 1,
+          total: 2,
+        };
 
         const input = page.getByTestId("role-search").locator("input");
         await input.fill("o");
-        const query = await expectRolesRequestAfter(page, () =>
-          page.getByTestId("role-search").locator("button").click(),
-        );
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await page.getByTestId("role-search").locator("button").click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({ query: "o", page: "1" });
 
         await expectActivePage(page, 0);
@@ -473,9 +449,6 @@ test.describe("Admin roles index", () => {
   });
 
   test.describe("sort roles", () => {
-    const sortedPage = (rolesSlice, meta) =>
-      rolesPage(rolesSlice, { last_page: 3, per_page: 1, ...meta });
-
     test.beforeEach(async ({ currentUser }) => {
       currentUser.data.permissions = [
         "admin.view",
@@ -485,7 +458,7 @@ test.describe("Admin roles index", () => {
     });
 
     test("initial sorting and sortable columns", async ({ page }) => {
-      const request = page.waitForRequest(isRolesRequest);
+      const request = page.waitForRequest("**/api/v1/roles?*");
       await page.goto("/admin/roles");
       expect(queryOf(await request)).toMatchObject({
         page: "1",
@@ -510,18 +483,19 @@ test.describe("Admin roles index", () => {
     });
 
     test.describe("after loading", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, roles }) => {
         await page.goto("/admin/roles");
         await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-        await mockRoles(page, {
-          json: sortedPage([0, 1], { to: 1 }),
-        });
+        roles.data = roles.data.slice(0, 1);
+        Object.assign(roles.meta, { last_page: 3, per_page: 1, to: 1 });
       });
 
       test("change sorting direction", async ({ page }) => {
         const header = page.getByTestId("role-header-cell").nth(0);
-        const query = await expectRolesRequestAfter(page, () => header.click());
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await header.click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({
           page: "1",
           sort_by: "name",
@@ -540,18 +514,25 @@ test.describe("Admin roles index", () => {
         await expectActivePage(page, 0);
       });
 
-      test("sorting stays after changing the page", async ({ page }) => {
+      test("sorting stays after changing the page", async ({ page, roles }) => {
         const header = page.getByTestId("role-header-cell").nth(0);
         await header.click();
         await expect(header).toHaveAttribute("aria-sort", "descending");
 
-        await mockRoles(page, {
-          json: sortedPage([1, 2], { current_page: 2, from: 2, to: 2 }),
-        });
+        const all = readFixture("roles.json");
+        roles.data = all.data.slice(1, 2);
+        roles.meta = {
+          ...all.meta,
+          last_page: 3,
+          per_page: 1,
+          current_page: 2,
+          from: 2,
+          to: 2,
+        };
 
-        const query = await expectRolesRequestAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({
           page: "2",
           sort_by: "name",
@@ -567,19 +548,32 @@ test.describe("Admin roles index", () => {
         );
       });
 
-      test("page is reset when the sorting changes", async ({ page }) => {
+      test("page is reset when the sorting changes", async ({
+        page,
+        roles,
+      }) => {
         const header = page.getByTestId("role-header-cell").nth(0);
         await header.click();
         await expect(header).toHaveAttribute("aria-sort", "descending");
 
-        await mockRoles(page, {
-          json: sortedPage([1, 2], { current_page: 2, from: 2, to: 2 }),
-        });
+        const all = readFixture("roles.json");
+        roles.data = all.data.slice(1, 2);
+        roles.meta = {
+          ...all.meta,
+          last_page: 3,
+          per_page: 1,
+          current_page: 2,
+          from: 2,
+          to: 2,
+        };
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockRoles(page, { json: sortedPage([0, 1], { to: 1 }) });
-        const query = await expectRolesRequestAfter(page, () => header.click());
+        roles.data = all.data.slice(0, 1);
+        roles.meta = { ...all.meta, last_page: 3, per_page: 1, to: 1 };
+        const request = page.waitForRequest("**/api/v1/roles?*");
+        await header.click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({
           page: "1",
           sort_by: "name",
@@ -671,17 +665,32 @@ test.describe("Admin roles index", () => {
 
         for (const index of [0, 1, 2]) {
           const id = index + 1;
-          await expectRoleActions(page, index, {
-            view: `/admin/roles/${id}`,
-            edit: testCase.edit ? `/admin/roles/${id}/edit` : null,
-            remove: testCase.deletable[index],
-          });
+          const row = page.getByTestId("role-item").nth(index);
+          await expect(row.getByTestId("roles-view-button")).toBeVisible();
+          await expect(row.getByTestId("roles-view-button")).toHaveAttribute(
+            "href",
+            `/admin/roles/${id}`,
+          );
+          if (testCase.edit) {
+            await expect(row.getByTestId("roles-edit-button")).toBeVisible();
+            await expect(row.getByTestId("roles-edit-button")).toHaveAttribute(
+              "href",
+              `/admin/roles/${id}/edit`,
+            );
+          } else {
+            await expect(row.getByTestId("roles-edit-button")).toHaveCount(0);
+          }
+          if (testCase.deletable[index]) {
+            await expect(row.getByTestId("roles-delete-button")).toBeVisible();
+          } else {
+            await expect(row.getByTestId("roles-delete-button")).toHaveCount(0);
+          }
         }
       });
     }
   });
 
-  test("loading state during reload", async ({ page, currentUser }) => {
+  test("loading state during reload", async ({ page, currentUser, roles }) => {
     currentUser.data.superuser = false;
     currentUser.data.permissions = [
       "admin.view",
@@ -695,17 +704,20 @@ test.describe("Admin roles index", () => {
     await page.goto("/admin/roles");
     await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-    const release = await holdRequest(
-      page,
-      (url) => url.pathname === ROLES_PATH,
-      { json: readRoles() },
-    );
+    const rolesRequest = await mockMethod(page, "GET", "**/api/v1/roles*", {
+      json: roles,
+      hold: true,
+    });
 
     // Trigger reload by triggering search
     await page.getByTestId("role-search").locator("button").click();
 
     await expect(page.getByTestId("overlay")).toBeVisible();
-    await expectSearchDisabled(page, true);
+    const search = page.getByTestId("role-search");
+    await expect(search.locator("input")).toBeVisible();
+    await expect(search.locator("button")).toBeVisible();
+    await expect(search.locator("input")).toBeDisabled();
+    await expect(search.locator("button")).toBeDisabled();
     await expect(page.getByTestId("roles-add-button")).toBeEnabled();
 
     const row = page.getByTestId("role-item").nth(1);
@@ -717,12 +729,15 @@ test.describe("Admin roles index", () => {
     ).toBeDisabled();
     await expect(row.getByTestId("roles-delete-button")).toBeDisabled();
 
-    const response = page.waitForResponse((r) => isRolesRequest(r.request()));
-    release();
+    const response = page.waitForResponse("**/api/v1/roles?*");
+    rolesRequest.release();
     await response;
 
     await expect(page.getByTestId("overlay")).toBeHidden();
-    await expectSearchDisabled(page, false);
+    await expect(search.locator("input")).toBeVisible();
+    await expect(search.locator("button")).toBeVisible();
+    await expect(search.locator("input")).toBeEnabled();
+    await expect(search.locator("button")).toBeEnabled();
     await expect(page.getByTestId("roles-add-button")).toBeEnabled();
 
     await expect(row.locator('a[data-test="roles-view-button"]')).toBeVisible();

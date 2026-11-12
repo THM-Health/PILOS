@@ -1,18 +1,11 @@
 import { test, expect, expectToastAndClose } from "../support/test.js";
-
-const redirectBaseUrl =
-  "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 
 test.describe("Logout", () => {
   test.use({ authenticated: true });
 
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/v1/roomTypes*", (route) =>
-      route.fulfill({ path: "tests/Playwright/fixtures/roomTypes.json" }),
-    );
-    await page.route("**/api/v1/rooms*", (route) =>
-      route.fulfill({ path: "tests/Playwright/fixtures/rooms.json" }),
-    );
+    await interceptRoomIndexRequests(page);
   });
 
   test("successful logout without redirect", async ({ page }) => {
@@ -58,6 +51,8 @@ test.describe("Logout", () => {
   });
 
   test("successful logout with redirect", async ({ page }) => {
+    const redirectBaseUrl =
+      "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
     const redirectUrl = `${redirectBaseUrl}/idp?foo=a&bar=b`;
     await page.route("**/api/v1/logout", (route) =>
       route.fulfill({ status: 200, json: { redirect: redirectUrl } }),

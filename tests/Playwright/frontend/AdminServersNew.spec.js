@@ -1,23 +1,11 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminServers.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { interceptAdminServersIndexRequests } from "../support/mocks.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-
-const SERVERS_URL = "**/api/v1/servers";
-
-const requiredErrors = {
-  "name-field": "The name field is required.",
-  "description-field": "The description field is required.",
-  "base-url-field": "The base url field is required.",
-  "secret-field": "The secret field is required.",
-  "strength-field": "The strength field is required.",
-  "status-field": "The status field is required.",
-};
 
 test.use({ authenticated: true });
 
@@ -63,7 +51,7 @@ test.describe("Admin servers new", () => {
       await expect(page.getByTestId("name-field")).toBeVisible();
     });
 
-    test("initial state", async ({ page }) => {
+    test("initial state", async ({ page, serverForm }) => {
       // Header buttons are hidden
       await expect(page.getByTestId("servers-cancel-edit-button")).toHaveCount(
         0,
@@ -128,9 +116,7 @@ test.describe("Admin servers new", () => {
       await expect(testConnection).toHaveText("admin.servers.test_connection");
       await expect(testConnection).toBeEnabled();
 
-      await expect(page.getByTestId("servers-save-button")).toHaveText(
-        "app.save",
-      );
+      await expect(serverForm.saveButton).toHaveText("app.save");
     });
 
     test("fields that only exist for existing servers are hidden", async ({
@@ -145,8 +131,11 @@ test.describe("Admin servers new", () => {
       await expect(page.getByTestId("servers-panic-button")).toHaveCount(0);
     });
 
-    test("breadcrumbs stay the same while typing", async ({ page }) => {
-      await page.locator("#name").fill("Server 01");
+    test("breadcrumbs stay the same while typing", async ({
+      page,
+      serverForm,
+    }) => {
+      await serverForm.name.fill("Server 01");
 
       await expectAdminBreadcrumbs(
         page,
@@ -155,97 +144,99 @@ test.describe("Admin servers new", () => {
       );
     });
 
-    test("select strength", async ({ page }) => {
-      const options = page.getByTestId("strength-rating-option");
-      await expect(options).toHaveCount(10);
+    test("select strength", async ({ serverForm }) => {
+      await expect(serverForm.strengthOptions).toHaveCount(10);
 
       for (let i = 0; i < 10; i++) {
-        await expect(options.nth(i)).toHaveAttribute("data-p-active", "false");
+        await expect(serverForm.strengthOptions.nth(i)).toHaveAttribute(
+          "data-p-active",
+          "false",
+        );
       }
 
-      await options.nth(5).click();
+      await serverForm.selectStrength(6);
 
       for (let i = 0; i < 10; i++) {
-        await expect(options.nth(i)).toHaveAttribute(
+        await expect(serverForm.strengthOptions.nth(i)).toHaveAttribute(
           "data-p-active",
           i < 6 ? "true" : "false",
         );
       }
     });
 
-    test("select status", async ({ page }) => {
-      const dropdown = page.getByTestId("status-dropdown");
-      const items = page.getByTestId("status-dropdown-items");
+    test("select status", async ({ serverForm }) => {
+      await expect(serverForm.statusItems).toHaveCount(0);
+      await serverForm.statusDropdown.click();
+      await expect(serverForm.statusItems).toBeVisible();
 
-      await expect(items).toHaveCount(0);
-      await dropdown.click();
-      await expect(items).toBeVisible();
+      await expect(serverForm.statusOptions).toHaveCount(3);
+      await expect(serverForm.statusOptions.nth(0)).toHaveText(
+        "admin.servers.enabled",
+      );
+      await expect(serverForm.statusOptions.nth(1)).toHaveText(
+        "admin.servers.draining",
+      );
+      await expect(serverForm.statusOptions.nth(2)).toHaveText(
+        "admin.servers.disabled",
+      );
 
-      const options = items.getByTestId("status-dropdown-option");
-      await expect(options).toHaveCount(3);
-      await expect(options.nth(0)).toHaveText("admin.servers.enabled");
-      await expect(options.nth(1)).toHaveText("admin.servers.draining");
-      await expect(options.nth(2)).toHaveText("admin.servers.disabled");
+      await serverForm.statusOptions.nth(0).click();
 
-      await options.nth(0).click();
-
-      await expect(items).toHaveCount(0);
-      await expect(dropdown).toHaveText("admin.servers.enabled");
+      await expect(serverForm.statusItems).toHaveCount(0);
+      await expect(serverForm.statusDropdown).toHaveText(
+        "admin.servers.enabled",
+      );
     });
 
     test.describe("save", () => {
-      let server;
-
-      test.beforeEach(async ({ page }) => {
-        server = JSON.parse(
-          readFileSync("tests/Playwright/fixtures/server.json", "utf8"),
-        );
+      test.beforeEach(async ({ server, serverForm }) => {
+        // The server as the backend returns it after it was created
         server.data.id = 30;
         server.data.description = "Testserver 01 for testing purposes";
         server.data.secret = "Secret123456789";
         server.data.strength = 6;
 
-        await page.locator("#name").fill("Server 01");
-        await page
-          .locator("#description")
-          .fill("Testserver 01 for testing purposes");
-        await page.locator("#base_url").fill("https://localhost/bigbluebutton");
-        await page.locator("#secret").fill("Secret123456789");
-        await page.getByTestId("strength-rating-option").nth(5).click();
-        await page.getByTestId("status-dropdown").click();
-        await page.getByTestId("status-dropdown-option").nth(0).click();
+        await serverForm.fillTextFields({
+          name: "Server 01",
+          description: "Testserver 01 for testing purposes",
+          baseUrl: "https://localhost/bigbluebutton",
+          secret: "Secret123456789",
+        });
+        await serverForm.selectStrength(6);
+        await serverForm.selectStatus(0);
       });
 
-      test("loading state disables the form", async ({ page }) => {
-        const newServerRequest = await mockMethod(page, "POST", SERVERS_URL, {
-          status: 201,
-          json: server,
-          hold: true,
-        });
+      test("loading state disables the form", async ({
+        page,
+        server,
+        serverForm,
+      }) => {
+        const newServerRequest = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/servers",
+          { status: 201, json: server, hold: true },
+        );
         await mockMethod(page, "GET", "**/api/v1/servers/30", { json: server });
 
         await expect(page.getByTestId("overlay")).toBeHidden();
-        await page.getByTestId("servers-save-button").click();
+        await serverForm.saveButton.click();
         await nthRequest(newServerRequest);
 
         await expect(page.getByTestId("overlay")).toBeVisible();
 
-        await expect(page.locator("#name")).toBeDisabled();
-        await expect(page.locator("#description")).toBeDisabled();
-        await expect(page.locator("#version")).toBeDisabled();
-        await expect(page.locator("#base_url")).toBeDisabled();
-        await expect(page.locator("#secret")).toBeDisabled();
-        await expect(page.getByTestId("strength-rating")).toHaveClass(
-          /p-disabled/,
-        );
+        await expect(serverForm.name).toBeDisabled();
+        await expect(serverForm.description).toBeDisabled();
+        await expect(serverForm.version).toBeDisabled();
+        await expect(serverForm.baseUrl).toBeDisabled();
+        await expect(serverForm.secret).toBeDisabled();
+        await expect(serverForm.strengthRating).toHaveClass(/p-disabled/);
         await expect(
-          page.getByTestId("status-dropdown").locator(".p-select-label"),
+          serverForm.statusDropdown.locator(".p-select-label"),
         ).toHaveAttribute("aria-disabled", "true");
-        await expect(page.locator("#connectionStatus")).toBeDisabled();
-        await expect(
-          page.getByTestId("servers-test-connection-button"),
-        ).toBeDisabled();
-        await expect(page.getByTestId("servers-save-button")).toBeDisabled();
+        await expect(serverForm.connectionStatus).toBeDisabled();
+        await expect(serverForm.testConnectionButton).toBeDisabled();
+        await expect(serverForm.saveButton).toBeDisabled();
 
         newServerRequest.release();
         await expect(page).toHaveURL(/\/admin\/servers\/30$/);
@@ -253,11 +244,15 @@ test.describe("Admin servers new", () => {
 
       test("save new server and redirect to the server view", async ({
         page,
+        server,
+        serverForm,
       }) => {
-        const newServerRequest = await mockMethod(page, "POST", SERVERS_URL, {
-          status: 201,
-          json: server,
-        });
+        const newServerRequest = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/servers",
+          { status: 201, json: server },
+        );
         const serverRequest = await mockMethod(
           page,
           "GET",
@@ -265,7 +260,7 @@ test.describe("Admin servers new", () => {
           { json: server },
         );
 
-        await page.getByTestId("servers-save-button").click();
+        await serverForm.saveButton.click();
 
         const request = await nthRequest(newServerRequest);
         expect(request.postDataJSON()).toEqual({
@@ -289,85 +284,114 @@ test.describe("Admin servers new", () => {
         );
       });
 
-      test("validation errors (422)", async ({ page }) => {
+      test("validation errors (422)", async ({ page, serverForm }) => {
         const message = "The name field is required. (and 5 more errors)";
-        const newServerRequest = await mockMethod(page, "POST", SERVERS_URL, {
-          status: 422,
-          json: {
-            message,
-            errors: {
-              name: [requiredErrors["name-field"]],
-              description: [requiredErrors["description-field"]],
-              base_url: [requiredErrors["base-url-field"]],
-              secret: [requiredErrors["secret-field"]],
-              strength: [requiredErrors["strength-field"]],
-              status: [requiredErrors["status-field"]],
+        const fieldErrors = [
+          ["name", "name-field", "The name field is required."],
+          [
+            "description",
+            "description-field",
+            "The description field is required.",
+          ],
+          ["base_url", "base-url-field", "The base url field is required."],
+          ["secret", "secret-field", "The secret field is required."],
+          ["strength", "strength-field", "The strength field is required."],
+          ["status", "status-field", "The status field is required."],
+        ];
+        const newServerRequest = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/servers",
+          {
+            status: 422,
+            json: {
+              message,
+              errors: Object.fromEntries(
+                fieldErrors.map(([field, , error]) => [field, [error]]),
+              ),
             },
           },
-        });
+        );
 
-        await page.getByTestId("servers-save-button").click();
+        await serverForm.saveButton.click();
         await nthRequest(newServerRequest);
 
         await expectToastAndClose(page, message);
-        for (const [testId, error] of Object.entries(requiredErrors)) {
+        for (const [, testId, error] of fieldErrors) {
           await expect(page.getByTestId(testId)).toContainText(error);
         }
       });
 
       test("server error (500) hides previous validation errors", async ({
         page,
+        serverForm,
       }) => {
-        const validationRequest = await mockMethod(page, "POST", SERVERS_URL, {
-          status: 422,
-          json: {
-            message: "The name field is required. (and 5 more errors)",
-            errors: {
-              name: [requiredErrors["name-field"]],
-              description: [requiredErrors["description-field"]],
-              base_url: [requiredErrors["base-url-field"]],
-              secret: [requiredErrors["secret-field"]],
-              strength: [requiredErrors["strength-field"]],
-              status: [requiredErrors["status-field"]],
+        const fieldErrors = [
+          ["name", "name-field", "The name field is required."],
+          [
+            "description",
+            "description-field",
+            "The description field is required.",
+          ],
+          ["base_url", "base-url-field", "The base url field is required."],
+          ["secret", "secret-field", "The secret field is required."],
+          ["strength", "strength-field", "The strength field is required."],
+          ["status", "status-field", "The status field is required."],
+        ];
+        const validationRequest = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/servers",
+          {
+            status: 422,
+            json: {
+              message: "The name field is required. (and 5 more errors)",
+              errors: Object.fromEntries(
+                fieldErrors.map(([field, , error]) => [field, [error]]),
+              ),
             },
           },
-        });
-        await page.getByTestId("servers-save-button").click();
+        );
+        await serverForm.saveButton.click();
         await nthRequest(validationRequest);
         await expectToastAndClose(
           page,
           "The name field is required. (and 5 more errors)",
         );
         await expect(page.getByTestId("name-field")).toContainText(
-          requiredErrors["name-field"],
+          "The name field is required.",
         );
 
-        const errorRequest = await mockMethod(page, "POST", SERVERS_URL, {
-          status: 500,
-          json: { message: "Test" },
-        });
-        await page.getByTestId("servers-save-button").click();
+        const errorRequest = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/servers",
+          { status: 500, json: { message: "Test" } },
+        );
+        await serverForm.saveButton.click();
         await nthRequest(errorRequest);
 
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
           'app.flash.server_error.error_code_{"statusCode":500}',
         ]);
-        for (const [testId, error] of Object.entries(requiredErrors)) {
+        for (const [, testId, error] of fieldErrors) {
           await expect(page.getByTestId(testId)).not.toContainText(error);
         }
       });
 
       test("not found (404) redirects to the servers index", async ({
         page,
+        serverForm,
       }) => {
-        await interceptAdminServersIndexRequests(page);
-        const newServerRequest = await mockMethod(page, "POST", SERVERS_URL, {
-          status: 404,
-          json: { message: "No query results for model" },
-        });
+        const newServerRequest = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/servers",
+          { status: 404, json: { message: "No query results for model" } },
+        );
 
-        await page.getByTestId("servers-save-button").click();
+        await serverForm.saveButton.click();
         await nthRequest(newServerRequest);
 
         await expect(page).toHaveURL(/\/admin\/servers$/);
@@ -377,12 +401,18 @@ test.describe("Admin servers new", () => {
         ]);
       });
 
-      test("unauthenticated (401) redirects to the login", async ({ page }) => {
-        const newServerRequest = await mockMethod(page, "POST", SERVERS_URL, {
-          status: 401,
-        });
+      test("unauthenticated (401) redirects to the login", async ({
+        page,
+        serverForm,
+      }) => {
+        const newServerRequest = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/servers",
+          { status: 401 },
+        );
 
-        await page.getByTestId("servers-save-button").click();
+        await serverForm.saveButton.click();
         await nthRequest(newServerRequest);
 
         await expectLoginRedirect(page, "/admin/servers/new");

@@ -1,10 +1,12 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import {
+  test,
+  expect,
+  expectToastAndClose,
+} from "../support/fixtures/adminRoomTypes.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import { interceptAdminRoomTypesIndexRequests } from "../support/mocks.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
   holdRequest,
@@ -13,47 +15,11 @@ import {
   nthRequest,
 } from "../support/utils.js";
 
-const isRoomTypesUrl = (url) => url.pathname === "/api/v1/roomTypes";
-
-const SERVER_ERROR_TEXTS = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const roomTypesFixture = () =>
-  JSON.parse(readFileSync("tests/Playwright/fixtures/roomTypes.json", "utf8"));
-
-async function expectSearchDisabled(page, disabled) {
-  const search = page.getByTestId("room-type-search");
-  await expect(search.locator("input")).toBeVisible();
-  await expect(search.locator("button")).toBeVisible();
-  if (disabled) {
-    await expect(search.locator("input")).toBeDisabled();
-    await expect(search.locator("button")).toBeDisabled();
-  } else {
-    await expect(search.locator("input")).toBeEnabled();
-    await expect(search.locator("button")).toBeEnabled();
-  }
-}
-
-async function expectRoomTypes(page, names) {
-  const items = page.getByTestId("room-type-item");
-  await expect(items).toHaveCount(names.length);
-  for (const [index, name] of names.entries()) {
-    await expect(items.nth(index)).toContainText(name);
-  }
-}
-
-// there are two paginator components (first one for small devices, second one for larger devices)
-const nextPageButton = (page) =>
-  page.getByTestId("paginator-next-button").nth(1);
-
 test.describe("Admin room types index", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = ["admin.view"];
-    await interceptAdminRoomTypesIndexRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -61,9 +27,9 @@ test.describe("Admin room types index", () => {
   });
 
   test.describe("load room types", () => {
-    test("loading state", async ({ page }) => {
-      const release = await holdRequest(page, isRoomTypesUrl, {
-        json: roomTypesFixture(),
+    test("loading state", async ({ page, roomTypes }) => {
+      const release = await holdRequest(page, "**/api/v1/roomTypes*", {
+        json: roomTypes,
       });
 
       await page.goto("/admin/room_types");
@@ -72,19 +38,22 @@ test.describe("Admin room types index", () => {
         page.getByRole("heading", { name: "admin.title" }),
       ).toBeVisible();
 
-      await expectSearchDisabled(page, true);
+      const search = page.getByTestId("room-type-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
       await expect(page.getByTestId("room-types-add-button")).toHaveCount(0);
       await expect(page.getByTestId("overlay")).toBeVisible();
 
-      const response = page.waitForResponse((r) =>
-        isRoomTypesUrl(new URL(r.url())),
-      );
+      const response = page.waitForResponse("**/api/v1/roomTypes*");
       release();
       await response;
 
       // Check that loading is over
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectSearchDisabled(page, false);
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
       await expect(page.getByTestId("room-types-add-button")).toHaveCount(0);
       await expect(page.getByTestId("room-type-item")).toHaveCount(2);
     });
@@ -102,8 +71,8 @@ test.describe("Admin room types index", () => {
       await expect(headers).toHaveCount(1);
       await expect(headers.nth(0)).toHaveText("app.model_name");
 
-      await expectRoomTypes(page, ["Exam", "Lecture"]);
       const items = page.getByTestId("room-type-item");
+      await expect(items).toContainText(["Exam", "Lecture"]);
       await expect(
         items.nth(0).getByTestId("room-type-item-cell").nth(0),
       ).toHaveText("Exam");
@@ -112,10 +81,8 @@ test.describe("Admin room types index", () => {
       ).toHaveText("Lecture");
     });
 
-    test("no data", async ({ page }) => {
-      const roomTypes = roomTypesFixture();
+    test("no data", async ({ page, roomTypes }) => {
       roomTypes.data = [];
-      await mockMethod(page, "GET", isRoomTypesUrl, { json: roomTypes });
 
       await page.goto("/admin/room_types");
 
@@ -126,39 +93,47 @@ test.describe("Admin room types index", () => {
 
   test.describe("load room types errors", () => {
     test("server error shows toast and overlay", async ({ page }) => {
-      await mockMethod(page, "GET", isRoomTypesUrl, {
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.goto("/admin/room_types");
 
-      await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Check that overlay is shown and the components are not disabled
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectSearchDisabled(page, false);
+      const search = page.getByTestId("room-type-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
       await expect(retryButton).toHaveText("app.reload");
     });
 
-    test("reload after error", async ({ page }) => {
-      await mockMethod(page, "GET", isRoomTypesUrl, {
+    test("reload after error", async ({ page, roomTypes }) => {
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
         status: 500,
         json: { message: "Test" },
       });
       await page.goto("/admin/room_types");
-      await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      await mockMethod(page, "GET", isRoomTypesUrl, {
-        json: roomTypesFixture(),
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
+        json: roomTypes,
       });
 
-      const request = page.waitForRequest(
-        (r) => r.method() === "GET" && isRoomTypesUrl(new URL(r.url())),
-      );
+      const request = page.waitForRequest("**/api/v1/roomTypes*");
       await page.getByTestId("loading-retry-button").click();
       await request;
 
@@ -166,11 +141,14 @@ test.describe("Admin room types index", () => {
       await expect(page.getByTestId("overlay")).toBeHidden();
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
 
-      await expectRoomTypes(page, ["Exam", "Lecture"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Exam",
+        "Lecture",
+      ]);
     });
 
     test("unauthenticated redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", isRoomTypesUrl, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", { status: 401 });
 
       await page.goto("/admin/room_types");
 
@@ -181,17 +159,24 @@ test.describe("Admin room types index", () => {
   test.describe("room type search and sorting", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto("/admin/room_types");
-      await expectRoomTypes(page, ["Exam", "Lecture"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Exam",
+        "Lecture",
+      ]);
     });
 
     test("pagination", async ({ page }) => {
       await expect(page.getByTestId("paginator-page")).toHaveCount(2);
       await expectActivePage(page, 0);
 
-      await nextPageButton(page).click();
+      // there are two paginator components (first one for small devices, second one for larger devices)
+      await page.getByTestId("paginator-next-button").nth(1).click();
 
       await expectActivePage(page, 1);
-      await expectRoomTypes(page, ["Meeting", "Seminar"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Meeting",
+        "Seminar",
+      ]);
     });
 
     test("search without results", async ({ page }) => {
@@ -206,14 +191,14 @@ test.describe("Admin room types index", () => {
     });
 
     test("search by clicking the button resets the page", async ({ page }) => {
-      await nextPageButton(page).click();
+      await page.getByTestId("paginator-next-button").nth(1).click();
       await expectActivePage(page, 1);
 
       const search = page.getByTestId("room-type-search");
       await search.locator("input").fill("Exam");
       await search.locator("button").click();
 
-      await expectRoomTypes(page, ["Exam"]);
+      await expect(page.getByTestId("room-type-item")).toContainText(["Exam"]);
       await expect(page.getByTestId("paginator-page")).toHaveCount(1);
       await expectActivePage(page, 0);
     });
@@ -223,24 +208,36 @@ test.describe("Admin room types index", () => {
       await search.locator("input").fill("e");
       await search.locator("input").press("Enter");
 
-      await expectRoomTypes(page, ["Exam", "Lecture"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Exam",
+        "Lecture",
+      ]);
       await expect(page.getByTestId("paginator-page")).toHaveCount(2);
       await expectActivePage(page, 0);
 
-      await nextPageButton(page).click();
+      await page.getByTestId("paginator-next-button").nth(1).click();
 
       await expectActivePage(page, 1);
-      await expectRoomTypes(page, ["Meeting", "Seminar"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Meeting",
+        "Seminar",
+      ]);
     });
 
     test("change sort order resets the page", async ({ page }) => {
-      await nextPageButton(page).click();
+      await page.getByTestId("paginator-next-button").nth(1).click();
       await expectActivePage(page, 1);
-      await expectRoomTypes(page, ["Meeting", "Seminar"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Meeting",
+        "Seminar",
+      ]);
 
       await page.getByTestId("room-type-header-cell").nth(0).click();
 
-      await expectRoomTypes(page, ["Seminar", "Meeting"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Seminar",
+        "Meeting",
+      ]);
       await expect(page.getByTestId("paginator-page")).toHaveCount(2);
       await expectActivePage(page, 0);
     });
@@ -305,7 +302,10 @@ test.describe("Admin room types index", () => {
 
         await page.goto("/admin/room_types");
 
-        await expectRoomTypes(page, ["Exam", "Lecture"]);
+        await expect(page.getByTestId("room-type-item")).toContainText([
+          "Exam",
+          "Lecture",
+        ]);
 
         const addButton = page.getByTestId("room-types-add-button");
         if (permissionCase.add) {
@@ -368,12 +368,13 @@ test.describe("Admin room types index", () => {
       });
 
       await page.goto("/admin/room_types");
-      await expectRoomTypes(page, ["Exam", "Lecture"]);
+      await expect(page.getByTestId("room-type-item")).toContainText([
+        "Exam",
+        "Lecture",
+      ]);
 
       // Trigger reload by deleting a room type
-      const replacementRequest = page.waitForRequest(
-        (r) => r.method() === "GET" && isRoomTypesUrl(new URL(r.url())),
-      );
+      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
       await page
         .getByTestId("room-type-item")
         .nth(0)
@@ -382,9 +383,12 @@ test.describe("Admin room types index", () => {
       await replacementRequest;
     });
 
-    test("components are disabled while reloading", async ({ page }) => {
-      const release = await holdRequest(page, isRoomTypesUrl, {
-        json: roomTypesFixture(),
+    test("components are disabled while reloading", async ({
+      page,
+      roomTypes,
+    }) => {
+      const release = await holdRequest(page, "**/api/v1/roomTypes*", {
+        json: roomTypes,
       });
 
       await page
@@ -394,7 +398,11 @@ test.describe("Admin room types index", () => {
 
       await nthRequest(deleteMock);
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectSearchDisabled(page, true);
+      const search = page.getByTestId("room-type-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
       await expect(page.getByTestId("room-types-add-button")).toBeEnabled();
 
       const item = page.getByTestId("room-type-item").nth(0);
@@ -412,10 +420,7 @@ test.describe("Admin room types index", () => {
     });
 
     test("components are enabled after reloading", async ({ page }) => {
-      const reloadRequest = page.waitForResponse(
-        (r) =>
-          r.request().method() === "GET" && isRoomTypesUrl(new URL(r.url())),
-      );
+      const reloadRequest = page.waitForResponse("**/api/v1/roomTypes*");
       await page
         .getByTestId("room-types-delete-dialog")
         .getByTestId("dialog-continue-button")
@@ -424,7 +429,11 @@ test.describe("Admin room types index", () => {
       await nthRequest(deleteMock);
 
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectSearchDisabled(page, false);
+      const search = page.getByTestId("room-type-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
       await expect(page.getByTestId("room-types-add-button")).toBeEnabled();
 
       const item = page.getByTestId("room-type-item").nth(0);

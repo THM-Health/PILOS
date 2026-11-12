@@ -1,138 +1,20 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminRoles.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   checkPermissionGroup,
   checkRoomLimitHelpDialog,
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
 import {
-  interceptAdminRolesViewRequests,
-  interceptAdminRolesIndexRequests,
-} from "../support/mocks.js";
-import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { mockMethod } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const ROLE_URL = "**/api/v1/roles/2";
-const PERMISSIONS_URL = "**/api/v1/permissions";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-// [permission, explicit, included]; `includedWithoutDependencies` overrides included for the dependency test
-const categories = [
-  {
-    key: "rooms",
-    groups: [
-      ["rooms.create", true, true],
-      ["rooms.viewAll", true, true],
-      ["rooms.manage", false, false],
-    ],
-  },
-  { key: "meetings", groups: [["meetings.viewAny", true, true]] },
-  { key: "admin", groups: [["admin.view", false, true]] },
-  {
-    key: "settings",
-    groups: [
-      ["settings.viewAny", false, false],
-      ["settings.update", false, false],
-    ],
-  },
-  { key: "system", groups: [["system.monitor", false, false]] },
-  {
-    key: "users",
-    groups: [
-      ["users.viewAny", true, true],
-      ["users.view", false, false],
-      ["users.update", false, false],
-      ["users.create", false, false],
-      ["users.delete", false, false],
-      ["users.updateOwnAttributes", false, false],
-    ],
-  },
-  {
-    key: "roles",
-    groups: [
-      ["roles.viewAny", false, true],
-      ["roles.view", false, false],
-      ["roles.update", false, false],
-      ["roles.create", false, false],
-      ["roles.delete", false, false],
-    ],
-  },
-  {
-    key: "room_types",
-    groups: [
-      ["roomTypes.view", false, true, false],
-      ["roomTypes.update", true, true],
-      ["roomTypes.create", true, true],
-      ["roomTypes.delete", true, true],
-    ],
-  },
-  {
-    key: "servers",
-    groups: [
-      ["servers.viewAny", false, false],
-      ["servers.view", false, false],
-      ["servers.update", false, false],
-      ["servers.create", false, false],
-      ["servers.delete", false, false],
-    ],
-  },
-  {
-    key: "server_pools",
-    groups: [
-      ["serverPools.viewAny", false, true, false],
-      ["serverPools.view", false, false],
-      ["serverPools.update", false, false],
-      ["serverPools.create", false, false],
-      ["serverPools.delete", false, false],
-    ],
-  },
-];
-
-/**
- * Check the room limit field: text of the default option and which mode is selected (all disabled).
- * @param {import("@playwright/test").Page} page
- * @param {string} defaultText
- * @param {"default"|"unlimited"|"custom"} mode
- */
-async function expectRoomLimit(page, defaultText, mode) {
-  const field = page.getByTestId("room-limit-field");
-  await expect(field).toBeVisible();
-  await expect(field).toContainText("app.room_limit");
-
-  const options = {
-    default: [defaultText, "room-limit-mode-default-field"],
-    unlimited: ["app.unlimited", "room-limit-mode-unlimited-field"],
-    custom: ["admin.roles.room_limit.custom", "room-limit-mode-custom-field"],
-  };
-  for (const [name, [text, testId]] of Object.entries(options)) {
-    const option = field.getByTestId(testId);
-    await expect(option).toBeVisible();
-    await expect(option).toContainText(text);
-    const radio = option.locator(`#${name}`);
-    if (name === mode) {
-      await expect(radio).toBeChecked();
-    } else {
-      await expect(radio).not.toBeChecked();
-    }
-    await expect(radio).toBeDisabled();
-  }
-}
-
 test.describe("Admin roles view", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
-    await interceptAdminRolesViewRequests(page);
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "roles.viewAny",
@@ -160,12 +42,85 @@ test.describe("Admin roles view", () => {
   });
 
   test.describe("loading and display", () => {
+    // [permission, explicit, included]; `includedWithoutDependencies` overrides included for the dependency test
+    const categories = [
+      {
+        key: "rooms",
+        groups: [
+          ["rooms.create", true, true],
+          ["rooms.viewAll", true, true],
+          ["rooms.manage", false, false],
+        ],
+      },
+      { key: "meetings", groups: [["meetings.viewAny", true, true]] },
+      { key: "admin", groups: [["admin.view", false, true]] },
+      {
+        key: "settings",
+        groups: [
+          ["settings.viewAny", false, false],
+          ["settings.update", false, false],
+        ],
+      },
+      { key: "system", groups: [["system.monitor", false, false]] },
+      {
+        key: "users",
+        groups: [
+          ["users.viewAny", true, true],
+          ["users.view", false, false],
+          ["users.update", false, false],
+          ["users.create", false, false],
+          ["users.delete", false, false],
+          ["users.updateOwnAttributes", false, false],
+        ],
+      },
+      {
+        key: "roles",
+        groups: [
+          ["roles.viewAny", false, true],
+          ["roles.view", false, false],
+          ["roles.update", false, false],
+          ["roles.create", false, false],
+          ["roles.delete", false, false],
+        ],
+      },
+      {
+        key: "room_types",
+        groups: [
+          ["roomTypes.view", false, true, false],
+          ["roomTypes.update", true, true],
+          ["roomTypes.create", true, true],
+          ["roomTypes.delete", true, true],
+        ],
+      },
+      {
+        key: "servers",
+        groups: [
+          ["servers.viewAny", false, false],
+          ["servers.view", false, false],
+          ["servers.update", false, false],
+          ["servers.create", false, false],
+          ["servers.delete", false, false],
+        ],
+      },
+      {
+        key: "server_pools",
+        groups: [
+          ["serverPools.viewAny", false, true, false],
+          ["serverPools.view", false, false],
+          ["serverPools.update", false, false],
+          ["serverPools.create", false, false],
+          ["serverPools.delete", false, false],
+        ],
+      },
+    ];
+
     test("loading state hides buttons until the role is loaded", async ({
       page,
+      role,
     }) => {
-      const roleRequest = await mockMethod(page, "GET", ROLE_URL, {
+      const roleRequest = await mockMethod(page, "GET", "**/api/v1/roles/2", {
         hold: true,
-        json: readFixture("role.json"),
+        json: role,
       });
 
       await page.goto("/admin/roles/2");
@@ -207,11 +162,35 @@ test.describe("Admin roles view", () => {
       await expect(nameField.locator("#name")).toHaveValue("Staff");
       await expect(nameField.locator("#name")).toBeDisabled();
 
-      await expectRoomLimit(
-        page,
-        'admin.roles.room_limit.default_{"value":"app.unlimited"}',
-        "default",
+      const roomLimit = page.getByTestId("room-limit-field");
+      await expect(roomLimit).toBeVisible();
+      await expect(roomLimit).toContainText("app.room_limit");
+
+      const defaultOption = roomLimit.getByTestId(
+        "room-limit-mode-default-field",
       );
+      await expect(defaultOption).toBeVisible();
+      await expect(defaultOption).toContainText(
+        'admin.roles.room_limit.default_{"value":"app.unlimited"}',
+      );
+      await expect(defaultOption.locator("#default")).toBeChecked();
+      await expect(defaultOption.locator("#default")).toBeDisabled();
+
+      const unlimitedOption = roomLimit.getByTestId(
+        "room-limit-mode-unlimited-field",
+      );
+      await expect(unlimitedOption).toBeVisible();
+      await expect(unlimitedOption).toContainText("app.unlimited");
+      await expect(unlimitedOption.locator("#unlimited")).not.toBeChecked();
+      await expect(unlimitedOption.locator("#unlimited")).toBeDisabled();
+
+      const customOption = roomLimit.getByTestId(
+        "room-limit-mode-custom-field",
+      );
+      await expect(customOption).toBeVisible();
+      await expect(customOption).toContainText("admin.roles.room_limit.custom");
+      await expect(customOption.locator("#custom")).not.toBeChecked();
+      await expect(customOption.locator("#custom")).toBeDisabled();
       await expect(page.locator("#room-limit")).toHaveCount(0);
     });
 
@@ -278,14 +257,10 @@ test.describe("Admin roles view", () => {
     }
 
     test.describe("without permission dependencies", () => {
-      test.beforeEach(async ({ page }) => {
-        const permissions = readFixture("permissions.json");
+      test.beforeEach(async ({ permissionList }) => {
         for (const index of [18, 19, 20, 21]) {
-          permissions.data[index].included_permissions = [];
+          permissionList.data[index].included_permissions = [];
         }
-        await page.route(PERMISSIONS_URL, (route) =>
-          route.fulfill({ json: permissions }),
-        );
       });
 
       test("permission list header", async ({ page }) => {
@@ -334,20 +309,42 @@ test.describe("Admin roles view", () => {
       }
     });
 
-    test("no permissions available", async ({ page }) => {
-      await page.route(PERMISSIONS_URL, (route) =>
-        route.fulfill({ json: { data: [], meta: { restrictions: [""] } } }),
-      );
+    test("no permissions available", async ({ page, permissionList }) => {
+      permissionList.data = [];
 
       await page.goto("/admin/roles/2");
 
       await expect(page.locator("#name")).toHaveValue("Staff");
       await expect(page.locator("#name")).toBeDisabled();
-      await expectRoomLimit(
-        page,
-        'admin.roles.room_limit.default_{"value":"app.unlimited"}',
-        "default",
+      const roomLimit = page.getByTestId("room-limit-field");
+      await expect(roomLimit).toBeVisible();
+      await expect(roomLimit).toContainText("app.room_limit");
+
+      const defaultOption = roomLimit.getByTestId(
+        "room-limit-mode-default-field",
       );
+      await expect(defaultOption).toBeVisible();
+      await expect(defaultOption).toContainText(
+        'admin.roles.room_limit.default_{"value":"app.unlimited"}',
+      );
+      await expect(defaultOption.locator("#default")).toBeChecked();
+      await expect(defaultOption.locator("#default")).toBeDisabled();
+
+      const unlimitedOption = roomLimit.getByTestId(
+        "room-limit-mode-unlimited-field",
+      );
+      await expect(unlimitedOption).toBeVisible();
+      await expect(unlimitedOption).toContainText("app.unlimited");
+      await expect(unlimitedOption.locator("#unlimited")).not.toBeChecked();
+      await expect(unlimitedOption.locator("#unlimited")).toBeDisabled();
+
+      const customOption = roomLimit.getByTestId(
+        "room-limit-mode-custom-field",
+      );
+      await expect(customOption).toBeVisible();
+      await expect(customOption).toContainText("admin.roles.room_limit.custom");
+      await expect(customOption.locator("#custom")).not.toBeChecked();
+      await expect(customOption.locator("#custom")).toBeDisabled();
       await expect(page.locator("#room-limit")).toHaveCount(0);
 
       await expect(
@@ -366,41 +363,109 @@ test.describe("Admin roles view", () => {
     test("system default", async ({ page }) => {
       await page.goto("/admin/roles/2");
 
-      await expectRoomLimit(
-        page,
-        'admin.roles.room_limit.default_{"value":5}',
-        "default",
+      const roomLimit = page.getByTestId("room-limit-field");
+      await expect(roomLimit).toBeVisible();
+      await expect(roomLimit).toContainText("app.room_limit");
+
+      const defaultOption = roomLimit.getByTestId(
+        "room-limit-mode-default-field",
       );
+      await expect(defaultOption).toBeVisible();
+      await expect(defaultOption).toContainText(
+        'admin.roles.room_limit.default_{"value":5}',
+      );
+      await expect(defaultOption.locator("#default")).toBeChecked();
+      await expect(defaultOption.locator("#default")).toBeDisabled();
+
+      const unlimitedOption = roomLimit.getByTestId(
+        "room-limit-mode-unlimited-field",
+      );
+      await expect(unlimitedOption).toBeVisible();
+      await expect(unlimitedOption).toContainText("app.unlimited");
+      await expect(unlimitedOption.locator("#unlimited")).not.toBeChecked();
+      await expect(unlimitedOption.locator("#unlimited")).toBeDisabled();
+
+      const customOption = roomLimit.getByTestId(
+        "room-limit-mode-custom-field",
+      );
+      await expect(customOption).toBeVisible();
+      await expect(customOption).toContainText("admin.roles.room_limit.custom");
+      await expect(customOption.locator("#custom")).not.toBeChecked();
+      await expect(customOption.locator("#custom")).toBeDisabled();
       await expect(page.locator("#room-limit")).toHaveCount(0);
     });
 
-    test("unlimited", async ({ page }) => {
-      const role = readFixture("role.json");
+    test("unlimited", async ({ page, role }) => {
       role.data.room_limit = -1;
-      await page.route(ROLE_URL, (route) => route.fulfill({ json: role }));
 
       await page.goto("/admin/roles/2");
 
-      await expectRoomLimit(
-        page,
-        'admin.roles.room_limit.default_{"value":5}',
-        "unlimited",
+      const roomLimit = page.getByTestId("room-limit-field");
+      await expect(roomLimit).toBeVisible();
+      await expect(roomLimit).toContainText("app.room_limit");
+
+      const defaultOption = roomLimit.getByTestId(
+        "room-limit-mode-default-field",
       );
+      await expect(defaultOption).toBeVisible();
+      await expect(defaultOption).toContainText(
+        'admin.roles.room_limit.default_{"value":5}',
+      );
+      await expect(defaultOption.locator("#default")).not.toBeChecked();
+      await expect(defaultOption.locator("#default")).toBeDisabled();
+
+      const unlimitedOption = roomLimit.getByTestId(
+        "room-limit-mode-unlimited-field",
+      );
+      await expect(unlimitedOption).toBeVisible();
+      await expect(unlimitedOption).toContainText("app.unlimited");
+      await expect(unlimitedOption.locator("#unlimited")).toBeChecked();
+      await expect(unlimitedOption.locator("#unlimited")).toBeDisabled();
+
+      const customOption = roomLimit.getByTestId(
+        "room-limit-mode-custom-field",
+      );
+      await expect(customOption).toBeVisible();
+      await expect(customOption).toContainText("admin.roles.room_limit.custom");
+      await expect(customOption.locator("#custom")).not.toBeChecked();
+      await expect(customOption.locator("#custom")).toBeDisabled();
       await expect(page.locator("#room-limit")).toHaveCount(0);
     });
 
-    test("custom", async ({ page }) => {
-      const role = readFixture("role.json");
+    test("custom", async ({ page, role }) => {
       role.data.room_limit = 2;
-      await page.route(ROLE_URL, (route) => route.fulfill({ json: role }));
 
       await page.goto("/admin/roles/2");
 
-      await expectRoomLimit(
-        page,
-        'admin.roles.room_limit.default_{"value":5}',
-        "custom",
+      const roomLimit = page.getByTestId("room-limit-field");
+      await expect(roomLimit).toBeVisible();
+      await expect(roomLimit).toContainText("app.room_limit");
+
+      const defaultOption = roomLimit.getByTestId(
+        "room-limit-mode-default-field",
       );
+      await expect(defaultOption).toBeVisible();
+      await expect(defaultOption).toContainText(
+        'admin.roles.room_limit.default_{"value":5}',
+      );
+      await expect(defaultOption.locator("#default")).not.toBeChecked();
+      await expect(defaultOption.locator("#default")).toBeDisabled();
+
+      const unlimitedOption = roomLimit.getByTestId(
+        "room-limit-mode-unlimited-field",
+      );
+      await expect(unlimitedOption).toBeVisible();
+      await expect(unlimitedOption).toContainText("app.unlimited");
+      await expect(unlimitedOption.locator("#unlimited")).not.toBeChecked();
+      await expect(unlimitedOption.locator("#unlimited")).toBeDisabled();
+
+      const customOption = roomLimit.getByTestId(
+        "room-limit-mode-custom-field",
+      );
+      await expect(customOption).toBeVisible();
+      await expect(customOption).toContainText("admin.roles.room_limit.custom");
+      await expect(customOption.locator("#custom")).toBeChecked();
+      await expect(customOption.locator("#custom")).toBeDisabled();
       await expect(page.locator("#room-limit")).toBeVisible();
       await expect(page.locator("#room-limit")).toHaveValue("2");
       await expect(page.locator("#room-limit")).toBeDisabled();
@@ -408,21 +473,22 @@ test.describe("Admin roles view", () => {
   });
 
   test.describe("load errors", () => {
-    test("role request fails and can be retried", async ({ page }) => {
-      await mockMethod(page, "GET", ROLE_URL, {
+    test("role request fails and can be retried", async ({ page, role }) => {
+      await mockMethod(page, "GET", "**/api/v1/roles/2", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.goto("/admin/roles/2");
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("overlay")).toBeVisible();
 
       // Reload with correct data
-      await mockMethod(page, "GET", ROLE_URL, {
-        json: readFixture("role.json"),
-      });
+      await mockMethod(page, "GET", "**/api/v1/roles/2", { json: role });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toHaveText("app.reload");
@@ -442,8 +508,7 @@ test.describe("Admin roles view", () => {
     });
 
     test("role not found", async ({ page }) => {
-      await interceptAdminRolesIndexRequests(page);
-      await mockMethod(page, "GET", ROLE_URL, {
+      await mockMethod(page, "GET", "**/api/v1/roles/2", {
         status: 404,
         json: { message: "model_not_found", model: "role", ids: [2] },
       });
@@ -459,18 +524,21 @@ test.describe("Admin roles view", () => {
     });
 
     test("role request unauthenticated", async ({ page }) => {
-      await mockMethod(page, "GET", ROLE_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roles/2", { status: 401 });
 
       await page.goto("/admin/roles/2");
 
       await expectLoginRedirect(page, "/admin/roles/2");
     });
 
-    test("permissions request fails and can be retried", async ({ page }) => {
+    test("permissions request fails and can be retried", async ({
+      page,
+      permissionList,
+    }) => {
       const permissionsRequest = await mockMethod(
         page,
         "GET",
-        PERMISSIONS_URL,
+        "**/api/v1/permissions",
         { hold: true, status: 500, json: { message: "Test" } },
       );
 
@@ -485,7 +553,10 @@ test.describe("Admin roles view", () => {
 
       permissionsRequest.release();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Check that overlay is still shown because of error
       await expect(page.getByTestId("overlay")).toBeVisible();
@@ -495,8 +566,8 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
 
       // Reload with correct data
-      await mockMethod(page, "GET", PERMISSIONS_URL, {
-        json: readFixture("permissions.json"),
+      await mockMethod(page, "GET", "**/api/v1/permissions", {
+        json: permissionList,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
@@ -517,7 +588,7 @@ test.describe("Admin roles view", () => {
     });
 
     test("permissions request unauthenticated", async ({ page }) => {
-      await mockMethod(page, "GET", PERMISSIONS_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/permissions", { status: 401 });
 
       await page.goto("/admin/roles/2");
 
@@ -590,10 +661,8 @@ test.describe("Admin roles view", () => {
           ).toHaveCount(0);
         });
 
-        test("role is a superuser role", async ({ page }) => {
-          const role = readFixture("role.json");
+        test("role is a superuser role", async ({ page, role }) => {
           role.data.superuser = true;
-          await page.route(ROLE_URL, (route) => route.fulfill({ json: role }));
 
           await page.goto("/admin/roles/2");
 

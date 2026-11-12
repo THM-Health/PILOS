@@ -1,47 +1,15 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptAdminUsersViewRequests,
-  interceptAdminUsersIndexRequests,
-} from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminUsersOther.js";
 import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
 } from "../support/general.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const USER_URL = "**/api/v1/users/2";
-const TIMEZONES_URL = "**/api/v1/getTimezones";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const superuserRole = {
-  id: 1,
-  name: "Superuser",
-  automatic: true,
-  superuser: true,
-};
-
-const fullPermissions = [
-  "admin.view",
-  "users.viewAny",
-  "users.view",
-  "users.create",
-  "users.update",
-  "users.delete",
-  "roles.viewAny",
-];
-
 test.use({ authenticated: true });
 
 test.describe("Admin users view", () => {
-  test.beforeEach(async ({ page, currentUser, config }) => {
+  test.beforeEach(async ({ currentUser, config }) => {
     currentUser.data.permissions = [
       "admin.view",
       "users.viewAny",
@@ -50,7 +18,6 @@ test.describe("Admin users view", () => {
       "roles.viewAny",
     ];
     config.data.auth.local = true;
-    await interceptAdminUsersViewRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -78,10 +45,10 @@ test.describe("Admin users view", () => {
   });
 
   test.describe("view user", () => {
-    test("loading state hides buttons and tabs", async ({ page }) => {
-      const userRequest = await mockMethod(page, "GET", USER_URL, {
+    test("loading state hides buttons and tabs", async ({ page, user }) => {
+      const userRequest = await mockMethod(page, "GET", "**/api/v1/users/2", {
         hold: true,
-        json: readFixture("userDataUser.json"),
+        json: user,
       });
 
       await page.goto("/admin/users/2");
@@ -278,11 +245,9 @@ test.describe("Admin users view", () => {
   });
 
   test.describe("ldap user", () => {
-    test.beforeEach(async ({ page }) => {
-      const user = readFixture("userDataUser.json");
+    test.beforeEach(async ({ page, user }) => {
       user.data.authenticator = "ldap";
       user.data.external_id = "lwr";
-      await mockMethod(page, "GET", USER_URL, { json: user });
 
       await page.goto("/admin/users/2");
       await expect(page.locator("#firstname")).toBeVisible();
@@ -378,7 +343,15 @@ test.describe("Admin users view", () => {
     });
 
     test("with delete permission", async ({ page, currentUser }) => {
-      currentUser.data.permissions = fullPermissions;
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "users.delete",
+        "roles.viewAny",
+      ];
 
       await page.goto("/admin/users/2");
 
@@ -402,13 +375,24 @@ test.describe("Admin users view", () => {
     });
 
     test.describe("viewing a superuser", () => {
-      test.beforeEach(async ({ page, currentUser }) => {
-        currentUser.data.permissions = fullPermissions;
+      test.beforeEach(async ({ currentUser, user }) => {
+        currentUser.data.permissions = [
+          "admin.view",
+          "users.viewAny",
+          "users.view",
+          "users.create",
+          "users.update",
+          "users.delete",
+          "roles.viewAny",
+        ];
 
-        const user = readFixture("userDataUser.json");
         user.data.superuser = true;
-        user.data.roles.push(superuserRole);
-        await mockMethod(page, "GET", USER_URL, { json: user });
+        user.data.roles.push({
+          id: 1,
+          name: "Superuser",
+          automatic: true,
+          superuser: true,
+        });
       });
 
       test("as superuser all buttons are shown", async ({ page }) => {
@@ -463,7 +447,15 @@ test.describe("Admin users view", () => {
       currentUser,
     }) => {
       currentUser.data.superuser = false;
-      currentUser.data.permissions = fullPermissions;
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.create",
+        "users.update",
+        "users.delete",
+        "roles.viewAny",
+      ];
 
       await page.goto("/admin/users/2");
 
@@ -515,8 +507,9 @@ test.describe("Admin users view", () => {
   test.describe("errors", () => {
     test("server error shows overlay with retry that loads the user", async ({
       page,
+      user,
     }) => {
-      await mockMethod(page, "GET", USER_URL, {
+      await mockMethod(page, "GET", "**/api/v1/users/2", {
         status: 500,
         json: { message: "Test" },
       });
@@ -524,11 +517,14 @@ test.describe("Admin users view", () => {
       await page.goto("/admin/users/2");
 
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Reload with correct data
-      await mockMethod(page, "GET", USER_URL, {
-        json: readFixture("userDataUser.json"),
+      await mockMethod(page, "GET", "**/api/v1/users/2", {
+        json: user,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
@@ -542,8 +538,7 @@ test.describe("Admin users view", () => {
     });
 
     test("404 error redirects to users index", async ({ page }) => {
-      await interceptAdminUsersIndexRequests(page);
-      await mockMethod(page, "GET", USER_URL, {
+      await mockMethod(page, "GET", "**/api/v1/users/2", {
         status: 404,
         json: { message: "model_not_found", model: "user", ids: [2] },
       });
@@ -558,7 +553,7 @@ test.describe("Admin users view", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", USER_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/users/2", { status: 401 });
 
       await page.goto("/admin/users/2");
 
@@ -568,12 +563,18 @@ test.describe("Admin users view", () => {
     test.describe("timezones", () => {
       test("server error disables the dropdown and allows reload", async ({
         page,
+        timezones,
       }) => {
-        const timezones = await mockMethod(page, "GET", TIMEZONES_URL, {
-          hold: true,
-          status: 500,
-          json: { message: "Test" },
-        });
+        const timezonesRequest = await mockMethod(
+          page,
+          "GET",
+          "**/api/v1/getTimezones",
+          {
+            hold: true,
+            status: 500,
+            json: { message: "Test" },
+          },
+        );
 
         await page.goto("/admin/users/2");
 
@@ -584,10 +585,13 @@ test.describe("Admin users view", () => {
           "true",
         );
 
-        timezones.release();
-        await nthRequest(timezones);
+        timezonesRequest.release();
+        await nthRequest(timezonesRequest);
 
-        await expectToastAndClose(page, serverErrorToast);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
 
         await expect(dropdown).toHaveText("admin.users.timezone");
         await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
@@ -596,8 +600,8 @@ test.describe("Admin users view", () => {
         );
 
         // Reload timezones without error
-        const reload = await mockMethod(page, "GET", TIMEZONES_URL, {
-          json: readFixture("timezones.json"),
+        const reload = await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+          json: timezones,
         });
         await page.getByTestId("timezone-reload-button").click();
         await nthRequest(reload);
@@ -611,7 +615,9 @@ test.describe("Admin users view", () => {
       });
 
       test("401 error redirects to login", async ({ page }) => {
-        await mockMethod(page, "GET", TIMEZONES_URL, { status: 401 });
+        await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+          status: 401,
+        });
 
         await page.goto("/admin/users/2");
 

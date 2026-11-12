@@ -1,33 +1,13 @@
-import { readFileSync } from "node:fs";
-import { test, expect } from "../support/test.js";
-import { mockMethod, selectTiptapContent } from "../support/utils.js";
-
-const redirectBaseUrl =
-  "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
-const EXTERNAL_LINK = `${redirectBaseUrl}/?foo=a&bar=b`;
-const IMAGE_DESCRIPTION =
-  '<img src="https://localhost/test.jpg" width="250px" alt="Test image"><p>Room description</p>';
-
-/**
- * Mock the room request with the room fixture and the given description.
- */
-async function mockRoomWithDescription(page, description) {
-  const room = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/room.json", "utf8"),
-  );
-  room.data.description = description;
-  await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123", {
-    status: 200,
-    json: room,
-  });
-}
+import { expect } from "../support/test.js";
+import { test } from "../support/fixtures/roomsGeneralMisc.js";
+import { selectTiptapContent } from "../support/utils.js";
 
 test.describe("Rooms view description TipTap Editor", () => {
   test.use({ authenticated: true });
 
   test.describe("image", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomWithDescription(page, "<p>Room description</p>");
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description = "<p>Room description</p>";
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.getByTestId("tip-tap-editor")).toBeVisible();
@@ -114,8 +94,9 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("existing image", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomWithDescription(page, IMAGE_DESCRIPTION);
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description =
+        '<img src="https://localhost/test.jpg" width="250px" alt="Test image"><p>Room description</p>';
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.getByTestId("tip-tap-editor")).toBeVisible();
@@ -196,8 +177,8 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("new link", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomWithDescription(page, "<p>Room description</p>");
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description = "<p>Room description</p>";
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(
@@ -255,7 +236,11 @@ test.describe("Rooms view description TipTap Editor", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       // Valid url
-      await dialog.locator("#url").fill(EXTERNAL_LINK);
+      await dialog
+        .locator("#url")
+        .fill(
+          "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+        );
       await expect(
         dialog.getByText("rooms.description.modals.link.invalid_url"),
       ).toHaveCount(0);
@@ -266,14 +251,21 @@ test.describe("Rooms view description TipTap Editor", () => {
       await page.getByTestId("tip-tap-link-button").click();
 
       const dialog = page.getByTestId("tip-tap-link-dialog");
-      await dialog.locator("#url").fill(EXTERNAL_LINK);
+      await dialog
+        .locator("#url")
+        .fill(
+          "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+        );
       await dialog.getByTestId("dialog-save-button").click();
       await expect(dialog).toBeHidden();
 
       await expect(page.locator(".tiptap")).toBeFocused();
       const link = page.locator(".tiptap a");
       await expect(link).toBeVisible();
-      await expect(link).toHaveAttribute("href", EXTERNAL_LINK);
+      await expect(link).toHaveAttribute(
+        "href",
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+      );
       await expect(link).toHaveText("Room description");
 
       await expect
@@ -283,11 +275,9 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("existing link", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomWithDescription(
-        page,
-        `<a href="${EXTERNAL_LINK}">Test Link</a>`,
-      );
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description =
+        '<a href="https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b">Test Link</a>';
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(
@@ -298,7 +288,10 @@ test.describe("Rooms view description TipTap Editor", () => {
       await expect(page.locator(".tiptap")).toBeFocused();
       const link = page.locator(".tiptap a");
       await expect(link).toBeVisible();
-      await expect(link).toHaveAttribute("href", EXTERNAL_LINK);
+      await expect(link).toHaveAttribute(
+        "href",
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+      );
       await expect(link).toHaveText("Test Link");
 
       // Button is already active before the selection
@@ -317,7 +310,9 @@ test.describe("Rooms view description TipTap Editor", () => {
       const dialog = page.getByTestId("tip-tap-link-dialog");
       await expect(dialog).toBeVisible();
       await expect(dialog).toContainText("rooms.description.modals.link.edit");
-      await expect(dialog.locator("#url")).toHaveValue(EXTERNAL_LINK);
+      await expect(dialog.locator("#url")).toHaveValue(
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+      );
 
       // Invalid url
       await dialog.locator("#url").fill("invalid");
@@ -327,7 +322,9 @@ test.describe("Rooms view description TipTap Editor", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       // Valid url
-      await dialog.locator("#url").fill(redirectBaseUrl);
+      await dialog
+        .locator("#url")
+        .fill("https://thm-health.github.io/PILOS-Redirect_Test_Pages");
       await expect(
         dialog.getByText("rooms.description.modals.link.invalid_url"),
       ).toHaveCount(0);
@@ -340,7 +337,9 @@ test.describe("Rooms view description TipTap Editor", () => {
     test("edit link", async ({ page }) => {
       const dialog = page.getByTestId("tip-tap-link-dialog");
       await expect(dialog).toContainText("rooms.description.modals.link.edit");
-      await dialog.locator("#url").fill(redirectBaseUrl);
+      await dialog
+        .locator("#url")
+        .fill("https://thm-health.github.io/PILOS-Redirect_Test_Pages");
       await dialog.getByTestId("dialog-save-button").click();
       await expect(dialog).toBeHidden();
 
@@ -351,7 +350,10 @@ test.describe("Rooms view description TipTap Editor", () => {
       await expect(page.locator(".tiptap")).toBeFocused();
       const link = page.locator(".tiptap a");
       await expect(link).toBeVisible();
-      await expect(link).toHaveAttribute("href", redirectBaseUrl);
+      await expect(link).toHaveAttribute(
+        "href",
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages",
+      );
       await expect(link).toHaveText("Test Link");
     });
 
@@ -374,8 +376,8 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("source code", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomWithDescription(page, "<p>Room description</p>");
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description = "<p>Room description</p>";
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.getByTestId("tip-tap-editor")).toBeVisible();

@@ -1,14 +1,10 @@
-import { readFileSync } from "node:fs";
 import { expect, expectToastAndClose } from "./test.js";
-import { queryOf } from "./utils.js";
+import { queryOf, readFixture } from "./utils.js";
 
 const ROOM_URL = "**/api/v1/rooms/abc-def-123";
 const ROOM_FILES_URL = "**/api/v1/rooms/abc-def-123/files*";
 const ROOM_RECORDINGS_URL = "**/api/v1/rooms/abc-def-123/recordings*";
 const PARTICIPANT_NAME_CHECK_URL = "**/api/v1/participantName/check";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
 
 /**
  * The Cypress commands received relative globs like `api/v1/rooms/abc-def-123/files*`,

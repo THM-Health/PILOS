@@ -111,7 +111,7 @@ support layer (done in the PoC) and the Cypress-specific behaviours listed below
 | Porting          | AI-assisted, one spec at a time, reviewed.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Browsers         | Chrome for Testing on every PR (5 shards), Firefox nightly (`nightly-frontend-firefox.yml`).                                                                                                                                                                                                                                                                                                                                                              |
 | System tests     | Database reset **before every test** (`support/system.js`, same as Cypress `beforeEach`), therefore `--workers=1`.                                                                                                                                                                                                                                                                                                                                        |
-| Support code     | Fixtures for per-test state, plain exported functions for helpers, no monkey patching.                                                                                                                                                                                                                                                                                                                                                                    |
+| Support code     | Follows the `playwright-best-practices` skill: fixtures for per-test state and shared mocks, page objects only for UI with 5+ interactions in 3+ specs, stateless helper functions otherwise, no monkey patching.                                                                                                                                                                                                                                         |
 | Fixtures         | Moved to `tests/Playwright/fixtures` (Cypress config points there until it is removed).                                                                                                                                                                                                                                                                                                                                                                   |
 | Tooling          | `eslint-plugin-playwright` added. At cutover remove `cypress`, `@cypress/code-coverage`, `eslint-plugin-cypress`, `eslint-plugin-mocha`, `@puppeteer/browsers`, `cypress.config.js`, `tests/Utils/cypress`, `tests/Frontend`, `tests/System/{e2e,support,cypress.config.js}`.                                                                                                                                                                             |
 | CI speed         | Frontend, visual and nightly Firefox tests run in the official Playwright image via `tools/playwright-docker.sh` (browsers and system libs preinstalled, tag derived from the installed `@playwright/test` version, so it also matches the visual baselines). `npm ci --ignore-scripts` with the npm cache for dependencies. System tests stay on the host (they call `docker compose exec`), so they still install Chromium.                             |
@@ -123,18 +123,34 @@ support layer (done in the PoC) and the Cypress-specific behaviours listed below
 2. One behaviour per test; shared setup in `beforeEach`; split tests over ~150 lines and tests with several visit/reload phases.
 3. Mock everything the page requests (`page.route`); unmocked `/api/` requests fail the test. Use `config` / `currentUser` fixtures and `test.use({ authenticated: true })`.
 4. Wait for something rendered before asserting absence (`toBeHidden`, `toHaveCount(0)`), otherwise the assertion passes too early. Cypress specs contain such vacuous checks, fix them while porting.
-5. **Keep specs flat and readable, few helpers.** Do not wrap one-line locators (`page.getByTestId("room-card")` stays inline), do not
-   create toast helpers per spec (use `expectToastAndClose` from `support/test.js`, extend it there if something is missing), and
-   do not add a spec-local helper unless it is used 3+ times in that file and does more than build a locator. Setup that every
-   test of a group needs belongs in `beforeEach`, not in a helper. Anything useful for several specs goes into `support/`.
-6. Shared helpers (`checkPermissionGroup`, room/admin helpers, ...) become plain functions in `support/` taking `page`; port a helper when the first spec needs it.
+5. **Structure the shared code like the `playwright-best-practices` skill (`.claude/skills/playwright-best-practices`) says; the skill
+   wins over everything else in this guide.** Three layers, used together, each with a threshold before something is extracted
+   (references: `architecture/pom-vs-fixtures.md`, `core/page-object-model.md`, `core/fixtures-hooks.md`, `core/test-suite-structure.md`):
+    - **Fixtures** (`test.extend`) for everything with a lifecycle or per-test state: login state, `config`/`currentUser`, and the
+      mocked data of an area (e.g. `role`, `permissions`, `room`). A test changes the fixture object before `page.goto()`, the
+      fixture serves it. Mocks used by several spec files are centralised in fixtures (copy-pasted mocks are an anti-pattern),
+      per area in a `test.extend` file next to `support/test.js`. One small fixture per resource, no monolithic fixtures.
+    - **Page objects** for UI with 5+ interactions that is used in 3+ spec files (e.g. permission list, room files tab, settings
+      image selector, profile image cropper). One class per logical page/component, locators as `readonly` properties, methods named
+      after the user intent, provided as fixtures. They do not assert (tests assert on the exposed locators) and do not manage
+      resources. No locator-only classes.
+    - **Helper functions** (`support/utils.js`, `support/general.js`, ...) for stateless utilities: `readFixture`, `mockMethod`,
+      `nthRequest`, `parseFormData`, `expectToastAndClose` and larger assertion helpers such as `checkPermissionGroup`. No module-level
+      state. Start with a helper and promote it to a page object or fixture when it grows or needs a lifecycle.
+    - **Do not abstract** one-liners (`page.getByTestId("x")`, `clickButton()`), anything used in fewer than 3 places, or
+      anything that exists only for one spec. Repeating a few lines is better than a helper that readers have to look up.
+    - **Spec files** contain imports, `test.use` and the tests: shared setup in `beforeEach`, one feature per test, tests independent
+      of each other, test data written in the test or provided by a fixture (never a block of constants before the first test, never a
+      spec-local `readFixture`/toast/mock helper). Split files that get long by feature instead of hiding code in helpers.
+    - Reference spec: `frontend/AdminRolesEdit.spec.js` (flat tests; its repeated role mocks move to fixtures with the next step).
+6. Port a Cypress command to `support/` only when a second spec needs it; helpers take `page` (or a locator) as first argument.
 7. Run the spec in `--project=frontend` (and `--repeat-each=3` to catch flakiness) and run eslint/prettier.
 
 ## Remaining work
 
 - Port the remaining 78 frontend specs, the 5 system specs and the remaining visual screenshots (the PoC covers 4 frontend specs, 1 visual spec).
 - Verify the coverage upload on the first CI run (the CI image is built with `VITE_COVERAGE=true`; locally the app is not instrumented).
-- **Cleanup pass after the port**: per spec, inline thin locator wrappers, replace spec-local helpers that duplicate `support/` ones (e.g. toast helpers), move cross-spec helpers to `support/`, re-run each spec with `--repeat-each=3`.
+- **Cleanup pass after the port**: done. Every frontend spec starts with its first test right after the imports (no constants or spec-local helpers); repeated mocks are fixtures in `support/fixtures/*.js` (one file per area, `test.extend` on top of `support/test.js`), and there are two page objects in `support/pages/` (only UI with 5+ interactions in 3+ specs qualifies). The full frontend suite passes (2113 tests). Keep to rule 5 for new specs.
 - Replace `cy.clock/tick` (6 specs) with `page.clock`.
 - Cutover: remove Cypress packages/files (see Tooling), move docs (`07-testing.md`, `.ai/rules/js.md`) to Playwright, delete `tests/Frontend`.
 

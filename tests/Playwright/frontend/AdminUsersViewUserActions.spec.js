@@ -1,9 +1,5 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptAdminUsersViewRequests,
-  interceptAdminUsersIndexRequests,
-} from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminUsersOther.js";
 import { expectLoginRedirect } from "../support/general.js";
 import {
   mockMethod,
@@ -11,30 +7,10 @@ import {
   expectImageToMatchScreenshot,
 } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const DELETE_URL = "**/api/v1/users/2";
-const RESET_PASSWORD_URL = "**/api/v1/users/2/resetPassword";
-const IMAGE = "tests/Playwright/fixtures/files/profileImage.jpg";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-const modelNotFoundToast = [
-  'app.flash.model_not_found.title_{"model":"app.model.user"}',
-  'app.flash.model_not_found.details_{"ids":"2"}',
-];
-const userNotFoundResponse = {
-  status: 404,
-  json: { message: "model_not_found", model: "user", ids: [2] },
-};
-
 test.use({ authenticated: true });
 
 test.describe("Admin users view user actions", () => {
-  test.beforeEach(async ({ page, currentUser, config }) => {
+  test.beforeEach(async ({ currentUser, config }) => {
     currentUser.data.permissions = [
       "admin.view",
       "users.viewAny",
@@ -45,7 +21,6 @@ test.describe("Admin users view user actions", () => {
       "roles.viewAny",
     ];
     config.data.auth.local = true;
-    await interceptAdminUsersViewRequests(page);
   });
 
   test.describe("delete user", () => {
@@ -67,25 +42,22 @@ test.describe("Admin users view user actions", () => {
 
     test("loading state, redirect to the index and removed user", async ({
       page,
+      users,
     }) => {
       const dialog = page.getByTestId("users-delete-dialog");
       await expect(dialog).toBeVisible();
 
-      const deleteRequest = await mockMethod(page, "DELETE", DELETE_URL, {
-        status: 204,
-        hold: true,
-      });
-      const users = readFixture("users.json");
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/users/2",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
       users.data = users.data.slice(0, 2);
-      users.meta.to = 2;
-      users.meta.total = 2;
-      users.meta.total_no_filter = 2;
-      await page.route("**/api/v1/users?*", (route) =>
-        route.fulfill({ json: users }),
-      );
-      await page.route("**/api/v1/roles*", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/roles.json" }),
-      );
+      Object.assign(users.meta, { to: 2, total: 2, total_no_filter: 2 });
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
@@ -108,7 +80,7 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("server error keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "DELETE", DELETE_URL, {
+      await mockMethod(page, "DELETE", "**/api/v1/users/2", {
         status: 500,
         json: { message: "Test" },
       });
@@ -116,23 +88,31 @@ test.describe("Admin users view user actions", () => {
       await expect(page.getByTestId("users-delete-dialog")).toBeVisible();
       await page.getByTestId("dialog-continue-button").click();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("users-delete-dialog")).toBeVisible();
     });
 
     test("user not found redirects to the index", async ({ page }) => {
-      await mockMethod(page, "DELETE", DELETE_URL, userNotFoundResponse);
-      await interceptAdminUsersIndexRequests(page);
+      await mockMethod(page, "DELETE", "**/api/v1/users/2", {
+        status: 404,
+        json: { message: "model_not_found", model: "user", ids: [2] },
+      });
 
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(page).toHaveURL(/\/admin\/users(\?.*)?$/);
       await expect(page).not.toHaveURL(/\/admin\/users\/2/);
-      await expectToastAndClose(page, modelNotFoundToast);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.user"}',
+        'app.flash.model_not_found.details_{"ids":"2"}',
+      ]);
     });
 
     test("unauthenticated redirects to the login", async ({ page }) => {
-      await mockMethod(page, "DELETE", DELETE_URL, { status: 401 });
+      await mockMethod(page, "DELETE", "**/api/v1/users/2", { status: 401 });
 
       await expect(page.getByTestId("users-delete-dialog")).toBeVisible();
       await page.getByTestId("dialog-continue-button").click();
@@ -169,10 +149,15 @@ test.describe("Admin users view user actions", () => {
         page.getByTestId("users-reset-password-dialog"),
       ).toBeVisible();
 
-      const resetRequest = await mockMethod(page, "POST", RESET_PASSWORD_URL, {
-        status: 204,
-        hold: true,
-      });
+      const resetRequest = await mockMethod(
+        page,
+        "POST",
+        "**/api/v1/users/2/resetPassword",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
@@ -198,7 +183,7 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("server error keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "POST", RESET_PASSWORD_URL, {
+      await mockMethod(page, "POST", "**/api/v1/users/2/resetPassword", {
         status: 500,
         json: { message: "Test" },
       });
@@ -208,25 +193,35 @@ test.describe("Admin users view user actions", () => {
       ).toBeVisible();
       await page.getByTestId("dialog-continue-button").click();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(
         page.getByTestId("users-reset-password-dialog"),
       ).toBeVisible();
     });
 
     test("user not found redirects to the index", async ({ page }) => {
-      await mockMethod(page, "POST", RESET_PASSWORD_URL, userNotFoundResponse);
-      await interceptAdminUsersIndexRequests(page);
+      await mockMethod(page, "POST", "**/api/v1/users/2/resetPassword", {
+        status: 404,
+        json: { message: "model_not_found", model: "user", ids: [2] },
+      });
 
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(page).toHaveURL(/\/admin\/users(\?.*)?$/);
       await expect(page).not.toHaveURL(/\/admin\/users\/2/);
-      await expectToastAndClose(page, modelNotFoundToast);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.user"}',
+        'app.flash.model_not_found.details_{"ids":"2"}',
+      ]);
     });
 
     test("unauthenticated redirects to the login", async ({ page }) => {
-      await mockMethod(page, "POST", RESET_PASSWORD_URL, { status: 401 });
+      await mockMethod(page, "POST", "**/api/v1/users/2/resetPassword", {
+        status: 401,
+      });
 
       await expect(
         page.getByTestId("users-reset-password-dialog"),
@@ -248,7 +243,9 @@ test.describe("Admin users view user actions", () => {
       await page.locator("#lastname").fill("Walter");
 
       await expect(page.getByTestId("upload-file-input")).toBeHidden();
-      await page.getByTestId("upload-file-input").setInputFiles(IMAGE);
+      await page
+        .getByTestId("upload-file-input")
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
 
       const cropDialog = page.getByTestId("crop-image-dialog");
       await expect(cropDialog).toBeVisible();

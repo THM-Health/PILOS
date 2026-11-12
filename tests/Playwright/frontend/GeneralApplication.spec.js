@@ -2,9 +2,6 @@ import { test, expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import { holdRequest } from "../support/utils.js";
 
-const redirectBaseUrl =
-  "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
-
 test.describe("General", () => {
   test.use({ authenticated: true });
 
@@ -318,7 +315,7 @@ test.describe("General", () => {
       page,
       config,
     }) => {
-      config.data.general.help_url = `${redirectBaseUrl}/help?foo=a&bar=b`;
+      config.data.general.help_url = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b`;
 
       await page.goto("/");
 
@@ -326,13 +323,13 @@ test.describe("General", () => {
       await expect(help).toBeVisible();
       await expect(help).toHaveAttribute(
         "href",
-        `${redirectBaseUrl}/help?foo=a&bar=b`,
+        `https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b`,
       );
       await expect(help).toHaveAttribute("target", "_blank");
     });
 
     test("help button opens the help url", async ({ page, config }) => {
-      const helpUrl = `${redirectBaseUrl}/help?foo=a&bar=b`;
+      const helpUrl = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b`;
       config.data.general.help_url = helpUrl;
       await page.route(helpUrl, (route) =>
         route.fulfill({ contentType: "text/html", body: "help" }),

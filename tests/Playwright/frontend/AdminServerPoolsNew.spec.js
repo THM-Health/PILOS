@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminServerPools.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
@@ -8,85 +8,12 @@ import {
   expectAdminBreadcrumbs,
   expectMultiselectOptions,
 } from "../support/admin.js";
-import { interceptAdminServerPoolsNewRequests } from "../support/mocks.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import { mockMethod, nthRequest, readFixture } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const isServersUrl = (url) => url.pathname === "/api/v1/servers";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-/**
- * Mock the servers list, two servers per page (page 1 by default).
- */
-function mockServers(page, pageNumber = 1, options = {}) {
-  const servers = readFixture("servers.json");
-  const start = (pageNumber - 1) * 2;
-  servers.data = servers.data.slice(start, start + 2);
-  Object.assign(servers.meta, {
-    current_page: pageNumber,
-    from: start + 1,
-    last_page: 2,
-    per_page: 2,
-    to: start + 2,
-  });
-  return mockMethod(page, "GET", isServersUrl, { json: servers, ...options });
-}
-
-function mockServersError(page, status, body) {
-  return mockMethod(page, "GET", isServersUrl, { status, json: body });
-}
-
-function mockCreateServerPool(page, response) {
-  return mockMethod(
-    page,
-    "POST",
-    (url) => url.pathname === "/api/v1/serverPools",
-    response,
-  );
-}
-
-/**
- * Mocks the creation of a server pool (id 20) and the following request of the new server pool.
- */
-async function mockCreatedServerPool(page, servers, options = {}) {
-  const serverPool = readFixture("serverPool.json");
-  serverPool.data.id = 20;
-  serverPool.data.name = "Server Pool 1";
-  serverPool.data.description = "Server Pool 1 description";
-  serverPool.data.servers = servers;
-
-  const createRequest = await mockCreateServerPool(page, {
-    status: 201,
-    json: serverPool,
-    ...options,
-  });
-  await mockMethod(page, "GET", "**/api/v1/serverPools/20", {
-    json: serverPool,
-  });
-  return createRequest;
-}
-
-async function expectServerChips(page, names) {
-  const chips = page.getByTestId("server-dropdown").getByTestId("server-chip");
-  await expect(chips).toHaveCount(names.length);
-  for (const [index, name] of names.entries()) {
-    await expect(chips.nth(index)).toContainText(name);
-    await expect(
-      chips.nth(index).getByTestId("remove-server-button"),
-    ).toBeVisible();
-  }
-}
+test.use({ authenticated: true });
 
 test.describe("Admin server pools new", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "servers.viewAny",
@@ -96,7 +23,6 @@ test.describe("Admin server pools new", () => {
       "serverPools.create",
       "serverPools.delete",
     ];
-    await interceptAdminServerPoolsNewRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -178,61 +104,68 @@ test.describe("Admin server pools new", () => {
       );
     });
 
-    test("shows the server options", async ({ page }) => {
-      const serverField = page.getByTestId("server-field");
-      await expect(serverField).toContainText("app.servers");
-      await expect(page.locator(".multiselect__content")).toHaveCount(0);
+    test("shows the server options", async ({ serverSelect }) => {
+      await expect(serverSelect.field).toContainText("app.servers");
+      await expect(serverSelect.content).toHaveCount(0);
 
-      const dropdown = serverField.getByTestId("server-dropdown");
-      await expect(dropdown.locator(".multiselect__tags")).toContainText(
-        "admin.server_pools.select_servers",
-      );
-      await dropdown.locator(".multiselect__tags").click();
-      await expect(dropdown.getByTestId("server-chip")).toHaveCount(0);
+      await expect(
+        serverSelect.dropdown.locator(".multiselect__tags"),
+      ).toContainText("admin.server_pools.select_servers");
+      await serverSelect.dropdown.locator(".multiselect__tags").click();
+      await expect(serverSelect.chips).toHaveCount(0);
 
-      const content = page.locator(".multiselect__content");
-      await expect(content).toBeVisible();
+      await expect(serverSelect.content).toBeVisible();
       await expectMultiselectOptions(
-        content,
+        serverSelect.content,
         ["Server 01", "Server 02", "Server 03", "Server 04", "Server 05"],
         "admin.servers.no_data",
       );
     });
 
-    test("select servers and remove one", async ({ page }) => {
-      await page.getByTestId("server-dropdown").click();
-      const content = page.locator(".multiselect__content");
-      await expect(content).toBeVisible();
+    test("select servers and remove one", async ({ serverSelect }) => {
+      await serverSelect.open();
+      await expect(serverSelect.content).toBeVisible();
 
-      await content.locator(".multiselect__option").nth(1).click();
-      await expect(content).toBeVisible();
-      await expectServerChips(page, ["Server 02"]);
+      await serverSelect.selectOption(1);
+      await expect(serverSelect.content).toBeVisible();
+      await expect(serverSelect.chips).toContainText(["Server 02"]);
+      await expect(serverSelect.visibleRemoveButtons).toHaveCount(1);
 
-      await content.locator(".multiselect__option").nth(2).click();
-      await expect(content).toBeVisible();
-      await expectServerChips(page, ["Server 02", "Server 03"]);
+      await serverSelect.selectOption(2);
+      await expect(serverSelect.content).toBeVisible();
+      await expect(serverSelect.chips).toContainText([
+        "Server 02",
+        "Server 03",
+      ]);
+      await expect(serverSelect.visibleRemoveButtons).toHaveCount(2);
 
-      await page
-        .getByTestId("server-dropdown")
-        .getByTestId("server-chip")
-        .nth(1)
-        .getByTestId("remove-server-button")
-        .click();
+      await serverSelect.removeServer(1);
 
-      await expect(content).toHaveCount(0);
+      await expect(serverSelect.content).toHaveCount(0);
     });
 
-    test("add new server pool with 1 server", async ({ page }) => {
+    test("add new server pool with 1 server", async ({
+      page,
+      createdServerPool,
+      serverSelect,
+    }) => {
       await page.locator("#name").fill("Server Pool 1");
       await page.locator("#description").fill("Server Pool 1 description");
 
-      await page.getByTestId("server-dropdown").click();
-      await page.locator(".multiselect__option").nth(1).click();
-      await page.locator(".multiselect__select").click();
-      await expect(page.locator(".multiselect__content")).toHaveCount(0);
+      await serverSelect.open();
+      await serverSelect.selectOption(1);
+      await serverSelect.close();
+      await expect(serverSelect.content).toHaveCount(0);
 
-      const servers = readFixture("serverPool.json").data.servers.slice(1, 2);
-      const createRequest = await mockCreatedServerPool(page, servers);
+      createdServerPool.data.servers = readFixture(
+        "serverPool.json",
+      ).data.servers.slice(1, 2);
+      const createRequest = await mockMethod(
+        page,
+        "POST",
+        "**/api/v1/serverPools",
+        { status: 201, json: createdServerPool },
+      );
 
       await page.getByTestId("server-pools-save-button").click();
 
@@ -247,13 +180,19 @@ test.describe("Admin server pools new", () => {
       await expect(page.getByTestId("overlay")).toBeHidden();
     });
 
-    test("shows loading state while saving", async ({ page }) => {
+    test("shows loading state while saving", async ({
+      page,
+      createdServerPool,
+    }) => {
       await expect(page.getByTestId("overlay")).toBeHidden();
 
       await page.locator("#name").fill("Server Pool 1");
-      const createRequest = await mockCreatedServerPool(page, [], {
-        hold: true,
-      });
+      const createRequest = await mockMethod(
+        page,
+        "POST",
+        "**/api/v1/serverPools",
+        { status: 201, json: createdServerPool, hold: true },
+      );
 
       await page.getByTestId("server-pools-save-button").click();
 
@@ -273,60 +212,67 @@ test.describe("Admin server pools new", () => {
   });
 
   test.describe("several pages of servers", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockServers(page);
+    test.beforeEach(async ({ page, showServersPage, serverSelect }) => {
+      showServersPage(1);
       await page.goto("/admin/server_pools/new");
-      await page.getByTestId("server-dropdown").click();
-      await expect(page.locator(".multiselect__content")).toBeVisible();
+      await serverSelect.open();
+      await expect(serverSelect.content).toBeVisible();
     });
 
-    test("shows the options of the first page", async ({ page }) => {
-      const content = page.locator(".multiselect__content");
-      await expect(content.getByTestId("previous-page-button")).toContainText(
+    test("shows the options of the first page", async ({ serverSelect }) => {
+      await expect(serverSelect.previousPageButton).toContainText(
         "app.previous_page",
       );
-      await expect(content.getByTestId("previous-page-button")).toBeDisabled();
-      await expect(content.getByTestId("next-page-button")).toContainText(
-        "app.next_page",
-      );
-      await expect(content.getByTestId("next-page-button")).toBeEnabled();
+      await expect(serverSelect.previousPageButton).toBeDisabled();
+      await expect(serverSelect.nextPageButton).toContainText("app.next_page");
+      await expect(serverSelect.nextPageButton).toBeEnabled();
       await expectMultiselectOptions(
-        content,
+        serverSelect.content,
         ["Server 01", "Server 02"],
         "admin.servers.no_data",
       );
     });
 
-    test("selecting a server keeps the dropdown open", async ({ page }) => {
-      const content = page.locator(".multiselect__content");
-      await content.locator(".multiselect__option").nth(0).click();
+    test("selecting a server keeps the dropdown open", async ({
+      serverSelect,
+    }) => {
+      await serverSelect.selectOption(0);
 
-      await expect(content).toBeVisible();
-      await expectServerChips(page, ["Server 01"]);
+      await expect(serverSelect.content).toBeVisible();
+      await expect(serverSelect.chips).toContainText(["Server 01"]);
+      await expect(serverSelect.visibleRemoveButtons).toHaveCount(1);
     });
 
-    test("shows loading state while switching the page", async ({ page }) => {
-      const content = page.locator(".multiselect__content");
-      const serversRequest = await mockServers(page, 2, { hold: true });
-
-      await content.getByTestId("next-page-button").click();
-
-      await expect(content.getByTestId("previous-page-button")).toBeDisabled();
-      await expect(content.getByTestId("next-page-button")).toBeDisabled();
-      await expect(page.getByTestId("server-dropdown")).toHaveClass(
-        /multiselect--disabled/,
+    test("shows loading state while switching the page", async ({
+      page,
+      servers,
+      showServersPage,
+      serverSelect,
+    }) => {
+      showServersPage(2);
+      const serversRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/servers*",
+        { json: servers, hold: true },
       );
+
+      await serverSelect.showNextPage();
+
+      await expect(serverSelect.previousPageButton).toBeDisabled();
+      await expect(serverSelect.nextPageButton).toBeDisabled();
+      await expect(serverSelect.dropdown).toHaveClass(/multiselect--disabled/);
       await expect(page.getByTestId("server-pools-save-button")).toBeDisabled();
 
       serversRequest.release();
 
-      await expect(page.getByTestId("server-dropdown")).not.toHaveClass(
+      await expect(serverSelect.dropdown).not.toHaveClass(
         /multiselect--disabled/,
       );
-      await expect(content.getByTestId("previous-page-button")).toBeEnabled();
-      await expect(content.getByTestId("next-page-button")).toBeDisabled();
+      await expect(serverSelect.previousPageButton).toBeEnabled();
+      await expect(serverSelect.nextPageButton).toBeDisabled();
       await expectMultiselectOptions(
-        content,
+        serverSelect.content,
         ["Server 03", "Server 04"],
         "admin.servers.no_data",
       );
@@ -334,32 +280,42 @@ test.describe("Admin server pools new", () => {
 
     test("add new server pool with servers of several pages", async ({
       page,
+      createdServerPool,
+      showServersPage,
+      serverSelect,
     }) => {
       await page.locator("#name").fill("Server Pool 1");
       await page.locator("#description").fill("Server Pool 1 description");
 
       // Focusing the inputs closes the dropdown
-      const content = page.locator(".multiselect__content");
-      await expect(content).toHaveCount(0);
-      await page.getByTestId("server-dropdown").click();
-      await content.locator(".multiselect__option").nth(0).click();
-      await expect(content).toBeVisible();
+      await expect(serverSelect.content).toHaveCount(0);
+      await serverSelect.open();
+      await serverSelect.selectOption(0);
+      await expect(serverSelect.content).toBeVisible();
 
-      await mockServers(page, 2);
-      await content.getByTestId("next-page-button").click();
-      await expect(content.getByTestId("next-page-button")).toBeDisabled();
-      await content.locator(".multiselect__option").nth(1).click();
+      showServersPage(2);
+      await serverSelect.showNextPage();
+      await expect(serverSelect.nextPageButton).toBeDisabled();
+      await serverSelect.selectOption(1);
 
-      await expect(content).toBeVisible();
-      await expectServerChips(page, ["Server 01", "Server 04"]);
+      await expect(serverSelect.content).toBeVisible();
+      await expect(serverSelect.chips).toContainText([
+        "Server 01",
+        "Server 04",
+      ]);
+      await expect(serverSelect.visibleRemoveButtons).toHaveCount(2);
 
-      await page.locator(".multiselect__select").click();
-      await expect(content).toHaveCount(0);
+      await serverSelect.close();
+      await expect(serverSelect.content).toHaveCount(0);
 
-      const allServers = readFixture("servers.json").data;
-      const createRequest = await mockCreatedServerPool(
+      createdServerPool.data.servers = readFixture("servers.json").data.filter(
+        (server) => server.id === 1 || server.id === 4,
+      );
+      const createRequest = await mockMethod(
         page,
-        allServers.filter((server) => server.id === 1 || server.id === 4),
+        "POST",
+        "**/api/v1/serverPools",
+        { status: 201, json: createdServerPool },
       );
 
       await page.getByTestId("server-pools-save-button").click();
@@ -376,19 +332,19 @@ test.describe("Admin server pools new", () => {
   });
 
   test.describe("add new server pool errors", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, serverSelect }) => {
       await page.goto("/admin/server_pools/new");
 
       await page.locator("#description").fill("Server Pool 1 description");
-      await page.getByTestId("server-dropdown").click();
-      await expect(page.locator(".multiselect__content")).toBeVisible();
-      await page.locator(".multiselect__option").nth(0).click();
-      await page.locator(".multiselect__select").click();
-      await expect(page.locator(".multiselect__content")).toHaveCount(0);
+      await serverSelect.open();
+      await expect(serverSelect.content).toBeVisible();
+      await serverSelect.selectOption(0);
+      await serverSelect.close();
+      await expect(serverSelect.content).toHaveCount(0);
     });
 
     test("422 error shows validation errors", async ({ page }) => {
-      await mockCreateServerPool(page, {
+      await mockMethod(page, "POST", "**/api/v1/serverPools", {
         status: 422,
         json: {
           message: "The Name field is required. (and 2 more errors)",
@@ -422,7 +378,7 @@ test.describe("Admin server pools new", () => {
     test("500 error shows toast and hides previous validation errors", async ({
       page,
     }) => {
-      await mockCreateServerPool(page, {
+      await mockMethod(page, "POST", "**/api/v1/serverPools", {
         status: 422,
         json: {
           message: "The Name field is required. (and 2 more errors)",
@@ -445,13 +401,16 @@ test.describe("Admin server pools new", () => {
       );
 
       await page.locator("#name").fill("Server Pool 1");
-      await mockCreateServerPool(page, {
+      await mockMethod(page, "POST", "**/api/v1/serverPools", {
         status: 500,
         json: { message: "Test" },
       });
       await page.getByTestId("server-pools-save-button").click();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("name-field")).not.toContainText(
         "The Name field is required.",
       );
@@ -465,7 +424,7 @@ test.describe("Admin server pools new", () => {
 
     test("401 error redirects to the login page", async ({ page }) => {
       await page.locator("#name").fill("Server Pool 1");
-      await mockCreateServerPool(page, { status: 401 });
+      await mockMethod(page, "POST", "**/api/v1/serverPools", { status: 401 });
 
       await page.getByTestId("server-pools-save-button").click();
 
@@ -474,19 +433,28 @@ test.describe("Admin server pools new", () => {
   });
 
   test.describe("load servers errors", () => {
-    test("shows loading state while loading servers", async ({ page }) => {
-      const serversRequest = await mockServers(page, 1, { hold: true });
+    test("shows loading state while loading servers", async ({
+      page,
+      servers,
+      showServersPage,
+      serverSelect,
+    }) => {
+      showServersPage(1);
+      const serversRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/servers*",
+        { json: servers, hold: true },
+      );
 
       await page.goto("/admin/server_pools/new");
 
       await expect(page.getByTestId("server-pools-save-button")).toBeDisabled();
-      await expect(page.getByTestId("server-dropdown")).toHaveClass(
-        /multiselect--disabled/,
-      );
+      await expect(serverSelect.dropdown).toHaveClass(/multiselect--disabled/);
 
       serversRequest.release();
 
-      await expect(page.getByTestId("server-dropdown")).not.toHaveClass(
+      await expect(serverSelect.dropdown).not.toHaveClass(
         /multiselect--disabled/,
       );
       await expect(page.getByTestId("server-pools-save-button")).toBeEnabled();
@@ -494,14 +462,20 @@ test.describe("Admin server pools new", () => {
 
     test.describe("500 error when loading", () => {
       test.beforeEach(async ({ page }) => {
-        await mockServersError(page, 500, { message: "Test" });
+        await mockMethod(page, "GET", "**/api/v1/servers*", {
+          status: 500,
+          json: { message: "Test" },
+        });
         await page.goto("/admin/server_pools/new");
-        await expectToastAndClose(page, serverErrorToast);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
       });
 
-      test("keeps the form disabled", async ({ page }) => {
-        await expect(page.getByTestId("servers-reload-button")).toBeVisible();
-        await expect(page.getByTestId("server-dropdown")).toHaveClass(
+      test("keeps the form disabled", async ({ page, serverSelect }) => {
+        await expect(serverSelect.reloadButton).toBeVisible();
+        await expect(serverSelect.dropdown).toHaveClass(
           /multiselect--disabled/,
         );
         await expect(
@@ -509,28 +483,34 @@ test.describe("Admin server pools new", () => {
         ).toBeDisabled();
       });
 
-      test("reload servers without errors", async ({ page }) => {
-        await mockServers(page);
+      test("reload servers without errors", async ({
+        page,
+        servers,
+        showServersPage,
+        serverSelect,
+      }) => {
+        showServersPage(1);
+        await mockMethod(page, "GET", "**/api/v1/servers*", { json: servers });
 
-        await page.getByTestId("servers-reload-button").click();
+        await serverSelect.reloadButton.click();
 
-        await expect(page.getByTestId("servers-reload-button")).toHaveCount(0);
-        await expect(page.getByTestId("server-dropdown")).not.toHaveClass(
+        await expect(serverSelect.reloadButton).toHaveCount(0);
+        await expect(serverSelect.dropdown).not.toHaveClass(
           /multiselect--disabled/,
         );
         await expect(
           page.getByTestId("server-pools-save-button"),
         ).toBeEnabled();
 
-        await page.getByTestId("server-dropdown").click();
-        await expect(page.locator(".multiselect__content")).toBeVisible();
-        await expect(page.locator(".multiselect__option")).toHaveCount(4);
+        await serverSelect.open();
+        await expect(serverSelect.content).toBeVisible();
+        await expect(serverSelect.options).toHaveCount(4);
       });
 
       test("401 error when reloading redirects to the login page", async ({
         page,
       }) => {
-        await mockServersError(page, 401);
+        await mockMethod(page, "GET", "**/api/v1/servers*", { status: 401 });
 
         await page.reload();
 
@@ -540,32 +520,40 @@ test.describe("Admin server pools new", () => {
 
     test("500 error when switching pages disables the form", async ({
       page,
+      showServersPage,
+      serverSelect,
     }) => {
-      await mockServers(page);
+      showServersPage(1);
       await page.goto("/admin/server_pools/new");
-      await page.getByTestId("server-dropdown").click();
-      await expect(page.locator(".multiselect__content")).toBeVisible();
+      await serverSelect.open();
+      await expect(serverSelect.content).toBeVisible();
 
-      await mockServersError(page, 500, { message: "Test" });
-      await page.getByTestId("next-page-button").click();
+      await mockMethod(page, "GET", "**/api/v1/servers*", {
+        status: 500,
+        json: { message: "Test" },
+      });
+      await serverSelect.showNextPage();
 
-      await expectToastAndClose(page, serverErrorToast);
-      await expect(page.getByTestId("server-dropdown")).toHaveClass(
-        /multiselect--disabled/,
-      );
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
+      await expect(serverSelect.dropdown).toHaveClass(/multiselect--disabled/);
       await expect(page.getByTestId("server-pools-save-button")).toBeDisabled();
     });
 
     test("401 error when switching pages redirects to the login page", async ({
       page,
+      showServersPage,
+      serverSelect,
     }) => {
-      await mockServers(page);
+      showServersPage(1);
       await page.goto("/admin/server_pools/new");
-      await page.getByTestId("server-dropdown").click();
-      await expect(page.locator(".multiselect__content")).toBeVisible();
+      await serverSelect.open();
+      await expect(serverSelect.content).toBeVisible();
 
-      await mockServersError(page, 401);
-      await page.getByTestId("next-page-button").click();
+      await mockMethod(page, "GET", "**/api/v1/servers*", { status: 401 });
+      await serverSelect.showNextPage();
 
       await expectLoginRedirect(page, "/admin/server_pools/new");
     });

@@ -1,4 +1,7 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/authGeneral.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
+import { holdRequest } from "../support/utils.js";
 
 test.describe("Password reset", () => {
   test.beforeEach(async ({ config }) => {
@@ -21,12 +24,7 @@ test.describe("Password reset", () => {
     test.use({ authenticated: true });
 
     test("shows error and redirects to home page", async ({ page }) => {
-      await page.route("**/api/v1/rooms*", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/rooms.json" }),
-      );
-      await page.route("**/api/v1/roomTypes*", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/roomTypes.json" }),
-      );
+      await interceptRoomIndexRequests(page);
 
       await page.goto("/reset_password");
 
@@ -71,28 +69,16 @@ test.describe("Password reset", () => {
       let releaseReset;
 
       test.beforeEach(async ({ page, currentUser }) => {
-        await page.route("**/sanctum/csrf-cookie", (route) =>
-          route.fulfill({
-            headers: { "Set-Cookie": "XSRF-TOKEN=test-csrf; Path=/" },
-          }),
-        );
+        // The initial current user request must be finished before the user is mocked as logged in
+        await expect(page.locator("#new_password")).toBeVisible();
         await page.route("**/api/v1/currentUser", (route) =>
           route.fulfill({ json: currentUser }),
         );
-        await page.route("**/api/v1/rooms*", (route) =>
-          route.fulfill({ path: "tests/Playwright/fixtures/rooms.json" }),
-        );
-        await page.route("**/api/v1/roomTypes*", (route) =>
-          route.fulfill({ path: "tests/Playwright/fixtures/roomTypes.json" }),
-        );
+        await interceptRoomIndexRequests(page);
 
-        const gate = new Promise((resolve) => (releaseReset = resolve));
-        await page.route("**/api/v1/password/reset", async (route) => {
-          await gate;
-          await route.fulfill({
-            status: 200,
-            json: { message: "Success!" },
-          });
+        releaseReset = await holdRequest(page, "**/api/v1/password/reset", {
+          status: 200,
+          json: { message: "Success!" },
         });
 
         await page.locator("#new_password").fill("secretPassword123#");
@@ -158,9 +144,6 @@ test.describe("Password reset", () => {
 
   test.describe("errors", () => {
     test.beforeEach(async ({ page }) => {
-      await page.route("**/sanctum/csrf-cookie", (route) =>
-        route.fulfill({ status: 204 }),
-      );
       await page.goto("/reset_password");
       await page.locator("#new_password").fill("secretPassword123");
       await page

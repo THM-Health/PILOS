@@ -1,91 +1,85 @@
 import { test, expect } from "../support/test.js";
 
-const redirectBaseUrl =
-  "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
-
-const legalUrl = `${redirectBaseUrl}/legal`;
-const privacyUrl = `${redirectBaseUrl}/privacy`;
-const accessibilityUrl = `${redirectBaseUrl}/accessibility`;
-
-const footerCases = [
-  {
-    name: "2 links, version and no whitelabel",
-    legal: legalUrl,
-    privacy: privacyUrl,
-    accessibility: accessibilityUrl,
-    version: "1.0.0",
-    whitelabel: false,
-  },
-  {
-    name: "only legal notice link, no version and whitelabel",
-    legal: legalUrl,
-    privacy: "",
-    accessibility: "",
-    version: null,
-    whitelabel: true,
-  },
-  {
-    name: "only privacy policy link, no version and whitelabel",
-    legal: "",
-    privacy: privacyUrl,
-    accessibility: "",
-    version: null,
-    whitelabel: true,
-  },
-  {
-    name: "no links, no version and no whitelabel",
-    legal: "",
-    privacy: "",
-    accessibility: "",
-    version: null,
-    whitelabel: false,
-  },
-  {
-    name: "no links, version and whitelabel",
-    legal: "",
-    privacy: "",
-    accessibility: "",
-    version: "1.0.0",
-    whitelabel: true,
-  },
-  {
-    name: "2 links, version and whitelabel",
-    legal: legalUrl,
-    privacy: privacyUrl,
-    accessibility: accessibilityUrl,
-    version: "1.0.0",
-    whitelabel: true,
-  },
-  {
-    name: "2 links, no version and whitelabel",
-    legal: legalUrl,
-    privacy: privacyUrl,
-    accessibility: accessibilityUrl,
-    version: "",
-    whitelabel: true,
-  },
-  {
-    name: "only legal notice link, version and whitelabel",
-    legal: legalUrl,
-    privacy: "",
-    accessibility: "",
-    version: "1.2.0",
-    whitelabel: true,
-  },
-  {
-    name: "only privacy policy link, version and whitelabel",
-    legal: "",
-    privacy: privacyUrl,
-    accessibility: "",
-    version: "2.1.0",
-    whitelabel: true,
-  },
-];
-
 test.describe("Footer", () => {
   test.use({ authenticated: true });
 
-  for (const footerCase of footerCases) {
+  for (const footerCase of [
+    {
+      name: "2 links, version and no whitelabel",
+      legal: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/legal",
+      privacy: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/privacy",
+      accessibility:
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/accessibility",
+      version: "1.0.0",
+      whitelabel: false,
+    },
+    {
+      name: "only legal notice link, no version and whitelabel",
+      legal: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/legal",
+      privacy: "",
+      accessibility: "",
+      version: null,
+      whitelabel: true,
+    },
+    {
+      name: "only privacy policy link, no version and whitelabel",
+      legal: "",
+      privacy: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/privacy",
+      accessibility: "",
+      version: null,
+      whitelabel: true,
+    },
+    {
+      name: "no links, no version and no whitelabel",
+      legal: "",
+      privacy: "",
+      accessibility: "",
+      version: null,
+      whitelabel: false,
+    },
+    {
+      name: "no links, version and whitelabel",
+      legal: "",
+      privacy: "",
+      accessibility: "",
+      version: "1.0.0",
+      whitelabel: true,
+    },
+    {
+      name: "2 links, version and whitelabel",
+      legal: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/legal",
+      privacy: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/privacy",
+      accessibility:
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/accessibility",
+      version: "1.0.0",
+      whitelabel: true,
+    },
+    {
+      name: "2 links, no version and whitelabel",
+      legal: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/legal",
+      privacy: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/privacy",
+      accessibility:
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/accessibility",
+      version: "",
+      whitelabel: true,
+    },
+    {
+      name: "only legal notice link, version and whitelabel",
+      legal: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/legal",
+      privacy: "",
+      accessibility: "",
+      version: "1.2.0",
+      whitelabel: true,
+    },
+    {
+      name: "only privacy policy link, version and whitelabel",
+      legal: "",
+      privacy: "https://thm-health.github.io/PILOS-Redirect_Test_Pages/privacy",
+      accessibility: "",
+      version: "2.1.0",
+      whitelabel: true,
+    },
+  ]) {
     test(`shown correctly with ${footerCase.name}`, async ({
       page,
       config,
@@ -171,8 +165,10 @@ test.describe("Footer", () => {
   test.describe("external links", () => {
     test.beforeEach(async ({ page }) => {
       // Do not depend on the external redirect pages
-      await page.route(`${redirectBaseUrl}/**`, (route) =>
-        route.fulfill({ body: "<html><body>external</body></html>" }),
+      await page.route(
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/**",
+        (route) =>
+          route.fulfill({ body: "<html><body>external</body></html>" }),
       );
     });
 
@@ -192,7 +188,7 @@ test.describe("Footer", () => {
       ],
     ]) {
       test(`open ${name} link`, async ({ page, config }) => {
-        const url = `${redirectBaseUrl}/${path}?foo=a&bar=b`;
+        const url = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/${path}?foo=a&bar=b`;
         config.data.general[setting] = url;
 
         await page.goto("/");

@@ -95,14 +95,6 @@ test.describe("Main navigation", () => {
         currentUser.data.permissions = ["system.monitor"];
       });
 
-      const openSubmenu = async (page) => {
-        await page.goto("/");
-        await page.locator("#mainmenu").getByTestId("navbar-monitor").click();
-        const submenu = page.locator("#mainmenu").getByTestId("submenu");
-        await expect(submenu).toBeVisible();
-        return submenu;
-      };
-
       for (const [name, monitor] of [
         ["horizon", { horizon: true, pulse: false, telescope: false }],
         ["pulse", { horizon: true, pulse: true, telescope: false }],
@@ -111,7 +103,10 @@ test.describe("Main navigation", () => {
         test(`shows ${name} entry`, async ({ page, config }) => {
           config.data.monitor = monitor;
 
-          const submenu = await openSubmenu(page);
+          await page.goto("/");
+          await page.locator("#mainmenu").getByTestId("navbar-monitor").click();
+          const submenu = page.locator("#mainmenu").getByTestId("submenu");
+          await expect(submenu).toBeVisible();
 
           const entry = submenu.getByTestId(`navbar-monitor-${name}`);
           await expect(entry).toHaveAttribute("href", `/${name}`);
@@ -129,7 +124,10 @@ test.describe("Main navigation", () => {
           telescope: true,
         };
 
-        const submenu = await openSubmenu(page);
+        await page.goto("/");
+        await page.locator("#mainmenu").getByTestId("navbar-monitor").click();
+        const submenu = page.locator("#mainmenu").getByTestId("submenu");
+        await expect(submenu).toBeVisible();
 
         await expect(
           submenu.getByTestId("navbar-monitor-horizon"),
@@ -149,7 +147,10 @@ test.describe("Main navigation", () => {
           telescope: false,
         };
 
-        const submenu = await openSubmenu(page);
+        await page.goto("/");
+        await page.locator("#mainmenu").getByTestId("navbar-monitor").click();
+        const submenu = page.locator("#mainmenu").getByTestId("submenu");
+        await expect(submenu).toBeVisible();
 
         await expect(
           submenu.getByTestId("navbar-monitor-horizon"),

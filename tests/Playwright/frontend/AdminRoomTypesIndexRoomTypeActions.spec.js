@@ -1,30 +1,10 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { expectLoginRedirect } from "../support/general.js";
 import {
-  interceptAdminRoomTypesIndexRequests,
-  interceptAdminRoomTypesNewRequests,
-  interceptAdminRoomTypesViewRequests,
-} from "../support/mocks.js";
-import { holdRequest, mockMethod } from "../support/utils.js";
-
-const roomTypeDeleteUrl = "**/api/v1/roomTypes/3";
-const isRoomTypesListRequest = (request) =>
-  new URL(request.url()).pathname === "/api/v1/roomTypes";
-const replacementRequiredMessage =
-  "Replacement room type required! Rooms are still assigned to this room type.";
-
-/**
- * Mock the room types list without the room type with id 3 (Exam).
- * @param {import("@playwright/test").Page} page
- */
-async function mockRoomTypesWithoutExam(page) {
-  const roomTypes = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/roomTypes.json", "utf8"),
-  );
-  roomTypes.data = roomTypes.data.filter((roomType) => roomType.id !== 3);
-  await mockMethod(page, "GET", "**/api/v1/roomTypes*", { json: roomTypes });
-}
+  test,
+  expect,
+  expectToastAndClose,
+} from "../support/fixtures/adminRoomTypes.js";
+import { expectLoginRedirect } from "../support/general.js";
+import { holdRequest, mockMethod, nthRequest } from "../support/utils.js";
 
 test.describe("Admin room types index room type actions", () => {
   test.use({ authenticated: true });
@@ -39,7 +19,6 @@ test.describe("Admin room types index room type actions", () => {
       "roomTypes.create",
       "roomTypes.delete",
     ];
-    await interceptAdminRoomTypesIndexRequests(page);
 
     await page.goto("/admin/room_types");
     await expect(page.getByTestId("room-type-item")).toHaveCount(2);
@@ -48,7 +27,7 @@ test.describe("Admin room types index room type actions", () => {
 
   test.describe("delete room type", () => {
     test("dialog shows room type and default replacement", async ({ page }) => {
-      const replacementRequest = page.waitForRequest(isRoomTypesListRequest);
+      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
       await page
         .getByTestId("room-type-item")
         .nth(0)
@@ -98,7 +77,7 @@ test.describe("Admin room types index room type actions", () => {
       await expect(items).toBeHidden();
     });
 
-    test("delete without replacement", async ({ page }) => {
+    test("delete without replacement", async ({ page, roomTypes }) => {
       await page
         .getByTestId("room-type-item")
         .nth(0)
@@ -106,15 +85,14 @@ test.describe("Admin room types index room type actions", () => {
         .click();
       await expect(page.getByTestId("room-types-delete-dialog")).toBeVisible();
 
-      const releaseDelete = await holdRequest(page, roomTypeDeleteUrl, {
-        status: 204,
-      });
-      await mockRoomTypesWithoutExam(page);
-
-      const deleteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "DELETE" && request.url().endsWith("/3"),
+      const deleteMock = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/roomTypes/3",
+        { status: 204, hold: true },
       );
+      roomTypes.data = roomTypes.data.filter((roomType) => roomType.id !== 3);
+
       const continueButton = page.getByTestId("dialog-continue-button");
       await expect(continueButton).toHaveText("app.yes");
       await continueButton.click();
@@ -131,8 +109,8 @@ test.describe("Admin room types index room type actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(continueButton).toBeDisabled();
 
-      releaseDelete();
-      expect((await deleteRequest).postDataJSON()).toEqual({
+      deleteMock.release();
+      expect((await nthRequest(deleteMock)).postDataJSON()).toEqual({
         replacement_room_type: null,
       });
 
@@ -146,6 +124,7 @@ test.describe("Admin room types index room type actions", () => {
 
     test("dialog can be opened for another room type after deletion", async ({
       page,
+      roomTypes,
     }) => {
       await page
         .getByTestId("room-type-item")
@@ -154,8 +133,10 @@ test.describe("Admin room types index room type actions", () => {
         .click();
       await expect(page.getByTestId("room-types-delete-dialog")).toBeVisible();
 
-      await mockMethod(page, "DELETE", roomTypeDeleteUrl, { status: 204 });
-      await mockRoomTypesWithoutExam(page);
+      await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
+        status: 204,
+      });
+      roomTypes.data = roomTypes.data.filter((roomType) => roomType.id !== 3);
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(page.getByTestId("room-types-delete-dialog")).toBeHidden();
@@ -165,7 +146,7 @@ test.describe("Admin room types index room type actions", () => {
       );
 
       // Reopen dialog for different room type
-      const replacementRequest = page.waitForRequest(isRoomTypesListRequest);
+      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
       await page
         .getByTestId("room-type-item")
         .nth(1)
@@ -181,7 +162,7 @@ test.describe("Admin room types index room type actions", () => {
       );
     });
 
-    test("delete with replacement", async ({ page }) => {
+    test("delete with replacement", async ({ page, roomTypes }) => {
       await page
         .getByTestId("room-type-item")
         .nth(0)
@@ -211,19 +192,20 @@ test.describe("Admin room types index room type actions", () => {
       ).toHaveText("Meeting");
 
       // Confirm delete of room type
-      await mockMethod(page, "DELETE", roomTypeDeleteUrl, { status: 204 });
-      await mockRoomTypesWithoutExam(page);
-
-      const deleteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "DELETE" && request.url().endsWith("/3"),
+      const deleteMock = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/roomTypes/3",
+        { status: 204 },
       );
+      roomTypes.data = roomTypes.data.filter((roomType) => roomType.id !== 3);
+
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
       );
       await page.getByTestId("dialog-continue-button").click();
 
-      expect((await deleteRequest).postDataJSON()).toEqual({
+      expect((await nthRequest(deleteMock)).postDataJSON()).toEqual({
         replacement_room_type: 2,
       });
 
@@ -236,6 +218,16 @@ test.describe("Admin room types index room type actions", () => {
     });
 
     test.describe("with opened dialog", () => {
+      const requiredMessage =
+        "Replacement room type required! Rooms are still assigned to this room type.";
+      const validationError = {
+        status: 422,
+        json: {
+          message: requiredMessage,
+          errors: { replacement_room_type: [requiredMessage] },
+        },
+      };
+
       test.beforeEach(async ({ page }) => {
         await page
           .getByTestId("room-type-item")
@@ -248,13 +240,12 @@ test.describe("Admin room types index room type actions", () => {
       });
 
       test("replacement room type required (422)", async ({ page }) => {
-        await mockMethod(page, "DELETE", roomTypeDeleteUrl, {
-          status: 422,
-          json: {
-            message: replacementRequiredMessage,
-            errors: { replacement_room_type: [replacementRequiredMessage] },
-          },
-        });
+        await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/roomTypes/3",
+          validationError,
+        );
 
         await page.getByTestId("dialog-continue-button").click();
 
@@ -264,23 +255,22 @@ test.describe("Admin room types index room type actions", () => {
         ).toBeVisible();
         await expect(
           page.getByTestId("replacement-room-type-field"),
-        ).toContainText(replacementRequiredMessage);
+        ).toContainText(requiredMessage);
       });
 
       test("server error (500) keeps dialog open and hides validation error", async ({
         page,
       }) => {
-        await mockMethod(page, "DELETE", roomTypeDeleteUrl, {
-          status: 422,
-          json: {
-            message: replacementRequiredMessage,
-            errors: { replacement_room_type: [replacementRequiredMessage] },
-          },
-        });
+        await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/roomTypes/3",
+          validationError,
+        );
         await page.getByTestId("dialog-continue-button").click();
         await expect(
           page.getByTestId("replacement-room-type-field"),
-        ).toContainText(replacementRequiredMessage);
+        ).toContainText(requiredMessage);
 
         // Select replacement room type
         await page.getByTestId("replacement-room-type-dropdown").click();
@@ -289,7 +279,7 @@ test.describe("Admin room types index room type actions", () => {
           .nth(2)
           .click();
 
-        await mockMethod(page, "DELETE", roomTypeDeleteUrl, {
+        await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
           status: 500,
           json: { message: "Test" },
         });
@@ -306,14 +296,15 @@ test.describe("Admin room types index room type actions", () => {
         ).toBeVisible();
         await expect(
           page.getByTestId("replacement-room-type-field"),
-        ).not.toContainText(replacementRequiredMessage);
+        ).not.toContainText(requiredMessage);
       });
 
       test("room type not found (404) reloads room types and closes dialog", async ({
         page,
+        roomTypes,
       }) => {
-        await mockRoomTypesWithoutExam(page);
-        await mockMethod(page, "DELETE", roomTypeDeleteUrl, {
+        roomTypes.data = roomTypes.data.filter((roomType) => roomType.id !== 3);
+        await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
           status: 404,
           json: { message: "model_not_found", model: "room_type", ids: [3] },
         });
@@ -334,7 +325,9 @@ test.describe("Admin room types index room type actions", () => {
       });
 
       test("unauthenticated (401) redirects to login", async ({ page }) => {
-        await mockMethod(page, "DELETE", roomTypeDeleteUrl, { status: 401 });
+        await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
+          status: 401,
+        });
 
         await page.getByTestId("dialog-continue-button").click();
 
@@ -346,6 +339,7 @@ test.describe("Admin room types index room type actions", () => {
   test.describe("load replacement room types errors", () => {
     test("server error (500) disables dropdown and can be reloaded", async ({
       page,
+      roomTypes,
     }) => {
       const releaseRequest = await holdRequest(page, "**/api/v1/roomTypes*", {
         status: 500,
@@ -373,12 +367,14 @@ test.describe("Admin room types index room type actions", () => {
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
 
       // Reload with correct data
-      await interceptAdminRoomTypesIndexRequests(page);
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
+        json: roomTypes,
+      });
       const reloadButton = page.getByTestId(
         "replacement-room-types-reload-button",
       );
       await expect(reloadButton).toBeVisible();
-      const reloadRequest = page.waitForRequest(isRoomTypesListRequest);
+      const reloadRequest = page.waitForRequest("**/api/v1/roomTypes*");
       await reloadButton.click();
       await reloadRequest;
 
@@ -404,16 +400,12 @@ test.describe("Admin room types index room type actions", () => {
   });
 
   test("open add new room type page", async ({ page }) => {
-    await interceptAdminRoomTypesNewRequests(page);
-
     await page.getByTestId("room-types-add-button").click();
 
     await expect(page).toHaveURL(/\/admin\/room_types\/new$/);
   });
 
   test("open edit room type page", async ({ page }) => {
-    await interceptAdminRoomTypesViewRequests(page);
-
     await page
       .getByTestId("room-type-item")
       .nth(0)
@@ -424,8 +416,6 @@ test.describe("Admin room types index room type actions", () => {
   });
 
   test("open view room type page", async ({ page }) => {
-    await interceptAdminRoomTypesViewRequests(page);
-
     await page
       .getByTestId("room-type-item")
       .nth(0)

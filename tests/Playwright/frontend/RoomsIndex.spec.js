@@ -1,165 +1,30 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsIndexMeetingsRooms.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import { holdRequest, expectActivePage, queryOf } from "../support/utils.js";
+import {
+  expectActivePage,
+  holdRequest,
+  mockMethod,
+  nthRequest,
+  queryOf,
+  readFixture,
+} from "../support/utils.js";
 
-const ROOMS_PATH = "/api/v1/rooms";
-const ROOM_TYPES_PATH = "/api/v1/roomTypes";
-const MODEL_NOT_FOUND_TOAST = [
-  'app.flash.model_not_found.title_{"model":"app.model.room"}',
-  'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
-];
-
-const readRooms = () =>
-  JSON.parse(readFileSync("tests/Playwright/fixtures/rooms.json", "utf8"));
-
-const isRoomsRequest = (request) =>
-  request.method() === "GET" && new URL(request.url()).pathname === ROOMS_PATH;
-
-function onePage(rooms, pageNumber, lastPage) {
-  const index = pageNumber - 1;
-  rooms.data = rooms.data.slice(index, index + 1);
-  rooms.meta.current_page = pageNumber;
-  rooms.meta.from = pageNumber;
-  rooms.meta.last_page = lastPage;
-  rooms.meta.per_page = 1;
-  rooms.meta.to = pageNumber;
-}
-
-function noRoomsFound(rooms) {
-  rooms.data = [];
-  rooms.meta.from = null;
-  rooms.meta.per_page = 1;
-  rooms.meta.to = null;
-  rooms.meta.total = 0;
-}
-
-function noRoomsAvailable(rooms) {
-  noRoomsFound(rooms);
-  rooms.meta.total_no_filter = 0;
-}
-
-async function mockRooms(page, mutate = () => {}) {
-  const rooms = readRooms();
-  mutate(rooms);
-  await page.route(
-    (url) => url.pathname === ROOMS_PATH,
-    (route) => {
-      if (route.request().method() !== "GET") {
-        return route.fallback();
-      }
-      return route.fulfill({ json: rooms });
-    },
-  );
-}
-
-function mockRoomsError(page, status, body) {
-  return page.route(
-    (url) => url.pathname === ROOMS_PATH,
-    (route) => route.fulfill({ status, json: body }),
-  );
-}
-
-function mockFavorite(page, method, roomId, response) {
-  return page.route(`**/api/v1/rooms/${roomId}/favorites`, (route) => {
-    if (route.request().method() !== method) {
-      return route.fallback();
-    }
-    return route.fulfill(response);
-  });
-}
-
-async function requestRoomsAfter(page, action) {
-  const request = page.waitForRequest(isRoomsRequest);
-  await action();
-  return queryOf(await request);
-}
-
-async function expectSingleRoom(page, name) {
-  await expect(page.getByTestId("room-card")).toHaveCount(1);
-  await expect(page.getByTestId("room-card")).toContainText(name);
-}
-
-async function expectControlsDisabled(page, disabled) {
-  const search = page.getByTestId("room-search");
-  const labels = [
-    page.getByTestId("room-type-dropdown").locator(".p-select-label"),
-    page.getByTestId("sorting-type-dropdown").locator(".p-select-label"),
-  ];
-
-  if (disabled) {
-    await expect(search.locator("input")).toBeDisabled();
-    await expect(search.locator("button")).toBeDisabled();
-    await expect(page.getByTestId("only-favorites-button")).toBeDisabled();
-    for (const label of labels) {
-      await expect(label).toHaveAttribute("aria-disabled", "true");
-    }
-  } else {
-    await expect(search.locator("input")).toBeEnabled();
-    await expect(search.locator("button")).toBeEnabled();
-    await expect(page.getByTestId("only-favorites-button")).toBeEnabled();
-    for (const label of labels) {
-      await expect(label).not.toHaveAttribute("aria-disabled", "true");
-    }
-  }
-}
-
-async function expectFilterButtons(page, pressed) {
-  const buttons = page.getByTestId("rooms-filter-button");
-  await expect(buttons).toHaveCount(3);
-  const texts = [
-    "rooms.index.show_own",
-    "rooms.index.show_shared",
-    "rooms.index.show_public",
-  ];
-  for (let i = 0; i < 3; i++) {
-    await expect(buttons.nth(i)).toHaveText(texts[i]);
-    await expect(buttons.nth(i)).toHaveAttribute(
-      "aria-pressed",
-      String(pressed[i]),
-    );
-  }
-}
-
-async function selectDropdownOption(page, dropdown, index) {
-  await page.getByTestId(`${dropdown}-dropdown`).click();
-  await page.getByTestId(`${dropdown}-dropdown-option`).nth(index).click();
-}
-
-async function openRoomInfoDialog(page) {
-  await expect(page.getByTestId("room-info-dialog")).toHaveCount(0);
-  await page
-    .getByTestId("room-card")
-    .nth(0)
-    .getByTestId("room-info-button")
-    .click();
-  const dialog = page.getByTestId("room-info-dialog");
-  await expect(dialog).toBeVisible();
-  return dialog;
-}
+test.use({ authenticated: true });
 
 test.describe("Rooms index", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page }) => {
-    await interceptRoomIndexRequests(page);
-  });
-
   test("visit with user that is not logged in", async ({ page }) => {
     await testVisitWithoutCurrentUser(page, "/rooms");
   });
 
   test.describe("list of rooms", () => {
-    test("loading state", async ({ page }) => {
-      const release = await holdRequest(
-        page,
-        (url) => url.pathname === ROOMS_PATH,
-        { path: "tests/Playwright/fixtures/rooms.json" },
-      );
+    test("loading state", async ({ page, rooms }) => {
+      const release = await holdRequest(page, "**/api/v1/rooms*", {
+        json: rooms.json,
+      });
 
       await page.goto("/rooms");
 
@@ -200,7 +65,16 @@ test.describe("Rooms index", () => {
       await expect(page.getByTestId("room-skeletons")).toHaveCount(0);
       await expect(page.getByTestId("overlay")).toHaveCount(0);
 
-      await expectControlsDisabled(page, false);
+      const search = page.getByTestId("room-search");
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(page.getByTestId("only-favorites-button")).toBeEnabled();
+      await expect(
+        page.getByTestId("room-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
+      await expect(
+        page.getByTestId("sorting-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
       const filterButtons = page.getByTestId("rooms-filter-button");
       await expect(filterButtons).toHaveCount(3);
       for (let i = 0; i < 3; i++) {
@@ -214,13 +88,12 @@ test.describe("Rooms index", () => {
     test("loading state with rooms.viewAll permission", async ({
       page,
       currentUser,
+      rooms,
     }) => {
       currentUser.data.permissions = ["rooms.viewAll"];
-      const release = await holdRequest(
-        page,
-        (url) => url.pathname === ROOMS_PATH,
-        { path: "tests/Playwright/fixtures/rooms.json" },
-      );
+      const release = await holdRequest(page, "**/api/v1/rooms*", {
+        json: rooms.json,
+      });
 
       await page.goto("/rooms");
 
@@ -262,7 +135,16 @@ test.describe("Rooms index", () => {
       await expect(page.getByTestId("room-skeletons")).toHaveCount(0);
       await expect(page.getByTestId("overlay")).toHaveCount(0);
 
-      await expectControlsDisabled(page, false);
+      const search = page.getByTestId("room-search");
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(page.getByTestId("only-favorites-button")).toBeEnabled();
+      await expect(
+        page.getByTestId("room-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
+      await expect(
+        page.getByTestId("sorting-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
       const filterButtons = page.getByTestId("rooms-filter-button");
       await expect(filterButtons).toHaveCount(3);
       for (let i = 0; i < 3; i++) {
@@ -343,13 +225,20 @@ test.describe("Rooms index", () => {
     test("open room info dialog and continue to room view", async ({
       page,
     }) => {
-      await page.route("**/api/v1/rooms/abc-def-123", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/room.json" }),
-      );
+      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123", {
+        json: readFixture("room.json"),
+      });
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      const dialog = await openRoomInfoDialog(page);
+      await expect(page.getByTestId("room-info-dialog")).toHaveCount(0);
+      await page
+        .getByTestId("room-card")
+        .nth(0)
+        .getByTestId("room-info-button")
+        .click();
+      const dialog = page.getByTestId("room-info-dialog");
+      await expect(dialog).toBeVisible();
       await expect(dialog.getByText("Meeting One").first()).toBeVisible();
       await expect(dialog.getByText("John Doe").first()).toBeVisible();
       await expect(
@@ -369,7 +258,7 @@ test.describe("Rooms index", () => {
 
     test("click on room card to open room view", async ({ page }) => {
       const release = await holdRequest(page, "**/api/v1/rooms/abc-def-123", {
-        path: "tests/Playwright/fixtures/room.json",
+        json: readFixture("room.json"),
       });
       await page.goto("/rooms");
 
@@ -387,12 +276,12 @@ test.describe("Rooms index", () => {
   });
 
   test.describe("sorting", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
+    test.beforeEach(async ({ rooms }) => {
+      rooms.showPage(1, 3);
     });
 
-    test("initial request and sorting options", async ({ page }) => {
-      const request = page.waitForRequest(isRoomsRequest);
+    test("initial request and sorting options", async ({ page, rooms }) => {
+      const request = rooms.next();
       await page.goto("/rooms");
       expect(queryOf(await request)).toMatchObject({
         sort_by: "last_started",
@@ -422,14 +311,17 @@ test.describe("Rooms index", () => {
       );
     });
 
-    test("change sorting", async ({ page }) => {
+    test("change sorting", async ({ page, rooms }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(1);
 
-      const query = await requestRoomsAfter(page, () =>
-        selectDropdownOption(page, "sorting-type", 1),
-      );
-      expect(query).toMatchObject({ sort_by: "alpha", page: "1" });
+      const request = rooms.next();
+      await page.getByTestId("sorting-type-dropdown").click();
+      await page.getByTestId("sorting-type-dropdown-option").nth(1).click();
+      expect(queryOf(await request)).toMatchObject({
+        sort_by: "alpha",
+        page: "1",
+      });
 
       await expect(page.getByTestId("sorting-type-dropdown-items")).toHaveCount(
         0,
@@ -438,152 +330,169 @@ test.describe("Rooms index", () => {
         "rooms.index.sorting.alpha",
       );
 
-      await expectSingleRoom(page, "Meeting One");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting One");
       await expect(page.getByTestId("paginator-page")).toHaveCount(3);
       await expectActivePage(page, 0);
     });
 
-    test("keep sorting when changing the page", async ({ page }) => {
+    test("keep sorting when changing the page", async ({ page, rooms }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(1);
-      await requestRoomsAfter(page, () =>
-        selectDropdownOption(page, "sorting-type", 1),
-      );
+      const sortRequest = rooms.next();
+      await page.getByTestId("sorting-type-dropdown").click();
+      await page.getByTestId("sorting-type-dropdown-option").nth(1).click();
+      await sortRequest;
 
-      await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-      const query = await requestRoomsAfter(page, () =>
-        page.getByTestId("paginator-next-button").nth(1).click(),
-      );
-      expect(query).toMatchObject({ sort_by: "alpha", page: "2" });
+      rooms.showPage(2, 3);
+      const request = rooms.next();
+      await page.getByTestId("paginator-next-button").nth(1).click();
+      expect(queryOf(await request)).toMatchObject({
+        sort_by: "alpha",
+        page: "2",
+      });
 
       await expect(page.getByTestId("sorting-type-dropdown")).toHaveText(
         "rooms.index.sorting.alpha",
       );
       await expectActivePage(page, 1);
-      await expectSingleRoom(page, "Meeting Two");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting Two");
     });
 
-    test("reset page when changing sorting", async ({ page }) => {
+    test("reset page when changing sorting", async ({ page, rooms }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(1);
 
-      await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-      await requestRoomsAfter(page, () =>
-        page.getByTestId("paginator-next-button").nth(1).click(),
-      );
+      rooms.showPage(2, 3);
+      const pageRequest = rooms.next();
+      await page.getByTestId("paginator-next-button").nth(1).click();
+      await pageRequest;
       await expectActivePage(page, 1);
 
-      await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-      const query = await requestRoomsAfter(page, () =>
-        selectDropdownOption(page, "sorting-type", 2),
-      );
-      expect(query).toMatchObject({ sort_by: "room_type", page: "1" });
+      rooms.showPage(1, 3);
+      const request = rooms.next();
+      await page.getByTestId("sorting-type-dropdown").click();
+      await page.getByTestId("sorting-type-dropdown-option").nth(2).click();
+      expect(queryOf(await request)).toMatchObject({
+        sort_by: "room_type",
+        page: "1",
+      });
 
       await expectActivePage(page, 0);
     });
   });
 
   test.describe("search", () => {
-    const searchInput = (page) =>
-      page.getByTestId("room-search").locator("input");
-    const searchButton = (page) =>
-      page.getByTestId("room-search").locator("button");
-
-    test("initial request has no search query", async ({ page }) => {
-      const request = page.waitForRequest(isRoomsRequest);
+    test("initial request has no search query", async ({ page, rooms }) => {
+      const request = rooms.next();
       await page.goto("/rooms");
       const query = queryOf(await request);
       expect(query.query).toBeUndefined();
       expect(query).toMatchObject({ page: "1" });
     });
 
-    test("no rooms found for the search query", async ({ page }) => {
+    test("no rooms found for the search query", async ({ page, rooms }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      await mockRooms(page, noRoomsFound);
-      await searchInput(page).fill("Test");
-      const query = await requestRoomsAfter(page, () =>
-        searchButton(page).click(),
-      );
-      expect(query).toMatchObject({ query: "Test", page: "1" });
+      rooms.showNoneFound();
+      await page.getByTestId("room-search").locator("input").fill("Test");
+      const request = rooms.next();
+      await page.getByTestId("room-search").locator("button").click();
+      expect(queryOf(await request)).toMatchObject({
+        query: "Test",
+        page: "1",
+      });
 
       await expect(page.getByText("rooms.no_rooms_found")).toBeVisible();
       await expect(page.getByTestId("room-card")).toHaveCount(0);
     });
 
-    test("no rooms available, search with enter", async ({ page }) => {
+    test("no rooms available, search with enter", async ({ page, rooms }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      await mockRooms(page, noRoomsAvailable);
-      await searchInput(page).fill("Test2");
-      const query = await requestRoomsAfter(page, () =>
-        searchInput(page).press("Enter"),
-      );
-      expect(query).toMatchObject({ query: "Test2", page: "1" });
+      rooms.showNoneAvailable();
+      const input = page.getByTestId("room-search").locator("input");
+      await input.fill("Test2");
+      const request = rooms.next();
+      await input.press("Enter");
+      expect(queryOf(await request)).toMatchObject({
+        query: "Test2",
+        page: "1",
+      });
 
       await expect(page.getByText("rooms.no_rooms_available")).toBeVisible();
       await expect(page.getByTestId("room-card")).toHaveCount(0);
     });
 
     test.describe("with 2 rooms on 2 pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, rooms }) => {
         await page.goto("/rooms");
         await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-        await mockRooms(page, (rooms) => {
-          onePage(rooms, 1, 2);
-          rooms.meta.total = 2;
+        rooms.showPage(1, 2, { total: 2 });
+        await page.getByTestId("room-search").locator("input").fill("Meeting");
+        const request = rooms.next();
+        await page.getByTestId("room-search").locator("button").click();
+        expect(queryOf(await request)).toMatchObject({
+          query: "Meeting",
+          page: "1",
         });
-        await searchInput(page).fill("Meeting");
-        const query = await requestRoomsAfter(page, () =>
-          searchButton(page).click(),
-        );
-        expect(query).toMatchObject({ query: "Meeting", page: "1" });
       });
 
       test("show first page", async ({ page }) => {
-        await expectSingleRoom(page, "Meeting One");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
         await expect(page.getByTestId("paginator-page")).toHaveCount(2);
         await expectActivePage(page, 0);
       });
 
-      test("keep search query when changing the page", async ({ page }) => {
-        await mockRooms(page, (rooms) => {
-          onePage(rooms, 2, 2);
-          rooms.meta.total = 2;
+      test("keep search query when changing the page", async ({
+        page,
+        rooms,
+      }) => {
+        rooms.showPage(2, 2, { total: 2 });
+        const request = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({
+          query: "Meeting",
+          page: "2",
         });
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        expect(query).toMatchObject({ query: "Meeting", page: "2" });
 
         await expectActivePage(page, 1);
-        await expect(searchInput(page)).toHaveValue("Meeting");
-        await expectSingleRoom(page, "Meeting Two");
+        await expect(
+          page.getByTestId("room-search").locator("input"),
+        ).toHaveValue("Meeting");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting Two",
+        );
       });
 
-      test("reset page when changing the search query", async ({ page }) => {
-        await mockRooms(page, (rooms) => {
-          onePage(rooms, 2, 2);
-          rooms.meta.total = 2;
-        });
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
+      test("reset page when changing the search query", async ({
+        page,
+        rooms,
+      }) => {
+        rooms.showPage(2, 2, { total: 2 });
+        const pageRequest = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await pageRequest;
         await expectActivePage(page, 1);
 
-        await mockRooms(page, (rooms) => {
-          onePage(rooms, 1, 2);
-          rooms.meta.total = 2;
+        rooms.showPage(1, 2, { total: 2 });
+        const input = page.getByTestId("room-search").locator("input");
+        await input.clear();
+        await input.fill("Meet");
+        const request = rooms.next();
+        await page.getByTestId("room-search").locator("button").click();
+        expect(queryOf(await request)).toMatchObject({
+          query: "Meet",
+          page: "1",
         });
-        await searchInput(page).clear();
-        await searchInput(page).fill("Meet");
-        const query = await requestRoomsAfter(page, () =>
-          searchButton(page).click(),
-        );
-        expect(query).toMatchObject({ query: "Meet", page: "1" });
 
         await expectActivePage(page, 0);
       });
@@ -591,8 +500,8 @@ test.describe("Rooms index", () => {
   });
 
   test.describe("filter room type", () => {
-    test("initial request and room type options", async ({ page }) => {
-      const request = page.waitForRequest(isRoomsRequest);
+    test("initial request and room type options", async ({ page, rooms }) => {
+      const request = rooms.next();
       await page.goto("/rooms");
       const query = queryOf(await request);
       expect(query.room_type).toBeUndefined();
@@ -616,15 +525,18 @@ test.describe("Rooms index", () => {
       await expect(options.nth(4)).toHaveText("Seminar");
     });
 
-    test("no rooms found for the room type", async ({ page }) => {
+    test("no rooms found for the room type", async ({ page, rooms }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      await mockRooms(page, noRoomsFound);
-      const query = await requestRoomsAfter(page, () =>
-        selectDropdownOption(page, "room-type", 2),
-      );
-      expect(query).toMatchObject({ room_type: "2", page: "1" });
+      rooms.showNoneFound();
+      const request = rooms.next();
+      await page.getByTestId("room-type-dropdown").click();
+      await page.getByTestId("room-type-dropdown-option").nth(2).click();
+      expect(queryOf(await request)).toMatchObject({
+        room_type: "2",
+        page: "1",
+      });
 
       await expect(page.getByTestId("room-type-dropdown-items")).toHaveCount(0);
       await expect(page.getByText("rooms.no_rooms_found")).toBeVisible();
@@ -633,15 +545,18 @@ test.describe("Rooms index", () => {
       );
     });
 
-    test("no rooms available for the room type", async ({ page }) => {
+    test("no rooms available for the room type", async ({ page, rooms }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      await mockRooms(page, noRoomsAvailable);
-      const query = await requestRoomsAfter(page, () =>
-        selectDropdownOption(page, "room-type", 3),
-      );
-      expect(query).toMatchObject({ room_type: "3", page: "1" });
+      rooms.showNoneAvailable();
+      const request = rooms.next();
+      await page.getByTestId("room-type-dropdown").click();
+      await page.getByTestId("room-type-dropdown-option").nth(3).click();
+      expect(queryOf(await request)).toMatchObject({
+        room_type: "3",
+        page: "1",
+      });
 
       await expect(page.getByTestId("room-type-dropdown-items")).toHaveCount(0);
       await expect(page.getByText("rooms.no_rooms_available")).toBeVisible();
@@ -649,15 +564,18 @@ test.describe("Rooms index", () => {
     });
 
     test.describe("with 3 rooms on 3 pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, rooms }) => {
         await page.goto("/rooms");
         await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          selectDropdownOption(page, "room-type", 4),
-        );
-        expect(query).toMatchObject({ room_type: "4", page: "1" });
+        rooms.showPage(1, 3);
+        const request = rooms.next();
+        await page.getByTestId("room-type-dropdown").click();
+        await page.getByTestId("room-type-dropdown-option").nth(4).click();
+        expect(queryOf(await request)).toMatchObject({
+          room_type: "4",
+          page: "1",
+        });
       });
 
       test("show first page", async ({ page }) => {
@@ -667,47 +585,61 @@ test.describe("Rooms index", () => {
         await expect(page.getByTestId("room-type-dropdown")).toHaveText(
           "Seminar",
         );
-        await expectSingleRoom(page, "Meeting One");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
         await expect(page.getByTestId("paginator-page")).toHaveCount(3);
         await expectActivePage(page, 0);
       });
 
-      test("keep room type when changing the page", async ({ page }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        expect(query).toMatchObject({ room_type: "4", page: "2" });
+      test("keep room type when changing the page", async ({ page, rooms }) => {
+        rooms.showPage(2, 3);
+        const request = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({
+          room_type: "4",
+          page: "2",
+        });
 
         await expectActivePage(page, 1);
         await expect(page.getByTestId("room-type-dropdown")).toHaveText(
           "Seminar",
         );
-        await expectSingleRoom(page, "Meeting Two");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting Two",
+        );
       });
 
-      test("reset page when changing the room type", async ({ page }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
+      test("reset page when changing the room type", async ({
+        page,
+        rooms,
+      }) => {
+        rooms.showPage(2, 3);
+        const pageRequest = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await pageRequest;
         await expectActivePage(page, 1);
 
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          selectDropdownOption(page, "room-type", 1),
-        );
-        expect(query).toMatchObject({ room_type: "1", page: "1" });
+        rooms.showPage(1, 3);
+        const request = rooms.next();
+        await page.getByTestId("room-type-dropdown").click();
+        await page.getByTestId("room-type-dropdown-option").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({
+          room_type: "1",
+          page: "1",
+        });
 
         await expectActivePage(page, 0);
       });
 
-      test("reset to all room types", async ({ page }) => {
-        await mockRooms(page);
-        const query = await requestRoomsAfter(page, () =>
-          selectDropdownOption(page, "room-type", 0),
-        );
-        expect(query.room_type).toBeUndefined();
+      test("reset to all room types", async ({ page, rooms }) => {
+        rooms.showAll();
+        const request = rooms.next();
+        await page.getByTestId("room-type-dropdown").click();
+        await page.getByTestId("room-type-dropdown-option").nth(0).click();
+        expect(queryOf(await request).room_type).toBeUndefined();
 
         await expect(page.getByTestId("room-card")).toHaveCount(3);
       });
@@ -715,8 +647,8 @@ test.describe("Rooms index", () => {
   });
 
   test.describe("filter without viewAll permission", () => {
-    test("initial filters", async ({ page }) => {
-      const request = page.waitForRequest(isRoomsRequest);
+    test("initial filters", async ({ page, rooms }) => {
+      const request = rooms.next();
       await page.goto("/rooms");
       expect(queryOf(await request)).toMatchObject({
         filter_own: "1",
@@ -726,19 +658,55 @@ test.describe("Rooms index", () => {
         page: "1",
       });
 
-      await expectFilterButtons(page, [true, true, false]);
+      const filterButtons = page.getByTestId("rooms-filter-button");
+      await expect(filterButtons).toHaveText([
+        "rooms.index.show_own",
+        "rooms.index.show_shared",
+        "rooms.index.show_public",
+      ]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
       await expect(page.getByTestId("rooms-filter-all-button")).toHaveCount(0);
     });
 
-    test("no rooms available for the filter combination", async ({ page }) => {
+    test("no rooms available for the filter combination", async ({
+      page,
+      rooms,
+    }) => {
       await page.goto("/rooms");
-      await expectFilterButtons(page, [true, true, false]);
-
-      await mockRooms(page, noRoomsAvailable);
-      const query = await requestRoomsAfter(page, () =>
-        page.getByTestId("rooms-filter-button").nth(1).click(),
+      const filterButtons = page.getByTestId("rooms-filter-button");
+      await expect(filterButtons).toHaveText([
+        "rooms.index.show_own",
+        "rooms.index.show_shared",
+        "rooms.index.show_public",
+      ]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
       );
-      expect(query).toMatchObject({
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+
+      rooms.showNoneAvailable();
+      const request = rooms.next();
+      await filterButtons.nth(1).click();
+      expect(queryOf(await request)).toMatchObject({
         filter_own: "1",
         filter_shared: "0",
         filter_public: "0",
@@ -747,25 +715,55 @@ test.describe("Rooms index", () => {
       });
 
       await expect(page.getByText("rooms.no_rooms_available")).toBeVisible();
-      await expectFilterButtons(page, [true, false, false]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
     });
 
     test.describe("with 3 rooms on 3 pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, rooms }) => {
         await page.goto("/rooms");
-        await expectFilterButtons(page, [true, true, false]);
-
-        await mockRooms(page);
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("rooms-filter-button").nth(1).click(),
+        const filterButtons = page.getByTestId("rooms-filter-button");
+        await expect(filterButtons).toHaveText([
+          "rooms.index.show_own",
+          "rooms.index.show_shared",
+          "rooms.index.show_public",
+        ]);
+        await expect(filterButtons.nth(0)).toHaveAttribute(
+          "aria-pressed",
+          "true",
         );
-        await expectFilterButtons(page, [true, false, false]);
-
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("rooms-filter-button").nth(2).click(),
+        await expect(filterButtons.nth(1)).toHaveAttribute(
+          "aria-pressed",
+          "true",
         );
-        expect(query).toMatchObject({
+        await expect(filterButtons.nth(2)).toHaveAttribute(
+          "aria-pressed",
+          "false",
+        );
+
+        rooms.showAll();
+        const sharedRequest = rooms.next();
+        await filterButtons.nth(1).click();
+        await sharedRequest;
+        await expect(filterButtons.nth(1)).toHaveAttribute(
+          "aria-pressed",
+          "false",
+        );
+
+        rooms.showPage(1, 3);
+        const request = rooms.next();
+        await filterButtons.nth(2).click();
+        expect(queryOf(await request)).toMatchObject({
           filter_own: "1",
           filter_shared: "0",
           filter_public: "1",
@@ -775,18 +773,32 @@ test.describe("Rooms index", () => {
       });
 
       test("show first page", async ({ page }) => {
-        await expectSingleRoom(page, "Meeting One");
-        await expectFilterButtons(page, [true, false, true]);
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
+        const filterButtons = page.getByTestId("rooms-filter-button");
+        await expect(filterButtons.nth(0)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+        await expect(filterButtons.nth(1)).toHaveAttribute(
+          "aria-pressed",
+          "false",
+        );
+        await expect(filterButtons.nth(2)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
         await expect(page.getByTestId("paginator-page")).toHaveCount(3);
         await expectActivePage(page, 0);
       });
 
-      test("keep filters when changing the page", async ({ page }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        expect(query).toMatchObject({
+      test("keep filters when changing the page", async ({ page, rooms }) => {
+        rooms.showPage(2, 3);
+        const request = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({
           filter_own: "1",
           filter_shared: "0",
           filter_public: "1",
@@ -795,22 +807,37 @@ test.describe("Rooms index", () => {
         });
 
         await expectActivePage(page, 1);
-        await expectSingleRoom(page, "Meeting Two");
-        await expectFilterButtons(page, [true, false, true]);
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting Two",
+        );
+        const filterButtons = page.getByTestId("rooms-filter-button");
+        await expect(filterButtons.nth(0)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+        await expect(filterButtons.nth(1)).toHaveAttribute(
+          "aria-pressed",
+          "false",
+        );
+        await expect(filterButtons.nth(2)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
       });
 
-      test("reset page when changing the filters", async ({ page }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
+      test("reset page when changing the filters", async ({ page, rooms }) => {
+        rooms.showPage(2, 3);
+        const pageRequest = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await pageRequest;
         await expectActivePage(page, 1);
 
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("rooms-filter-button").nth(0).click(),
-        );
-        expect(query).toMatchObject({
+        rooms.showPage(1, 3);
+        const filterButtons = page.getByTestId("rooms-filter-button");
+        const request = rooms.next();
+        await filterButtons.nth(0).click();
+        expect(queryOf(await request)).toMatchObject({
           filter_own: "0",
           filter_shared: "0",
           filter_public: "1",
@@ -818,8 +845,22 @@ test.describe("Rooms index", () => {
           page: "1",
         });
 
-        await expectSingleRoom(page, "Meeting One");
-        await expectFilterButtons(page, [false, false, true]);
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
+        await expect(filterButtons.nth(0)).toHaveAttribute(
+          "aria-pressed",
+          "false",
+        );
+        await expect(filterButtons.nth(1)).toHaveAttribute(
+          "aria-pressed",
+          "false",
+        );
+        await expect(filterButtons.nth(2)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
       });
     });
   });
@@ -829,10 +870,8 @@ test.describe("Rooms index", () => {
       currentUser.data.permissions = ["rooms.viewAll"];
     });
 
-    const allButton = (page) => page.getByTestId("rooms-filter-all-button");
-
-    test("initial filters", async ({ page }) => {
-      const request = page.waitForRequest(isRoomsRequest);
+    test("initial filters", async ({ page, rooms }) => {
+      const request = rooms.next();
       await page.goto("/rooms");
       expect(queryOf(await request)).toMatchObject({
         filter_own: "1",
@@ -842,20 +881,58 @@ test.describe("Rooms index", () => {
         page: "1",
       });
 
-      await expect(allButton(page)).toHaveText("rooms.index.show_all");
-      await expect(allButton(page)).toHaveAttribute("aria-pressed", "false");
-      await expectFilterButtons(page, [true, true, false]);
+      const allButton = page.getByTestId("rooms-filter-all-button");
+      await expect(allButton).toHaveText("rooms.index.show_all");
+      await expect(allButton).toHaveAttribute("aria-pressed", "false");
+      const filterButtons = page.getByTestId("rooms-filter-button");
+      await expect(filterButtons).toHaveText([
+        "rooms.index.show_own",
+        "rooms.index.show_shared",
+        "rooms.index.show_public",
+      ]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
     });
 
-    test("filter all hides the other filter buttons", async ({ page }) => {
+    test("filter all hides the other filter buttons", async ({
+      page,
+      rooms,
+    }) => {
       await page.goto("/rooms");
-      await expectFilterButtons(page, [true, true, false]);
-
-      await mockRooms(page, noRoomsAvailable);
-      const query = await requestRoomsAfter(page, () =>
-        allButton(page).click(),
+      const filterButtons = page.getByTestId("rooms-filter-button");
+      await expect(filterButtons).toHaveText([
+        "rooms.index.show_own",
+        "rooms.index.show_shared",
+        "rooms.index.show_public",
+      ]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
       );
-      expect(query).toMatchObject({
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+
+      rooms.showNoneAvailable();
+      const allButton = page.getByTestId("rooms-filter-all-button");
+      const request = rooms.next();
+      await allButton.click();
+      expect(queryOf(await request)).toMatchObject({
         filter_own: "1",
         filter_shared: "1",
         filter_public: "0",
@@ -864,26 +941,46 @@ test.describe("Rooms index", () => {
       });
 
       await expect(page.getByText("rooms.no_rooms_available")).toBeVisible();
-      await expect(allButton(page)).toHaveText("rooms.index.show_all");
-      await expect(allButton(page)).toHaveAttribute("aria-pressed", "true");
+      await expect(allButton).toHaveText("rooms.index.show_all");
+      await expect(allButton).toHaveAttribute("aria-pressed", "true");
       await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
     });
 
     test("trigger filter all again restores the other filter buttons", async ({
       page,
+      rooms,
     }) => {
       await page.goto("/rooms");
-      await expectFilterButtons(page, [true, true, false]);
+      const filterButtons = page.getByTestId("rooms-filter-button");
+      await expect(filterButtons).toHaveText([
+        "rooms.index.show_own",
+        "rooms.index.show_shared",
+        "rooms.index.show_public",
+      ]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
 
-      await mockRooms(page, noRoomsAvailable);
-      await requestRoomsAfter(page, () => allButton(page).click());
+      rooms.showNoneAvailable();
+      const allButton = page.getByTestId("rooms-filter-all-button");
+      const allRequest = rooms.next();
+      await allButton.click();
+      await allRequest;
       await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
 
-      await mockRooms(page);
-      const query = await requestRoomsAfter(page, () =>
-        allButton(page).click(),
-      );
-      expect(query).toMatchObject({
+      rooms.showAll();
+      const request = rooms.next();
+      await allButton.click();
+      expect(queryOf(await request)).toMatchObject({
         filter_own: "1",
         filter_shared: "1",
         filter_public: "0",
@@ -891,19 +988,51 @@ test.describe("Rooms index", () => {
         page: "1",
       });
 
-      await expect(allButton(page)).toHaveText("rooms.index.show_all");
-      await expect(allButton(page)).toHaveAttribute("aria-pressed", "false");
-      await expectFilterButtons(page, [true, true, false]);
+      await expect(allButton).toHaveText("rooms.index.show_all");
+      await expect(allButton).toHaveAttribute("aria-pressed", "false");
+      await expect(filterButtons).toHaveText([
+        "rooms.index.show_own",
+        "rooms.index.show_shared",
+        "rooms.index.show_public",
+      ]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
     });
 
-    test("trigger filter button", async ({ page }) => {
+    test("trigger filter button", async ({ page, rooms }) => {
       await page.goto("/rooms");
-      await expectFilterButtons(page, [true, true, false]);
-
-      const query = await requestRoomsAfter(page, () =>
-        page.getByTestId("rooms-filter-button").nth(2).click(),
+      const filterButtons = page.getByTestId("rooms-filter-button");
+      await expect(filterButtons).toHaveText([
+        "rooms.index.show_own",
+        "rooms.index.show_shared",
+        "rooms.index.show_public",
+      ]);
+      await expect(filterButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
       );
-      expect(query).toMatchObject({
+      await expect(filterButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(filterButtons.nth(2)).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+
+      const request = rooms.next();
+      await filterButtons.nth(2).click();
+      expect(queryOf(await request)).toMatchObject({
         filter_own: "1",
         filter_shared: "1",
         filter_public: "1",
@@ -913,19 +1042,35 @@ test.describe("Rooms index", () => {
     });
 
     test.describe("filter all with 3 rooms on 3 pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, rooms }) => {
         await page.goto("/rooms");
-        await expectFilterButtons(page, [true, true, false]);
-
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("rooms-filter-button").nth(2).click(),
+        const filterButtons = page.getByTestId("rooms-filter-button");
+        await expect(filterButtons).toHaveText([
+          "rooms.index.show_own",
+          "rooms.index.show_shared",
+          "rooms.index.show_public",
+        ]);
+        await expect(filterButtons.nth(0)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+        await expect(filterButtons.nth(1)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+        await expect(filterButtons.nth(2)).toHaveAttribute(
+          "aria-pressed",
+          "false",
         );
 
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          allButton(page).click(),
-        );
-        expect(query).toMatchObject({
+        const publicRequest = rooms.next();
+        await filterButtons.nth(2).click();
+        await publicRequest;
+
+        rooms.showPage(1, 3);
+        const request = rooms.next();
+        await page.getByTestId("rooms-filter-all-button").click();
+        expect(queryOf(await request)).toMatchObject({
           filter_own: "1",
           filter_shared: "1",
           filter_public: "1",
@@ -935,19 +1080,26 @@ test.describe("Rooms index", () => {
       });
 
       test("show first page", async ({ page }) => {
-        await expectSingleRoom(page, "Meeting One");
-        await expect(allButton(page)).toHaveAttribute("aria-pressed", "true");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
+        await expect(
+          page.getByTestId("rooms-filter-all-button"),
+        ).toHaveAttribute("aria-pressed", "true");
         await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
         await expect(page.getByTestId("paginator-page")).toHaveCount(3);
         await expectActivePage(page, 0);
       });
 
-      test("keep filter all when changing the page", async ({ page }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        expect(query).toMatchObject({
+      test("keep filter all when changing the page", async ({
+        page,
+        rooms,
+      }) => {
+        rooms.showPage(2, 3);
+        const request = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({
           filter_own: "1",
           filter_shared: "1",
           filter_public: "1",
@@ -956,25 +1108,31 @@ test.describe("Rooms index", () => {
         });
 
         await expectActivePage(page, 1);
-        await expectSingleRoom(page, "Meeting Two");
-        await expect(allButton(page)).toHaveAttribute("aria-pressed", "true");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting Two",
+        );
+        await expect(
+          page.getByTestId("rooms-filter-all-button"),
+        ).toHaveAttribute("aria-pressed", "true");
         await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
       });
 
       test("reset page and restore filter buttons when disabling filter all", async ({
         page,
+        rooms,
       }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
+        rooms.showPage(2, 3);
+        const pageRequest = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await pageRequest;
         await expectActivePage(page, 1);
 
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          allButton(page).click(),
-        );
-        expect(query).toMatchObject({
+        rooms.showPage(1, 3);
+        const allButton = page.getByTestId("rooms-filter-all-button");
+        const request = rooms.next();
+        await allButton.click();
+        expect(queryOf(await request)).toMatchObject({
           filter_own: "1",
           filter_shared: "1",
           filter_public: "1",
@@ -983,11 +1141,31 @@ test.describe("Rooms index", () => {
         });
 
         await expectActivePage(page, 0);
-        await expectSingleRoom(page, "Meeting One");
-        await expect(allButton(page)).toHaveAttribute("aria-pressed", "false");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
+        await expect(allButton).toHaveAttribute("aria-pressed", "false");
 
         // The other filter buttons are shown again and still have the same state
-        await expectFilterButtons(page, [true, true, true]);
+        const filterButtons = page.getByTestId("rooms-filter-button");
+        await expect(filterButtons).toHaveText([
+          "rooms.index.show_own",
+          "rooms.index.show_shared",
+          "rooms.index.show_public",
+        ]);
+        await expect(filterButtons.nth(0)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+        await expect(filterButtons.nth(1)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+        await expect(filterButtons.nth(2)).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
       });
     });
   });
@@ -997,256 +1175,289 @@ test.describe("Rooms index", () => {
       currentUser.data.permissions = ["rooms.viewAll"];
     });
 
-    const favoritesButton = (page) => page.getByTestId("only-favorites-button");
-
-    async function expectFilterOptionsVisible(page) {
-      await expect(page.getByTestId("rooms-filter-all-button")).toBeVisible();
-      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(3);
-      await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
-    }
-
-    async function expectFilterOptionsHidden(page) {
-      await expect(page.getByTestId("rooms-filter-all-button")).toHaveCount(0);
-      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
-      await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
-    }
-
-    test("initial request and filter options", async ({ page }) => {
-      const request = page.waitForRequest(isRoomsRequest);
+    test("initial request and filter options", async ({ page, rooms }) => {
+      const request = rooms.next();
       await page.goto("/rooms");
       expect(queryOf(await request)).toMatchObject({
         only_favorites: "0",
         page: "1",
       });
 
-      await expectFilterOptionsVisible(page);
+      await expect(page.getByTestId("rooms-filter-all-button")).toBeVisible();
+      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(3);
+      await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
     });
 
-    test("no favorites", async ({ page }) => {
+    test("no favorites", async ({ page, rooms }) => {
       await page.goto("/rooms");
-      await expectFilterOptionsVisible(page);
+      await expect(page.getByTestId("rooms-filter-all-button")).toBeVisible();
+      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(3);
+      await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
 
-      await mockRooms(page, noRoomsAvailable);
-      await expect(favoritesButton(page)).toHaveText(
-        "rooms.index.only_favorites",
-      );
-      const query = await requestRoomsAfter(page, () =>
-        favoritesButton(page).click(),
-      );
-      expect(query).toMatchObject({ only_favorites: "1", page: "1" });
+      rooms.showNoneAvailable();
+      const favoritesButton = page.getByTestId("only-favorites-button");
+      await expect(favoritesButton).toHaveText("rooms.index.only_favorites");
+      const request = rooms.next();
+      await favoritesButton.click();
+      expect(queryOf(await request)).toMatchObject({
+        only_favorites: "1",
+        page: "1",
+      });
 
       await expect(page.getByText("rooms.index.no_favorites")).toBeVisible();
       await expect(page.getByTestId("room-card")).toHaveCount(0);
-      await expectFilterOptionsHidden(page);
+      await expect(page.getByTestId("rooms-filter-all-button")).toHaveCount(0);
+      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
+      await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
     });
 
     test("disable only favorites shows the filter options again", async ({
       page,
+      rooms,
     }) => {
       await page.goto("/rooms");
-      await expectFilterOptionsVisible(page);
+      await expect(page.getByTestId("rooms-filter-all-button")).toBeVisible();
+      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(3);
+      await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
 
-      await mockRooms(page, noRoomsAvailable);
-      await requestRoomsAfter(page, () => favoritesButton(page).click());
-      await expectFilterOptionsHidden(page);
+      rooms.showNoneAvailable();
+      const favoritesButton = page.getByTestId("only-favorites-button");
+      const favoritesRequest = rooms.next();
+      await favoritesButton.click();
+      await favoritesRequest;
+      await expect(page.getByTestId("rooms-filter-all-button")).toHaveCount(0);
+      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
+      await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
 
-      await mockRooms(page);
-      const query = await requestRoomsAfter(page, () =>
-        favoritesButton(page).click(),
-      );
-      expect(query).toMatchObject({ only_favorites: "0", page: "1" });
+      rooms.showAll();
+      const request = rooms.next();
+      await favoritesButton.click();
+      expect(queryOf(await request)).toMatchObject({
+        only_favorites: "0",
+        page: "1",
+      });
 
-      await expectFilterOptionsVisible(page);
+      await expect(page.getByTestId("rooms-filter-all-button")).toBeVisible();
+      await expect(page.getByTestId("rooms-filter-button")).toHaveCount(3);
+      await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
     });
 
     test.describe("with 3 rooms on 3 pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, rooms }) => {
         await page.goto("/rooms");
-        await expectFilterOptionsVisible(page);
+        await expect(page.getByTestId("rooms-filter-all-button")).toBeVisible();
+        await expect(page.getByTestId("rooms-filter-button")).toHaveCount(3);
+        await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
 
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          favoritesButton(page).click(),
-        );
-        expect(query).toMatchObject({ only_favorites: "1", page: "1" });
+        rooms.showPage(1, 3);
+        const request = rooms.next();
+        await page.getByTestId("only-favorites-button").click();
+        expect(queryOf(await request)).toMatchObject({
+          only_favorites: "1",
+          page: "1",
+        });
       });
 
       test("show first page", async ({ page }) => {
-        await expectFilterOptionsHidden(page);
-        await expectSingleRoom(page, "Meeting One");
+        await expect(page.getByTestId("rooms-filter-all-button")).toHaveCount(
+          0,
+        );
+        await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
+        await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
         await expect(page.getByTestId("paginator-page")).toHaveCount(3);
         await expectActivePage(page, 0);
       });
 
-      test("keep only favorites when changing the page", async ({ page }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        expect(query).toMatchObject({ only_favorites: "1", page: "2" });
+      test("keep only favorites when changing the page", async ({
+        page,
+        rooms,
+      }) => {
+        rooms.showPage(2, 3);
+        const request = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({
+          only_favorites: "1",
+          page: "2",
+        });
 
         await expectActivePage(page, 1);
-        await expectFilterOptionsHidden(page);
-        await expectSingleRoom(page, "Meeting Two");
+        await expect(page.getByTestId("rooms-filter-all-button")).toHaveCount(
+          0,
+        );
+        await expect(page.getByTestId("rooms-filter-button")).toHaveCount(0);
+        await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting Two",
+        );
       });
 
-      test("reset page when disabling only favorites", async ({ page }) => {
-        await mockRooms(page, (rooms) => onePage(rooms, 2, 3));
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
+      test("reset page when disabling only favorites", async ({
+        page,
+        rooms,
+      }) => {
+        rooms.showPage(2, 3);
+        const pageRequest = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await pageRequest;
         await expectActivePage(page, 1);
 
-        await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
-        const query = await requestRoomsAfter(page, () =>
-          favoritesButton(page).click(),
-        );
-        expect(query).toMatchObject({ only_favorites: "0", page: "1" });
+        rooms.showPage(1, 3);
+        const request = rooms.next();
+        await page.getByTestId("only-favorites-button").click();
+        expect(queryOf(await request)).toMatchObject({
+          only_favorites: "0",
+          page: "1",
+        });
 
         await expectActivePage(page, 0);
-        await expectFilterOptionsVisible(page);
-        await expectSingleRoom(page, "Meeting One");
+        await expect(page.getByTestId("rooms-filter-all-button")).toBeVisible();
+        await expect(page.getByTestId("rooms-filter-button")).toHaveCount(3);
+        await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting One",
+        );
       });
     });
   });
 
   test.describe("trigger favorites button", () => {
-    const favoritesButtonOfCard = (page) =>
-      page.getByTestId("room-card").nth(0).getByTestId("room-favorites-button");
-
-    const addLabel = (name) => `rooms.favorites.add_for_{"room":"${name}"}`;
-    const removeLabel = (name) =>
-      `rooms.favorites.remove_for_{"room":"${name}"}`;
-
-    /**
-     * Visit the rooms, 3 rooms on 3 pages. Optionally continue to the second page
-     */
-    async function visitRooms(page, { secondPage = false, mutate } = {}) {
-      await mockRooms(page, (rooms) => {
-        onePage(rooms, 1, 3);
-        mutate?.(rooms, 1);
-      });
+    test("add room to favorites from the room card", async ({
+      page,
+      rooms,
+    }) => {
+      rooms.showPage(1, 3);
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(1);
-
-      if (secondPage) {
-        await mockRooms(page, (rooms) => {
-          onePage(rooms, 2, 3);
-          mutate?.(rooms, 2);
-        });
-        await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        await expectSingleRoom(page, "Meeting Two");
-      }
-    }
-
-    test("add room to favorites from the room card", async ({ page }) => {
-      await visitRooms(page);
-      await expect(favoritesButtonOfCard(page)).toHaveAttribute(
+      const favoritesButton = page
+        .getByTestId("room-card")
+        .nth(0)
+        .getByTestId("room-favorites-button");
+      await expect(favoritesButton).toHaveAttribute(
         "aria-label",
-        addLabel("Meeting One"),
+        'rooms.favorites.add_for_{"room":"Meeting One"}',
       );
 
-      const release = await holdRequest(
+      const favorite = await mockMethod(
         page,
+        "POST",
         "**/api/v1/rooms/abc-def-123/favorites",
-        { status: 204 },
+        { status: 204, hold: true },
       );
-      await mockRooms(page, (rooms) => {
-        onePage(rooms, 1, 3);
-        rooms.data[0].is_favorite = true;
-      });
+      rooms.showPage(1, 3);
+      rooms.json.data[0].is_favorite = true;
 
-      const favoriteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "POST" &&
-          request.url().endsWith("/rooms/abc-def-123/favorites"),
-      );
-      await favoritesButtonOfCard(page).click();
-      await expect(favoritesButtonOfCard(page)).toBeDisabled();
+      await favoritesButton.click();
+      await nthRequest(favorite);
+      await expect(favoritesButton).toBeDisabled();
 
-      const roomsRequest = page.waitForRequest(isRoomsRequest);
-      release();
-      await favoriteRequest;
+      const roomsRequest = rooms.next();
+      favorite.release();
       expect(queryOf(await roomsRequest)).toMatchObject({ page: "1" });
 
-      await expect(favoritesButtonOfCard(page)).toHaveAttribute(
+      await expect(favoritesButton).toHaveAttribute(
         "aria-label",
-        removeLabel("Meeting One"),
+        'rooms.favorites.remove_for_{"room":"Meeting One"}',
       );
     });
 
-    test("remove room from favorites from the room card", async ({ page }) => {
-      await visitRooms(page, { secondPage: true });
-      await expect(favoritesButtonOfCard(page)).toHaveAttribute(
+    test("remove room from favorites from the room card", async ({
+      page,
+      rooms,
+    }) => {
+      rooms.showPage(1, 3);
+      await page.goto("/rooms");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      rooms.showPage(2, 3);
+      const pageRequest = rooms.next();
+      await page.getByTestId("paginator-next-button").nth(1).click();
+      await pageRequest;
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting Two");
+
+      const favoritesButton = page
+        .getByTestId("room-card")
+        .nth(0)
+        .getByTestId("room-favorites-button");
+      await expect(favoritesButton).toHaveAttribute(
         "aria-label",
-        removeLabel("Meeting Two"),
+        'rooms.favorites.remove_for_{"room":"Meeting Two"}',
       );
 
-      const release = await holdRequest(
+      const favorite = await mockMethod(
         page,
+        "DELETE",
         "**/api/v1/rooms/def-abc-123/favorites",
-        { status: 204 },
+        { status: 204, hold: true },
       );
-      await mockRooms(page, (rooms) => {
-        onePage(rooms, 2, 3);
-        rooms.data[0].is_favorite = false;
-        rooms.data[0].short_description = "Room short descriptions";
-      });
+      rooms.showPage(2, 3);
+      rooms.json.data[0].is_favorite = false;
+      rooms.json.data[0].short_description = "Room short descriptions";
 
-      const favoriteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "DELETE" &&
-          request.url().endsWith("/rooms/def-abc-123/favorites"),
-      );
-      await favoritesButtonOfCard(page).click();
-      await expect(favoritesButtonOfCard(page)).toBeDisabled();
+      await favoritesButton.click();
+      await nthRequest(favorite);
+      await expect(favoritesButton).toBeDisabled();
 
-      const roomsRequest = page.waitForRequest(isRoomsRequest);
-      release();
-      await favoriteRequest;
+      const roomsRequest = rooms.next();
+      favorite.release();
       // Check that page stayed the same
       expect(queryOf(await roomsRequest)).toMatchObject({ page: "2" });
 
-      await expect(favoritesButtonOfCard(page)).toHaveAttribute(
+      await expect(favoritesButton).toHaveAttribute(
         "aria-label",
-        addLabel("Meeting Two"),
+        'rooms.favorites.add_for_{"room":"Meeting Two"}',
       );
     });
 
     test("add room to favorites from the room info dialog", async ({
       page,
+      rooms,
     }) => {
-      await visitRooms(page, {
-        secondPage: true,
-        mutate: (rooms) => {
-          rooms.data[0].is_favorite = false;
-          rooms.data[0].short_description = "Room short descriptions";
-        },
-      });
+      rooms.showPage(1, 3);
+      rooms.json.data[0].is_favorite = false;
+      rooms.json.data[0].short_description = "Room short descriptions";
+      await page.goto("/rooms");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      rooms.showPage(2, 3);
+      rooms.json.data[0].is_favorite = false;
+      rooms.json.data[0].short_description = "Room short descriptions";
+      const pageRequest = rooms.next();
+      await page.getByTestId("paginator-next-button").nth(1).click();
+      await pageRequest;
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting Two");
 
-      await mockFavorite(page, "POST", "def-abc-123", { status: 204 });
-      await mockRooms(page, (rooms) => {
-        onePage(rooms, 2, 3);
-        rooms.data[0].short_description = "Room short descriptions";
-      });
-
-      const dialog = await openRoomInfoDialog(page);
-      const favoriteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "POST" &&
-          request.url().endsWith("/rooms/def-abc-123/favorites"),
+      const favorite = await mockMethod(
+        page,
+        "POST",
+        "**/api/v1/rooms/def-abc-123/favorites",
+        { status: 204 },
       );
-      const roomsRequest = page.waitForRequest(isRoomsRequest);
+      rooms.showPage(2, 3);
+      rooms.json.data[0].short_description = "Room short descriptions";
+
+      await expect(page.getByTestId("room-info-dialog")).toHaveCount(0);
+      await page
+        .getByTestId("room-card")
+        .nth(0)
+        .getByTestId("room-info-button")
+        .click();
+      const dialog = page.getByTestId("room-info-dialog");
+      await expect(dialog).toBeVisible();
+      const roomsRequest = rooms.next();
       const button = dialog.getByTestId("room-favorites-button");
       await expect(button).toHaveAttribute(
         "aria-label",
-        addLabel("Meeting Two"),
+        'rooms.favorites.add_for_{"room":"Meeting Two"}',
       );
       await button.click();
 
-      await favoriteRequest;
+      await nthRequest(favorite);
       expect(queryOf(await roomsRequest)).toMatchObject({ page: "2" });
 
       await expect(page.getByTestId("room-info-dialog")).toHaveCount(0);
@@ -1254,190 +1465,249 @@ test.describe("Rooms index", () => {
 
     test("remove room from favorites from the room info dialog", async ({
       page,
+      rooms,
     }) => {
-      await visitRooms(page, {
-        secondPage: true,
-        mutate: (rooms) => {
-          rooms.data[0].short_description = "Room short descriptions";
-        },
-      });
+      rooms.showPage(1, 3);
+      rooms.json.data[0].short_description = "Room short descriptions";
+      await page.goto("/rooms");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      rooms.showPage(2, 3);
+      rooms.json.data[0].short_description = "Room short descriptions";
+      const pageRequest = rooms.next();
+      await page.getByTestId("paginator-next-button").nth(1).click();
+      await pageRequest;
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting Two");
 
-      await mockFavorite(page, "DELETE", "def-abc-123", { status: 204 });
-      await mockRooms(page, (rooms) => {
-        onePage(rooms, 2, 3);
-        rooms.data[0].is_favorite = false;
-        rooms.data[0].short_description = "Room short descriptions";
-      });
-
-      const dialog = await openRoomInfoDialog(page);
-      const favoriteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "DELETE" &&
-          request.url().endsWith("/rooms/def-abc-123/favorites"),
+      const favorite = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/rooms/def-abc-123/favorites",
+        { status: 204 },
       );
-      const roomsRequest = page.waitForRequest(isRoomsRequest);
+      rooms.showPage(2, 3);
+      rooms.json.data[0].is_favorite = false;
+      rooms.json.data[0].short_description = "Room short descriptions";
+
+      await expect(page.getByTestId("room-info-dialog")).toHaveCount(0);
+      await page
+        .getByTestId("room-card")
+        .nth(0)
+        .getByTestId("room-info-button")
+        .click();
+      const dialog = page.getByTestId("room-info-dialog");
+      await expect(dialog).toBeVisible();
+      const roomsRequest = rooms.next();
       const button = dialog.getByTestId("room-favorites-button");
       await expect(button).toHaveAttribute(
         "aria-label",
-        removeLabel("Meeting Two"),
+        'rooms.favorites.remove_for_{"room":"Meeting Two"}',
       );
       await button.click();
 
-      await favoriteRequest;
+      await nthRequest(favorite);
       expect(queryOf(await roomsRequest)).toMatchObject({ page: "2" });
       await expect(page.getByTestId("room-info-dialog")).toHaveCount(0);
 
       // The reopened dialog shows the new state
-      const reopenedDialog = await openRoomInfoDialog(page);
+      await page
+        .getByTestId("room-card")
+        .nth(0)
+        .getByTestId("room-info-button")
+        .click();
+      const reopenedDialog = page.getByTestId("room-info-dialog");
+      await expect(reopenedDialog).toBeVisible();
       await expect(
         reopenedDialog.getByTestId("room-favorites-button"),
-      ).toHaveAttribute("aria-label", addLabel("Meeting Two"));
+      ).toHaveAttribute(
+        "aria-label",
+        'rooms.favorites.add_for_{"room":"Meeting Two"}',
+      );
       await reopenedDialog.getByTestId("dialog-cancel-button").click();
       await expect(page.getByTestId("room-info-dialog")).toHaveCount(0);
     });
 
     test.describe("only favorites are shown", () => {
-      /**
-       * Show only favorites, 4 rooms on 2 pages with 2 rooms per page, and continue to the second page.
-       * @param {import("@playwright/test").Page} page
-       * @param {object[]} secondPageRooms - rooms on the second page
-       */
-      async function showFavoritesSecondPage(page, secondPageRooms) {
-        await visitRooms(page);
+      // 4 favorites on 2 pages with 2 rooms per page
+      test.beforeEach(async ({ page, rooms }) => {
+        rooms.showPage(1, 3);
+        await page.goto("/rooms");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
 
-        await mockRooms(page, (rooms) => {
-          rooms.data = rooms.data.slice(0, 2);
-          rooms.data[0].is_favorite = true;
-          rooms.meta.last_page = 2;
-          rooms.meta.per_page = 2;
-          rooms.meta.to = 2;
-          rooms.meta.total = 4;
-          rooms.meta.total_no_filter = 4;
+        rooms.show({
+          slice: [0, 2],
+          meta: {
+            last_page: 2,
+            per_page: 2,
+            to: 2,
+            total: 4,
+            total_no_filter: 4,
+          },
         });
-        const query = await requestRoomsAfter(page, () =>
-          page.getByTestId("only-favorites-button").click(),
-        );
-        expect(query).toMatchObject({ only_favorites: "1", page: "1" });
+        rooms.json.data[0].is_favorite = true;
+        const request = rooms.next();
+        await page.getByTestId("only-favorites-button").click();
+        expect(queryOf(await request)).toMatchObject({
+          only_favorites: "1",
+          page: "1",
+        });
         await expect(page.getByTestId("room-card")).toHaveCount(2);
-
-        await mockRooms(page, (rooms) => {
-          rooms.data = secondPageRooms(rooms);
-          rooms.meta.current_page = 2;
-          rooms.meta.from = 3;
-          rooms.meta.last_page = 2;
-          rooms.meta.per_page = 2;
-          rooms.meta.to = 4;
-          rooms.meta.total = 4;
-          rooms.meta.total_no_filter = 4;
-        });
-        const secondQuery = await requestRoomsAfter(page, () =>
-          page.getByTestId("paginator-next-button").nth(1).click(),
-        );
-        expect(secondQuery).toMatchObject({ only_favorites: "1", page: "2" });
-      }
-
-      const meetingFour = {
-        id: "abc-def-456",
-        name: "Meeting Four",
-        owner: { id: 1, name: "John Doe" },
-        last_meeting: null,
-        type: { id: 2, name: "Meeting", color: "#4a5c66" },
-        is_favorite: true,
-        short_description: null,
-      };
+      });
 
       test("remove first room from favorites stays on the page", async ({
         page,
+        rooms,
       }) => {
-        await showFavoritesSecondPage(page, (rooms) => {
-          const meetingThree = rooms.data[2];
-          meetingThree.is_favorite = true;
-          return [meetingThree, meetingFour];
+        // Second page with Meeting Three and Meeting Four
+        rooms.show({
+          slice: [2, 3],
+          meta: {
+            current_page: 2,
+            from: 3,
+            last_page: 2,
+            per_page: 2,
+            to: 4,
+            total: 4,
+            total_no_filter: 4,
+          },
+        });
+        rooms.json.data[0].is_favorite = true;
+        rooms.json.data.push({
+          id: "abc-def-456",
+          name: "Meeting Four",
+          owner: { id: 1, name: "John Doe" },
+          last_meeting: null,
+          type: { id: 2, name: "Meeting", color: "#4a5c66" },
+          is_favorite: true,
+          short_description: null,
+        });
+        const secondPageRequest = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await secondPageRequest)).toMatchObject({
+          only_favorites: "1",
+          page: "2",
         });
         await expect(page.getByTestId("room-card")).toHaveCount(2);
 
-        await mockRooms(page, (rooms) => {
-          rooms.data = [meetingFour];
-          rooms.meta.current_page = 2;
-          rooms.meta.from = 3;
-          rooms.meta.last_page = 2;
-          rooms.meta.per_page = 2;
-        });
-        await mockFavorite(page, "DELETE", "def-abc-456", { status: 204 });
-
-        const favoriteRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "DELETE" &&
-            request.url().endsWith("/rooms/def-abc-456/favorites"),
+        rooms.json.data = [rooms.json.data[1]];
+        rooms.json.meta.current_page = 2;
+        rooms.json.meta.from = 3;
+        rooms.json.meta.last_page = 2;
+        rooms.json.meta.per_page = 2;
+        rooms.json.meta.to = 3;
+        rooms.json.meta.total = 3;
+        rooms.json.meta.total_no_filter = 3;
+        const favorite = await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/rooms/def-abc-456/favorites",
+          { status: 204 },
         );
-        const roomsRequest = page.waitForRequest(isRoomsRequest);
+
+        const roomsRequest = rooms.next();
         await page
           .getByTestId("room-card")
           .nth(0)
           .getByTestId("room-favorites-button")
           .click();
 
-        await favoriteRequest;
+        await nthRequest(favorite);
         expect(queryOf(await roomsRequest)).toMatchObject({ page: "2" });
-        await expectSingleRoom(page, "Meeting Four");
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting Four",
+        );
       });
 
       test("reset page when the page is empty after removing a favorite", async ({
         page,
+        rooms,
       }) => {
-        await showFavoritesSecondPage(page, () => [meetingFour]);
-        await expectSingleRoom(page, "Meeting Four");
+        // Second page with Meeting Four
+        rooms.show({
+          slice: [0, 0],
+          meta: {
+            current_page: 2,
+            from: 3,
+            last_page: 2,
+            per_page: 2,
+            to: 4,
+            total: 4,
+            total_no_filter: 4,
+          },
+        });
+        rooms.json.data.push({
+          id: "abc-def-456",
+          name: "Meeting Four",
+          owner: { id: 1, name: "John Doe" },
+          last_meeting: null,
+          type: { id: 2, name: "Meeting", color: "#4a5c66" },
+          is_favorite: true,
+          short_description: null,
+        });
+        const secondPageRequest = rooms.next();
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await secondPageRequest)).toMatchObject({
+          only_favorites: "1",
+          page: "2",
+        });
+        await expect(page.getByTestId("room-card")).toHaveCount(1);
+        await expect(page.getByTestId("room-card")).toContainText(
+          "Meeting Four",
+        );
 
         // Respond with no rooms on the second page and with 2 rooms on the first page
-        await page.route(
-          (url) => url.pathname === ROOMS_PATH,
-          (route) => {
-            const rooms = readRooms();
-            const requestedPage = new URL(
-              route.request().url(),
-            ).searchParams.get("page");
-            if (requestedPage === "2") {
-              rooms.data = [];
-              rooms.meta.current_page = 2;
-              rooms.meta.from = null;
-              rooms.meta.per_page = 2;
-              rooms.meta.to = null;
-              rooms.meta.total = 2;
-              rooms.meta.total_no_filter = 2;
+        await page.route("**/api/v1/rooms*", (route) => {
+          if (route.request().method() === "GET") {
+            if (queryOf(route.request()).page === "2") {
+              rooms.show({
+                slice: [0, 0],
+                meta: {
+                  current_page: 2,
+                  from: null,
+                  per_page: 2,
+                  to: null,
+                  total: 2,
+                  total_no_filter: 2,
+                },
+              });
             } else {
-              rooms.data = rooms.data.slice(0, 2);
-              rooms.data[0].is_favorite = true;
-              rooms.meta.per_page = 2;
-              rooms.meta.to = 2;
-              rooms.meta.total = 2;
-              rooms.meta.total_no_filter = 2;
+              rooms.show({
+                slice: [0, 2],
+                meta: {
+                  per_page: 2,
+                  to: 2,
+                  total: 2,
+                  total_no_filter: 2,
+                },
+              });
+              rooms.json.data[0].is_favorite = true;
             }
-            return route.fulfill({ json: rooms });
-          },
+          }
+          return route.fallback();
+        });
+        const favorite = await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/rooms/abc-def-456/favorites",
+          { status: 204 },
         );
-        await mockFavorite(page, "DELETE", "abc-def-456", { status: 204 });
 
-        const favoriteRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "DELETE" &&
-            request.url().endsWith("/rooms/abc-def-456/favorites"),
-        );
-        // First room request still has the second page, second one is reset to the first page
-        const secondPageRequest = page.waitForRequest(
-          (request) => isRoomsRequest(request) && queryOf(request).page === "2",
-        );
-        const firstPageRequest = page.waitForRequest(
-          (request) => isRoomsRequest(request) && queryOf(request).page === "1",
-        );
+        const loadedBefore = rooms.requests.length;
         await page
           .getByTestId("room-card")
           .nth(0)
           .getByTestId("room-favorites-button")
           .click();
 
-        await favoriteRequest;
-        await secondPageRequest;
-        await firstPageRequest;
+        await nthRequest(favorite);
+        // First room request still has the second page, second one is reset to the first page
+        expect(
+          queryOf(await nthRequest(rooms, loadedBefore + 1)),
+        ).toMatchObject({ page: "2" });
+        expect(
+          queryOf(await nthRequest(rooms, loadedBefore + 2)),
+        ).toMatchObject({ page: "1" });
 
         await expect(page.getByTestId("room-card")).toHaveCount(2);
         await expectActivePage(page, 0);
@@ -1449,88 +1719,140 @@ test.describe("Rooms index", () => {
         for (const action of ["add", "remove"]) {
           test.describe(`${action} favorite from ${origin}`, () => {
             const method = action === "add" ? "POST" : "DELETE";
-            const label = () =>
+            const label =
               action === "add"
-                ? addLabel("Meeting One")
-                : removeLabel("Meeting One");
+                ? 'rooms.favorites.add_for_{"room":"Meeting One"}'
+                : 'rooms.favorites.remove_for_{"room":"Meeting One"}';
 
-            test.beforeEach(async ({ page }) => {
-              await mockRooms(page, (rooms) => {
-                onePage(rooms, 1, 3);
-                rooms.data[0].is_favorite = action === "remove";
-                rooms.data[0].short_description = "Room short descriptions";
-              });
+            test.beforeEach(async ({ page, rooms }) => {
+              rooms.showPage(1, 3);
+              rooms.json.data[0].is_favorite = action === "remove";
+              rooms.json.data[0].short_description = "Room short descriptions";
               await page.goto("/rooms");
               await expect(page.getByTestId("room-card")).toHaveCount(1);
+
+              // The button that triggers the request
+              let button = page
+                .getByTestId("room-card")
+                .nth(0)
+                .getByTestId("room-favorites-button");
+              if (origin === "room info dialog") {
+                await expect(page.getByTestId("room-info-dialog")).toHaveCount(
+                  0,
+                );
+                await page
+                  .getByTestId("room-card")
+                  .nth(0)
+                  .getByTestId("room-info-button")
+                  .click();
+                const dialog = page.getByTestId("room-info-dialog");
+                await expect(dialog).toBeVisible();
+                button = dialog.getByTestId("room-favorites-button");
+              }
+              await expect(button).toHaveAttribute("aria-label", label);
             });
 
-            /**
-             * Click the favorite button and wait for the favorite request and the reload of the rooms
-             */
-            async function triggerFavorite(page) {
-              let button = favoritesButtonOfCard(page);
-              if (origin === "room info dialog") {
-                button = (await openRoomInfoDialog(page)).getByTestId(
-                  "room-favorites-button",
-                );
-              }
-              await expect(button).toHaveAttribute("aria-label", label());
-
-              const favoriteRequest = page.waitForRequest(
-                (request) =>
-                  request.method() === method &&
-                  request.url().endsWith("/rooms/abc-def-123/favorites"),
+            test("general error", async ({ page, rooms }) => {
+              const favorite = await mockMethod(
+                page,
+                method,
+                "**/api/v1/rooms/abc-def-123/favorites",
+                {
+                  status: 500,
+                  json: { message: `Test ${action} favorite error` },
+                },
               );
-              const roomsRequest = page.waitForRequest(isRoomsRequest);
-              await button.click();
-              await favoriteRequest;
-              return queryOf(await roomsRequest);
-            }
 
-            test("general error", async ({ page }) => {
-              await mockFavorite(page, method, "abc-def-123", {
-                status: 500,
-                json: { message: `Test ${action} favorite error` },
-              });
-
-              await triggerFavorite(page);
+              const roomsRequest = rooms.next();
+              await (
+                origin === "room card"
+                  ? page
+                      .getByTestId("room-card")
+                      .nth(0)
+                      .getByTestId("room-favorites-button")
+                  : page
+                      .getByTestId("room-info-dialog")
+                      .getByTestId("room-favorites-button")
+              ).click();
+              await nthRequest(favorite);
+              await roomsRequest;
 
               await expectToastAndClose(page, [
-                `app.flash.server_error.message_{"message":"${`Test ${action} favorite error`}"}`,
-                `app.flash.server_error.error_code_{"statusCode":${500}}`,
+                `app.flash.server_error.message_{"message":"Test ${action} favorite error"}`,
+                'app.flash.server_error.error_code_{"statusCode":500}',
               ]);
 
               if (origin === "room card") {
                 // Button stayed the same
-                await expect(favoritesButtonOfCard(page)).toHaveAttribute(
-                  "aria-label",
-                  label(),
-                );
+                await expect(
+                  page
+                    .getByTestId("room-card")
+                    .nth(0)
+                    .getByTestId("room-favorites-button"),
+                ).toHaveAttribute("aria-label", label);
               }
             });
 
-            test("unauthenticated error", async ({ page }) => {
-              await mockFavorite(page, method, "abc-def-123", { status: 401 });
+            test("unauthenticated error", async ({ page, rooms }) => {
+              const favorite = await mockMethod(
+                page,
+                method,
+                "**/api/v1/rooms/abc-def-123/favorites",
+                { status: 401 },
+              );
 
-              await triggerFavorite(page);
+              const roomsRequest = rooms.next();
+              await (
+                origin === "room card"
+                  ? page
+                      .getByTestId("room-card")
+                      .nth(0)
+                      .getByTestId("room-favorites-button")
+                  : page
+                      .getByTestId("room-info-dialog")
+                      .getByTestId("room-favorites-button")
+              ).click();
+              await nthRequest(favorite);
+              await roomsRequest;
 
               await expectLoginRedirect(page, "/rooms");
             });
 
-            test("room not found error", async ({ page }) => {
-              await mockFavorite(page, method, "abc-def-123", {
-                status: 404,
-                json: {
-                  message: "model_not_found",
-                  model: "room",
-                  ids: ["abc-def-123"],
+            test("room not found error", async ({ page, rooms }) => {
+              const favorite = await mockMethod(
+                page,
+                method,
+                "**/api/v1/rooms/abc-def-123/favorites",
+                {
+                  status: 404,
+                  json: {
+                    message: "model_not_found",
+                    model: "room",
+                    ids: ["abc-def-123"],
+                  },
                 },
-              });
+              );
+
+              const roomsRequest = rooms.next();
+              await (
+                origin === "room card"
+                  ? page
+                      .getByTestId("room-card")
+                      .nth(0)
+                      .getByTestId("room-favorites-button")
+                  : page
+                      .getByTestId("room-info-dialog")
+                      .getByTestId("room-favorites-button")
+              ).click();
+              await nthRequest(favorite);
 
               // Check that rooms are reloaded
-              expect(await triggerFavorite(page)).toMatchObject({ page: "1" });
+              expect(queryOf(await roomsRequest)).toMatchObject({ page: "1" });
 
-              await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+              await expectToastAndClose(page, [
+                'app.flash.model_not_found.title_{"model":"app.model.room"}',
+                'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+              ]);
             });
           });
         }
@@ -1539,23 +1861,30 @@ test.describe("Rooms index", () => {
   });
 
   test.describe("error loading rooms", () => {
-    const expectErrorState = async (page) => {
-      await expect(page.getByTestId("overlay")).toBeVisible();
-      await expect(page.getByTestId("room-skeletons")).toBeVisible();
-      await expectControlsDisabled(page, false);
-    };
-
-    test("error on initial load and reload", async ({ page }) => {
-      await mockRoomsError(page, 500, { message: "Test" });
+    test("error on initial load and reload", async ({ page, rooms }) => {
+      rooms.status = 500;
+      rooms.json = { message: "Test" };
       await page.goto("/rooms");
 
       await expectToastAndClose(page, [
-        `app.flash.server_error.message_{"message":"${"Test"}"}`,
-        `app.flash.server_error.error_code_{"statusCode":${500}}`,
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
-      await expectErrorState(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(page.getByTestId("room-skeletons")).toBeVisible();
+      const search = page.getByTestId("room-search");
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(page.getByTestId("only-favorites-button")).toBeEnabled();
+      await expect(
+        page.getByTestId("room-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
+      await expect(
+        page.getByTestId("sorting-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
 
-      await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
+      rooms.status = 200;
+      rooms.showPage(1, 3);
 
       const reloadButton = page.getByTestId("reload-button");
       await expect(reloadButton).toContainText("app.reload");
@@ -1563,51 +1892,74 @@ test.describe("Rooms index", () => {
 
       await expect(page.getByTestId("overlay")).toHaveCount(0);
       await expect(page.getByTestId("room-skeletons")).toHaveCount(0);
-      await expectSingleRoom(page, "Meeting One");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting One");
       await expect(page.getByTestId("reload-button")).toHaveCount(0);
     });
 
-    test("error when changing the page and reload", async ({ page }) => {
-      await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
+    test("error when changing the page and reload", async ({ page, rooms }) => {
+      rooms.showPage(1, 3);
       await page.goto("/rooms");
-      await expectSingleRoom(page, "Meeting One");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting One");
 
-      await mockRoomsError(page, 500, { message: "Test" });
+      rooms.status = 500;
+      rooms.json = { message: "Test" };
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       await expectToastAndClose(page, [
-        `app.flash.server_error.message_{"message":"${"Test"}"}`,
-        `app.flash.server_error.error_code_{"statusCode":${500}}`,
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
-      await expectErrorState(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(page.getByTestId("room-skeletons")).toBeVisible();
+      const search = page.getByTestId("room-search");
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(page.getByTestId("only-favorites-button")).toBeEnabled();
+      await expect(
+        page.getByTestId("room-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
+      await expect(
+        page.getByTestId("sorting-type-dropdown").locator(".p-select-label"),
+      ).not.toHaveAttribute("aria-disabled", "true");
 
-      await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
+      rooms.status = 200;
+      rooms.showPage(1, 3);
 
       const reloadButton = page.getByTestId("reload-button");
       await expect(reloadButton).toContainText("app.reload");
-      const query = await requestRoomsAfter(page, () => reloadButton.click());
-      expect(query).toMatchObject({ page: "1" });
+      const request = rooms.next();
+      await reloadButton.click();
+      expect(queryOf(await request)).toMatchObject({ page: "1" });
 
       await expect(page.getByTestId("overlay")).toHaveCount(0);
       await expect(page.getByTestId("room-skeletons")).toHaveCount(0);
-      await expectSingleRoom(page, "Meeting One");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting One");
       await expect(page.getByTestId("reload-button")).toHaveCount(0);
       await expectActivePage(page, 0);
     });
 
-    test("unauthenticated error when changing the page", async ({ page }) => {
-      await mockRooms(page, (rooms) => onePage(rooms, 1, 3));
+    test("unauthenticated error when changing the page", async ({
+      page,
+      rooms,
+    }) => {
+      rooms.showPage(1, 3);
       await page.goto("/rooms");
-      await expectSingleRoom(page, "Meeting One");
+      await expect(page.getByTestId("room-card")).toHaveCount(1);
+      await expect(page.getByTestId("room-card")).toContainText("Meeting One");
 
-      await mockRoomsError(page, 401, {});
+      rooms.status = 401;
+      rooms.json = {};
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       await expectLoginRedirect(page, "/rooms");
     });
 
-    test("unauthenticated error on initial load", async ({ page }) => {
-      await mockRoomsError(page, 401, {});
+    test("unauthenticated error on initial load", async ({ page, rooms }) => {
+      rooms.status = 401;
+      rooms.json = {};
       await page.goto("/rooms");
 
       await expect(page).toHaveURL((url) => url.href.includes("/login"));
@@ -1616,11 +1968,8 @@ test.describe("Rooms index", () => {
   });
 
   test.describe("error loading room types", () => {
-    const roomTypesRequest = (url) => url.pathname === ROOM_TYPES_PATH;
-    const inputGroup = (page) => page.getByTestId("room-type-inputgroup");
-
     test("error loading room types", async ({ page }) => {
-      const release = await holdRequest(page, roomTypesRequest, {
+      const release = await holdRequest(page, "**/api/v1/roomTypes*", {
         status: 500,
         json: { message: "Test" },
       });
@@ -1639,57 +1988,53 @@ test.describe("Rooms index", () => {
       release();
 
       await expectToastAndClose(page, [
-        `app.flash.server_error.message_{"message":"${"Test"}"}`,
-        `app.flash.server_error.error_code_{"statusCode":${500}}`,
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
       // Check that the room type select is replaced by the error message with a reload button
+      const inputGroup = page.getByTestId("room-type-inputgroup");
       await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
-      await expect(inputGroup(page)).toContainText(
-        "rooms.room_types.loading_error",
-      );
-      await expect(inputGroup(page).getByRole("button")).toBeVisible();
+      await expect(inputGroup).toContainText("rooms.room_types.loading_error");
+      await expect(inputGroup.getByRole("button")).toBeVisible();
     });
 
-    test("reload room types", async ({ page }) => {
-      await page.route(roomTypesRequest, (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
-      );
+    test("reload room types", async ({ page, roomTypes }) => {
+      roomTypes.status = 500;
+      roomTypes.json = { message: "Test" };
       await page.goto("/rooms");
       await expectToastAndClose(page, [
-        `app.flash.server_error.message_{"message":"${"Test"}"}`,
-        `app.flash.server_error.error_code_{"statusCode":${500}}`,
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
+      const inputGroup = page.getByTestId("room-type-inputgroup");
       await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
-      await expect(inputGroup(page)).toContainText(
-        "rooms.room_types.loading_error",
-      );
+      await expect(inputGroup).toContainText("rooms.room_types.loading_error");
 
-      const release = await holdRequest(page, roomTypesRequest, {
-        path: "tests/Playwright/fixtures/roomTypes.json",
+      const release = await holdRequest(page, "**/api/v1/roomTypes*", {
+        json: readFixture("roomTypes.json"),
       });
 
-      const reloadButton = inputGroup(page).getByRole("button");
+      const reloadButton = inputGroup.getByRole("button");
       await reloadButton.click();
       // Check that button is disabled after click
       await expect(reloadButton).toBeDisabled();
 
       // Send correct response and check that reload button does not exist after reload
       release();
-      await expect(inputGroup(page).getByRole("button")).toHaveCount(0);
+      await expect(inputGroup.getByRole("button")).toHaveCount(0);
 
       // Check that dropdown exists and error message is not shown after correct response
       await expect(page.getByTestId("room-type-dropdown")).toBeVisible();
-      await expect(inputGroup(page)).not.toContainText(
+      await expect(inputGroup).not.toContainText(
         "rooms.room_types.loading_error",
       );
     });
 
-    test("unauthenticated error", async ({ page }) => {
-      await page.route(roomTypesRequest, (route) =>
-        route.fulfill({ status: 401 }),
-      );
+    test("unauthenticated error", async ({ page, roomTypes }) => {
+      roomTypes.status = 401;
+      roomTypes.json = {};
 
       await page.goto("/rooms");
 

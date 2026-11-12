@@ -1,314 +1,21 @@
 import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptAdminSettingsRequest } from "../support/mocks.js";
-import { parseFormData } from "../support/utils.js";
+import { test } from "../support/fixtures/adminSettings.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import {
+  getFileContentType,
+  mockMethod,
+  nthRequest,
+  parseFormData,
+} from "../support/utils.js";
 import {
   checkSettingsImageSelector,
   checkSettingsFileSelector,
 } from "../support/admin.js";
 
-const SETTINGS_URL = "**/api/v1/settings";
-const FILES_DIR = "tests/Playwright/fixtures/files/";
-
-const PERIOD_OPTIONS = [
-  "admin.settings.one_week",
-  "admin.settings.two_weeks",
-  "admin.settings.one_month",
-  "admin.settings.three_month",
-  "admin.settings.six_month",
-  "admin.settings.one_year",
-  "admin.settings.two_years",
-  "app.unlimited",
-];
-
-const selectedClass = /(^|\s)selected(\s|$)/;
-
-const readSettings = () =>
-  JSON.parse(readFileSync("tests/Playwright/fixtures/settings.json", "utf8"));
-
-const readFileAsBase64 = (fileName) =>
-  readFileSync(FILES_DIR + fileName).toString("base64");
-
-const isSettingsRequest = (request, method) =>
-  request.method() === method &&
-  new URL(request.url()).pathname === "/api/v1/settings";
-
-const FILE_MIME_TYPES = {
-  svg: "image/svg+xml",
-  ico: "image/vnd.microsoft.icon",
-  css: "text/css",
-  txt: "text/plain",
-};
-
-const fixtureFile = (fileName) => ({
-  name: fileName,
-  mimeType: FILE_MIME_TYPES[fileName.split(".").pop()],
-  buffer: readFileSync(FILES_DIR + fileName),
-});
-
-async function mockSettings(page) {
-  const state = { body: readSettings(), getCount: 0 };
-  await page.route(SETTINGS_URL, (route) => {
-    if (route.request().method() !== "GET") {
-      return route.fallback();
-    }
-    state.getCount++;
-    return route.fulfill({ json: state.body });
-  });
-  return state;
-}
-
-async function openSettings(page, state, mutate = () => {}) {
-  mutate(state.body.data);
-  await page.goto("/admin/settings");
-  await expect(page.getByTestId("application-name-field")).toBeVisible();
-  await expect(page.getByTestId("settings-save-button")).toBeEnabled();
-}
-
-async function saveChanges(
-  page,
-  state,
-  mutate,
-  { status = 200, hold = false, reload = false } = {},
-) {
-  const response = readSettings();
-  mutate(response.data);
-
-  let release = () => {};
-  const gate = hold ? new Promise((resolve) => (release = resolve)) : null;
-
-  const saveRequest = page.waitForRequest((request) =>
-    isSettingsRequest(request, "POST"),
-  );
-  const configRequest = page.waitForRequest("**/api/v1/config");
-  const reloadRequest = reload
-    ? page.waitForRequest((request) => isSettingsRequest(request, "GET"))
-    : Promise.resolve();
-
-  await page.route(SETTINGS_URL, async (route) => {
-    if (route.request().method() !== "POST") {
-      return route.fallback();
-    }
-    await gate;
-    state.body = response;
-    return route.fulfill({ status, json: response });
-  });
-
-  const saveButton = page.getByTestId("settings-save-button");
-  await expect(saveButton).toContainText("app.save");
-  await saveButton.click();
-
-  return {
-    release,
-    formData: async () => parseFormData(await saveRequest),
-    waitForConfigRequest: () => configRequest,
-    waitForReload: () => reloadRequest,
-  };
-}
-
-async function expectLoading(page) {
-  await expect(page.getByTestId("overlay")).toBeVisible();
-  await expect(page.getByTestId("settings-save-button")).toBeDisabled();
-}
-
-async function expectLoadingDone(page) {
-  await expect(page.getByTestId("overlay")).toHaveCount(0);
-  await expect(page.getByTestId("settings-save-button")).toBeEnabled();
-}
-
-async function expectUploadedFile(formData, key, fileName, type) {
-  const file = formData.get(key);
-  expect(file.name).toBe(fileName);
-  expect(file.type).toBe(type);
-  expect(Buffer.from(await file.arrayBuffer()).toString("base64")).toBe(
-    readFileAsBase64(fileName),
-  );
-}
-
-async function checkDropdown(
-  page,
-  name,
-  { current, options, selected, choose },
-) {
-  const dropdown = page.getByTestId(`${name}-dropdown`);
-  const items = page.getByTestId(`${name}-dropdown-items`);
-
-  await expect(dropdown).toHaveText(current);
-  await expect(items).toHaveCount(0);
-  await dropdown.click();
-
-  await expect(items).toBeVisible();
-  const optionItems = items.getByTestId(`${name}-dropdown-option`);
-  await expect(optionItems).toHaveText(options);
-  await expect(optionItems.nth(selected)).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
-
-  await optionItems.nth(choose).click();
-  await expect(items).toHaveCount(0);
-  await expect(dropdown).toHaveText(options[choose]);
-}
-
-async function chooseDropdownOption(page, name, index) {
-  await page.getByTestId(`${name}-dropdown`).click();
-  await page
-    .getByTestId(`${name}-dropdown-items`)
-    .getByTestId(`${name}-dropdown-option`)
-    .nth(index)
-    .click();
-}
-
-async function expectColorButtons(field, count, selectedIndex) {
-  const buttons = field.getByTestId("color-button");
-  await expect(buttons).toHaveCount(count);
-  for (let i = 0; i < count; i++) {
-    if (i === selectedIndex) {
-      await expect(buttons.nth(i)).toHaveClass(selectedClass);
-    } else {
-      await expect(buttons.nth(i)).not.toHaveClass(selectedClass);
-    }
-  }
-}
-
-async function expectColorButtonsEnabled(field, count) {
-  const buttons = field.getByTestId("color-button");
-  await expect(buttons).toHaveCount(count);
-  for (let i = 0; i < count; i++) {
-    await expect(buttons.nth(i)).toHaveAttribute("role", "button");
-    await expect(buttons.nth(i)).not.toHaveClass(
-      /pointer-events-none cursor-not-allowed opacity-80/,
-    );
-  }
-}
-
-async function checkDeleteAndUndoImage(field, url) {
-  const deleteButton = field.getByTestId("settings-image-delete-button");
-  const undoButton = field.getByTestId("settings-image-undo-delete-button");
-
-  await deleteButton.click();
-  await expect(undoButton).toBeVisible();
-  await expect(undoButton).toHaveText("app.undo_delete");
-  await expect(field.getByTestId("settings-image-url-input")).toHaveCount(0);
-  await expect(field.getByTestId("file-input-button")).toHaveCount(0);
-  await expect(deleteButton).toHaveCount(0);
-
-  await undoButton.click();
-  await expect(field.getByTestId("settings-image-url-input")).toHaveValue(url);
-  await expect(deleteButton).toBeVisible();
-
-  await deleteButton.click();
-  await expect(undoButton).toBeVisible();
-}
-
-async function checkDeleteAndUndoFile(field, href) {
-  const deleteButton = field.getByTestId("settings-file-delete-button");
-  const undoButton = field.getByTestId("settings-file-undo-delete-button");
-  const viewButton = field.getByTestId("settings-file-view-button");
-
-  await deleteButton.click();
-  await expect(undoButton).toBeVisible();
-  await expect(undoButton).toHaveText("app.undo_delete");
-  await expect(field.getByTestId("file-input-button")).toHaveCount(0);
-  await expect(deleteButton).toHaveCount(0);
-  await expect(viewButton).toHaveCount(0);
-
-  await undoButton.click();
-  await expect(field.getByTestId("file-input-button")).toHaveText("app.browse");
-  await expect(viewButton).toBeVisible();
-  await expect(viewButton).toContainText("app.view");
-  await expect(viewButton).toHaveAttribute("href", href);
-  await expect(deleteButton).toBeVisible();
-
-  await deleteButton.click();
-  await expect(undoButton).toBeVisible();
-}
-
-async function expectBannerPreview(
-  page,
-  { title, icon, message = "", link, color, background, hasStyle } = {},
-) {
-  const banner = page
-    .getByTestId("banner-preview-field")
-    .getByTestId("app-banner");
-
-  if (color || background) {
-    await expect(banner).toHaveAttribute("style", /.+/);
-  } else if (hasStyle) {
-    await expect(banner).toHaveAttribute("style", /.*/);
-  } else {
-    await expect(banner).not.toHaveAttribute("style", /.+/);
-  }
-  if (color) {
-    await expect(banner).toHaveAttribute(
-      "style",
-      new RegExp(`(^|[\\s;])color: ${color.replace(/[()]/g, "\\$&")};`),
-    );
-  } else if (color === undefined && (background || hasStyle)) {
-    await expect(banner).not.toHaveAttribute("style", /(^|[\s;])color:/);
-  }
-  if (background) {
-    await expect(banner).toHaveAttribute(
-      "style",
-      new RegExp(`background-color: ${background.replace(/[()]/g, "\\$&")};`),
-    );
-  } else {
-    await expect(banner).not.toHaveAttribute("style", /background-color/);
-  }
-
-  const titleLocator = banner.getByTestId("banner-title");
-  if (title) {
-    await expect(titleLocator).toBeVisible();
-    await expect(titleLocator).toContainText(title);
-  } else {
-    await expect(titleLocator).toHaveCount(0);
-  }
-
-  const iconLocator = banner.getByTestId("banner-icon");
-  if (icon) {
-    await expect(iconLocator).toBeVisible();
-    await expect(iconLocator).toHaveClass(new RegExp(icon));
-  } else {
-    await expect(iconLocator).toHaveCount(0);
-  }
-
-  const messageLocator = banner.getByTestId("banner-message");
-  if (message) {
-    await expect(messageLocator).toBeVisible();
-  }
-  await expect(messageLocator).toHaveText(message);
-
-  const linkLocator = banner.getByTestId("banner-link-button");
-  if (link) {
-    await expect(linkLocator).toBeVisible();
-    await expect(linkLocator).toHaveAttribute("href", link.href);
-    await expect(linkLocator).toHaveAttribute("target", link.target);
-    await expect(linkLocator).toHaveText(link.text);
-    await expect(linkLocator).toHaveAttribute("data-p-severity", link.severity);
-    if (link.severity === "link") {
-      await expect(linkLocator).toHaveClass(/p-0 underline/);
-    } else {
-      await expect(linkLocator).not.toHaveClass(/p-0 underline/);
-    }
-    if (color) {
-      await expect(linkLocator).toHaveAttribute(
-        "style",
-        new RegExp(`color: ${color.replace(/[()]/g, "\\$&")}`),
-      );
-    } else {
-      await expect(linkLocator).not.toHaveAttribute("style", /.+/);
-    }
-  } else {
-    await expect(linkLocator).toHaveCount(0);
-  }
-}
-
-const BANNER_ICON = "fa-solid fa-door-open";
+test.use({ authenticated: true });
 
 test.describe("Admin settings with edit permission", () => {
-  test.use({ authenticated: true });
-
-  let settingsState;
+  let saveButton;
 
   test.beforeEach(async ({ page, config, currentUser }) => {
     currentUser.data.permissions = [
@@ -322,13 +29,14 @@ test.describe("Admin settings with edit permission", () => {
     config.data.theme.favicon = "/images/favicon.ico";
     config.data.theme.favicon_dark = "/images/favicon-dark.ico";
 
-    await interceptAdminSettingsRequest(page);
-    settingsState = await mockSettings(page);
+    saveButton = page.getByTestId("settings-save-button");
   });
 
   test.describe("application", () => {
     test("shows the application settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(page.getByText("admin.settings.application")).toBeVisible();
 
       const nameField = page.getByTestId("application-name-field");
@@ -407,7 +115,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the toast lifetime setting and the custom input", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("toast-lifetime-field");
       await expect(field).toBeVisible();
@@ -448,7 +158,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the default timezone setting and changes it", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const items = page.getByTestId("timezone-dropdown-items");
       await expect(items).toHaveCount(0);
@@ -475,8 +187,10 @@ test.describe("Admin settings with edit permission", () => {
       await expect(dropdown).toHaveText("Europe/Berlin");
     });
 
-    test("saves changed application settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+    test("saves changed application settings", async ({ page, settings }) => {
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page.locator("#application-name").fill("PILOS test application");
       await page.locator("#help-url").fill("http://www.pilos.com/help");
@@ -494,36 +208,39 @@ test.describe("Admin settings with edit permission", () => {
       await page.locator("#toast-lifetime-mode-custom").click();
       await page.getByTestId("toast-lifetime-custom-input").fill("10");
 
-      await chooseDropdownOption(page, "timezone", 2);
+      await page.getByTestId("timezone-dropdown").click();
+      await page.getByTestId("timezone-dropdown-option").nth(2).click();
       await expect(page.getByTestId("timezone-dropdown")).toHaveText(
         "Europe/Berlin",
       );
 
       await page.locator("#no-welcome-page").click();
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.general_name = "PILOS test application";
-          data.general_help_url = "http://www.pilos.com/help";
-          data.general_legal_notice_url = "http://www.pilos.com/legal_notice";
-          data.general_privacy_policy_url =
-            "http://www.pilos.com/privacy_policy";
-          data.general_accessibility_statement_url =
-            "http://www.pilos.com/accessibility";
-          data.general_pagination_page_size = 3;
-          data.general_toast_lifetime = 10;
-          data.general_default_timezone = "Europe/Berlin";
-          data.general_no_welcome_page = false;
-        },
-        { hold: true },
-      );
+      settings.data.general_name = "PILOS test application";
+      settings.data.general_help_url = "http://www.pilos.com/help";
+      settings.data.general_legal_notice_url =
+        "http://www.pilos.com/legal_notice";
+      settings.data.general_privacy_policy_url =
+        "http://www.pilos.com/privacy_policy";
+      settings.data.general_accessibility_statement_url =
+        "http://www.pilos.com/accessibility";
+      settings.data.general_pagination_page_size = 3;
+      settings.data.general_toast_lifetime = 10;
+      settings.data.general_default_timezone = "Europe/Berlin";
+      settings.data.general_no_welcome_page = false;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+        hold: true,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      await expectLoading(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(saveButton).toBeDisabled();
       save.release();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("general_name")).toBe("PILOS test application");
       expect(formData.get("general_help_url")).toBe(
         "http://www.pilos.com/help",
@@ -542,8 +259,9 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("general_default_timezone")).toBe("Europe/Berlin");
       expect(formData.get("general_no_welcome_page")).toBe("0");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.locator("#application-name")).toHaveValue(
         "PILOS test application",
@@ -580,19 +298,23 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves cleared url fields and unlimited toast lifetime", async ({
       page,
+      settings,
     }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.general_name = "PILOS test application";
-        data.general_help_url = "http://www.pilos.com/help";
-        data.general_legal_notice_url = "http://www.pilos.com/legal_notice";
-        data.general_privacy_policy_url = "http://www.pilos.com/privacy_policy";
-        data.general_accessibility_statement_url =
-          "http://www.pilos.com/accessibility";
-        data.general_pagination_page_size = 3;
-        data.general_toast_lifetime = 10;
-        data.general_default_timezone = "Europe/Berlin";
-        data.general_no_welcome_page = false;
-      });
+      settings.data.general_name = "PILOS test application";
+      settings.data.general_help_url = "http://www.pilos.com/help";
+      settings.data.general_legal_notice_url =
+        "http://www.pilos.com/legal_notice";
+      settings.data.general_privacy_policy_url =
+        "http://www.pilos.com/privacy_policy";
+      settings.data.general_accessibility_statement_url =
+        "http://www.pilos.com/accessibility";
+      settings.data.general_pagination_page_size = 3;
+      settings.data.general_toast_lifetime = 10;
+      settings.data.general_default_timezone = "Europe/Berlin";
+      settings.data.general_no_welcome_page = false;
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page.locator("#help-url").fill("");
       await page.locator("#legal-notice-url").fill("");
@@ -604,15 +326,19 @@ test.describe("Admin settings with edit permission", () => {
         0,
       );
 
-      const save = await saveChanges(page, settingsState, (data) => {
-        data.general_name = "PILOS test application";
-        data.general_pagination_page_size = 3;
-        data.general_toast_lifetime = 0;
-        data.general_default_timezone = "Europe/Berlin";
-        data.general_no_welcome_page = false;
+      settings.data.general_help_url = null;
+      settings.data.general_legal_notice_url = null;
+      settings.data.general_privacy_policy_url = null;
+      settings.data.general_accessibility_statement_url = null;
+      settings.data.general_toast_lifetime = 0;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
       });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("general_name")).toBe("PILOS test application");
       expect(formData.get("general_help_url")).toBe("");
       expect(formData.get("general_legal_notice_url")).toBe("");
@@ -623,8 +349,9 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("general_default_timezone")).toBe("Europe/Berlin");
       expect(formData.get("general_no_welcome_page")).toBe("0");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.locator("#application-name")).toHaveValue(
         "PILOS test application",
@@ -657,35 +384,12 @@ test.describe("Admin settings with edit permission", () => {
   });
 
   test.describe("theme without page reload", () => {
-    const expectThemePreviews = async (page, logo, logoDark) => {
-      await expect(
-        page.getByTestId("logo-field").getByTestId("settings-image-preview"),
-      ).toHaveAttribute("src", new RegExp(logo));
-      await expect(
-        page
-          .getByTestId("logo-dark-field")
-          .getByTestId("settings-image-preview"),
-      ).toHaveAttribute("src", new RegExp(logoDark));
-    };
-
-    const expectPrimaryColor = async (page, selectedIndex, value) => {
-      const field = page.getByTestId("primary-color-field");
-      await expectColorButtons(field, 10, selectedIndex);
-      await expect(field.locator("#theme-primary-color")).toHaveValue(value);
-    };
-
-    const themeCustomizedSettings = (data) => {
-      data.theme_logo = "/images/logo2.svg";
-      data.theme_logo_dark = "/images/logo-dark2.svg";
-      data.theme_primary_color = "#14b8a6";
-      data.theme_rounded = false;
-      data.theme_enforced_color_mode = "dark";
-    };
-
     test("shows the logo setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(page.getByText("admin.settings.theme.title")).toBeVisible();
 
       const field = page.getByTestId("logo-field");
@@ -703,7 +407,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the dark logo setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("logo-dark-field");
       await expect(field).toBeVisible();
@@ -720,39 +426,65 @@ test.describe("Admin settings with edit permission", () => {
     test("selects the primary color with the custom color input", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("primary-color-field");
       await expect(field).toBeVisible();
       await expect(field).toContainText("admin.settings.theme.primary_color");
-      await expectColorButtonsEnabled(field, 10);
-      await expectColorButtons(field, 10, 4);
+      const buttons = field.getByTestId("color-button");
+      const selectedButtons = buttons.and(page.locator(".selected"));
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.and(page.locator("[role=button]"))).toHaveCount(10);
+      await expect(
+        buttons.and(
+          page.locator(".pointer-events-none.cursor-not-allowed.opacity-80"),
+        ),
+      ).toHaveCount(0);
+      await expect(buttons.nth(4)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(selectedButtons).toHaveCount(1);
 
       // Clear custom color and check that color buttons are not selected
       const input = field.locator("#theme-primary-color");
       await expect(input).toHaveValue("#22c55e");
       await expect(input).toBeEnabled();
       await input.fill("");
-      await expectColorButtons(field, 10, null);
+      await expect(buttons).toHaveCount(10);
+      await expect(selectedButtons).toHaveCount(0);
 
       // Set custom color and check that color button is selected
       await input.fill("#14b8a6");
-      await expectColorButtons(field, 10, 3);
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.nth(3)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(selectedButtons).toHaveCount(1);
     });
 
     test("saves uploaded logos, primary color and rounded setting without reload", async ({
       page,
+      settings,
+      settingsRequests,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page
         .getByTestId("logo-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("logo.svg"));
+        .setInputFiles({
+          name: "logo.svg",
+          mimeType: "image/svg+xml",
+          buffer: readFileSync("tests/Playwright/fixtures/files/logo.svg"),
+        });
       await page
         .getByTestId("logo-dark-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("logo-dark.svg"));
+        .setInputFiles({
+          name: "logo-dark.svg",
+          mimeType: "image/svg+xml",
+          buffer: readFileSync("tests/Playwright/fixtures/files/logo-dark.svg"),
+        });
 
       const colorField = page.getByTestId("primary-color-field");
       await colorField.locator("#theme-primary-color").fill("#14b8a6");
@@ -797,39 +529,44 @@ test.describe("Admin settings with edit permission", () => {
         "admin.settings.theme.enforced_color_mode.dark",
       );
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          themeCustomizedSettings(data);
-          // Respond with custom css set to check that it is handled correctly in the next request
-          data.theme_custom_css = "/storage/styles/theme_custom_css.css";
-        },
-        { hold: true },
-      );
+      settings.data.theme_logo = "/images/logo2.svg";
+      settings.data.theme_logo_dark = "/images/logo-dark2.svg";
+      settings.data.theme_primary_color = "#14b8a6";
+      settings.data.theme_rounded = false;
+      settings.data.theme_enforced_color_mode = "dark";
+      // Respond with custom css set to check that it is handled correctly in the next request
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+        hold: true,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      await expectLoading(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(saveButton).toBeDisabled();
       save.release();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("theme_favicon_file")).toBeNull();
       expect(formData.get("theme_favicon")).toBe("/images/favicon.ico");
       expect(formData.get("theme_favicon_dark_file")).toBeNull();
       expect(formData.get("theme_favicon_dark")).toBe(
         "/images/favicon-dark.ico",
       );
-      await expectUploadedFile(
-        formData,
-        "theme_logo_file",
-        "logo.svg",
-        "image/svg+xml",
+      const logoFile = formData.get("theme_logo_file");
+      expect(logoFile.name).toBe("logo.svg");
+      expect(logoFile.type).toBe("image/svg+xml");
+      expect(Buffer.from(await logoFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/logo.svg"),
       );
       expect(formData.get("theme_logo")).toBeNull();
-      await expectUploadedFile(
-        formData,
-        "theme_logo_dark_file",
-        "logo-dark.svg",
-        "image/svg+xml",
+      const logoDarkFile = formData.get("theme_logo_dark_file");
+      expect(logoDarkFile.name).toBe("logo-dark.svg");
+      expect(logoDarkFile.type).toBe("image/svg+xml");
+      expect(Buffer.from(await logoDarkFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/logo-dark.svg"),
       );
       expect(formData.get("theme_logo_dark")).toBeNull();
       expect(formData.get("theme_primary_color")).toBe("#14b8a6");
@@ -837,43 +574,70 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("theme_enforced_color_mode")).toBe("dark");
       expect(formData.get("theme_custom_css")).toBeNull();
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
-      await expectThemePreviews(
-        page,
-        "/images/logo2.svg",
-        "/images/logo-dark2.svg",
+      await expect(
+        page.getByTestId("logo-field").getByTestId("settings-image-preview"),
+      ).toHaveAttribute("src", /\/images\/logo2\.svg/);
+      await expect(
+        page
+          .getByTestId("logo-dark-field")
+          .getByTestId("settings-image-preview"),
+      ).toHaveAttribute("src", /\/images\/logo-dark2\.svg/);
+      const buttons = colorField.getByTestId("color-button");
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.nth(3)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(buttons.and(page.locator(".selected"))).toHaveCount(1);
+      await expect(colorField.locator("#theme-primary-color")).toHaveValue(
+        "#14b8a6",
       );
-      await expectPrimaryColor(page, 3, "#14b8a6");
       await expect(page.locator("#theme-rounded")).not.toBeChecked();
       await expect(
         page.getByTestId("theme-enforced-color-mode-dropdown"),
       ).toHaveText("admin.settings.theme.enforced_color_mode.dark");
 
       // Check that page was not reloaded
-      expect(settingsState.getCount).toBe(1);
+      expect(settingsRequests).toHaveLength(1);
     });
 
     test("saves without changes and does not send the unchanged custom css", async ({
       page,
+      settings,
+      settingsRequests,
     }) => {
-      await openSettings(page, settingsState, themeCustomizedSettings);
+      settings.data.theme_logo = "/images/logo2.svg";
+      settings.data.theme_logo_dark = "/images/logo-dark2.svg";
+      settings.data.theme_primary_color = "#14b8a6";
+      settings.data.theme_rounded = false;
+      settings.data.theme_enforced_color_mode = "dark";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       // First save responds with a custom css that was not set by the user
-      const firstSave = await saveChanges(page, settingsState, (data) => {
-        themeCustomizedSettings(data);
-        data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+      const firstSave = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
       });
-      await firstSave.formData();
-      await firstSave.waitForConfigRequest();
-      await expectLoadingDone(page);
+      const firstConfigRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
+      await nthRequest(firstSave);
+      await firstConfigRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
-      const save = await saveChanges(page, settingsState, (data) => {
-        themeCustomizedSettings(data);
+      settings.data.theme_custom_css = null;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
       });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("theme_favicon_file")).toBeNull();
       expect(formData.get("theme_favicon")).toBe("/images/favicon.ico");
       expect(formData.get("theme_favicon_dark_file")).toBeNull();
@@ -890,21 +654,43 @@ test.describe("Admin settings with edit permission", () => {
       // Make sure that custom css is null, even though it is set (not changed by the user)
       expect(formData.get("theme_custom_css")).toBeNull();
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
-      await expectThemePreviews(
-        page,
-        "/images/logo2.svg",
-        "/images/logo-dark2.svg",
+      await expect(
+        page.getByTestId("logo-field").getByTestId("settings-image-preview"),
+      ).toHaveAttribute("src", /\/images\/logo2\.svg/);
+      await expect(
+        page
+          .getByTestId("logo-dark-field")
+          .getByTestId("settings-image-preview"),
+      ).toHaveAttribute("src", /\/images\/logo-dark2\.svg/);
+      const colorField = page.getByTestId("primary-color-field");
+      const buttons = colorField.getByTestId("color-button");
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.nth(3)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(buttons.and(page.locator(".selected"))).toHaveCount(1);
+      await expect(colorField.locator("#theme-primary-color")).toHaveValue(
+        "#14b8a6",
       );
-      await expectPrimaryColor(page, 3, "#14b8a6");
       await expect(page.locator("#theme-rounded")).not.toBeChecked();
-      expect(settingsState.getCount).toBe(1);
+      expect(settingsRequests).toHaveLength(1);
     });
 
-    test("saves changed logo urls without reload", async ({ page }) => {
-      await openSettings(page, settingsState, themeCustomizedSettings);
+    test("saves changed logo urls without reload", async ({
+      page,
+      settings,
+      settingsRequests,
+    }) => {
+      settings.data.theme_logo = "/images/logo2.svg";
+      settings.data.theme_logo_dark = "/images/logo-dark2.svg";
+      settings.data.theme_primary_color = "#14b8a6";
+      settings.data.theme_rounded = false;
+      settings.data.theme_enforced_color_mode = "dark";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const logoUrl = page
         .getByTestId("logo-field")
@@ -918,13 +704,16 @@ test.describe("Admin settings with edit permission", () => {
       await expect(logoDarkUrl).toHaveValue("/images/logo-dark2.svg");
       await logoDarkUrl.fill("/images/logo-dark3.svg");
 
-      const save = await saveChanges(page, settingsState, (data) => {
-        themeCustomizedSettings(data);
-        data.theme_logo = "/images/logo3.svg";
-        data.theme_logo_dark = "/images/logo-dark3.svg";
+      settings.data.theme_logo = "/images/logo3.svg";
+      settings.data.theme_logo_dark = "/images/logo-dark3.svg";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
       });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("theme_favicon_file")).toBeNull();
       expect(formData.get("theme_favicon")).toBe("/images/favicon.ico");
       expect(formData.get("theme_favicon_dark_file")).toBeNull();
@@ -940,17 +729,28 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("theme_enforced_color_mode")).toBe("dark");
       expect(formData.get("theme_custom_css")).toBeNull();
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
-      await expectThemePreviews(
-        page,
-        "/images/logo3.svg",
-        "/images/logo-dark3.svg",
+      await expect(
+        page.getByTestId("logo-field").getByTestId("settings-image-preview"),
+      ).toHaveAttribute("src", /\/images\/logo3\.svg/);
+      await expect(
+        page
+          .getByTestId("logo-dark-field")
+          .getByTestId("settings-image-preview"),
+      ).toHaveAttribute("src", /\/images\/logo-dark3\.svg/);
+      const colorField = page.getByTestId("primary-color-field");
+      const buttons = colorField.getByTestId("color-button");
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.nth(3)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(buttons.and(page.locator(".selected"))).toHaveCount(1);
+      await expect(colorField.locator("#theme-primary-color")).toHaveValue(
+        "#14b8a6",
       );
-      await expectPrimaryColor(page, 3, "#14b8a6");
       await expect(page.locator("#theme-rounded")).not.toBeChecked();
-      expect(settingsState.getCount).toBe(1);
+      expect(settingsRequests).toHaveLength(1);
     });
   });
 
@@ -958,7 +758,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the favicon setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(page.getByText("admin.settings.theme.title")).toBeVisible();
 
       const field = page.getByTestId("favicon-field");
@@ -973,36 +775,45 @@ test.describe("Admin settings with edit permission", () => {
       );
     });
 
-    test("saves an uploaded favicon and reloads the page", async ({ page }) => {
-      await openSettings(page, settingsState);
+    test("saves an uploaded favicon and reloads the page", async ({
+      page,
+      settings,
+      settingsRequests,
+    }) => {
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page
         .getByTestId("favicon-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("favicon.ico"));
+        .setInputFiles({
+          name: "favicon.ico",
+          mimeType: getFileContentType("favicon.ico"),
+          buffer: readFileSync("tests/Playwright/fixtures/files/favicon.ico"),
+        });
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.theme_favicon = "/images/favicon2.ico";
-        },
-        { reload: true },
-      );
+      settings.data.theme_favicon = "/images/favicon2.ico";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
-      await expectUploadedFile(
-        formData,
-        "theme_favicon_file",
-        "favicon.ico",
-        "image/vnd.microsoft.icon",
+      const formData = await parseFormData(await nthRequest(save));
+      const faviconFile = formData.get("theme_favicon_file");
+      expect(faviconFile.name).toBe("favicon.ico");
+      expect(faviconFile.type).toBe("image/vnd.microsoft.icon");
+      expect(Buffer.from(await faviconFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/favicon.ico"),
       );
       expect(formData.get("theme_favicon")).toBeNull();
 
       // Config is loaded regardless of whether the page is reloaded or not
-      await save.waitForConfigRequest();
+      await configRequest;
       // Check that page was reloaded
-      await save.waitForReload();
+      await expect.poll(() => settingsRequests.length).toBe(2);
 
       await expect(
         page.getByTestId("favicon-field").getByTestId("settings-image-preview"),
@@ -1011,10 +822,13 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves a changed favicon url and reloads the page", async ({
       page,
+      settings,
+      settingsRequests,
     }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.theme_favicon = "/images/favicon2.ico";
-      });
+      settings.data.theme_favicon = "/images/favicon2.ico";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const urlInput = page
         .getByTestId("favicon-field")
@@ -1022,21 +836,20 @@ test.describe("Admin settings with edit permission", () => {
       await expect(urlInput).toHaveValue("/images/favicon2.ico");
       await urlInput.fill("/images/favicon3.ico");
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.theme_favicon = "/images/favicon3.ico";
-        },
-        { reload: true },
-      );
+      settings.data.theme_favicon = "/images/favicon3.ico";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("theme_favicon_file")).toBeNull();
       expect(formData.get("theme_favicon")).toBe("/images/favicon3.ico");
 
-      await save.waitForConfigRequest();
-      await save.waitForReload();
+      await configRequest;
+      await expect.poll(() => settingsRequests.length).toBe(2);
 
       await expect(
         page.getByTestId("favicon-field").getByTestId("settings-image-preview"),
@@ -1048,7 +861,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the dark favicon setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(page.getByText("admin.settings.theme.title")).toBeVisible();
 
       const field = page.getByTestId("favicon-dark-field");
@@ -1065,34 +880,43 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves an uploaded dark favicon and reloads the page", async ({
       page,
+      settings,
+      settingsRequests,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page
         .getByTestId("favicon-dark-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("favicon-dark.ico"));
+        .setInputFiles({
+          name: "favicon-dark.ico",
+          mimeType: getFileContentType("favicon-dark.ico"),
+          buffer: readFileSync(
+            "tests/Playwright/fixtures/files/favicon-dark.ico",
+          ),
+        });
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.theme_favicon_dark = "/images/favicon-dark2.ico";
-        },
-        { reload: true },
-      );
+      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
-      await expectUploadedFile(
-        formData,
-        "theme_favicon_dark_file",
-        "favicon-dark.ico",
-        "image/vnd.microsoft.icon",
+      const formData = await parseFormData(await nthRequest(save));
+      const faviconDarkFile = formData.get("theme_favicon_dark_file");
+      expect(faviconDarkFile.name).toBe("favicon-dark.ico");
+      expect(faviconDarkFile.type).toBe("image/vnd.microsoft.icon");
+      expect(Buffer.from(await faviconDarkFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/favicon-dark.ico"),
       );
       expect(formData.get("theme_favicon_dark")).toBeNull();
 
-      await save.waitForConfigRequest();
-      await save.waitForReload();
+      await configRequest;
+      await expect.poll(() => settingsRequests.length).toBe(2);
 
       await expect(
         page
@@ -1103,10 +927,13 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves a changed dark favicon url and reloads the page", async ({
       page,
+      settings,
+      settingsRequests,
     }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.theme_favicon_dark = "/images/favicon-dark2.ico";
-      });
+      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const urlInput = page
         .getByTestId("favicon-dark-field")
@@ -1114,23 +941,22 @@ test.describe("Admin settings with edit permission", () => {
       await expect(urlInput).toHaveValue("/images/favicon-dark2.ico");
       await urlInput.fill("/images/favicon-dark3.ico");
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.theme_favicon_dark = "/images/favicon-dark3.ico";
-        },
-        { reload: true },
-      );
+      settings.data.theme_favicon_dark = "/images/favicon-dark3.ico";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("theme_favicon_dark_file")).toBeNull();
       expect(formData.get("theme_favicon_dark")).toBe(
         "/images/favicon-dark3.ico",
       );
 
-      await save.waitForConfigRequest();
-      await save.waitForReload();
+      await configRequest;
+      await expect.poll(() => settingsRequests.length).toBe(2);
 
       await expect(
         page
@@ -1144,7 +970,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the custom css setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(page.getByText("admin.settings.theme.title")).toBeVisible();
 
       const field = page.getByTestId("theme-custom-css-field");
@@ -1161,33 +989,42 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves an uploaded custom css file and reloads the page", async ({
       page,
+      settings,
+      settingsRequests,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page
         .getByTestId("theme-custom-css-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("theme_custom_css.css"));
+        .setInputFiles({
+          name: "theme_custom_css.css",
+          mimeType: "text/css",
+          buffer: readFileSync(
+            "tests/Playwright/fixtures/files/theme_custom_css.css",
+          ),
+        });
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.theme_custom_css = "/storage/styles/theme_custom_css.css";
-        },
-        { reload: true },
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
+
+      const formData = await parseFormData(await nthRequest(save));
+      const cssFile = formData.get("theme_custom_css");
+      expect(cssFile.name).toBe("theme_custom_css.css");
+      expect(cssFile.type).toBe("text/css");
+      expect(Buffer.from(await cssFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/theme_custom_css.css"),
       );
 
-      const formData = await save.formData();
-      await expectUploadedFile(
-        formData,
-        "theme_custom_css",
-        "theme_custom_css.css",
-        "text/css",
-      );
-
-      await save.waitForConfigRequest();
-      await save.waitForReload();
+      await configRequest;
+      await expect.poll(() => settingsRequests.length).toBe(2);
 
       const field = page.getByTestId("theme-custom-css-field");
       await expect(field.getByTestId("file-input-button")).toHaveText(
@@ -1207,28 +1044,30 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves a removed custom css file and reloads the page", async ({
       page,
+      settings,
+      settingsRequests,
     }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.theme_custom_css = "/storage/styles/theme_custom_css.css";
-      });
+      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("theme-custom-css-field");
       await field.getByTestId("settings-file-delete-button").click();
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.theme_custom_css = null;
-        },
-        { reload: true },
-      );
+      settings.data.theme_custom_css = null;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("theme_custom_css")).toBe("");
 
-      await save.waitForConfigRequest();
-      await save.waitForReload();
+      await configRequest;
+      await expect.poll(() => settingsRequests.length).toBe(2);
 
       await expect(field.getByTestId("file-input-button")).toHaveText(
         "app.browse",
@@ -1243,12 +1082,20 @@ test.describe("Admin settings with edit permission", () => {
   });
 
   test.describe("banner", () => {
-    const bannerLink = { href: "/rooms", target: "_blank", text: "/rooms" };
+    let banner;
+
+    test.beforeEach(async ({ page }) => {
+      banner = page
+        .getByTestId("banner-preview-field")
+        .getByTestId("app-banner");
+    });
 
     test("shows the banner enabled setting and an empty preview", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(page.getByText("admin.settings.banner.title")).toBeVisible();
 
       const field = page.getByTestId("banner-enabled-field");
@@ -1262,11 +1109,17 @@ test.describe("Admin settings with edit permission", () => {
       const preview = page.getByTestId("banner-preview-field");
       await expect(preview).toBeVisible();
       await expect(preview).toContainText("admin.settings.banner.preview");
-      await expectBannerPreview(page);
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-icon")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-message")).toHaveText("");
+      await expect(banner.getByTestId("banner-link-button")).toHaveCount(0);
     });
 
     test("updates the banner preview with the title", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("banner-title-field");
       await expect(field).toBeVisible();
@@ -1274,13 +1127,24 @@ test.describe("Admin settings with edit permission", () => {
       await expect(field.locator("#banner-title")).toHaveValue("");
       await field.locator("#banner-title").fill("Banner title");
 
-      await expectBannerPreview(page, { title: "Banner title" });
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toBeVisible();
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-message")).toHaveText("");
+      await expect(banner.getByTestId("banner-link-button")).toHaveCount(0);
     });
 
-    test("updates the banner preview with the icon", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_title = "Banner title";
-      });
+    test("updates the banner preview with the icon", async ({
+      page,
+      settings,
+    }) => {
+      settings.data.banner_title = "Banner title";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("banner-icon-field");
       await expect(field).toBeVisible();
@@ -1289,19 +1153,30 @@ test.describe("Admin settings with edit permission", () => {
         "admin.settings.banner.icon_description",
       );
       await expect(field.locator("#banner-icon")).toHaveValue("");
-      await field.locator("#banner-icon").fill(BANNER_ICON);
+      await field.locator("#banner-icon").fill("fa-solid fa-door-open");
 
-      await expectBannerPreview(page, {
-        title: "Banner title",
-        icon: BANNER_ICON,
-      });
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toBeVisible();
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toBeVisible();
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText("");
+      await expect(banner.getByTestId("banner-link-button")).toHaveCount(0);
     });
 
-    test("updates the banner preview with the message", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_title = "Banner title";
-        data.banner_icon = BANNER_ICON;
-      });
+    test("updates the banner preview with the message", async ({
+      page,
+      settings,
+    }) => {
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_icon = "fa-solid fa-door-open";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("banner-message-field");
       await expect(field).toBeVisible();
@@ -1309,27 +1184,34 @@ test.describe("Admin settings with edit permission", () => {
       await expect(field.locator("#banner-message")).toHaveValue("");
       await field.locator("#banner-message").fill("Banner text message");
 
-      await expectBannerPreview(page, {
-        title: "Banner title",
-        icon: BANNER_ICON,
-        message: "Banner text message",
-      });
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toBeVisible();
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toBeVisible();
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toBeVisible();
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(banner.getByTestId("banner-link-button")).toHaveCount(0);
     });
 
     test("updates the banner preview with the link and link text", async ({
       page,
+      settings,
     }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_title = "Banner title";
-        data.banner_icon = BANNER_ICON;
-        data.banner_message = "Banner text message";
-      });
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_icon = "fa-solid fa-door-open";
+      settings.data.banner_message = "Banner text message";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
-      const common = {
-        title: "Banner title",
-        icon: BANNER_ICON,
-        message: "Banner text message",
-      };
+      const linkButton = banner.getByTestId("banner-link-button");
 
       const linkField = page.getByTestId("banner-link-field");
       await expect(linkField).toBeVisible();
@@ -1337,10 +1219,23 @@ test.describe("Admin settings with edit permission", () => {
       await expect(linkField.locator("#banner-link")).toHaveValue("");
       await linkField.locator("#banner-link").fill("/rooms");
 
-      await expectBannerPreview(page, {
-        ...common,
-        link: { ...bannerLink, severity: "primary" },
-      });
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_blank");
+      await expect(linkButton).toHaveText("/rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "primary");
+      await expect(linkButton).not.toHaveClass(/p-0 underline/);
+      await expect(linkButton).not.toHaveAttribute("style", /.+/);
 
       const linkTextField = page.getByTestId("banner-link-text-field");
       await expect(linkTextField).toBeVisible();
@@ -1350,160 +1245,284 @@ test.describe("Admin settings with edit permission", () => {
       await expect(linkTextField.locator("#banner-link-text")).toHaveValue("");
       await linkTextField.locator("#banner-link-text").fill("Rooms");
 
-      await expectBannerPreview(page, {
-        ...common,
-        link: { ...bannerLink, text: "Rooms", severity: "primary" },
-      });
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_blank");
+      await expect(linkButton).toHaveText("Rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "primary");
+      await expect(linkButton).not.toHaveClass(/p-0 underline/);
+      await expect(linkButton).not.toHaveAttribute("style", /.+/);
     });
 
-    test("changes the link style of the banner", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_title = "Banner title";
-        data.banner_icon = BANNER_ICON;
-        data.banner_message = "Banner text message";
-        data.banner_link = "/rooms";
-        data.banner_link_text = "Rooms";
-      });
+    test("changes the link style of the banner", async ({ page, settings }) => {
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_icon = "fa-solid fa-door-open";
+      settings.data.banner_message = "Banner text message";
+      settings.data.banner_link = "/rooms";
+      settings.data.banner_link_text = "Rooms";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.getByTestId("banner-link-style-field")).toContainText(
         "admin.settings.banner.link_style",
       );
-      await checkDropdown(page, "banner-link-style", {
-        current: "app.button_styles.primary",
-        options: [
-          "app.button_styles.primary",
-          "app.button_styles.secondary",
-          "app.button_styles.link",
-        ],
-        selected: 0,
-        choose: 2,
-      });
+      const dropdown = page.getByTestId("banner-link-style-dropdown");
+      const items = page.getByTestId("banner-link-style-dropdown-items");
+      await expect(dropdown).toHaveText("app.button_styles.primary");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
 
-      await expectBannerPreview(page, {
-        title: "Banner title",
-        icon: BANNER_ICON,
-        message: "Banner text message",
-        link: { ...bannerLink, text: "Rooms", severity: "link" },
-      });
+      await expect(items).toBeVisible();
+      const options = items.getByTestId("banner-link-style-dropdown-option");
+      await expect(options).toHaveText([
+        "app.button_styles.primary",
+        "app.button_styles.secondary",
+        "app.button_styles.link",
+      ]);
+      await expect(options.nth(0)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(2).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("app.button_styles.link");
+
+      const linkButton = banner.getByTestId("banner-link-button");
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_blank");
+      await expect(linkButton).toHaveText("Rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "link");
+      await expect(linkButton).toHaveClass(/p-0 underline/);
+      await expect(linkButton).not.toHaveAttribute("style", /.+/);
     });
 
-    test("changes the link target of the banner", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_title = "Banner title";
-        data.banner_icon = BANNER_ICON;
-        data.banner_message = "Banner text message";
-        data.banner_link = "/rooms";
-        data.banner_link_text = "Rooms";
-        data.banner_link_style = "link";
-      });
+    test("changes the link target of the banner", async ({
+      page,
+      settings,
+    }) => {
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_icon = "fa-solid fa-door-open";
+      settings.data.banner_message = "Banner text message";
+      settings.data.banner_link = "/rooms";
+      settings.data.banner_link_text = "Rooms";
+      settings.data.banner_link_style = "link";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.getByTestId("banner-link-target-field")).toContainText(
         "admin.settings.banner.link_target",
       );
-      await checkDropdown(page, "banner-link-target", {
-        current: "app.link_targets.blank",
-        options: ["app.link_targets.blank", "app.link_targets.self"],
-        selected: 0,
-        choose: 1,
-      });
+      const dropdown = page.getByTestId("banner-link-target-dropdown");
+      const items = page.getByTestId("banner-link-target-dropdown-items");
+      await expect(dropdown).toHaveText("app.link_targets.blank");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
 
-      await expectBannerPreview(page, {
-        title: "Banner title",
-        icon: BANNER_ICON,
-        message: "Banner text message",
-        link: {
-          ...bannerLink,
-          target: "_self",
-          text: "Rooms",
-          severity: "link",
-        },
-      });
+      await expect(items).toBeVisible();
+      const options = items.getByTestId("banner-link-target-dropdown-option");
+      await expect(options).toHaveText([
+        "app.link_targets.blank",
+        "app.link_targets.self",
+      ]);
+      await expect(options.nth(0)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(1).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("app.link_targets.self");
+
+      const linkButton = banner.getByTestId("banner-link-button");
+      await expect(banner).not.toHaveAttribute("style", /.+/);
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_self");
+      await expect(linkButton).toHaveText("Rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "link");
+      await expect(linkButton).toHaveClass(/p-0 underline/);
+      await expect(linkButton).not.toHaveAttribute("style", /.+/);
     });
 
-    test("changes the text color of the banner", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_title = "Banner title";
-        data.banner_message = "Banner text message";
-        data.banner_link = "/rooms";
-        data.banner_link_text = "Rooms";
-        data.banner_link_style = "link";
-      });
+    test("changes the text color of the banner", async ({ page, settings }) => {
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_message = "Banner text message";
+      settings.data.banner_link = "/rooms";
+      settings.data.banner_link_text = "Rooms";
+      settings.data.banner_link_style = "link";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("banner-color-field");
       await expect(field).toBeVisible();
       await expect(field).toContainText("admin.settings.banner.color");
       await expect(field).toContainText("admin.room_types.custom_color");
-      await expectColorButtonsEnabled(field, 2);
-      await expectColorButtons(field, 2, null);
+      const buttons = field.getByTestId("color-button");
+      const selectedButtons = buttons.and(page.locator(".selected"));
+      await expect(buttons).toHaveCount(2);
+      await expect(buttons.and(page.locator("[role=button]"))).toHaveCount(2);
+      await expect(
+        buttons.and(
+          page.locator(".pointer-events-none.cursor-not-allowed.opacity-80"),
+        ),
+      ).toHaveCount(0);
+      await expect(selectedButtons).toHaveCount(0);
 
       // Custom color that is not one of the buttons
       const input = field.locator("#banner-color");
       await expect(input).toHaveValue("");
       await expect(input).toBeEnabled();
       await input.fill("#6366f1");
-      await expectColorButtons(field, 2, null);
+      await expect(buttons).toHaveCount(2);
+      await expect(selectedButtons).toHaveCount(0);
 
       // Set color of a button and check that the button is selected
       await input.fill("#FFFFFF");
-      await expectColorButtons(field, 2, 0);
+      await expect(buttons).toHaveCount(2);
+      await expect(buttons.nth(0)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(selectedButtons).toHaveCount(1);
 
-      await expectBannerPreview(page, {
-        title: "Banner title",
-        message: "Banner text message",
-        link: { ...bannerLink, text: "Rooms", severity: "link" },
-        color: "rgb(255, 255, 255)",
-      });
+      const linkButton = banner.getByTestId("banner-link-button");
+      await expect(banner).toHaveAttribute("style", /.+/);
+      await expect(banner).toHaveAttribute(
+        "style",
+        /(^|[\s;])color: rgb\(255, 255, 255\);/,
+      );
+      await expect(banner).not.toHaveAttribute("style", /background-color/);
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_blank");
+      await expect(linkButton).toHaveText("Rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "link");
+      await expect(linkButton).toHaveClass(/p-0 underline/);
+      await expect(linkButton).toHaveAttribute(
+        "style",
+        /color: rgb\(255, 255, 255\)/,
+      );
     });
 
-    test("changes the background color of the banner", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_title = "Banner title";
-        data.banner_message = "Banner text message";
-        data.banner_color = "#FFFFFF";
-      });
+    test("changes the background color of the banner", async ({
+      page,
+      settings,
+    }) => {
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_message = "Banner text message";
+      settings.data.banner_color = "#FFFFFF";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("banner-background-field");
       await expect(field).toBeVisible();
       await expect(field).toContainText("admin.settings.banner.background");
       await expect(field).toContainText("admin.room_types.custom_color");
-      await expectColorButtonsEnabled(field, 10);
-      await expectColorButtons(field, 10, null);
+      const buttons = field.getByTestId("color-button");
+      const selectedButtons = buttons.and(page.locator(".selected"));
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.and(page.locator("[role=button]"))).toHaveCount(10);
+      await expect(
+        buttons.and(
+          page.locator(".pointer-events-none.cursor-not-allowed.opacity-80"),
+        ),
+      ).toHaveCount(0);
+      await expect(selectedButtons).toHaveCount(0);
 
       // Custom color that is not one of the buttons
       const input = field.locator("#banner-background");
       await expect(input).toHaveValue("");
       await expect(input).toBeEnabled();
       await input.fill("#FFFFFF");
-      await expectColorButtons(field, 10, null);
+      await expect(buttons).toHaveCount(10);
+      await expect(selectedButtons).toHaveCount(0);
 
       // Set color of a button and check that the button is selected
       await input.fill("#6366f1");
-      await expectColorButtons(field, 10, 0);
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.nth(0)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(selectedButtons).toHaveCount(1);
 
       // Select a color with the button
-      await field.getByTestId("color-button").nth(7).click();
+      await buttons.nth(7).click();
       await expect(input).toHaveValue("#ef4444");
-      await expectColorButtons(field, 10, 7);
+      await expect(buttons).toHaveCount(10);
+      await expect(buttons.nth(7)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(selectedButtons).toHaveCount(1);
 
-      await expectBannerPreview(page, {
-        title: "Banner title",
-        message: "Banner text message",
-        color: "rgb(255, 255, 255)",
-        background: "rgb(239, 68, 68)",
-      });
+      await expect(banner).toHaveAttribute("style", /.+/);
+      await expect(banner).toHaveAttribute(
+        "style",
+        /(^|[\s;])color: rgb\(255, 255, 255\);/,
+      );
+      await expect(banner).toHaveAttribute(
+        "style",
+        /background-color: rgb\(239, 68, 68\);/,
+      );
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(banner.getByTestId("banner-link-button")).toHaveCount(0);
     });
 
-    test("saves the banner settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+    test("saves the banner settings", async ({ page, settings }) => {
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page.locator("#banner-enabled").click();
       await page.locator("#banner-title").fill("Banner title");
-      await page.locator("#banner-icon").fill(BANNER_ICON);
+      await page.locator("#banner-icon").fill("fa-solid fa-door-open");
       await page.locator("#banner-message").fill("Banner text message");
       await page.locator("#banner-link").fill("/rooms");
       await page.locator("#banner-link-text").fill("Rooms");
-      await chooseDropdownOption(page, "banner-link-style", 2);
-      await chooseDropdownOption(page, "banner-link-target", 1);
+      await page.getByTestId("banner-link-style-dropdown").click();
+      await page
+        .getByTestId("banner-link-style-dropdown-option")
+        .nth(2)
+        .click();
+      await page.getByTestId("banner-link-target-dropdown").click();
+      await page
+        .getByTestId("banner-link-target-dropdown-option")
+        .nth(1)
+        .click();
       await page.locator("#banner-color").fill("#FFFFFF");
       await page
         .getByTestId("banner-background-field")
@@ -1511,31 +1530,32 @@ test.describe("Admin settings with edit permission", () => {
         .nth(7)
         .click();
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.banner_enabled = true;
-          data.banner_title = "Banner title";
-          data.banner_icon = BANNER_ICON;
-          data.banner_message = "Banner text message";
-          data.banner_link = "/rooms";
-          data.banner_link_text = "Rooms";
-          data.banner_link_style = "link";
-          data.banner_link_target = "self";
-          data.banner_color = "#FFFFFF";
-          data.banner_background = "#ef4444";
-        },
-        { hold: true },
-      );
+      settings.data.banner_enabled = true;
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_icon = "fa-solid fa-door-open";
+      settings.data.banner_message = "Banner text message";
+      settings.data.banner_link = "/rooms";
+      settings.data.banner_link_text = "Rooms";
+      settings.data.banner_link_style = "link";
+      settings.data.banner_link_target = "self";
+      settings.data.banner_color = "#FFFFFF";
+      settings.data.banner_background = "#ef4444";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+        hold: true,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      await expectLoading(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(saveButton).toBeDisabled();
       save.release();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("banner_enabled")).toBe("1");
       expect(formData.get("banner_title")).toBe("Banner title");
-      expect(formData.get("banner_icon")).toBe(BANNER_ICON);
+      expect(formData.get("banner_icon")).toBe("fa-solid fa-door-open");
       expect(formData.get("banner_message")).toBe("Banner text message");
       expect(formData.get("banner_link")).toBe("/rooms");
       expect(formData.get("banner_link_text")).toBe("Rooms");
@@ -1544,26 +1564,45 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("banner_color")).toBe("#FFFFFF");
       expect(formData.get("banner_background")).toBe("#ef4444");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.locator("#banner-enabled")).toBeChecked();
-      await expectBannerPreview(page, {
-        title: "Banner title",
-        icon: BANNER_ICON,
-        message: "Banner text message",
-        link: {
-          href: "/rooms",
-          target: "_self",
-          text: "Rooms",
-          severity: "link",
-        },
-        color: "rgb(255, 255, 255)",
-        background: "rgb(239, 68, 68)",
-      });
+      const linkButton = banner.getByTestId("banner-link-button");
+      await expect(banner).toHaveAttribute("style", /.+/);
+      await expect(banner).toHaveAttribute(
+        "style",
+        /(^|[\s;])color: rgb\(255, 255, 255\);/,
+      );
+      await expect(banner).toHaveAttribute(
+        "style",
+        /background-color: rgb\(239, 68, 68\);/,
+      );
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_self");
+      await expect(linkButton).toHaveText("Rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "link");
+      await expect(linkButton).toHaveClass(/p-0 underline/);
+      await expect(linkButton).toHaveAttribute(
+        "style",
+        /color: rgb\(255, 255, 255\)/,
+      );
 
       await expect(page.locator("#banner-title")).toHaveValue("Banner title");
-      await expect(page.locator("#banner-icon")).toHaveValue(BANNER_ICON);
+      await expect(page.locator("#banner-icon")).toHaveValue(
+        "fa-solid fa-door-open",
+      );
       await expect(page.locator("#banner-message")).toHaveValue(
         "Banner text message",
       );
@@ -1578,48 +1617,104 @@ test.describe("Admin settings with edit permission", () => {
 
       const colorField = page.getByTestId("banner-color-field");
       await expect(colorField.locator("#banner-color")).toHaveValue("#FFFFFF");
-      await expectColorButtons(colorField, 2, 0);
+      const colorButtons = colorField.getByTestId("color-button");
+      await expect(colorButtons).toHaveCount(2);
+      await expect(colorButtons.nth(0)).toHaveClass(/(^|\s)selected(\s|$)/);
+      await expect(colorButtons.and(page.locator(".selected"))).toHaveCount(1);
 
       const backgroundField = page.getByTestId("banner-background-field");
       await expect(backgroundField.locator("#banner-background")).toHaveValue(
         "#ef4444",
       );
-      await expectColorButtons(backgroundField, 10, 7);
+      const backgroundButtons = backgroundField.getByTestId("color-button");
+      await expect(backgroundButtons).toHaveCount(10);
+      await expect(backgroundButtons.nth(7)).toHaveClass(
+        /(^|\s)selected(\s|$)/,
+      );
+      await expect(
+        backgroundButtons.and(page.locator(".selected")),
+      ).toHaveCount(1);
     });
 
-    test("saves a disabled banner with cleared inputs", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.banner_enabled = true;
-        data.banner_title = "Banner title";
-        data.banner_icon = BANNER_ICON;
-        data.banner_message = "Banner text message";
-        data.banner_link = "/rooms";
-        data.banner_link_text = "Rooms";
-        data.banner_link_style = "link";
-        data.banner_link_target = "self";
-        data.banner_color = "#FFFFFF";
-        data.banner_background = "#ef4444";
-      });
+    test("saves a disabled banner with cleared inputs", async ({
+      page,
+      settings,
+    }) => {
+      settings.data.banner_enabled = true;
+      settings.data.banner_title = "Banner title";
+      settings.data.banner_icon = "fa-solid fa-door-open";
+      settings.data.banner_message = "Banner text message";
+      settings.data.banner_link = "/rooms";
+      settings.data.banner_link_text = "Rooms";
+      settings.data.banner_link_style = "link";
+      settings.data.banner_link_target = "self";
+      settings.data.banner_color = "#FFFFFF";
+      settings.data.banner_background = "#ef4444";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
-      const fullPreview = {
-        title: "Banner title",
-        icon: BANNER_ICON,
-        message: "Banner text message",
-        link: {
-          href: "/rooms",
-          target: "_self",
-          text: "Rooms",
-          severity: "link",
-        },
-        color: "rgb(255, 255, 255)",
-        background: "rgb(239, 68, 68)",
-      };
-      await expectBannerPreview(page, fullPreview);
+      const linkButton = banner.getByTestId("banner-link-button");
+      await expect(banner).toHaveAttribute("style", /.+/);
+      await expect(banner).toHaveAttribute(
+        "style",
+        /(^|[\s;])color: rgb\(255, 255, 255\);/,
+      );
+      await expect(banner).toHaveAttribute(
+        "style",
+        /background-color: rgb\(239, 68, 68\);/,
+      );
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_self");
+      await expect(linkButton).toHaveText("Rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "link");
+      await expect(linkButton).toHaveClass(/p-0 underline/);
+      await expect(linkButton).toHaveAttribute(
+        "style",
+        /color: rgb\(255, 255, 255\)/,
+      );
 
       // Disabling the banner does not change the preview
       await page.locator("#banner-enabled").click();
       await expect(page.locator("#banner-enabled")).not.toBeChecked();
-      await expectBannerPreview(page, fullPreview);
+      await expect(banner).toHaveAttribute("style", /.+/);
+      await expect(banner).toHaveAttribute(
+        "style",
+        /(^|[\s;])color: rgb\(255, 255, 255\);/,
+      );
+      await expect(banner).toHaveAttribute(
+        "style",
+        /background-color: rgb\(239, 68, 68\);/,
+      );
+      await expect(banner.getByTestId("banner-title")).toContainText(
+        "Banner title",
+      );
+      await expect(banner.getByTestId("banner-icon")).toHaveClass(
+        /fa-solid fa-door-open/,
+      );
+      await expect(banner.getByTestId("banner-message")).toHaveText(
+        "Banner text message",
+      );
+      await expect(linkButton).toBeVisible();
+      await expect(linkButton).toHaveAttribute("href", "/rooms");
+      await expect(linkButton).toHaveAttribute("target", "_self");
+      await expect(linkButton).toHaveText("Rooms");
+      await expect(linkButton).toHaveAttribute("data-p-severity", "link");
+      await expect(linkButton).toHaveClass(/p-0 underline/);
+      await expect(linkButton).toHaveAttribute(
+        "style",
+        /color: rgb\(255, 255, 255\)/,
+      );
 
       await page.locator("#banner-title").fill("");
       await page.locator("#banner-icon").fill("");
@@ -1633,14 +1728,30 @@ test.describe("Admin settings with edit permission", () => {
       const preview = page.getByTestId("banner-preview-field");
       await expect(preview).toBeVisible();
       await expect(preview).toContainText("admin.settings.banner.preview");
-      await expectBannerPreview(page, { hasStyle: true });
+      await expect(banner).toHaveAttribute("style", /.*/);
+      await expect(banner).not.toHaveAttribute("style", /(^|[\s;])color:/);
+      await expect(banner).not.toHaveAttribute("style", /background-color/);
+      await expect(banner.getByTestId("banner-title")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-icon")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-message")).toHaveText("");
+      await expect(linkButton).toHaveCount(0);
 
-      const save = await saveChanges(page, settingsState, (data) => {
-        data.banner_link_style = "link";
-        data.banner_link_target = "self";
+      settings.data.banner_enabled = false;
+      settings.data.banner_title = null;
+      settings.data.banner_icon = null;
+      settings.data.banner_message = null;
+      settings.data.banner_link = null;
+      settings.data.banner_link_text = null;
+      settings.data.banner_color = null;
+      settings.data.banner_background = null;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
       });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("banner_enabled")).toBe("0");
       expect(formData.get("banner_title")).toBe("");
       expect(formData.get("banner_icon")).toBe("");
@@ -1652,11 +1763,18 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("banner_color")).toBe("");
       expect(formData.get("banner_background")).toBe("");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.locator("#banner-enabled")).not.toBeChecked();
-      await expectBannerPreview(page, { hasStyle: true });
+      await expect(banner).toHaveAttribute("style", /.*/);
+      await expect(banner).not.toHaveAttribute("style", /(^|[\s;])color:/);
+      await expect(banner).not.toHaveAttribute("style", /background-color/);
+      await expect(banner.getByTestId("banner-title")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-icon")).toHaveCount(0);
+      await expect(banner.getByTestId("banner-message")).toHaveText("");
+      await expect(linkButton).toHaveCount(0);
 
       await expect(page.locator("#banner-title")).toHaveValue("");
       await expect(page.locator("#banner-icon")).toHaveValue("");
@@ -1672,13 +1790,21 @@ test.describe("Admin settings with edit permission", () => {
 
       const colorField = page.getByTestId("banner-color-field");
       await expect(colorField.locator("#banner-color")).toHaveValue("");
-      await expectColorButtons(colorField, 2, null);
+      await expect(colorField.getByTestId("color-button")).toHaveCount(2);
+      await expect(
+        colorField.getByTestId("color-button").and(page.locator(".selected")),
+      ).toHaveCount(0);
 
       const backgroundField = page.getByTestId("banner-background-field");
       await expect(backgroundField.locator("#banner-background")).toHaveValue(
         "",
       );
-      await expectColorButtons(backgroundField, 10, null);
+      await expect(backgroundField.getByTestId("color-button")).toHaveCount(10);
+      await expect(
+        backgroundField
+          .getByTestId("color-button")
+          .and(page.locator(".selected")),
+      ).toHaveCount(0);
     });
   });
 
@@ -1686,7 +1812,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the room limit setting and the custom input", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(
         page.getByText("app.rooms", { exact: true }).first(),
       ).toBeVisible();
@@ -1727,7 +1855,9 @@ test.describe("Admin settings with edit permission", () => {
     });
 
     test("changes the personalized link expiration", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("room-personalized-link-expiration-field");
       await expect(field).toBeVisible();
@@ -1737,18 +1867,45 @@ test.describe("Admin settings with edit permission", () => {
       await expect(field).toContainText(
         "admin.settings.room_personalized_link_expiration.description",
       );
-      await checkDropdown(page, "room-personalized-link-expiration", {
-        current: "app.unlimited",
-        options: PERIOD_OPTIONS,
-        selected: 7,
-        choose: 1,
-      });
+      const dropdown = page.getByTestId(
+        "room-personalized-link-expiration-dropdown",
+      );
+      const items = page.getByTestId(
+        "room-personalized-link-expiration-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("app.unlimited");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "room-personalized-link-expiration-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+        "admin.settings.three_month",
+        "admin.settings.six_month",
+        "admin.settings.one_year",
+        "admin.settings.two_years",
+        "app.unlimited",
+      ]);
+      await expect(options.nth(7)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(1).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.two_weeks");
     });
 
-    test("changes the auto delete deadline period", async ({ page }) => {
-      await openSettings(page, settingsState, (data) => {
-        data.room_personalized_link_expiration = 14;
-      });
+    test("changes the auto delete deadline period", async ({
+      page,
+      settings,
+    }) => {
+      settings.data.room_personalized_link_expiration = 14;
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("room-auto-delete-deadline-period-field");
       await expect(field).toBeVisible();
@@ -1758,20 +1915,34 @@ test.describe("Admin settings with edit permission", () => {
       await expect(field).toContainText(
         "admin.settings.room_auto_delete.deadline_period.description",
       );
-      await checkDropdown(page, "room-auto-delete-deadline", {
-        current: "admin.settings.two_weeks",
-        options: [
-          "admin.settings.one_week",
-          "admin.settings.two_weeks",
-          "admin.settings.one_month",
-        ],
-        selected: 1,
-        choose: 0,
-      });
+      const dropdown = page.getByTestId("room-auto-delete-deadline-dropdown");
+      const items = page.getByTestId(
+        "room-auto-delete-deadline-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("admin.settings.two_weeks");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "room-auto-delete-deadline-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+      ]);
+      await expect(options.nth(1)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(0).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.one_week");
     });
 
     test("changes the auto delete inactive period", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("room-auto-delete-inactive-period-field");
       await expect(field).toBeVisible();
@@ -1781,16 +1952,39 @@ test.describe("Admin settings with edit permission", () => {
       await expect(field).toContainText(
         "admin.settings.room_auto_delete.inactive_period.description",
       );
-      await checkDropdown(page, "room-auto-delete-inactive", {
-        current: "app.unlimited",
-        options: PERIOD_OPTIONS,
-        selected: 7,
-        choose: 2,
-      });
+      const dropdown = page.getByTestId("room-auto-delete-inactive-dropdown");
+      const items = page.getByTestId(
+        "room-auto-delete-inactive-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("app.unlimited");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "room-auto-delete-inactive-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+        "admin.settings.three_month",
+        "admin.settings.six_month",
+        "admin.settings.one_year",
+        "admin.settings.two_years",
+        "app.unlimited",
+      ]);
+      await expect(options.nth(7)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(2).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.one_month");
     });
 
     test("changes the auto delete never used period", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId(
         "room-auto-delete-never-used-period-field",
@@ -1801,18 +1995,41 @@ test.describe("Admin settings with edit permission", () => {
       await expect(field).toContainText(
         "admin.settings.room_auto_delete.never_used_period.description",
       );
-      await checkDropdown(page, "room-auto-delete-never-used", {
-        current: "app.unlimited",
-        options: PERIOD_OPTIONS,
-        selected: 7,
-        choose: 6,
-      });
+      const dropdown = page.getByTestId("room-auto-delete-never-used-dropdown");
+      const items = page.getByTestId(
+        "room-auto-delete-never-used-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("app.unlimited");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "room-auto-delete-never-used-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+        "admin.settings.three_month",
+        "admin.settings.six_month",
+        "admin.settings.one_year",
+        "admin.settings.two_years",
+        "app.unlimited",
+      ]);
+      await expect(options.nth(7)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(6).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.two_years");
     });
 
     test("shows the room file terms of use and hide owner settings", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const termsField = page.getByTestId("room-file-terms-of-use-field");
       await expect(termsField).toBeVisible();
@@ -1840,39 +2057,60 @@ test.describe("Admin settings with edit permission", () => {
       await expect(hideOwnerField.locator("#room-hide-owner")).toBeChecked();
     });
 
-    test("saves the room settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+    test("saves the room settings", async ({ page, settings }) => {
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page.locator("#room-limit-mode-custom").click();
       await page.locator("#room-limit-custom").fill("10");
-      await chooseDropdownOption(page, "room-personalized-link-expiration", 1);
-      await chooseDropdownOption(page, "room-auto-delete-deadline", 0);
-      await chooseDropdownOption(page, "room-auto-delete-inactive", 2);
-      await chooseDropdownOption(page, "room-auto-delete-never-used", 6);
+      await page
+        .getByTestId("room-personalized-link-expiration-dropdown")
+        .click();
+      await page
+        .getByTestId("room-personalized-link-expiration-dropdown-option")
+        .nth(1)
+        .click();
+      await page.getByTestId("room-auto-delete-deadline-dropdown").click();
+      await page
+        .getByTestId("room-auto-delete-deadline-dropdown-option")
+        .nth(0)
+        .click();
+      await page.getByTestId("room-auto-delete-inactive-dropdown").click();
+      await page
+        .getByTestId("room-auto-delete-inactive-dropdown-option")
+        .nth(2)
+        .click();
+      await page.getByTestId("room-auto-delete-never-used-dropdown").click();
+      await page
+        .getByTestId("room-auto-delete-never-used-dropdown-option")
+        .nth(6)
+        .click();
       await page
         .locator("#room-file-terms-of-use")
         .fill("New room file terms of use");
       await page.locator("#room-hide-owner").click();
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.room_limit = 10;
-          data.room_personalized_link_expiration = 14;
-          data.room_auto_delete_deadline_period = 7;
-          data.room_auto_delete_inactive_period = 30;
-          data.room_auto_delete_never_used_period = 730;
-          data.room_file_terms_of_use = "New room file terms of use";
-          data.room_hide_owner_from_guests = true;
-        },
-        { hold: true },
-      );
+      settings.data.room_limit = 10;
+      settings.data.room_personalized_link_expiration = 14;
+      settings.data.room_auto_delete_deadline_period = 7;
+      settings.data.room_auto_delete_inactive_period = 30;
+      settings.data.room_auto_delete_never_used_period = 730;
+      settings.data.room_file_terms_of_use = "New room file terms of use";
+      settings.data.room_hide_owner_from_guests = true;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+        hold: true,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      await expectLoading(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(saveButton).toBeDisabled();
       save.release();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("room_limit")).toBe("10");
       expect(formData.get("room_personalized_link_expiration")).toBe("14");
       expect(formData.get("room_auto_delete_deadline_period")).toBe("7");
@@ -1883,8 +2121,9 @@ test.describe("Admin settings with edit permission", () => {
       );
       expect(formData.get("room_hide_owner_from_guests")).toBe("1");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(
         page.locator("#room-limit-mode-unlimited"),
@@ -1913,19 +2152,18 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves an unlimited room limit and cleared terms of use", async ({
       page,
+      settings,
     }) => {
-      const customSettings = (data) => {
-        data.room_personalized_link_expiration = 14;
-        data.room_auto_delete_deadline_period = 7;
-        data.room_auto_delete_inactive_period = 30;
-        data.room_auto_delete_never_used_period = 730;
-      };
-      await openSettings(page, settingsState, (data) => {
-        customSettings(data);
-        data.room_limit = 10;
-        data.room_file_terms_of_use = "New room file terms of use";
-        data.room_hide_owner_from_guests = true;
-      });
+      settings.data.room_personalized_link_expiration = 14;
+      settings.data.room_auto_delete_deadline_period = 7;
+      settings.data.room_auto_delete_inactive_period = 30;
+      settings.data.room_auto_delete_never_used_period = 730;
+      settings.data.room_limit = 10;
+      settings.data.room_file_terms_of_use = "New room file terms of use";
+      settings.data.room_hide_owner_from_guests = true;
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.locator("#room-limit-custom")).toHaveValue("10");
       await page.locator("#room-limit-mode-unlimited").click();
@@ -1933,14 +2171,17 @@ test.describe("Admin settings with edit permission", () => {
       await page.locator("#room-file-terms-of-use").fill("");
       await page.locator("#room-hide-owner").click();
 
-      const save = await saveChanges(page, settingsState, (data) => {
-        customSettings(data);
-        data.room_limit = -1;
-        data.room_file_terms_of_use = null;
-        data.room_hide_owner_from_guests = false;
+      settings.data.room_limit = -1;
+      settings.data.room_file_terms_of_use = null;
+      settings.data.room_hide_owner_from_guests = false;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
       });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("room_limit")).toBe("-1");
       expect(formData.get("room_personalized_link_expiration")).toBe("14");
       expect(formData.get("room_auto_delete_deadline_period")).toBe("7");
@@ -1949,8 +2190,9 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("room_file_terms_of_use")).toBe("");
       expect(formData.get("room_hide_owner_from_guests")).toBe("0");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.locator("#room-limit-mode-unlimited")).toBeChecked();
       await expect(page.locator("#room-limit-mode-unlimited")).toBeEnabled();
@@ -1976,7 +2218,9 @@ test.describe("Admin settings with edit permission", () => {
 
   test.describe("users", () => {
     test("shows the user settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(
         page.getByText("app.users", { exact: true }).first(),
       ).toBeVisible();
@@ -1998,31 +2242,35 @@ test.describe("Admin settings with edit permission", () => {
       await expect(searchField.locator("#user-search-by-name")).toBeChecked();
     });
 
-    test("saves the user settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+    test("saves the user settings", async ({ page, settings }) => {
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page.locator("#password-change-allowed").click();
       await page.locator("#user-search-by-name").click();
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.user_password_change_allowed = false;
-          data.user_search_by_name = false;
-        },
-        { hold: true },
-      );
+      settings.data.user_password_change_allowed = false;
+      settings.data.user_search_by_name = false;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+        hold: true,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      await expectLoading(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(saveButton).toBeDisabled();
       save.release();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("user_password_change_allowed")).toBe("0");
       expect(formData.get("user_search_by_name")).toBe("0");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(page.locator("#password-change-allowed")).not.toBeChecked();
       await expect(page.locator("#user-search-by-name")).not.toBeChecked();
@@ -2031,7 +2279,9 @@ test.describe("Admin settings with edit permission", () => {
 
   test.describe("recording and statistics", () => {
     test("changes the server statistics settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(
         page.getByText("admin.settings.recording_and_statistics_title"),
       ).toBeVisible();
@@ -2055,16 +2305,41 @@ test.describe("Admin settings with edit permission", () => {
       ).toContainText(
         "admin.settings.statistics.servers.retention_period_title",
       );
-      await checkDropdown(page, "statistics-servers-retention-period", {
-        current: "app.unlimited",
-        options: PERIOD_OPTIONS,
-        selected: 7,
-        choose: 3,
-      });
+      const dropdown = page.getByTestId(
+        "statistics-servers-retention-period-dropdown",
+      );
+      const items = page.getByTestId(
+        "statistics-servers-retention-period-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("app.unlimited");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "statistics-servers-retention-period-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+        "admin.settings.three_month",
+        "admin.settings.six_month",
+        "admin.settings.one_year",
+        "admin.settings.two_years",
+        "app.unlimited",
+      ]);
+      await expect(options.nth(7)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(3).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.three_month");
     });
 
     test("changes the meeting statistics settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const enabledField = page.getByTestId(
         "statistics-meetings-enabled-field",
@@ -2086,78 +2361,165 @@ test.describe("Admin settings with edit permission", () => {
       ).toContainText(
         "admin.settings.statistics.meetings.retention_period_title",
       );
-      await checkDropdown(page, "statistics-meetings-retention-period", {
-        current: "app.unlimited",
-        options: PERIOD_OPTIONS,
-        selected: 7,
-        choose: 4,
-      });
+      const dropdown = page.getByTestId(
+        "statistics-meetings-retention-period-dropdown",
+      );
+      const items = page.getByTestId(
+        "statistics-meetings-retention-period-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("app.unlimited");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "statistics-meetings-retention-period-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+        "admin.settings.three_month",
+        "admin.settings.six_month",
+        "admin.settings.one_year",
+        "admin.settings.two_years",
+        "app.unlimited",
+      ]);
+      await expect(options.nth(7)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(4).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.six_month");
     });
 
     test("changes the attendance retention period", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await expect(
         page.getByTestId("attendance-retention-period-field"),
       ).toContainText("admin.settings.attendance.retention_period_title");
-      await checkDropdown(page, "attendance-retention-period", {
-        current: "app.unlimited",
-        options: PERIOD_OPTIONS,
-        selected: 7,
-        choose: 5,
-      });
+      const dropdown = page.getByTestId("attendance-retention-period-dropdown");
+      const items = page.getByTestId(
+        "attendance-retention-period-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("app.unlimited");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "attendance-retention-period-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+        "admin.settings.three_month",
+        "admin.settings.six_month",
+        "admin.settings.one_year",
+        "admin.settings.two_years",
+        "app.unlimited",
+      ]);
+      await expect(options.nth(7)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(5).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.one_year");
     });
 
     test("changes the recording retention period", async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await expect(
         page.getByTestId("recording-retention-period-field"),
       ).toContainText("admin.settings.recording.retention_period_title");
-      await checkDropdown(page, "recording-retention-period", {
-        current: "app.unlimited",
-        options: PERIOD_OPTIONS,
-        selected: 7,
-        choose: 0,
-      });
+      const dropdown = page.getByTestId("recording-retention-period-dropdown");
+      const items = page.getByTestId(
+        "recording-retention-period-dropdown-items",
+      );
+      await expect(dropdown).toHaveText("app.unlimited");
+      await expect(items).toHaveCount(0);
+      await dropdown.click();
+
+      await expect(items).toBeVisible();
+      const options = items.getByTestId(
+        "recording-retention-period-dropdown-option",
+      );
+      await expect(options).toHaveText([
+        "admin.settings.one_week",
+        "admin.settings.two_weeks",
+        "admin.settings.one_month",
+        "admin.settings.three_month",
+        "admin.settings.six_month",
+        "admin.settings.one_year",
+        "admin.settings.two_years",
+        "app.unlimited",
+      ]);
+      await expect(options.nth(7)).toHaveAttribute("aria-selected", "true");
+
+      await options.nth(0).click();
+      await expect(items).toHaveCount(0);
+      await expect(dropdown).toHaveText("admin.settings.one_week");
     });
 
-    test("saves the recording and statistics settings", async ({ page }) => {
-      await openSettings(page, settingsState);
+    test("saves the recording and statistics settings", async ({
+      page,
+      settings,
+    }) => {
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page.locator("#statistics-servers-enabled").click();
-      await chooseDropdownOption(
-        page,
-        "statistics-servers-retention-period",
-        3,
-      );
+      await page
+        .getByTestId("statistics-servers-retention-period-dropdown")
+        .click();
+      await page
+        .getByTestId("statistics-servers-retention-period-dropdown-option")
+        .nth(3)
+        .click();
       await page.locator("#statistics-meetings-enabled").click();
-      await chooseDropdownOption(
-        page,
-        "statistics-meetings-retention-period",
-        4,
-      );
-      await chooseDropdownOption(page, "attendance-retention-period", 5);
-      await chooseDropdownOption(page, "recording-retention-period", 0);
+      await page
+        .getByTestId("statistics-meetings-retention-period-dropdown")
+        .click();
+      await page
+        .getByTestId("statistics-meetings-retention-period-dropdown-option")
+        .nth(4)
+        .click();
+      await page.getByTestId("attendance-retention-period-dropdown").click();
+      await page
+        .getByTestId("attendance-retention-period-dropdown-option")
+        .nth(5)
+        .click();
+      await page.getByTestId("recording-retention-period-dropdown").click();
+      await page
+        .getByTestId("recording-retention-period-dropdown-option")
+        .nth(0)
+        .click();
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          data.recording_server_usage_enabled = false;
-          data.recording_server_usage_retention_period = 90;
-          data.recording_meeting_usage_enabled = false;
-          data.recording_meeting_usage_retention_period = 180;
-          data.recording_attendance_retention_period = 365;
-          data.recording_recording_retention_period = 7;
-        },
-        { hold: true },
-      );
+      settings.data.recording_server_usage_enabled = false;
+      settings.data.recording_server_usage_retention_period = 90;
+      settings.data.recording_meeting_usage_enabled = false;
+      settings.data.recording_meeting_usage_retention_period = 180;
+      settings.data.recording_attendance_retention_period = 365;
+      settings.data.recording_recording_retention_period = 7;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+        hold: true,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      await expectLoading(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(saveButton).toBeDisabled();
       save.release();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("recording_server_usage_enabled")).toBe("0");
       expect(formData.get("recording_server_usage_retention_period")).toBe(
         "90",
@@ -2169,8 +2531,9 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("recording_attendance_retention_period")).toBe("365");
       expect(formData.get("recording_recording_retention_period")).toBe("7");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       await expect(
         page.locator("#statistics-servers-enabled"),
@@ -2194,25 +2557,12 @@ test.describe("Admin settings with edit permission", () => {
   });
 
   test.describe("bigbluebutton", () => {
-    const bbbSettings = (data) => {
-      data.bbb_logo = "/images/logo.svg";
-      data.bbb_logo_dark = "/images/logo-dark.svg";
-      data.bbb_style = "/files/bbb_style.css";
-      data.bbb_default_presentation = "/files/testFile.txt";
-    };
-
-    const clearedBbbSettings = (data) => {
-      data.bbb_logo = null;
-      data.bbb_logo_dark = null;
-      data.bbb_style = null;
-      data.bbb_default_presentation = null;
-      data.bbb_default_welcome_message = null;
-    };
-
     test("shows the bbb logo setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
       await expect(page.getByText("admin.settings.bbb.title")).toBeVisible();
 
       const field = page.getByTestId("bbb-logo-field");
@@ -2230,7 +2580,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the bbb dark logo setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("bbb-logo-dark-field");
       await expect(field).toBeVisible();
@@ -2247,7 +2599,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the bbb style setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("bbb-style-field");
       await expect(field).toBeVisible();
@@ -2258,7 +2612,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the default presentation setting and handles file uploads", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("default-presentation-field");
       await expect(field).toBeVisible();
@@ -2269,7 +2625,9 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the default welcome message with a character counter", async ({
       page,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       const field = page.getByTestId("bbb-default-welcome-message-field");
       await expect(field).toBeVisible();
@@ -2292,73 +2650,97 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves uploaded bbb files and the welcome message", async ({
       page,
+      settings,
     }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
       await page
         .getByTestId("bbb-logo-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("logo.svg"));
+        .setInputFiles({
+          name: "logo.svg",
+          mimeType: "image/svg+xml",
+          buffer: readFileSync("tests/Playwright/fixtures/files/logo.svg"),
+        });
       await page
         .getByTestId("bbb-logo-dark-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("logo-dark.svg"));
+        .setInputFiles({
+          name: "logo-dark.svg",
+          mimeType: "image/svg+xml",
+          buffer: readFileSync("tests/Playwright/fixtures/files/logo-dark.svg"),
+        });
       await page
         .getByTestId("bbb-style-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("bbb_style.css"));
+        .setInputFiles({
+          name: "bbb_style.css",
+          mimeType: "text/css",
+          buffer: readFileSync("tests/Playwright/fixtures/files/bbb_style.css"),
+        });
       await page
         .getByTestId("default-presentation-field")
         .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("testFile.txt"));
+        .setInputFiles({
+          name: "testFile.txt",
+          mimeType: "text/plain",
+          buffer: readFileSync("tests/Playwright/fixtures/files/testFile.txt"),
+        });
       await page.locator("#bbb-default-welcome-message").fill("Welcome to BBB");
 
-      const save = await saveChanges(
-        page,
-        settingsState,
-        (data) => {
-          bbbSettings(data);
-          data.bbb_default_welcome_message = "Welcome to BigBlueButton";
-        },
-        { hold: true },
-      );
+      settings.data.bbb_logo = "/images/logo.svg";
+      settings.data.bbb_logo_dark = "/images/logo-dark.svg";
+      settings.data.bbb_style = "/files/bbb_style.css";
+      settings.data.bbb_default_presentation = "/files/testFile.txt";
+      settings.data.bbb_default_welcome_message = "Welcome to BigBlueButton";
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+        hold: true,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      await expectLoading(page);
+      await expect(page.getByTestId("overlay")).toBeVisible();
+      await expect(saveButton).toBeDisabled();
       save.release();
 
-      const formData = await save.formData();
-      await expectUploadedFile(
-        formData,
-        "bbb_logo_file",
-        "logo.svg",
-        "image/svg+xml",
+      const formData = await parseFormData(await nthRequest(save));
+      const logoFile = formData.get("bbb_logo_file");
+      expect(logoFile.name).toBe("logo.svg");
+      expect(logoFile.type).toBe("image/svg+xml");
+      expect(Buffer.from(await logoFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/logo.svg"),
       );
       expect(formData.get("bbb_logo")).toBeNull();
-      await expectUploadedFile(
-        formData,
-        "bbb_logo_dark_file",
-        "logo-dark.svg",
-        "image/svg+xml",
+      const logoDarkFile = formData.get("bbb_logo_dark_file");
+      expect(logoDarkFile.name).toBe("logo-dark.svg");
+      expect(logoDarkFile.type).toBe("image/svg+xml");
+      expect(Buffer.from(await logoDarkFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/logo-dark.svg"),
       );
       expect(formData.get("bbb_logo_dark")).toBeNull();
-      await expectUploadedFile(
-        formData,
-        "bbb_style",
-        "bbb_style.css",
-        "text/css",
+      const styleFile = formData.get("bbb_style");
+      expect(styleFile.name).toBe("bbb_style.css");
+      expect(styleFile.type).toBe("text/css");
+      expect(Buffer.from(await styleFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/bbb_style.css"),
       );
-      await expectUploadedFile(
-        formData,
-        "bbb_default_presentation",
-        "testFile.txt",
-        "text/plain",
+      const presentationFile = formData.get("bbb_default_presentation");
+      expect(presentationFile.name).toBe("testFile.txt");
+      expect(presentationFile.type).toBe("text/plain");
+      expect(Buffer.from(await presentationFile.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/testFile.txt"),
       );
       expect(formData.get("bbb_default_welcome_message")).toBe(
         "Welcome to BBB",
       );
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       const logoField = page.getByTestId("bbb-logo-field");
       await expect(
@@ -2396,28 +2778,76 @@ test.describe("Admin settings with edit permission", () => {
 
     test("deletes bbb files and images and saves the deletion", async ({
       page,
+      settings,
     }) => {
-      await openSettings(page, settingsState, (data) => {
-        bbbSettings(data);
-        data.bbb_default_welcome_message = "Welcome to BigBlueButton";
-      });
+      settings.data.bbb_logo = "/images/logo.svg";
+      settings.data.bbb_logo_dark = "/images/logo-dark.svg";
+      settings.data.bbb_style = "/files/bbb_style.css";
+      settings.data.bbb_default_presentation = "/files/testFile.txt";
+      settings.data.bbb_default_welcome_message = "Welcome to BigBlueButton";
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
-      await checkDeleteAndUndoImage(
-        page.getByTestId("bbb-logo-field"),
-        "/images/logo.svg",
-      );
-      await checkDeleteAndUndoImage(
-        page.getByTestId("bbb-logo-dark-field"),
-        "/images/logo-dark.svg",
-      );
-      await checkDeleteAndUndoFile(
-        page.getByTestId("bbb-style-field"),
-        "/files/bbb_style.css",
-      );
-      await checkDeleteAndUndoFile(
-        page.getByTestId("default-presentation-field"),
-        "/files/testFile.txt",
-      );
+      for (const [testId, url] of [
+        ["bbb-logo-field", "/images/logo.svg"],
+        ["bbb-logo-dark-field", "/images/logo-dark.svg"],
+      ]) {
+        const field = page.getByTestId(testId);
+        const deleteButton = field.getByTestId("settings-image-delete-button");
+        const undoButton = field.getByTestId(
+          "settings-image-undo-delete-button",
+        );
+
+        await deleteButton.click();
+        await expect(undoButton).toBeVisible();
+        await expect(undoButton).toHaveText("app.undo_delete");
+        await expect(field.getByTestId("settings-image-url-input")).toHaveCount(
+          0,
+        );
+        await expect(field.getByTestId("file-input-button")).toHaveCount(0);
+        await expect(deleteButton).toHaveCount(0);
+
+        await undoButton.click();
+        await expect(field.getByTestId("settings-image-url-input")).toHaveValue(
+          url,
+        );
+        await expect(deleteButton).toBeVisible();
+
+        await deleteButton.click();
+        await expect(undoButton).toBeVisible();
+      }
+
+      for (const [testId, href] of [
+        ["bbb-style-field", "/files/bbb_style.css"],
+        ["default-presentation-field", "/files/testFile.txt"],
+      ]) {
+        const field = page.getByTestId(testId);
+        const deleteButton = field.getByTestId("settings-file-delete-button");
+        const undoButton = field.getByTestId(
+          "settings-file-undo-delete-button",
+        );
+        const viewButton = field.getByTestId("settings-file-view-button");
+
+        await deleteButton.click();
+        await expect(undoButton).toBeVisible();
+        await expect(undoButton).toHaveText("app.undo_delete");
+        await expect(field.getByTestId("file-input-button")).toHaveCount(0);
+        await expect(deleteButton).toHaveCount(0);
+        await expect(viewButton).toHaveCount(0);
+
+        await undoButton.click();
+        await expect(field.getByTestId("file-input-button")).toHaveText(
+          "app.browse",
+        );
+        await expect(viewButton).toBeVisible();
+        await expect(viewButton).toContainText("app.view");
+        await expect(viewButton).toHaveAttribute("href", href);
+        await expect(deleteButton).toBeVisible();
+
+        await deleteButton.click();
+        await expect(undoButton).toBeVisible();
+      }
 
       const welcomeField = page.getByTestId(
         "bbb-default-welcome-message-field",
@@ -2438,9 +2868,19 @@ test.describe("Admin settings with edit permission", () => {
         'app.char_counter_{"chars":0,"max":500}',
       );
 
-      const save = await saveChanges(page, settingsState, clearedBbbSettings);
+      settings.data.bbb_logo = null;
+      settings.data.bbb_logo_dark = null;
+      settings.data.bbb_style = null;
+      settings.data.bbb_default_presentation = null;
+      settings.data.bbb_default_welcome_message = null;
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
+      });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("bbb_logo_file")).toBeNull();
       expect(formData.get("bbb_logo")).toBe("");
       expect(formData.get("bbb_logo_dark")).toBe("");
@@ -2448,8 +2888,9 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("bbb_default_presentation")).toBe("");
       expect(formData.get("bbb_default_welcome_message")).toBe("");
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
 
       for (const testId of ["bbb-logo-field", "bbb-logo-dark-field"]) {
         const field = page.getByTestId(testId);
@@ -2485,14 +2926,25 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves empty bbb settings without sending unchanged values", async ({
       page,
+      settings,
     }) => {
-      await openSettings(page, settingsState, clearedBbbSettings);
+      settings.data.bbb_logo = null;
+      settings.data.bbb_logo_dark = null;
+      settings.data.bbb_style = null;
+      settings.data.bbb_default_presentation = null;
+      settings.data.bbb_default_welcome_message = null;
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
 
-      const save = await saveChanges(page, settingsState, (data) => {
-        clearedBbbSettings(data);
+      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
+        json: settings,
       });
+      const configRequest = page.waitForRequest("**/api/v1/config");
+      await expect(saveButton).toContainText("app.save");
+      await saveButton.click();
 
-      const formData = await save.formData();
+      const formData = await parseFormData(await nthRequest(save));
       expect(formData.get("bbb_logo_file")).toBeNull();
       expect(formData.get("bbb_logo")).toBeNull();
       expect(formData.get("bbb_logo_dark_file")).toBeNull();
@@ -2500,8 +2952,9 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("bbb_style")).toBeNull();
       expect(formData.get("bbb_default_presentation")).toBeNull();
 
-      await save.waitForConfigRequest();
-      await expectLoadingDone(page);
+      await configRequest;
+      await expect(page.getByTestId("overlay")).toHaveCount(0);
+      await expect(saveButton).toBeEnabled();
     });
   });
 
@@ -2698,27 +3151,21 @@ test.describe("Admin settings with edit permission", () => {
       ],
     ].map(([testId, messages]) => [testId, messages.flat()]);
 
-    const mockSaveError = (page, status, body) =>
-      page.route(SETTINGS_URL, (route) => {
-        if (route.request().method() !== "POST") {
-          return route.fallback();
-        }
-        return route.fulfill({ status, json: body });
-      });
-
-    const mock422 = (page) =>
-      mockSaveError(page, 422, {
-        message: "The general name field is required. (and 49 more errors)",
-        errors,
-      });
-
     test.beforeEach(async ({ page }) => {
-      await openSettings(page, settingsState);
+      await page.goto("/admin/settings");
+      await expect(page.getByTestId("application-name-field")).toBeVisible();
+      await expect(saveButton).toBeEnabled();
     });
 
     test("shows the validation errors of a 422 response", async ({ page }) => {
-      await mock422(page);
-      await page.getByTestId("settings-save-button").click();
+      await mockMethod(page, "POST", "**/api/v1/settings", {
+        status: 422,
+        json: {
+          message: "The general name field is required. (and 49 more errors)",
+          errors,
+        },
+      });
+      await saveButton.click();
 
       await expectToastAndClose(
         page,
@@ -2737,8 +3184,14 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the error and hides the validation errors on a 500 response", async ({
       page,
     }) => {
-      await mock422(page);
-      await page.getByTestId("settings-save-button").click();
+      await mockMethod(page, "POST", "**/api/v1/settings", {
+        status: 422,
+        json: {
+          message: "The general name field is required. (and 49 more errors)",
+          errors,
+        },
+      });
+      await saveButton.click();
       await expectToastAndClose(
         page,
         "The general name field is required. (and 49 more errors)",
@@ -2747,8 +3200,11 @@ test.describe("Admin settings with edit permission", () => {
         errors.general_name[0],
       );
 
-      await mockSaveError(page, 500, { message: "Test" });
-      await page.getByTestId("settings-save-button").click();
+      await mockMethod(page, "POST", "**/api/v1/settings", {
+        status: 500,
+        json: { message: "Test" },
+      });
+      await saveButton.click();
 
       const toast = page.locator(".p-toast-message");
       await expect(toast).toContainText(
@@ -2769,16 +3225,22 @@ test.describe("Admin settings with edit permission", () => {
     });
 
     test("shows an error on a 413 response", async ({ page }) => {
-      await mockSaveError(page, 413, { message: "Test" });
-      await page.getByTestId("settings-save-button").click();
+      await mockMethod(page, "POST", "**/api/v1/settings", {
+        status: 413,
+        json: { message: "Test" },
+      });
+      await saveButton.click();
 
       await expect(page.locator(".p-toast-message")).toHaveCount(1);
       await expectToastAndClose(page, "app.flash.too_large");
     });
 
     test("redirects to the login on a 401 response", async ({ page }) => {
-      await mockSaveError(page, 401, { message: "Test" });
-      await page.getByTestId("settings-save-button").click();
+      await mockMethod(page, "POST", "**/api/v1/settings", {
+        status: 401,
+        json: { message: "Test" },
+      });
+      await saveButton.click();
 
       await expect(page).toHaveURL(/\/login\?redirect=\/admin\/settings/);
       await expectToastAndClose(page, "app.flash.unauthenticated");

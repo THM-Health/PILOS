@@ -1,40 +1,15 @@
-import { readFileSync } from "node:fs";
-import { test, expect } from "../support/test.js";
+import {
+  test,
+  expect,
+} from "../support/fixtures/adminSettingsOtherStreaming.js";
 import { checkSettingsFileSelectorOnlyView } from "../support/admin.js";
-import { mockMethod } from "../support/utils.js";
-
-/**
- * Mock GET api/v1/streaming with the fixture changed by `mutate`. Later mocks win.
- */
-function mockStreaming(page, mutate = () => {}) {
-  const settings = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/streaming.json", "utf8"),
-  );
-  mutate(settings.data);
-  return mockMethod(page, "GET", "**/api/v1/streaming", { json: settings });
-}
-
-function expectRoomTypeRow(row, name, streamingEnabled, hasPauseImage) {
-  const cells = row.getByTestId("room-type-item-cell");
-  return Promise.all([
-    expect(cells).toHaveCount(3),
-    expect(cells.nth(0)).toHaveText(name),
-    expect(
-      cells.nth(1).locator(streamingEnabled ? ".fa-check" : ".fa-times"),
-    ).toBeVisible(),
-    expect(
-      cells.nth(2).locator(hasPauseImage ? ".fa-check" : ".fa-times"),
-    ).toBeVisible(),
-  ]);
-}
 
 test.describe("Admin streaming settings with view permission", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, config, currentUser }) => {
+  test.beforeEach(async ({ config, currentUser }) => {
     config.data.streaming.enabled = true;
     currentUser.data.permissions = ["admin.view", "streaming.viewAny"];
-    await mockStreaming(page);
   });
 
   test("redirects to 404 with streaming disabled", async ({ page, config }) => {
@@ -76,14 +51,15 @@ test.describe("Admin streaming settings with view permission", () => {
     ).toBeDisabled();
   });
 
-  test("shows configured general settings read-only", async ({ page }) => {
+  test("shows configured general settings read-only", async ({
+    page,
+    streaming,
+  }) => {
     const joinParameters =
       "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
-    await mockStreaming(page, (settings) => {
-      settings.default_pause_image = "https://example.com/image.png";
-      settings.css_file = "https://example.com/streaming.css";
-      settings.join_parameters = joinParameters;
-    });
+    streaming.data.default_pause_image = "https://example.com/image.png";
+    streaming.data.css_file = "https://example.com/streaming.css";
+    streaming.data.join_parameters = joinParameters;
 
     await page.goto("/admin/streaming_settings");
     await expect(page.getByText("admin.streaming.general.title")).toBeVisible();
@@ -138,8 +114,20 @@ test.describe("Admin streaming settings with view permission", () => {
         "true",
       );
 
-      await expectRoomTypeRow(rows.nth(0), "Exam", false, false);
-      await expectRoomTypeRow(rows.nth(1), "Lecture", true, false);
+      for (const [tableRow, name, isStreaming, hasPauseImage] of [
+        [rows.nth(0), "Exam", false, false],
+        [rows.nth(1), "Lecture", true, false],
+      ]) {
+        const cells = tableRow.getByTestId("room-type-item-cell");
+        await expect(cells).toHaveCount(3);
+        await expect(cells.nth(0)).toHaveText(name);
+        await expect(
+          cells.nth(1).locator(isStreaming ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+        await expect(
+          cells.nth(2).locator(hasPauseImage ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+      }
     });
 
     test("shows second page", async ({ page }) => {
@@ -152,7 +140,11 @@ test.describe("Admin streaming settings with view permission", () => {
         "data-p-active",
         "true",
       );
-      await expectRoomTypeRow(rows.nth(0), "Meeting", false, false);
+      const cells = rows.nth(0).getByTestId("room-type-item-cell");
+      await expect(cells).toHaveCount(3);
+      await expect(cells.nth(0)).toHaveText("Meeting");
+      await expect(cells.nth(1).locator(".fa-times")).toBeVisible();
+      await expect(cells.nth(2).locator(".fa-times")).toBeVisible();
     });
 
     test("sorting resets pagination to first page", async ({ page }) => {
@@ -164,7 +156,11 @@ test.describe("Admin streaming settings with view permission", () => {
         "data-p-active",
         "true",
       );
-      await expectRoomTypeRow(rows.nth(0), "Meeting", false, false);
+      const cells = rows.nth(0).getByTestId("room-type-item-cell");
+      await expect(cells).toHaveCount(3);
+      await expect(cells.nth(0)).toHaveText("Meeting");
+      await expect(cells.nth(1).locator(".fa-times")).toBeVisible();
+      await expect(cells.nth(2).locator(".fa-times")).toBeVisible();
 
       await page.getByTestId("room-type-header-cell").nth(1).click();
 
@@ -196,20 +192,31 @@ test.describe("Admin streaming settings with view permission", () => {
 
     test("shows changed streaming and pause image state after reload", async ({
       page,
+      streaming,
     }) => {
-      await mockStreaming(page, (settings) => {
-        settings.room_types[0].streaming_settings.enabled = false;
-        settings.room_types[0].streaming_settings.default_pause_image =
-          "https://example.com/lecture-pause.jpg";
-        settings.room_types[2].streaming_settings.enabled = true;
-      });
+      streaming.data.room_types[0].streaming_settings.enabled = false;
+      streaming.data.room_types[0].streaming_settings.default_pause_image =
+        "https://example.com/lecture-pause.jpg";
+      streaming.data.room_types[2].streaming_settings.enabled = true;
 
       await page.reload();
 
       const rows = page.getByTestId("room-type-item");
       await expect(rows).toHaveCount(2);
-      await expectRoomTypeRow(rows.nth(0), "Exam", true, false);
-      await expectRoomTypeRow(rows.nth(1), "Lecture", false, true);
+      for (const [tableRow, name, isStreaming, hasPauseImage] of [
+        [rows.nth(0), "Exam", true, false],
+        [rows.nth(1), "Lecture", false, true],
+      ]) {
+        const cells = tableRow.getByTestId("room-type-item-cell");
+        await expect(cells).toHaveCount(3);
+        await expect(cells.nth(0)).toHaveText(name);
+        await expect(
+          cells.nth(1).locator(isStreaming ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+        await expect(
+          cells.nth(2).locator(hasPauseImage ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+      }
     });
   });
 });

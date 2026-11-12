@@ -1,124 +1,13 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsMembersLinks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { mockMethod, nthRequest, queryOf } from "../support/utils.js";
-import {
-  interceptRoomViewRequests,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 import { checkRoomAuthErrors } from "../support/room.js";
 
-const MEMBERS_URL = "**/api/v1/rooms/abc-def-123/member*";
-const ADD_MEMBER_URL = "**/api/v1/rooms/abc-def-123/member";
-const MEMBER_URL = "**/api/v1/rooms/abc-def-123/member/5";
-const USER_SEARCH_URL = "**/api/v1/users/search*";
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const MODEL_NOT_FOUND_TOAST = [
-  'app.flash.model_not_found.title_{"model":"app.model.room"}',
-  'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
-];
-
-const SERVER_ERROR_RESPONSE = { status: 500, json: { message: "Test" } };
-
-const ROOM_NOT_FOUND_RESPONSE = {
-  status: 404,
-  json: { message: "model_not_found", model: "room", ids: ["abc-def-123"] },
-};
-
-const MEMBER_NOT_FOUND_RESPONSE = {
-  status: 404,
-  json: { message: "model_not_found", model: "user", ids: [5] },
-};
-
-const LAURA_SEARCH_RESULT = {
-  status: 200,
-  json: {
-    data: [
-      {
-        id: 5,
-        firstname: "Laura",
-        lastname: "Rivera",
-        email: "LauraWRivera@domain.tld",
-        image: null,
-      },
-      {
-        id: 10,
-        firstname: "Laura",
-        lastname: "Walter",
-        email: "LauraMWalter@domain.tld",
-        image: null,
-      },
-    ],
-  },
-};
-
-const ROLES = [
-  ["participant", "rooms.roles.participant", "#participant-role"],
-  ["moderator", "rooms.roles.moderator", "#moderator-role"],
-  ["co-owner", "rooms.roles.co_owner", "#co_owner-role"],
-];
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-/**
- * Answer the members request with the members fixture, optionally changed by `changes`.
- */
-function mockMembers(page, changes = () => {}) {
-  const members = readFixture("roomMembers.json");
-  changes(members);
-  return mockMethod(page, "GET", MEMBERS_URL, { status: 200, json: members });
-}
-
-/**
- * Answer the members request with the first member removed.
- */
-function mockMembersWithoutFirstMember(page) {
-  return mockMembers(page, (members) => {
-    members.data = members.data.slice(1, 3);
-    members.meta.to = 2;
-    members.meta.total = 2;
-    members.meta.total_no_filter = 2;
-  });
-}
-
-/**
- * Open the add single user dialog via the add button menu.
- */
-async function openAddSingleDialog(page) {
-  await page.getByTestId("room-members-add-button").click();
-  await expect(page.locator("#overlay_menu_0")).toHaveText(
-    "rooms.members.add_single_user",
-  );
-  await page.locator("#overlay_menu_0").click();
-  await expect(
-    page.getByTestId("room-members-add-single-dialog"),
-  ).toBeVisible();
-}
-
-/**
- * Open the dialog of the given member action for the first member.
- */
-async function openMemberDialog(page, action) {
-  await page
-    .getByTestId("room-member-item")
-    .first()
-    .getByTestId(`room-members-${action}-button`)
-    .click();
-  await expect(page.getByTestId(`room-members-${action}-dialog`)).toBeVisible();
-}
+test.use({ authenticated: true });
 
 test.describe("Rooms view members member actions", () => {
-  test.use({ authenticated: true });
-
   test.beforeEach(async ({ page }) => {
-    await interceptRoomViewRequests(page);
-    await mockMembers(page);
-
     await page.goto("/rooms/abc-def-123#tab=members");
     await expect(page.getByTestId("room-member-item")).toHaveCount(3);
   });
@@ -144,7 +33,14 @@ test.describe("Rooms view members member actions", () => {
     test("shows the prompt and placeholder of the user search", async ({
       page,
     }) => {
-      await openAddSingleDialog(page);
+      await page.getByTestId("room-members-add-button").click();
+      await expect(page.locator("#overlay_menu_0")).toHaveText(
+        "rooms.members.add_single_user",
+      );
+      await page.locator("#overlay_menu_0").click();
+      await expect(
+        page.getByTestId("room-members-add-single-dialog"),
+      ).toBeVisible();
 
       // Check autofocus
       await expect(page.locator(".multiselect__content")).toBeVisible();
@@ -170,7 +66,14 @@ test.describe("Rooms view members member actions", () => {
       await page.reload();
       await expect(page.getByTestId("room-member-item")).toHaveCount(3);
 
-      await openAddSingleDialog(page);
+      await page.getByTestId("room-members-add-button").click();
+      await expect(page.locator("#overlay_menu_0")).toHaveText(
+        "rooms.members.add_single_user",
+      );
+      await page.locator("#overlay_menu_0").click();
+      await expect(
+        page.getByTestId("room-members-add-single-dialog"),
+      ).toBeVisible();
 
       const dropdown = page.getByTestId("select-user-dropdown");
       await expect(dropdown).toContainText(
@@ -185,9 +88,16 @@ test.describe("Rooms view members member actions", () => {
     test("shows a hint if the search has too many results", async ({
       page,
     }) => {
-      await openAddSingleDialog(page);
+      await page.getByTestId("room-members-add-button").click();
+      await expect(page.locator("#overlay_menu_0")).toHaveText(
+        "rooms.members.add_single_user",
+      );
+      await page.locator("#overlay_menu_0").click();
+      await expect(
+        page.getByTestId("room-members-add-single-dialog"),
+      ).toBeVisible();
 
-      const search = await mockMethod(page, "GET", USER_SEARCH_URL, {
+      const search = await mockMethod(page, "GET", "**/api/v1/users/search*", {
         status: 204,
       });
 
@@ -211,14 +121,36 @@ test.describe("Rooms view members member actions", () => {
     });
 
     test("shows the search results", async ({ page }) => {
-      await openAddSingleDialog(page);
-
-      const search = await mockMethod(
-        page,
-        "GET",
-        USER_SEARCH_URL,
-        LAURA_SEARCH_RESULT,
+      await page.getByTestId("room-members-add-button").click();
+      await expect(page.locator("#overlay_menu_0")).toHaveText(
+        "rooms.members.add_single_user",
       );
+      await page.locator("#overlay_menu_0").click();
+      await expect(
+        page.getByTestId("room-members-add-single-dialog"),
+      ).toBeVisible();
+
+      const search = await mockMethod(page, "GET", "**/api/v1/users/search*", {
+        status: 200,
+        json: {
+          data: [
+            {
+              id: 5,
+              firstname: "Laura",
+              lastname: "Rivera",
+              email: "LauraWRivera@domain.tld",
+              image: null,
+            },
+            {
+              id: 10,
+              firstname: "Laura",
+              lastname: "Walter",
+              email: "LauraMWalter@domain.tld",
+              image: null,
+            },
+          ],
+        },
+      });
 
       const input = page.getByTestId("select-user-dropdown").locator("input");
       await input.click();
@@ -249,13 +181,40 @@ test.describe("Rooms view members member actions", () => {
 
     test.describe("with selected user", () => {
       test.beforeEach(async ({ page }) => {
-        await openAddSingleDialog(page);
+        await page.getByTestId("room-members-add-button").click();
+        await expect(page.locator("#overlay_menu_0")).toHaveText(
+          "rooms.members.add_single_user",
+        );
+        await page.locator("#overlay_menu_0").click();
+        await expect(
+          page.getByTestId("room-members-add-single-dialog"),
+        ).toBeVisible();
 
         const search = await mockMethod(
           page,
           "GET",
-          USER_SEARCH_URL,
-          LAURA_SEARCH_RESULT,
+          "**/api/v1/users/search*",
+          {
+            status: 200,
+            json: {
+              data: [
+                {
+                  id: 5,
+                  firstname: "Laura",
+                  lastname: "Rivera",
+                  email: "LauraWRivera@domain.tld",
+                  image: null,
+                },
+                {
+                  id: 10,
+                  firstname: "Laura",
+                  lastname: "Walter",
+                  email: "LauraMWalter@domain.tld",
+                  image: null,
+                },
+              ],
+            },
+          },
         );
 
         const input = page.getByTestId("select-user-dropdown").locator("input");
@@ -269,35 +228,45 @@ test.describe("Rooms view members member actions", () => {
       });
 
       test("shows the roles unchecked", async ({ page }) => {
-        for (const [name, label, input] of ROLES) {
+        for (const [name, label, input] of [
+          ["participant", "rooms.roles.participant", "#participant-role"],
+          ["moderator", "rooms.roles.moderator", "#moderator-role"],
+          ["co-owner", "rooms.roles.co_owner", "#co_owner-role"],
+        ]) {
           const group = page.getByTestId(`${name}-role-group`);
           await expect(group).toContainText(label);
           await expect(group.locator(input)).not.toBeChecked();
         }
       });
 
-      test("adds the member with the selected role", async ({ page }) => {
+      test("adds the member with the selected role", async ({
+        page,
+        roomMembers,
+      }) => {
         await page.locator("#moderator-role").click();
         await expect(page.locator("#moderator-role")).toBeChecked();
 
-        const addMember = await mockMethod(page, "POST", ADD_MEMBER_URL, {
-          status: 204,
-          hold: true,
+        const addMember = await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/rooms/abc-def-123/member",
+          {
+            status: 204,
+            hold: true,
+          },
+        );
+        roomMembers.data.push({
+          id: 10,
+          firstname: "Laura",
+          lastname: "Walter",
+          email: "LauraMWalter@domain.tld",
+          role: 2,
+          image: null,
         });
-        await mockMembers(page, (members) => {
-          members.data.push({
-            id: 10,
-            firstname: "Laura",
-            lastname: "Walter",
-            email: "LauraMWalter@domain.tld",
-            role: 2,
-            image: null,
-          });
-          members.meta.per_page = 4;
-          members.meta.to = 4;
-          members.meta.total = 4;
-          members.meta.total_no_filter = 4;
-        });
+        roomMembers.meta.per_page = 4;
+        roomMembers.meta.to = 4;
+        roomMembers.meta.total = 4;
+        roomMembers.meta.total_no_filter = 4;
 
         await expect(page.getByTestId("dialog-save-button")).toHaveText(
           "rooms.members.modals.add.add",
@@ -341,7 +310,7 @@ test.describe("Rooms view members member actions", () => {
         const dialog = page.getByTestId("room-members-add-single-dialog");
 
         // The role is missing
-        await mockMethod(page, "POST", ADD_MEMBER_URL, {
+        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
           status: 422,
           json: {
             message: "The Role field is required.",
@@ -354,7 +323,7 @@ test.describe("Rooms view members member actions", () => {
 
         // The user is already a member, the previous error is replaced
         await page.locator("#participant-role").click();
-        await mockMethod(page, "POST", ADD_MEMBER_URL, {
+        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
           status: 422,
           json: {
             message: "The user is already member of the room.",
@@ -374,7 +343,7 @@ test.describe("Rooms view members member actions", () => {
       }) => {
         const dialog = page.getByTestId("room-members-add-single-dialog");
 
-        await mockMethod(page, "POST", ADD_MEMBER_URL, {
+        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
           status: 422,
           json: {
             message: "The Role field is required.",
@@ -385,7 +354,7 @@ test.describe("Rooms view members member actions", () => {
         await expect(dialog).toContainText("The Role field is required.");
 
         await page.locator("#participant-role").click();
-        await mockMethod(page, "POST", ADD_MEMBER_URL, {
+        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
           status: 422,
           json: {
             message: "The user is already member of the room.",
@@ -397,10 +366,16 @@ test.describe("Rooms view members member actions", () => {
           "The user is already member of the room.",
         );
 
-        await mockMethod(page, "POST", ADD_MEMBER_URL, SERVER_ERROR_RESPONSE);
+        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
+          status: 500,
+          json: { message: "Test" },
+        });
         await page.getByTestId("dialog-save-button").click();
 
-        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
         await expect(dialog).toBeVisible();
         await expect(dialog).not.toContainText(
           "The user is already member of the room.",
@@ -413,15 +388,28 @@ test.describe("Rooms view members member actions", () => {
     });
 
     test("shows a server error of the user search", async ({ page }) => {
-      await openAddSingleDialog(page);
+      await page.getByTestId("room-members-add-button").click();
+      await expect(page.locator("#overlay_menu_0")).toHaveText(
+        "rooms.members.add_single_user",
+      );
+      await page.locator("#overlay_menu_0").click();
+      await expect(
+        page.getByTestId("room-members-add-single-dialog"),
+      ).toBeVisible();
 
-      await mockMethod(page, "GET", USER_SEARCH_URL, SERVER_ERROR_RESPONSE);
+      await mockMethod(page, "GET", "**/api/v1/users/search*", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       const input = page.getByTestId("select-user-dropdown").locator("input");
       await input.click();
       await input.pressSequentially("L");
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(
         page.getByTestId("room-members-add-single-dialog"),
       ).toBeVisible();
@@ -436,7 +424,14 @@ test.describe("Rooms view members member actions", () => {
       await checkRoomAuthErrors(
         page,
         async (page) => {
-          await openAddSingleDialog(page);
+          await page.getByTestId("room-members-add-button").click();
+          await expect(page.locator("#overlay_menu_0")).toHaveText(
+            "rooms.members.add_single_user",
+          );
+          await page.locator("#overlay_menu_0").click();
+          await expect(
+            page.getByTestId("room-members-add-single-dialog"),
+          ).toBeVisible();
           const input = page
             .getByTestId("select-user-dropdown")
             .locator("input");
@@ -453,7 +448,14 @@ test.describe("Rooms view members member actions", () => {
       await checkRoomAuthErrors(
         page,
         async (page) => {
-          await openAddSingleDialog(page);
+          await page.getByTestId("room-members-add-button").click();
+          await expect(page.locator("#overlay_menu_0")).toHaveText(
+            "rooms.members.add_single_user",
+          );
+          await page.locator("#overlay_menu_0").click();
+          await expect(
+            page.getByTestId("room-members-add-single-dialog"),
+          ).toBeVisible();
           await page.getByTestId("dialog-save-button").click();
         },
         "POST",
@@ -466,13 +468,30 @@ test.describe("Rooms view members member actions", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await openAddSingleDialog(page);
+      await page.getByTestId("room-members-add-button").click();
+      await expect(page.locator("#overlay_menu_0")).toHaveText(
+        "rooms.members.add_single_user",
+      );
+      await page.locator("#overlay_menu_0").click();
+      await expect(
+        page.getByTestId("room-members-add-single-dialog"),
+      ).toBeVisible();
 
-      await mockMethod(page, "POST", ADD_MEMBER_URL, ROOM_NOT_FOUND_RESPONSE);
+      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
+        status: 404,
+        json: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      });
       await page.getByTestId("dialog-save-button").click();
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-      await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.room"}',
+        'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+      ]);
     });
   });
 
@@ -483,9 +502,18 @@ test.describe("Rooms view members member actions", () => {
       );
 
       await expect(page.getByTestId("room-members-edit-dialog")).toHaveCount(0);
-      await openMemberDialog(page, "edit");
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-edit-button")
+        .click();
+      await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      for (const [name, label, input] of ROLES) {
+      for (const [name, label, input] of [
+        ["participant", "rooms.roles.participant", "#participant-role"],
+        ["moderator", "rooms.roles.moderator", "#moderator-role"],
+        ["co-owner", "rooms.roles.co_owner", "#co_owner-role"],
+      ]) {
         const group = page.getByTestId(`${name}-role-group`);
         await expect(group).toContainText(label);
         if (name === "participant") {
@@ -496,20 +524,28 @@ test.describe("Rooms view members member actions", () => {
       }
     });
 
-    test("changes the role of the member", async ({ page }) => {
-      await openMemberDialog(page, "edit");
+    test("changes the role of the member", async ({ page, roomMembers }) => {
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-edit-button")
+        .click();
+      await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
       await page.locator("#moderator-role").click();
       await expect(page.locator("#participant-role")).not.toBeChecked();
       await expect(page.locator("#moderator-role")).toBeChecked();
 
-      const editMember = await mockMethod(page, "PUT", MEMBER_URL, {
-        status: 204,
-        hold: true,
-      });
-      await mockMembers(page, (members) => {
-        members.data[0].role = 2;
-      });
+      const editMember = await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/member/5",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
+      roomMembers.data[0].role = 2;
 
       await expect(page.getByTestId("dialog-save-button")).toHaveText(
         "app.save",
@@ -535,11 +571,25 @@ test.describe("Rooms view members member actions", () => {
       );
     });
 
-    test("reloads the members if the member is gone", async ({ page }) => {
-      await openMemberDialog(page, "edit");
+    test("reloads the members if the member is gone", async ({
+      page,
+      roomMembers,
+    }) => {
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-edit-button")
+        .click();
+      await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", MEMBER_URL, MEMBER_NOT_FOUND_RESPONSE);
-      await mockMembersWithoutFirstMember(page);
+      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
+        status: 404,
+        json: { message: "model_not_found", model: "user", ids: [5] },
+      });
+      roomMembers.data = roomMembers.data.slice(1, 3);
+      roomMembers.meta.to = 2;
+      roomMembers.meta.total = 2;
+      roomMembers.meta.total_no_filter = 2;
 
       await page.getByTestId("dialog-save-button").click();
 
@@ -549,9 +599,14 @@ test.describe("Rooms view members member actions", () => {
     });
 
     test("shows validation errors", async ({ page }) => {
-      await openMemberDialog(page, "edit");
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-edit-button")
+        .click();
+      await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", MEMBER_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
         status: 422,
         json: {
           message: "The selected role is invalid.",
@@ -569,9 +624,14 @@ test.describe("Rooms view members member actions", () => {
       page,
     }) => {
       const dialog = page.getByTestId("room-members-edit-dialog");
-      await openMemberDialog(page, "edit");
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-edit-button")
+        .click();
+      await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", MEMBER_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
         status: 422,
         json: {
           message: "The selected role is invalid.",
@@ -581,10 +641,16 @@ test.describe("Rooms view members member actions", () => {
       await page.getByTestId("dialog-save-button").click();
       await expect(dialog).toContainText("The selected role is invalid.");
 
-      await mockMethod(page, "PUT", MEMBER_URL, SERVER_ERROR_RESPONSE);
+      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
+        status: 500,
+        json: { message: "Test" },
+      });
       await page.getByTestId("dialog-save-button").click();
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(dialog).toBeVisible();
       await expect(dialog).not.toContainText("The selected role is invalid.");
 
@@ -596,7 +662,14 @@ test.describe("Rooms view members member actions", () => {
       await checkRoomAuthErrors(
         page,
         async (page) => {
-          await openMemberDialog(page, "edit");
+          await page
+            .getByTestId("room-member-item")
+            .first()
+            .getByTestId("room-members-edit-button")
+            .click();
+          await expect(
+            page.getByTestId("room-members-edit-dialog"),
+          ).toBeVisible();
           await page.getByTestId("dialog-save-button").click();
         },
         "PUT",
@@ -609,13 +682,28 @@ test.describe("Rooms view members member actions", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await openMemberDialog(page, "edit");
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-edit-button")
+        .click();
+      await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", MEMBER_URL, ROOM_NOT_FOUND_RESPONSE);
+      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
+        status: 404,
+        json: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      });
       await page.getByTestId("dialog-save-button").click();
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-      await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.room"}',
+        'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+      ]);
     });
   });
 
@@ -624,7 +712,14 @@ test.describe("Rooms view members member actions", () => {
       await expect(page.getByTestId("room-members-delete-dialog")).toHaveCount(
         0,
       );
-      await openMemberDialog(page, "delete");
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-members-delete-dialog"),
+      ).toBeVisible();
 
       const dialog = page.getByTestId("room-members-delete-dialog");
       await expect(dialog).toContainText("rooms.members.modals.remove.title");
@@ -633,14 +728,29 @@ test.describe("Rooms view members member actions", () => {
       );
     });
 
-    test("deletes the member", async ({ page }) => {
-      await openMemberDialog(page, "delete");
+    test("deletes the member", async ({ page, roomMembers }) => {
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-members-delete-dialog"),
+      ).toBeVisible();
 
-      const deleteMember = await mockMethod(page, "DELETE", MEMBER_URL, {
-        status: 204,
-        hold: true,
-      });
-      await mockMembersWithoutFirstMember(page);
+      const deleteMember = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/rooms/abc-def-123/member/5",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
+      roomMembers.data = roomMembers.data.slice(1, 3);
+      roomMembers.meta.to = 2;
+      roomMembers.meta.total = 2;
+      roomMembers.meta.total_no_filter = 2;
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
@@ -663,11 +773,27 @@ test.describe("Rooms view members member actions", () => {
       );
     });
 
-    test("reloads the members if the member is gone", async ({ page }) => {
-      await openMemberDialog(page, "delete");
+    test("reloads the members if the member is gone", async ({
+      page,
+      roomMembers,
+    }) => {
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-members-delete-dialog"),
+      ).toBeVisible();
 
-      await mockMethod(page, "DELETE", MEMBER_URL, MEMBER_NOT_FOUND_RESPONSE);
-      await mockMembersWithoutFirstMember(page);
+      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123/member/5", {
+        status: 404,
+        json: { message: "model_not_found", model: "user", ids: [5] },
+      });
+      roomMembers.data = roomMembers.data.slice(1, 3);
+      roomMembers.meta.to = 2;
+      roomMembers.meta.total = 2;
+      roomMembers.meta.total_no_filter = 2;
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -679,12 +805,25 @@ test.describe("Rooms view members member actions", () => {
     });
 
     test("shows a server error", async ({ page }) => {
-      await openMemberDialog(page, "delete");
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-members-delete-dialog"),
+      ).toBeVisible();
 
-      await mockMethod(page, "DELETE", MEMBER_URL, SERVER_ERROR_RESPONSE);
+      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123/member/5", {
+        status: 500,
+        json: { message: "Test" },
+      });
       await page.getByTestId("dialog-continue-button").click();
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(
         page.getByTestId("room-members-delete-dialog"),
       ).toBeVisible();
@@ -699,7 +838,14 @@ test.describe("Rooms view members member actions", () => {
       await checkRoomAuthErrors(
         page,
         async (page) => {
-          await openMemberDialog(page, "delete");
+          await page
+            .getByTestId("room-member-item")
+            .first()
+            .getByTestId("room-members-delete-button")
+            .click();
+          await expect(
+            page.getByTestId("room-members-delete-dialog"),
+          ).toBeVisible();
           await page.getByTestId("dialog-continue-button").click();
         },
         "DELETE",
@@ -712,13 +858,30 @@ test.describe("Rooms view members member actions", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await openMemberDialog(page, "delete");
+      await page
+        .getByTestId("room-member-item")
+        .first()
+        .getByTestId("room-members-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-members-delete-dialog"),
+      ).toBeVisible();
 
-      await mockMethod(page, "DELETE", MEMBER_URL, ROOM_NOT_FOUND_RESPONSE);
+      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123/member/5", {
+        status: 404,
+        json: {
+          message: "model_not_found",
+          model: "room",
+          ids: ["abc-def-123"],
+        },
+      });
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-      await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.room"}',
+        'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+      ]);
     });
   });
 });

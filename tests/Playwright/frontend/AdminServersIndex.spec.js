@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test, showServersPage } from "../support/fixtures/adminServers.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
@@ -10,99 +10,14 @@ import {
   expectActivePage,
   queryOf,
   mockMethod,
+  readFixture,
 } from "../support/utils.js";
-
-const SERVERS_PATH = "/api/v1/servers";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const isServersUrl = (url) => url.pathname === SERVERS_PATH;
-
-const isServersRequest = (request) =>
-  request.method() === "GET" && isServersUrl(new URL(request.url()));
-
-/**
- * Mock the servers list with the fixture changed by `mutate`. Later mocks win.
- */
-async function mockServers(page, mutate = () => {}) {
-  const servers = readFixture("servers.json");
-  mutate(servers);
-  return mockMethod(page, "GET", isServersUrl, { json: servers });
-}
-
-/**
- * Show only one server per page.
- */
-function onePage(servers, pageNumber, lastPage, meta = {}) {
-  const index = pageNumber - 1;
-  servers.data = servers.data.slice(index, index + 1);
-  Object.assign(servers.meta, {
-    current_page: pageNumber,
-    from: pageNumber,
-    last_page: lastPage,
-    per_page: 1,
-    to: pageNumber,
-    ...meta,
-  });
-}
-
-function mockServersError(page, status, body) {
-  return page.route(
-    (url) => isServersUrl(url),
-    (route) => route.fulfill({ status, json: body }),
-  );
-}
-
-async function requestServersAfter(page, action) {
-  const request = page.waitForRequest(isServersRequest);
-  await action();
-  return queryOf(await request);
-}
-
-const SERVER_ERROR_TEXTS = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-async function expectSearchDisabled(page, disabled) {
-  const search = page.getByTestId("server-search");
-  await expect(search.locator("input")).toBeVisible();
-  await expect(search.locator("button")).toBeVisible();
-  if (disabled) {
-    await expect(search.locator("input")).toBeDisabled();
-    await expect(search.locator("button")).toBeDisabled();
-    await expect(
-      page.getByTestId("servers-reload-usage-button"),
-    ).toBeDisabled();
-    await expect(
-      page.getByTestId("servers-reload-no-usage-button"),
-    ).toBeDisabled();
-  } else {
-    await expect(search.locator("input")).toBeEnabled();
-    await expect(search.locator("button")).toBeEnabled();
-    await expect(page.getByTestId("servers-reload-usage-button")).toBeEnabled();
-    await expect(
-      page.getByTestId("servers-reload-no-usage-button"),
-    ).toBeEnabled();
-  }
-}
-
-async function expectSingleServer(page, name) {
-  await expect(page.getByTestId("server-item")).toHaveCount(1);
-  await expect(page.getByTestId("server-item")).toContainText(name);
-}
-
-// there are two paginator components (first one for small devices, second one for larger devices)
-const nextPageButton = (page) =>
-  page.getByTestId("paginator-next-button").nth(1);
 
 test.describe("Admin servers index", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(({ currentUser }) => {
     currentUser.data.permissions = ["admin.view", "servers.viewAny"];
-    await mockServers(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -125,9 +40,9 @@ test.describe("Admin servers index", () => {
   });
 
   test.describe("load servers", () => {
-    test("loading state", async ({ page }) => {
-      const release = await holdRequest(page, isServersUrl, {
-        json: readFixture("servers.json"),
+    test("loading state", async ({ page, servers }) => {
+      const release = await holdRequest(page, /\/api\/v1\/servers\?/, {
+        json: servers,
       });
 
       await page.goto("/admin/servers");
@@ -135,7 +50,17 @@ test.describe("Admin servers index", () => {
       await expect(
         page.getByRole("heading", { name: "admin.title" }),
       ).toBeVisible();
-      await expectSearchDisabled(page, true);
+      const search = page.getByTestId("server-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
+      await expect(
+        page.getByTestId("servers-reload-usage-button"),
+      ).toBeDisabled();
+      await expect(
+        page.getByTestId("servers-reload-no-usage-button"),
+      ).toBeDisabled();
       await expect(
         page.getByTestId("servers-reload-usage-button"),
       ).toContainText("admin.servers.reload");
@@ -143,15 +68,22 @@ test.describe("Admin servers index", () => {
       await expect(page.getByText("admin.servers.usage_info")).toBeVisible();
       await expect(page.getByTestId("overlay")).toBeVisible();
 
-      const response = page.waitForResponse((r) =>
-        isServersRequest(r.request()),
-      );
+      const response = page.waitForResponse(/\/api\/v1\/servers\?/);
       release();
       await response;
 
       // Check that loading is over
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectSearchDisabled(page, false);
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(
+        page.getByTestId("servers-reload-usage-button"),
+      ).toBeEnabled();
+      await expect(
+        page.getByTestId("servers-reload-no-usage-button"),
+      ).toBeEnabled();
       await expect(page.getByTestId("servers-add-button")).toHaveCount(0);
       await expect(page.getByText("admin.servers.usage_info")).toBeVisible();
       await expect(page.getByTestId("server-item")).toHaveCount(5);
@@ -287,85 +219,140 @@ test.describe("Admin servers index", () => {
 
   test.describe("load servers errors", () => {
     test("error on initial load", async ({ page }) => {
-      await mockServersError(page, 500, { message: "Test" });
+      await mockMethod(page, "GET", /\/api\/v1\/servers\?/, {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/admin/servers");
 
-      await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Check that overlay is shown and the components are not disabled
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectSearchDisabled(page, false);
+      const search = page.getByTestId("server-search");
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
+      await expect(
+        page.getByTestId("servers-reload-usage-button"),
+      ).toBeEnabled();
+      await expect(
+        page.getByTestId("servers-reload-no-usage-button"),
+      ).toBeEnabled();
       await expect(page.getByTestId("loading-retry-button")).toContainText(
         "app.reload",
       );
     });
 
-    test("reload after error on initial load", async ({ page }) => {
-      await mockServersError(page, 500, { message: "Test" });
+    test("reload after error on initial load", async ({ page, servers }) => {
+      await mockMethod(page, "GET", /\/api\/v1\/servers\?/, {
+        status: 500,
+        json: { message: "Test" },
+      });
       await page.goto("/admin/servers");
-      await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      await mockServers(page, (servers) => onePage(servers, 1, 5));
+      showServersPage(servers, 1);
+      await mockMethod(page, "GET", /\/api\/v1\/servers\?/, { json: servers });
 
-      const query = await requestServersAfter(page, () =>
-        page.getByTestId("loading-retry-button").click(),
-      );
+      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await page.getByTestId("loading-retry-button").click();
+      const query = queryOf(await request);
 
       // Check that update usage is set correctly when reloading servers
       expect(query.update_usage).toBe("0");
 
       await expect(page.getByTestId("overlay")).toBeHidden();
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
-      await expectSingleServer(page, "Server 01");
+      await expect(page.getByTestId("server-item")).toHaveCount(1);
+      await expect(page.getByTestId("server-item")).toContainText("Server 01");
     });
 
     test.describe("error when changing the page", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockServers(page, (servers) => onePage(servers, 1, 5));
+      test.beforeEach(async ({ page, servers }) => {
+        showServersPage(servers, 1);
         await page.goto("/admin/servers");
-        await expectSingleServer(page, "Server 01");
+        await expect(page.getByTestId("server-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-item")).toContainText(
+          "Server 01",
+        );
       });
 
       test("shows error and overlay", async ({ page }) => {
-        await mockServersError(page, 500, { message: "Test" });
+        await mockMethod(page, "GET", /\/api\/v1\/servers\?/, {
+          status: 500,
+          json: { message: "Test" },
+        });
 
-        const query = await requestServersAfter(page, () =>
-          nextPageButton(page).click(),
-        );
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        const query = queryOf(await request);
         expect(query.page).toBe("2");
 
-        await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
 
         await expect(page.getByTestId("overlay")).toBeVisible();
-        await expectSearchDisabled(page, false);
+        const search = page.getByTestId("server-search");
+        await expect(search.locator("input")).toBeVisible();
+        await expect(search.locator("button")).toBeVisible();
+        await expect(search.locator("input")).toBeEnabled();
+        await expect(search.locator("button")).toBeEnabled();
+        await expect(
+          page.getByTestId("servers-reload-usage-button"),
+        ).toBeEnabled();
+        await expect(
+          page.getByTestId("servers-reload-no-usage-button"),
+        ).toBeEnabled();
         await expect(page.getByTestId("loading-retry-button")).toContainText(
           "app.reload",
         );
       });
 
-      test("reload resets to the first page", async ({ page }) => {
-        await mockServersError(page, 500, { message: "Test" });
-        await nextPageButton(page).click();
-        await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      test("reload resets to the first page", async ({ page, servers }) => {
+        await mockMethod(page, "GET", /\/api\/v1\/servers\?/, {
+          status: 500,
+          json: { message: "Test" },
+        });
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
 
-        await mockServers(page, (servers) => onePage(servers, 1, 5));
+        showServersPage(servers, 1);
+        await mockMethod(page, "GET", /\/api\/v1\/servers\?/, {
+          json: servers,
+        });
 
-        const query = await requestServersAfter(page, () =>
-          page.getByTestId("loading-retry-button").click(),
-        );
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("loading-retry-button").click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({ update_usage: "0", page: "1" });
 
         await expect(page.getByTestId("overlay")).toBeHidden();
         await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
-        await expectSingleServer(page, "Server 01");
+        await expect(page.getByTestId("server-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-item")).toContainText(
+          "Server 01",
+        );
         await expectActivePage(page, 0);
       });
 
       test("unauthenticated redirects to login", async ({ page }) => {
-        await mockServersError(page, 401);
+        await mockMethod(page, "GET", /\/api\/v1\/servers\?/, { status: 401 });
 
-        await nextPageButton(page).click();
+        await page.getByTestId("paginator-next-button").nth(1).click();
 
         await expectLoginRedirect(page, "/admin/servers");
       });
@@ -374,7 +361,7 @@ test.describe("Admin servers index", () => {
     test("unauthenticated on initial load redirects to login", async ({
       page,
     }) => {
-      await mockServersError(page, 401);
+      await mockMethod(page, "GET", /\/api\/v1\/servers\?/, { status: 401 });
 
       await page.goto("/admin/servers");
 
@@ -382,10 +369,11 @@ test.describe("Admin servers index", () => {
     });
   });
 
-  test("load servers page out of bounds", async ({ page }) => {
-    await mockServers(page, (servers) => onePage(servers, 1, 2, { total: 2 }));
+  test("load servers page out of bounds", async ({ page, servers }) => {
+    showServersPage(servers, 1, { lastPage: 2, meta: { total: 2 } });
     await page.goto("/admin/servers");
-    await expectSingleServer(page, "Server 01");
+    await expect(page.getByTestId("server-item")).toHaveCount(1);
+    await expect(page.getByTestId("server-item")).toContainText("Server 01");
 
     // Switch to next page but respond with no servers on second page
     const emptyServers = readFixture("servers.json");
@@ -398,29 +386,32 @@ test.describe("Admin servers index", () => {
       total: 2,
       total_no_filter: 2,
     });
-    const release = await holdRequest(page, isServersUrl, {
+    const release = await holdRequest(page, /\/api\/v1\/servers\?/, {
       json: emptyServers,
     });
 
-    const secondPageRequest = page.waitForRequest(isServersRequest);
-    await nextPageButton(page).click();
+    const secondPageRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+    await page.getByTestId("paginator-next-button").nth(1).click();
 
     // The page is still the same on the first request
     expect(queryOf(await secondPageRequest).page).toBe("2");
 
-    await mockServers(page, (servers) => {
-      servers.data = servers.data.slice(0, 2);
-      Object.assign(servers.meta, {
-        per_page: 2,
-        to: 2,
-        total: 2,
-        total_no_filter: 2,
-      });
+    const twoServers = readFixture("servers.json");
+    twoServers.data = twoServers.data.slice(0, 2);
+    Object.assign(twoServers.meta, {
+      per_page: 2,
+      to: 2,
+      total: 2,
+      total_no_filter: 2,
     });
+    await mockMethod(page, "GET", /\/api\/v1\/servers\?/, { json: twoServers });
 
     // The second request resets the page
     const resetRequest = page.waitForRequest(
-      (request) => isServersRequest(request) && queryOf(request).page === "1",
+      (request) =>
+        request.method() === "GET" &&
+        new URL(request.url()).pathname === "/api/v1/servers" &&
+        queryOf(request).page === "1",
     );
     release();
     await resetRequest;
@@ -432,7 +423,7 @@ test.describe("Admin servers index", () => {
 
   test.describe("server search", () => {
     test("initial request has no query", async ({ page }) => {
-      const request = page.waitForRequest(isServersRequest);
+      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
       await page.goto("/admin/servers");
 
       const query = queryOf(await request);
@@ -443,24 +434,22 @@ test.describe("Admin servers index", () => {
       ).toHaveValue("");
     });
 
-    test("no servers found for search query", async ({ page }) => {
+    test("no servers found for search query", async ({ page, servers }) => {
       await page.goto("/admin/servers");
       await expect(page.getByTestId("server-item")).toHaveCount(5);
 
-      await mockServers(page, (servers) => {
-        servers.data = [];
-        Object.assign(servers.meta, {
-          from: null,
-          per_page: 1,
-          to: null,
-          total: 0,
-        });
+      servers.data = [];
+      Object.assign(servers.meta, {
+        from: null,
+        per_page: 1,
+        to: null,
+        total: 0,
       });
 
       await page.getByTestId("server-search").locator("input").fill("Test");
-      const query = await requestServersAfter(page, () =>
-        page.getByTestId("server-search").locator("button").click(),
-      );
+      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await page.getByTestId("server-search").locator("button").click();
+      const query = queryOf(await request);
 
       expect(query.query).toBe("Test");
       expect(query).toMatchObject({ page: "1", update_usage: "0" });
@@ -471,24 +460,27 @@ test.describe("Admin servers index", () => {
       await expect(page.getByTestId("server-item")).toHaveCount(0);
     });
 
-    test("no servers available, search with enter", async ({ page }) => {
+    test("no servers available, search with enter", async ({
+      page,
+      servers,
+    }) => {
       await page.goto("/admin/servers");
       await expect(page.getByTestId("server-item")).toHaveCount(5);
 
-      await mockServers(page, (servers) => {
-        servers.data = [];
-        Object.assign(servers.meta, {
-          from: null,
-          per_page: 1,
-          to: null,
-          total: 0,
-          total_no_filter: 0,
-        });
+      servers.data = [];
+      Object.assign(servers.meta, {
+        from: null,
+        per_page: 1,
+        to: null,
+        total: 0,
+        total_no_filter: 0,
       });
 
       const input = page.getByTestId("server-search").locator("input");
       await input.fill("Test2");
-      const query = await requestServersAfter(page, () => input.press("Enter"));
+      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await input.press("Enter");
+      const query = queryOf(await request);
 
       expect(query.query).toBe("Test2");
       expect(query).toMatchObject({ page: "1", update_usage: "0" });
@@ -500,18 +492,19 @@ test.describe("Admin servers index", () => {
     });
 
     test.describe("with two pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, servers }) => {
         await page.goto("/admin/servers");
         await expect(page.getByTestId("server-item")).toHaveCount(5);
 
-        await mockServers(page, (servers) =>
-          onePage(servers, 1, 2, { total: 2 }),
-        );
+        showServersPage(servers, 1, { lastPage: 2, meta: { total: 2 } });
         await page.getByTestId("server-search").locator("input").fill("Server");
-        await requestServersAfter(page, () =>
-          page.getByTestId("server-search").locator("button").click(),
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("server-search").locator("button").click();
+        await request;
+        await expect(page.getByTestId("server-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-item")).toContainText(
+          "Server 01",
         );
-        await expectSingleServer(page, "Server 01");
       });
 
       test("shows the result with pagination", async ({ page }) => {
@@ -521,22 +514,13 @@ test.describe("Admin servers index", () => {
 
       test("search query stays the same when changing the page", async ({
         page,
+        servers,
       }) => {
-        await mockServers(page, (servers) => {
-          servers.data = servers.data.slice(1, 2);
-          Object.assign(servers.meta, {
-            current_page: 2,
-            from: 2,
-            last_page: 2,
-            per_page: 1,
-            to: 2,
-            total: 2,
-          });
-        });
+        showServersPage(servers, 2, { lastPage: 2, meta: { total: 2 } });
 
-        const query = await requestServersAfter(page, () =>
-          nextPageButton(page).click(),
-        );
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        const query = queryOf(await request);
 
         expect(query.query).toBe("Server");
         expect(query).toMatchObject({ page: "2", update_usage: "0" });
@@ -544,33 +528,27 @@ test.describe("Admin servers index", () => {
         await expect(
           page.getByTestId("server-search").locator("input"),
         ).toHaveValue("Server");
-        await expectSingleServer(page, "Server 02");
+        await expect(page.getByTestId("server-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-item")).toContainText(
+          "Server 02",
+        );
         await expectActivePage(page, 1);
       });
 
-      test("changing the search query resets the page", async ({ page }) => {
-        await mockServers(page, (servers) => {
-          servers.data = servers.data.slice(1, 2);
-          Object.assign(servers.meta, {
-            current_page: 2,
-            from: 2,
-            last_page: 2,
-            per_page: 1,
-            to: 2,
-            total: 2,
-          });
-        });
-        await nextPageButton(page).click();
+      test("changing the search query resets the page", async ({
+        page,
+        servers,
+      }) => {
+        showServersPage(servers, 2, { lastPage: 2, meta: { total: 2 } });
+        await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockServers(page, (servers) =>
-          onePage(servers, 1, 2, { total: 2 }),
-        );
+        showServersPage(servers, 1, { lastPage: 2, meta: { total: 2 } });
         const input = page.getByTestId("server-search").locator("input");
         await input.fill("Se");
-        const query = await requestServersAfter(page, () =>
-          page.getByTestId("server-search").locator("button").click(),
-        );
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("server-search").locator("button").click();
+        const query = queryOf(await request);
 
         expect(query.query).toBe("Se");
         expect(query).toMatchObject({ page: "1", update_usage: "0" });
@@ -580,7 +558,7 @@ test.describe("Admin servers index", () => {
   });
 
   test.describe("sort servers", () => {
-    test.beforeEach(async ({ currentUser }) => {
+    test.beforeEach(({ currentUser }) => {
       currentUser.data.permissions = [
         "admin.view",
         "servers.viewAny",
@@ -589,7 +567,7 @@ test.describe("Admin servers index", () => {
     });
 
     test("default sorting and sortable columns", async ({ page }) => {
-      const request = page.waitForRequest(isServersRequest);
+      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
       await page.goto("/admin/servers");
 
       expect(queryOf(await request)).toMatchObject({
@@ -632,20 +610,23 @@ test.describe("Admin servers index", () => {
     });
 
     test.describe("sorted by status", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, servers }) => {
         await page.goto("/admin/servers");
         await expect(page.getByTestId("server-item")).toHaveCount(5);
 
-        await mockServers(page, (servers) => onePage(servers, 1, 5));
-        const query = await requestServersAfter(page, () =>
-          page.getByTestId("server-header-cell").nth(1).click(),
-        );
+        showServersPage(servers, 1);
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("server-header-cell").nth(1).click();
+        const query = queryOf(await request);
         expect(query).toMatchObject({
           page: "1",
           sort_by: "status",
           sort_direction: "asc",
         });
-        await expectSingleServer(page, "Server 01");
+        await expect(page.getByTestId("server-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-item")).toContainText(
+          "Server 01",
+        );
       });
 
       test("changes the sorting and shows the pagination", async ({ page }) => {
@@ -659,12 +640,13 @@ test.describe("Admin servers index", () => {
 
       test("sorting stays the same when changing the page", async ({
         page,
+        servers,
       }) => {
-        await mockServers(page, (servers) => onePage(servers, 2, 5));
+        showServersPage(servers, 2);
 
-        const query = await requestServersAfter(page, () =>
-          nextPageButton(page).click(),
-        );
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        const query = queryOf(await request);
 
         expect(query).toMatchObject({
           page: "2",
@@ -678,18 +660,24 @@ test.describe("Admin servers index", () => {
         await expect(
           page.getByTestId("server-header-cell").nth(1),
         ).toHaveAttribute("aria-sort", "ascending");
-        await expectSingleServer(page, "Server 02");
+        await expect(page.getByTestId("server-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-item")).toContainText(
+          "Server 02",
+        );
       });
 
-      test("changing the direction resets the page", async ({ page }) => {
-        await mockServers(page, (servers) => onePage(servers, 2, 5));
-        await nextPageButton(page).click();
+      test("changing the direction resets the page", async ({
+        page,
+        servers,
+      }) => {
+        showServersPage(servers, 2);
+        await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await mockServers(page, (servers) => onePage(servers, 1, 5));
-        const query = await requestServersAfter(page, () =>
-          page.getByTestId("server-header-cell").nth(1).click(),
-        );
+        showServersPage(servers, 1);
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("server-header-cell").nth(1).click();
+        const query = queryOf(await request);
 
         expect(query).toMatchObject({
           page: "1",
@@ -703,15 +691,18 @@ test.describe("Admin servers index", () => {
         await expect(
           page.getByTestId("server-header-cell").nth(1),
         ).toHaveAttribute("aria-sort", "descending");
-        await expectSingleServer(page, "Server 01");
+        await expect(page.getByTestId("server-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-item")).toContainText(
+          "Server 01",
+        );
       });
 
       test("changing the column resets the sorting of the previous one", async ({
         page,
       }) => {
-        const query = await requestServersAfter(page, () =>
-          page.getByTestId("server-header-cell").nth(3).click(),
-        );
+        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        await page.getByTestId("server-header-cell").nth(3).click();
+        const query = queryOf(await request);
 
         expect(query).toMatchObject({
           page: "1",
@@ -727,19 +718,21 @@ test.describe("Admin servers index", () => {
 
     test("sorting by version stays the same when changing the page", async ({
       page,
+      servers,
     }) => {
-      await mockServers(page, (servers) => onePage(servers, 1, 5));
+      showServersPage(servers, 1);
       await page.goto("/admin/servers");
-      await expectSingleServer(page, "Server 01");
+      await expect(page.getByTestId("server-item")).toHaveCount(1);
+      await expect(page.getByTestId("server-item")).toContainText("Server 01");
 
-      await requestServersAfter(page, () =>
-        page.getByTestId("server-header-cell").nth(3).click(),
-      );
+      const sortRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await page.getByTestId("server-header-cell").nth(3).click();
+      await sortRequest;
 
-      await mockServers(page, (servers) => onePage(servers, 2, 5));
-      const query = await requestServersAfter(page, () =>
-        nextPageButton(page).click(),
-      );
+      showServersPage(servers, 2);
+      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await page.getByTestId("paginator-next-button").nth(1).click();
+      const query = queryOf(await request);
 
       expect(query).toMatchObject({
         page: "2",
@@ -753,21 +746,23 @@ test.describe("Admin servers index", () => {
       await expect(
         page.getByTestId("server-header-cell").nth(3),
       ).toHaveAttribute("aria-sort", "ascending");
-      await expectSingleServer(page, "Server 02");
+      await expect(page.getByTestId("server-item")).toHaveCount(1);
+      await expect(page.getByTestId("server-item")).toContainText("Server 02");
     });
 
-    test("changing the sorting resets the page", async ({ page }) => {
-      await mockServers(page, (servers) => onePage(servers, 1, 5));
+    test("changing the sorting resets the page", async ({ page, servers }) => {
+      showServersPage(servers, 1);
       await page.goto("/admin/servers");
-      await expectSingleServer(page, "Server 01");
-      await mockServers(page, (servers) => onePage(servers, 2, 5));
-      await nextPageButton(page).click();
+      await expect(page.getByTestId("server-item")).toHaveCount(1);
+      await expect(page.getByTestId("server-item")).toContainText("Server 01");
+      showServersPage(servers, 2);
+      await page.getByTestId("paginator-next-button").nth(1).click();
       await expectActivePage(page, 1);
 
-      await mockServers(page, (servers) => onePage(servers, 1, 5));
-      const query = await requestServersAfter(page, () =>
-        page.getByTestId("server-header-cell").nth(4).click(),
-      );
+      showServersPage(servers, 1);
+      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await page.getByTestId("server-header-cell").nth(4).click();
+      const query = queryOf(await request);
 
       expect(query).toMatchObject({
         page: "1",
@@ -781,16 +776,18 @@ test.describe("Admin servers index", () => {
       await expect(headers.nth(4)).toHaveAttribute("aria-sort", "ascending");
     });
 
-    test("sort by participant and video count", async ({ page }) => {
+    test("sort by participant and video count", async ({ page, servers }) => {
       await page.goto("/admin/servers");
       await expect(page.getByTestId("server-item")).toHaveCount(5);
       const headers = page.getByTestId("server-header-cell");
 
-      await mockServers(page, (servers) => onePage(servers, 1, 5));
+      showServersPage(servers, 1);
       await headers.nth(4).click();
       await expect(headers.nth(4)).toHaveAttribute("data-p-sorted", "true");
 
-      let query = await requestServersAfter(page, () => headers.nth(5).click());
+      const participantRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await headers.nth(5).click();
+      let query = queryOf(await participantRequest);
       expect(query).toMatchObject({
         page: "1",
         sort_by: "participant_count",
@@ -800,7 +797,9 @@ test.describe("Admin servers index", () => {
       await expect(headers.nth(5)).toHaveAttribute("data-p-sorted", "true");
       await expect(headers.nth(5)).toHaveAttribute("aria-sort", "ascending");
 
-      query = await requestServersAfter(page, () => headers.nth(6).click());
+      const videoRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+      await headers.nth(6).click();
+      query = queryOf(await videoRequest);
       expect(query).toMatchObject({
         page: "1",
         sort_by: "video_count",

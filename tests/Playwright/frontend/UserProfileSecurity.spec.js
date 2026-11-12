@@ -1,108 +1,11 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptUserProfileRequests } from "../support/mocks.js";
+import { test } from "../support/fixtures/userProfile.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const USER_URL = "**/api/v1/users/1";
-const PASSWORD_URL = "**/api/v1/users/1/password";
-const SESSIONS_URL = "**/api/v1/sessions";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const tabButtons = [
-  "base-tab-button",
-  "email-tab-button",
-  "security-tab-button",
-  "others-tab-button",
-];
-
-async function expectBothSessions(page) {
-  const sessions = page.getByTestId("session-panel");
-  await expect(sessions).toHaveCount(2);
-
-  await expect(sessions.nth(0)).toBeVisible();
-  await expect(sessions.nth(0)).toContainText("Windows");
-  await expect(sessions.nth(0)).toContainText("auth.sessions.current");
-  await expect(sessions.nth(0)).toContainText("auth.sessions.browser Chrome");
-  await expect(sessions.nth(0)).toContainText("auth.sessions.ip 10.9.1.2");
-
-  await expect(sessions.nth(1)).toBeVisible();
-  await expect(sessions.nth(1)).toContainText("iOS");
-  await expect(sessions.nth(1)).toContainText("01/23/2022, 16:55");
-  await expect(sessions.nth(1)).toContainText(
-    "auth.sessions.browser Mobile Safari",
-  );
-  await expect(sessions.nth(1)).toContainText("auth.sessions.ip 10.9.1.5");
-}
-
-async function expectOnlyCurrentSession(page) {
-  const sessions = page.getByTestId("session-panel");
-  await expect(sessions).toHaveCount(1);
-  await expect(sessions.nth(0)).toBeVisible();
-  await expect(sessions.nth(0)).toContainText("Windows");
-  await expect(sessions.nth(0)).toContainText("auth.sessions.current");
-  await expect(sessions.nth(0)).toContainText("auth.sessions.browser Chrome");
-  await expect(sessions.nth(0)).toContainText("auth.sessions.ip 10.9.1.2");
-}
-
-async function expectRolesDisabled(page) {
-  await expect(
-    page.getByText("admin.users.roles_and_permissions"),
-  ).toBeVisible();
-  const roles = page.getByTestId("roles-field");
-  await expect(roles).toBeVisible();
-  await expect(roles).toContainText("app.roles");
-  const dropdown = roles.getByTestId("role-dropdown");
-  await expect(dropdown).toContainText("Superuser");
-  await expect(dropdown).toContainText("User");
-  await expect(dropdown).toHaveClass(/multiselect--disabled/);
-}
-
-async function expectNoPasswordFields(page) {
-  await expect(page.getByTestId("logout-all-sessions-button")).toBeVisible();
-  await expect(
-    page.getByTestId("security-tab-current-password-field"),
-  ).toHaveCount(0);
-  await expect(page.getByTestId("new-password-field")).toHaveCount(0);
-  await expect(page.getByTestId("new-password-confirmation-field")).toHaveCount(
-    0,
-  );
-  await expect(page.getByTestId("change-password-save-button")).toHaveCount(0);
-}
-
-async function fillPasswords(page) {
-  await page.locator("#current_password").fill("secretPassword123#");
-  await page.locator("#new_password").fill("newSecretPassword123#");
-  await page
-    .locator("#new_password_confirmation")
-    .fill("newSecretPassword123#");
-}
-
-async function expectEverythingDisabled(page) {
-  for (const tabButton of tabButtons) {
-    await expect(page.getByTestId(tabButton)).toBeDisabled();
-  }
-  await expect(page.locator("#current_password")).toBeDisabled();
-  await expect(page.locator("#new_password")).toBeDisabled();
-  await expect(page.locator("#new_password_confirmation")).toBeDisabled();
-  await expect(page.getByTestId("change-password-save-button")).toBeDisabled();
-  await expect(page.getByTestId("logout-all-sessions-button")).toBeDisabled();
-}
 
 test.use({ authenticated: true });
 
 test.describe("User profile security", () => {
-  test.beforeEach(async ({ page }) => {
-    await interceptUserProfileRequests(page);
-  });
-
   test("selecting the tab sets the hash", async ({ page }) => {
     await page.goto("/profile");
     await page.getByTestId("security-tab-button").click();
@@ -120,7 +23,16 @@ test.describe("User profile security", () => {
     });
 
     test("roles are shown in a disabled select", async ({ page }) => {
-      await expectRolesDisabled(page);
+      await expect(
+        page.getByText("admin.users.roles_and_permissions"),
+      ).toBeVisible();
+      const roles = page.getByTestId("roles-field");
+      await expect(roles).toBeVisible();
+      await expect(roles).toContainText("app.roles");
+      const dropdown = roles.getByTestId("role-dropdown");
+      await expect(dropdown).toContainText("Superuser");
+      await expect(dropdown).toContainText("User");
+      await expect(dropdown).toHaveClass(/multiselect--disabled/);
     });
 
     test("password fields are shown empty", async ({ page }) => {
@@ -149,7 +61,25 @@ test.describe("User profile security", () => {
     });
 
     test("all sessions are shown", async ({ page }) => {
-      await expectBothSessions(page);
+      const sessions = page.getByTestId("session-panel");
+      await expect(sessions).toHaveCount(2);
+
+      await expect(sessions.nth(0)).toBeVisible();
+      await expect(sessions.nth(0)).toContainText("Windows");
+      await expect(sessions.nth(0)).toContainText("auth.sessions.current");
+      await expect(sessions.nth(0)).toContainText(
+        "auth.sessions.browser Chrome",
+      );
+      await expect(sessions.nth(0)).toContainText("auth.sessions.ip 10.9.1.2");
+
+      await expect(sessions.nth(1)).toBeVisible();
+      await expect(sessions.nth(1)).toContainText("iOS");
+      await expect(sessions.nth(1)).toContainText("01/23/2022, 16:55");
+      await expect(sessions.nth(1)).toContainText(
+        "auth.sessions.browser Mobile Safari",
+      );
+      await expect(sessions.nth(1)).toContainText("auth.sessions.ip 10.9.1.5");
+
       await expect(page.getByTestId("logout-all-sessions-button")).toHaveText(
         "auth.sessions.logout_all",
       );
@@ -157,27 +87,53 @@ test.describe("User profile security", () => {
 
     test.describe("change password", () => {
       test.beforeEach(async ({ page }) => {
-        await fillPasswords(page);
+        await page.locator("#current_password").fill("secretPassword123#");
+        await page.locator("#new_password").fill("newSecretPassword123#");
+        await page
+          .locator("#new_password_confirmation")
+          .fill("newSecretPassword123#");
       });
 
-      test("loading state while saving", async ({ page }) => {
-        const save = await mockMethod(page, "PUT", PASSWORD_URL, {
-          json: readFixture("userDataCurrentUser.json"),
-          hold: true,
-        });
+      test("loading state while saving", async ({ page, profileUser }) => {
+        const save = await mockMethod(
+          page,
+          "PUT",
+          "**/api/v1/users/1/password",
+          { json: profileUser, hold: true },
+        );
 
         await page.getByTestId("change-password-save-button").click();
         await nthRequest(save);
 
-        await expectEverythingDisabled(page);
+        for (const tabButton of [
+          "base-tab-button",
+          "email-tab-button",
+          "security-tab-button",
+          "others-tab-button",
+        ]) {
+          await expect(page.getByTestId(tabButton)).toBeDisabled();
+        }
+        await expect(page.locator("#current_password")).toBeDisabled();
+        await expect(page.locator("#new_password")).toBeDisabled();
+        await expect(page.locator("#new_password_confirmation")).toBeDisabled();
+        await expect(
+          page.getByTestId("change-password-save-button"),
+        ).toBeDisabled();
+        await expect(
+          page.getByTestId("logout-all-sessions-button"),
+        ).toBeDisabled();
+
         save.release();
         await expectToastAndClose(page, "auth.flash.password_changed");
       });
 
-      test("sends the passwords", async ({ page }) => {
-        const save = await mockMethod(page, "PUT", PASSWORD_URL, {
-          json: readFixture("userDataCurrentUser.json"),
-        });
+      test("sends the passwords", async ({ page, profileUser }) => {
+        const save = await mockMethod(
+          page,
+          "PUT",
+          "**/api/v1/users/1/password",
+          { json: profileUser },
+        );
 
         await page.getByTestId("change-password-save-button").click();
 
@@ -190,9 +146,12 @@ test.describe("User profile security", () => {
         await expectToastAndClose(page, "auth.flash.password_changed");
       });
 
-      test("fields are reset and enabled after saving", async ({ page }) => {
-        await mockMethod(page, "PUT", PASSWORD_URL, {
-          json: readFixture("userDataCurrentUser.json"),
+      test("fields are reset and enabled after saving", async ({
+        page,
+        profileUser,
+      }) => {
+        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
+          json: profileUser,
         });
 
         await page.getByTestId("change-password-save-button").click();
@@ -206,11 +165,33 @@ test.describe("User profile security", () => {
           "",
         );
         await expect(page.locator("#new_password_confirmation")).toBeEnabled();
-        await expectBothSessions(page);
+
+        const sessions = page.getByTestId("session-panel");
+        await expect(sessions).toHaveCount(2);
+
+        await expect(sessions.nth(0)).toBeVisible();
+        await expect(sessions.nth(0)).toContainText("Windows");
+        await expect(sessions.nth(0)).toContainText("auth.sessions.current");
+        await expect(sessions.nth(0)).toContainText(
+          "auth.sessions.browser Chrome",
+        );
+        await expect(sessions.nth(0)).toContainText(
+          "auth.sessions.ip 10.9.1.2",
+        );
+
+        await expect(sessions.nth(1)).toBeVisible();
+        await expect(sessions.nth(1)).toContainText("iOS");
+        await expect(sessions.nth(1)).toContainText("01/23/2022, 16:55");
+        await expect(sessions.nth(1)).toContainText(
+          "auth.sessions.browser Mobile Safari",
+        );
+        await expect(sessions.nth(1)).toContainText(
+          "auth.sessions.ip 10.9.1.5",
+        );
       });
 
       test("422 errors are shown at the fields", async ({ page }) => {
-        await mockMethod(page, "PUT", PASSWORD_URL, {
+        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
           status: 422,
           json: {
             message:
@@ -245,7 +226,7 @@ test.describe("User profile security", () => {
       test("server error hides previous 422 errors and shows a toast", async ({
         page,
       }) => {
-        await mockMethod(page, "PUT", PASSWORD_URL, {
+        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
           status: 422,
           json: {
             message: "The Current password field is required.",
@@ -267,15 +248,22 @@ test.describe("User profile security", () => {
           page.getByTestId("security-tab-current-password-field"),
         ).toContainText("The Current password field is required.");
 
-        await mockMethod(page, "PUT", PASSWORD_URL, {
+        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
           status: 500,
           json: { message: "Test" },
         });
         await expect(page.locator("#current_password")).toHaveValue("");
-        await fillPasswords(page);
+        await page.locator("#current_password").fill("secretPassword123#");
+        await page.locator("#new_password").fill("newSecretPassword123#");
+        await page
+          .locator("#new_password_confirmation")
+          .fill("newSecretPassword123#");
         await page.getByTestId("change-password-save-button").click();
 
-        await expectToastAndClose(page, serverErrorToast);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
         await expect(
           page.getByTestId("security-tab-current-password-field"),
         ).not.toContainText("The Current password field is required.");
@@ -288,7 +276,9 @@ test.describe("User profile security", () => {
       });
 
       test("401 redirects to the login", async ({ page }) => {
-        await mockMethod(page, "PUT", PASSWORD_URL, { status: 401 });
+        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
+          status: 401,
+        });
 
         await page.getByTestId("change-password-save-button").click();
 
@@ -297,31 +287,44 @@ test.describe("User profile security", () => {
     });
 
     test.describe("logout all other sessions", () => {
-      test("loading state while logging out", async ({ page }) => {
-        const logout = await mockMethod(page, "DELETE", SESSIONS_URL, {
+      test("loading state while logging out", async ({ page, sessions }) => {
+        const logout = await mockMethod(page, "DELETE", "**/api/v1/sessions", {
           status: 204,
           hold: true,
         });
-        const sessions = readFixture("sessions.json");
         sessions.data = sessions.data.slice(0, 1);
-        await mockMethod(page, "GET", SESSIONS_URL, { json: sessions });
 
         await page.getByTestId("logout-all-sessions-button").click();
         await nthRequest(logout);
 
-        await expectEverythingDisabled(page);
+        for (const tabButton of [
+          "base-tab-button",
+          "email-tab-button",
+          "security-tab-button",
+          "others-tab-button",
+        ]) {
+          await expect(page.getByTestId(tabButton)).toBeDisabled();
+        }
+        await expect(page.locator("#current_password")).toBeDisabled();
+        await expect(page.locator("#new_password")).toBeDisabled();
+        await expect(page.locator("#new_password_confirmation")).toBeDisabled();
+        await expect(
+          page.getByTestId("change-password-save-button"),
+        ).toBeDisabled();
+        await expect(
+          page.getByTestId("logout-all-sessions-button"),
+        ).toBeDisabled();
+
         logout.release();
         await expectToastAndClose(page, "auth.flash.logout_all_others");
       });
 
-      test("only the current session remains", async ({ page }) => {
-        const logout = await mockMethod(page, "DELETE", SESSIONS_URL, {
+      test("only the current session remains", async ({ page, sessions }) => {
+        const logout = await mockMethod(page, "DELETE", "**/api/v1/sessions", {
           status: 204,
         });
-        const sessions = readFixture("sessions.json");
-        sessions.data = sessions.data.slice(0, 1);
-        const reload = await mockMethod(page, "GET", SESSIONS_URL, {
-          json: sessions,
+        const reload = await mockMethod(page, "GET", "**/api/v1/sessions", {
+          json: { ...sessions, data: sessions.data.slice(0, 1) },
         });
 
         await page.getByTestId("logout-all-sessions-button").click();
@@ -329,22 +332,36 @@ test.describe("User profile security", () => {
         await nthRequest(reload);
 
         await expectToastAndClose(page, "auth.flash.logout_all_others");
-        await expectOnlyCurrentSession(page);
+
+        const panels = page.getByTestId("session-panel");
+        await expect(panels).toHaveCount(1);
+        await expect(panels.nth(0)).toBeVisible();
+        await expect(panels.nth(0)).toContainText("Windows");
+        await expect(panels.nth(0)).toContainText("auth.sessions.current");
+        await expect(panels.nth(0)).toContainText(
+          "auth.sessions.browser Chrome",
+        );
+        await expect(panels.nth(0)).toContainText("auth.sessions.ip 10.9.1.2");
       });
 
       test("server error shows a toast", async ({ page }) => {
-        await mockMethod(page, "DELETE", SESSIONS_URL, {
+        await mockMethod(page, "DELETE", "**/api/v1/sessions", {
           status: 500,
           json: { message: "Test" },
         });
 
         await page.getByTestId("logout-all-sessions-button").click();
 
-        await expectToastAndClose(page, serverErrorToast);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
       });
 
       test("401 redirects to the login", async ({ page }) => {
-        await mockMethod(page, "DELETE", SESSIONS_URL, { status: 401 });
+        await mockMethod(page, "DELETE", "**/api/v1/sessions", {
+          status: 401,
+        });
 
         await page.getByTestId("logout-all-sessions-button").click();
 
@@ -358,26 +375,98 @@ test.describe("User profile security", () => {
 
     await page.goto("/profile#tab=security");
 
-    await expectRolesDisabled(page);
-    await expectNoPasswordFields(page);
-    await expectBothSessions(page);
+    await expect(
+      page.getByText("admin.users.roles_and_permissions"),
+    ).toBeVisible();
+    const roles = page.getByTestId("roles-field");
+    await expect(roles).toBeVisible();
+    await expect(roles).toContainText("app.roles");
+    const dropdown = roles.getByTestId("role-dropdown");
+    await expect(dropdown).toContainText("Superuser");
+    await expect(dropdown).toContainText("User");
+    await expect(dropdown).toHaveClass(/multiselect--disabled/);
+
+    await expect(page.getByTestId("logout-all-sessions-button")).toBeVisible();
+    await expect(
+      page.getByTestId("security-tab-current-password-field"),
+    ).toHaveCount(0);
+    await expect(page.getByTestId("new-password-field")).toHaveCount(0);
+    await expect(
+      page.getByTestId("new-password-confirmation-field"),
+    ).toHaveCount(0);
+    await expect(page.getByTestId("change-password-save-button")).toHaveCount(
+      0,
+    );
+
+    const sessions = page.getByTestId("session-panel");
+    await expect(sessions).toHaveCount(2);
+
+    await expect(sessions.nth(0)).toBeVisible();
+    await expect(sessions.nth(0)).toContainText("Windows");
+    await expect(sessions.nth(0)).toContainText("auth.sessions.current");
+    await expect(sessions.nth(0)).toContainText("auth.sessions.browser Chrome");
+    await expect(sessions.nth(0)).toContainText("auth.sessions.ip 10.9.1.2");
+
+    await expect(sessions.nth(1)).toBeVisible();
+    await expect(sessions.nth(1)).toContainText("iOS");
+    await expect(sessions.nth(1)).toContainText("01/23/2022, 16:55");
+    await expect(sessions.nth(1)).toContainText(
+      "auth.sessions.browser Mobile Safari",
+    );
+    await expect(sessions.nth(1)).toContainText("auth.sessions.ip 10.9.1.5");
+
     await expect(page.getByTestId("logout-all-sessions-button")).toHaveText(
       "auth.sessions.logout_all",
     );
     await expect(page.getByTestId("logout-all-sessions-button")).toBeEnabled();
   });
 
-  test("view as external user", async ({ page }) => {
-    const user = readFixture("userDataCurrentUser.json");
-    user.data.authenticator = "ldap";
-    user.data.external_id = "jdo";
-    await mockMethod(page, "GET", USER_URL, { json: user });
+  test("view as external user", async ({ page, profileUser }) => {
+    profileUser.data.authenticator = "ldap";
+    profileUser.data.external_id = "jdo";
 
     await page.goto("/profile#tab=security");
 
-    await expectRolesDisabled(page);
-    await expectNoPasswordFields(page);
-    await expectBothSessions(page);
+    await expect(
+      page.getByText("admin.users.roles_and_permissions"),
+    ).toBeVisible();
+    const roles = page.getByTestId("roles-field");
+    await expect(roles).toBeVisible();
+    await expect(roles).toContainText("app.roles");
+    const dropdown = roles.getByTestId("role-dropdown");
+    await expect(dropdown).toContainText("Superuser");
+    await expect(dropdown).toContainText("User");
+    await expect(dropdown).toHaveClass(/multiselect--disabled/);
+
+    await expect(page.getByTestId("logout-all-sessions-button")).toBeVisible();
+    await expect(
+      page.getByTestId("security-tab-current-password-field"),
+    ).toHaveCount(0);
+    await expect(page.getByTestId("new-password-field")).toHaveCount(0);
+    await expect(
+      page.getByTestId("new-password-confirmation-field"),
+    ).toHaveCount(0);
+    await expect(page.getByTestId("change-password-save-button")).toHaveCount(
+      0,
+    );
+
+    const sessions = page.getByTestId("session-panel");
+    await expect(sessions).toHaveCount(2);
+
+    await expect(sessions.nth(0)).toBeVisible();
+    await expect(sessions.nth(0)).toContainText("Windows");
+    await expect(sessions.nth(0)).toContainText("auth.sessions.current");
+    await expect(sessions.nth(0)).toContainText("auth.sessions.browser Chrome");
+    await expect(sessions.nth(0)).toContainText("auth.sessions.ip 10.9.1.2");
+
+    await expect(sessions.nth(1)).toBeVisible();
+    await expect(sessions.nth(1)).toContainText("iOS");
+    await expect(sessions.nth(1)).toContainText("01/23/2022, 16:55");
+    await expect(sessions.nth(1)).toContainText(
+      "auth.sessions.browser Mobile Safari",
+    );
+    await expect(sessions.nth(1)).toContainText("auth.sessions.ip 10.9.1.5");
+
     await expect(page.getByTestId("logout-all-sessions-button")).toHaveText(
       "auth.sessions.logout_all",
     );
@@ -386,7 +475,7 @@ test.describe("User profile security", () => {
 
   test.describe("load sessions error", () => {
     test("loading shows the overlay without sessions", async ({ page }) => {
-      const sessions = await mockMethod(page, "GET", SESSIONS_URL, {
+      const sessions = await mockMethod(page, "GET", "**/api/v1/sessions", {
         status: 500,
         json: { message: "Test" },
         hold: true,
@@ -400,18 +489,24 @@ test.describe("User profile security", () => {
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
 
       sessions.release();
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
     });
 
     test("error shows the overlay with retry button", async ({ page }) => {
-      await mockMethod(page, "GET", SESSIONS_URL, {
+      await mockMethod(page, "GET", "**/api/v1/sessions", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.goto("/profile#tab=security");
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(page.getByTestId("session-panel")).toHaveCount(0);
       await expect(page.getByTestId("loading-retry-button")).toHaveText(
@@ -419,23 +514,42 @@ test.describe("User profile security", () => {
       );
     });
 
-    test("retry loads the sessions", async ({ page }) => {
-      await mockMethod(page, "GET", SESSIONS_URL, {
+    test("retry loads the sessions", async ({ page, sessions }) => {
+      await mockMethod(page, "GET", "**/api/v1/sessions", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.goto("/profile#tab=security");
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      const retry = await mockMethod(page, "GET", SESSIONS_URL, {
-        json: readFixture("sessions.json"),
+      const retry = await mockMethod(page, "GET", "**/api/v1/sessions", {
+        json: sessions,
       });
       await page.getByTestId("loading-retry-button").click();
       await nthRequest(retry);
 
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectBothSessions(page);
+
+      const panels = page.getByTestId("session-panel");
+      await expect(panels).toHaveCount(2);
+
+      await expect(panels.nth(0)).toBeVisible();
+      await expect(panels.nth(0)).toContainText("Windows");
+      await expect(panels.nth(0)).toContainText("auth.sessions.current");
+      await expect(panels.nth(0)).toContainText("auth.sessions.browser Chrome");
+      await expect(panels.nth(0)).toContainText("auth.sessions.ip 10.9.1.2");
+
+      await expect(panels.nth(1)).toBeVisible();
+      await expect(panels.nth(1)).toContainText("iOS");
+      await expect(panels.nth(1)).toContainText("01/23/2022, 16:55");
+      await expect(panels.nth(1)).toContainText(
+        "auth.sessions.browser Mobile Safari",
+      );
+      await expect(panels.nth(1)).toContainText("auth.sessions.ip 10.9.1.5");
     });
   });
 });

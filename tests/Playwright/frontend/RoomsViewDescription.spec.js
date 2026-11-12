@@ -1,9 +1,6 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomViewRequests,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsGeneralMisc.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
   checkRoomAuthErrors,
   setValidRememberedParticipantName,
@@ -15,41 +12,17 @@ import {
   clearTiptapContent,
 } from "../support/utils.js";
 
-const redirectBaseUrl =
-  "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
-const EXTERNAL_LINK = `${redirectBaseUrl}/?foo=a&bar=b`;
-const ROOM_URL = "**/api/v1/rooms/abc-def-123";
-const DESCRIPTION_URL = "**/api/v1/rooms/abc-def-123/description";
-
-/**
- * Mock the room request with the room fixture, changed by `mutate`.
- */
-async function mockRoom(page, mutate) {
-  const room = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/room.json", "utf8"),
-  );
-  mutate(room);
-  return mockMethod(page, "GET", ROOM_URL, { status: 200, json: room });
-}
-
-const withDescription = (description) => (room) => {
-  room.data.description = description;
-};
-
 test.describe("Rooms view description", () => {
   test.use({ authenticated: true });
 
   test.beforeEach(async ({ page }) => {
-    await interceptRoomViewRequests(page);
     await setValidRememberedParticipantName(page, "Laura Rivera");
   });
 
   test.describe("permissions", () => {
-    test("guest can not edit", async ({ page }) => {
-      await mockRoom(page, (room) => {
-        room.data.current_user = null;
-        room.data.description = "<p>Room description</p>";
-      });
+    test("guest can not edit", async ({ page, room }) => {
+      room.data.current_user = null;
+      room.data.description = "<p>Room description</p>";
       await page.route("**/api/v1/currentUser", (route) =>
         route.fulfill({ json: {} }),
       );
@@ -68,13 +41,12 @@ test.describe("Rooms view description", () => {
     test("rooms.viewAll permission can not edit", async ({
       page,
       currentUser,
+      room,
     }) => {
       currentUser.data.permissions = ["rooms.viewAll"];
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = ["rooms.viewAll"];
-        room.data.description = "<p>Room description</p>";
-      });
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = ["rooms.viewAll"];
+      room.data.description = "<p>Room description</p>";
 
       await page.goto("/rooms/abc-def-123");
 
@@ -86,13 +58,11 @@ test.describe("Rooms view description", () => {
       ).toHaveCount(0);
     });
 
-    test("co-owner can edit", async ({ page }) => {
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.is_member = true;
-        room.data.is_co_owner = true;
-        room.data.description = "<p>Room description</p>";
-      });
+    test("co-owner can edit", async ({ page, room }) => {
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.is_member = true;
+      room.data.is_co_owner = true;
+      room.data.description = "<p>Room description</p>";
 
       await page.goto("/rooms/abc-def-123");
 
@@ -107,13 +77,15 @@ test.describe("Rooms view description", () => {
       ).toBeEnabled();
     });
 
-    test("rooms.manage permission can edit", async ({ page, currentUser }) => {
+    test("rooms.manage permission can edit", async ({
+      page,
+      currentUser,
+      room,
+    }) => {
       currentUser.data.permissions = ["rooms.viewAll", "rooms.manage"];
-      await mockRoom(page, (room) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = ["rooms.viewAll", "rooms.manage"];
-        room.data.description = "<p>Room description</p>";
-      });
+      room.data.owner = { id: 2, name: "Max Doe" };
+      room.data.current_user.permissions = ["rooms.viewAll", "rooms.manage"];
+      room.data.description = "<p>Room description</p>";
 
       await page.goto("/rooms/abc-def-123");
 
@@ -130,8 +102,8 @@ test.describe("Rooms view description", () => {
   });
 
   test.describe("edit description", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoom(page, withDescription("<p>Room description</p>"));
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description = "<p>Room description</p>";
       await page.goto("/rooms/abc-def-123");
       await expect(
         page.getByTestId("room-description-viewer").locator("p"),
@@ -175,17 +147,19 @@ test.describe("Rooms view description", () => {
       await expect(page.locator(".tiptap p")).toHaveText("Room description");
     });
 
-    test("save description", async ({ page }) => {
+    test("save description", async ({ page, room }) => {
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.locator(".tiptap")).toBeFocused();
       await clearTiptapContent(page);
       await page.locator(".tiptap").pressSequentially("New test description");
 
-      const save = await mockMethod(page, "PUT", DESCRIPTION_URL, {
-        status: 204,
-        hold: true,
-      });
-      await mockRoom(page, withDescription("<p>New test description</p>"));
+      const save = await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/description",
+        { status: 204, hold: true },
+      );
+      room.data.description = "<p>New test description</p>";
 
       await page.getByTestId("room-description-save-button").click();
 
@@ -219,8 +193,8 @@ test.describe("Rooms view description", () => {
   });
 
   test.describe("formatting", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoom(page, withDescription("<p>New test description</p>"));
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description = "<p>New test description</p>";
       await page.goto("/rooms/abc-def-123");
 
       await page.getByTestId("room-description-edit-button").click();
@@ -307,7 +281,7 @@ test.describe("Rooms view description", () => {
       );
     });
 
-    test("save formatted description", async ({ page }) => {
+    test("save formatted description", async ({ page, room }) => {
       await page.getByTestId("tip-tap-text-type-dropdown").click();
       await page
         .getByTestId("tip-tap-menu-dropdown-item-button")
@@ -316,13 +290,13 @@ test.describe("Rooms view description", () => {
       await page.getByTestId("tip-tap-bold-button").click();
       await expect(page.locator(".tiptap h1 strong")).toBeVisible();
 
-      const save = await mockMethod(page, "PUT", DESCRIPTION_URL, {
-        status: 204,
-      });
-      await mockRoom(
+      const save = await mockMethod(
         page,
-        withDescription("<h1><strong>New test description</strong></h1>"),
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/description",
+        { status: 204 },
       );
+      room.data.description = "<h1><strong>New test description</strong></h1>";
 
       await page.getByTestId("room-description-save-button").click();
 
@@ -359,17 +333,23 @@ test.describe("Rooms view description", () => {
     });
 
     test("422 error", async ({ page }) => {
-      const save = await mockMethod(page, "PUT", DESCRIPTION_URL, {
-        status: 422,
-        json: {
-          message: "The Description must not be greater than 65000 characters",
-          errors: {
-            description: [
-              "The Description must not be greater than 65000 characters.",
-            ],
+      const save = await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/description",
+        {
+          status: 422,
+          json: {
+            message:
+              "The Description must not be greater than 65000 characters",
+            errors: {
+              description: [
+                "The Description must not be greater than 65000 characters.",
+              ],
+            },
           },
         },
-      });
+      );
 
       await page.getByTestId("room-description-save-button").click();
       await nthRequest(save);
@@ -391,13 +371,19 @@ test.describe("Rooms view description", () => {
     }) => {
       const validationMessage =
         "The Description must not be greater than 65000 characters.";
-      const failing = await mockMethod(page, "PUT", DESCRIPTION_URL, {
-        status: 422,
-        json: {
-          message: "The Description must not be greater than 65000 characters",
-          errors: { description: [validationMessage] },
+      const failing = await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/description",
+        {
+          status: 422,
+          json: {
+            message:
+              "The Description must not be greater than 65000 characters",
+            errors: { description: [validationMessage] },
+          },
         },
-      });
+      );
 
       await page.getByTestId("room-description-save-button").click();
       await nthRequest(failing);
@@ -407,10 +393,15 @@ test.describe("Rooms view description", () => {
         "The Description must not be greater than 65000 characters",
       );
 
-      const save = await mockMethod(page, "PUT", DESCRIPTION_URL, {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const save = await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/description",
+        {
+          status: 500,
+          json: { message: "Test" },
+        },
+      );
 
       await page.getByTestId("room-description-save-button").click();
       await nthRequest(save);
@@ -450,14 +441,19 @@ test.describe("Rooms view description", () => {
 
     test("404 error redirects to room index", async ({ page }) => {
       await interceptRoomIndexRequests(page);
-      const save = await mockMethod(page, "PUT", DESCRIPTION_URL, {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
+      const save = await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/description",
+        {
+          status: 404,
+          json: {
+            message: "model_not_found",
+            model: "room",
+            ids: ["abc-def-123"],
+          },
         },
-      });
+      );
 
       await page.getByTestId("room-description-save-button").click();
       await nthRequest(save);
@@ -485,14 +481,15 @@ test.describe("Rooms view description", () => {
       await expect(page.getByTestId("tip-tap-editor")).toHaveCount(0);
     });
 
-    test("reload room shows changed description", async ({ page }) => {
-      const room = await mockRoom(
-        page,
-        withDescription("<p>Room description</p>"),
-      );
+    test("reload room shows changed description", async ({
+      page,
+      room,
+      roomRequests,
+    }) => {
+      room.data.description = "<p>Room description</p>";
 
       await page.getByTestId("reload-room-button").click();
-      await nthRequest(room);
+      await nthRequest(roomRequests, 2);
 
       await expect(
         page.getByTestId("room-description-viewer").locator("p"),
@@ -503,8 +500,10 @@ test.describe("Rooms view description", () => {
 
     test("reload room keeps the editor content while editing", async ({
       page,
+      room,
+      roomRequests,
     }) => {
-      await mockRoom(page, withDescription("<p>Room description</p>"));
+      room.data.description = "<p>Room description</p>";
       await page.getByTestId("reload-room-button").click();
       await expect(page.getByTestId("room-description-viewer")).toBeVisible();
 
@@ -517,12 +516,9 @@ test.describe("Rooms view description", () => {
       await expect(page.getByText("rooms.description.missing")).toHaveCount(0);
 
       // Reload room with different description
-      const room = await mockRoom(
-        page,
-        withDescription("<p>Changed room description</p>"),
-      );
+      room.data.description = "<p>Changed room description</p>";
       await page.getByTestId("reload-room-button").click();
-      await nthRequest(room);
+      await nthRequest(roomRequests, 3);
 
       // Check that description inside the editor stays the same
       await expect(page.getByTestId("tip-tap-editor")).toBeVisible();
@@ -541,7 +537,7 @@ test.describe("Rooms view description", () => {
   });
 
   test.describe("external link", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, room }) => {
       await page.addInitScript(() => {
         window.__openCalls = [];
         window.open = (...args) => {
@@ -549,10 +545,7 @@ test.describe("Rooms view description", () => {
           return true;
         };
       });
-      await mockRoom(
-        page,
-        withDescription(`<a href="${EXTERNAL_LINK}">Test Link</a>`),
-      );
+      room.data.description = `<a href="https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b">Test Link</a>`;
       await page.goto("/rooms/abc-def-123");
 
       const viewer = page.getByTestId("room-description-viewer");
@@ -570,7 +563,7 @@ test.describe("Rooms view description", () => {
         "rooms.description.external_link_warning.title",
       );
       await expect(dialog).toContainText(
-        `rooms.description.external_link_warning.description_{"link":"${EXTERNAL_LINK}"}`,
+        `rooms.description.external_link_warning.description_{"link":"https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b"}`,
       );
 
       const reject = dialog.getByTestId("confirm-dialog-reject-button");
@@ -588,7 +581,7 @@ test.describe("Rooms view description", () => {
         "rooms.description.external_link_warning.title",
       );
       await expect(dialog).toContainText(
-        `rooms.description.external_link_warning.description_{"link":"${EXTERNAL_LINK}"}`,
+        `rooms.description.external_link_warning.description_{"link":"https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b"}`,
       );
 
       const accept = dialog.getByTestId("confirm-dialog-accept-button");
@@ -597,24 +590,25 @@ test.describe("Rooms view description", () => {
 
       await expect
         .poll(() => page.evaluate(() => window.__openCalls))
-        .toEqual([[EXTERNAL_LINK, "_blank"]]);
+        .toEqual([
+          [
+            "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+            "_blank",
+          ],
+        ]);
     });
   });
 
   test.describe("sanitize html", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoom(
-        page,
-        withDescription(
-          '<script>alert("XSS Code")</script>' +
-            `<a href="${EXTERNAL_LINK}">Test Link</a>` +
-            '<p style="text-align: center; color: rgb(255, 0, 0); background-color: rgb(0, 255, 0);" >Content with valid style</p>' +
-            '<p style="text-align: justify; color: rgba(255, 0, 0, 0); background-color: rgba(0, 255, 0, 0);">Content with invalid style values</p>' +
-            '<p style="text-align: center; color: rgb(0, 0, 255); background-color: rgb(255, 255, 0); position: absolute" >Content with invalid style attributes</p>' +
-            '<img src="http://example.org/demo.png" width="250px"  alt="Image text"/>' +
-            "<button>Button</button>",
-        ),
-      );
+    test.beforeEach(async ({ page, room }) => {
+      room.data.description =
+        '<script>alert("XSS Code")</script>' +
+        `<a href="https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b">Test Link</a>` +
+        '<p style="text-align: center; color: rgb(255, 0, 0); background-color: rgb(0, 255, 0);" >Content with valid style</p>' +
+        '<p style="text-align: justify; color: rgba(255, 0, 0, 0); background-color: rgba(0, 255, 0, 0);">Content with invalid style values</p>' +
+        '<p style="text-align: center; color: rgb(0, 0, 255); background-color: rgb(255, 255, 0); position: absolute" >Content with invalid style attributes</p>' +
+        '<img src="http://example.org/demo.png" width="250px"  alt="Image text"/>' +
+        "<button>Button</button>";
       await page.goto("/rooms/abc-def-123");
 
       await expect(page.getByTestId("room-description-viewer")).toBeVisible();
@@ -668,7 +662,10 @@ test.describe("Rooms view description", () => {
         .getByTestId("room-description-viewer")
         .locator("a", { hasText: "Test Link" });
       await expect(link).toBeVisible();
-      await expect(link).toHaveAttribute("href", EXTERNAL_LINK);
+      await expect(link).toHaveAttribute(
+        "href",
+        "https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b",
+      );
     });
   });
 });

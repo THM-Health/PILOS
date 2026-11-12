@@ -28,20 +28,3 @@ export async function expectLoginRedirect(page, path) {
   );
   await expectToastAndClose(page, "app.flash.unauthenticated");
 }
-
-/**
- * Set the hash without triggering a hashchange event and reload the page.
- * @param {import("@playwright/test").Page} page
- * @param {string} hash
- */
-export async function reloadWithHash(page, hash) {
-  await page.evaluate((hash) => {
-    const url = new URL(window.location.href);
-    url.hash = hash;
-
-    // Replace the current history entry with the new URL to avoid triggering a hashchange event
-    window.history.replaceState(window.history.state, "", url.toString());
-  }, hash);
-
-  await page.reload();
-}

@@ -1,44 +1,11 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsGeneralMisc.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-import {
-  interceptRoomViewRequests,
-  interceptRoomHistoryRequests,
-} from "../support/mocks.js";
 import { checkRoomAuthErrors } from "../support/room.js";
-
-const MEETING_ID = "3a3e504a-d2c4-431c-8ca1-a62598e66761";
-const STATS_URL = `**/api/v1/meetings/${MEETING_ID}/stats`;
-const ATTENDANCE_URL = `**/api/v1/meetings/${MEETING_ID}/attendance`;
-const HISTORY_URL = "**/api/v1/rooms/abc-def-123/meetings*";
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-const MODEL_NOT_FOUND_TOAST = [
-  'app.flash.model_not_found.title_{"model":"app.model.meeting"}',
-  `app.flash.model_not_found.details_{"ids":"${MEETING_ID}"}`,
-];
-const MODEL_NOT_FOUND_BODY = {
-  message: "model_not_found",
-  model: "meeting",
-  ids: [MEETING_ID],
-};
 
 test.use({ authenticated: true });
 
 test.describe("Rooms view history meeting actions", () => {
-  let history;
-
-  test.beforeEach(async ({ page }) => {
-    await interceptRoomViewRequests(page);
-    await interceptRoomHistoryRequests(page);
-    // count the history requests to check that the list is reloaded
-    history = await mockMethod(page, "GET", HISTORY_URL, {
-      path: "tests/Playwright/fixtures/roomHistory.json",
-    });
-  });
-
   test.describe("stats", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto("/rooms/abc-def-123#tab=history");
@@ -49,10 +16,15 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("show stats", async ({ page }) => {
-      const stats = await mockMethod(page, "GET", STATS_URL, {
-        path: "tests/Playwright/fixtures/roomHistoryStats.json",
-        hold: true,
-      });
+      const stats = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        {
+          path: "tests/Playwright/fixtures/roomHistoryStats.json",
+          hold: true,
+        },
+      );
 
       await page
         .getByTestId("room-history-item")
@@ -85,10 +57,15 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("server error", async ({ page }) => {
-      const stats = await mockMethod(page, "GET", STATS_URL, {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const stats = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        {
+          status: 500,
+          json: { message: "Test" },
+        },
+      );
 
       await page
         .getByTestId("room-history-item")
@@ -97,7 +74,10 @@ test.describe("Rooms view history meeting actions", () => {
         .click();
       await nthRequest(stats);
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Close dialog
       await page.getByTestId("dialog-header-close-button").click();
@@ -106,12 +86,17 @@ test.describe("Rooms view history meeting actions", () => {
       ).toHaveCount(0);
     });
 
-    test("feature disabled", async ({ page }) => {
-      const stats = await mockMethod(page, "GET", STATS_URL, {
-        status: 468,
-        json: { message: "The usage data is unavailable." },
-      });
-      const historyCount = history.requests.length;
+    test("feature disabled", async ({ page, roomHistory }) => {
+      const stats = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        {
+          status: 468,
+          json: { message: "The usage data is unavailable." },
+        },
+      );
+      const historyCount = roomHistory.requests.length;
 
       await page
         .getByTestId("room-history-item")
@@ -129,15 +114,24 @@ test.describe("Rooms view history meeting actions", () => {
       await expect(
         page.getByTestId("room-history-statistic-dialog"),
       ).toHaveCount(0);
-      await nthRequest(history, historyCount + 1);
+      await nthRequest(roomHistory, historyCount + 1);
     });
 
-    test("meeting not found", async ({ page }) => {
-      const stats = await mockMethod(page, "GET", STATS_URL, {
-        status: 404,
-        json: MODEL_NOT_FOUND_BODY,
-      });
-      const historyCount = history.requests.length;
+    test("meeting not found", async ({ page, roomHistory }) => {
+      const stats = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        {
+          status: 404,
+          json: {
+            message: "model_not_found",
+            model: "meeting",
+            ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
+          },
+        },
+      );
+      const historyCount = roomHistory.requests.length;
 
       await page
         .getByTestId("room-history-item")
@@ -146,13 +140,16 @@ test.describe("Rooms view history meeting actions", () => {
         .click();
       await nthRequest(stats);
 
-      await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.meeting"}',
+        'app.flash.model_not_found.details_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+      ]);
 
       // Check if dialog is closed and meeting list is reloaded
       await expect(
         page.getByTestId("room-history-statistic-dialog"),
       ).toHaveCount(0);
-      await nthRequest(history, historyCount + 1);
+      await nthRequest(roomHistory, historyCount + 1);
     });
 
     test("auth errors", async ({ page }) => {
@@ -165,7 +162,7 @@ test.describe("Rooms view history meeting actions", () => {
             .getByTestId("room-history-statistic-button")
             .click(),
         "GET",
-        STATS_URL,
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
         "history",
       );
     });
@@ -180,21 +177,22 @@ test.describe("Rooms view history meeting actions", () => {
       ).toHaveCount(0);
     });
 
-    async function openAttendanceDialog(page) {
+    test("loading", async ({ page }) => {
+      const attendance = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        {
+          path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
+          hold: true,
+        },
+      );
+
       await page
         .getByTestId("room-history-item")
         .nth(4)
         .getByTestId("room-history-attendance-button")
         .click();
-    }
-
-    test("loading", async ({ page }) => {
-      const attendance = await mockMethod(page, "GET", ATTENDANCE_URL, {
-        path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
-        hold: true,
-      });
-
-      await openAttendanceDialog(page);
 
       const dialog = page.getByTestId("room-history-attendance-dialog");
       await expect(dialog).toBeVisible();
@@ -221,10 +219,19 @@ test.describe("Rooms view history meeting actions", () => {
 
     test.describe("with attendance", () => {
       test.beforeEach(async ({ page }) => {
-        await mockMethod(page, "GET", ATTENDANCE_URL, {
-          path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
-        });
-        await openAttendanceDialog(page);
+        await mockMethod(
+          page,
+          "GET",
+          "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+          {
+            path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
+          },
+        );
+        await page
+          .getByTestId("room-history-item")
+          .nth(4)
+          .getByTestId("room-history-attendance-button")
+          .click();
         await expect(
           page
             .getByTestId("room-history-attendance-dialog")
@@ -293,19 +300,28 @@ test.describe("Rooms view history meeting actions", () => {
           .locator('a[data-test="room-history-attendance-download-button"]');
         await expect(download).toHaveAttribute(
           "href",
-          `${baseURL}/download/attendance/${MEETING_ID}`,
+          `${baseURL}/download/attendance/3a3e504a-d2c4-431c-8ca1-a62598e66761`,
         );
         await expect(download).toHaveAttribute("target", "_blank");
       });
     });
 
     test("no attendance", async ({ page }) => {
-      const attendance = await mockMethod(page, "GET", ATTENDANCE_URL, {
-        status: 200,
-        json: { data: [] },
-      });
+      const attendance = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        {
+          status: 200,
+          json: { data: [] },
+        },
+      );
 
-      await openAttendanceDialog(page);
+      await page
+        .getByTestId("room-history-item")
+        .nth(4)
+        .getByTestId("room-history-attendance-button")
+        .click();
       await nthRequest(attendance);
 
       const dialog = page.getByTestId("room-history-attendance-dialog");
@@ -317,10 +333,19 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("close dialog", async ({ page }) => {
-      await mockMethod(page, "GET", ATTENDANCE_URL, {
-        path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
-      });
-      await openAttendanceDialog(page);
+      await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        {
+          path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
+        },
+      );
+      await page
+        .getByTestId("room-history-item")
+        .nth(4)
+        .getByTestId("room-history-attendance-button")
+        .click();
       await expect(
         page.getByTestId("room-history-attendance-dialog"),
       ).toBeVisible();
@@ -332,15 +357,27 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("server error", async ({ page }) => {
-      const attendance = await mockMethod(page, "GET", ATTENDANCE_URL, {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const attendance = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        {
+          status: 500,
+          json: { message: "Test" },
+        },
+      );
 
-      await openAttendanceDialog(page);
+      await page
+        .getByTestId("room-history-item")
+        .nth(4)
+        .getByTestId("room-history-attendance-button")
+        .click();
       await nthRequest(attendance);
 
-      await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Close dialog
       await page.getByTestId("dialog-header-close-button").click();
@@ -362,14 +399,23 @@ test.describe("Rooms view history meeting actions", () => {
         message: "Attendance logging was not active at this meeting.",
       },
     ]) {
-      test(name, async ({ page }) => {
-        const attendance = await mockMethod(page, "GET", ATTENDANCE_URL, {
-          status,
-          json: { message },
-        });
-        const historyCount = history.requests.length;
+      test(name, async ({ page, roomHistory }) => {
+        const attendance = await mockMethod(
+          page,
+          "GET",
+          "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+          {
+            status,
+            json: { message },
+          },
+        );
+        const historyCount = roomHistory.requests.length;
 
-        await openAttendanceDialog(page);
+        await page
+          .getByTestId("room-history-item")
+          .nth(4)
+          .getByTestId("room-history-attendance-button")
+          .click();
         await nthRequest(attendance);
 
         await expectToastAndClose(page, [
@@ -381,35 +427,56 @@ test.describe("Rooms view history meeting actions", () => {
         await expect(
           page.getByTestId("room-history-attendance-dialog"),
         ).toHaveCount(0);
-        await nthRequest(history, historyCount + 1);
+        await nthRequest(roomHistory, historyCount + 1);
       });
     }
 
-    test("meeting not found", async ({ page }) => {
-      const attendance = await mockMethod(page, "GET", ATTENDANCE_URL, {
-        status: 404,
-        json: MODEL_NOT_FOUND_BODY,
-      });
-      const historyCount = history.requests.length;
+    test("meeting not found", async ({ page, roomHistory }) => {
+      const attendance = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        {
+          status: 404,
+          json: {
+            message: "model_not_found",
+            model: "meeting",
+            ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
+          },
+        },
+      );
+      const historyCount = roomHistory.requests.length;
 
-      await openAttendanceDialog(page);
+      await page
+        .getByTestId("room-history-item")
+        .nth(4)
+        .getByTestId("room-history-attendance-button")
+        .click();
       await nthRequest(attendance);
 
-      await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.meeting"}',
+        'app.flash.model_not_found.details_{"ids":"3a3e504a-d2c4-431c-8ca1-a62598e66761"}',
+      ]);
 
       // Check if dialog is closed and meeting list is reloaded
       await expect(
         page.getByTestId("room-history-attendance-dialog"),
       ).toHaveCount(0);
-      await nthRequest(history, historyCount + 1);
+      await nthRequest(roomHistory, historyCount + 1);
     });
 
     test("auth errors", async ({ page }) => {
       await checkRoomAuthErrors(
         page,
-        openAttendanceDialog,
+        (page) =>
+          page
+            .getByTestId("room-history-item")
+            .nth(4)
+            .getByTestId("room-history-attendance-button")
+            .click(),
         "GET",
-        ATTENDANCE_URL,
+        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
         "history",
       );
     });

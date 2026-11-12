@@ -1,84 +1,28 @@
 import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import {
+  test,
+  expect,
+  expectToastAndClose,
+} from "../support/fixtures/adminSettingsOtherStreaming.js";
 import { checkSettingsFileSelector } from "../support/admin.js";
 import {
   mockMethod,
   nthRequest,
   parseFormData,
   expectActivePage,
+  readFixture,
 } from "../support/utils.js";
-
-const FILES_DIR = "tests/Playwright/fixtures/files/";
-const PAUSE_IMAGE_ERROR =
-  "The Default pause image must have a resolution of 1920x1080 pixels.";
-const CSS_ERROR =
-  "The CSS style file field must have one of the following extensions: css.";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-/**
- * Mock GET api/v1/streaming with the fixture changed by `mutate`. Later mocks win.
- */
-function mockStreaming(page, mutate = () => {}) {
-  const settings = readFixture("streaming.json");
-  mutate(settings.data);
-  return mockMethod(page, "GET", "**/api/v1/streaming", { json: settings });
-}
-
-/**
- * Mock GET api/v1/roomTypes/3/streaming with the fixture changed by `mutate`.
- */
-function mockRoomTypeSettings(page, mutate = () => {}) {
-  const settings = readFixture("roomTypeStreamingSettings.json");
-  mutate(settings.data);
-  return mockMethod(page, "GET", "**/api/v1/roomTypes/3/streaming", {
-    json: settings,
-  });
-}
-
-async function expectUploadedFile(formData, key, fileName, type) {
-  const file = formData.get(key);
-  expect(file.name).toBe(fileName);
-  expect(file.type).toBe(type);
-  expect(Buffer.from(await file.arrayBuffer())).toEqual(
-    readFileSync(FILES_DIR + fileName),
-  );
-}
-
-// Files selected by path are sent without content while the request is intercepted, so the content is set as buffer.
-const FILE_MIME_TYPES = { jpg: "image/jpeg", css: "text/css" };
-const fixtureFile = (fileName) => ({
-  name: fileName,
-  mimeType: FILE_MIME_TYPES[fileName.split(".").pop()],
-  buffer: readFileSync(FILES_DIR + fileName),
-});
-
-function expectRoomTypeRow(row, name, streamingEnabled, hasPauseImage) {
-  const cells = row.getByTestId("room-type-item-cell");
-  return Promise.all([
-    expect(cells).toHaveCount(4),
-    expect(cells.nth(0)).toHaveText(name),
-    expect(
-      cells.nth(1).locator(streamingEnabled ? ".fa-check" : ".fa-times"),
-    ).toBeVisible(),
-    expect(
-      cells.nth(2).locator(hasPauseImage ? ".fa-check" : ".fa-times"),
-    ).toBeVisible(),
-  ]);
-}
 
 test.describe("Admin streaming settings with edit permission", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, config, currentUser }) => {
+  test.beforeEach(async ({ config, currentUser }) => {
     config.data.streaming.enabled = true;
     currentUser.data.permissions = [
       "admin.view",
       "streaming.viewAny",
       "streaming.update",
     ];
-    await mockStreaming(page);
   });
 
   test.describe("general settings", () => {
@@ -128,13 +72,11 @@ test.describe("Admin streaming settings with edit permission", () => {
       ).toBeEnabled();
     });
 
-    test("show saved settings", async ({ page }) => {
-      await mockStreaming(page, (data) => {
-        data.default_pause_image = "https://example.com/image.png";
-        data.css_file = "https://example.com/streaming.css";
-        data.join_parameters =
-          "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
-      });
+    test("show saved settings", async ({ page, streaming }) => {
+      streaming.data.default_pause_image = "https://example.com/image.png";
+      streaming.data.css_file = "https://example.com/streaming.css";
+      streaming.data.join_parameters =
+        "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
       await page.goto("/admin/streaming_settings");
 
       const pauseImageField = page.getByTestId("default-pause-image-field");
@@ -177,9 +119,6 @@ test.describe("Admin streaming settings with edit permission", () => {
     });
 
     test.describe("save changes", () => {
-      const joinParameters =
-        "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
-
       test.beforeEach(async ({ page }) => {
         await page.goto("/admin/streaming_settings");
         await expect(page.getByTestId("save-button")).toBeEnabled();
@@ -201,12 +140,26 @@ test.describe("Admin streaming settings with edit permission", () => {
         await page
           .getByTestId("default-pause-image-field")
           .getByTestId("file-input-input")
-          .setInputFiles(fixtureFile("pause.jpg"));
+          .setInputFiles({
+            name: "pause.jpg",
+            mimeType: "image/jpeg",
+            buffer: readFileSync("tests/Playwright/fixtures/files/pause.jpg"),
+          });
         await page
           .getByTestId("css-file-field")
           .getByTestId("file-input-input")
-          .setInputFiles(fixtureFile("streaming.css"));
-        await page.locator("#join-parameters").fill(joinParameters);
+          .setInputFiles({
+            name: "streaming.css",
+            mimeType: "text/css",
+            buffer: readFileSync(
+              "tests/Playwright/fixtures/files/streaming.css",
+            ),
+          });
+        await page
+          .locator("#join-parameters")
+          .fill(
+            "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true",
+          );
       });
 
       test("shows loading state while saving", async ({ page }) => {
@@ -244,17 +197,17 @@ test.describe("Admin streaming settings with edit permission", () => {
         await page.getByTestId("save-button").click();
 
         const formData = await parseFormData(await nthRequest(saveRequest));
-        await expectUploadedFile(
-          formData,
-          "default_pause_image",
-          "pause.jpg",
-          "image/jpeg",
+        const pauseImage = formData.get("default_pause_image");
+        expect(pauseImage.name).toBe("pause.jpg");
+        expect(pauseImage.type).toBe("image/jpeg");
+        expect(Buffer.from(await pauseImage.arrayBuffer())).toEqual(
+          readFileSync("tests/Playwright/fixtures/files/pause.jpg"),
         );
-        await expectUploadedFile(
-          formData,
-          "css_file",
-          "streaming.css",
-          "text/css",
+        const cssFile = formData.get("css_file");
+        expect(cssFile.name).toBe("streaming.css");
+        expect(cssFile.type).toBe("text/css");
+        expect(Buffer.from(await cssFile.arrayBuffer())).toEqual(
+          readFileSync("tests/Playwright/fixtures/files/streaming.css"),
         );
         expect(formData.get("join_parameters")).toBe(
           "userdata-bbb_hide_nav_bar=true\r\nuserdata-bbb_hide_notifications=true",
@@ -265,7 +218,8 @@ test.describe("Admin streaming settings with edit permission", () => {
         const settings = readFixture("streaming.json");
         settings.data.default_pause_image = "https://example.com/pause.jpg";
         settings.data.css_file = "https://example.com/streaming.css";
-        settings.data.join_parameters = joinParameters;
+        settings.data.join_parameters =
+          "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
         await mockMethod(page, "POST", "**/api/v1/streaming", {
           json: settings,
         });
@@ -310,13 +264,11 @@ test.describe("Admin streaming settings with edit permission", () => {
     });
 
     test.describe("delete files", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockStreaming(page, (data) => {
-          data.default_pause_image = "https://example.com/pause.jpg";
-          data.css_file = "https://example.com/streaming.css";
-          data.join_parameters =
-            "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
-        });
+      test.beforeEach(async ({ page, streaming }) => {
+        streaming.data.default_pause_image = "https://example.com/pause.jpg";
+        streaming.data.css_file = "https://example.com/streaming.css";
+        streaming.data.join_parameters =
+          "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
         await page.goto("/admin/streaming_settings");
         await expect(page.getByTestId("save-button")).toBeEnabled();
       });
@@ -412,10 +364,15 @@ test.describe("Admin streaming settings with edit permission", () => {
         await mockMethod(page, "POST", "**/api/v1/streaming", {
           status: 422,
           json: {
-            message: `${PAUSE_IMAGE_ERROR} (and 3 more errors)`,
+            message:
+              "The Default pause image must have a resolution of 1920x1080 pixels. (and 3 more errors)",
             errors: {
-              default_pause_image: [PAUSE_IMAGE_ERROR],
-              css_file: [CSS_ERROR],
+              default_pause_image: [
+                "The Default pause image must have a resolution of 1920x1080 pixels.",
+              ],
+              css_file: [
+                "The CSS style file field must have one of the following extensions: css.",
+              ],
               join_parameters: [
                 "The foo parameter does not exist.",
                 "The userdata-bbb_hide_notifications parameter is missing a value.",
@@ -429,13 +386,15 @@ test.describe("Admin streaming settings with edit permission", () => {
 
         await expectToastAndClose(
           page,
-          `${PAUSE_IMAGE_ERROR} (and 3 more errors)`,
+          "The Default pause image must have a resolution of 1920x1080 pixels. (and 3 more errors)",
         );
         await expect(
           page.getByTestId("default-pause-image-field"),
-        ).toContainText(PAUSE_IMAGE_ERROR);
+        ).toContainText(
+          "The Default pause image must have a resolution of 1920x1080 pixels.",
+        );
         await expect(page.getByTestId("css-file-field")).toContainText(
-          CSS_ERROR,
+          "The CSS style file field must have one of the following extensions: css.",
         );
         const joinParametersField = page.getByTestId("join-parameters-field");
         await expect(joinParametersField).toContainText(
@@ -452,10 +411,15 @@ test.describe("Admin streaming settings with edit permission", () => {
         await mockMethod(page, "POST", "**/api/v1/streaming", {
           status: 422,
           json: {
-            message: `${PAUSE_IMAGE_ERROR} (and 3 more errors)`,
+            message:
+              "The Default pause image must have a resolution of 1920x1080 pixels. (and 3 more errors)",
             errors: {
-              default_pause_image: [PAUSE_IMAGE_ERROR],
-              css_file: [CSS_ERROR],
+              default_pause_image: [
+                "The Default pause image must have a resolution of 1920x1080 pixels.",
+              ],
+              css_file: [
+                "The CSS style file field must have one of the following extensions: css.",
+              ],
               join_parameters: [
                 "The foo parameter does not exist.",
                 "The userdata-bbb_hide_notifications parameter is missing a value.",
@@ -464,9 +428,12 @@ test.describe("Admin streaming settings with edit permission", () => {
           },
         });
         await page.getByTestId("save-button").click();
-        await expectToastAndClose(page, PAUSE_IMAGE_ERROR);
+        await expectToastAndClose(
+          page,
+          "The Default pause image must have a resolution of 1920x1080 pixels.",
+        );
         await expect(page.getByTestId("css-file-field")).toContainText(
-          CSS_ERROR,
+          "The CSS style file field must have one of the following extensions: css.",
         );
 
         await mockMethod(page, "POST", "**/api/v1/streaming", {
@@ -482,9 +449,11 @@ test.describe("Admin streaming settings with edit permission", () => {
 
         await expect(
           page.getByTestId("default-pause-image-field"),
-        ).not.toContainText(PAUSE_IMAGE_ERROR);
+        ).not.toContainText(
+          "The Default pause image must have a resolution of 1920x1080 pixels.",
+        );
         await expect(page.getByTestId("css-file-field")).not.toContainText(
-          CSS_ERROR,
+          "The CSS style file field must have one of the following extensions: css.",
         );
         const joinParametersField = page.getByTestId("join-parameters-field");
         await expect(joinParametersField).not.toContainText(
@@ -525,9 +494,11 @@ test.describe("Admin streaming settings with edit permission", () => {
         await expect(page.getByTestId("save-button")).toBeDisabled();
       });
 
-      test("enables all fields after retry", async ({ page }) => {
+      test("enables all fields after retry", async ({ page, streaming }) => {
         await expect(page.getByTestId("overlay")).toBeVisible();
-        await mockStreaming(page);
+        await page.route("**/api/v1/streaming", (route) =>
+          route.fulfill({ json: streaming }),
+        );
         await page.getByTestId("loading-retry-button").click();
 
         await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -559,8 +530,20 @@ test.describe("Admin streaming settings with edit permission", () => {
       const rows = page.getByTestId("room-type-item");
       await expect(rows).toHaveCount(2);
       await expectActivePage(page, 0);
-      await expectRoomTypeRow(rows.nth(0), "Exam", false, false);
-      await expectRoomTypeRow(rows.nth(1), "Lecture", true, false);
+      for (const [tableRow, name, isStreaming, hasPauseImage] of [
+        [rows.nth(0), "Exam", false, false],
+        [rows.nth(1), "Lecture", true, false],
+      ]) {
+        const cells = tableRow.getByTestId("room-type-item-cell");
+        await expect(cells).toHaveCount(4);
+        await expect(cells.nth(0)).toHaveText(name);
+        await expect(
+          cells.nth(1).locator(isStreaming ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+        await expect(
+          cells.nth(2).locator(hasPauseImage ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+      }
     });
 
     test("shows second page", async ({ page }) => {
@@ -568,8 +551,20 @@ test.describe("Admin streaming settings with edit permission", () => {
       await page.getByTestId("paginator-page").nth(1).click();
       await expectActivePage(page, 1);
       await expect(rows).toHaveCount(2);
-      await expectRoomTypeRow(rows.nth(0), "Meeting", false, false);
-      await expectRoomTypeRow(rows.nth(1), "Seminar", true, false);
+      for (const [tableRow, name, isStreaming, hasPauseImage] of [
+        [rows.nth(0), "Meeting", false, false],
+        [rows.nth(1), "Seminar", true, false],
+      ]) {
+        const cells = tableRow.getByTestId("room-type-item-cell");
+        await expect(cells).toHaveCount(4);
+        await expect(cells.nth(0)).toHaveText(name);
+        await expect(
+          cells.nth(1).locator(isStreaming ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+        await expect(
+          cells.nth(2).locator(hasPauseImage ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+      }
     });
 
     test("sorting by streaming enabled resets the pagination", async ({
@@ -606,46 +601,64 @@ test.describe("Admin streaming settings with edit permission", () => {
 
     test("shows streaming and pause image state of room types", async ({
       page,
+      streaming,
     }) => {
-      await mockStreaming(page, (data) => {
-        data.room_types[0].streaming_settings.enabled = false;
-        data.room_types[0].streaming_settings.default_pause_image =
-          "https://example.com/lecture-pause.jpg";
-        data.room_types[2].streaming_settings.enabled = true;
-      });
+      streaming.data.room_types[0].streaming_settings.enabled = false;
+      streaming.data.room_types[0].streaming_settings.default_pause_image =
+        "https://example.com/lecture-pause.jpg";
+      streaming.data.room_types[2].streaming_settings.enabled = true;
       await page.reload();
 
       const rows = page.getByTestId("room-type-item");
-      await expectRoomTypeRow(rows.nth(0), "Exam", true, false);
-      await expectRoomTypeRow(rows.nth(1), "Lecture", false, true);
+      for (const [tableRow, name, isStreaming, hasPauseImage] of [
+        [rows.nth(0), "Exam", true, false],
+        [rows.nth(1), "Lecture", false, true],
+      ]) {
+        const cells = tableRow.getByTestId("room-type-item-cell");
+        await expect(cells).toHaveCount(4);
+        await expect(cells.nth(0)).toHaveText(name);
+        await expect(
+          cells.nth(1).locator(isStreaming ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+        await expect(
+          cells.nth(2).locator(hasPauseImage ? ".fa-check" : ".fa-times"),
+        ).toBeVisible();
+      }
     });
   });
 
   test.describe("edit room type settings", () => {
-    const dialogTitle =
-      'admin.streaming.room_types.edit_dialog.title_{"name":"Exam"}';
-
     test.beforeEach(async ({ page }) => {
       await page.goto("/admin/streaming_settings");
       await expect(page.getByTestId("room-type-item")).toHaveCount(2);
     });
 
     test("enable streaming and upload pause image", async ({ page }) => {
-      const loadRequest = await mockRoomTypeSettings(page);
+      const loadRequest = page.waitForRequest(
+        (request) =>
+          request.method() === "GET" &&
+          request.url().endsWith("/api/v1/roomTypes/3/streaming"),
+      );
       const row = page.getByTestId("room-type-item").nth(0);
-      await expectRoomTypeRow(row, "Exam", false, false);
+      const cells = row.getByTestId("room-type-item-cell");
+      await expect(cells).toHaveCount(4);
+      await expect(cells.nth(0)).toHaveText("Exam");
+      await expect(cells.nth(1).locator(".fa-times")).toBeVisible();
+      await expect(cells.nth(2).locator(".fa-times")).toBeVisible();
       await row
         .getByTestId("room-type-item-cell")
         .nth(3)
         .getByRole("button")
         .click();
-      await nthRequest(loadRequest);
+      await loadRequest;
 
       const dialog = page.getByTestId(
         "streaming-room-type-settings-edit-dialog",
       );
       await expect(dialog).toBeVisible();
-      await expect(dialog).toContainText(dialogTitle);
+      await expect(dialog).toContainText(
+        'admin.streaming.room_types.edit_dialog.title_{"name":"Exam"}',
+      );
 
       await expect(dialog.getByTestId("streaming-enabled-field")).toHaveText(
         "admin.streaming.enabled",
@@ -667,9 +680,11 @@ test.describe("Admin streaming settings with edit permission", () => {
         "pause.jpg",
         true,
       );
-      await pauseImageField
-        .getByTestId("file-input-input")
-        .setInputFiles(fixtureFile("pause.jpg"));
+      await pauseImageField.getByTestId("file-input-input").setInputFiles({
+        name: "pause.jpg",
+        mimeType: "image/jpeg",
+        buffer: readFileSync("tests/Playwright/fixtures/files/pause.jpg"),
+      });
 
       const saveRequest = await mockMethod(
         page,
@@ -691,17 +706,16 @@ test.describe("Admin streaming settings with edit permission", () => {
       saveRequest.release();
 
       const formData = await parseFormData(await nthRequest(saveRequest));
-      await expectUploadedFile(
-        formData,
-        "default_pause_image",
-        "pause.jpg",
-        "image/jpeg",
+      const pauseImage = formData.get("default_pause_image");
+      expect(pauseImage.name).toBe("pause.jpg");
+      expect(pauseImage.type).toBe("image/jpeg");
+      expect(Buffer.from(await pauseImage.arrayBuffer())).toEqual(
+        readFileSync("tests/Playwright/fixtures/files/pause.jpg"),
       );
       expect(formData.get("enabled")).toBe("1");
     });
 
-    test("table is reloaded after saving", async ({ page }) => {
-      await mockRoomTypeSettings(page);
+    test("table is reloaded after saving", async ({ page, streaming }) => {
       const row = page.getByTestId("room-type-item").nth(0);
       await row
         .getByTestId("room-type-item-cell")
@@ -718,22 +732,32 @@ test.describe("Admin streaming settings with edit permission", () => {
       await mockMethod(page, "POST", "**/api/v1/roomTypes/3/streaming", {
         json: readFixture("roomTypeStreamingSettings.json"),
       });
-      const reloadRequest = await mockStreaming(page, (data) => {
-        data.room_types[2].streaming_settings.enabled = true;
-        data.room_types[2].streaming_settings.default_pause_image =
-          "https://example.com/lecture-pause.jpg";
-      });
+      streaming.data.room_types[2].streaming_settings.enabled = true;
+      streaming.data.room_types[2].streaming_settings.default_pause_image =
+        "https://example.com/lecture-pause.jpg";
+      const reloadRequest = page.waitForRequest(
+        (request) =>
+          request.method() === "GET" &&
+          request.url().endsWith("/api/v1/streaming"),
+      );
       await dialog.getByTestId("dialog-save-button").click();
 
-      await nthRequest(reloadRequest);
-      await expectRoomTypeRow(row, "Exam", true, true);
+      await reloadRequest;
+      const cells = row.getByTestId("room-type-item-cell");
+      await expect(cells).toHaveCount(4);
+      await expect(cells.nth(0)).toHaveText("Exam");
+      await expect(cells.nth(1).locator(".fa-check")).toBeVisible();
+      await expect(cells.nth(2).locator(".fa-check")).toBeVisible();
     });
 
-    test("disable streaming and remove pause image", async ({ page }) => {
-      await mockRoomTypeSettings(page, (data) => {
-        data.default_pause_image = "https://example.com/pause.jpg";
-        data.enabled = true;
-      });
+    test("disable streaming and remove pause image", async ({
+      page,
+      streaming,
+      roomTypeStreaming,
+    }) => {
+      roomTypeStreaming.data.default_pause_image =
+        "https://example.com/pause.jpg";
+      roomTypeStreaming.data.enabled = true;
       const row = page.getByTestId("room-type-item").nth(0);
       await row
         .getByTestId("room-type-item-cell")
@@ -745,7 +769,9 @@ test.describe("Admin streaming settings with edit permission", () => {
         "streaming-room-type-settings-edit-dialog",
       );
       await expect(dialog).toBeVisible();
-      await expect(dialog).toContainText(dialogTitle);
+      await expect(dialog).toContainText(
+        'admin.streaming.room_types.edit_dialog.title_{"name":"Exam"}',
+      );
 
       await expect(dialog.getByTestId("streaming-enabled-field")).toHaveText(
         "admin.streaming.enabled",
@@ -776,10 +802,14 @@ test.describe("Admin streaming settings with edit permission", () => {
         "**/api/v1/roomTypes/3/streaming",
         { json: readFixture("roomTypeStreamingSettings.json") },
       );
-      const reloadRequest = await mockStreaming(page, (data) => {
-        data.room_types[2].streaming_settings.enabled = false;
-        data.room_types[2].streaming_settings.default_pause_image = null;
-      });
+      streaming.data.room_types[2].streaming_settings.enabled = false;
+      streaming.data.room_types[2].streaming_settings.default_pause_image =
+        null;
+      const reloadRequest = page.waitForRequest(
+        (request) =>
+          request.method() === "GET" &&
+          request.url().endsWith("/api/v1/streaming"),
+      );
       await expect(dialog.getByTestId("dialog-save-button")).toBeEnabled();
       await dialog.getByTestId("dialog-save-button").click();
 
@@ -787,14 +817,17 @@ test.describe("Admin streaming settings with edit permission", () => {
       expect(formData.get("default_pause_image")).toBe("");
       expect(formData.get("enabled")).toBe("0");
 
-      await nthRequest(reloadRequest);
+      await reloadRequest;
       await expect(dialog).toBeHidden();
-      await expectRoomTypeRow(row, "Exam", false, false);
+      const cells = row.getByTestId("room-type-item-cell");
+      await expect(cells).toHaveCount(4);
+      await expect(cells.nth(0)).toHaveText("Exam");
+      await expect(cells.nth(1).locator(".fa-times")).toBeVisible();
+      await expect(cells.nth(2).locator(".fa-times")).toBeVisible();
     });
 
     test.describe("saving error", () => {
       test.beforeEach(async ({ page }) => {
-        await mockRoomTypeSettings(page);
         await page
           .getByTestId("room-type-item")
           .nth(0)
@@ -819,8 +852,13 @@ test.describe("Admin streaming settings with edit permission", () => {
         await mockMethod(page, "POST", "**/api/v1/roomTypes/3/streaming", {
           status: 422,
           json: {
-            message: PAUSE_IMAGE_ERROR,
-            errors: { default_pause_image: [PAUSE_IMAGE_ERROR] },
+            message:
+              "The Default pause image must have a resolution of 1920x1080 pixels.",
+            errors: {
+              default_pause_image: [
+                "The Default pause image must have a resolution of 1920x1080 pixels.",
+              ],
+            },
           },
         });
         await expect(dialog.getByTestId("dialog-save-button")).toBeEnabled();
@@ -833,7 +871,9 @@ test.describe("Admin streaming settings with edit permission", () => {
         );
         await expect(
           dialog.getByTestId("streaming-default-pause-image-field"),
-        ).toContainText(PAUSE_IMAGE_ERROR);
+        ).toContainText(
+          "The Default pause image must have a resolution of 1920x1080 pixels.",
+        );
       });
 
       test("shows server error and removes validation errors", async ({
@@ -845,7 +885,9 @@ test.describe("Admin streaming settings with edit permission", () => {
         const pauseImageField = dialog.getByTestId(
           "streaming-default-pause-image-field",
         );
-        await expect(pauseImageField).toContainText(PAUSE_IMAGE_ERROR);
+        await expect(pauseImageField).toContainText(
+          "The Default pause image must have a resolution of 1920x1080 pixels.",
+        );
 
         await mockMethod(page, "POST", "**/api/v1/roomTypes/3/streaming", {
           status: 500,
@@ -857,7 +899,9 @@ test.describe("Admin streaming settings with edit permission", () => {
           'app.flash.server_error.message_{"message":"Test"}',
           'app.flash.server_error.error_code_{"statusCode":500}',
         ]);
-        await expect(pauseImageField).not.toContainText(PAUSE_IMAGE_ERROR);
+        await expect(pauseImageField).not.toContainText(
+          "The Default pause image must have a resolution of 1920x1080 pixels.",
+        );
       });
     });
 
@@ -895,12 +939,14 @@ test.describe("Admin streaming settings with edit permission", () => {
         await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
       });
 
-      test("shows fields after retry", async ({ page }) => {
+      test("shows fields after retry", async ({ page, roomTypeStreaming }) => {
         const dialog = page.getByTestId(
           "streaming-room-type-settings-edit-dialog",
         );
         await expect(dialog).toBeVisible();
-        await mockRoomTypeSettings(page);
+        await page.route("**/api/v1/roomTypes/3/streaming", (route) =>
+          route.fulfill({ json: roomTypeStreaming }),
+        );
         await dialog.getByTestId("loading-retry-button").click();
 
         await expect(dialog.getByTestId("overlay")).toHaveCount(0);

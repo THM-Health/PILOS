@@ -1,399 +1,28 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminRoles.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { mockMethod, nthRequest, readFixture } from "../support/utils.js";
 import {
   checkPermissionGroup,
   checkRoomLimitHelpDialog,
+  expectAdminBreadcrumbs,
 } from "../support/admin.js";
-import {
-  interceptAdminRolesViewRequests,
-  interceptAdminRolesIndexRequests,
-} from "../support/mocks.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
+test.use({ authenticated: true });
 
-const ROLE_URL = "**/api/v1/roles/2";
-const PERMISSIONS_URL = "**/api/v1/permissions";
-
-const defaultUserPermissions = [
-  "admin.view",
-  "roles.viewAny",
-  "roles.view",
-  "roles.update",
-  "roles.create",
-  "roles.delete",
-];
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const modelNotFoundToast = [
-  'app.flash.model_not_found.title_{"model":"app.model.role"}',
-  'app.flash.model_not_found.details_{"ids":"2"}',
-];
-
-const T = "explicit";
-const F = "none";
-const INCLUDED = "included";
-
-const categories = [
-  {
-    key: "rooms",
-    permissions: ["rooms.create", "rooms.viewAll", "rooms.manage"],
-  },
-  {
-    key: "meetings",
-    permissions: ["meetings.viewAny"],
-  },
-  {
-    key: "admin",
-    permissions: ["admin.view"],
-  },
-  {
-    key: "settings",
-    permissions: ["settings.viewAny", "settings.update"],
-  },
-  {
-    key: "system",
-    permissions: ["system.monitor"],
-  },
-  {
-    key: "users",
-    permissions: [
-      "users.viewAny",
-      "users.view",
-      "users.update",
-      "users.create",
-      "users.delete",
-      "users.updateOwnAttributes",
-    ],
-  },
-  {
-    key: "roles",
-    permissions: [
+test.describe("Admin roles edit", () => {
+  test.beforeEach(async ({ currentUser }) => {
+    currentUser.data.permissions = [
+      "admin.view",
       "roles.viewAny",
       "roles.view",
       "roles.update",
       "roles.create",
       "roles.delete",
-    ],
-  },
-  {
-    key: "room_types",
-    permissions: [
-      "roomTypes.view",
-      "roomTypes.update",
-      "roomTypes.create",
-      "roomTypes.delete",
-    ],
-  },
-  {
-    key: "servers",
-    permissions: [
-      "servers.viewAny",
-      "servers.view",
-      "servers.update",
-      "servers.create",
-      "servers.delete",
-    ],
-  },
-  {
-    key: "server_pools",
-    permissions: [
-      "serverPools.viewAny",
-      "serverPools.view",
-      "serverPools.update",
-      "serverPools.create",
-      "serverPools.delete",
-    ],
-  },
-];
-
-const allPermissions = categories.flatMap((category) => category.permissions);
-
-const defaultRoleCategories = [
-  {
-    before: [T, T, F],
-    steps: [
-      {
-        click: ["rooms.manage", "rooms.create", "rooms.viewAll"],
-        after: [INCLUDED, INCLUDED, T],
-      },
-    ],
-  },
-  {
-    before: [T],
-    steps: [{ click: ["meetings.viewAny"], after: [F] }],
-  },
-  {
-    before: [INCLUDED],
-    steps: [{ click: ["admin.view"], after: [T] }],
-  },
-  {
-    before: [F, F],
-    steps: [
-      { click: ["settings.update"], after: [INCLUDED, T] },
-      { click: ["settings.viewAny"], after: [T, T] },
-    ],
-  },
-  {
-    before: [F],
-    steps: [{ click: ["system.monitor"], after: [T] }],
-  },
-  {
-    before: [T, F, F, F, F, F],
-    steps: [
-      {
-        click: [
-          "users.updateOwnAttributes",
-          "users.delete",
-          "users.create",
-          "users.update",
-          "users.view",
-          "users.viewAny",
-        ],
-        after: [INCLUDED, T, T, T, T, T],
-      },
-    ],
-  },
-  {
-    before: [INCLUDED, F, F, F, F],
-    steps: [
-      {
-        click: [
-          "roles.delete",
-          "roles.create",
-          "roles.update",
-          "roles.view",
-          "roles.viewAny",
-        ],
-        after: [T, T, T, T, T],
-      },
-    ],
-  },
-  {
-    before: [INCLUDED, T, T, T],
-    steps: [
-      {
-        click: [
-          "roomTypes.delete",
-          "roomTypes.create",
-          "roomTypes.update",
-          "roomTypes.view",
-        ],
-        after: [T, F, F, F],
-      },
-    ],
-  },
-  {
-    before: [F, F, F, F, F],
-    steps: [
-      {
-        click: [
-          "servers.delete",
-          "servers.create",
-          "servers.update",
-          "servers.view",
-          "servers.viewAny",
-        ],
-        after: [T, T, T, T, T],
-      },
-    ],
-  },
-  {
-    before: [INCLUDED, F, F, F, F],
-    steps: [
-      {
-        click: [
-          "serverPools.delete",
-          "serverPools.create",
-          "serverPools.update",
-          "serverPools.view",
-          "serverPools.viewAny",
-        ],
-        after: [T, T, T, T, T],
-      },
-    ],
-  },
-];
-
-function permissionDomId(permission) {
-  return permission.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
-}
-
-function checkbox(root, permission) {
-  // Permission ids contain dots, so a CSS #id selector would treat the suffix as a class
-  return root.locator(`[id="${permissionDomId(permission)}"]`);
-}
-
-function permissionFlags(state) {
-  switch (state) {
-    case T:
-      return { explicit: true, included: true };
-    case F:
-      return { explicit: false, included: false };
-    case INCLUDED:
-      return { explicit: false, included: true };
-    default: {
-      const _exhaustive = state;
-      throw new Error(`Unknown permission state: ${_exhaustive}`);
-    }
-  }
-}
-
-function globalPermissionIndex(categoryIndex, permissionIndex) {
-  let index = 0;
-  for (let i = 0; i < categoryIndex; i++) {
-    index += categories[i].permissions.length;
-  }
-  return index + permissionIndex;
-}
-
-async function checkCategory(
-  page,
-  categoryIndex,
-  states,
-  disabledByPermission = {},
-) {
-  const category = categories[categoryIndex];
-  await expect(
-    page.getByTestId("permission-category").nth(categoryIndex),
-  ).toContainText(`admin.roles.permissions.${category.key}.title`);
-  await expect(
-    page
-      .getByTestId("permission-category")
-      .nth(categoryIndex)
-      .getByTestId("permission-group"),
-  ).toHaveCount(category.permissions.length);
-
-  for (const [permissionIndex, permission] of category.permissions.entries()) {
-    const { explicit, included } = permissionFlags(states[permissionIndex]);
-    await checkPermissionGroup(
-      page,
-      globalPermissionIndex(categoryIndex, permissionIndex),
-      permission,
-      explicit,
-      included,
-      Boolean(disabledByPermission[permission]),
-    );
-  }
-}
-
-async function checkAllPermissions(page, states, allDisabled = false) {
-  for (const [index, permission] of allPermissions.entries()) {
-    const { explicit, included } = permissionFlags(states[index]);
-    await checkPermissionGroup(
-      page,
-      index,
-      permission,
-      explicit,
-      included,
-      allDisabled,
-    );
-  }
-}
-
-async function checkBreadcrumb(page, mode, name) {
-  const breadcrumbs = page.getByTestId("admin-breadcrumb");
-  await expect(breadcrumbs).toBeVisible();
-  await expect(breadcrumbs).toContainText("admin.breadcrumbs.roles.index");
-  const crumbKey =
-    mode === "edit"
-      ? `admin.breadcrumbs.roles.edit_{"name":"${name}"}`
-      : `admin.breadcrumbs.roles.view_{"name":"${name}"}`;
-  await expect(breadcrumbs).toContainText(crumbKey);
-}
-
-function restrictedPermissions(restrictions) {
-  const patterns = restrictions.filter((pattern) => pattern !== "");
-  const disabled = {};
-  for (const permission of allPermissions) {
-    disabled[permission] = patterns.some((pattern) => {
-      if (pattern.endsWith(".*")) {
-        return permission.startsWith(pattern.slice(0, -1));
-      }
-      return permission === pattern;
-    });
-  }
-  return disabled;
-}
-
-async function mockRequest(page, method, url, response) {
-  await page.route(url, async (route) => {
-    if (route.request().method() !== method) {
-      return route.fallback();
-    }
-    await route.fulfill(response);
-  });
-}
-
-async function holdRequest(page, method, url, response) {
-  let release;
-  const gate = new Promise((resolve) => {
-    release = resolve;
-  });
-  await page.route(url, async (route) => {
-    if (route.request().method() !== method) {
-      return route.fallback();
-    }
-    await gate;
-    await route.fulfill(response);
-  });
-  return release;
-}
-
-async function mockRole(page, body, status = 200) {
-  await page.route(ROLE_URL, async (route) => {
-    if (route.request().method() !== "GET") {
-      return route.fallback();
-    }
-    await route.fulfill({ status, json: body });
-  });
-}
-
-async function mockPermissions(page, permissions) {
-  await page.route(PERMISSIONS_URL, async (route) => {
-    if (route.request().method() !== "GET") {
-      return route.fallback();
-    }
-    await route.fulfill({ json: permissions });
-  });
-}
-
-function waitForSaveRequest(page) {
-  return page.waitForRequest(
-    (request) =>
-      request.method() === "PUT" && request.url().includes("/api/v1/roles/2"),
-  );
-}
-
-async function openEditPage(page, name = "Staff") {
-  await page.goto("/admin/roles/2/edit");
-  await expect(page.locator("#name")).toHaveValue(name);
-}
-
-async function expectRedirectToRolesIndex(page) {
-  await expect(page).toHaveURL((url) => url.pathname === "/admin/roles");
-  await expectToastAndClose(page, modelNotFoundToast);
-}
-
-async function expectViewPage(page, name) {
-  await expect(page).toHaveURL((url) => url.pathname === "/admin/roles/2");
-  await checkBreadcrumb(page, "view", name);
-}
-
-test.use({ authenticated: true });
-
-test.describe("Admin roles edit", () => {
-  test.beforeEach(async ({ page, currentUser }) => {
-    currentUser.data.permissions = [...defaultUserPermissions];
-    await interceptAdminRolesViewRequests(page);
+    ];
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -420,13 +49,13 @@ test.describe("Admin roles edit", () => {
   });
 
   test.describe("loading and buttons", () => {
-    test("loading state", async ({ page }) => {
-      const release = await holdRequest(page, "GET", ROLE_URL, {
-        json: readFixture("role.json"),
+    test("loading state", async ({ page, role }) => {
+      const roleRequest = await mockMethod(page, "GET", "**/api/v1/roles/2", {
+        json: role,
+        hold: true,
       });
 
       await page.goto("/admin/roles/2/edit");
-
       await expect(page.getByText("admin.title").first()).toBeVisible();
 
       // Check loading
@@ -436,7 +65,7 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("roles-edit-button")).toHaveCount(0);
       await expect(page.getByTestId("roles-delete-button")).toHaveCount(0);
 
-      release();
+      roleRequest.release();
 
       // Check that loading is done
       await expect(page.locator("#name")).toHaveValue("Staff");
@@ -444,7 +73,8 @@ test.describe("Admin roles edit", () => {
     });
 
     test("buttons after loading", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       const cancelButton = page.getByTestId("roles-cancel-edit-button");
       await expect(cancelButton).toBeVisible();
@@ -462,17 +92,27 @@ test.describe("Admin roles edit", () => {
     });
 
     test("breadcrumbs", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
-      await checkBreadcrumb(page, "edit", "Staff");
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.edit_{"name":"Staff"}',
+      );
     });
 
     test("buttons without delete permission", async ({ page, currentUser }) => {
-      currentUser.data.permissions = defaultUserPermissions.filter(
-        (permission) => permission !== "roles.delete",
-      );
+      currentUser.data.permissions = [
+        "admin.view",
+        "roles.viewAny",
+        "roles.view",
+        "roles.update",
+        "roles.create",
+      ];
 
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       const cancelButton = page.getByTestId("roles-cancel-edit-button");
       await expect(cancelButton).toBeVisible();
@@ -491,7 +131,8 @@ test.describe("Admin roles edit", () => {
 
   test.describe("edit name and room limit", () => {
     test("change name", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       const nameField = page.getByTestId("name-field");
       await expect(nameField).toBeVisible();
@@ -501,11 +142,16 @@ test.describe("Admin roles edit", () => {
       await expect(page.locator("#name")).toHaveValue("Standard role");
 
       // Check that breadcrumbs stays the same
-      await checkBreadcrumb(page, "edit", "Staff");
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.edit_{"name":"Staff"}',
+      );
     });
 
     test("room limit default state", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       const field = page.getByTestId("room-limit-field");
       await expect(field).toBeVisible();
@@ -537,7 +183,8 @@ test.describe("Admin roles edit", () => {
     });
 
     test("select unlimited room limit", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await page.locator("#unlimited").click();
 
@@ -548,7 +195,8 @@ test.describe("Admin roles edit", () => {
     });
 
     test("room limit help dialog", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await expect(
         page.getByTestId("roles-room-limit-help-dialog"),
@@ -563,12 +211,11 @@ test.describe("Admin roles edit", () => {
       ).toHaveCount(0);
     });
 
-    test("loaded role with unlimited room limit", async ({ page }) => {
-      const role = readFixture("role.json");
+    test("loaded role with unlimited room limit", async ({ page, role }) => {
       role.data.room_limit = -1;
-      await mockRole(page, role);
 
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await expect(page.locator("#default")).not.toBeChecked();
       await expect(page.locator("#default")).toBeEnabled();
@@ -579,12 +226,11 @@ test.describe("Admin roles edit", () => {
       await expect(page.locator("#room-limit")).toHaveCount(0);
     });
 
-    test("loaded role with custom room limit", async ({ page }) => {
-      const role = readFixture("role.json");
+    test("loaded role with custom room limit", async ({ page, role }) => {
       role.data.room_limit = 5;
-      await mockRole(page, role);
 
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await expect(page.locator("#default")).not.toBeChecked();
       await expect(page.locator("#default")).toBeEnabled();
@@ -596,12 +242,10 @@ test.describe("Admin roles edit", () => {
       await expect(page.locator("#room-limit")).toHaveValue("5");
     });
 
-    test("switch from custom room limit to default", async ({ page }) => {
-      const role = readFixture("role.json");
+    test("switch from custom room limit to default", async ({ page, role }) => {
       role.data.room_limit = 5;
-      await mockRole(page, role);
 
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
       await expect(page.locator("#room-limit")).toBeVisible();
 
       await page.locator("#default").click();
@@ -613,7 +257,8 @@ test.describe("Admin roles edit", () => {
 
   test.describe("permission list", () => {
     test("list header and categories", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await expect(
         page.getByText("admin.roles.permissions_title"),
@@ -628,123 +273,869 @@ test.describe("Admin roles edit", () => {
     });
 
     test.describe("with included permissions", () => {
-      for (const [index, category] of categories.entries()) {
-        test(`change permissions of category ${category.key}`, async ({
-          page,
-        }) => {
-          await openEditPage(page);
+      test("change permissions of category rooms", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
-          const { before, steps } = defaultRoleCategories[index];
-          await checkCategory(page, index, before);
+        const category = page.getByTestId("permission-category").nth(0);
+        await expect(category).toContainText(
+          "admin.roles.permissions.rooms.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(3);
 
-          const element = page.getByTestId("permission-category").nth(index);
-          for (const step of steps) {
-            for (const permission of step.click) {
-              await checkbox(element, permission).click();
-            }
-            await checkCategory(page, index, step.after);
-          }
-        });
-      }
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["rooms.create", true, true, false],
+          ["rooms.viewAll", true, true, false],
+          ["rooms.manage", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            0 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#rooms\\.manage").click();
+        await page.locator("#rooms\\.create").click();
+        await page.locator("#rooms\\.view_all").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["rooms.create", false, true, false],
+          ["rooms.viewAll", false, true, false],
+          ["rooms.manage", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            0 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category meetings", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(1);
+        await expect(category).toContainText(
+          "admin.roles.permissions.meetings.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(1);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["meetings.viewAny", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            3 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#meetings\\.view_any").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["meetings.viewAny", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            3 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category admin", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(2);
+        await expect(category).toContainText(
+          "admin.roles.permissions.admin.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(1);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["admin.view", false, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            4 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#admin\\.view").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["admin.view", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            4 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category settings", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(3);
+        await expect(category).toContainText(
+          "admin.roles.permissions.settings.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(2);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["settings.viewAny", false, false, false],
+          ["settings.update", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            5 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#settings\\.update").click();
+        await page.locator("#settings\\.view_any").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["settings.viewAny", true, true, false],
+          ["settings.update", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            5 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category system", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(4);
+        await expect(category).toContainText(
+          "admin.roles.permissions.system.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(1);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["system.monitor", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            7 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#system\\.monitor").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["system.monitor", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            7 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category users", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(5);
+        await expect(category).toContainText(
+          "admin.roles.permissions.users.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(6);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["users.viewAny", true, true, false],
+          ["users.view", false, false, false],
+          ["users.update", false, false, false],
+          ["users.create", false, false, false],
+          ["users.delete", false, false, false],
+          ["users.updateOwnAttributes", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            8 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#users\\.update_own_attributes").click();
+        await page.locator("#users\\.delete").click();
+        await page.locator("#users\\.create").click();
+        await page.locator("#users\\.update").click();
+        await page.locator("#users\\.view").click();
+        await page.locator("#users\\.view_any").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["users.viewAny", false, true, false],
+          ["users.view", true, true, false],
+          ["users.update", true, true, false],
+          ["users.create", true, true, false],
+          ["users.delete", true, true, false],
+          ["users.updateOwnAttributes", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            8 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category roles", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(6);
+        await expect(category).toContainText(
+          "admin.roles.permissions.roles.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(5);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roles.viewAny", false, true, false],
+          ["roles.view", false, false, false],
+          ["roles.update", false, false, false],
+          ["roles.create", false, false, false],
+          ["roles.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            14 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#roles\\.delete").click();
+        await page.locator("#roles\\.create").click();
+        await page.locator("#roles\\.update").click();
+        await page.locator("#roles\\.view").click();
+        await page.locator("#roles\\.view_any").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roles.viewAny", true, true, false],
+          ["roles.view", true, true, false],
+          ["roles.update", true, true, false],
+          ["roles.create", true, true, false],
+          ["roles.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            14 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category room_types", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(7);
+        await expect(category).toContainText(
+          "admin.roles.permissions.room_types.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(4);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roomTypes.view", false, true, false],
+          ["roomTypes.update", true, true, false],
+          ["roomTypes.create", true, true, false],
+          ["roomTypes.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            19 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#room_types\\.delete").click();
+        await page.locator("#room_types\\.create").click();
+        await page.locator("#room_types\\.update").click();
+        await page.locator("#room_types\\.view").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roomTypes.view", true, true, false],
+          ["roomTypes.update", false, false, false],
+          ["roomTypes.create", false, false, false],
+          ["roomTypes.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            19 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category servers", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(8);
+        await expect(category).toContainText(
+          "admin.roles.permissions.servers.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(5);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["servers.viewAny", false, false, false],
+          ["servers.view", false, false, false],
+          ["servers.update", false, false, false],
+          ["servers.create", false, false, false],
+          ["servers.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            23 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#servers\\.delete").click();
+        await page.locator("#servers\\.create").click();
+        await page.locator("#servers\\.update").click();
+        await page.locator("#servers\\.view").click();
+        await page.locator("#servers\\.view_any").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["servers.viewAny", true, true, false],
+          ["servers.view", true, true, false],
+          ["servers.update", true, true, false],
+          ["servers.create", true, true, false],
+          ["servers.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            23 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category server_pools", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        const category = page.getByTestId("permission-category").nth(9);
+        await expect(category).toContainText(
+          "admin.roles.permissions.server_pools.title",
+        );
+        await expect(category.getByTestId("permission-group")).toHaveCount(5);
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["serverPools.viewAny", false, true, false],
+          ["serverPools.view", false, false, false],
+          ["serverPools.update", false, false, false],
+          ["serverPools.create", false, false, false],
+          ["serverPools.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            28 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+
+        await page.locator("#server_pools\\.delete").click();
+        await page.locator("#server_pools\\.create").click();
+        await page.locator("#server_pools\\.update").click();
+        await page.locator("#server_pools\\.view").click();
+        await page.locator("#server_pools\\.view_any").click();
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["serverPools.viewAny", true, true, false],
+          ["serverPools.view", true, true, false],
+          ["serverPools.update", true, true, false],
+          ["serverPools.create", true, true, false],
+          ["serverPools.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            28 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
     });
 
     test.describe("without included permissions", () => {
-      const clickedPermissions = {
-        rooms: "rooms.manage",
-        settings: "settings.update",
-        users: "users.delete",
-        roles: "roles.delete",
-        room_types: "roomTypes.delete",
-        servers: "servers.delete",
-        server_pools: "serverPools.delete",
-      };
-
-      test.beforeEach(async ({ page }) => {
-        const permissions = readFixture("permissions.json");
-        for (const permission of permissions.data) {
+      test.beforeEach(async ({ role, permissionList }) => {
+        for (const permission of permissionList.data) {
           permission.included_permissions = [];
         }
-        await mockPermissions(page, permissions);
-
-        const role = readFixture("role.json");
         role.data.permissions = [];
-        await mockRole(page, role);
       });
 
-      for (const [index, category] of categories.entries()) {
-        test(`initial permissions of category ${category.key}`, async ({
-          page,
-        }) => {
-          await openEditPage(page);
+      test("initial permissions of category rooms", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
-          await checkCategory(
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["rooms.create", false, false, false],
+          ["rooms.viewAll", false, false, false],
+          ["rooms.manage", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
             page,
-            index,
-            category.permissions.map(() => F),
+            0 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
           );
-        });
-      }
-
-      for (const [index, category] of categories.entries()) {
-        const clicked = clickedPermissions[category.key];
-        if (!clicked) {
-          continue;
         }
+      });
 
-        test(`change permissions of category ${category.key}`, async ({
-          page,
-        }) => {
-          await openEditPage(page);
+      test("change permissions of category rooms", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
-          const element = page.getByTestId("permission-category").nth(index);
-          await checkbox(element, clicked).click();
+        await page.locator("#rooms\\.manage").click();
 
-          // Only the clicked permission changes, nothing is included by it
-          await checkCategory(
+        // Only the clicked permission changes, nothing is included by it
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["rooms.create", false, false, false],
+          ["rooms.viewAll", false, false, false],
+          ["rooms.manage", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
             page,
-            index,
-            category.permissions.map((permission) =>
-              permission === clicked ? T : F,
-            ),
+            0 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
           );
-        });
-      }
+        }
+      });
+
+      test("initial permissions of category meetings", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["meetings.viewAny", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            3 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category admin", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["admin.view", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            4 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category settings", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["settings.viewAny", false, false, false],
+          ["settings.update", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            5 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category settings", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        await page.locator("#settings\\.update").click();
+
+        // Only the clicked permission changes, nothing is included by it
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["settings.viewAny", false, false, false],
+          ["settings.update", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            5 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category system", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["system.monitor", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            7 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category users", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["users.viewAny", false, false, false],
+          ["users.view", false, false, false],
+          ["users.update", false, false, false],
+          ["users.create", false, false, false],
+          ["users.delete", false, false, false],
+          ["users.updateOwnAttributes", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            8 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category users", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        await page.locator("#users\\.delete").click();
+
+        // Only the clicked permission changes, nothing is included by it
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["users.viewAny", false, false, false],
+          ["users.view", false, false, false],
+          ["users.update", false, false, false],
+          ["users.create", false, false, false],
+          ["users.delete", true, true, false],
+          ["users.updateOwnAttributes", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            8 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category roles", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roles.viewAny", false, false, false],
+          ["roles.view", false, false, false],
+          ["roles.update", false, false, false],
+          ["roles.create", false, false, false],
+          ["roles.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            14 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category roles", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        await page.locator("#roles\\.delete").click();
+
+        // Only the clicked permission changes, nothing is included by it
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roles.viewAny", false, false, false],
+          ["roles.view", false, false, false],
+          ["roles.update", false, false, false],
+          ["roles.create", false, false, false],
+          ["roles.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            14 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category room_types", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roomTypes.view", false, false, false],
+          ["roomTypes.update", false, false, false],
+          ["roomTypes.create", false, false, false],
+          ["roomTypes.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            19 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category room_types", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        await page.locator("#room_types\\.delete").click();
+
+        // Only the clicked permission changes, nothing is included by it
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["roomTypes.view", false, false, false],
+          ["roomTypes.update", false, false, false],
+          ["roomTypes.create", false, false, false],
+          ["roomTypes.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            19 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category servers", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["servers.viewAny", false, false, false],
+          ["servers.view", false, false, false],
+          ["servers.update", false, false, false],
+          ["servers.create", false, false, false],
+          ["servers.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            23 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category servers", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        await page.locator("#servers\\.delete").click();
+
+        // Only the clicked permission changes, nothing is included by it
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["servers.viewAny", false, false, false],
+          ["servers.view", false, false, false],
+          ["servers.update", false, false, false],
+          ["servers.create", false, false, false],
+          ["servers.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            23 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("initial permissions of category server_pools", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["serverPools.viewAny", false, false, false],
+          ["serverPools.view", false, false, false],
+          ["serverPools.update", false, false, false],
+          ["serverPools.create", false, false, false],
+          ["serverPools.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            28 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
+
+      test("change permissions of category server_pools", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
+
+        await page.locator("#server_pools\\.delete").click();
+
+        // Only the clicked permission changes, nothing is included by it
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["serverPools.viewAny", false, false, false],
+          ["serverPools.view", false, false, false],
+          ["serverPools.update", false, false, false],
+          ["serverPools.create", false, false, false],
+          ["serverPools.delete", true, true, false],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            28 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
+      });
     });
 
     test.describe("with restricted permissions", () => {
-      const restrictionsServers = [
-        "servers.*",
-        "system.monitor",
-        "serverPools.viewAny",
-        "serverPools.view",
-        "serverPools.create",
-        "serverPools.update",
-        "serverPools.delete",
-      ];
-      const restrictionsOthers = [
-        "rooms.*",
-        "meetings.viewAny",
-        "admin.view",
-        "settings.*",
-        "users.*",
-        "roles.*",
-        "roomTypes.*",
-      ];
-
-      test.beforeEach(async ({ page }) => {
-        const role = readFixture("role.json");
+      test.beforeEach(async ({ role }) => {
         role.data.permissions = [];
-        await mockRole(page, role);
       });
 
       test("restrictions for servers, server pools and system", async ({
         page,
+        permissionList,
       }) => {
-        const permissions = readFixture("permissions.json");
-        permissions.meta.restrictions = restrictionsServers;
-        await mockPermissions(page, permissions);
+        permissionList.meta.restrictions = [
+          "servers.*",
+          "system.monitor",
+          "serverPools.viewAny",
+          "serverPools.view",
+          "serverPools.create",
+          "serverPools.update",
+          "serverPools.delete",
+        ];
 
-        await openEditPage(page);
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
         const list = page.getByTestId("permission-list");
         await expect(list).toContainText("admin.roles.permission_name");
@@ -752,12 +1143,47 @@ test.describe("Admin roles edit", () => {
         await expect(list).toContainText("admin.roles.permission_included");
         await expect(list.getByTestId("permission-category")).toHaveCount(10);
 
-        const disabled = restrictedPermissions(restrictionsServers);
-        for (const [index, category] of categories.entries()) {
-          await checkCategory(
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["rooms.create", false, false, false],
+          ["rooms.viewAll", false, false, false],
+          ["rooms.manage", false, false, false],
+          ["meetings.viewAny", false, false, false],
+          ["admin.view", false, false, false],
+          ["settings.viewAny", false, false, false],
+          ["settings.update", false, false, false],
+          ["system.monitor", false, false, true],
+          ["users.viewAny", false, false, false],
+          ["users.view", false, false, false],
+          ["users.update", false, false, false],
+          ["users.create", false, false, false],
+          ["users.delete", false, false, false],
+          ["users.updateOwnAttributes", false, false, false],
+          ["roles.viewAny", false, false, false],
+          ["roles.view", false, false, false],
+          ["roles.update", false, false, false],
+          ["roles.create", false, false, false],
+          ["roles.delete", false, false, false],
+          ["roomTypes.view", false, false, false],
+          ["roomTypes.update", false, false, false],
+          ["roomTypes.create", false, false, false],
+          ["roomTypes.delete", false, false, false],
+          ["servers.viewAny", false, false, true],
+          ["servers.view", false, false, true],
+          ["servers.update", false, false, true],
+          ["servers.create", false, false, true],
+          ["servers.delete", false, false, true],
+          ["serverPools.viewAny", false, false, true],
+          ["serverPools.view", false, false, true],
+          ["serverPools.update", false, false, true],
+          ["serverPools.create", false, false, true],
+          ["serverPools.delete", false, false, true],
+        ].entries()) {
+          await checkPermissionGroup(
             page,
-            index,
-            category.permissions.map(() => F),
+            0 + index,
+            permission,
+            explicit,
+            included,
             disabled,
           );
         }
@@ -765,40 +1191,106 @@ test.describe("Admin roles edit", () => {
 
       test("select permission that includes restricted permission", async ({
         page,
+        permissionList,
       }) => {
-        const permissions = readFixture("permissions.json");
-        permissions.meta.restrictions = restrictionsServers;
-        await mockPermissions(page, permissions);
+        permissionList.meta.restrictions = [
+          "servers.*",
+          "system.monitor",
+          "serverPools.viewAny",
+          "serverPools.view",
+          "serverPools.create",
+          "serverPools.update",
+          "serverPools.delete",
+        ];
 
-        await openEditPage(page);
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
-        await checkbox(page, "roomTypes.delete").click();
+        await page.locator("#room_types\\.delete").click();
 
-        await checkCategory(
-          page,
-          9,
-          [INCLUDED, F, F, F, F],
-          restrictedPermissions(restrictionsServers),
-        );
+        // The restricted permission is included by the selected one, but can not be changed
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["serverPools.viewAny", false, true, true],
+          ["serverPools.view", false, false, true],
+          ["serverPools.update", false, false, true],
+          ["serverPools.create", false, false, true],
+          ["serverPools.delete", false, false, true],
+        ].entries()) {
+          await checkPermissionGroup(
+            page,
+            28 + index,
+            permission,
+            explicit,
+            included,
+            disabled,
+          );
+        }
       });
 
-      test("restrictions for the other categories", async ({ page }) => {
-        const permissions = readFixture("permissions.json");
-        permissions.meta.restrictions = restrictionsOthers;
-        await mockPermissions(page, permissions);
+      test("restrictions for the other categories", async ({
+        page,
+        permissionList,
+      }) => {
+        permissionList.meta.restrictions = [
+          "rooms.*",
+          "meetings.viewAny",
+          "admin.view",
+          "settings.*",
+          "users.*",
+          "roles.*",
+          "roomTypes.*",
+        ];
 
-        await openEditPage(page);
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
         const list = page.getByTestId("permission-list");
         await expect(list).toContainText("admin.roles.permission_name");
+        await expect(list).toContainText("admin.roles.permission_explicit");
+        await expect(list).toContainText("admin.roles.permission_included");
         await expect(list.getByTestId("permission-category")).toHaveCount(10);
 
-        const disabled = restrictedPermissions(restrictionsOthers);
-        for (const [index, category] of categories.entries()) {
-          await checkCategory(
+        for (const [index, [permission, explicit, included, disabled]] of [
+          ["rooms.create", false, false, true],
+          ["rooms.viewAll", false, false, true],
+          ["rooms.manage", false, false, true],
+          ["meetings.viewAny", false, false, true],
+          ["admin.view", false, false, true],
+          ["settings.viewAny", false, false, true],
+          ["settings.update", false, false, true],
+          ["system.monitor", false, false, false],
+          ["users.viewAny", false, false, true],
+          ["users.view", false, false, true],
+          ["users.update", false, false, true],
+          ["users.create", false, false, true],
+          ["users.delete", false, false, true],
+          ["users.updateOwnAttributes", false, false, true],
+          ["roles.viewAny", false, false, true],
+          ["roles.view", false, false, true],
+          ["roles.update", false, false, true],
+          ["roles.create", false, false, true],
+          ["roles.delete", false, false, true],
+          ["roomTypes.view", false, false, true],
+          ["roomTypes.update", false, false, true],
+          ["roomTypes.create", false, false, true],
+          ["roomTypes.delete", false, false, true],
+          ["servers.viewAny", false, false, false],
+          ["servers.view", false, false, false],
+          ["servers.update", false, false, false],
+          ["servers.create", false, false, false],
+          ["servers.delete", false, false, false],
+          ["serverPools.viewAny", false, false, false],
+          ["serverPools.view", false, false, false],
+          ["serverPools.update", false, false, false],
+          ["serverPools.create", false, false, false],
+          ["serverPools.delete", false, false, false],
+        ].entries()) {
+          await checkPermissionGroup(
             page,
-            index,
-            category.permissions.map(() => F),
+            0 + index,
+            permission,
+            explicit,
+            included,
             disabled,
           );
         }
@@ -807,13 +1299,16 @@ test.describe("Admin roles edit", () => {
   });
 
   test.describe("save", () => {
-    test("loading state while saving", async ({ page }) => {
-      await openEditPage(page);
-      await expect(checkbox(page, "rooms.create")).toBeVisible();
+    test("loading state while saving", async ({ page, role }) => {
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
+      await expect(page.locator("#rooms\\.create")).toBeVisible();
       await expect(page.getByTestId("overlay")).toHaveCount(0);
 
-      const role = readFixture("role.json");
-      const release = await holdRequest(page, "PUT", ROLE_URL, { json: role });
+      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+        json: role,
+        hold: true,
+      });
 
       await expect(page.getByTestId("roles-save-button")).toHaveText(
         "app.save",
@@ -830,9 +1325,7 @@ test.describe("Admin roles edit", () => {
       await expect(page.locator("#room-limit")).toHaveCount(0);
 
       // Permission list is not shown while saving
-      for (const permission of allPermissions) {
-        await expect(checkbox(page, permission)).toHaveCount(0);
-      }
+      await expect(page.getByTestId("permission-group")).toHaveCount(0);
 
       const cancelButton = page.getByTestId("roles-cancel-edit-button");
       await expect(cancelButton).toBeVisible();
@@ -841,24 +1334,33 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("roles-delete-button")).toBeDisabled();
       await expect(page.getByTestId("roles-save-button")).toBeDisabled();
 
-      release();
+      saveRequest.release();
 
-      await expectViewPage(page, "Staff");
+      // Check that role page is shown
+      await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.view_{"name":"Staff"}',
+      );
       await expect(page.getByTestId("overlay")).toHaveCount(0);
     });
 
     test("loading state while saving with custom room limit", async ({
       page,
     }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await page.locator("#custom").click();
       await expect(page.locator("#room-limit")).toBeVisible();
 
       const role = readFixture("role.json");
       role.data.room_limit = 5;
-      await mockRole(page, role);
-      const release = await holdRequest(page, "PUT", ROLE_URL, { json: role });
+      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+        json: role,
+        hold: true,
+      });
 
       await page.getByTestId("roles-save-button").click();
 
@@ -869,74 +1371,76 @@ test.describe("Admin roles edit", () => {
       await expect(page.locator("#custom")).toBeDisabled();
       await expect(page.locator("#room-limit")).toBeDisabled();
 
-      release();
+      saveRequest.release();
 
-      await expectViewPage(page, "Staff");
+      await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.view_{"name":"Staff"}',
+      );
     });
 
     test("save changed name, room limit and permissions", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await page.locator("#name").fill("Standard role");
       await page.locator("#unlimited").click();
 
-      const clickedPermissions = [
-        "rooms.manage",
-        "rooms.create",
-        "rooms.viewAll",
-        "meetings.viewAny",
-        "admin.view",
-        "settings.update",
-        "settings.viewAny",
-        "system.monitor",
-        "users.updateOwnAttributes",
-        "users.delete",
-        "users.create",
-        "users.update",
-        "users.view",
-        "users.viewAny",
-        "roles.delete",
-        "roles.create",
-        "roles.update",
-        "roles.view",
-        "roles.viewAny",
-        "roomTypes.delete",
-        "roomTypes.create",
-        "roomTypes.update",
-        "roomTypes.view",
-        "servers.delete",
-        "servers.create",
-        "servers.update",
-        "servers.view",
-        "servers.viewAny",
-        "serverPools.delete",
-        "serverPools.create",
-        "serverPools.update",
-        "serverPools.view",
-        "serverPools.viewAny",
-      ];
-      for (const permission of clickedPermissions) {
-        await checkbox(page, permission).click();
-      }
+      await page.locator("#rooms\\.manage").click();
+      await page.locator("#rooms\\.create").click();
+      await page.locator("#rooms\\.view_all").click();
+      await page.locator("#meetings\\.view_any").click();
+      await page.locator("#admin\\.view").click();
+      await page.locator("#settings\\.update").click();
+      await page.locator("#settings\\.view_any").click();
+      await page.locator("#system\\.monitor").click();
+      await page.locator("#users\\.update_own_attributes").click();
+      await page.locator("#users\\.delete").click();
+      await page.locator("#users\\.create").click();
+      await page.locator("#users\\.update").click();
+      await page.locator("#users\\.view").click();
+      await page.locator("#users\\.view_any").click();
+      await page.locator("#roles\\.delete").click();
+      await page.locator("#roles\\.create").click();
+      await page.locator("#roles\\.update").click();
+      await page.locator("#roles\\.view").click();
+      await page.locator("#roles\\.view_any").click();
+      await page.locator("#room_types\\.delete").click();
+      await page.locator("#room_types\\.create").click();
+      await page.locator("#room_types\\.update").click();
+      await page.locator("#room_types\\.view").click();
+      await page.locator("#servers\\.delete").click();
+      await page.locator("#servers\\.create").click();
+      await page.locator("#servers\\.update").click();
+      await page.locator("#servers\\.view").click();
+      await page.locator("#servers\\.view_any").click();
+      await page.locator("#server_pools\\.delete").click();
+      await page.locator("#server_pools\\.create").click();
+      await page.locator("#server_pools\\.update").click();
+      await page.locator("#server_pools\\.view").click();
+      await page.locator("#server_pools\\.view_any").click();
 
-      const selectedPermissions = [
-        5, 7, 9, 8, 35, 20, 19, 18, 17, 16, 14, 13, 12, 11, 10, 21, 29, 28, 27,
-        26, 25, 34, 33, 32, 31, 30,
-      ];
       const role = readFixture("superuserRole.json");
       role.data.name = "Standard role";
       role.data.room_limit = -1;
       role.data.superuser = false;
+      const selectedPermissions = [
+        5, 7, 9, 8, 35, 20, 19, 18, 17, 16, 14, 13, 12, 11, 10, 21, 29, 28, 27,
+        26, 25, 34, 33, 32, 31, 30,
+      ];
       role.data.permissions = role.data.permissions.filter((permission) =>
         selectedPermissions.includes(permission.id),
       );
-      await mockRole(page, role);
-      await mockRequest(page, "PUT", ROLE_URL, { json: role });
+      await mockMethod(page, "GET", "**/api/v1/roles/2", { json: role });
+      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+        json: role,
+      });
 
-      const saveRequest = waitForSaveRequest(page);
       await page.getByTestId("roles-save-button").click();
 
-      expect((await saveRequest).postDataJSON()).toEqual({
+      expect((await nthRequest(saveRequest)).postDataJSON()).toEqual({
         name: "Standard role",
         room_limit: -1,
         permissions: selectedPermissions,
@@ -944,94 +1448,114 @@ test.describe("Admin roles edit", () => {
       });
 
       // Check that role page is shown
-      await expectViewPage(page, "Standard role");
+      await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
+      );
       await expect(page.getByTestId("overlay")).toHaveCount(0);
     });
 
-    test("save custom room limit", async ({ page }) => {
-      await openEditPage(page);
+    test("save custom room limit", async ({ page, role }) => {
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
       await page.locator("#custom").click();
-      await expect(page.locator("#room-limit")).toBeVisible();
       await expect(page.locator("#room-limit")).toHaveValue("0");
       await page.locator("#room-limit").fill("5");
 
-      const role = readFixture("role.json");
       role.data.room_limit = 5;
-      await mockRole(page, role);
-      await mockRequest(page, "PUT", ROLE_URL, { json: role });
+      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+        json: role,
+      });
 
-      const saveRequest = waitForSaveRequest(page);
       await page.getByTestId("roles-save-button").click();
 
-      expect((await saveRequest).postDataJSON()).toEqual({
-        name: role.data.name,
+      expect((await nthRequest(saveRequest)).postDataJSON()).toEqual({
+        name: "Staff",
         room_limit: 5,
         permissions: role.data.permissions.map((permission) => permission.id),
         updated_at: role.data.updated_at,
       });
 
-      await expectViewPage(page, "Staff");
+      await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.view_{"name":"Staff"}',
+      );
     });
 
-    test("save unlimited room limit without changing it", async ({ page }) => {
-      const role = readFixture("role.json");
+    test("save unlimited room limit without changing it", async ({
+      page,
+      role,
+    }) => {
       role.data.room_limit = -1;
-      await mockRole(page, role);
-      await mockRequest(page, "PUT", ROLE_URL, { json: role });
+      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+        json: role,
+      });
 
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
       await expect(page.locator("#unlimited")).toBeChecked();
 
-      const saveRequest = waitForSaveRequest(page);
       await page.getByTestId("roles-save-button").click();
 
-      expect((await saveRequest).postDataJSON()).toEqual({
-        name: role.data.name,
+      expect((await nthRequest(saveRequest)).postDataJSON()).toEqual({
+        name: "Staff",
         room_limit: -1,
         permissions: role.data.permissions.map((permission) => permission.id),
         updated_at: role.data.updated_at,
       });
 
-      await expectViewPage(page, "Staff");
+      await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.view_{"name":"Staff"}',
+      );
     });
 
     test("save default room limit after switching from custom", async ({
       page,
+      role,
     }) => {
-      const customRole = readFixture("role.json");
-      customRole.data.room_limit = 5;
-      await mockRole(page, customRole);
+      role.data.room_limit = 5;
 
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
       await expect(page.locator("#room-limit")).toHaveValue("5");
       await page.locator("#default").click();
       await expect(page.locator("#room-limit")).toHaveCount(0);
 
-      const role = readFixture("role.json");
       role.data.room_limit = null;
-      await mockRole(page, role);
-      await mockRequest(page, "PUT", ROLE_URL, { json: role });
+      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+        json: role,
+      });
 
-      const saveRequest = waitForSaveRequest(page);
       await page.getByTestId("roles-save-button").click();
 
-      expect((await saveRequest).postDataJSON()).toEqual({
-        name: role.data.name,
+      expect((await nthRequest(saveRequest)).postDataJSON()).toEqual({
+        name: "Staff",
         room_limit: null,
         permissions: role.data.permissions.map((permission) => permission.id),
         updated_at: role.data.updated_at,
       });
 
-      await expectViewPage(page, "Staff");
+      await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+      await expectAdminBreadcrumbs(
+        page,
+        "admin.breadcrumbs.roles.index",
+        'admin.breadcrumbs.roles.view_{"name":"Staff"}',
+      );
     });
   });
 
   test.describe("save errors", () => {
     test("validation errors", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
-      await mockRequest(page, "PUT", ROLE_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/roles/2", {
         status: 422,
         json: {
           message: "The name field is required. (and 2 more errors)",
@@ -1064,9 +1588,10 @@ test.describe("Admin roles edit", () => {
     test("validation errors are hidden after a server error", async ({
       page,
     }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
-      await mockRequest(page, "PUT", ROLE_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/roles/2", {
         status: 422,
         json: {
           message: "The name field is required. (and 2 more errors)",
@@ -1087,14 +1612,17 @@ test.describe("Admin roles edit", () => {
         "The Name field is required.",
       );
 
-      await mockRequest(page, "PUT", ROLE_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/roles/2", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.getByTestId("roles-save-button").click();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Check that 422 error messages are hidden
       await expect(page.getByTestId("name-field")).toBeVisible();
@@ -1111,25 +1639,39 @@ test.describe("Admin roles edit", () => {
     });
 
     test("server error", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
-      await mockRequest(page, "PUT", ROLE_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/roles/2", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.getByTestId("roles-save-button").click();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
     });
 
     test.describe("stale model", () => {
-      const staleResponse = (role) => ({
-        status: 428,
-        json: { new_model: role.data, message: "stale_model" },
-      });
+      test("dialog is shown", async ({ page }) => {
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
-      async function checkStaleDialog(page) {
+        const role = readFixture("role.json");
+        role.data.name = "Standard role";
+        role.data.room_limit = -1;
+        await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+          status: 428,
+          json: { new_model: role.data, message: "stale_model" },
+        });
+
+        await expect(page.getByTestId("stale-role-dialog")).toHaveCount(0);
+
+        await page.getByTestId("roles-save-button").click();
+
         const dialog = page.getByTestId("stale-role-dialog");
         await expect(dialog).toBeVisible();
         await expect(dialog).toContainText("app.errors.stale_error");
@@ -1148,64 +1690,90 @@ test.describe("Admin roles edit", () => {
         await expect(
           dialog.getByTestId("stale-dialog-accept-button"),
         ).toHaveText("app.overwrite");
-      }
-
-      test("dialog is shown", async ({ page }) => {
-        await openEditPage(page);
-
-        const role = readFixture("role.json");
-        role.data.name = "Standard role";
-        role.data.room_limit = -1;
-        await mockRequest(page, "PUT", ROLE_URL, staleResponse(role));
-
-        await expect(page.getByTestId("stale-role-dialog")).toHaveCount(0);
-
-        await page.getByTestId("roles-save-button").click();
-
-        await checkStaleDialog(page);
       });
 
       test("reload with the new data", async ({ page }) => {
-        await openEditPage(page);
-        await checkBreadcrumb(page, "edit", "Staff");
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
         const role = readFixture("role.json");
         role.data.name = "Standard role";
         role.data.room_limit = -1;
-        await mockRequest(page, "PUT", ROLE_URL, staleResponse(role));
+        await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+          status: 428,
+          json: { new_model: role.data, message: "stale_model" },
+        });
 
         await page.getByTestId("roles-save-button").click();
-        await checkStaleDialog(page);
-
+        await expect(page.getByTestId("stale-role-dialog")).toBeVisible();
+        await expect(page.getByTestId("stale-role-dialog")).toContainText(
+          "app.errors.stale_error",
+        );
+        await expect(
+          page
+            .getByTestId("stale-role-dialog")
+            .getByTestId("stale-dialog-reject-button"),
+        ).toHaveText("app.reload");
+        await expect(
+          page
+            .getByTestId("stale-role-dialog")
+            .getByTestId("stale-dialog-accept-button"),
+        ).toHaveText("app.overwrite");
         await page.getByTestId("stale-dialog-reject-button").click();
 
         await expect(page.getByTestId("stale-role-dialog")).toHaveCount(0);
 
         // Check that breadcrumbs is updated
-        await checkBreadcrumb(page, "edit", "Standard role");
+        await expectAdminBreadcrumbs(
+          page,
+          "admin.breadcrumbs.roles.index",
+          'admin.breadcrumbs.roles.edit_{"name":"Standard role"}',
+        );
 
         // Check that correct data is shown
         await expect(page.locator("#name")).toHaveValue("Standard role");
         await expect(page.locator("#unlimited")).toBeChecked();
         await expect(page.locator("#room-limit")).toHaveCount(0);
-
-        await checkAllPermissions(
+        await checkPermissionGroup(page, 0, "rooms.create", true, true, false);
+        await checkPermissionGroup(page, 1, "rooms.viewAll", true, true, false);
+        await checkPermissionGroup(
           page,
-          defaultRoleCategories.flatMap((category) => category.before),
+          2,
+          "rooms.manage",
+          false,
+          false,
+          false,
         );
       });
 
       test("overwrite", async ({ page }) => {
-        await openEditPage(page);
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
         // First stale error, reload to get the new data
         const reloadedRole = readFixture("role.json");
         reloadedRole.data.name = "Standard role";
         reloadedRole.data.room_limit = -1;
-        await mockRequest(page, "PUT", ROLE_URL, staleResponse(reloadedRole));
+        await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+          status: 428,
+          json: { new_model: reloadedRole.data, message: "stale_model" },
+        });
 
         await page.getByTestId("roles-save-button").click();
-        await checkStaleDialog(page);
+        await expect(page.getByTestId("stale-role-dialog")).toBeVisible();
+        await expect(page.getByTestId("stale-role-dialog")).toContainText(
+          "app.errors.stale_error",
+        );
+        await expect(
+          page
+            .getByTestId("stale-role-dialog")
+            .getByTestId("stale-dialog-reject-button"),
+        ).toHaveText("app.reload");
+        await expect(
+          page
+            .getByTestId("stale-role-dialog")
+            .getByTestId("stale-dialog-accept-button"),
+        ).toHaveText("app.overwrite");
         await page.getByTestId("stale-dialog-reject-button").click();
         await expect(page.locator("#name")).toHaveValue("Standard role");
 
@@ -1214,23 +1782,42 @@ test.describe("Admin roles edit", () => {
         newerRole.data.name = "Standard role 2";
         newerRole.data.room_limit = -1;
         newerRole.data.superuser = false;
-        await mockRequest(page, "PUT", ROLE_URL, staleResponse(newerRole));
+        await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+          status: 428,
+          json: { new_model: newerRole.data, message: "stale_model" },
+        });
 
         await expect(page.getByTestId("stale-role-dialog")).toHaveCount(0);
         await page.getByTestId("roles-save-button").click();
-        await checkStaleDialog(page);
+        await expect(page.getByTestId("stale-role-dialog")).toBeVisible();
+        await expect(page.getByTestId("stale-role-dialog")).toContainText(
+          "app.errors.stale_error",
+        );
+        await expect(
+          page
+            .getByTestId("stale-role-dialog")
+            .getByTestId("stale-dialog-reject-button"),
+        ).toHaveText("app.reload");
+        await expect(
+          page
+            .getByTestId("stale-role-dialog")
+            .getByTestId("stale-dialog-accept-button"),
+        ).toHaveText("app.overwrite");
 
         // Overwrite
-        await mockRole(page, reloadedRole);
-        await mockRequest(page, "PUT", ROLE_URL, { json: reloadedRole });
+        await mockMethod(page, "GET", "**/api/v1/roles/2", {
+          json: reloadedRole,
+        });
+        const saveRequest = await mockMethod(page, "PUT", "**/api/v1/roles/2", {
+          json: reloadedRole,
+        });
 
-        const saveRequest = waitForSaveRequest(page);
         await page.getByTestId("stale-dialog-accept-button").click();
 
         // Check that correct data is sent
-        expect((await saveRequest).postDataJSON()).toEqual({
-          name: reloadedRole.data.name,
-          room_limit: reloadedRole.data.room_limit,
+        expect((await nthRequest(saveRequest)).postDataJSON()).toEqual({
+          name: "Standard role",
+          room_limit: -1,
           permissions: reloadedRole.data.permissions.map(
             (permission) => permission.id,
           ),
@@ -1238,28 +1825,39 @@ test.describe("Admin roles edit", () => {
         });
 
         // Check that redirect worked
-        await expectViewPage(page, "Standard role");
+        await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+        await expectAdminBreadcrumbs(
+          page,
+          "admin.breadcrumbs.roles.index",
+          'admin.breadcrumbs.roles.view_{"name":"Standard role"}',
+        );
       });
     });
 
     test("role not found", async ({ page }) => {
-      await openEditPage(page);
-      await interceptAdminRolesIndexRequests(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
-      await mockRequest(page, "PUT", ROLE_URL, {
+      await mockMethod(page, "PUT", "**/api/v1/roles/2", {
         status: 404,
         json: { message: "model_not_found", model: "role", ids: [2] },
       });
 
       await page.getByTestId("roles-save-button").click();
 
-      await expectRedirectToRolesIndex(page);
+      // Check that redirect to the roles index worked and the error is shown
+      await expect(page).toHaveURL((url) => url.pathname === "/admin/roles");
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.role"}',
+        'app.flash.model_not_found.details_{"ids":"2"}',
+      ]);
     });
 
     test("unauthenticated", async ({ page }) => {
-      await openEditPage(page);
+      await page.goto("/admin/roles/2/edit");
+      await expect(page.locator("#name")).toHaveValue("Staff");
 
-      await mockRequest(page, "PUT", ROLE_URL, { status: 401 });
+      await mockMethod(page, "PUT", "**/api/v1/roles/2", { status: 401 });
 
       await page.getByTestId("roles-save-button").click();
 
@@ -1268,11 +1866,21 @@ test.describe("Admin roles edit", () => {
   });
 
   test.describe("load errors", () => {
-    test("permissions request fails and can be retried", async ({ page }) => {
-      const release = await holdRequest(page, "GET", PERMISSIONS_URL, {
-        status: 500,
-        json: { message: "Test" },
-      });
+    test("permissions request fails and can be retried", async ({
+      page,
+      role,
+      permissionList,
+    }) => {
+      const permissionsRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/permissions",
+        {
+          status: 500,
+          json: { message: "Test" },
+          hold: true,
+        },
+      );
 
       await page.goto("/admin/roles/2/edit");
 
@@ -1284,10 +1892,13 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("roles-edit-button")).toHaveCount(0);
       await expect(page.getByTestId("roles-delete-button")).toHaveCount(0);
 
-      release();
+      permissionsRequest.release();
 
       // Check that error message is shown
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Check that overlay is still shown because of error
       await expect(page.getByTestId("loading-retry-button")).toBeVisible();
@@ -1299,16 +1910,24 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("roles-save-button")).toBeDisabled();
 
       // Reload with correct data
-      await mockPermissions(page, readFixture("permissions.json"));
+      const rolesRequest = await mockMethod(page, "GET", "**/api/v1/roles/2", {
+        json: role,
+      });
+      const permissionsRetryRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/permissions",
+        {
+          json: permissionList,
+        },
+      );
 
-      const retryButton = page.getByTestId("loading-retry-button");
-      await expect(retryButton).toHaveText("app.reload");
-
-      const roleRequest = page.waitForRequest(ROLE_URL);
-      const permissionsRequest = page.waitForRequest(PERMISSIONS_URL);
-      await retryButton.click();
-      await roleRequest;
-      await permissionsRequest;
+      await expect(page.getByTestId("loading-retry-button")).toHaveText(
+        "app.reload",
+      );
+      await page.getByTestId("loading-retry-button").click();
+      await nthRequest(rolesRequest);
+      await nthRequest(permissionsRetryRequest);
 
       // Check that overlay is not shown anymore
       await expect(page.locator("#name")).toHaveValue("Staff");
@@ -1317,15 +1936,22 @@ test.describe("Admin roles edit", () => {
     });
 
     test("permissions request unauthenticated", async ({ page }) => {
-      await mockRequest(page, "GET", PERMISSIONS_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/permissions", { status: 401 });
 
       await page.goto("/admin/roles/2/edit");
 
       await expectLoginRedirect(page, "/admin/roles/2/edit");
     });
 
-    test("role request fails and can be retried", async ({ page }) => {
-      await mockRole(page, { message: "Test" }, 500);
+    test("role request fails and can be retried", async ({
+      page,
+      role,
+      permissionList,
+    }) => {
+      await mockMethod(page, "GET", "**/api/v1/roles/2", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/admin/roles/2/edit");
 
@@ -1334,19 +1960,30 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("overlay")).toBeVisible();
 
       // Check that error message is shown
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Reload with correct data
-      await mockRole(page, readFixture("role.json"));
+      const roleRequest = await mockMethod(page, "GET", "**/api/v1/roles/2", {
+        json: role,
+      });
+      const permissionsRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/permissions",
+        {
+          json: permissionList,
+        },
+      );
 
-      const retryButton = page.getByTestId("loading-retry-button");
-      await expect(retryButton).toHaveText("app.reload");
-
-      const roleRequest = page.waitForRequest(ROLE_URL);
-      const permissionsRequest = page.waitForRequest(PERMISSIONS_URL);
-      await retryButton.click();
-      await roleRequest;
-      await permissionsRequest;
+      await expect(page.getByTestId("loading-retry-button")).toHaveText(
+        "app.reload",
+      );
+      await page.getByTestId("loading-retry-button").click();
+      await nthRequest(roleRequest);
+      await nthRequest(permissionsRequest);
 
       // Check that overlay is not shown anymore
       await expect(page.locator("#name")).toHaveValue("Staff");
@@ -1355,20 +1992,25 @@ test.describe("Admin roles edit", () => {
     });
 
     test("role not found", async ({ page }) => {
-      await interceptAdminRolesIndexRequests(page);
-      await mockRole(
-        page,
-        { message: "model_not_found", model: "role", ids: [2] },
-        404,
-      );
+      await mockMethod(page, "GET", "**/api/v1/roles/2", {
+        status: 404,
+        json: { message: "model_not_found", model: "role", ids: [2] },
+      });
 
       await page.goto("/admin/roles/2/edit");
 
-      await expectRedirectToRolesIndex(page);
+      await expect(page).toHaveURL((url) => url.pathname === "/admin/roles");
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.role"}',
+        'app.flash.model_not_found.details_{"ids":"2"}',
+      ]);
     });
 
     test("role request unauthenticated", async ({ page }) => {
-      await mockRole(page, {}, 401);
+      await mockMethod(page, "GET", "**/api/v1/roles/2", {
+        status: 401,
+        json: {},
+      });
 
       await page.goto("/admin/roles/2/edit");
 
@@ -1384,12 +2026,12 @@ test.describe("Admin roles edit", () => {
 
       test("role that is not a superuser role is editable", async ({
         page,
+        role,
       }) => {
-        const role = readFixture("role.json");
         role.data.room_limit = 5;
-        await mockRole(page, role);
 
-        await openEditPage(page);
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Staff");
 
         const cancelButton = page.getByTestId("roles-cancel-edit-button");
         await expect(cancelButton).toBeVisible();
@@ -1413,15 +2055,22 @@ test.describe("Admin roles edit", () => {
         await expect(page.locator("#room-limit")).toBeEnabled();
 
         // Check permission list not disabled
-        for (const permission of allPermissions) {
-          await expect(checkbox(page, permission)).toBeEnabled();
+        const checkboxes = page
+          .getByTestId("permission-group")
+          .getByRole("checkbox");
+        await expect(checkboxes).toHaveCount(33);
+        for (const checkbox of await checkboxes.all()) {
+          await expect(checkbox).toBeEnabled();
         }
       });
 
       test("superuser role is only partly editable", async ({ page }) => {
-        await mockRole(page, readFixture("superuserRole.json"));
+        await mockMethod(page, "GET", "**/api/v1/roles/2", {
+          json: readFixture("superuserRole.json"),
+        });
 
-        await openEditPage(page, "Superuser");
+        await page.goto("/admin/roles/2/edit");
+        await expect(page.locator("#name")).toHaveValue("Superuser");
 
         const cancelButton = page.getByTestId("roles-cancel-edit-button");
         await expect(cancelButton).toBeVisible();
@@ -1449,12 +2098,14 @@ test.describe("Admin roles edit", () => {
         await expect(
           page.getByText("admin.roles.permissions_title"),
         ).toBeVisible();
-
-        await checkAllPermissions(
-          page,
-          allPermissions.map(() => T),
-          true,
-        );
+        const checkboxes = page
+          .getByTestId("permission-group")
+          .getByRole("checkbox");
+        await expect(checkboxes).toHaveCount(33);
+        for (const checkbox of await checkboxes.all()) {
+          await expect(checkbox).toBeChecked();
+          await expect(checkbox).toBeDisabled();
+        }
       });
     });
   }

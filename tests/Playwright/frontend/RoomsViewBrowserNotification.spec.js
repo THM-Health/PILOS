@@ -1,79 +1,12 @@
-import { readFileSync } from "node:fs";
 import {
-  test,
   expect,
   expectToastAndClose,
   stubNotification,
 } from "../support/test.js";
-
-const ROOM_PATH = "/rooms/abc-def-123";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const MEETING_RUNNING = { start: "2023-08-21T08:18:28.000000Z", end: null };
-const MEETING_ENDED = {
-  start: "2023-08-21T08:18:28.000000Z",
-  end: "2023-08-21T09:18:28.000000Z",
-};
-
-/**
- * Fake `Notification`, `Audio` and `window.focus` that record what the app did with them (replaces the
- * notification faker and the cy.stub calls). The state is available as `window.__browserApis`.
- * @param {import("@playwright/test").Page} page
- * @param {{throwOnConstruct?: boolean}} options
- */
-async function stubBrowserApis(page, { throwOnConstruct = false } = {}) {
-  await page.addInitScript((throwOnConstruct) => {
-    const state = {
-      notifications: [],
-      closed: [],
-      listeners: [],
-      handlers: [],
-      audios: [],
-      plays: 0,
-      focus: 0,
-    };
-    window.__browserApis = state;
-    window.focus = () => state.focus++;
-    window.Audio = class {
-      constructor(...args) {
-        state.audios.push(args);
-      }
-      play() {
-        state.plays++;
-      }
-    };
-    window.Notification = class {
-      static permission = "granted";
-      constructor(...args) {
-        state.notifications.push(args);
-        if (throwOnConstruct) {
-          throw new TypeError("test");
-        }
-        this.index = state.notifications.length - 1;
-        state.handlers[this.index] = {};
-      }
-      close() {
-        state.closed.push(this.index);
-      }
-      addEventListener(event, callback) {
-        state.listeners.push([this.index, event]);
-        state.handlers[this.index][event] = callback;
-      }
-    };
-  }, throwOnConstruct);
-  return () => page.evaluate(() => window.__browserApis);
-}
+import { test } from "../support/fixtures/roomsGeneralMisc.js";
 
 test.describe("Rooms view browser notification", () => {
   test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page }) => {
-    await page.route("**/api/v1/rooms/abc-def-123", (route) =>
-      route.fulfill({ path: "tests/Playwright/fixtures/room.json" }),
-    );
-  });
 
   test("enable notifications with granted permission", async ({ page }) => {
     await stubNotification(page, { permission: "granted" });
@@ -144,7 +77,7 @@ test.describe("Rooms view browser notification", () => {
       permission: "default",
       requestPermissionResult: "denied",
     });
-    await page.goto(ROOM_PATH);
+    await page.goto("/rooms/abc-def-123");
 
     // Test notification is created once with "" and closed
     await expect
@@ -172,7 +105,7 @@ test.describe("Rooms view browser notification", () => {
       delete window.Notification;
     });
     const roomResponse = page.waitForResponse("**/api/v1/rooms/abc-def-123");
-    await page.goto(ROOM_PATH);
+    await page.goto("/rooms/abc-def-123");
     await roomResponse;
 
     await expect(page.getByTestId("reload-room-button")).toBeVisible();
@@ -190,7 +123,7 @@ test.describe("Rooms view browser notification", () => {
         }
       };
     });
-    await page.goto(ROOM_PATH);
+    await page.goto("/rooms/abc-def-123");
 
     await expect(page.getByTestId("reload-room-button")).toBeVisible();
     await expect
@@ -200,41 +133,32 @@ test.describe("Rooms view browser notification", () => {
   });
 
   test.describe("running state changes", () => {
-    let room;
-
-    /**
-     * Serve the room with the given meeting state and reload it via the reload button.
-     */
-    const reloadRoom = async (page, lastMeeting) => {
-      room.data.last_meeting = lastMeeting;
-      const response = page.waitForResponse("**/api/v1/rooms/abc-def-123");
-      await page.getByTestId("reload-room-button").click();
-      await response;
-    };
-
     test.beforeEach(async ({ page, config }) => {
       config.data.theme.favicon = "favicon.ico";
-      room = readFixture("room.json");
-      // Latest registered route wins, serve the mutable room
-      await page.route("**/api/v1/rooms/abc-def-123", (route) =>
-        route.fulfill({ json: room }),
-      );
-
       // Fixed date, only Date is faked (timers keep running)
       await page.clock.setFixedTime(new Date(Date.UTC(2017, 1, 1)));
     });
 
     test("notification is shown when room changes from not running to running", async ({
       page,
+      room,
+      stubBrowserApis,
     }) => {
-      const getState = await stubBrowserApis(page);
-      await page.goto(ROOM_PATH);
+      const getState = await stubBrowserApis();
+      await page.goto("/rooms/abc-def-123");
 
       const button = page.getByTestId("room-notification-button");
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      await reloadRoom(page, MEETING_RUNNING);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
 
       // Enable button is hidden while the room is running
       await expect(button).toHaveCount(0);
@@ -260,35 +184,74 @@ test.describe("Rooms view browser notification", () => {
 
     test("notification is closed when room changes from running to not running", async ({
       page,
+      room,
+      stubBrowserApis,
     }) => {
-      const getState = await stubBrowserApis(page);
-      await page.goto(ROOM_PATH);
+      const getState = await stubBrowserApis();
+      await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-notification-button").click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      await reloadRoom(page, MEETING_RUNNING);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
       await expect.poll(async () => (await getState()).plays).toBe(1);
 
-      await reloadRoom(page, MEETING_ENDED);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T09:18:28.000000Z",
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
 
       await expect.poll(async () => (await getState()).closed).toEqual([0]);
     });
 
     test("new notification is shown when room starts running again and clicking it focuses the window", async ({
       page,
+      room,
+      stubBrowserApis,
     }) => {
-      const getState = await stubBrowserApis(page);
-      await page.goto(ROOM_PATH);
+      const getState = await stubBrowserApis();
+      await page.goto("/rooms/abc-def-123");
       const button = page.getByTestId("room-notification-button");
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      await reloadRoom(page, MEETING_RUNNING);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
       await expect.poll(async () => (await getState()).plays).toBe(1);
-      await reloadRoom(page, MEETING_ENDED);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T09:18:28.000000Z",
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
       await expect.poll(async () => (await getState()).closed).toEqual([0]);
 
-      await reloadRoom(page, MEETING_RUNNING);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
       await expect(button).toHaveCount(0);
 
       await expect
@@ -330,16 +293,34 @@ test.describe("Rooms view browser notification", () => {
       expect(state.closed).toEqual([0, 1]);
     });
 
-    test("notifications can be disabled", async ({ page }) => {
-      await stubBrowserApis(page);
-      await page.goto(ROOM_PATH);
+    test("notifications can be disabled", async ({
+      page,
+      room,
+      stubBrowserApis,
+    }) => {
+      await stubBrowserApis();
+      await page.goto("/rooms/abc-def-123");
       const button = page.getByTestId("room-notification-button");
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      await reloadRoom(page, MEETING_RUNNING);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
       await expect(button).toHaveCount(0);
-      await reloadRoom(page, MEETING_ENDED);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: "2023-08-21T09:18:28.000000Z",
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
 
       // Disable notifications
       await button.click();
@@ -352,14 +333,23 @@ test.describe("Rooms view browser notification", () => {
 
     test("error on creating notification hides the button and shows an error", async ({
       page,
+      room,
+      stubBrowserApis,
     }) => {
-      const getState = await stubBrowserApis(page, { throwOnConstruct: true });
-      await page.goto(ROOM_PATH);
+      const getState = await stubBrowserApis({ throwOnConstruct: true });
+      await page.goto("/rooms/abc-def-123");
       const button = page.getByTestId("room-notification-button");
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      await reloadRoom(page, MEETING_RUNNING);
+      room.data.last_meeting = {
+        start: "2023-08-21T08:18:28.000000Z",
+        end: null,
+      };
+      await Promise.all([
+        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        page.getByTestId("reload-room-button").click(),
+      ]);
 
       await expectToastAndClose(page, "rooms.notification.browser_support");
       await expect(button).toHaveCount(0);

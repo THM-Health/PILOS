@@ -1,96 +1,22 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminServerPools.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
-  holdRequest,
   expectActivePage,
   queryOf,
   mockMethod,
+  readFixture,
 } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const isServerPoolsUrl = (url) => url.pathname === "/api/v1/serverPools";
-
-const isServerPoolsRequest = (request) =>
-  request.method() === "GET" && isServerPoolsUrl(new URL(request.url()));
-
-const SERVER_ERROR_TEXTS = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-/**
- * Mock the server pools list with the fixture changed by `mutate`. Later mocks win.
- */
-async function mockServerPools(page, mutate = () => {}) {
-  const serverPools = readFixture("serverPools.json");
-  mutate(serverPools);
-  return mockMethod(page, "GET", isServerPoolsUrl, { json: serverPools });
-}
-
-/**
- * Show only one server pool per page.
- */
-function onePage(serverPools, pageNumber, lastPage, meta = {}) {
-  const index = pageNumber - 1;
-  serverPools.data = serverPools.data.slice(index, index + 1);
-  Object.assign(serverPools.meta, {
-    current_page: pageNumber,
-    from: pageNumber,
-    last_page: lastPage,
-    per_page: 1,
-    to: pageNumber,
-    ...meta,
-  });
-}
-
-function mockServerPoolsError(page, status, body) {
-  return page.route(
-    (url) => isServerPoolsUrl(url),
-    (route) => route.fulfill({ status, json: body }),
-  );
-}
-
-async function requestServerPoolsAfter(page, action) {
-  const request = page.waitForRequest(isServerPoolsRequest);
-  await action();
-  return queryOf(await request);
-}
-
-async function expectSearchDisabled(page, disabled) {
-  const search = page.getByTestId("server-pool-search");
-  await expect(search.locator("input")).toBeVisible();
-  await expect(search.locator("button")).toBeVisible();
-  if (disabled) {
-    await expect(search.locator("input")).toBeDisabled();
-    await expect(search.locator("button")).toBeDisabled();
-  } else {
-    await expect(search.locator("input")).toBeEnabled();
-    await expect(search.locator("button")).toBeEnabled();
-  }
-}
-
-async function expectSingleServerPool(page, name) {
-  await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
-  await expect(page.getByTestId("server-pool-item")).toContainText(name);
-}
-
-// there are two paginator components (first one for small devices, second one for larger devices)
-const nextPageButton = (page) =>
-  page.getByTestId("paginator-next-button").nth(1);
+test.use({ authenticated: true });
 
 test.describe("Admin server pools index", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = ["admin.view", "serverPools.viewAny"];
-    await mockServerPools(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -113,29 +39,35 @@ test.describe("Admin server pools index", () => {
   });
 
   test.describe("load server pools", () => {
-    test("loading state", async ({ page }) => {
-      const release = await holdRequest(page, isServerPoolsUrl, {
-        json: readFixture("serverPools.json"),
-      });
+    test("loading state", async ({ page, serverPools }) => {
+      const serverPoolsRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/serverPools*",
+        { json: serverPools, hold: true },
+      );
 
       await page.goto("/admin/server_pools");
 
+      const search = page.getByTestId("server-pool-search");
       await expect(
         page.getByRole("heading", { name: "admin.title" }),
       ).toBeVisible();
-      await expectSearchDisabled(page, true);
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
       await expect(page.getByTestId("server-pools-add-button")).toHaveCount(0);
       await expect(page.getByTestId("overlay")).toBeVisible();
 
-      const response = page.waitForResponse((r) =>
-        isServerPoolsRequest(r.request()),
-      );
-      release();
+      const response = page.waitForResponse("**/api/v1/serverPools*");
+      serverPoolsRequest.release();
       await response;
 
       // Check that loading is over
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectSearchDisabled(page, false);
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
       await expect(page.getByTestId("server-pools-add-button")).toHaveCount(0);
       await expect(page.getByTestId("server-pool-item")).toHaveCount(2);
     });
@@ -183,83 +115,129 @@ test.describe("Admin server pools index", () => {
 
   test.describe("load server pools errors", () => {
     test("error on initial load", async ({ page }) => {
-      await mockServerPoolsError(page, 500, { message: "Test" });
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/admin/server_pools");
 
-      await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Check that overlay is shown and the components are not disabled
+      const search = page.getByTestId("server-pool-search");
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectSearchDisabled(page, false);
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
       await expect(page.getByTestId("loading-retry-button")).toContainText(
         "app.reload",
       );
     });
 
-    test("reload after error on initial load", async ({ page }) => {
-      await mockServerPoolsError(page, 500, { message: "Test" });
+    test("reload after error on initial load", async ({
+      page,
+      serverPools,
+      showServerPoolsPage,
+    }) => {
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+        status: 500,
+        json: { message: "Test" },
+      });
       await page.goto("/admin/server_pools");
-      await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      await mockServerPools(page, (serverPools) => onePage(serverPools, 1, 2));
+      showServerPoolsPage(1);
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+        json: serverPools,
+      });
 
-      await requestServerPoolsAfter(page, () =>
-        page.getByTestId("loading-retry-button").click(),
-      );
+      const request = page.waitForRequest("**/api/v1/serverPools*");
+      await page.getByTestId("loading-retry-button").click();
+      await request;
 
       await expect(page.getByTestId("overlay")).toBeHidden();
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
-      await expectSingleServerPool(page, "Test");
+      await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+      await expect(page.getByTestId("server-pool-item")).toContainText("Test");
     });
 
     test.describe("error when changing the page", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 1, 2),
-        );
+      test.beforeEach(async ({ page, showServerPoolsPage }) => {
+        showServerPoolsPage(1);
         await page.goto("/admin/server_pools");
-        await expectSingleServerPool(page, "Test");
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Test",
+        );
       });
 
       test("shows error and overlay", async ({ page }) => {
-        await mockServerPoolsError(page, 500, { message: "Test" });
+        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+          status: 500,
+          json: { message: "Test" },
+        });
 
-        const query = await requestServerPoolsAfter(page, () =>
-          nextPageButton(page).click(),
-        );
-        expect(query.page).toBe("2");
+        const request = page.waitForRequest("**/api/v1/serverPools*");
+        // there are two paginator components (first one for small devices, second one for larger devices)
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        expect(queryOf(await request).page).toBe("2");
 
-        await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
 
+        const search = page.getByTestId("server-pool-search");
         await expect(page.getByTestId("overlay")).toBeVisible();
-        await expectSearchDisabled(page, false);
+        await expect(search.locator("input")).toBeVisible();
+        await expect(search.locator("button")).toBeVisible();
+        await expect(search.locator("input")).toBeEnabled();
+        await expect(search.locator("button")).toBeEnabled();
       });
 
-      test("reload resets to the first page", async ({ page }) => {
-        await mockServerPoolsError(page, 500, { message: "Test" });
-        await nextPageButton(page).click();
-        await expectToastAndClose(page, SERVER_ERROR_TEXTS);
+      test("reload resets to the first page", async ({ page, serverPools }) => {
+        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+          status: 500,
+          json: { message: "Test" },
+        });
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
 
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 1, 2),
-        );
+        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+          json: serverPools,
+        });
 
-        const query = await requestServerPoolsAfter(page, () =>
-          page.getByTestId("loading-retry-button").click(),
-        );
-        expect(query.page).toBe("1");
+        const request = page.waitForRequest("**/api/v1/serverPools*");
+        await page.getByTestId("loading-retry-button").click();
+        expect(queryOf(await request).page).toBe("1");
 
         await expect(page.getByTestId("overlay")).toBeHidden();
         await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
-        await expectSingleServerPool(page, "Test");
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Test",
+        );
         await expectActivePage(page, 0);
       });
 
       test("unauthenticated redirects to login", async ({ page }) => {
-        await mockServerPoolsError(page, 401, { message: "Test" });
+        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+          status: 401,
+          json: { message: "Test" },
+        });
 
-        await nextPageButton(page).click();
+        await page.getByTestId("paginator-next-button").nth(1).click();
 
         await expectLoginRedirect(page, "/admin/server_pools");
       });
@@ -268,7 +246,10 @@ test.describe("Admin server pools index", () => {
     test("unauthenticated on initial load redirects to login", async ({
       page,
     }) => {
-      await mockServerPoolsError(page, 401, { message: "Test" });
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+        status: 401,
+        json: { message: "Test" },
+      });
 
       await page.goto("/admin/server_pools");
 
@@ -276,10 +257,14 @@ test.describe("Admin server pools index", () => {
     });
   });
 
-  test("load server pools page out of bounds", async ({ page }) => {
-    await mockServerPools(page, (serverPools) => onePage(serverPools, 1, 2));
+  test("load server pools page out of bounds", async ({
+    page,
+    showServerPoolsPage,
+  }) => {
+    showServerPoolsPage(1);
     await page.goto("/admin/server_pools");
-    await expectSingleServerPool(page, "Test");
+    await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+    await expect(page.getByTestId("server-pool-item")).toContainText("Test");
 
     // Switch to next page but respond with no server pools on second page
     const emptyServerPools = readFixture("serverPools.json");
@@ -290,24 +275,30 @@ test.describe("Admin server pools index", () => {
       per_page: 2,
       to: null,
     });
-    const release = await holdRequest(page, isServerPoolsUrl, {
-      json: emptyServerPools,
-    });
+    const emptyPageRequest = await mockMethod(
+      page,
+      "GET",
+      "**/api/v1/serverPools*",
+      { json: emptyServerPools, hold: true },
+    );
 
-    const secondPageRequest = page.waitForRequest(isServerPoolsRequest);
-    await nextPageButton(page).click();
+    const secondPageRequest = page.waitForRequest("**/api/v1/serverPools*");
+    await page.getByTestId("paginator-next-button").nth(1).click();
 
     // The page is still the same on the first request
     expect(queryOf(await secondPageRequest).page).toBe("2");
 
-    await mockServerPools(page);
+    await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+      json: readFixture("serverPools.json"),
+    });
 
     // The second request resets the page
     const resetRequest = page.waitForRequest(
       (request) =>
-        isServerPoolsRequest(request) && queryOf(request).page === "1",
+        request.url().includes("/api/v1/serverPools") &&
+        queryOf(request).page === "1",
     );
-    release();
+    emptyPageRequest.release();
     await resetRequest;
 
     await expect(page.getByTestId("server-pool-item")).toHaveCount(2);
@@ -317,7 +308,7 @@ test.describe("Admin server pools index", () => {
 
   test.describe("server pool search", () => {
     test("initial request has no query", async ({ page }) => {
-      const request = page.waitForRequest(isServerPoolsRequest);
+      const request = page.waitForRequest("**/api/v1/serverPools*");
       await page.goto("/admin/server_pools");
 
       const query = queryOf(await request);
@@ -328,27 +319,26 @@ test.describe("Admin server pools index", () => {
       ).toHaveValue("");
     });
 
-    test("no server pools found for search query", async ({ page }) => {
+    test("no server pools found for search query", async ({
+      page,
+      serverPools,
+    }) => {
       await page.goto("/admin/server_pools");
       await expect(page.getByTestId("server-pool-item")).toHaveCount(2);
 
-      await mockServerPools(page, (serverPools) => {
-        serverPools.data = [];
-        Object.assign(serverPools.meta, {
-          from: null,
-          per_page: 1,
-          to: null,
-          total: 0,
-        });
+      serverPools.data = [];
+      Object.assign(serverPools.meta, {
+        from: null,
+        per_page: 1,
+        to: null,
+        total: 0,
       });
 
-      await page
-        .getByTestId("server-pool-search")
-        .locator("input")
-        .fill("Test");
-      const query = await requestServerPoolsAfter(page, () =>
-        page.getByTestId("server-pool-search").locator("button").click(),
-      );
+      const search = page.getByTestId("server-pool-search");
+      await search.locator("input").fill("Test");
+      const request = page.waitForRequest("**/api/v1/serverPools*");
+      await search.locator("button").click();
+      const query = queryOf(await request);
 
       expect(query.query).toBe("Test");
       expect(query.page).toBe("1");
@@ -359,26 +349,27 @@ test.describe("Admin server pools index", () => {
       await expect(page.getByTestId("server-pool-item")).toHaveCount(0);
     });
 
-    test("no server pools available, search with enter", async ({ page }) => {
+    test("no server pools available, search with enter", async ({
+      page,
+      serverPools,
+    }) => {
       await page.goto("/admin/server_pools");
       await expect(page.getByTestId("server-pool-item")).toHaveCount(2);
 
-      await mockServerPools(page, (serverPools) => {
-        serverPools.data = [];
-        Object.assign(serverPools.meta, {
-          from: null,
-          per_page: 1,
-          to: null,
-          total: 0,
-          total_no_filter: 0,
-        });
+      serverPools.data = [];
+      Object.assign(serverPools.meta, {
+        from: null,
+        per_page: 1,
+        to: null,
+        total: 0,
+        total_no_filter: 0,
       });
 
       const input = page.getByTestId("server-pool-search").locator("input");
       await input.fill("Test2");
-      const query = await requestServerPoolsAfter(page, () =>
-        input.press("Enter"),
-      );
+      const request = page.waitForRequest("**/api/v1/serverPools*");
+      await input.press("Enter");
+      const query = queryOf(await request);
 
       expect(query.query).toBe("Test2");
       expect(query.page).toBe("1");
@@ -390,18 +381,20 @@ test.describe("Admin server pools index", () => {
     });
 
     test.describe("with two pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, showServerPoolsPage }) => {
         await page.goto("/admin/server_pools");
         await expect(page.getByTestId("server-pool-item")).toHaveCount(2);
 
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 1, 2),
+        showServerPoolsPage(1);
+        const search = page.getByTestId("server-pool-search");
+        await search.locator("input").fill("T");
+        const request = page.waitForRequest("**/api/v1/serverPools*");
+        await search.locator("button").click();
+        await request;
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Test",
         );
-        await page.getByTestId("server-pool-search").locator("input").fill("T");
-        await requestServerPoolsAfter(page, () =>
-          page.getByTestId("server-pool-search").locator("button").click(),
-        );
-        await expectSingleServerPool(page, "Test");
       });
 
       test("shows the result with pagination", async ({ page }) => {
@@ -411,14 +404,13 @@ test.describe("Admin server pools index", () => {
 
       test("search query stays the same when changing the page", async ({
         page,
+        showServerPoolsPage,
       }) => {
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 2, 2),
-        );
+        showServerPoolsPage(2);
 
-        const query = await requestServerPoolsAfter(page, () =>
-          nextPageButton(page).click(),
-        );
+        const request = page.waitForRequest("**/api/v1/serverPools*");
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        const query = queryOf(await request);
 
         expect(query.query).toBe("T");
         expect(query.page).toBe("2");
@@ -426,31 +418,37 @@ test.describe("Admin server pools index", () => {
           page.getByTestId("server-pool-search").locator("input"),
         ).toHaveValue("T");
         await expectActivePage(page, 1);
-        await expectSingleServerPool(page, "Production");
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Production",
+        );
       });
 
-      test("changing the search query resets the page", async ({ page }) => {
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 2, 2),
+      test("changing the search query resets the page", async ({
+        page,
+        showServerPoolsPage,
+      }) => {
+        showServerPoolsPage(2);
+        await page.getByTestId("paginator-next-button").nth(1).click();
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Production",
         );
-        await nextPageButton(page).click();
-        await expectSingleServerPool(page, "Production");
         await expectActivePage(page, 1);
 
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 1, 2),
-        );
-        await page
-          .getByTestId("server-pool-search")
-          .locator("input")
-          .fill("Te");
-        const query = await requestServerPoolsAfter(page, () =>
-          page.getByTestId("server-pool-search").locator("button").click(),
-        );
+        showServerPoolsPage(1);
+        const search = page.getByTestId("server-pool-search");
+        await search.locator("input").fill("Te");
+        const request = page.waitForRequest("**/api/v1/serverPools*");
+        await search.locator("button").click();
+        const query = queryOf(await request);
 
         expect(query.query).toBe("Te");
         expect(query.page).toBe("1");
-        await expectSingleServerPool(page, "Test");
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Test",
+        );
         await expectActivePage(page, 0);
       });
     });
@@ -466,7 +464,7 @@ test.describe("Admin server pools index", () => {
     });
 
     test("initial sorting and sortable columns", async ({ page }) => {
-      const request = page.waitForRequest(isServerPoolsRequest);
+      const request = page.waitForRequest("**/api/v1/serverPools*");
       await page.goto("/admin/server_pools");
 
       expect(queryOf(await request)).toMatchObject({
@@ -499,17 +497,14 @@ test.describe("Admin server pools index", () => {
     });
 
     test.describe("sorted by server count", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, showServerPoolsPage }) => {
         await page.goto("/admin/server_pools");
         await expect(page.getByTestId("server-pool-item")).toHaveCount(2);
 
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 1, 2),
-        );
-        const query = await requestServerPoolsAfter(page, () =>
-          page.getByTestId("server-pool-header-cell").nth(1).click(),
-        );
-        expect(query).toMatchObject({
+        showServerPoolsPage(1);
+        const request = page.waitForRequest("**/api/v1/serverPools*");
+        await page.getByTestId("server-pool-header-cell").nth(1).click();
+        expect(queryOf(await request)).toMatchObject({
           page: "1",
           sort_by: "servers_count",
           sort_direction: "asc",
@@ -521,22 +516,23 @@ test.describe("Admin server pools index", () => {
         await expect(headers.nth(0)).toHaveAttribute("data-p-sorted", "false");
         await expect(headers.nth(1)).toHaveAttribute("data-p-sorted", "true");
 
-        await expectSingleServerPool(page, "Test");
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Test",
+        );
         await expect(page.getByTestId("paginator-page")).toHaveCount(2);
         await expectActivePage(page, 0);
       });
 
       test("sorting stays the same when changing the page", async ({
         page,
+        showServerPoolsPage,
       }) => {
-        await mockServerPools(page, (serverPools) =>
-          onePage(serverPools, 2, 2),
-        );
-        const query = await requestServerPoolsAfter(page, () =>
-          nextPageButton(page).click(),
-        );
+        showServerPoolsPage(2);
+        const request = page.waitForRequest("**/api/v1/serverPools*");
+        await page.getByTestId("paginator-next-button").nth(1).click();
 
-        expect(query).toMatchObject({
+        expect(queryOf(await request)).toMatchObject({
           page: "2",
           sort_by: "servers_count",
           sort_direction: "asc",
@@ -548,27 +544,28 @@ test.describe("Admin server pools index", () => {
         await expect(
           page.getByTestId("server-pool-header-cell").nth(1),
         ).toHaveAttribute("aria-sort", "ascending");
-        await expectSingleServerPool(page, "Production");
+        await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+        await expect(page.getByTestId("server-pool-item")).toContainText(
+          "Production",
+        );
       });
 
       test.describe("descending", () => {
-        test.beforeEach(async ({ page }) => {
-          await mockServerPools(page, (serverPools) =>
-            onePage(serverPools, 2, 2),
+        test.beforeEach(async ({ page, showServerPoolsPage }) => {
+          showServerPoolsPage(2);
+          await page.getByTestId("paginator-next-button").nth(1).click();
+          await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+          await expect(page.getByTestId("server-pool-item")).toContainText(
+            "Production",
           );
-          await nextPageButton(page).click();
-          await expectSingleServerPool(page, "Production");
           await expectActivePage(page, 1);
 
-          await mockServerPools(page, (serverPools) =>
-            onePage(serverPools, 1, 2),
-          );
-          const query = await requestServerPoolsAfter(page, () =>
-            page.getByTestId("server-pool-header-cell").nth(1).click(),
-          );
+          showServerPoolsPage(1);
+          const request = page.waitForRequest("**/api/v1/serverPools*");
+          await page.getByTestId("server-pool-header-cell").nth(1).click();
 
           // Changing the sort direction resets the page
-          expect(query).toMatchObject({
+          expect(queryOf(await request)).toMatchObject({
             page: "1",
             sort_by: "servers_count",
             sort_direction: "desc",
@@ -580,20 +577,21 @@ test.describe("Admin server pools index", () => {
           const header = page.getByTestId("server-pool-header-cell").nth(1);
           await expect(header).toHaveAttribute("data-p-sorted", "true");
           await expect(header).toHaveAttribute("aria-sort", "descending");
-          await expectSingleServerPool(page, "Test");
+          await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+          await expect(page.getByTestId("server-pool-item")).toContainText(
+            "Test",
+          );
         });
 
         test("sorting stays the same when changing the page", async ({
           page,
+          showServerPoolsPage,
         }) => {
-          await mockServerPools(page, (serverPools) =>
-            onePage(serverPools, 2, 2),
-          );
-          const query = await requestServerPoolsAfter(page, () =>
-            nextPageButton(page).click(),
-          );
+          showServerPoolsPage(2);
+          const request = page.waitForRequest("**/api/v1/serverPools*");
+          await page.getByTestId("paginator-next-button").nth(1).click();
 
-          expect(query).toMatchObject({
+          expect(queryOf(await request)).toMatchObject({
             page: "2",
             sort_by: "servers_count",
             sort_direction: "desc",
@@ -602,18 +600,21 @@ test.describe("Admin server pools index", () => {
           const header = page.getByTestId("server-pool-header-cell").nth(1);
           await expect(header).toHaveAttribute("data-p-sorted", "true");
           await expect(header).toHaveAttribute("aria-sort", "descending");
-          await expectSingleServerPool(page, "Production");
+          await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
+          await expect(page.getByTestId("server-pool-item")).toContainText(
+            "Production",
+          );
         });
 
-        test("changing the sorted column resets the page", async ({ page }) => {
-          await mockServerPools(page, (serverPools) =>
-            onePage(serverPools, 1, 2),
-          );
-          const query = await requestServerPoolsAfter(page, () =>
-            page.getByTestId("server-pool-header-cell").nth(0).click(),
-          );
+        test("changing the sorted column resets the page", async ({
+          page,
+          showServerPoolsPage,
+        }) => {
+          showServerPoolsPage(1);
+          const request = page.waitForRequest("**/api/v1/serverPools*");
+          await page.getByTestId("server-pool-header-cell").nth(0).click();
 
-          expect(query).toMatchObject({
+          expect(queryOf(await request)).toMatchObject({
             page: "1",
             sort_by: "name",
             sort_direction: "asc",
@@ -756,16 +757,24 @@ test.describe("Admin server pools index", () => {
 
     test("buttons are disabled while reloading and enabled afterwards", async ({
       page,
+      serverPools,
     }) => {
-      const release = await holdRequest(page, isServerPoolsUrl, {
-        json: readFixture("serverPools.json"),
-      });
+      const serverPoolsRequest = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/serverPools*",
+        { json: serverPools, hold: true },
+      );
 
       // Trigger reload by triggering search
-      await page.getByTestId("server-pool-search").locator("button").click();
+      const search = page.getByTestId("server-pool-search");
+      await search.locator("button").click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectSearchDisabled(page, true);
+      await expect(search.locator("input")).toBeVisible();
+      await expect(search.locator("button")).toBeVisible();
+      await expect(search.locator("input")).toBeDisabled();
+      await expect(search.locator("button")).toBeDisabled();
       await expect(page.getByTestId("server-pools-add-button")).toBeVisible();
       await expect(page.getByTestId("server-pools-add-button")).toBeEnabled();
 
@@ -780,14 +789,13 @@ test.describe("Admin server pools index", () => {
         firstItem.getByTestId("server-pools-delete-button"),
       ).toBeDisabled();
 
-      const response = page.waitForResponse((r) =>
-        isServerPoolsRequest(r.request()),
-      );
-      release();
+      const response = page.waitForResponse("**/api/v1/serverPools*");
+      serverPoolsRequest.release();
       await response;
 
       await expect(page.getByTestId("overlay")).toBeHidden();
-      await expectSearchDisabled(page, false);
+      await expect(search.locator("input")).toBeEnabled();
+      await expect(search.locator("button")).toBeEnabled();
       await expect(page.getByTestId("server-pools-add-button")).toBeEnabled();
 
       await expect(

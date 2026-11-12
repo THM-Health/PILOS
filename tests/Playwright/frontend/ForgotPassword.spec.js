@@ -1,4 +1,7 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/authGeneral.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
+import { holdRequest } from "../support/utils.js";
 
 test.describe("Forgot password", () => {
   test.beforeEach(async ({ config }) => {
@@ -33,12 +36,7 @@ test.describe("Forgot password", () => {
     test.use({ authenticated: true });
 
     test("redirects to home page with error message", async ({ page }) => {
-      await page.route("**/api/v1/roomTypes*", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/roomTypes.json" }),
-      );
-      await page.route("**/api/v1/rooms*", (route) =>
-        route.fulfill({ path: "tests/Playwright/fixtures/rooms.json" }),
-      );
+      await interceptRoomIndexRequests(page);
 
       await page.goto("/forgot_password");
 
@@ -50,11 +48,6 @@ test.describe("Forgot password", () => {
 
   test.describe("form", () => {
     test.beforeEach(async ({ page }) => {
-      await page.route("**/sanctum/csrf-cookie", (route) =>
-        route.fulfill({
-          headers: { "Set-Cookie": "XSRF-TOKEN=test-csrf; Path=/" },
-        }),
-      );
       await page.goto("/forgot_password");
     });
 
@@ -69,11 +62,8 @@ test.describe("Forgot password", () => {
     });
 
     test("disables form while request is pending", async ({ page }) => {
-      let release;
-      const gate = new Promise((resolve) => (release = resolve));
-      await page.route("**/api/v1/password/email", async (route) => {
-        await gate;
-        await route.fulfill({ json: { message: "Success!" } });
+      const release = await holdRequest(page, "**/api/v1/password/email", {
+        json: { message: "Success!" },
       });
 
       await page.locator("#email").fill("JohnDoe@domain.tld");

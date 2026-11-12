@@ -1,65 +1,17 @@
-import { readFileSync } from "node:fs";
-import { test, expect } from "../support/test.js";
-import { interceptAdminSettingsRequest } from "../support/mocks.js";
+import {
+  test,
+  expect,
+} from "../support/fixtures/adminSettingsOtherSettings.js";
 import {
   checkSettingsImageSelectorOnlyView,
   checkSettingsFileSelectorOnlyView,
 } from "../support/admin.js";
 
-const selectedClass = /(^|\s)selected(\s|$)/;
-
-/**
- * Check the color buttons of a color picker field (view only: not clickable) and the selected one.
- * @param {import("@playwright/test").Locator} field
- * @param {number} count
- * @param {number|null} selectedIndex
- */
-async function expectColorButtons(field, count, selectedIndex) {
-  const buttons = field.getByTestId("color-button");
-  await expect(buttons).toHaveCount(count);
-  for (let i = 0; i < count; i++) {
-    const button = buttons.nth(i);
-    await expect(button).toHaveAttribute("role", "button");
-    await expect(button).toHaveClass(/pointer-events-none/);
-    await expect(button).toHaveClass(/opacity-80/);
-    await expect(button).not.toHaveClass(/cursor-pointer/);
-    if (i === selectedIndex) {
-      await expect(button).toHaveClass(selectedClass);
-    } else {
-      await expect(button).not.toHaveClass(selectedClass);
-    }
-  }
-}
-
-/**
- * Check a disabled dropdown shows the given text.
- * @param {import("@playwright/test").Locator} field
- * @param {string} testId
- * @param {string} text
- */
-async function expectDisabledDropdown(field, testId, text) {
-  const dropdown = field.getByTestId(testId);
-  await expect(dropdown).toHaveText(text);
-  await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
-    "aria-disabled",
-    "true",
-  );
-}
-
 test.describe("Admin settings with view permission only", () => {
   test.use({ authenticated: true });
 
-  let settings;
-
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = ["admin.view", "settings.viewAny"];
-    settings = JSON.parse(
-      readFileSync("tests/Playwright/fixtures/settings.json", "utf8"),
-    );
-    await interceptAdminSettingsRequest(page);
-    await page.route("**/api/v1/settings", (route) =>
-      route.fulfill({ json: settings }),
-    );
   });
 
   test.describe("application", () => {
@@ -105,7 +57,12 @@ test.describe("Admin settings with view permission only", () => {
       const timezone = page.getByTestId("default-timezone-field");
       await expect(timezone).toBeVisible();
       await expect(timezone).toContainText("admin.settings.default_timezone");
-      await expectDisabledDropdown(timezone, "timezone-dropdown", "UTC");
+      const timezoneDropdown = timezone.getByTestId("timezone-dropdown");
+      await expect(timezoneDropdown).toHaveText("UTC");
+      await expect(timezoneDropdown.locator(".p-select-label")).toHaveAttribute(
+        "aria-disabled",
+        "true",
+      );
 
       const noWelcomePage = page.getByTestId("no-welcome-page-field");
       await expect(noWelcomePage).toBeVisible();
@@ -157,7 +114,7 @@ test.describe("Admin settings with view permission only", () => {
       ).toBeDisabled();
     });
 
-    test("shows custom toast lifetime disabled", async ({ page }) => {
+    test("shows custom toast lifetime disabled", async ({ page, settings }) => {
       settings.data.general_toast_lifetime = 10;
       await page.goto("/admin/settings");
 
@@ -219,7 +176,20 @@ test.describe("Admin settings with view permission only", () => {
     const color = page.getByTestId("primary-color-field");
     await expect(color).toBeVisible();
     await expect(color).toContainText("admin.settings.theme.primary_color");
-    await expectColorButtons(color, 10, 4);
+    const colorButtons = color.getByTestId("color-button");
+    await expect(colorButtons).toHaveCount(10);
+    for (let i = 0; i < 10; i++) {
+      const button = colorButtons.nth(i);
+      await expect(button).toHaveAttribute("role", "button");
+      await expect(button).toHaveClass(/pointer-events-none/);
+      await expect(button).toHaveClass(/opacity-80/);
+      await expect(button).not.toHaveClass(/cursor-pointer/);
+      if (i === 4) {
+        await expect(button).toHaveClass(/(^|\s)selected(\s|$)/);
+      } else {
+        await expect(button).not.toHaveClass(/(^|\s)selected(\s|$)/);
+      }
+    }
     await expect(color.locator("#theme-primary-color")).toHaveValue("#22c55e");
     await expect(color.locator("#theme-primary-color")).toBeDisabled();
 
@@ -297,28 +267,41 @@ test.describe("Admin settings with view permission only", () => {
       const linkStyle = page.getByTestId("banner-link-style-field");
       await expect(linkStyle).toBeVisible();
       await expect(linkStyle).toContainText("admin.settings.banner.link_style");
-      await expectDisabledDropdown(
-        linkStyle,
+      const linkStyleDropdown = linkStyle.getByTestId(
         "banner-link-style-dropdown",
-        "app.button_styles.primary",
       );
+      await expect(linkStyleDropdown).toHaveText("app.button_styles.primary");
+      await expect(
+        linkStyleDropdown.locator(".p-select-label"),
+      ).toHaveAttribute("aria-disabled", "true");
 
       const linkTarget = page.getByTestId("banner-link-target-field");
       await expect(linkTarget).toBeVisible();
       await expect(linkTarget).toContainText(
         "admin.settings.banner.link_target",
       );
-      await expectDisabledDropdown(
-        linkTarget,
+      const linkTargetDropdown = linkTarget.getByTestId(
         "banner-link-target-dropdown",
-        "app.link_targets.blank",
       );
+      await expect(linkTargetDropdown).toHaveText("app.link_targets.blank");
+      await expect(
+        linkTargetDropdown.locator(".p-select-label"),
+      ).toHaveAttribute("aria-disabled", "true");
 
       const color = page.getByTestId("banner-color-field");
       await expect(color).toBeVisible();
       await expect(color).toContainText("admin.settings.banner.color");
       await expect(color).toContainText("admin.room_types.custom_color");
-      await expectColorButtons(color, 2, null);
+      const colorButtons = color.getByTestId("color-button");
+      await expect(colorButtons).toHaveCount(2);
+      for (let i = 0; i < 2; i++) {
+        const button = colorButtons.nth(i);
+        await expect(button).toHaveAttribute("role", "button");
+        await expect(button).toHaveClass(/pointer-events-none/);
+        await expect(button).toHaveClass(/opacity-80/);
+        await expect(button).not.toHaveClass(/cursor-pointer/);
+        await expect(button).not.toHaveClass(/(^|\s)selected(\s|$)/);
+      }
       await expect(color.locator("#banner-color")).toHaveValue("");
       await expect(color.locator("#banner-color")).toBeDisabled();
 
@@ -328,13 +311,22 @@ test.describe("Admin settings with view permission only", () => {
         "admin.settings.banner.background",
       );
       await expect(background).toContainText("admin.room_types.custom_color");
-      await expectColorButtons(background, 10, null);
+      const backgroundButtons = background.getByTestId("color-button");
+      await expect(backgroundButtons).toHaveCount(10);
+      for (let i = 0; i < 10; i++) {
+        const button = backgroundButtons.nth(i);
+        await expect(button).toHaveAttribute("role", "button");
+        await expect(button).toHaveClass(/pointer-events-none/);
+        await expect(button).toHaveClass(/opacity-80/);
+        await expect(button).not.toHaveClass(/cursor-pointer/);
+        await expect(button).not.toHaveClass(/(^|\s)selected(\s|$)/);
+      }
       await expect(background.locator("#banner-background")).toHaveValue("");
       await expect(background.locator("#banner-background")).toBeDisabled();
     });
 
     test.describe("with banner configured", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, settings }) => {
         Object.assign(settings.data, {
           banner_enabled: true,
           banner_title: "Banner title",
@@ -417,22 +409,26 @@ test.describe("Admin settings with view permission only", () => {
         await expect(linkStyle).toContainText(
           "admin.settings.banner.link_style",
         );
-        await expectDisabledDropdown(
-          linkStyle,
+        const linkStyleDropdown = linkStyle.getByTestId(
           "banner-link-style-dropdown",
-          "app.button_styles.link",
         );
+        await expect(linkStyleDropdown).toHaveText("app.button_styles.link");
+        await expect(
+          linkStyleDropdown.locator(".p-select-label"),
+        ).toHaveAttribute("aria-disabled", "true");
 
         const linkTarget = page.getByTestId("banner-link-target-field");
         await expect(linkTarget).toBeVisible();
         await expect(linkTarget).toContainText(
           "admin.settings.banner.link_target",
         );
-        await expectDisabledDropdown(
-          linkTarget,
+        const linkTargetDropdown = linkTarget.getByTestId(
           "banner-link-target-dropdown",
-          "app.link_targets.self",
         );
+        await expect(linkTargetDropdown).toHaveText("app.link_targets.self");
+        await expect(
+          linkTargetDropdown.locator(".p-select-label"),
+        ).toHaveAttribute("aria-disabled", "true");
       });
 
       test("shows the banner colors", async ({ page }) => {
@@ -440,7 +436,20 @@ test.describe("Admin settings with view permission only", () => {
         await expect(color).toBeVisible();
         await expect(color).toContainText("admin.settings.banner.color");
         await expect(color).toContainText("admin.room_types.custom_color");
-        await expectColorButtons(color, 2, 0);
+        const colorButtons = color.getByTestId("color-button");
+        await expect(colorButtons).toHaveCount(2);
+        for (let i = 0; i < 2; i++) {
+          const button = colorButtons.nth(i);
+          await expect(button).toHaveAttribute("role", "button");
+          await expect(button).toHaveClass(/pointer-events-none/);
+          await expect(button).toHaveClass(/opacity-80/);
+          await expect(button).not.toHaveClass(/cursor-pointer/);
+          if (i === 0) {
+            await expect(button).toHaveClass(/(^|\s)selected(\s|$)/);
+          } else {
+            await expect(button).not.toHaveClass(/(^|\s)selected(\s|$)/);
+          }
+        }
         await expect(color.locator("#banner-color")).toHaveValue("#FFFFFF");
         await expect(color.locator("#banner-color")).toBeDisabled();
 
@@ -450,7 +459,20 @@ test.describe("Admin settings with view permission only", () => {
           "admin.settings.banner.background",
         );
         await expect(background).toContainText("admin.room_types.custom_color");
-        await expectColorButtons(background, 10, 7);
+        const backgroundButtons = background.getByTestId("color-button");
+        await expect(backgroundButtons).toHaveCount(10);
+        for (let i = 0; i < 10; i++) {
+          const button = backgroundButtons.nth(i);
+          await expect(button).toHaveAttribute("role", "button");
+          await expect(button).toHaveClass(/pointer-events-none/);
+          await expect(button).toHaveClass(/opacity-80/);
+          await expect(button).not.toHaveClass(/cursor-pointer/);
+          if (i === 7) {
+            await expect(button).toHaveClass(/(^|\s)selected(\s|$)/);
+          } else {
+            await expect(button).not.toHaveClass(/(^|\s)selected(\s|$)/);
+          }
+        }
         await expect(background.locator("#banner-background")).toHaveValue(
           "#ef4444",
         );
@@ -460,7 +482,7 @@ test.describe("Admin settings with view permission only", () => {
   });
 
   test.describe("rooms", () => {
-    test.beforeEach(() => {
+    test.beforeEach(({ settings }) => {
       settings.data.room_auto_delete_inactive_period = 30;
       settings.data.room_auto_delete_never_used_period = 730;
     });
@@ -503,11 +525,13 @@ test.describe("Admin settings with view permission only", () => {
       await expect(expiration).toContainText(
         "admin.settings.room_personalized_link_expiration.description",
       );
-      await expectDisabledDropdown(
-        expiration,
+      const expirationDropdown = expiration.getByTestId(
         "room-personalized-link-expiration-dropdown",
-        "app.unlimited",
       );
+      await expect(expirationDropdown).toHaveText("app.unlimited");
+      await expect(
+        expirationDropdown.locator(".p-select-label"),
+      ).toHaveAttribute("aria-disabled", "true");
 
       const periods = [
         ["deadline", "deadline", "admin.settings.two_weeks"],
@@ -523,10 +547,13 @@ test.describe("Admin settings with view permission only", () => {
         await expect(field).toContainText(
           `admin.settings.room_auto_delete.${key}_period.description`,
         );
-        await expectDisabledDropdown(
-          field,
+        const fieldDropdown = field.getByTestId(
           `room-auto-delete-${id}-dropdown`,
-          text,
+        );
+        await expect(fieldDropdown).toHaveText(text);
+        await expect(fieldDropdown.locator(".p-select-label")).toHaveAttribute(
+          "aria-disabled",
+          "true",
         );
       }
 
@@ -555,6 +582,7 @@ test.describe("Admin settings with view permission only", () => {
 
     test("shows a custom room limit and hidden owner disabled", async ({
       page,
+      settings,
     }) => {
       settings.data.room_limit = 10;
       settings.data.room_hide_owner_from_guests = true;
@@ -625,6 +653,7 @@ test.describe("Admin settings with view permission only", () => {
 
     test("shows the user settings turned off and disabled", async ({
       page,
+      settings,
     }) => {
       settings.data.user_password_change_allowed = false;
       settings.data.user_search_by_name = false;
@@ -655,6 +684,7 @@ test.describe("Admin settings with view permission only", () => {
 
   test("shows the recording and statistics settings disabled", async ({
     page,
+    settings,
   }) => {
     Object.assign(settings.data, {
       recording_server_usage_retention_period: 90,
@@ -710,7 +740,12 @@ test.describe("Admin settings with view permission only", () => {
       const field = page.getByTestId(`${id}-field`);
       await expect(field).toBeVisible();
       await expect(field).toContainText(title);
-      await expectDisabledDropdown(field, `${id}-dropdown`, text);
+      const fieldDropdown = field.getByTestId(`${id}-dropdown`);
+      await expect(fieldDropdown).toHaveText(text);
+      await expect(fieldDropdown.locator(".p-select-label")).toHaveAttribute(
+        "aria-disabled",
+        "true",
+      );
     }
   });
 
@@ -759,7 +794,10 @@ test.describe("Admin settings with view permission only", () => {
       ).toBeDisabled();
     });
 
-    test("shows configured bbb settings read-only", async ({ page }) => {
+    test("shows configured bbb settings read-only", async ({
+      page,
+      settings,
+    }) => {
       Object.assign(settings.data, {
         bbb_logo: null,
         bbb_logo_dark: null,

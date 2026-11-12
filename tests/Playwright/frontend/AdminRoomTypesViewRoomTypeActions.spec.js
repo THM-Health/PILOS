@@ -1,158 +1,19 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { expectLoginRedirect } from "../support/general.js";
 import {
-  interceptAdminRoomTypesIndexRequests,
-  interceptAdminRoomTypesViewRequests,
-} from "../support/mocks.js";
+  test,
+  expect,
+  expectToastAndClose,
+} from "../support/fixtures/adminRoomTypes.js";
+import { expectLoginRedirect } from "../support/general.js";
 import {
   roomTypeCheckDefaultRoomSettingCheckboxField,
   expectRoleChips,
 } from "../support/admin.js";
-import { holdRequest } from "../support/utils.js";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const serverError = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-const replacementRequiredMessage =
-  "Replacement room type required! Rooms are still assigned to this room type.";
-const roomTypeDeleteUrl = "**/api/v1/roomTypes/3";
-const isRoomTypesListRequest = (request) =>
-  new URL(request.url()).pathname === "/api/v1/roomTypes";
-
-// [field, default value, enforced] of the room type fixture
-const settingFields = [
-  ["has-access-code", true, false],
-  ["allow-guests", true, true],
-  ["everyone-can-start", false, false],
-  ["mute-on-start", true, true],
-  ["record-attendance", false, false],
-  ["record", false, false],
-  ["auto-start-recording", false, false],
-  ["disable-cam", false, false],
-  ["webcams-only-for-moderator", true, false],
-  ["disable-mic", false, true],
-  ["disable-public-chat", true, false],
-  ["disable-private-chat", false, false],
-  ["disable-note", true, true],
-  ["hide-user-list", true, false],
-  ["allow-membership", false, true],
-];
-
-const createParameters =
-  "meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds";
-
-async function mockRoomTypeDelete(page, response) {
-  await page.route(roomTypeDeleteUrl, (route) =>
-    route.request().method() === "DELETE"
-      ? route.fulfill(response)
-      : route.fallback(),
-  );
-}
-
-/**
- * Check that the room type form shows the unchanged room type, either read-only (view) or editable (edit).
- * @param {import("@playwright/test").Page} page
- * @param {boolean} viewOnly
- */
-async function expectOriginalRoomType(page, viewOnly) {
-  const enabled = viewOnly ? "toBeDisabled" : "toBeEnabled";
-
-  await expect(page.locator("#room-type-name")).toHaveValue("Exam");
-  await expect(page.locator("#room-type-name"))[enabled]();
-  await expect(page.locator("#description")).toHaveValue(
-    "Room type description for room type Exam",
-  );
-  await expect(page.locator("#description"))[enabled]();
-  await expect(page.locator("#custom-color")).toHaveValue("#4a5c66");
-  await expect(page.locator("#custom-color"))[enabled]();
-
-  const serverPools = page.getByTestId("server-pool-dropdown");
-  await expect(serverPools.locator(".multiselect__tags")).toContainText("Test");
-  const roles = page.getByTestId("role-dropdown");
-  if (viewOnly) {
-    await expect(serverPools).toHaveClass(/multiselect--disabled/);
-    await expect(roles).toHaveClass(/multiselect--disabled/);
-    const chips = roles.getByTestId("role-chip");
-    await expect(chips).toHaveCount(2);
-    await expect(chips.nth(0)).toContainText("Superuser");
-    await expect(chips.nth(1)).toContainText("Staff");
-    await expect(roles.getByTestId("remove-role-button")).toHaveCount(0);
-  } else {
-    await expect(serverPools).not.toHaveClass(/multiselect--disabled/);
-    await expect(roles).not.toHaveClass(/multiselect--disabled/);
-    await expectRoleChips(page, ["Superuser", "Staff"]);
-  }
-
-  await expect(page.locator("#restrict")).toBeChecked();
-  await expect(page.locator("#restrict"))[enabled]();
-  await expect(page.locator("#max-participants")).toHaveValue("100");
-  await expect(page.locator("#max-participants"))[enabled]();
-  await expect(page.locator("#max-duration")).toHaveValue("120 min.");
-  await expect(page.locator("#max-duration"))[enabled]();
-
-  for (const [field, value, enforced] of settingFields) {
-    await roomTypeCheckDefaultRoomSettingCheckboxField(
-      page,
-      field,
-      value,
-      enforced,
-      viewOnly,
-    );
-  }
-
-  await expect(page.locator("#lobby-disabled")).not.toBeChecked();
-  await expect(page.locator("#lobby-disabled"))[enabled]();
-  await expect(page.locator("#lobby-enabled")).not.toBeChecked();
-  await expect(page.locator("#lobby-enabled"))[enabled]();
-  await expect(page.locator("#lobby-only-for-guests")).toBeChecked();
-  await expect(page.locator("#lobby-only-for-guests"))[enabled]();
-
-  const defaultRoleButtons = page.getByTestId("default-role-default-button");
-  await expect(defaultRoleButtons.nth(0)).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(defaultRoleButtons.nth(0))[enabled]();
-  await expect(defaultRoleButtons.nth(1)).not.toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(defaultRoleButtons.nth(1))[enabled]();
-
-  const visibilityButtons = page.getByTestId("visibility-default-button");
-  await expect(visibilityButtons.nth(0)).not.toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(visibilityButtons.nth(0))[enabled]();
-  await expect(visibilityButtons.nth(1)).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(visibilityButtons.nth(1))[enabled]();
-
-  await expect(page.locator("#create-parameters")).toHaveValue(
-    createParameters,
-  );
-  await expect(page.locator("#create-parameters"))[enabled]();
-
-  if (viewOnly) {
-    await expect(page.getByTestId("room-types-save-button")).toHaveCount(0);
-  } else {
-    await expect(page.getByTestId("room-types-save-button")).toBeVisible();
-    await expect(page.getByTestId("room-types-save-button")).toBeEnabled();
-  }
-}
+import { holdRequest, mockMethod, nthRequest } from "../support/utils.js";
 
 test.describe("Admin room types view room type actions", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "roles.viewAny",
@@ -162,12 +23,10 @@ test.describe("Admin room types view room type actions", () => {
       "roomTypes.create",
       "roomTypes.delete",
     ];
-    await interceptAdminRoomTypesViewRequests(page);
   });
 
   test.describe("delete room type", () => {
     test.beforeEach(async ({ page }) => {
-      await interceptAdminRoomTypesIndexRequests(page);
       await page.goto("/admin/room_types/3");
       await expect(page.getByTestId("room-types-delete-button")).toBeVisible();
       await expect(page.getByTestId("room-types-delete-dialog")).toBeHidden();
@@ -176,7 +35,7 @@ test.describe("Admin room types view room type actions", () => {
     test("opens dialog with default replacement room type", async ({
       page,
     }) => {
-      const replacementRequest = page.waitForRequest(isRoomTypesListRequest);
+      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
       await page.getByTestId("room-types-delete-button").click();
       await replacementRequest;
 
@@ -217,23 +76,18 @@ test.describe("Admin room types view room type actions", () => {
       ).toBeHidden();
     });
 
-    test("delete without replacement", async ({ page }) => {
+    test("delete without replacement", async ({ page, roomTypes }) => {
       await page.getByTestId("room-types-delete-button").click();
       await expect(page.getByTestId("room-types-delete-dialog")).toBeVisible();
 
-      const releaseDelete = await holdRequest(page, roomTypeDeleteUrl, {
-        status: 204,
-      });
-      const roomTypes = readFixture("roomTypes.json");
+      const deleteMock = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/roomTypes/3",
+        { status: 204, hold: true },
+      );
       roomTypes.data = roomTypes.data.filter((roomType) => roomType.id !== 3);
-      await page.route("**/api/v1/roomTypes*", (route) =>
-        route.fulfill({ json: roomTypes }),
-      );
 
-      const deleteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "DELETE" && request.url().endsWith("/3"),
-      );
       const continueButton = page.getByTestId("dialog-continue-button");
       await expect(continueButton).toHaveText("app.yes");
       await continueButton.click();
@@ -250,9 +104,9 @@ test.describe("Admin room types view room type actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(continueButton).toBeDisabled();
 
-      const roomTypesRequest = page.waitForRequest(isRoomTypesListRequest);
-      releaseDelete();
-      expect((await deleteRequest).postDataJSON()).toEqual({
+      const roomTypesRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      deleteMock.release();
+      expect((await nthRequest(deleteMock)).postDataJSON()).toEqual({
         replacement_room_type: null,
       });
       await roomTypesRequest;
@@ -260,7 +114,7 @@ test.describe("Admin room types view room type actions", () => {
       await expect(page).toHaveURL(/\/admin\/room_types$/);
     });
 
-    test("delete with replacement", async ({ page }) => {
+    test("delete with replacement", async ({ page, roomTypes }) => {
       await page.getByTestId("room-types-delete-button").click();
       await expect(page.getByTestId("room-types-delete-dialog")).toBeVisible();
 
@@ -281,24 +135,21 @@ test.describe("Admin room types view room type actions", () => {
         page.getByTestId("replacement-room-type-dropdown"),
       ).toHaveText("Meeting");
 
-      await mockRoomTypeDelete(page, { status: 204 });
-      const roomTypes = readFixture("roomTypes.json");
+      const deleteMock = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/roomTypes/3",
+        { status: 204 },
+      );
       roomTypes.data = roomTypes.data.filter((roomType) => roomType.id !== 3);
-      await page.route("**/api/v1/roomTypes*", (route) =>
-        route.fulfill({ json: roomTypes }),
-      );
 
-      const deleteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "DELETE" && request.url().endsWith("/3"),
-      );
-      const roomTypesRequest = page.waitForRequest(isRoomTypesListRequest);
+      const roomTypesRequest = page.waitForRequest("**/api/v1/roomTypes*");
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
       );
       await page.getByTestId("dialog-continue-button").click();
 
-      expect((await deleteRequest).postDataJSON()).toEqual({
+      expect((await nthRequest(deleteMock)).postDataJSON()).toEqual({
         replacement_room_type: 2,
       });
       await roomTypesRequest;
@@ -306,6 +157,16 @@ test.describe("Admin room types view room type actions", () => {
     });
 
     test.describe("with opened dialog", () => {
+      const requiredMessage =
+        "Replacement room type required! Rooms are still assigned to this room type.";
+      const validationError = {
+        status: 422,
+        json: {
+          message: requiredMessage,
+          errors: { replacement_room_type: [requiredMessage] },
+        },
+      };
+
       test.beforeEach(async ({ page }) => {
         await page.getByTestId("room-types-delete-button").click();
         await expect(
@@ -314,13 +175,12 @@ test.describe("Admin room types view room type actions", () => {
       });
 
       test("replacement room type required (422)", async ({ page }) => {
-        await mockRoomTypeDelete(page, {
-          status: 422,
-          json: {
-            message: replacementRequiredMessage,
-            errors: { replacement_room_type: [replacementRequiredMessage] },
-          },
-        });
+        await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/roomTypes/3",
+          validationError,
+        );
 
         await page.getByTestId("dialog-continue-button").click();
 
@@ -329,23 +189,22 @@ test.describe("Admin room types view room type actions", () => {
         ).toBeVisible();
         await expect(
           page.getByTestId("replacement-room-type-field"),
-        ).toContainText(replacementRequiredMessage);
+        ).toContainText(requiredMessage);
       });
 
       test("server error (500) keeps dialog open and hides validation error", async ({
         page,
       }) => {
-        await mockRoomTypeDelete(page, {
-          status: 422,
-          json: {
-            message: replacementRequiredMessage,
-            errors: { replacement_room_type: [replacementRequiredMessage] },
-          },
-        });
+        await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/roomTypes/3",
+          validationError,
+        );
         await page.getByTestId("dialog-continue-button").click();
         await expect(
           page.getByTestId("replacement-room-type-field"),
-        ).toContainText(replacementRequiredMessage);
+        ).toContainText(requiredMessage);
 
         // Select replacement room type
         await page.getByTestId("replacement-room-type-dropdown").click();
@@ -354,23 +213,26 @@ test.describe("Admin room types view room type actions", () => {
           .nth(2)
           .click();
 
-        await mockRoomTypeDelete(page, {
+        await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
           status: 500,
           json: { message: "Test" },
         });
         await page.getByTestId("dialog-continue-button").click();
 
-        await expectToastAndClose(page, serverError);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
         await expect(
           page.getByTestId("room-types-delete-dialog"),
         ).toBeVisible();
         await expect(
           page.getByTestId("replacement-room-type-field"),
-        ).not.toContainText(replacementRequiredMessage);
+        ).not.toContainText(requiredMessage);
       });
 
       test("room type not found (404) redirects to index", async ({ page }) => {
-        await mockRoomTypeDelete(page, {
+        await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
           status: 404,
           json: { message: "model_not_found", model: "room_type", ids: [3] },
         });
@@ -385,7 +247,9 @@ test.describe("Admin room types view room type actions", () => {
       });
 
       test("unauthenticated (401) redirects to login", async ({ page }) => {
-        await mockRoomTypeDelete(page, { status: 401 });
+        await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
+          status: 401,
+        });
 
         await page.getByTestId("dialog-continue-button").click();
 
@@ -403,6 +267,7 @@ test.describe("Admin room types view room type actions", () => {
 
     test("server error (500) disables dropdown and can be reloaded", async ({
       page,
+      roomTypes,
     }) => {
       const releaseRequest = await holdRequest(page, "**/api/v1/roomTypes*", {
         status: 500,
@@ -417,17 +282,22 @@ test.describe("Admin room types view room type actions", () => {
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
       releaseRequest();
 
-      await expectToastAndClose(page, serverError);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("room-types-delete-dialog")).toBeVisible();
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
 
       // Reload with correct data
-      await interceptAdminRoomTypesIndexRequests(page);
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
+        json: roomTypes,
+      });
       const reloadButton = page.getByTestId(
         "replacement-room-types-reload-button",
       );
       await expect(reloadButton).toBeVisible();
-      const reloadRequest = page.waitForRequest(isRoomTypesListRequest);
+      const reloadRequest = page.waitForRequest("**/api/v1/roomTypes*");
       await reloadButton.click();
       await reloadRequest;
 
@@ -440,9 +310,7 @@ test.describe("Admin room types view room type actions", () => {
     });
 
     test("unauthenticated (401) redirects to login", async ({ page }) => {
-      await page.route("**/api/v1/roomTypes*", (route) =>
-        route.fulfill({ status: 401 }),
-      );
+      await mockMethod(page, "GET", "**/api/v1/roomTypes*", { status: 401 });
 
       await page.getByTestId("room-types-delete-button").click();
 
@@ -451,28 +319,113 @@ test.describe("Admin room types view room type actions", () => {
   });
 
   test.describe("switch between edit and view", () => {
-    test.beforeEach(async ({ page }) => {
-      const roomType = readFixture("roomType.json");
+    // [field, default value, enforced] of the room type fixture
+    const settingFields = [
+      ["has-access-code", true, false],
+      ["allow-guests", true, true],
+      ["everyone-can-start", false, false],
+      ["mute-on-start", true, true],
+      ["record-attendance", false, false],
+      ["record", false, false],
+      ["auto-start-recording", false, false],
+      ["disable-cam", false, false],
+      ["webcams-only-for-moderator", true, false],
+      ["disable-mic", false, true],
+      ["disable-public-chat", true, false],
+      ["disable-private-chat", false, false],
+      ["disable-note", true, true],
+      ["hide-user-list", true, false],
+      ["allow-membership", false, true],
+    ];
+
+    test.beforeEach(async ({ roomType }) => {
       roomType.data.restrict = true;
       roomType.data.roles = [
         { id: 1, name: "Superuser" },
         { id: 2, name: "Staff" },
       ];
-      await page.route("**/api/v1/roomTypes/3", (route) =>
-        route.request().method() === "GET"
-          ? route.fulfill({ json: roomType })
-          : route.fallback(),
-      );
     });
 
     test("edit page shows the room type", async ({ page }) => {
       await page.goto("/admin/room_types/3/edit");
       await expect(page.locator("#room-type-name")).toHaveValue("Exam");
 
-      await expectOriginalRoomType(page, false);
-      await expect(page.getByTestId("server-pool-dropdown")).not.toHaveClass(
+      await expect(page.locator("#room-type-name")).toBeEnabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Room type description for room type Exam",
+      );
+      await expect(page.locator("#description")).toBeEnabled();
+      await expect(page.locator("#custom-color")).toHaveValue("#4a5c66");
+      await expect(page.locator("#custom-color")).toBeEnabled();
+
+      const serverPools = page.getByTestId("server-pool-dropdown");
+      await expect(serverPools.locator(".multiselect__tags")).toContainText(
+        "Test",
+      );
+      await expect(serverPools).not.toHaveClass(/multiselect--disabled/);
+      await expect(page.getByTestId("role-dropdown")).not.toHaveClass(
         /multiselect--disabled/,
       );
+      await expectRoleChips(page, ["Superuser", "Staff"]);
+
+      await expect(page.locator("#restrict")).toBeChecked();
+      await expect(page.locator("#restrict")).toBeEnabled();
+      await expect(page.locator("#max-participants")).toHaveValue("100");
+      await expect(page.locator("#max-participants")).toBeEnabled();
+      await expect(page.locator("#max-duration")).toHaveValue("120 min.");
+      await expect(page.locator("#max-duration")).toBeEnabled();
+
+      for (const [field, value, enforced] of settingFields) {
+        await roomTypeCheckDefaultRoomSettingCheckboxField(
+          page,
+          field,
+          value,
+          enforced,
+          false,
+        );
+      }
+
+      await expect(page.locator("#lobby-disabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-disabled")).toBeEnabled();
+      await expect(page.locator("#lobby-enabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-enabled")).toBeEnabled();
+      await expect(page.locator("#lobby-only-for-guests")).toBeChecked();
+      await expect(page.locator("#lobby-only-for-guests")).toBeEnabled();
+
+      const defaultRoleButtons = page.getByTestId(
+        "default-role-default-button",
+      );
+      await expect(defaultRoleButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(0)).toBeEnabled();
+      await expect(defaultRoleButtons.nth(1)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(1)).toBeEnabled();
+
+      const visibilityButtons = page.getByTestId("visibility-default-button");
+      await expect(visibilityButtons.nth(0)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(0)).toBeEnabled();
+      await expect(visibilityButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(1)).toBeEnabled();
+
+      await expect(page.locator("#create-parameters")).toHaveValue(
+        "meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds",
+      );
+      await expect(page.locator("#create-parameters")).toBeEnabled();
+
+      await expect(page.getByTestId("room-types-save-button")).toBeVisible();
+      await expect(page.getByTestId("room-types-save-button")).toBeEnabled();
+
       await page.getByTestId("server-pool-dropdown").click();
       await expect(page.locator(".multiselect__content")).toBeVisible();
       await expect(page.locator(".multiselect__option")).toHaveCount(4);
@@ -519,14 +472,168 @@ test.describe("Admin room types view room type actions", () => {
       await expect(page).toHaveURL(/\/admin\/room_types\/3$/);
       await roomTypeRequest;
 
-      await expectOriginalRoomType(page, true);
+      // Check that the unchanged room type is shown read-only
+      await expect(page.locator("#room-type-name")).toHaveValue("Exam");
+      await expect(page.locator("#room-type-name")).toBeDisabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Room type description for room type Exam",
+      );
+      await expect(page.locator("#description")).toBeDisabled();
+      await expect(page.locator("#custom-color")).toHaveValue("#4a5c66");
+      await expect(page.locator("#custom-color")).toBeDisabled();
+
+      const serverPools = page.getByTestId("server-pool-dropdown");
+      await expect(serverPools.locator(".multiselect__tags")).toContainText(
+        "Test",
+      );
+      await expect(serverPools).toHaveClass(/multiselect--disabled/);
+      const roles = page.getByTestId("role-dropdown");
+      await expect(roles).toHaveClass(/multiselect--disabled/);
+      const chips = roles.getByTestId("role-chip");
+      await expect(chips).toHaveCount(2);
+      await expect(chips.nth(0)).toContainText("Superuser");
+      await expect(chips.nth(1)).toContainText("Staff");
+      await expect(roles.getByTestId("remove-role-button")).toHaveCount(0);
+
+      await expect(page.locator("#restrict")).toBeChecked();
+      await expect(page.locator("#restrict")).toBeDisabled();
+      await expect(page.locator("#max-participants")).toHaveValue("100");
+      await expect(page.locator("#max-participants")).toBeDisabled();
+      await expect(page.locator("#max-duration")).toHaveValue("120 min.");
+      await expect(page.locator("#max-duration")).toBeDisabled();
+
+      for (const [field, value, enforced] of settingFields) {
+        await roomTypeCheckDefaultRoomSettingCheckboxField(
+          page,
+          field,
+          value,
+          enforced,
+          true,
+        );
+      }
+
+      await expect(page.locator("#lobby-disabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-disabled")).toBeDisabled();
+      await expect(page.locator("#lobby-enabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-enabled")).toBeDisabled();
+      await expect(page.locator("#lobby-only-for-guests")).toBeChecked();
+      await expect(page.locator("#lobby-only-for-guests")).toBeDisabled();
+
+      const defaultRoleButtons = page.getByTestId(
+        "default-role-default-button",
+      );
+      await expect(defaultRoleButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(0)).toBeDisabled();
+      await expect(defaultRoleButtons.nth(1)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(1)).toBeDisabled();
+
+      const visibilityButtons = page.getByTestId("visibility-default-button");
+      await expect(visibilityButtons.nth(0)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(0)).toBeDisabled();
+      await expect(visibilityButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(1)).toBeDisabled();
+
+      await expect(page.locator("#create-parameters")).toHaveValue(
+        "meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds",
+      );
+      await expect(page.locator("#create-parameters")).toBeDisabled();
+
+      await expect(page.getByTestId("room-types-save-button")).toHaveCount(0);
     });
 
     test("view page shows the room type read-only", async ({ page }) => {
       await page.goto("/admin/room_types/3");
       await expect(page.locator("#room-type-name")).toHaveValue("Exam");
 
-      await expectOriginalRoomType(page, true);
+      await expect(page.locator("#room-type-name")).toBeDisabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Room type description for room type Exam",
+      );
+      await expect(page.locator("#description")).toBeDisabled();
+      await expect(page.locator("#custom-color")).toHaveValue("#4a5c66");
+      await expect(page.locator("#custom-color")).toBeDisabled();
+
+      const serverPools = page.getByTestId("server-pool-dropdown");
+      await expect(serverPools.locator(".multiselect__tags")).toContainText(
+        "Test",
+      );
+      await expect(serverPools).toHaveClass(/multiselect--disabled/);
+      const roles = page.getByTestId("role-dropdown");
+      await expect(roles).toHaveClass(/multiselect--disabled/);
+      const chips = roles.getByTestId("role-chip");
+      await expect(chips).toHaveCount(2);
+      await expect(chips.nth(0)).toContainText("Superuser");
+      await expect(chips.nth(1)).toContainText("Staff");
+      await expect(roles.getByTestId("remove-role-button")).toHaveCount(0);
+
+      await expect(page.locator("#restrict")).toBeChecked();
+      await expect(page.locator("#restrict")).toBeDisabled();
+      await expect(page.locator("#max-participants")).toHaveValue("100");
+      await expect(page.locator("#max-participants")).toBeDisabled();
+      await expect(page.locator("#max-duration")).toHaveValue("120 min.");
+      await expect(page.locator("#max-duration")).toBeDisabled();
+
+      for (const [field, value, enforced] of settingFields) {
+        await roomTypeCheckDefaultRoomSettingCheckboxField(
+          page,
+          field,
+          value,
+          enforced,
+          true,
+        );
+      }
+
+      await expect(page.locator("#lobby-disabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-disabled")).toBeDisabled();
+      await expect(page.locator("#lobby-enabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-enabled")).toBeDisabled();
+      await expect(page.locator("#lobby-only-for-guests")).toBeChecked();
+      await expect(page.locator("#lobby-only-for-guests")).toBeDisabled();
+
+      const defaultRoleButtons = page.getByTestId(
+        "default-role-default-button",
+      );
+      await expect(defaultRoleButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(0)).toBeDisabled();
+      await expect(defaultRoleButtons.nth(1)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(1)).toBeDisabled();
+
+      const visibilityButtons = page.getByTestId("visibility-default-button");
+      await expect(visibilityButtons.nth(0)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(0)).toBeDisabled();
+      await expect(visibilityButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(1)).toBeDisabled();
+
+      await expect(page.locator("#create-parameters")).toHaveValue(
+        "meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds",
+      );
+      await expect(page.locator("#create-parameters")).toBeDisabled();
+
+      await expect(page.getByTestId("room-types-save-button")).toHaveCount(0);
     });
 
     test("switch from view to edit", async ({ page }) => {
@@ -536,7 +643,83 @@ test.describe("Admin room types view room type actions", () => {
       await page.getByTestId("room-types-edit-button").click();
 
       await expect(page).toHaveURL(/\/admin\/room_types\/3\/edit$/);
-      await expectOriginalRoomType(page, false);
+
+      await expect(page.locator("#room-type-name")).toHaveValue("Exam");
+      await expect(page.locator("#room-type-name")).toBeEnabled();
+      await expect(page.locator("#description")).toHaveValue(
+        "Room type description for room type Exam",
+      );
+      await expect(page.locator("#description")).toBeEnabled();
+      await expect(page.locator("#custom-color")).toHaveValue("#4a5c66");
+      await expect(page.locator("#custom-color")).toBeEnabled();
+
+      const serverPools = page.getByTestId("server-pool-dropdown");
+      await expect(serverPools.locator(".multiselect__tags")).toContainText(
+        "Test",
+      );
+      await expect(serverPools).not.toHaveClass(/multiselect--disabled/);
+      await expect(page.getByTestId("role-dropdown")).not.toHaveClass(
+        /multiselect--disabled/,
+      );
+      await expectRoleChips(page, ["Superuser", "Staff"]);
+
+      await expect(page.locator("#restrict")).toBeChecked();
+      await expect(page.locator("#restrict")).toBeEnabled();
+      await expect(page.locator("#max-participants")).toHaveValue("100");
+      await expect(page.locator("#max-participants")).toBeEnabled();
+      await expect(page.locator("#max-duration")).toHaveValue("120 min.");
+      await expect(page.locator("#max-duration")).toBeEnabled();
+
+      for (const [field, value, enforced] of settingFields) {
+        await roomTypeCheckDefaultRoomSettingCheckboxField(
+          page,
+          field,
+          value,
+          enforced,
+          false,
+        );
+      }
+
+      await expect(page.locator("#lobby-disabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-disabled")).toBeEnabled();
+      await expect(page.locator("#lobby-enabled")).not.toBeChecked();
+      await expect(page.locator("#lobby-enabled")).toBeEnabled();
+      await expect(page.locator("#lobby-only-for-guests")).toBeChecked();
+      await expect(page.locator("#lobby-only-for-guests")).toBeEnabled();
+
+      const defaultRoleButtons = page.getByTestId(
+        "default-role-default-button",
+      );
+      await expect(defaultRoleButtons.nth(0)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(0)).toBeEnabled();
+      await expect(defaultRoleButtons.nth(1)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(defaultRoleButtons.nth(1)).toBeEnabled();
+
+      const visibilityButtons = page.getByTestId("visibility-default-button");
+      await expect(visibilityButtons.nth(0)).not.toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(0)).toBeEnabled();
+      await expect(visibilityButtons.nth(1)).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(visibilityButtons.nth(1)).toBeEnabled();
+
+      await expect(page.locator("#create-parameters")).toHaveValue(
+        "meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds",
+      );
+      await expect(page.locator("#create-parameters")).toBeEnabled();
+
+      await expect(page.getByTestId("room-types-save-button")).toBeVisible();
+      await expect(page.getByTestId("room-types-save-button")).toBeEnabled();
     });
   });
 });

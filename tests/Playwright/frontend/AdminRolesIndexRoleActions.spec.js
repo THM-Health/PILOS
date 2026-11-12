@@ -1,34 +1,7 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptAdminRolesIndexRequests,
-  interceptAdminRolesNewRequests,
-  interceptAdminRolesViewRequests,
-} from "../support/mocks.js";
+import { test } from "../support/fixtures/adminRoles.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { mockMethod } from "../support/utils.js";
-
-const DELETE_ROLE_URL = "**/api/v1/roles/3";
-
-/**
- * Mock the roles list without the role "Students" (id 3), as it is after the role was deleted.
- * @param {import("@playwright/test").Page} page
- */
-async function mockRolesWithoutStudents(page) {
-  const roles = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/roles.json", "utf8"),
-  );
-  roles.data = roles.data.filter((role) => role.id !== 3);
-  roles.meta.to = 2;
-  roles.meta.total = 2;
-  roles.meta.total_no_filter = 2;
-
-  await page.route("**/api/v1/roles*", (route) =>
-    route.request().method() === "GET"
-      ? route.fulfill({ json: roles })
-      : route.fallback(),
-  );
-}
 
 test.use({ authenticated: true });
 
@@ -42,7 +15,6 @@ test.describe("Admin roles index role actions", () => {
       "roles.create",
       "roles.delete",
     ];
-    await interceptAdminRolesIndexRequests(page);
 
     await page.goto("/admin/roles");
     await expect(page.getByTestId("role-item")).toHaveCount(3);
@@ -71,12 +43,22 @@ test.describe("Admin roles index role actions", () => {
 
     test("confirm deletes the role and refreshes the list", async ({
       page,
+      roles,
     }) => {
-      const deleteRequest = await mockMethod(page, "DELETE", DELETE_ROLE_URL, {
-        status: 204,
-        hold: true,
-      });
-      await mockRolesWithoutStudents(page);
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/roles/3",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
+      // The list after the role was deleted
+      roles.data = roles.data.filter((role) => role.id !== 3);
+      roles.meta.to = 2;
+      roles.meta.total = 2;
+      roles.meta.total_no_filter = 2;
 
       const rolesRequest = page.waitForRequest(
         (request) =>
@@ -137,7 +119,7 @@ test.describe("Admin roles index role actions", () => {
     });
 
     test("server error keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "DELETE", DELETE_ROLE_URL, {
+      await mockMethod(page, "DELETE", "**/api/v1/roles/3", {
         status: 500,
         json: { message: "Test" },
       });
@@ -152,7 +134,7 @@ test.describe("Admin roles index role actions", () => {
     });
 
     test("role linked to users keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "DELETE", DELETE_ROLE_URL, {
+      await mockMethod(page, "DELETE", "**/api/v1/roles/3", {
         status: 464,
         json: {
           message:
@@ -171,12 +153,16 @@ test.describe("Admin roles index role actions", () => {
 
     test("role not found closes the dialog and refreshes the list", async ({
       page,
+      roles,
     }) => {
-      await mockMethod(page, "DELETE", DELETE_ROLE_URL, {
+      await mockMethod(page, "DELETE", "**/api/v1/roles/3", {
         status: 404,
         json: { message: "model_not_found", model: "role", ids: [3] },
       });
-      await mockRolesWithoutStudents(page);
+      roles.data = roles.data.filter((role) => role.id !== 3);
+      roles.meta.to = 2;
+      roles.meta.total = 2;
+      roles.meta.total_no_filter = 2;
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -189,7 +175,7 @@ test.describe("Admin roles index role actions", () => {
     });
 
     test("unauthenticated redirects to the login page", async ({ page }) => {
-      await mockMethod(page, "DELETE", DELETE_ROLE_URL, { status: 401 });
+      await mockMethod(page, "DELETE", "**/api/v1/roles/3", { status: 401 });
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -198,15 +184,11 @@ test.describe("Admin roles index role actions", () => {
   });
 
   test("open add new role page", async ({ page }) => {
-    await interceptAdminRolesNewRequests(page);
-
     await page.getByTestId("roles-add-button").click();
     await expect(page).toHaveURL(/\/admin\/roles\/new/);
   });
 
   test("open edit role page", async ({ page }) => {
-    await interceptAdminRolesViewRequests(page);
-
     await page
       .getByTestId("role-item")
       .nth(1)
@@ -216,8 +198,6 @@ test.describe("Admin roles index role actions", () => {
   });
 
   test("open view role page", async ({ page }) => {
-    await interceptAdminRolesViewRequests(page);
-
     await page
       .getByTestId("role-item")
       .nth(1)

@@ -1,22 +1,11 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptUserProfileRequests } from "../support/mocks.js";
+import { test } from "../support/fixtures/userProfile.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const USER_URL = "**/api/v1/users/1";
-const REQUIRED_MESSAGE = "The bbb skip check audio field is required.";
 
 test.use({ authenticated: true });
 
 test.describe("User profile others", () => {
-  test.beforeEach(async ({ page }) => {
-    await interceptUserProfileRequests(page);
-  });
-
   test("view others tab", async ({ page }) => {
     await page.goto("/profile");
 
@@ -31,10 +20,10 @@ test.describe("User profile others", () => {
     await expect(field.locator("#bbb_skip_check_audio")).not.toBeChecked();
   });
 
-  test("save changes", async ({ page }) => {
-    const user = readFixture("userDataCurrentUser.json");
+  test("save changes", async ({ page, profileUser }) => {
+    const user = structuredClone(profileUser);
     user.data.bbb_skip_check_audio = true;
-    const save = await mockMethod(page, "POST", USER_URL, {
+    const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
       status: 200,
       json: user,
       hold: true,
@@ -68,11 +57,15 @@ test.describe("User profile others", () => {
     });
 
     test("422 error", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 422,
         json: {
-          message: REQUIRED_MESSAGE,
-          errors: { bbb_skip_check_audio: [REQUIRED_MESSAGE] },
+          message: "The bbb skip check audio field is required.",
+          errors: {
+            bbb_skip_check_audio: [
+              "The bbb skip check audio field is required.",
+            ],
+          },
         },
       });
 
@@ -80,29 +73,39 @@ test.describe("User profile others", () => {
       await nthRequest(save);
 
       await expect(page.locator("#bbb_skip_check_audio")).not.toBeChecked();
-      await expectToastAndClose(page, REQUIRED_MESSAGE);
+      await expectToastAndClose(
+        page,
+        "The bbb skip check audio field is required.",
+      );
       await expect(
         page.getByTestId("bbb-skip-check-audio-field"),
-      ).toContainText(REQUIRED_MESSAGE);
+      ).toContainText("The bbb skip check audio field is required.");
     });
 
     test("500 error hides previous validation errors", async ({ page }) => {
-      const validation = await mockMethod(page, "POST", USER_URL, {
+      const validation = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 422,
         json: {
-          message: REQUIRED_MESSAGE,
-          errors: { bbb_skip_check_audio: [REQUIRED_MESSAGE] },
+          message: "The bbb skip check audio field is required.",
+          errors: {
+            bbb_skip_check_audio: [
+              "The bbb skip check audio field is required.",
+            ],
+          },
         },
       });
 
       await page.getByTestId("user-tab-others-save-button").click();
       await nthRequest(validation);
-      await expectToastAndClose(page, REQUIRED_MESSAGE);
+      await expectToastAndClose(
+        page,
+        "The bbb skip check audio field is required.",
+      );
       await expect(
         page.getByTestId("bbb-skip-check-audio-field"),
-      ).toContainText(REQUIRED_MESSAGE);
+      ).toContainText("The bbb skip check audio field is required.");
 
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 500,
         json: { message: "Test" },
       });
@@ -116,13 +119,13 @@ test.describe("User profile others", () => {
       ]);
       await expect(
         page.getByTestId("bbb-skip-check-audio-field"),
-      ).not.toContainText(REQUIRED_MESSAGE);
+      ).not.toContainText("The bbb skip check audio field is required.");
     });
 
-    test("428 stale error", async ({ page }) => {
-      const newModel = readFixture("userDataCurrentUser.json").data;
+    test("428 stale error", async ({ page, profileUser }) => {
+      const newModel = structuredClone(profileUser.data);
       newModel.bbb_skip_check_audio = true;
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 428,
         json: { message: "stale_model", new_model: newModel },
       });
@@ -142,7 +145,9 @@ test.describe("User profile others", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, { status: 401 });
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+        status: 401,
+      });
 
       await page.getByTestId("user-tab-others-save-button").click();
       await nthRequest(save);

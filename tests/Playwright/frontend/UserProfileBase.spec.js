@@ -1,6 +1,5 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptUserProfileRequests } from "../support/mocks.js";
+import { test } from "../support/fixtures/userProfile.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
 import {
   mockMethod,
@@ -10,48 +9,39 @@ import {
   IMAGE_SNAPSHOT_OPTIONS,
 } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const USER_URL = "**/api/v1/users/1";
-const TIMEZONES_URL = "**/api/v1/getTimezones";
-const CURRENT_USER_URL = "**/api/v1/currentUser";
-const IMAGE = "tests/Playwright/fixtures/files/profileImage.jpg";
-
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const dateTimeFormat = {
-  dateShort: { year: "numeric", month: "2-digit", day: "2-digit" },
-  dateLong: { year: "numeric", month: "short", day: "2-digit" },
-  time: { hour: "2-digit", minute: "2-digit", hour12: false },
-  datetimeShort: {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  },
-  datetimeLong: {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  },
-};
-
 test.use({ authenticated: true });
 
 test.describe("User profile base", () => {
   test.beforeEach(async ({ page }) => {
-    await interceptUserProfileRequests(page);
     await page.route("**/api/v1/locale/de", (route) =>
-      route.fulfill({ json: { data: {}, meta: { dateTimeFormat } } }),
+      route.fulfill({
+        json: {
+          data: {},
+          meta: {
+            dateTimeFormat: {
+              dateShort: { year: "numeric", month: "2-digit", day: "2-digit" },
+              dateLong: { year: "numeric", month: "short", day: "2-digit" },
+              time: { hour: "2-digit", minute: "2-digit", hour12: false },
+              datetimeShort: {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              },
+              datetimeLong: {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              },
+            },
+          },
+        },
+      }),
     );
   });
 
@@ -138,7 +128,9 @@ test.describe("User profile base", () => {
       await expect(page.locator("#firstname")).toHaveValue("John");
       await page.locator("#firstname").fill("Laura");
       await page.locator("#lastname").fill("Rivera");
-      await page.getByTestId("upload-file-input").setInputFiles(IMAGE);
+      await page
+        .getByTestId("upload-file-input")
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
     });
 
     test("shows the crop dialog", async ({ page }) => {
@@ -255,7 +247,9 @@ test.describe("User profile base", () => {
       await expect(imageField.getByTestId("undo-delete-button")).toHaveCount(0);
       await expect(reset).toHaveCount(0);
 
-      await imageField.getByTestId("upload-file-input").setInputFiles(IMAGE);
+      await imageField
+        .getByTestId("upload-file-input")
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
 
       const dialog = page.getByTestId("crop-image-dialog");
       await expect(dialog).toBeVisible();
@@ -319,7 +313,7 @@ test.describe("User profile base", () => {
       await page
         .getByTestId("profile-image-field")
         .getByTestId("upload-file-input")
-        .setInputFiles(IMAGE);
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
 
       const dialog = page.getByTestId("crop-image-dialog");
       await expect(dialog).toBeVisible();
@@ -395,8 +389,8 @@ test.describe("User profile base", () => {
     let savedUser;
     let currentUserMock;
 
-    test.beforeEach(async ({ page, baseURL }) => {
-      savedUser = readFixture("userDataCurrentUser.json");
+    test.beforeEach(async ({ page, baseURL, profileUser, currentUser }) => {
+      savedUser = structuredClone(profileUser);
       savedUser.data.firstname = "Laura";
       savedUser.data.lastname = "Rivera";
       savedUser.data.user_locale = "de";
@@ -404,12 +398,11 @@ test.describe("User profile base", () => {
       savedUser.data.image = baseURL + "/test.jpg";
       savedUser.data.updated_at = "2024-09-13T14:22:26.000000Z";
 
-      const updatedCurrentUser = readFixture("currentUser.json");
+      const updatedCurrentUser = structuredClone(currentUser);
       updatedCurrentUser.data.firstname = "Laura";
       updatedCurrentUser.data.lastname = "Rivera";
       updatedCurrentUser.data.user_locale = "de";
-      updatedCurrentUser.data.permissions = ["users.updateOwnAttributes"];
-      currentUserMock = await mockMethod(page, "GET", CURRENT_USER_URL, {
+      currentUserMock = await mockMethod(page, "GET", "**/api/v1/currentUser", {
         json: updatedCurrentUser,
       });
 
@@ -424,13 +417,15 @@ test.describe("User profile base", () => {
       await page.getByTestId("timezone-dropdown").click();
       await page.getByTestId("timezone-dropdown-option").nth(2).click();
 
-      await page.getByTestId("upload-file-input").setInputFiles(IMAGE);
+      await page
+        .getByTestId("upload-file-input")
+        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
       await page.getByTestId("dialog-save-button").click();
       await expect(page.getByTestId("crop-image-dialog")).toHaveCount(0);
     });
 
     test("loading state while saving", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         json: savedUser,
         hold: true,
       });
@@ -461,7 +456,7 @@ test.describe("User profile base", () => {
     });
 
     test("sends the changes", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         json: savedUser,
       });
 
@@ -485,7 +480,7 @@ test.describe("User profile base", () => {
     });
 
     test("shows the saved changes", async ({ page, baseURL }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         json: savedUser,
       });
 
@@ -531,13 +526,9 @@ test.describe("User profile base", () => {
   });
 
   test.describe("existing profile image", () => {
-    let userWithImage;
-
-    test.beforeEach(async ({ page, baseURL }) => {
-      userWithImage = readFixture("userDataCurrentUser.json");
-      userWithImage.data.image = baseURL + "/test.jpg";
-      userWithImage.data.updated_at = "2024-09-13T14:22:26.000000Z";
-      await mockMethod(page, "GET", USER_URL, { json: userWithImage });
+    test.beforeEach(async ({ page, baseURL, profileUser }) => {
+      profileUser.data.image = baseURL + "/test.jpg";
+      profileUser.data.updated_at = "2024-09-13T14:22:26.000000Z";
 
       await page.goto("/profile");
       await expect(page.getByTestId("profile-image-preview")).toBeVisible();
@@ -573,18 +564,23 @@ test.describe("User profile base", () => {
       ).toHaveAttribute("src", baseURL + "/test.jpg");
     });
 
-    test("save after deleting the profile image", async ({ page }) => {
-      const savedUser = structuredClone(userWithImage);
+    test("save after deleting the profile image", async ({
+      page,
+      profileUser,
+      currentUser,
+    }) => {
+      const savedUser = structuredClone(profileUser);
       savedUser.data.image = null;
       savedUser.data.updated_at = "2024-09-13T14:24:26.000000Z";
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         json: savedUser,
       });
-      const updatedCurrentUser = readFixture("currentUser.json");
-      updatedCurrentUser.data.permissions = ["users.updateOwnAttributes"];
-      const currentUserMock = await mockMethod(page, "GET", CURRENT_USER_URL, {
-        json: updatedCurrentUser,
-      });
+      const currentUserMock = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/currentUser",
+        { json: currentUser },
+      );
 
       await page.getByTestId("delete-image-button").click();
       await page.getByTestId("user-tab-profile-save-button").click();
@@ -614,7 +610,7 @@ test.describe("User profile base", () => {
     });
 
     test("422 validation errors", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 422,
         json: {
           message: "The firstname field is required. (and 3 more errors)",
@@ -650,7 +646,7 @@ test.describe("User profile base", () => {
     });
 
     test("500 error", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, {
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 500,
         json: { message: "Test" },
       });
@@ -658,11 +654,14 @@ test.describe("User profile base", () => {
       await page.getByTestId("user-tab-profile-save-button").click();
       await nthRequest(save);
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
     });
 
     test("500 error hides previous validation errors", async ({ page }) => {
-      const validation = await mockMethod(page, "POST", USER_URL, {
+      const validation = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 422,
         json: {
           message: "The firstname field is required. (and 3 more errors)",
@@ -685,13 +684,16 @@ test.describe("User profile base", () => {
         "The firstname field is required.",
       );
 
-      const failing = await mockMethod(page, "POST", USER_URL, {
+      const failing = await mockMethod(page, "POST", "**/api/v1/users/1", {
         status: 500,
         json: { message: "Test" },
       });
       await page.getByTestId("user-tab-profile-save-button").click();
       await nthRequest(failing);
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("firstname-field")).not.toContainText(
         "The firstname field is required.",
@@ -708,14 +710,14 @@ test.describe("User profile base", () => {
     });
 
     test.describe("428 stale error", () => {
-      test.beforeEach(async ({ page }) => {
-        const newModel = readFixture("userDataCurrentUser.json").data;
+      test.beforeEach(async ({ page, profileUser }) => {
+        const newModel = structuredClone(profileUser.data);
         newModel.firstname = "Laura";
         newModel.lastname = "Rivera";
         newModel.user_locale = "de";
         newModel.timezone = "Europe/Berlin";
 
-        const save = await mockMethod(page, "POST", USER_URL, {
+        const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
           status: 428,
           json: { message: "stale_model", new_model: newModel },
         });
@@ -757,7 +759,9 @@ test.describe("User profile base", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const save = await mockMethod(page, "POST", USER_URL, { status: 401 });
+      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+        status: 401,
+      });
 
       await page.getByTestId("user-tab-profile-save-button").click();
       await nthRequest(save);
@@ -770,7 +774,7 @@ test.describe("User profile base", () => {
     page,
     currentUser,
   }) => {
-    await mockMethod(page, "GET", CURRENT_USER_URL, { json: currentUser });
+    currentUser.data.permissions = [];
 
     await page.goto("/profile");
 
@@ -807,11 +811,9 @@ test.describe("User profile base", () => {
     );
   });
 
-  test("view as external user", async ({ page }) => {
-    const user = readFixture("userDataCurrentUser.json");
-    user.data.authenticator = "ldap";
-    user.data.external_id = "jdo";
-    await mockMethod(page, "GET", USER_URL, { json: user });
+  test("view as external user", async ({ page, profileUser }) => {
+    profileUser.data.authenticator = "ldap";
+    profileUser.data.external_id = "jdo";
 
     await page.goto("/profile");
 
@@ -855,11 +857,16 @@ test.describe("User profile base", () => {
 
   test.describe("load timezones error", () => {
     test("loading state", async ({ page }) => {
-      const timezones = await mockMethod(page, "GET", TIMEZONES_URL, {
-        status: 500,
-        json: { message: "Test" },
-        hold: true,
-      });
+      const timezones = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/getTimezones",
+        {
+          status: 500,
+          json: { message: "Test" },
+          hold: true,
+        },
+      );
 
       await page.goto("/profile");
 
@@ -872,19 +879,25 @@ test.describe("User profile base", () => {
       ).toHaveAttribute("aria-disabled", "true");
 
       timezones.release();
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
     });
 
     test("error shows a reload button and keeps the dropdown disabled", async ({
       page,
     }) => {
-      await mockMethod(page, "GET", TIMEZONES_URL, {
+      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.goto("/profile");
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(page.getByTestId("timezone-reload-button")).toBeVisible();
       const timezone = page.getByTestId("timezone-dropdown");
@@ -895,17 +908,20 @@ test.describe("User profile base", () => {
       );
     });
 
-    test("reload timezones without error", async ({ page }) => {
-      await mockMethod(page, "GET", TIMEZONES_URL, {
+    test("reload timezones without error", async ({ page, timezones }) => {
+      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
         status: 500,
         json: { message: "Test" },
       });
 
       await page.goto("/profile");
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
-      const reload = await mockMethod(page, "GET", TIMEZONES_URL, {
-        json: readFixture("timezones.json"),
+      const reload = await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+        json: timezones,
       });
       await page.getByTestId("timezone-reload-button").click();
       await nthRequest(reload);
@@ -929,9 +945,14 @@ test.describe("User profile base", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const timezones = await mockMethod(page, "GET", TIMEZONES_URL, {
-        status: 401,
-      });
+      const timezones = await mockMethod(
+        page,
+        "GET",
+        "**/api/v1/getTimezones",
+        {
+          status: 401,
+        },
+      );
 
       await page.goto("/profile");
       await nthRequest(timezones);

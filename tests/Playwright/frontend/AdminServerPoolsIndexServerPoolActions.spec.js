@@ -1,36 +1,11 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminServerPools.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
-import {
-  interceptAdminServerPoolsIndexRequests,
-  interceptAdminServerPoolsNewRequests,
-  interceptAdminServerPoolsViewRequests,
-} from "../support/mocks.js";
-import { holdRequest, mockMethod } from "../support/utils.js";
+import { mockMethod, nthRequest } from "../support/utils.js";
 
-/**
- * Mock the server pools list without the given server pool.
- * @param {import("@playwright/test").Page} page
- * @param {number} removedId
- */
-async function mockServerPoolsWithout(page, removedId) {
-  const serverPools = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/serverPools.json", "utf8"),
-  );
-  serverPools.data = serverPools.data.filter(
-    (serverPool) => serverPool.id !== removedId,
-  );
-  serverPools.meta.to = 1;
-  serverPools.meta.total = 1;
-  serverPools.meta.total_no_filter = 1;
-  await mockMethod(page, "GET", "**/api/v1/serverPools*", {
-    json: serverPools,
-  });
-}
+test.use({ authenticated: true });
 
 test.describe("Admin server pools index server pool actions", () => {
-  test.use({ authenticated: true });
-
   test.beforeEach(async ({ page, currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
@@ -41,7 +16,6 @@ test.describe("Admin server pools index server pool actions", () => {
       "serverPools.create",
       "serverPools.delete",
     ];
-    await interceptAdminServerPoolsIndexRequests(page);
 
     await page.goto("/admin/server_pools");
     await expect(page.getByTestId("server-pool-item")).toHaveCount(2);
@@ -66,6 +40,7 @@ test.describe("Admin server pools index server pool actions", () => {
 
     test("delete shows loading state and removes server pool", async ({
       page,
+      serverPools,
     }) => {
       await page
         .getByTestId("server-pool-item")
@@ -76,16 +51,17 @@ test.describe("Admin server pools index server pool actions", () => {
         page.getByTestId("server-pools-delete-dialog"),
       ).toBeVisible();
 
-      const releaseDelete = await holdRequest(page, "**/api/v1/serverPools/1", {
-        status: 204,
-      });
-      await mockServerPoolsWithout(page, 1);
-
-      const deleteRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "DELETE" &&
-          new URL(request.url()).pathname === "/api/v1/serverPools/1",
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/serverPools/1",
+        { status: 204, hold: true },
       );
+      serverPools.data = serverPools.data.filter(
+        (serverPool) => serverPool.id !== 1,
+      );
+      Object.assign(serverPools.meta, { to: 1, total: 1, total_no_filter: 1 });
+
       const continueButton = page.getByTestId("dialog-continue-button");
       await expect(continueButton).toHaveText("app.yes");
       await continueButton.click();
@@ -97,8 +73,8 @@ test.describe("Admin server pools index server pool actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(continueButton).toBeDisabled();
 
-      releaseDelete();
-      await deleteRequest;
+      deleteRequest.release();
+      await nthRequest(deleteRequest);
 
       // Check that server pool was deleted and dialog is closed
       await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
@@ -110,6 +86,7 @@ test.describe("Admin server pools index server pool actions", () => {
 
     test("dialog can be opened for another server pool after deletion", async ({
       page,
+      serverPools,
     }) => {
       await page
         .getByTestId("server-pool-item")
@@ -123,7 +100,10 @@ test.describe("Admin server pools index server pool actions", () => {
       await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
         status: 204,
       });
-      await mockServerPoolsWithout(page, 1);
+      serverPools.data = serverPools.data.filter(
+        (serverPool) => serverPool.id !== 1,
+      );
+      Object.assign(serverPools.meta, { to: 1, total: 1, total_no_filter: 1 });
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(page.getByTestId("server-pools-delete-dialog")).toBeHidden();
@@ -268,8 +248,16 @@ test.describe("Admin server pools index server pool actions", () => {
 
       test("server pool not found (404) reloads server pools and closes dialog", async ({
         page,
+        serverPools,
       }) => {
-        await mockServerPoolsWithout(page, 1);
+        serverPools.data = serverPools.data.filter(
+          (serverPool) => serverPool.id !== 1,
+        );
+        Object.assign(serverPools.meta, {
+          to: 1,
+          total: 1,
+          total_no_filter: 1,
+        });
         await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
           status: 404,
           json: { message: "model_not_found", model: "server_pool", ids: [1] },
@@ -304,16 +292,12 @@ test.describe("Admin server pools index server pool actions", () => {
   });
 
   test("open add new server pool page", async ({ page }) => {
-    await interceptAdminServerPoolsNewRequests(page);
-
     await page.getByTestId("server-pools-add-button").click();
 
     await expect(page).toHaveURL(/\/admin\/server_pools\/new/);
   });
 
   test("open edit server pool page", async ({ page }) => {
-    await interceptAdminServerPoolsViewRequests(page);
-
     await page
       .getByTestId("server-pool-item")
       .nth(0)
@@ -324,8 +308,6 @@ test.describe("Admin server pools index server pool actions", () => {
   });
 
   test("open view server pool page", async ({ page }) => {
-    await interceptAdminServerPoolsViewRequests(page);
-
     await page
       .getByTestId("server-pool-item")
       .nth(0)

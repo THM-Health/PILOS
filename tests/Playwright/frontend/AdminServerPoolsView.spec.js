@@ -1,27 +1,21 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminServerPools.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import {
-  interceptAdminServerPoolsViewRequests,
-  interceptAdminServerPoolsIndexRequests,
-} from "../support/mocks.js";
-import { holdRequest } from "../support/utils.js";
+import { mockMethod } from "../support/utils.js";
 
-const SERVER_POOL_URL = "**/api/v1/serverPools/1";
+test.use({ authenticated: true });
 
 test.describe("Admin server pools view", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "serverPools.viewAny",
       "serverPools.view",
     ];
-    await interceptAdminServerPoolsViewRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -45,10 +39,14 @@ test.describe("Admin server pools view", () => {
 
   test("loading state hides the buttons and shows the overlay", async ({
     page,
+    serverPool,
   }) => {
-    const release = await holdRequest(page, SERVER_POOL_URL, {
-      path: "tests/Playwright/fixtures/serverPool.json",
-    });
+    const serverPoolRequest = await mockMethod(
+      page,
+      "GET",
+      "**/api/v1/serverPools/1",
+      { json: serverPool, hold: true },
+    );
     await page.goto("/admin/server_pools/1");
 
     await expect(
@@ -61,7 +59,7 @@ test.describe("Admin server pools view", () => {
       ).toHaveCount(0);
     }
 
-    release();
+    serverPoolRequest.release();
 
     await expect(page.getByTestId("name-field")).toBeVisible();
     await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -188,15 +186,14 @@ test.describe("Admin server pools view", () => {
   });
 
   test.describe("open view errors", () => {
-    test("server error shows overlay and can be retried", async ({ page }) => {
-      let failing = true;
-      await page.route(SERVER_POOL_URL, (route) =>
-        failing
-          ? route.fulfill({ status: 500, json: { message: "Test" } })
-          : route.fulfill({
-              path: "tests/Playwright/fixtures/serverPool.json",
-            }),
-      );
+    test("server error shows overlay and can be retried", async ({
+      page,
+      serverPool,
+    }) => {
+      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/admin/server_pools/1");
 
@@ -206,7 +203,9 @@ test.describe("Admin server pools view", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      failing = false;
+      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
+        json: serverPool,
+      });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
       await expect(retryButton).toHaveText("app.reload");
@@ -218,13 +217,10 @@ test.describe("Admin server pools view", () => {
     });
 
     test("404 redirects to the server pools index", async ({ page }) => {
-      await interceptAdminServerPoolsIndexRequests(page);
-      await page.route(SERVER_POOL_URL, (route) =>
-        route.fulfill({
-          status: 404,
-          json: { message: "model_not_found", model: "server_pool", ids: [1] },
-        }),
-      );
+      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
+        status: 404,
+        json: { message: "model_not_found", model: "server_pool", ids: [1] },
+      });
 
       const serverPoolsRequest = page.waitForRequest(
         /\/api\/v1\/serverPools\?/,
@@ -240,9 +236,9 @@ test.describe("Admin server pools view", () => {
     });
 
     test("401 redirects to the login page", async ({ page }) => {
-      await page.route(SERVER_POOL_URL, (route) =>
-        route.fulfill({ status: 401 }),
-      );
+      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
+        status: 401,
+      });
 
       await page.goto("/admin/server_pools/1");
 

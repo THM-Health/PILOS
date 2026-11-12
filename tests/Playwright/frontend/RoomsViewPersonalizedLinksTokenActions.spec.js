@@ -1,102 +1,13 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsMembersLinks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-import {
-  interceptRoomViewRequests,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 import { checkRoomAuthErrors } from "../support/room.js";
 
-const LINKS_URL = "**/api/v1/rooms/abc-def-123/personalizedLinks*";
-const ADD_LINK_URL = "**/api/v1/rooms/abc-def-123/personalizedLinks";
-const LINK_1_URL = "**/api/v1/rooms/abc-def-123/personalizedLinks/1";
-const LINK_3_URL = "**/api/v1/rooms/abc-def-123/personalizedLinks/3";
-const LINK_1_TOKEN =
-  "1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R";
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-const MODEL_NOT_FOUND_TOAST = [
-  'app.flash.model_not_found.title_{"model":"app.model.room"}',
-  'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
-];
-
-const SERVER_ERROR_RESPONSE = { status: 500, json: { message: "Test" } };
-
-const ROOM_NOT_FOUND_RESPONSE = {
-  status: 404,
-  json: { message: "model_not_found", model: "room", ids: ["abc-def-123"] },
-};
-
-const LINK_NOT_FOUND_RESPONSE = {
-  status: 404,
-  json: {
-    message: "model_not_found",
-    model: "room_personalized_link",
-    ids: [3],
-  },
-};
-
-const VALIDATION_ERROR_RESPONSE = (roleMessage) => ({
-  status: 422,
-  json: {
-    message: "The firstname field is required. (and 2 more errors)",
-    errors: {
-      firstname: ["The firstname field is required."],
-      lastname: ["The lastname field is required."],
-      role: [roleMessage],
-    },
-  },
-});
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-/**
- * Answer the personalized links request with the fixture, optionally changed by `changes`.
- */
-function mockLinks(page, changes = () => {}) {
-  const links = readFixture("roomPersonalizedLinks.json");
-  changes(links);
-  return mockMethod(page, "GET", LINKS_URL, { status: 200, json: links });
-}
-
-/**
- * Answer the personalized links request with only the first `count` links of the fixture (or the links from `start`).
- */
-function mockLinksSlice(page, start, end) {
-  return mockLinks(page, (links) => {
-    links.data = links.data.slice(start, end);
-    links.meta.to = links.data.length;
-    links.meta.total = links.data.length;
-    links.meta.total_no_filter = links.data.length;
-  });
-}
-
-/**
- * Open the dialog of the given action for the personalized link at `index`.
- */
-async function openLinkDialog(page, action, index = 0) {
-  await page
-    .getByTestId("room-personalized-link-item")
-    .nth(index)
-    .getByTestId(`room-personalized-links-${action}-button`)
-    .click();
-  await expect(
-    page.getByTestId(`room-personalized-links-${action}-dialog`),
-  ).toBeVisible();
-}
+test.use({ authenticated: true });
 
 test.describe("Rooms view personalized links token actions", () => {
-  test.use({ authenticated: true });
-
   test.beforeEach(async ({ page }) => {
-    await interceptRoomViewRequests(page);
-    await mockLinks(page);
-
     await page.goto("/rooms/abc-def-123#tab=tokens");
     await expect(page.getByTestId("room-personalized-link-item")).toHaveCount(
       3,
@@ -134,7 +45,7 @@ test.describe("Rooms view personalized links token actions", () => {
       await expect(dialog.locator("#participant-role")).toBeChecked();
     });
 
-    test("adds a personalized link", async ({ page }) => {
+    test("adds a personalized link", async ({ page, personalizedLinks }) => {
       await page.getByTestId("room-personalized-links-add-button").click();
       const dialog = page.getByTestId("room-personalized-links-add-dialog");
       await dialog.locator("#firstname").fill("Laura");
@@ -151,18 +62,21 @@ test.describe("Rooms view personalized links token actions", () => {
         expires: null,
         last_usage: null,
       };
-      const addRequest = await mockMethod(page, "POST", ADD_LINK_URL, {
-        status: 201,
-        json: { data: newLink },
-        hold: true,
-      });
-      await mockLinks(page, (links) => {
-        links.data.push(newLink);
-        links.meta.per_page = 4;
-        links.meta.to = 4;
-        links.meta.total = 4;
-        links.meta.total_no_filter = 4;
-      });
+      const addRequest = await mockMethod(
+        page,
+        "POST",
+        "**/api/v1/rooms/abc-def-123/personalizedLinks",
+        {
+          status: 201,
+          json: { data: newLink },
+          hold: true,
+        },
+      );
+      personalizedLinks.data.push(newLink);
+      personalizedLinks.meta.per_page = 4;
+      personalizedLinks.meta.to = 4;
+      personalizedLinks.meta.total = 4;
+      personalizedLinks.meta.total_no_filter = 4;
 
       await expect(page.getByTestId("dialog-save-button")).toHaveText(
         "app.save",
@@ -217,8 +131,18 @@ test.describe("Rooms view personalized links token actions", () => {
         await mockMethod(
           page,
           "POST",
-          ADD_LINK_URL,
-          VALIDATION_ERROR_RESPONSE("The role field is required."),
+          "**/api/v1/rooms/abc-def-123/personalizedLinks",
+          {
+            status: 422,
+            json: {
+              message: "The firstname field is required. (and 2 more errors)",
+              errors: {
+                firstname: ["The firstname field is required."],
+                lastname: ["The lastname field is required."],
+                role: ["The role field is required."],
+              },
+            },
+          },
         );
         await page.getByTestId("dialog-save-button").click();
 
@@ -240,16 +164,34 @@ test.describe("Rooms view personalized links token actions", () => {
         await mockMethod(
           page,
           "POST",
-          ADD_LINK_URL,
-          VALIDATION_ERROR_RESPONSE("The role field is required."),
+          "**/api/v1/rooms/abc-def-123/personalizedLinks",
+          {
+            status: 422,
+            json: {
+              message: "The firstname field is required. (and 2 more errors)",
+              errors: {
+                firstname: ["The firstname field is required."],
+                lastname: ["The lastname field is required."],
+                role: ["The role field is required."],
+              },
+            },
+          },
         );
         await page.getByTestId("dialog-save-button").click();
         await expect(dialog).toContainText("The role field is required.");
 
-        await mockMethod(page, "POST", ADD_LINK_URL, SERVER_ERROR_RESPONSE);
+        await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/rooms/abc-def-123/personalizedLinks",
+          { status: 500, json: { message: "Test" } },
+        );
         await page.getByTestId("dialog-save-button").click();
 
-        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
         await expect(dialog).toBeVisible();
         await expect(dialog.getByTestId("firstname-field")).not.toContainText(
           "The firstname field is required.",
@@ -290,11 +232,26 @@ test.describe("Rooms view personalized links token actions", () => {
       }) => {
         await interceptRoomIndexRequests(page);
 
-        await mockMethod(page, "POST", ADD_LINK_URL, ROOM_NOT_FOUND_RESPONSE);
+        await mockMethod(
+          page,
+          "POST",
+          "**/api/v1/rooms/abc-def-123/personalizedLinks",
+          {
+            status: 404,
+            json: {
+              message: "model_not_found",
+              model: "room",
+              ids: ["abc-def-123"],
+            },
+          },
+        );
         await page.getByTestId("dialog-save-button").click();
 
         await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-        await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.model_not_found.title_{"model":"app.model.room"}',
+          'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+        ]);
       });
     });
   });
@@ -313,7 +270,14 @@ test.describe("Rooms view personalized links token actions", () => {
       await expect(
         page.getByTestId("room-personalized-links-edit-dialog"),
       ).toHaveCount(0);
-      await openLinkDialog(page, "edit");
+      await page
+        .getByTestId("room-personalized-link-item")
+        .nth(0)
+        .getByTestId("room-personalized-links-edit-button")
+        .click();
+      await expect(
+        page.getByTestId("room-personalized-links-edit-dialog"),
+      ).toBeVisible();
 
       const dialog = page.getByTestId("room-personalized-links-edit-dialog");
       await expect(dialog).toContainText("rooms.personalized_links.edit");
@@ -340,34 +304,45 @@ test.describe("Rooms view personalized links token actions", () => {
       await expect(dialog.locator("#participant-role")).not.toBeChecked();
     });
 
-    test("edits a personalized link", async ({ page }) => {
-      await openLinkDialog(page, "edit");
+    test("edits a personalized link", async ({ page, personalizedLinks }) => {
+      await page
+        .getByTestId("room-personalized-link-item")
+        .nth(0)
+        .getByTestId("room-personalized-links-edit-button")
+        .click();
+      await expect(
+        page.getByTestId("room-personalized-links-edit-dialog"),
+      ).toBeVisible();
       const dialog = page.getByTestId("room-personalized-links-edit-dialog");
 
       await dialog.locator("#firstname").fill("Laura");
       await dialog.locator("#lastname").fill("Walter");
       await dialog.locator("#moderator-role").click();
 
-      const editRequest = await mockMethod(page, "PUT", LINK_1_URL, {
-        status: 200,
-        json: {
-          data: {
-            id: 1,
-            token: LINK_1_TOKEN,
-            firstname: "Laura",
-            lastname: "Walter",
-            role: 2,
-            expires: "2021-10-17T12:21:19.000000Z",
-            last_usage: "2021-09-17T14:36:11.000000Z",
+      const editRequest = await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+        {
+          status: 200,
+          json: {
+            data: {
+              id: 1,
+              token:
+                "1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R",
+              firstname: "Laura",
+              lastname: "Walter",
+              role: 2,
+              expires: "2021-10-17T12:21:19.000000Z",
+              last_usage: "2021-09-17T14:36:11.000000Z",
+            },
           },
+          hold: true,
         },
-        hold: true,
-      });
-      await mockLinks(page, (links) => {
-        links.data[0].firstname = "Laura";
-        links.data[0].lastname = "Walter";
-        links.data[0].role = 2;
-      });
+      );
+      personalizedLinks.data[0].firstname = "Laura";
+      personalizedLinks.data[0].lastname = "Walter";
+      personalizedLinks.data[0].role = 2;
 
       await expect(page.getByTestId("dialog-save-button")).toHaveText(
         "app.save",
@@ -410,11 +385,34 @@ test.describe("Rooms view personalized links token actions", () => {
 
     test("removes a personalized link that does not exist anymore", async ({
       page,
+      personalizedLinks,
     }) => {
-      await openLinkDialog(page, "edit", 2);
+      await page
+        .getByTestId("room-personalized-link-item")
+        .nth(2)
+        .getByTestId("room-personalized-links-edit-button")
+        .click();
+      await expect(
+        page.getByTestId("room-personalized-links-edit-dialog"),
+      ).toBeVisible();
 
-      await mockMethod(page, "PUT", LINK_3_URL, LINK_NOT_FOUND_RESPONSE);
-      await mockLinksSlice(page, 0, 2);
+      await mockMethod(
+        page,
+        "PUT",
+        "**/api/v1/rooms/abc-def-123/personalizedLinks/3",
+        {
+          status: 404,
+          json: {
+            message: "model_not_found",
+            model: "room_personalized_link",
+            ids: [3],
+          },
+        },
+      );
+      personalizedLinks.data = personalizedLinks.data.slice(0, 2);
+      personalizedLinks.meta.to = 2;
+      personalizedLinks.meta.total = 2;
+      personalizedLinks.meta.total_no_filter = 2;
       await page.getByTestId("dialog-save-button").click();
 
       await expect(
@@ -428,15 +426,32 @@ test.describe("Rooms view personalized links token actions", () => {
 
     test.describe("errors", () => {
       test.beforeEach(async ({ page }) => {
-        await openLinkDialog(page, "edit");
+        await page
+          .getByTestId("room-personalized-link-item")
+          .nth(0)
+          .getByTestId("room-personalized-links-edit-button")
+          .click();
+        await expect(
+          page.getByTestId("room-personalized-links-edit-dialog"),
+        ).toBeVisible();
       });
 
       test("shows validation errors", async ({ page }) => {
         await mockMethod(
           page,
           "PUT",
-          LINK_1_URL,
-          VALIDATION_ERROR_RESPONSE("The selected role is invalid."),
+          "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+          {
+            status: 422,
+            json: {
+              message: "The firstname field is required. (and 2 more errors)",
+              errors: {
+                firstname: ["The firstname field is required."],
+                lastname: ["The lastname field is required."],
+                role: ["The selected role is invalid."],
+              },
+            },
+          },
         );
         await page.getByTestId("dialog-save-button").click();
 
@@ -458,16 +473,34 @@ test.describe("Rooms view personalized links token actions", () => {
         await mockMethod(
           page,
           "PUT",
-          LINK_1_URL,
-          VALIDATION_ERROR_RESPONSE("The selected role is invalid."),
+          "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+          {
+            status: 422,
+            json: {
+              message: "The firstname field is required. (and 2 more errors)",
+              errors: {
+                firstname: ["The firstname field is required."],
+                lastname: ["The lastname field is required."],
+                role: ["The selected role is invalid."],
+              },
+            },
+          },
         );
         await page.getByTestId("dialog-save-button").click();
         await expect(dialog).toContainText("The selected role is invalid.");
 
-        await mockMethod(page, "PUT", LINK_1_URL, SERVER_ERROR_RESPONSE);
+        await mockMethod(
+          page,
+          "PUT",
+          "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+          { status: 500, json: { message: "Test" } },
+        );
         await page.getByTestId("dialog-save-button").click();
 
-        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
         await expect(dialog).toBeVisible();
         await expect(dialog).not.toContainText("The selected role is invalid.");
         await expect(dialog.getByTestId("firstname-field")).not.toContainText(
@@ -490,7 +523,14 @@ test.describe("Rooms view personalized links token actions", () => {
         await checkRoomAuthErrors(
           page,
           async (page) => {
-            await openLinkDialog(page, "edit");
+            await page
+              .getByTestId("room-personalized-link-item")
+              .nth(0)
+              .getByTestId("room-personalized-links-edit-button")
+              .click();
+            await expect(
+              page.getByTestId("room-personalized-links-edit-dialog"),
+            ).toBeVisible();
             await page.getByTestId("dialog-save-button").click();
           },
           "PUT",
@@ -504,11 +544,26 @@ test.describe("Rooms view personalized links token actions", () => {
       }) => {
         await interceptRoomIndexRequests(page);
 
-        await mockMethod(page, "PUT", LINK_1_URL, ROOM_NOT_FOUND_RESPONSE);
+        await mockMethod(
+          page,
+          "PUT",
+          "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+          {
+            status: 404,
+            json: {
+              message: "model_not_found",
+              model: "room",
+              ids: ["abc-def-123"],
+            },
+          },
+        );
         await page.getByTestId("dialog-save-button").click();
 
         await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-        await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.model_not_found.title_{"model":"app.model.room"}',
+          'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+        ]);
       });
     });
   });
@@ -518,7 +573,14 @@ test.describe("Rooms view personalized links token actions", () => {
       await expect(
         page.getByTestId("room-personalized-links-delete-dialog"),
       ).toHaveCount(0);
-      await openLinkDialog(page, "delete");
+      await page
+        .getByTestId("room-personalized-link-item")
+        .nth(0)
+        .getByTestId("room-personalized-links-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-personalized-links-delete-dialog"),
+      ).toBeVisible();
 
       const dialog = page.getByTestId("room-personalized-links-delete-dialog");
       await expect(dialog).toContainText("rooms.personalized_links.delete");
@@ -527,14 +589,29 @@ test.describe("Rooms view personalized links token actions", () => {
       );
     });
 
-    test("deletes a personalized link", async ({ page }) => {
-      await openLinkDialog(page, "delete");
+    test("deletes a personalized link", async ({ page, personalizedLinks }) => {
+      await page
+        .getByTestId("room-personalized-link-item")
+        .nth(0)
+        .getByTestId("room-personalized-links-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-personalized-links-delete-dialog"),
+      ).toBeVisible();
 
-      const deleteRequest = await mockMethod(page, "DELETE", LINK_1_URL, {
-        status: 204,
-        hold: true,
-      });
-      await mockLinksSlice(page, 1, 3);
+      const deleteRequest = await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
+      personalizedLinks.data = personalizedLinks.data.slice(1, 3);
+      personalizedLinks.meta.to = 2;
+      personalizedLinks.meta.total = 2;
+      personalizedLinks.meta.total_no_filter = 2;
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
@@ -562,11 +639,34 @@ test.describe("Rooms view personalized links token actions", () => {
 
     test("removes a personalized link that does not exist anymore", async ({
       page,
+      personalizedLinks,
     }) => {
-      await openLinkDialog(page, "delete", 2);
+      await page
+        .getByTestId("room-personalized-link-item")
+        .nth(2)
+        .getByTestId("room-personalized-links-delete-button")
+        .click();
+      await expect(
+        page.getByTestId("room-personalized-links-delete-dialog"),
+      ).toBeVisible();
 
-      await mockMethod(page, "DELETE", LINK_3_URL, LINK_NOT_FOUND_RESPONSE);
-      await mockLinksSlice(page, 0, 2);
+      await mockMethod(
+        page,
+        "DELETE",
+        "**/api/v1/rooms/abc-def-123/personalizedLinks/3",
+        {
+          status: 404,
+          json: {
+            message: "model_not_found",
+            model: "room_personalized_link",
+            ids: [3],
+          },
+        },
+      );
+      personalizedLinks.data = personalizedLinks.data.slice(0, 2);
+      personalizedLinks.meta.to = 2;
+      personalizedLinks.meta.total = 2;
+      personalizedLinks.meta.total_no_filter = 2;
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(
@@ -580,14 +680,29 @@ test.describe("Rooms view personalized links token actions", () => {
 
     test.describe("errors", () => {
       test.beforeEach(async ({ page }) => {
-        await openLinkDialog(page, "delete");
+        await page
+          .getByTestId("room-personalized-link-item")
+          .nth(0)
+          .getByTestId("room-personalized-links-delete-button")
+          .click();
+        await expect(
+          page.getByTestId("room-personalized-links-delete-dialog"),
+        ).toBeVisible();
       });
 
       test("shows a server error", async ({ page }) => {
-        await mockMethod(page, "DELETE", LINK_1_URL, SERVER_ERROR_RESPONSE);
+        await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+          { status: 500, json: { message: "Test" } },
+        );
         await page.getByTestId("dialog-continue-button").click();
 
-        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
         await expect(
           page.getByTestId("room-personalized-links-delete-dialog"),
         ).toBeVisible();
@@ -607,7 +722,14 @@ test.describe("Rooms view personalized links token actions", () => {
         await checkRoomAuthErrors(
           page,
           async (page) => {
-            await openLinkDialog(page, "delete");
+            await page
+              .getByTestId("room-personalized-link-item")
+              .nth(0)
+              .getByTestId("room-personalized-links-delete-button")
+              .click();
+            await expect(
+              page.getByTestId("room-personalized-links-delete-dialog"),
+            ).toBeVisible();
             await page.getByTestId("dialog-continue-button").click();
           },
           "DELETE",
@@ -621,11 +743,26 @@ test.describe("Rooms view personalized links token actions", () => {
       }) => {
         await interceptRoomIndexRequests(page);
 
-        await mockMethod(page, "DELETE", LINK_1_URL, ROOM_NOT_FOUND_RESPONSE);
+        await mockMethod(
+          page,
+          "DELETE",
+          "**/api/v1/rooms/abc-def-123/personalizedLinks/1",
+          {
+            status: 404,
+            json: {
+              message: "model_not_found",
+              model: "room",
+              ids: ["abc-def-123"],
+            },
+          },
+        );
         await page.getByTestId("dialog-continue-button").click();
 
         await expect(page).toHaveURL((url) => url.pathname === "/rooms");
-        await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+        await expectToastAndClose(page, [
+          'app.flash.model_not_found.title_{"model":"app.model.room"}',
+          'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+        ]);
       });
     });
   });
@@ -642,7 +779,7 @@ test.describe("Rooms view personalized links token actions", () => {
 
       const text = await page.evaluate(() => navigator.clipboard.readText());
       expect(text).toBe(
-        `${baseURL}/rooms/abc-def-123#personalizedLink=${LINK_1_TOKEN}`,
+        `${baseURL}/rooms/abc-def-123#personalizedLink=1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R`,
       );
 
       await expectToastAndClose(

@@ -1,114 +1,21 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminServers.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import {
-  interceptAdminServersViewRequests,
-  interceptAdminServersIndexRequests,
-} from "../support/mocks.js";
-import { holdRequest } from "../support/utils.js";
-
-const SERVER_URL = "**/api/v1/servers/1";
-
-const readServer = () =>
-  JSON.parse(readFileSync("tests/Playwright/fixtures/server.json", "utf8"));
-
-/**
- * Mocks the server request with the fixture, changed by the given values.
- */
-async function mockServer(page, changes) {
-  const server = readServer();
-  Object.assign(server.data, changes);
-  await page.route(SERVER_URL, (route) => route.fulfill({ json: server }));
-}
-
-/**
- * Check the read only status and connection status fields.
- */
-async function expectStatusFields(page, status, connectionStatus) {
-  const statusField = page.getByTestId("status-field");
-  await expect(statusField).toBeVisible();
-  await expect(statusField).toContainText("admin.servers.status");
-  const dropdown = statusField.getByTestId("status-dropdown");
-  await expect(dropdown).toHaveText(status);
-  await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
-    "aria-disabled",
-    "true",
-  );
-
-  const connectionField = page.getByTestId("connection-status-field");
-  await expect(connectionField).toBeVisible();
-  await expect(connectionField).toContainText("admin.servers.connection");
-  await expect(connectionField.locator("#connectionStatus")).toHaveValue(
-    connectionStatus,
-  );
-  await expect(connectionField.locator("#connectionStatus")).toBeDisabled();
-  const testButton = connectionField.getByTestId(
-    "servers-test-connection-button",
-  );
-  await expect(testButton).toBeVisible();
-  await expect(testButton).toHaveText("admin.servers.test_connection");
-  await expect(testButton).toBeEnabled();
-}
-
-/**
- * Check the buttons of the view page for a user with update permission.
- */
-async function expectUpdateButtons(page, { panic, deletable }) {
-  const editButton = page.getByTestId("servers-edit-button");
-  await expect(editButton).toBeVisible();
-  await expect(page.getByTestId("servers-cancel-edit-button")).toHaveCount(0);
-  await expect(editButton).toBeEnabled();
-  await expect(editButton).toHaveText("app.edit");
-  await expect(editButton).toHaveAttribute("href", "/admin/servers/1/edit");
-  const deleteButton = page.getByTestId("servers-delete-button");
-  if (deletable) {
-    await expect(deleteButton).toBeVisible();
-    await expect(deleteButton).toBeEnabled();
-  } else {
-    await expect(deleteButton).toHaveCount(0);
-  }
-  await expect(page.getByTestId("servers-save-button")).toHaveCount(0);
-
-  const testButton = page.getByTestId("servers-test-connection-button");
-  await expect(testButton).toBeVisible();
-  await expect(testButton).toHaveText("admin.servers.test_connection");
-  await expect(testButton).toBeEnabled();
-
-  const panicButton = page.getByTestId("servers-panic-button");
-  if (panic) {
-    await expect(panicButton).toBeVisible();
-    await expect(panicButton).toBeEnabled();
-    await expect(panicButton).toContainText("admin.servers.panic");
-  } else {
-    await expect(panicButton).toHaveCount(0);
-  }
-}
-
-/**
- * Check that no action buttons are shown (user without update permission).
- */
-async function expectNoActionButtons(page) {
-  await expect(page.getByTestId("servers-cancel-edit-button")).toHaveCount(0);
-  await expect(page.getByTestId("servers-edit-button")).toHaveCount(0);
-  await expect(page.getByTestId("servers-delete-button")).toHaveCount(0);
-  await expect(page.getByTestId("servers-save-button")).toHaveCount(0);
-  await expect(page.getByTestId("servers-panic-button")).toHaveCount(0);
-}
+import { mockMethod } from "../support/utils.js";
 
 test.describe("Admin servers view", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "servers.view",
     ];
-    await interceptAdminServersViewRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -132,9 +39,11 @@ test.describe("Admin servers view", () => {
 
   test("loading state hides the buttons and shows the overlay", async ({
     page,
+    server,
   }) => {
-    const release = await holdRequest(page, SERVER_URL, {
-      path: "tests/Playwright/fixtures/server.json",
+    const serverRequest = await mockMethod(page, "GET", "**/api/v1/servers/1", {
+      json: server,
+      hold: true,
     });
     await page.goto("/admin/servers/1");
 
@@ -142,19 +51,35 @@ test.describe("Admin servers view", () => {
       page.getByRole("heading", { name: "admin.title" }),
     ).toBeVisible();
     await expect(page.getByTestId("overlay")).toBeVisible();
-    await expectNoActionButtons(page);
+    for (const testId of [
+      "servers-cancel-edit-button",
+      "servers-edit-button",
+      "servers-delete-button",
+      "servers-save-button",
+      "servers-panic-button",
+    ]) {
+      await expect(page.getByTestId(testId)).toHaveCount(0);
+    }
 
-    release();
+    serverRequest.release();
 
     await expect(page.getByTestId("name-field")).toBeVisible();
     await expect(page.getByTestId("overlay")).toHaveCount(0);
-    await expectNoActionButtons(page);
+    for (const testId of [
+      "servers-cancel-edit-button",
+      "servers-edit-button",
+      "servers-delete-button",
+      "servers-save-button",
+      "servers-panic-button",
+    ]) {
+      await expect(page.getByTestId(testId)).toHaveCount(0);
+    }
   });
 
   test.describe("server enabled", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, serverForm }) => {
       await page.goto("/admin/servers/1");
-      await expect(page.locator("#name")).toHaveValue("Server 01");
+      await expect(serverForm.name).toHaveValue("Server 01");
     });
 
     test("shows breadcrumbs", async ({ page }) => {
@@ -187,7 +112,7 @@ test.describe("Admin servers view", () => {
       }
     });
 
-    test("shows disabled strength rating", async ({ page }) => {
+    test("shows disabled strength rating", async ({ page, serverForm }) => {
       const field = page.getByTestId("strength-field");
       await expect(field).toBeVisible();
       await expect(field).toContainText("admin.servers.strength");
@@ -196,10 +121,9 @@ test.describe("Admin servers view", () => {
         /p-disabled/,
       );
 
-      const options = field.getByTestId("strength-rating-option");
-      await expect(options).toHaveCount(10);
+      await expect(serverForm.strengthOptions).toHaveCount(10);
       for (let i = 0; i < 10; i++) {
-        await expect(options.nth(i)).toHaveAttribute(
+        await expect(serverForm.strengthOptions.nth(i)).toHaveAttribute(
           "data-p-active",
           i < 2 ? "true" : "false",
         );
@@ -207,11 +131,29 @@ test.describe("Admin servers view", () => {
     });
 
     test("shows status and connection status", async ({ page }) => {
-      await expectStatusFields(
-        page,
-        "admin.servers.enabled",
+      const statusField = page.getByTestId("status-field");
+      await expect(statusField).toBeVisible();
+      await expect(statusField).toContainText("admin.servers.status");
+      const dropdown = statusField.getByTestId("status-dropdown");
+      await expect(dropdown).toHaveText("admin.servers.enabled");
+      await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
+        "aria-disabled",
+        "true",
+      );
+
+      const connectionField = page.getByTestId("connection-status-field");
+      await expect(connectionField).toBeVisible();
+      await expect(connectionField).toContainText("admin.servers.connection");
+      await expect(connectionField.locator("#connectionStatus")).toHaveValue(
         "admin.servers.online",
       );
+      await expect(connectionField.locator("#connectionStatus")).toBeDisabled();
+      const testButton = connectionField.getByTestId(
+        "servers-test-connection-button",
+      );
+      await expect(testButton).toBeVisible();
+      await expect(testButton).toHaveText("admin.servers.test_connection");
+      await expect(testButton).toBeEnabled();
     });
 
     test("shows usage counts", async ({ page }) => {
@@ -251,20 +193,55 @@ test.describe("Admin servers view", () => {
     });
 
     test("hides action buttons without permissions", async ({ page }) => {
-      await expectNoActionButtons(page);
+      for (const testId of [
+        "servers-cancel-edit-button",
+        "servers-edit-button",
+        "servers-delete-button",
+        "servers-save-button",
+        "servers-panic-button",
+      ]) {
+        await expect(page.getByTestId(testId)).toHaveCount(0);
+      }
     });
   });
 
-  test("server draining", async ({ page }) => {
-    await mockServer(page, { status: 0 });
+  test("server draining", async ({ page, server }) => {
+    server.data.status = 0;
     await page.goto("/admin/servers/1");
 
-    await expectStatusFields(
-      page,
-      "admin.servers.draining",
+    const statusField = page.getByTestId("status-field");
+    await expect(statusField).toBeVisible();
+    await expect(statusField).toContainText("admin.servers.status");
+    const dropdown = statusField.getByTestId("status-dropdown");
+    await expect(dropdown).toHaveText("admin.servers.draining");
+    await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+
+    const connectionField = page.getByTestId("connection-status-field");
+    await expect(connectionField).toBeVisible();
+    await expect(connectionField).toContainText("admin.servers.connection");
+    await expect(connectionField.locator("#connectionStatus")).toHaveValue(
       "admin.servers.online",
     );
-    await expectNoActionButtons(page);
+    await expect(connectionField.locator("#connectionStatus")).toBeDisabled();
+    const testButton = connectionField.getByTestId(
+      "servers-test-connection-button",
+    );
+    await expect(testButton).toBeVisible();
+    await expect(testButton).toHaveText("admin.servers.test_connection");
+    await expect(testButton).toBeEnabled();
+
+    for (const testId of [
+      "servers-cancel-edit-button",
+      "servers-edit-button",
+      "servers-delete-button",
+      "servers-save-button",
+      "servers-panic-button",
+    ]) {
+      await expect(page.getByTestId(testId)).toHaveCount(0);
+    }
 
     await expect(page.getByTestId("meeting-count-field")).toBeVisible();
     await expect(page.getByTestId("own-meeting-count-field")).toBeVisible();
@@ -272,16 +249,44 @@ test.describe("Admin servers view", () => {
     await expect(page.getByTestId("video-count-field")).toBeVisible();
   });
 
-  test("server disabled", async ({ page }) => {
-    await mockServer(page, { status: -1, connection_status: null });
+  test("server disabled", async ({ page, server }) => {
+    server.data.status = -1;
+    server.data.connection_status = null;
     await page.goto("/admin/servers/1");
 
-    await expectStatusFields(
-      page,
-      "admin.servers.disabled",
+    const statusField = page.getByTestId("status-field");
+    await expect(statusField).toBeVisible();
+    await expect(statusField).toContainText("admin.servers.status");
+    const dropdown = statusField.getByTestId("status-dropdown");
+    await expect(dropdown).toHaveText("admin.servers.disabled");
+    await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+
+    const connectionField = page.getByTestId("connection-status-field");
+    await expect(connectionField).toBeVisible();
+    await expect(connectionField).toContainText("admin.servers.connection");
+    await expect(connectionField.locator("#connectionStatus")).toHaveValue(
       "admin.servers.unknown",
     );
-    await expectNoActionButtons(page);
+    await expect(connectionField.locator("#connectionStatus")).toBeDisabled();
+    const testButton = connectionField.getByTestId(
+      "servers-test-connection-button",
+    );
+    await expect(testButton).toBeVisible();
+    await expect(testButton).toHaveText("admin.servers.test_connection");
+    await expect(testButton).toBeEnabled();
+
+    for (const testId of [
+      "servers-cancel-edit-button",
+      "servers-edit-button",
+      "servers-delete-button",
+      "servers-save-button",
+      "servers-panic-button",
+    ]) {
+      await expect(page.getByTestId(testId)).toHaveCount(0);
+    }
 
     await expect(page.getByTestId("meeting-count-field")).toHaveCount(0);
     await expect(page.getByTestId("own-meeting-count-field")).toHaveCount(0);
@@ -290,7 +295,12 @@ test.describe("Admin servers view", () => {
   });
 
   test.describe("connection status always online", () => {
-    const expectAlwaysOnlineTexts = async (page) => {
+    test("not checked shows the real connection status", async ({
+      page,
+      serverForm,
+    }) => {
+      await page.goto("/admin/servers/1");
+
       const field = page.getByTestId("connection-status-always-online-field");
       await expect(field).toBeVisible();
       await expect(field).toContainText(
@@ -299,17 +309,8 @@ test.describe("Admin servers view", () => {
       await expect(field).toContainText(
         "admin.servers.connection_status_always_online_description",
       );
-      await expect(
-        field.locator("#connection-status-always-online"),
-      ).toBeDisabled();
-      return field.locator("#connection-status-always-online");
-    };
-
-    test("not checked shows the real connection status", async ({ page }) => {
-      await page.goto("/admin/servers/1");
-
-      const checkbox = await expectAlwaysOnlineTexts(page);
-      await expect(checkbox).not.toBeChecked();
+      await expect(serverForm.alwaysOnline).toBeDisabled();
+      await expect(serverForm.alwaysOnline).not.toBeChecked();
 
       const connectionField = page.getByTestId("connection-status-field");
       await expect(connectionField).toBeVisible();
@@ -320,12 +321,24 @@ test.describe("Admin servers view", () => {
       await expect(connectionField.locator("#connectionStatus")).toBeDisabled();
     });
 
-    test("checked shows connection status unknown", async ({ page }) => {
-      await mockServer(page, { connection_status_always_online: true });
+    test("checked shows connection status unknown", async ({
+      page,
+      server,
+      serverForm,
+    }) => {
+      server.data.connection_status_always_online = true;
       await page.goto("/admin/servers/1");
 
-      const checkbox = await expectAlwaysOnlineTexts(page);
-      await expect(checkbox).toBeChecked();
+      const field = page.getByTestId("connection-status-always-online-field");
+      await expect(field).toBeVisible();
+      await expect(field).toContainText(
+        "admin.servers.connection_status_always_online",
+      );
+      await expect(field).toContainText(
+        "admin.servers.connection_status_always_online_description",
+      );
+      await expect(serverForm.alwaysOnline).toBeDisabled();
+      await expect(serverForm.alwaysOnline).toBeChecked();
 
       const connectionField = page.getByTestId("connection-status-field");
       await expect(connectionField).toBeVisible();
@@ -342,22 +355,51 @@ test.describe("Admin servers view", () => {
       currentUser.data.permissions.push("servers.update");
     });
 
-    test("server enabled", async ({ page }) => {
-      await page.goto("/admin/servers/1");
-      await expectUpdateButtons(page, { panic: true, deletable: false });
-    });
+    for (const [name, status, panic, deletable] of [
+      ["enabled", 1, true, false],
+      ["draining", 0, true, false],
+      ["disabled", -1, false, false],
+    ]) {
+      test(`server ${name}`, async ({ page, server, serverForm }) => {
+        server.data.status = status;
+        await page.goto("/admin/servers/1");
 
-    test("server draining", async ({ page }) => {
-      await mockServer(page, { status: 0 });
-      await page.goto("/admin/servers/1");
-      await expectUpdateButtons(page, { panic: true, deletable: false });
-    });
+        const editButton = page.getByTestId("servers-edit-button");
+        await expect(editButton).toBeVisible();
+        await expect(
+          page.getByTestId("servers-cancel-edit-button"),
+        ).toHaveCount(0);
+        await expect(editButton).toBeEnabled();
+        await expect(editButton).toHaveText("app.edit");
+        await expect(editButton).toHaveAttribute(
+          "href",
+          "/admin/servers/1/edit",
+        );
+        const deleteButton = page.getByTestId("servers-delete-button");
+        if (deletable) {
+          await expect(deleteButton).toBeVisible();
+          await expect(deleteButton).toBeEnabled();
+        } else {
+          await expect(deleteButton).toHaveCount(0);
+        }
+        await expect(serverForm.saveButton).toHaveCount(0);
 
-    test("server disabled", async ({ page }) => {
-      await mockServer(page, { status: -1 });
-      await page.goto("/admin/servers/1");
-      await expectUpdateButtons(page, { panic: false, deletable: false });
-    });
+        await expect(serverForm.testConnectionButton).toBeVisible();
+        await expect(serverForm.testConnectionButton).toHaveText(
+          "admin.servers.test_connection",
+        );
+        await expect(serverForm.testConnectionButton).toBeEnabled();
+
+        const panicButton = page.getByTestId("servers-panic-button");
+        if (panic) {
+          await expect(panicButton).toBeVisible();
+          await expect(panicButton).toBeEnabled();
+          await expect(panicButton).toContainText("admin.servers.panic");
+        } else {
+          await expect(panicButton).toHaveCount(0);
+        }
+      });
+    }
   });
 
   test.describe("button visibility with delete permission", () => {
@@ -369,32 +411,63 @@ test.describe("Admin servers view", () => {
       );
     });
 
-    test("server enabled", async ({ page }) => {
-      await page.goto("/admin/servers/1");
-      await expectUpdateButtons(page, { panic: true, deletable: false });
-    });
+    for (const [name, status, panic, deletable] of [
+      ["enabled", 1, true, false],
+      ["draining", 0, true, false],
+      ["disabled", -1, false, true],
+    ]) {
+      test(`server ${name}`, async ({ page, server, serverForm }) => {
+        server.data.status = status;
+        await page.goto("/admin/servers/1");
 
-    test("server draining", async ({ page }) => {
-      await mockServer(page, { status: 0 });
-      await page.goto("/admin/servers/1");
-      await expectUpdateButtons(page, { panic: true, deletable: false });
-    });
+        const editButton = page.getByTestId("servers-edit-button");
+        await expect(editButton).toBeVisible();
+        await expect(
+          page.getByTestId("servers-cancel-edit-button"),
+        ).toHaveCount(0);
+        await expect(editButton).toBeEnabled();
+        await expect(editButton).toHaveText("app.edit");
+        await expect(editButton).toHaveAttribute(
+          "href",
+          "/admin/servers/1/edit",
+        );
+        const deleteButton = page.getByTestId("servers-delete-button");
+        if (deletable) {
+          await expect(deleteButton).toBeVisible();
+          await expect(deleteButton).toBeEnabled();
+        } else {
+          await expect(deleteButton).toHaveCount(0);
+        }
+        await expect(serverForm.saveButton).toHaveCount(0);
 
-    test("server disabled", async ({ page }) => {
-      await mockServer(page, { status: -1 });
-      await page.goto("/admin/servers/1");
-      await expectUpdateButtons(page, { panic: false, deletable: true });
-    });
+        await expect(serverForm.testConnectionButton).toBeVisible();
+        await expect(serverForm.testConnectionButton).toHaveText(
+          "admin.servers.test_connection",
+        );
+        await expect(serverForm.testConnectionButton).toBeEnabled();
+
+        const panicButton = page.getByTestId("servers-panic-button");
+        if (panic) {
+          await expect(panicButton).toBeVisible();
+          await expect(panicButton).toBeEnabled();
+          await expect(panicButton).toContainText("admin.servers.panic");
+        } else {
+          await expect(panicButton).toHaveCount(0);
+        }
+      });
+    }
   });
 
   test.describe("open view errors", () => {
-    test("server error shows overlay and can be retried", async ({ page }) => {
-      let failing = true;
-      await page.route(SERVER_URL, (route) =>
-        failing
-          ? route.fulfill({ status: 500, json: { message: "Test" } })
-          : route.fulfill({ path: "tests/Playwright/fixtures/server.json" }),
-      );
+    test("server error shows overlay and can be retried", async ({
+      page,
+      server,
+      serverForm,
+    }) => {
+      await mockMethod(page, "GET", "**/api/v1/servers/1", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/admin/servers/1");
 
@@ -404,25 +477,22 @@ test.describe("Admin servers view", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      failing = false;
+      await mockMethod(page, "GET", "**/api/v1/servers/1", { json: server });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
       await expect(retryButton).toHaveText("app.reload");
       await retryButton.click();
 
-      await expect(page.locator("#name")).toHaveValue("Server 01");
+      await expect(serverForm.name).toHaveValue("Server 01");
       await expect(page.getByTestId("overlay")).toHaveCount(0);
       await expect(retryButton).toHaveCount(0);
     });
 
     test("404 redirects to the servers index", async ({ page }) => {
-      await interceptAdminServersIndexRequests(page);
-      await page.route(SERVER_URL, (route) =>
-        route.fulfill({
-          status: 404,
-          json: { message: "model_not_found", model: "server", ids: [1] },
-        }),
-      );
+      await mockMethod(page, "GET", "**/api/v1/servers/1", {
+        status: 404,
+        json: { message: "model_not_found", model: "server", ids: [1] },
+      });
 
       const serversRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
       await page.goto("/admin/servers/1");
@@ -436,7 +506,7 @@ test.describe("Admin servers view", () => {
     });
 
     test("401 redirects to the login page", async ({ page }) => {
-      await page.route(SERVER_URL, (route) => route.fulfill({ status: 401 }));
+      await mockMethod(page, "GET", "**/api/v1/servers/1", { status: 401 });
 
       await page.goto("/admin/servers/1");
 

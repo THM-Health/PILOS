@@ -1,144 +1,11 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsAccess.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   interceptRoomFilesRequest,
   interceptRoomIndexRequests,
 } from "../support/mocks.js";
+import { expectAuthToken } from "../support/room.js";
 import { mockMethod, nthRequest } from "../support/utils.js";
-
-const ROOM_PATH = "/rooms/abc-def-123";
-const ROOM_URL = "**/api/v1/rooms/abc-def-123*";
-const AUTH_URL = "**/api/v1/rooms/abc-def-123/auth*";
-const NAME_CHECK_URL = "**/api/v1/participantName/check";
-const CODE_KEY = "roomAccessCode_abc-def-123";
-const LINK_KEY = "roomPersonalizedLink_abc-def-123";
-
-const SAVED_LINK =
-  "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR";
-const HASH_LINK =
-  "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx";
-const ERROR_LINK = (code) =>
-  `${code}evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR`;
-
-const CODE_AUTH_BODY = { data: { id: "roomAuthToken", type: 0 } };
-const LINK_AUTH_BODY = { data: { id: "roomAuthToken", type: 1 } };
-
-const SERVER_ERROR_TOAST = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-const MODEL_NOT_FOUND_TOAST = [
-  'app.flash.model_not_found.title_{"model":"app.model.room"}',
-  'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
-];
-const MODEL_NOT_FOUND_BODY = {
-  message: "model_not_found",
-  model: "room",
-  ids: ["abc-def-123"],
-};
-
-function mockRoom(page, overrides = {}) {
-  const room = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/room.json", "utf8"),
-  );
-  Object.assign(room.data, overrides);
-  return mockMethod(page, "GET", ROOM_URL, { status: 200, json: room });
-}
-
-function mockAuth(page, status, json, options = {}) {
-  return mockMethod(page, "POST", AUTH_URL, { status, json, ...options });
-}
-
-async function expectAuthBody(mock, body) {
-  const request = await nthRequest(mock);
-  expect(request.postDataJSON()).toEqual(body);
-}
-
-async function expectRoomToken(mock, type) {
-  const request = await nthRequest(mock);
-  expect(Object.fromEntries(new URL(request.url()).searchParams)).toMatchObject(
-    {
-      room_auth_token: "roomAuthToken",
-      room_auth_token_type: String(type),
-    },
-  );
-}
-
-async function expectStorage(page, key, value) {
-  await expect
-    .poll(() => page.evaluate((key) => window.sessionStorage.getItem(key), key))
-    .toBe(value);
-}
-
-async function expectUrlIncludes(page, text) {
-  await expect(page).toHaveURL((url) => url.href.includes(text));
-}
-
-async function expectUrlNotIncludes(page, text) {
-  await expect(page).toHaveURL((url) => !url.href.includes(text));
-}
-
-function setHash(page, hash) {
-  return page.evaluate((hash) => {
-    window.location.hash = hash;
-  }, hash);
-}
-
-function seedSessionStorage(page, items) {
-  return page.addInitScript((items) => {
-    if (!window.localStorage.getItem("pw_session_seeded")) {
-      window.localStorage.setItem("pw_session_seeded", "1");
-      for (const [key, value] of Object.entries(items)) {
-        window.sessionStorage.setItem(key, value);
-      }
-    }
-  }, items);
-}
-
-async function rememberParticipantName(page, name) {
-  const check = await mockMethod(page, "POST", NAME_CHECK_URL, {
-    status: 204,
-  });
-  await page.addInitScript((name) => {
-    window.localStorage.setItem("pilos_guest_name", name);
-  }, name);
-  return check;
-}
-
-async function expectParticipant(page, { name, absent = [], canChange }) {
-  await expect(page.getByText("Meeting One").first()).toBeVisible();
-  await expect(page.getByText("rooms.name_in_video_conference")).toBeVisible();
-  await expect(page.getByText(name, { exact: true })).toBeVisible();
-  for (const other of absent) {
-    await expect(page.getByText(other)).toHaveCount(0);
-  }
-  if (canChange) {
-    await expect(
-      page.getByTestId("change-participant-name-button"),
-    ).toBeVisible();
-  } else {
-    await expect(
-      page.getByTestId("change-participant-name-button"),
-    ).toHaveCount(0);
-  }
-}
-
-const GUEST_MEMBER_ROOM = (username) => ({
-  allow_membership: true,
-  current_user: null,
-  is_member: true,
-  username,
-});
-const GUEST_CODE_ROOM = {
-  allow_membership: true,
-  current_user: null,
-  description: "<p>Test</p>",
-};
-const GUEST_NEEDS_CODE_ROOM = {
-  allow_membership: true,
-  current_user: null,
-  authenticated: false,
-};
 
 test.beforeEach(async ({ page }) => {
   await interceptRoomFilesRequest(page);
@@ -146,481 +13,1021 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("saved access parameter priority", () => {
   test.beforeEach(async ({ page }) => {
-    await rememberParticipantName(page, "Laura Rivera");
+    await page.addInitScript(() => {
+      window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
   });
 
   test("personalized link from hash wins over all saved access parameters", async ({
     page,
+    room,
+    roomAuth,
+    roomRequests,
   }) => {
-    const auth = await mockAuth(page, 200, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Max Doe"));
-    await seedSessionStorage(page, {
-      [CODE_KEY]: "123456789",
-      [LINK_KEY]: SAVED_LINK,
-    });
+    roomAuth.status = 200;
+    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
 
-    await page.goto(
-      `${ROOM_PATH}#accessCode=987654321&personalizedLink=${HASH_LINK}`,
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.is_member = true;
+    room.data.username = "Max Doe";
+
+    await page.addInitScript(
+      (items) => {
+        if (!window.localStorage.getItem("pw_session_seeded")) {
+          window.localStorage.setItem("pw_session_seeded", "1");
+          for (const [key, value] of Object.entries(items)) {
+            window.sessionStorage.setItem(key, value);
+          }
+        }
+      },
+      {
+        "roomAccessCode_abc-def-123": "123456789",
+        "roomPersonalizedLink_abc-def-123":
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      },
     );
 
-    await expectAuthBody(auth, {
-      personalized_link_token: HASH_LINK,
+    await page.goto(
+      "/rooms/abc-def-123#accessCode=987654321&personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+    );
+
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
       type: 1,
     });
-    await expectRoomToken(room, 1);
 
-    await expectParticipant(page, {
-      name: "Max Doe",
-      absent: ["Laura Rivera"],
-      canChange: false,
-    });
+    expectAuthToken(await nthRequest(roomRequests), "1");
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(page.getByText("Laura Rivera")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
+
     await expect(page.getByTestId("room-access-overlay")).toBeHidden();
 
     // The saved access code is not touched, the personalized link is updated to the value from the hash
-    await expectStorage(page, CODE_KEY, "123456789");
-    await expectStorage(page, LINK_KEY, HASH_LINK);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("123456789");
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
 
     // The competing access code hash was removed
-    await expectUrlNotIncludes(page, "accessCode");
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
   });
 
   test("removed access code hash cannot win on a later reload", async ({
     page,
+    room,
+    roomAuth,
+    roomRequests,
   }) => {
-    const auth = await mockAuth(page, 200, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Max Doe"));
-    await seedSessionStorage(page, {
-      [CODE_KEY]: "123456789",
-      [LINK_KEY]: SAVED_LINK,
-    });
+    roomAuth.status = 200;
+    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.is_member = true;
+    room.data.username = "Max Doe";
+
+    await page.addInitScript(
+      (items) => {
+        if (!window.localStorage.getItem("pw_session_seeded")) {
+          window.localStorage.setItem("pw_session_seeded", "1");
+          for (const [key, value] of Object.entries(items)) {
+            window.sessionStorage.setItem(key, value);
+          }
+        }
+      },
+      {
+        "roomAccessCode_abc-def-123": "123456789",
+        "roomPersonalizedLink_abc-def-123":
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      },
+    );
 
     await page.goto(
-      `${ROOM_PATH}#accessCode=987654321&personalizedLink=${HASH_LINK}`,
+      "/rooms/abc-def-123#accessCode=987654321&personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
     );
-    await expectStorage(page, LINK_KEY, HASH_LINK);
-    await expectUrlNotIncludes(page, "accessCode");
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
+
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
 
     // Reset to previous value and reload without hash
-    await page.evaluate(
-      ([key, value]) => window.sessionStorage.setItem(key, value),
-      [LINK_KEY, SAVED_LINK],
+    await page.evaluate(() =>
+      window.sessionStorage.setItem(
+        "roomPersonalizedLink_abc-def-123",
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      ),
     );
     await page.reload();
 
-    await expect.poll(() => auth.requests.length).toBeGreaterThanOrEqual(2);
-    expect(auth.requests[1].postDataJSON()).toEqual({
-      personalized_link_token: SAVED_LINK,
+    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       type: 1,
     });
-    await expect.poll(() => room.requests.length).toBeGreaterThanOrEqual(2);
-    expect(
-      Object.fromEntries(new URL(room.requests[1].url()).searchParams),
-    ).toMatchObject({
-      room_auth_token: "roomAuthToken",
-      room_auth_token_type: "1",
-    });
 
-    await expectParticipant(page, {
-      name: "Max Doe",
-      absent: ["Laura Rivera"],
-      canChange: false,
-    });
+    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(page.getByText("Laura Rivera")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 
   test("access code from hash wins over saved access parameters", async ({
     page,
+    room,
+    roomAuth,
+    roomRequests,
   }) => {
-    const auth = await mockAuth(page, 200, CODE_AUTH_BODY);
-    const room = await mockRoom(page, {
-      allow_membership: true,
-      current_user: null,
-    });
-    await seedSessionStorage(page, {
-      [CODE_KEY]: "123456789",
-      [LINK_KEY]: SAVED_LINK,
+    roomAuth.status = 200;
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    await page.addInitScript(
+      (items) => {
+        if (!window.localStorage.getItem("pw_session_seeded")) {
+          window.localStorage.setItem("pw_session_seeded", "1");
+          for (const [key, value] of Object.entries(items)) {
+            window.sessionStorage.setItem(key, value);
+          }
+        }
+      },
+      {
+        "roomAccessCode_abc-def-123": "123456789",
+        "roomPersonalizedLink_abc-def-123":
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      },
+    );
+
+    await page.goto("/rooms/abc-def-123#accessCode=987654321");
+
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      access_code: "987654321",
+      type: 0,
     });
 
-    await page.goto(`${ROOM_PATH}#accessCode=987654321`);
+    expectAuthToken(await nthRequest(roomRequests), "0");
 
-    await expectAuthBody(auth, { access_code: "987654321", type: 0 });
-    await expectRoomToken(room, 0);
-
-    await expectParticipant(page, {
-      name: "Laura Rivera",
-      absent: ["Max Doe"],
-      canChange: true,
-    });
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(page.getByText("Max Doe")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
 
     // The access code in the session storage is updated and the personalized link is removed
-    await expectStorage(page, CODE_KEY, "987654321");
-    await expectStorage(page, LINK_KEY, null);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("987654321");
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(null);
   });
 
-  test("saved access code is used on reload without hash", async ({ page }) => {
-    const auth = await mockAuth(page, 200, CODE_AUTH_BODY);
-    const room = await mockRoom(page, {
-      allow_membership: true,
-      current_user: null,
+  test("saved access code is used on reload without hash", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    roomAuth.status = 200;
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    await page.addInitScript(
+      (items) => {
+        if (!window.localStorage.getItem("pw_session_seeded")) {
+          window.localStorage.setItem("pw_session_seeded", "1");
+          for (const [key, value] of Object.entries(items)) {
+            window.sessionStorage.setItem(key, value);
+          }
+        }
+      },
+      { "roomAccessCode_abc-def-123": "987654321" },
+    );
+
+    await page.goto("/rooms/abc-def-123");
+
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      access_code: "987654321",
+      type: 0,
     });
-    await seedSessionStorage(page, { [CODE_KEY]: "987654321" });
 
-    await page.goto(ROOM_PATH);
+    expectAuthToken(await nthRequest(roomRequests), "0");
 
-    await expectAuthBody(auth, { access_code: "987654321", type: 0 });
-    await expectRoomToken(room, 0);
-
-    await expectParticipant(page, {
-      name: "Laura Rivera",
-      absent: ["Max Doe"],
-      canChange: true,
-    });
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(page.getByText("Max Doe")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
   });
 });
 
 test.describe("hash change with no saved access parameters", () => {
-  test.beforeEach(async ({ page }) => {
-    await rememberParticipantName(page, "Laura Rivera");
-    await mockRoom(page, GUEST_NEEDS_CODE_ROOM);
+  test.beforeEach(async ({ page, room }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
 
-    await page.goto(ROOM_PATH);
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.authenticated = false;
+
+    await page.goto("/rooms/abc-def-123");
 
     await expect(page).toHaveTitle("Meeting One - PILOS Test");
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
   });
 
-  test("access code in hash", async ({ page }) => {
-    const auth = await mockAuth(page, 201, CODE_AUTH_BODY, { hold: true });
-    const room = await mockRoom(page, {
-      description: "<p>Test</p>",
-      current_user: null,
-      allow_membership: true,
-    });
+  test("access code in hash", async ({ page, room, roomRequests }) => {
+    const auth = await mockMethod(
+      page,
+      "POST",
+      "**/api/v1/rooms/abc-def-123/auth*",
+      {
+        status: 201,
+        json: { data: { id: "roomAuthToken", type: 0 } },
+        hold: true,
+      },
+    );
+    room.data.description = "<p>Test</p>";
+    room.data.authenticated = true;
 
-    await setHash(page, "accessCode=987654321");
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
 
     // Check loading state
     await expect(page.getByTestId("room-loading-spinner")).toBeVisible();
     auth.release();
 
-    await expectAuthBody(auth, { access_code: "987654321", type: 0 });
-    await expectRoomToken(room, 0);
+    expect((await nthRequest(auth, 1)).postDataJSON()).toEqual({
+      access_code: "987654321",
+      type: 0,
+    });
+
+    expectAuthToken(await nthRequest(roomRequests, 2), "0");
 
     // Check that url was cleared and access code was saved to sessionStorage
-    await expectUrlNotIncludes(page, "accessCode");
-    await expectStorage(page, CODE_KEY, "987654321");
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
 
-    await expectParticipant(page, { name: "Laura Rivera", canChange: true });
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("987654321");
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
   });
 
-  test("personalized link in hash", async ({ page }) => {
-    const auth = await mockAuth(page, 201, LINK_AUTH_BODY, { hold: true });
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Max Doe"));
+  test("personalized link in hash", async ({ page, room, roomRequests }) => {
+    const auth = await mockMethod(
+      page,
+      "POST",
+      "**/api/v1/rooms/abc-def-123/auth*",
+      {
+        status: 201,
+        json: { data: { id: "roomAuthToken", type: 1 } },
+        hold: true,
+      },
+    );
+    room.data.authenticated = true;
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.is_member = true;
+    room.data.username = "Max Doe";
 
-    await setHash(page, `personalizedLink=${HASH_LINK}`);
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx";
+    });
 
     // Check loading state
     await expect(page.getByTestId("room-loading-spinner")).toBeVisible();
     auth.release();
 
-    await expectAuthBody(auth, {
-      personalized_link_token: HASH_LINK,
+    expect((await nthRequest(auth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
       type: 1,
     });
-    await expectRoomToken(room, 1);
+
+    expectAuthToken(await nthRequest(roomRequests, 2), "1");
 
     // Check that url was cleared and personalized link was saved to sessionStorage
-    await expectUrlNotIncludes(page, "personalizedLink");
-    await expectStorage(page, LINK_KEY, HASH_LINK);
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("personalizedLink"),
+    );
 
-    await expectParticipant(page, {
-      name: "Max Doe",
-      absent: ["Laura Rivera"],
-      canChange: false,
-    });
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(page.getByText("Laura Rivera")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 
-  test("personalized link and access code in hash", async ({ page }) => {
-    const auth = await mockAuth(page, 201, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Max Doe"));
+  test("personalized link and access code in hash", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
 
-    await setHash(page, `personalizedLink=${HASH_LINK}&accessCode=987654321`);
+    room.data.authenticated = true;
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.is_member = true;
+    room.data.username = "Max Doe";
 
-    await expectAuthBody(auth, {
-      personalized_link_token: HASH_LINK,
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx&accessCode=987654321";
+    });
+
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
       type: 1,
     });
-    await expectRoomToken(room, 1);
+
+    expectAuthToken(await nthRequest(roomRequests, 2), "1");
 
     // Check that url was cleared and personalized link was saved to sessionStorage
-    await expectUrlNotIncludes(page, "personalizedLink");
-    await expectUrlNotIncludes(page, "accessCode");
-    await expectStorage(page, LINK_KEY, HASH_LINK);
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("personalizedLink"),
+    );
 
-    await expectParticipant(page, {
-      name: "Max Doe",
-      absent: ["Laura Rivera"],
-      canChange: false,
-    });
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(page.getByText("Laura Rivera")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 });
 
 test.describe("hash change with saved access code", () => {
   test.beforeEach(async ({ page }) => {
-    await rememberParticipantName(page, "Laura Rivera");
-    await seedSessionStorage(page, { [CODE_KEY]: "987654321" });
+    await page.addInitScript(() => {
+      window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
+
+    await page.addInitScript(
+      (items) => {
+        if (!window.localStorage.getItem("pw_session_seeded")) {
+          window.localStorage.setItem("pw_session_seeded", "1");
+          for (const [key, value] of Object.entries(items)) {
+            window.sessionStorage.setItem(key, value);
+          }
+        }
+      },
+      { "roomAccessCode_abc-def-123": "987654321" },
+    );
   });
 
-  test("saved access code is used", async ({ page }) => {
-    const auth = await mockAuth(page, 201, CODE_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_CODE_ROOM);
+  test("saved access code is used", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.description = "<p>Test</p>";
 
-    await page.goto(ROOM_PATH);
+    await page.goto("/rooms/abc-def-123");
 
-    await expectAuthBody(auth, { access_code: "987654321", type: 0 });
-    await expectRoomToken(room, 0);
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      access_code: "987654321",
+      type: 0,
+    });
 
-    await expectParticipant(page, { name: "Laura Rivera", canChange: true });
+    expectAuthToken(await nthRequest(roomRequests), "0");
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
   });
 
-  test("different access code in hash", async ({ page }) => {
-    const auth = await mockAuth(page, 201, CODE_AUTH_BODY);
-    await mockRoom(page, GUEST_CODE_ROOM);
+  test("different access code in hash", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.description = "<p>Test</p>";
 
-    await page.goto(ROOM_PATH);
-    await expectParticipant(page, { name: "Laura Rivera", canChange: true });
-    await nthRequest(auth);
+    await page.goto("/rooms/abc-def-123");
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
 
-    const room = await mockRoom(page, GUEST_CODE_ROOM);
-    await setHash(page, "accessCode=123456789");
+    await nthRequest(roomAuth);
 
-    await expect.poll(() => auth.requests.length).toBe(2);
-    expect(auth.requests[1].postDataJSON()).toEqual({
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=123456789";
+    });
+
+    await expect.poll(() => roomAuth.requests.length).toBe(2);
+    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
       access_code: "123456789",
       type: 0,
     });
-    await expectRoomToken(room, 0);
+
+    expectAuthToken(await nthRequest(roomRequests, 2), "0");
 
     // Check that url was cleared and access code was updated in sessionStorage
-    await expectUrlNotIncludes(page, "accessCode");
-    await expectStorage(page, CODE_KEY, "123456789");
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
 
-    await expectParticipant(page, { name: "Laura Rivera", canChange: true });
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("123456789");
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
   });
 
-  test("personalized link in hash", async ({ page }) => {
-    const auth = await mockAuth(page, 201, CODE_AUTH_BODY);
-    await mockRoom(page, GUEST_CODE_ROOM);
+  test("personalized link in hash", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.description = "<p>Test</p>";
 
-    await page.goto(ROOM_PATH);
-    await expectParticipant(page, { name: "Laura Rivera", canChange: true });
-    await nthRequest(auth);
+    await page.goto("/rooms/abc-def-123");
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
 
-    const linkAuth = await mockAuth(page, 201, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Max Doe"));
+    await nthRequest(roomAuth);
 
-    await setHash(page, `personalizedLink=${HASH_LINK}`);
+    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
 
-    await expectAuthBody(linkAuth, {
-      personalized_link_token: HASH_LINK,
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.is_member = true;
+    room.data.username = "Max Doe";
+
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx";
+    });
+
+    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
       type: 1,
     });
-    await expectRoomToken(room, 1);
 
-    await expectUrlNotIncludes(page, "personalizedLink");
-    await expectStorage(page, LINK_KEY, HASH_LINK);
+    expectAuthToken(await nthRequest(roomRequests, 2), "1");
 
-    await expectParticipant(page, {
-      name: "Max Doe",
-      absent: ["Laura Rivera"],
-      canChange: false,
-    });
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("personalizedLink"),
+    );
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(page.getByText("Laura Rivera")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 
-  test("personalized link and access code in hash", async ({ page }) => {
-    const auth = await mockAuth(page, 201, CODE_AUTH_BODY);
-    await mockRoom(page, GUEST_CODE_ROOM);
+  test("personalized link and access code in hash", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.description = "<p>Test</p>";
 
-    await page.goto(ROOM_PATH);
-    await expectParticipant(page, { name: "Laura Rivera", canChange: true });
-    await nthRequest(auth);
+    await page.goto("/rooms/abc-def-123");
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
 
-    const linkAuth = await mockAuth(page, 201, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Max Doe"));
+    await nthRequest(roomAuth);
 
-    await setHash(page, `personalizedLink=${HASH_LINK}&accessCode=987654321`);
+    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
 
-    await expectAuthBody(linkAuth, {
-      personalized_link_token: HASH_LINK,
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.is_member = true;
+    room.data.username = "Max Doe";
+
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx&accessCode=987654321";
+    });
+
+    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
       type: 1,
     });
-    await expectRoomToken(room, 1);
 
-    await expectUrlNotIncludes(page, "personalizedLink");
-    await expectUrlNotIncludes(page, "accessCode");
-    await expectStorage(page, LINK_KEY, HASH_LINK);
+    expectAuthToken(await nthRequest(roomRequests, 2), "1");
 
-    await expectParticipant(page, {
-      name: "Max Doe",
-      absent: ["Laura Rivera"],
-      canChange: false,
-    });
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("personalizedLink"),
+    );
+
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(page.getByText("Laura Rivera")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 });
 
 test.describe("hash change with saved personalized link", () => {
-  test.beforeEach(async ({ page }) => {
-    await rememberParticipantName(page, "Laura Rivera");
-    await seedSessionStorage(page, { [LINK_KEY]: SAVED_LINK });
+  test.beforeEach(async ({ page, room, roomAuth }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
+    });
+
+    await page.addInitScript(
+      (items) => {
+        if (!window.localStorage.getItem("pw_session_seeded")) {
+          window.localStorage.setItem("pw_session_seeded", "1");
+          for (const [key, value] of Object.entries(items)) {
+            window.sessionStorage.setItem(key, value);
+          }
+        }
+      },
+      {
+        "roomPersonalizedLink_abc-def-123":
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      },
+    );
+
+    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.is_member = true;
+    room.data.username = "Max Doe";
   });
 
-  /**
-   * Visit the room with the saved personalized link and wait for the room to be shown
-   */
-  async function visitWithSavedLink(page) {
-    const auth = await mockAuth(page, 201, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Max Doe"));
+  test("saved personalized link is used", async ({
+    page,
+    roomAuth,
+    roomRequests,
+  }) => {
+    await page.goto("/rooms/abc-def-123");
 
-    await page.goto(ROOM_PATH);
-
-    await expectAuthBody(auth, {
-      personalized_link_token: SAVED_LINK,
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       type: 1,
     });
-    await expectRoomToken(room, 1);
 
-    await expectParticipant(page, { name: "Max Doe", canChange: false });
-  }
+    expectAuthToken(await nthRequest(roomRequests), "1");
 
-  test("saved personalized link is used", async ({ page }) => {
-    await visitWithSavedLink(page);
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 
-  test("access code in hash", async ({ page }) => {
-    await visitWithSavedLink(page);
+  test("access code in hash", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    await page.goto("/rooms/abc-def-123");
 
-    const auth = await mockAuth(page, 201, CODE_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_CODE_ROOM);
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      type: 1,
+    });
 
-    await setHash(page, "accessCode=987654321");
+    expectAuthToken(await nthRequest(roomRequests), "1");
 
-    await expectAuthBody(auth, { access_code: "987654321", type: 0 });
-    await expectRoomToken(room, 0);
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
+
+    roomAuth.json = { data: { id: "roomAuthToken", type: 0 } };
+
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.description = "<p>Test</p>";
+    room.data.is_member = false;
+    delete room.data.username;
+
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
+
+    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
+      access_code: "987654321",
+      type: 0,
+    });
+
+    expectAuthToken(await nthRequest(roomRequests, 2), "0");
 
     // Check that url was cleared and sessionStorage was updated
-    await expectUrlNotIncludes(page, "accessCode");
-    await expectStorage(page, CODE_KEY, "987654321");
-    await expectStorage(page, LINK_KEY, null);
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
 
-    await expectParticipant(page, {
-      name: "Laura Rivera",
-      absent: ["Max Doe"],
-      canChange: true,
-    });
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("987654321");
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(null);
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Laura Rivera", { exact: true })).toBeVisible();
+    await expect(page.getByText("Max Doe")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toBeVisible();
   });
 
-  test("different personalized link in hash", async ({ page }) => {
-    await visitWithSavedLink(page);
+  test("different personalized link in hash", async ({
+    page,
+    room,
+    roomAuth,
+    roomRequests,
+  }) => {
+    await page.goto("/rooms/abc-def-123");
 
-    const auth = await mockAuth(page, 201, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Angela Jones"));
-
-    await setHash(page, `personalizedLink=${HASH_LINK}`);
-
-    await expectAuthBody(auth, {
-      personalized_link_token: HASH_LINK,
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       type: 1,
     });
-    await expectRoomToken(room, 1);
+
+    expectAuthToken(await nthRequest(roomRequests), "1");
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
+
+    room.data.username = "Angela Jones";
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx";
+    });
+
+    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      type: 1,
+    });
+
+    expectAuthToken(await nthRequest(roomRequests, 2), "1");
 
     // Check that url was cleared and personalized link was updated in sessionStorage
-    await expectUrlNotIncludes(page, "personalizedLink");
-    await expectStorage(page, LINK_KEY, HASH_LINK);
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("personalizedLink"),
+    );
 
-    await expectParticipant(page, {
-      name: "Angela Jones",
-      absent: ["Max Doe"],
-      canChange: false,
-    });
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Angela Jones", { exact: true })).toBeVisible();
+    await expect(page.getByText("Max Doe")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 
   test("different personalized link and access code in hash", async ({
     page,
+    room,
+    roomAuth,
+    roomRequests,
   }) => {
-    await visitWithSavedLink(page);
+    await page.goto("/rooms/abc-def-123");
 
-    const auth = await mockAuth(page, 201, LINK_AUTH_BODY);
-    const room = await mockRoom(page, GUEST_MEMBER_ROOM("Angela Jones"));
-
-    await setHash(page, `personalizedLink=${HASH_LINK}&accessCode=987654321`);
-
-    await expectAuthBody(auth, {
-      personalized_link_token: HASH_LINK,
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       type: 1,
     });
-    await expectRoomToken(room, 1);
+
+    expectAuthToken(await nthRequest(roomRequests), "1");
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Max Doe", { exact: true })).toBeVisible();
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
+
+    room.data.username = "Angela Jones";
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx&accessCode=987654321";
+    });
+
+    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      type: 1,
+    });
+
+    expectAuthToken(await nthRequest(roomRequests, 2), "1");
 
     // Check that url was cleared, the access code was not saved and the personalized link was updated
-    await expectUrlNotIncludes(page, "personalizedLink");
-    await expectUrlNotIncludes(page, "accessCode");
-    await expectStorage(page, CODE_KEY, null);
-    await expectStorage(page, LINK_KEY, HASH_LINK);
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("personalizedLink"),
+    );
 
-    await expectParticipant(page, {
-      name: "Angela Jones",
-      absent: ["Laura Rivera"],
-      canChange: false,
-    });
+    await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe(null);
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+      );
+
+    await expect(page.getByText("Meeting One").first()).toBeVisible();
+    await expect(
+      page.getByText("rooms.name_in_video_conference"),
+    ).toBeVisible();
+    await expect(page.getByText("Angela Jones", { exact: true })).toBeVisible();
+    await expect(page.getByText("Laura Rivera")).toHaveCount(0);
+    await expect(
+      page.getByTestId("change-participant-name-button"),
+    ).toHaveCount(0);
   });
 });
 
 test.describe("hash change with access code errors", () => {
   test.use({ authenticated: true });
 
-  const NEEDS_CODE_ROOM = {
-    owner: { id: 2, name: "Max Doe" },
-    authenticated: false,
-    description: "<p>Test</p>",
-    allow_membership: true,
-  };
+  test.beforeEach(async ({ page, room }) => {
+    room.data.owner = { id: 2, name: "Max Doe" };
+    room.data.authenticated = false;
+    room.data.description = "<p>Test</p>";
+    room.data.allow_membership = true;
 
-  test.beforeEach(async ({ page }) => {
-    await mockRoom(page, NEEDS_CODE_ROOM);
-
-    await page.goto(ROOM_PATH);
+    await page.goto("/rooms/abc-def-123");
 
     await expect(page).toHaveTitle("Meeting One - PILOS Test");
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
   });
 
-  test("422 error", async ({ page }) => {
-    const auth = await mockAuth(page, 422, {
+  test("422 error", async ({ page, roomAuth, roomRequests }) => {
+    roomAuth.status = 422;
+    roomAuth.json = {
       message: "The Access code field is required.",
       errors: { access_code: ["The Access code field is required."] },
+    };
+
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=123456789";
     });
-    const room = await mockRoom(page, NEEDS_CODE_ROOM);
 
-    await setHash(page, "accessCode=123456789");
+    await nthRequest(roomAuth);
+    await nthRequest(roomRequests, 2);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe(null);
 
-    await nthRequest(auth);
-    await nthRequest(room);
-    await expectStorage(page, CODE_KEY, null);
-
-    const overlay = page.getByTestId("room-access-overlay");
-    await expect(overlay).toBeVisible();
+    await expect(page.getByTestId("room-access-overlay")).toBeVisible();
     await expect(
-      overlay.getByText("The Access code field is required."),
+      page
+        .getByTestId("room-access-overlay")
+        .getByText("The Access code field is required."),
     ).toBeVisible();
   });
 
-  test("invalid code error", async ({ page }) => {
-    const auth = await mockAuth(page, 401, { message: "invalid_code" });
-    const room = await mockRoom(page, NEEDS_CODE_ROOM);
+  test("invalid code error", async ({ page, roomAuth, roomRequests }) => {
+    roomAuth.status = 401;
+    roomAuth.json = { message: "invalid_code" };
 
-    await setHash(page, "accessCode=987654321");
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
 
-    await expectAuthBody(auth, { access_code: "987654321", type: 0 });
-    await nthRequest(room);
-    await expectStorage(page, CODE_KEY, null);
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      access_code: "987654321",
+      type: 0,
+    });
+
+    await nthRequest(roomRequests, 2);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe(null);
 
     // Check if error message is shown
     await expectToastAndClose(page, "rooms.flash.access_code_invalid");
@@ -628,26 +1035,36 @@ test.describe("hash change with access code errors", () => {
       page.getByText("rooms.flash.access_code_invalid"),
     ).toBeVisible();
 
-    const overlay = page.getByTestId("room-access-overlay");
-    await expect(overlay).toBeVisible();
-    await expect(overlay.locator("#access-code")).toHaveValue("987-654-321");
+    await expect(page.getByTestId("room-access-overlay")).toBeVisible();
+    await expect(
+      page.getByTestId("room-access-overlay").locator("#access-code"),
+    ).toHaveValue("987-654-321");
   });
 
-  test("rate limit error", async ({ page }) => {
-    const auth = await mockAuth(page, 429, {
-      limit: "room_auth",
-      retry_after: 5,
-    });
-    const room = await mockRoom(page, NEEDS_CODE_ROOM);
+  test("rate limit error", async ({ page, roomAuth, roomRequests }) => {
+    roomAuth.status = 429;
+    roomAuth.json = { limit: "room_auth", retry_after: 5 };
 
     await page.clock.install();
     await page.clock.pauseAt(new Date(Date.now() + 1000));
 
-    await setHash(page, "accessCode=987654321");
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
 
-    await expectAuthBody(auth, { access_code: "987654321", type: 0 });
-    await nthRequest(room);
-    await expectStorage(page, CODE_KEY, "987654321");
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      access_code: "987654321",
+      type: 0,
+    });
+
+    await nthRequest(roomRequests, 2);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("987654321");
 
     // Check if input and buttons are disabled
     await expect(page.locator("#access-code")).toBeDisabled();
@@ -671,37 +1088,68 @@ test.describe("hash change with access code errors", () => {
     await expect(page.getByTestId("reload-room-button")).toBeEnabled();
   });
 
-  test("server error", async ({ page }) => {
-    const auth = await mockAuth(page, 500, { message: "Test" });
+  test("server error", async ({ page, roomAuth }) => {
+    roomAuth.status = 500;
+    roomAuth.json = { message: "Test" };
 
-    await setHash(page, "accessCode=987654321");
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
 
-    await nthRequest(auth);
-    await expectStorage(page, CODE_KEY, "987654321");
+    await nthRequest(roomAuth);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("987654321");
 
-    await expectToastAndClose(page, SERVER_ERROR_TOAST);
+    await expectToastAndClose(page, [
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
     await expect(page.getByTestId("reload-button")).toBeVisible();
   });
 
-  test("guests not allowed error", async ({ page }) => {
-    await mockAuth(page, 403, { message: "guests_not_allowed" });
+  test("guests not allowed error", async ({ page, roomAuth }) => {
+    roomAuth.status = 403;
+    roomAuth.json = { message: "guests_not_allowed" };
 
-    await setHash(page, "accessCode=987654321");
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
 
     await expect(
       page.getByText("rooms.only_used_by_authenticated_users"),
     ).toBeVisible();
     await expect(page.getByTestId("room-access-overlay")).toBeHidden();
-    await expectStorage(page, CODE_KEY, "987654321");
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomAccessCode_abc-def-123"),
+        ),
+      )
+      .toBe("987654321");
   });
 
-  test("room not found error as authenticated user", async ({ page }) => {
+  test("room not found error as authenticated user", async ({
+    page,
+    roomAuth,
+  }) => {
     await interceptRoomIndexRequests(page);
-    const auth = await mockAuth(page, 404, MODEL_NOT_FOUND_BODY);
+    roomAuth.status = 404;
+    roomAuth.json = {
+      message: "model_not_found",
+      model: "room",
+      ids: ["abc-def-123"],
+    };
 
-    await setHash(page, "accessCode=987654321");
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
 
-    await nthRequest(auth);
+    await nthRequest(roomAuth);
 
     // Check that redirect to room index page worked
     await expect(page).toHaveURL(
@@ -710,123 +1158,221 @@ test.describe("hash change with access code errors", () => {
         !url.pathname.includes("/rooms/abc-def-123"),
     );
 
-    await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+    await expectToastAndClose(page, [
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });
 
 test.describe("hash change with access code errors as guest", () => {
-  test("room not found error", async ({ page }) => {
-    const check = await rememberParticipantName(page, "Angela Jones");
-    await mockRoom(page, {
-      current_user: null,
-      authenticated: false,
+  test("room not found error", async ({ page, room, roomAuth, nameCheck }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem("pilos_guest_name", "Angela Jones");
     });
-    const auth = await mockAuth(page, 404, MODEL_NOT_FOUND_BODY);
 
-    await page.goto(ROOM_PATH);
+    room.data.current_user = null;
+    room.data.authenticated = false;
+    roomAuth.status = 404;
+    roomAuth.json = {
+      message: "model_not_found",
+      model: "room",
+      ids: ["abc-def-123"],
+    };
+
+    await page.goto("/rooms/abc-def-123");
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
 
-    await setHash(page, "accessCode=987654321");
+    await page.evaluate(() => {
+      window.location.hash = "accessCode=987654321";
+    });
 
-    await nthRequest(check);
-    await nthRequest(auth);
+    await nthRequest(nameCheck);
+    await nthRequest(roomAuth);
 
     // Check that redirect to 404 page worked
-    await expectUrlIncludes(page, "/404");
-    await expectUrlNotIncludes(page, "/rooms/abc-def-123");
+    await expect(page).toHaveURL((url) => url.href.includes("/404"));
 
-    await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("/rooms/abc-def-123"),
+    );
+
+    await expectToastAndClose(page, [
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });
 
 test.describe("hash change with personalized link errors", () => {
-  test.beforeEach(async ({ page }) => {
-    await mockRoom(page, GUEST_NEEDS_CODE_ROOM);
+  test.beforeEach(async ({ page, room }) => {
+    room.data.allow_membership = true;
+    room.data.current_user = null;
+    room.data.authenticated = false;
 
-    await page.goto(ROOM_PATH);
+    await page.goto("/rooms/abc-def-123");
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
   });
 
-  /**
-   * Set the personalized link in the hash and check that it is sent to the server
-   */
-  async function setLinkHash(page, auth, link) {
-    await setHash(page, `personalizedLink=${link}&accessCode=987654321`);
-    await expectAuthBody(auth, { personalized_link_token: link, type: 1 });
-  }
+  test("invalid personalized link (401)", async ({ page, roomAuth }) => {
+    roomAuth.status = 401;
+    roomAuth.json = { message: "invalid_personalized_link" };
 
-  test("invalid personalized link (401)", async ({ page }) => {
-    const auth = await mockAuth(page, 401, {
-      message: "invalid_personalized_link",
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
     });
 
-    await setLinkHash(page, auth, ERROR_LINK("E401"));
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      type: 1,
+    });
 
-    await expectStorage(page, LINK_KEY, null);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(null);
 
     await expectToastAndClose(page, "rooms.flash.personalized_link_invalid");
     await expect(
       page.getByText("rooms.invalid_personalized_link"),
     ).toBeVisible();
-    await expectUrlIncludes(
-      page,
-      "/rooms/abc-def-123/invalid_personalized_link",
+    await expect(page).toHaveURL((url) =>
+      url.href.includes("/rooms/abc-def-123/invalid_personalized_link"),
     );
   });
 
-  test("invalid personalized link (422)", async ({ page }) => {
-    const auth = await mockAuth(page, 422, {
+  test("invalid personalized link (422)", async ({ page, roomAuth }) => {
+    roomAuth.status = 422;
+    roomAuth.json = {
       message: "The Access token field is required.",
       errors: {
         personalized_link_token: ["The Access token field is required."],
       },
+    };
+
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
     });
 
-    await setLinkHash(page, auth, ERROR_LINK("E422"));
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      type: 1,
+    });
 
-    await expectStorage(page, LINK_KEY, null);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(null);
 
     await expectToastAndClose(page, "rooms.flash.personalized_link_invalid");
     await expect(
       page.getByText("rooms.invalid_personalized_link"),
     ).toBeVisible();
-    await expectUrlIncludes(
-      page,
-      "/rooms/abc-def-123/invalid_personalized_link",
+    await expect(page).toHaveURL((url) =>
+      url.href.includes("/rooms/abc-def-123/invalid_personalized_link"),
     );
   });
 
-  test("guests only error", async ({ page }) => {
-    const auth = await mockAuth(page, 420, { message: "guests_only" });
+  test("guests only error", async ({ page, roomAuth }) => {
+    roomAuth.status = 420;
+    roomAuth.json = { message: "guests_only" };
 
-    await setLinkHash(page, auth, ERROR_LINK("E420"));
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
+    });
 
-    await expectStorage(page, LINK_KEY, ERROR_LINK("E420"));
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      type: 1,
+    });
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
 
     await expectToastAndClose(page, "app.flash.guests_only");
-    await expectUrlNotIncludes(page, "/rooms");
+    await expect(page).toHaveURL((url) => !url.href.includes("/rooms"));
   });
 
-  test("server error", async ({ page }) => {
-    const auth = await mockAuth(page, 500, { message: "Test" });
+  test("server error", async ({ page, roomAuth }) => {
+    roomAuth.status = 500;
+    roomAuth.json = { message: "Test" };
 
-    await setLinkHash(page, auth, ERROR_LINK("E500"));
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
+    });
 
-    await expectStorage(page, LINK_KEY, ERROR_LINK("E500"));
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      type: 1,
+    });
 
-    await expectToastAndClose(page, SERVER_ERROR_TOAST);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
+        ),
+      )
+      .toBe(
+        "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      );
+
+    await expectToastAndClose(page, [
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
     await expect(page.getByTestId("reload-button")).toBeVisible();
   });
 
-  test("room not found error", async ({ page }) => {
-    const auth = await mockAuth(page, 404, MODEL_NOT_FOUND_BODY);
+  test("room not found error", async ({ page, roomAuth }) => {
+    roomAuth.status = 404;
+    roomAuth.json = {
+      message: "model_not_found",
+      model: "room",
+      ids: ["abc-def-123"],
+    };
 
-    await setLinkHash(page, auth, ERROR_LINK("E404"));
+    await page.evaluate(() => {
+      window.location.hash =
+        "personalizedLink=E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
+    });
+
+    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
+      personalized_link_token:
+        "E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+      type: 1,
+    });
 
     // Check that redirect to 404 page worked and error message is shown
-    await expectUrlIncludes(page, "/404");
-    await expectUrlNotIncludes(page, "rooms/abc-def-123");
+    await expect(page).toHaveURL((url) => url.href.includes("/404"));
 
-    await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+    await expect(page).toHaveURL(
+      (url) => !url.href.includes("rooms/abc-def-123"),
+    );
+
+    await expectToastAndClose(page, [
+      'app.flash.model_not_found.title_{"model":"app.model.room"}',
+      'app.flash.model_not_found.details_{"ids":"abc-def-123"}',
+    ]);
   });
 });

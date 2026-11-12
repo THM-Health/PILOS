@@ -1,309 +1,24 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import {
+  test,
+  expect,
+  expectToastAndClose,
+} from "../support/fixtures/adminRoomTypes.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import {
-  interceptAdminRoomTypesViewRequests,
-  interceptAdminRoomTypesIndexRequests,
-} from "../support/mocks.js";
 import {
   roomTypeCheckDefaultRoomSettingCheckboxField,
   expectAdminBreadcrumbs,
   expectRoleChips,
   expectMultiselectOptions,
 } from "../support/admin.js";
-import { holdRequest } from "../support/utils.js";
-
-const ENFORCED = "admin.room_types.default_room_settings.enforced";
-const SELECTED = /\bselected\b/;
-const NOT_SELECTED = /^(?!.*\bselected\b)/;
-const DEFAULT = "admin.room_types.default_room_settings.default";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const serverError = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-const modelNotFound = [
-  'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
-  'app.flash.model_not_found.details_{"ids":"3"}',
-];
-
-/**
- * Values the room type gets after all settings were changed in the form (see `changeAllSettings`)
- * @type {object}
- */
-const changedRoomTypeData = {
-  name: "Exam 01",
-  description: "New room type description for room type Exam 01",
-  color: "#ef4444",
-  server_pool: {
-    id: 2,
-    name: "Production",
-    description: "Pool for production",
-    servers_count: 1,
-    model_name: "ServerPool",
-    updated_at: "2020-12-21T13:43:21.000000Z",
-  },
-  max_participants: 50,
-  max_duration: 60,
-  create_parameters: "meetingLayout=PRESENTATION_FOCUS",
-  join_parameters: "enforceLayout=PRESENTATION_ONLY",
-  restrict: false,
-  roles: [],
-  mute_on_start_default: false,
-  mute_on_start_enforced: false,
-  lock_settings_disable_cam_default: true,
-  lock_settings_disable_cam_enforced: true,
-  webcams_only_for_moderator_default: false,
-  webcams_only_for_moderator_enforced: true,
-  lock_settings_disable_mic_default: true,
-  lock_settings_disable_mic_enforced: false,
-  lock_settings_disable_private_chat_default: true,
-  lock_settings_disable_private_chat_enforced: true,
-  lock_settings_disable_public_chat_default: false,
-  lock_settings_disable_public_chat_enforced: true,
-  lock_settings_disable_note_default: false,
-  lock_settings_disable_note_enforced: false,
-  lock_settings_hide_user_list_default: false,
-  lock_settings_hide_user_list_enforced: true,
-  everyone_can_start_default: true,
-  everyone_can_start_enforced: true,
-  allow_membership_default: true,
-  allow_membership_enforced: false,
-  allow_guests_default: false,
-  allow_guests_enforced: false,
-  default_role_default: 2,
-  default_role_enforced: true,
-  lobby_default: 0,
-  lobby_enforced: false,
-  visibility_default: 0,
-  visibility_enforced: true,
-  record_attendance_default: true,
-  record_attendance_enforced: true,
-  record_default: true,
-  record_enforced: true,
-  auto_start_recording_default: true,
-  auto_start_recording_enforced: true,
-  has_access_code_default: false,
-  has_access_code_enforced: true,
-};
-
-const superuserAndStaff = [
-  { id: 1, name: "Superuser" },
-  { id: 2, name: "Staff" },
-];
-
-/**
- * @param {object} [changes]
- * @returns {object}
- */
-function roomTypeWith(changes = {}) {
-  const roomType = readFixture("roomType.json");
-  Object.assign(roomType.data, changes);
-  return roomType;
-}
-
-/**
- * The room type as it is sent to the backend (server pool and roles as ids)
- * @param {object} roomType
- * @returns {object}
- */
-function toRequestBody(roomType) {
-  const data = { ...roomType.data };
-  data.server_pool = data.server_pool.id;
-  if (data.roles.length > 0) {
-    data.roles = data.roles.map((role) => role.id);
-  }
-  return data;
-}
-
-async function mockRoomTypeGet(page, response) {
-  await page.route("**/api/v1/roomTypes/3", (route) =>
-    route.request().method() === "GET"
-      ? route.fulfill(response)
-      : route.fallback(),
-  );
-}
-
-async function mockRoomTypePut(page, response) {
-  await page.route("**/api/v1/roomTypes/3", (route) =>
-    route.request().method() === "PUT"
-      ? route.fulfill(response)
-      : route.fallback(),
-  );
-}
-
-async function mockRolesGet(page, response) {
-  await page.route("**/api/v1/roles*", (route) =>
-    route.request().method() === "GET"
-      ? route.fulfill(response)
-      : route.fallback(),
-  );
-}
-
-async function mockServerPoolsGet(page, response) {
-  await page.route("**/api/v1/serverPools*", (route) =>
-    route.request().method() === "GET"
-      ? route.fulfill(response)
-      : route.fallback(),
-  );
-}
-
-const settingFields = [
-  "has-access-code",
-  "allow-guests",
-  "everyone-can-start",
-  "mute-on-start",
-  "record-attendance",
-  "record",
-  "auto-start-recording",
-  "disable-cam",
-  "webcams-only-for-moderator",
-  "disable-mic",
-  "disable-public-chat",
-  "disable-private-chat",
-  "disable-note",
-  "hide-user-list",
-  "allow-membership",
-];
-
-function allFormInputs(page) {
-  return [
-    page.locator("#room-type-name"),
-    page.locator("#description"),
-    page.locator("#custom-color"),
-    page.locator("#restrict"),
-    page.locator("#max-participants"),
-    page.getByTestId("clear-max-participants-button"),
-    page.locator("#max-duration"),
-    page.getByTestId("clear-max-duration-button"),
-    ...settingFields.flatMap((field) => [
-      page.locator(`#${field}-default`),
-      page.getByTestId(`${field}-enforced`),
-    ]),
-    page.locator("#lobby-disabled"),
-    page.locator("#lobby-enabled"),
-    page.locator("#lobby-only-for-guests"),
-    page.getByTestId("lobby-enforced"),
-    page.getByTestId("default-role-default-button"),
-    page.getByTestId("default-role-enforced"),
-    page.getByTestId("visibility-default-button"),
-    page.getByTestId("visibility-enforced"),
-  ];
-}
-
-async function expectChangedSettingsShown(page, { restrict = false } = {}) {
-  await expect(page.locator("#room-type-name")).toHaveValue("Exam 01");
-  await expect(page.locator("#description")).toHaveValue(
-    "New room type description for room type Exam 01",
-  );
-  await expect(page.locator("#custom-color")).toHaveValue("#ef4444");
-  await expect(
-    page.getByTestId("server-pool-dropdown").locator(".multiselect__tags"),
-  ).toContainText("Production");
-  if (restrict) {
-    await expect(page.locator("#restrict")).toBeChecked();
-    await expectRoleChips(page, ["Superuser", "Staff"]);
-  } else {
-    await expect(page.locator("#restrict")).not.toBeChecked();
-  }
-  await expect(page.locator("#max-participants")).toHaveValue("50");
-  await expect(page.locator("#max-duration")).toHaveValue("60 min.");
-
-  const expected = [
-    ["has-access-code", false, true],
-    ["allow-guests", false, false],
-    ["everyone-can-start", true, true],
-    ["mute-on-start", false, false],
-    ["record-attendance", true, true],
-    ["record", true, true],
-    ["auto-start-recording", true, true],
-    ["disable-cam", true, true],
-    ["webcams-only-for-moderator", false, true],
-    ["disable-mic", true, false],
-    ["disable-public-chat", false, true],
-    ["disable-private-chat", true, true],
-    ["disable-note", false, false],
-    ["hide-user-list", false, true],
-    ["allow-membership", true, false],
-  ];
-  for (const [field, value, enforced] of expected) {
-    await roomTypeCheckDefaultRoomSettingCheckboxField(
-      page,
-      field,
-      value,
-      enforced,
-      false,
-    );
-  }
-
-  await expect(page.locator("#lobby-disabled")).toBeChecked();
-  await expect(page.getByTestId("lobby-enforced")).toHaveText(DEFAULT);
-
-  const roleButton = page.getByTestId("default-role-default-button").nth(1);
-  await expect(roleButton).toHaveText("rooms.roles.moderator");
-  await expect(roleButton).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("default-role-enforced")).toHaveText(ENFORCED);
-
-  const visibilityButton = page.getByTestId("visibility-default-button").nth(0);
-  await expect(visibilityButton).toHaveText(
-    "rooms.settings.advanced.visibility.private",
-  );
-  await expect(visibilityButton).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("visibility-enforced")).toHaveText(ENFORCED);
-
-  await expect(page.locator("#create-parameters")).toHaveValue(
-    "meetingLayout=PRESENTATION_FOCUS",
-  );
-  await expect(page.locator("#join-parameters")).toHaveValue(
-    "enforceLayout=PRESENTATION_ONLY",
-  );
-}
-
-async function changeAllSettings(page) {
-  await page.locator("#room-type-name").fill("Exam 01");
-  await page
-    .locator("#description")
-    .fill("New room type description for room type Exam 01");
-  await page.getByTestId("color-button").nth(7).click();
-
-  await page.getByTestId("server-pool-dropdown").click();
-  await page.locator(".multiselect__option").nth(1).click();
-
-  await page.locator("#max-participants").fill("50");
-  await page.locator("#max-duration").fill("60");
-
-  for (const field of settingFields) {
-    await page.locator(`#${field}-default`).click();
-    await page.getByTestId(`${field}-enforced`).click();
-  }
-
-  await page.locator("#lobby-disabled").click();
-  await page.getByTestId("lobby-enforced").click();
-
-  await page.getByTestId("default-role-default-button").nth(1).click();
-  await page.getByTestId("default-role-enforced").click();
-
-  await page.getByTestId("visibility-default-button").nth(0).click();
-  await page.getByTestId("visibility-enforced").click();
-
-  await page
-    .locator("#create-parameters")
-    .fill("meetingLayout=PRESENTATION_FOCUS");
-  await page
-    .locator("#join-parameters")
-    .fill("enforceLayout=PRESENTATION_ONLY");
-}
+import { holdRequest, mockMethod, nthRequest } from "../support/utils.js";
 
 test.describe("Admin room types edit", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "roles.viewAny",
@@ -313,7 +28,6 @@ test.describe("Admin room types edit", () => {
       "roomTypes.create",
       "roomTypes.delete",
     ];
-    await interceptAdminRoomTypesViewRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -366,9 +80,10 @@ test.describe("Admin room types edit", () => {
   test.describe("edit room type", () => {
     test("shows loading state while the room type is loaded", async ({
       page,
+      roomType,
     }) => {
       const release = await holdRequest(page, "**/api/v1/roomTypes/3", {
-        path: "tests/Playwright/fixtures/roomType.json",
+        json: roomType,
       });
       const serverPoolsRequest = page.waitForRequest("**/api/v1/serverPools*");
       await page.goto("/admin/room_types/3/edit");
@@ -456,6 +171,9 @@ test.describe("Admin room types edit", () => {
       });
 
       test("color selection", async ({ page }) => {
+        const selected = /\bselected\b/;
+        const notSelected = /^(?!.*\bselected\b)/;
+
         const colorField = page.getByTestId("color-field");
         await expect(colorField).toBeVisible();
         await expect(colorField).toContainText("admin.room_types.color");
@@ -476,14 +194,14 @@ test.describe("Admin room types edit", () => {
         await expect(customColor).toBeEnabled();
         await customColor.clear();
         for (let i = 0; i < 10; i++) {
-          await expect(buttons.nth(i)).toHaveClass(NOT_SELECTED);
+          await expect(buttons.nth(i)).toHaveClass(notSelected);
         }
 
         // Set custom color and check that the matching color button is selected
         await customColor.fill("#06b6d4");
         for (let i = 0; i < 10; i++) {
           await expect(buttons.nth(i)).toHaveClass(
-            i === 2 ? SELECTED : NOT_SELECTED,
+            i === 2 ? selected : notSelected,
           );
         }
 
@@ -491,7 +209,7 @@ test.describe("Admin room types edit", () => {
         await buttons.nth(7).click();
         for (let i = 0; i < 10; i++) {
           await expect(buttons.nth(i)).toHaveClass(
-            i === 7 ? SELECTED : NOT_SELECTED,
+            i === 7 ? selected : notSelected,
           );
         }
         await expect(customColor).toHaveValue("#ef4444");
@@ -759,7 +477,9 @@ test.describe("Admin room types edit", () => {
         ).toBeEnabled();
 
         const enforced = lobbyField.getByTestId("lobby-enforced");
-        await expect(enforced).toHaveText(ENFORCED);
+        await expect(enforced).toHaveText(
+          "admin.room_types.default_room_settings.enforced",
+        );
         await expect(enforced).toBeEnabled();
       });
 
@@ -786,7 +506,9 @@ test.describe("Admin room types edit", () => {
         await expect(buttons.nth(1)).toBeEnabled();
 
         const enforced = field.getByTestId("default-role-enforced");
-        await expect(enforced).toHaveText(DEFAULT);
+        await expect(enforced).toHaveText(
+          "admin.room_types.default_room_settings.default",
+        );
         await expect(enforced).toBeEnabled();
       });
 
@@ -816,7 +538,9 @@ test.describe("Admin room types edit", () => {
         await expect(buttons.nth(1)).toBeEnabled();
 
         const enforced = field.getByTestId("visibility-enforced");
-        await expect(enforced).toHaveText(DEFAULT);
+        await expect(enforced).toHaveText(
+          "admin.room_types.default_room_settings.default",
+        );
         await expect(enforced).toBeEnabled();
       });
 
@@ -852,33 +576,95 @@ test.describe("Admin room types edit", () => {
     });
 
     test.describe("saving", () => {
+      const settingFields = [
+        "has-access-code",
+        "allow-guests",
+        "everyone-can-start",
+        "mute-on-start",
+        "record-attendance",
+        "record",
+        "auto-start-recording",
+        "disable-cam",
+        "webcams-only-for-moderator",
+        "disable-mic",
+        "disable-public-chat",
+        "disable-private-chat",
+        "disable-note",
+        "hide-user-list",
+        "allow-membership",
+      ];
+
       test.beforeEach(async ({ page }) => {
         await page.goto("/admin/room_types/3/edit");
         await expect(page.locator("#room-type-name")).toHaveValue("Exam");
-        await changeAllSettings(page);
+
+        // Change all settings
+        await page.locator("#room-type-name").fill("Exam 01");
+        await page
+          .locator("#description")
+          .fill("New room type description for room type Exam 01");
+        await page.getByTestId("color-button").nth(7).click();
+
+        await page.getByTestId("server-pool-dropdown").click();
+        await page.locator(".multiselect__option").nth(1).click();
+
+        await page.locator("#max-participants").fill("50");
+        await page.locator("#max-duration").fill("60");
+
+        for (const field of settingFields) {
+          await page.locator(`#${field}-default`).click();
+          await page.getByTestId(`${field}-enforced`).click();
+        }
+
+        await page.locator("#lobby-disabled").click();
+        await page.getByTestId("lobby-enforced").click();
+
+        await page.getByTestId("default-role-default-button").nth(1).click();
+        await page.getByTestId("default-role-enforced").click();
+
+        await page.getByTestId("visibility-default-button").nth(0).click();
+        await page.getByTestId("visibility-enforced").click();
+
+        await page
+          .locator("#create-parameters")
+          .fill("meetingLayout=PRESENTATION_FOCUS");
+        await page
+          .locator("#join-parameters")
+          .fill("enforceLayout=PRESENTATION_ONLY");
       });
 
-      test("sends the changed data", async ({ page }) => {
-        const roomType = roomTypeWith(changedRoomTypeData);
-        await mockRoomTypePut(page, { status: 201, json: roomType });
-        await mockRoomTypeGet(page, { json: roomType });
-
-        const saveRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "PUT" &&
-            request.url().includes("/api/v1/roomTypes/3"),
+      test("sends the changed data", async ({
+        page,
+        roomType,
+        editedRoomType,
+      }) => {
+        Object.assign(roomType.data, editedRoomType);
+        const saveMock = await mockMethod(
+          page,
+          "PUT",
+          "**/api/v1/roomTypes/3",
+          { status: 201, json: roomType },
         );
+
         await page.getByTestId("room-types-save-button").click();
 
-        expect((await saveRequest).postDataJSON()).toEqual(
-          toRequestBody(roomType),
-        );
+        expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
+          ...roomType.data,
+          server_pool: roomType.data.server_pool.id,
+          roles: roomType.data.roles.map((role) => role.id),
+        });
       });
 
-      test("shows the room type view after saving", async ({ page }) => {
-        const roomType = roomTypeWith(changedRoomTypeData);
-        await mockRoomTypePut(page, { status: 201, json: roomType });
-        await mockRoomTypeGet(page, { json: roomType });
+      test("shows the room type view after saving", async ({
+        page,
+        roomType,
+        editedRoomType,
+      }) => {
+        Object.assign(roomType.data, editedRoomType);
+        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+          status: 201,
+          json: roomType,
+        });
 
         await page.getByTestId("room-types-save-button").click();
 
@@ -891,21 +677,44 @@ test.describe("Admin room types edit", () => {
         await expect(page.getByTestId("overlay")).toBeHidden();
       });
 
-      test("disables the form while saving", async ({ page }) => {
-        const roomType = roomTypeWith(changedRoomTypeData);
-        let releaseSave;
-        const gate = new Promise((resolve) => (releaseSave = resolve));
-        await page.route("**/api/v1/roomTypes/3", async (route) => {
-          if (route.request().method() !== "PUT") {
-            return route.fulfill({ json: roomType });
-          }
-          await gate;
-          await route.fulfill({ status: 201, json: roomType });
-        });
+      test("disables the form while saving", async ({
+        page,
+        roomType,
+        editedRoomType,
+      }) => {
+        Object.assign(roomType.data, editedRoomType);
+        const saveMock = await mockMethod(
+          page,
+          "PUT",
+          "**/api/v1/roomTypes/3",
+          { status: 201, json: roomType, hold: true },
+        );
         await page.getByTestId("room-types-save-button").click();
 
         await expect(page.getByTestId("overlay")).toBeVisible();
-        for (const input of allFormInputs(page)) {
+        const inputs = [
+          page.locator("#room-type-name"),
+          page.locator("#description"),
+          page.locator("#custom-color"),
+          page.locator("#restrict"),
+          page.locator("#max-participants"),
+          page.getByTestId("clear-max-participants-button"),
+          page.locator("#max-duration"),
+          page.getByTestId("clear-max-duration-button"),
+          ...settingFields.flatMap((field) => [
+            page.locator(`#${field}-default`),
+            page.getByTestId(`${field}-enforced`),
+          ]),
+          page.locator("#lobby-disabled"),
+          page.locator("#lobby-enabled"),
+          page.locator("#lobby-only-for-guests"),
+          page.getByTestId("lobby-enforced"),
+          page.getByTestId("default-role-default-button"),
+          page.getByTestId("default-role-enforced"),
+          page.getByTestId("visibility-default-button"),
+          page.getByTestId("visibility-enforced"),
+        ];
+        for (const input of inputs) {
           await expect(input.first()).toBeDisabled();
         }
         await expect(
@@ -949,55 +758,19 @@ test.describe("Admin room types edit", () => {
         ).toBeDisabled();
         await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
-        releaseSave();
+        saveMock.release();
         await expect(page).toHaveURL(/\/admin\/room_types\/3$/);
       });
     });
   });
 
   test.describe("roles with restriction", () => {
-    const restrictedRoomType = () =>
-      roomTypeWith({ restrict: true, roles: superuserAndStaff });
-
-    const secondRolesPage = {
-      data: [
-        {
-          id: 4,
-          name: "Dean",
-          default: false,
-          updated_at: "2021-01-08T15:51:08.000000Z",
-          model_name: "Role",
-          room_limit: 20,
-        },
-        {
-          id: 5,
-          name: "Faculty",
-          default: false,
-          updated_at: "2021-03-19T09:12:44.000000Z",
-          model_name: "Role",
-          room_limit: 20,
-        },
-        {
-          id: 6,
-          name: "Manager",
-          default: false,
-          updated_at: "2021-05-22T11:55:21.000000Z",
-          model_name: "Role",
-          room_limit: -1,
-        },
-      ],
-      meta: {
-        current_page: 2,
-        from: 4,
-        last_page: 2,
-        per_page: 3,
-        to: 6,
-        total: 6,
-      },
-    };
-
-    test.beforeEach(async ({ page }) => {
-      await mockRoomTypeGet(page, { json: restrictedRoomType() });
+    test.beforeEach(async ({ roomType }) => {
+      roomType.data.restrict = true;
+      roomType.data.roles = [
+        { id: 1, name: "Superuser" },
+        { id: 2, name: "Staff" },
+      ];
     });
 
     test("shows the roles and the role options", async ({ page }) => {
@@ -1027,7 +800,7 @@ test.describe("Admin room types edit", () => {
       ).toContainText("admin.roles.superuser");
     });
 
-    test("loads the next page of roles", async ({ page }) => {
+    test("loads the next page of roles", async ({ page, rolesSecondPage }) => {
       await page.goto("/admin/room_types/3/edit");
       await page.getByTestId("role-dropdown").click();
 
@@ -1042,7 +815,7 @@ test.describe("Admin room types edit", () => {
       await expect(content.getByTestId("next-page-button")).toBeEnabled();
 
       const release = await holdRequest(page, "**/api/v1/roles*", {
-        json: secondRolesPage,
+        json: rolesSecondPage,
       });
       await content.getByTestId("next-page-button").click();
 
@@ -1066,10 +839,16 @@ test.describe("Admin room types edit", () => {
       );
     });
 
-    test("adds, removes and saves roles", async ({ page }) => {
+    test("adds, removes and saves roles", async ({
+      page,
+      roomType,
+      rolesSecondPage,
+    }) => {
       await page.goto("/admin/room_types/3/edit");
       await page.getByTestId("role-dropdown").click();
-      await mockRolesGet(page, { json: secondRolesPage });
+      await mockMethod(page, "GET", "**/api/v1/roles*", {
+        json: rolesSecondPage,
+      });
       const content = page.locator(".multiselect__content");
       await content.getByTestId("next-page-button").click();
       await content.locator(".multiselect__option").nth(0).click();
@@ -1083,28 +862,15 @@ test.describe("Admin room types edit", () => {
       await chips.nth(1).getByTestId("remove-role-button").click();
       await expectRoleChips(page, ["Staff", "Manager"]);
 
-      const roomType = roomTypeWith({
-        restrict: true,
-        roles: [
-          { id: 2, name: "Staff" },
-          { id: 6, name: "Manager" },
-        ],
+      roomType.data.roles = [
+        { id: 2, name: "Staff" },
+        { id: 6, name: "Manager" },
+      ];
+      const saveMock = await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+        status: 201,
+        json: roomType,
+        hold: true,
       });
-      let releaseSave;
-      const gate = new Promise((resolve) => (releaseSave = resolve));
-      await page.route("**/api/v1/roomTypes/3", async (route) => {
-        if (route.request().method() !== "PUT") {
-          return route.fulfill({ json: roomType });
-        }
-        await gate;
-        await route.fulfill({ status: 201, json: roomType });
-      });
-
-      const saveRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "PUT" &&
-          request.url().includes("/api/v1/roomTypes/3"),
-      );
       await expect(page.getByTestId("overlay")).toBeHidden();
       await page.getByTestId("room-types-save-button").click();
 
@@ -1120,11 +886,13 @@ test.describe("Admin room types edit", () => {
       await expect(page.getByTestId("room-types-delete-button")).toBeDisabled();
       await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
-      releaseSave();
+      saveMock.release();
 
-      expect((await saveRequest).postDataJSON()).toEqual(
-        toRequestBody(roomType),
-      );
+      expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
+        ...roomType.data,
+        server_pool: roomType.data.server_pool.id,
+        roles: roomType.data.roles.map((role) => role.id),
+      });
 
       await expect(page).toHaveURL(/\/admin\/room_types\/3$/);
       await expect(page.getByTestId("overlay")).toBeHidden();
@@ -1132,10 +900,12 @@ test.describe("Admin room types edit", () => {
   });
 
   test.describe("save errors", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomTypeGet(page, {
-        json: roomTypeWith({ restrict: true, roles: superuserAndStaff }),
-      });
+    test.beforeEach(async ({ page, roomType }) => {
+      roomType.data.restrict = true;
+      roomType.data.roles = [
+        { id: 1, name: "Superuser" },
+        { id: 2, name: "Staff" },
+      ];
       await page.goto("/admin/room_types/3/edit");
       await expect(page.locator("#room-type-name")).toHaveValue("Exam");
       await expectRoleChips(page, ["Superuser", "Staff"]);
@@ -1146,243 +916,12 @@ test.describe("Admin room types edit", () => {
       );
     });
 
-    const validationErrors = {
-      name: ["The name field is required."],
-      description: ["The description field is required."],
-      color: ["The color field is required."],
-      server_pool: ["The server pool field is required."],
-      max_participants: ["The max participants field is required."],
-      max_duration: ["The max duration field is required."],
-      create_parameters: ["The create parameters field is required."],
-      join_parameters: ["The join parameters field is required."],
-      roles: ["The roles field is required."],
-      has_access_code_default: [
-        "The has access code default field is required.",
-      ],
-      has_access_code_enforced: [
-        "The has access code enforced field is required.",
-      ],
-      allow_guests_default: ["The allow guests default field is required."],
-      allow_guests_enforced: ["The allow guests enforced field is required."],
-      everyone_can_start_default: [
-        "The everyone can start default field is required.",
-      ],
-      everyone_can_start_enforced: [
-        "The everyone can start enforced field is required.",
-      ],
-      mute_on_start_default: ["The mute on start default field is required."],
-      mute_on_start_enforced: ["The mute on start enforced field is required."],
-      lobby_default: ["The lobby default field is required."],
-      lobby_enforced: ["The lobby enforced field is required."],
-      record_attendance_default: [
-        "The record attendance default field is required.",
-      ],
-      record_attendance_enforced: [
-        "The record attendance enforced field is required.",
-      ],
-      record_default: ["The record default field is required."],
-      record_enforced: ["The record enforced field is required."],
-      auto_start_recording_default: [
-        "The auto start recording default field is required.",
-      ],
-      auto_start_recording_enforced: [
-        "The auto start recording enforced field is required.",
-      ],
-      lock_settings_disable_cam_default: [
-        "The lock settings disable cam default field is required.",
-      ],
-      lock_settings_disable_cam_enforced: [
-        "The lock settings disable cam enforced field is required.",
-      ],
-      webcams_only_for_moderator_default: [
-        "The webcams only for moderator default field is required.",
-      ],
-      webcams_only_for_moderator_enforced: [
-        "The webcams only for moderator enforced field is required.",
-      ],
-      lock_settings_disable_mic_default: [
-        "The lock settings disable mic default field is required.",
-      ],
-      lock_settings_disable_mic_enforced: [
-        "The lock settings disable mic enforced field is required.",
-      ],
-      lock_settings_disable_public_chat_default: [
-        "The lock settings disable public chat default field is required.",
-      ],
-      lock_settings_disable_public_chat_enforced: [
-        "The lock settings disable public chat enforced field is required.",
-      ],
-      lock_settings_disable_private_chat_default: [
-        "The lock settings disable private chat default field is required.",
-      ],
-      lock_settings_disable_private_chat_enforced: [
-        "The lock settings disable private chat enforced field is required.",
-      ],
-      lock_settings_disable_note_default: [
-        "The lock settings disable note default field is required.",
-      ],
-      lock_settings_disable_note_enforced: [
-        "The lock settings disable note enforced field is required.",
-      ],
-      lock_settings_hide_user_list_default: [
-        "The lock settings hide user list default field is required.",
-      ],
-      lock_settings_hide_user_list_enforced: [
-        "The lock settings hide user list enforced field is required.",
-      ],
-      allow_membership_default: [
-        "The allow membership default field is required.",
-      ],
-      allow_membership_enforced: [
-        "The allow membership enforced field is required.",
-      ],
-      default_role_default: ["The default role default field is required."],
-      default_role_enforced: ["The default role enforced field is required."],
-      visibility_default: ["The visibility default field is required."],
-      visibility_enforced: ["The visibility enforced field is required."],
-    };
-
-    /** [field test id, error messages that must be shown inside the field] */
-    const fieldErrors = [
-      ["room-type-name-field", ["The name field is required."]],
-      ["description-field", ["The description field is required."]],
-      ["color-field", ["The color field is required."]],
-      ["server-pool-field", ["The server pool field is required."]],
-      ["max-participants-field", ["The max participants field is required."]],
-      ["max-duration-field", ["The max duration field is required."]],
-      ["create-parameters-field", ["The create parameters field is required."]],
-      ["join-parameters-field", ["The join parameters field is required."]],
-      ["role-field", ["The roles field is required."]],
-      [
-        "has-access-code-field",
-        [
-          "The has access code default field is required.",
-          "The has access code enforced field is required.",
-        ],
-      ],
-      [
-        "allow-guests-field",
-        [
-          "The allow guests default field is required.",
-          "The allow guests enforced field is required.",
-        ],
-      ],
-      [
-        "everyone-can-start-field",
-        [
-          "The everyone can start default field is required.",
-          "The everyone can start enforced field is required.",
-        ],
-      ],
-      [
-        "mute-on-start-field",
-        [
-          "The mute on start default field is required.",
-          "The mute on start enforced field is required.",
-        ],
-      ],
-      [
-        "lobby-field",
-        [
-          "The lobby default field is required.",
-          "The lobby enforced field is required.",
-        ],
-      ],
-      [
-        "record-attendance-field",
-        [
-          "The record attendance default field is required.",
-          "The record attendance enforced field is required.",
-        ],
-      ],
-      [
-        "record-field",
-        [
-          "The record default field is required.",
-          "The record enforced field is required.",
-        ],
-      ],
-      [
-        "auto-start-recording-field",
-        [
-          "The auto start recording default field is required.",
-          "The auto start recording enforced field is required.",
-        ],
-      ],
-      [
-        "disable-cam-field",
-        [
-          "The lock settings disable cam default field is required.",
-          "The lock settings disable cam enforced field is required.",
-        ],
-      ],
-      [
-        "webcams-only-for-moderator-field",
-        [
-          "The webcams only for moderator default field is required.",
-          "The webcams only for moderator enforced field is required.",
-        ],
-      ],
-      [
-        "disable-mic-field",
-        [
-          "The lock settings disable mic default field is required.",
-          "The lock settings disable mic enforced field is required.",
-        ],
-      ],
-      [
-        "disable-public-chat-field",
-        [
-          "The lock settings disable public chat default field is required.",
-          "The lock settings disable public chat enforced field is required.",
-        ],
-      ],
-      [
-        "disable-private-chat-field",
-        [
-          "The lock settings disable private chat default field is required.",
-          "The lock settings disable private chat enforced field is required.",
-        ],
-      ],
-      [
-        "disable-note-field",
-        [
-          "The lock settings disable note default field is required.",
-          "The lock settings disable note enforced field is required.",
-        ],
-      ],
-      [
-        "hide-user-list-field",
-        [
-          "The lock settings hide user list default field is required.",
-          "The lock settings hide user list enforced field is required.",
-        ],
-      ],
-      [
-        "allow-membership-field",
-        [
-          "The allow membership default field is required.",
-          "The allow membership enforced field is required.",
-        ],
-      ],
-      [
-        "default-role-field",
-        [
-          "The default role default field is required.",
-          "The default role enforced field is required.",
-        ],
-      ],
-      [
-        "visibility-field",
-        [
-          "The visibility default field is required.",
-          "The visibility enforced field is required.",
-        ],
-      ],
-    ];
-
-    const mock422 = (page) =>
-      mockRoomTypePut(page, {
+    test("shows validation errors on 422", async ({
+      page,
+      validationErrors,
+      errorFields,
+    }) => {
+      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
         status: 422,
         json: {
           message: "The name field is required. (and 39 more errors)",
@@ -1390,16 +929,13 @@ test.describe("Admin room types edit", () => {
         },
       });
 
-    test("shows validation errors on 422", async ({ page }) => {
-      await mock422(page);
-
       await page.getByTestId("room-types-save-button").click();
 
       await expectToastAndClose(
         page,
         "The name field is required. (and 39 more errors)",
       );
-      for (const [field, messages] of fieldErrors) {
+      for (const [field, messages] of errorFields) {
         for (const message of messages) {
           await expect(page.getByTestId(field)).toContainText(message);
         }
@@ -1408,8 +944,16 @@ test.describe("Admin room types edit", () => {
 
     test("shows server error on 500 and hides validation errors", async ({
       page,
+      validationErrors,
+      errorFields,
     }) => {
-      await mock422(page);
+      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+        status: 422,
+        json: {
+          message: "The name field is required. (and 39 more errors)",
+          errors: validationErrors,
+        },
+      });
       await page.getByTestId("room-types-save-button").click();
       await expectToastAndClose(
         page,
@@ -1419,11 +963,17 @@ test.describe("Admin room types edit", () => {
         "The name field is required.",
       );
 
-      await mockRoomTypePut(page, { status: 500, json: { message: "Test" } });
+      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+        status: 500,
+        json: { message: "Test" },
+      });
       await page.getByTestId("room-types-save-button").click();
 
-      await expectToastAndClose(page, serverError);
-      for (const [field, messages] of fieldErrors) {
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
+      for (const [field, messages] of errorFields) {
         for (const message of messages) {
           await expect(page.getByTestId(field)).not.toContainText(message);
         }
@@ -1431,17 +981,19 @@ test.describe("Admin room types edit", () => {
     });
 
     test.describe("stale model", () => {
-      const staleRoomType = () =>
-        roomTypeWith({
-          ...changedRoomTypeData,
-          restrict: true,
-          roles: superuserAndStaff,
-        });
+      // the room type as another user saved it: all settings changed, restricted to the roles
+      let staleRoomType;
 
-      test.beforeEach(async ({ page }) => {
-        await mockRoomTypePut(page, {
+      test.beforeEach(async ({ page, roomType, editedRoomType }) => {
+        staleRoomType = {
+          ...roomType.data,
+          ...editedRoomType,
+          restrict: true,
+          roles: roomType.data.roles,
+        };
+        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
           status: 428,
-          json: { new_model: staleRoomType().data, message: "stale_model" },
+          json: { new_model: staleRoomType, message: "stale_model" },
         });
         await expect(page.getByTestId("stale-room-type-dialog")).toBeHidden();
         await page.getByTestId("room-types-save-button").click();
@@ -1477,19 +1029,97 @@ test.describe("Admin room types edit", () => {
           "admin.breadcrumbs.room_types.index",
           'admin.breadcrumbs.room_types.edit_{"name":"Exam 01"}',
         );
-        await expectChangedSettingsShown(page, { restrict: true });
+
+        await expect(page.locator("#room-type-name")).toHaveValue("Exam 01");
+        await expect(page.locator("#description")).toHaveValue(
+          "New room type description for room type Exam 01",
+        );
+        await expect(page.locator("#custom-color")).toHaveValue("#ef4444");
+        await expect(
+          page
+            .getByTestId("server-pool-dropdown")
+            .locator(".multiselect__tags"),
+        ).toContainText("Production");
+        await expect(page.locator("#restrict")).toBeChecked();
+        await expectRoleChips(page, ["Superuser", "Staff"]);
+        await expect(page.locator("#max-participants")).toHaveValue("50");
+        await expect(page.locator("#max-duration")).toHaveValue("60 min.");
+
+        // [field, default value, enforced]
+        const settingFields = [
+          ["has-access-code", false, true],
+          ["allow-guests", false, false],
+          ["everyone-can-start", true, true],
+          ["mute-on-start", false, false],
+          ["record-attendance", true, true],
+          ["record", true, true],
+          ["auto-start-recording", true, true],
+          ["disable-cam", true, true],
+          ["webcams-only-for-moderator", false, true],
+          ["disable-mic", true, false],
+          ["disable-public-chat", false, true],
+          ["disable-private-chat", true, true],
+          ["disable-note", false, false],
+          ["hide-user-list", false, true],
+          ["allow-membership", true, false],
+        ];
+        for (const [field, value, enforced] of settingFields) {
+          await roomTypeCheckDefaultRoomSettingCheckboxField(
+            page,
+            field,
+            value,
+            enforced,
+            false,
+          );
+        }
+
+        await expect(page.locator("#lobby-disabled")).toBeChecked();
+        await expect(page.getByTestId("lobby-enforced")).toHaveText(
+          "admin.room_types.default_room_settings.default",
+        );
+
+        const roleButton = page
+          .getByTestId("default-role-default-button")
+          .nth(1);
+        await expect(roleButton).toHaveText("rooms.roles.moderator");
+        await expect(roleButton).toHaveAttribute("aria-pressed", "true");
+        await expect(page.getByTestId("default-role-enforced")).toHaveText(
+          "admin.room_types.default_room_settings.enforced",
+        );
+
+        const visibilityButton = page
+          .getByTestId("visibility-default-button")
+          .nth(0);
+        await expect(visibilityButton).toHaveText(
+          "rooms.settings.advanced.visibility.private",
+        );
+        await expect(visibilityButton).toHaveAttribute("aria-pressed", "true");
+        await expect(page.getByTestId("visibility-enforced")).toHaveText(
+          "admin.room_types.default_room_settings.enforced",
+        );
+
+        await expect(page.locator("#create-parameters")).toHaveValue(
+          "meetingLayout=PRESENTATION_FOCUS",
+        );
+        await expect(page.locator("#join-parameters")).toHaveValue(
+          "enforceLayout=PRESENTATION_ONLY",
+        );
       });
 
-      test("shows the stale dialog again after a reload", async ({ page }) => {
+      test("shows the stale dialog again after a reload", async ({
+        page,
+        roomType,
+      }) => {
         await page.getByTestId("stale-dialog-reject-button").click();
         await expect(page.getByTestId("stale-room-type-dialog")).toBeHidden();
         await expect(page.locator("#room-type-name")).toHaveValue("Exam 01");
 
-        const newer = roomTypeWith({ name: "Exam 02", restrict: true });
-        newer.data.roles = superuserAndStaff;
-        await mockRoomTypePut(page, {
+        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
           status: 428,
-          json: { new_model: newer.data, message: "stale_model" },
+          json: {
+            new_model: { ...roomType.data, name: "Exam 02" },
+            message: "stale_model",
+          },
         });
         await page.getByTestId("room-types-save-button").click();
 
@@ -1509,35 +1139,37 @@ test.describe("Admin room types edit", () => {
 
       test("overwrite sends the current form data and shows the view", async ({
         page,
+        roomType,
       }) => {
         // Reload to get the new model, then run into the stale error again
         await page.getByTestId("stale-dialog-reject-button").click();
         await expect(page.getByTestId("stale-room-type-dialog")).toBeHidden();
         await expect(page.locator("#room-type-name")).toHaveValue("Exam 01");
 
-        const newer = roomTypeWith({ name: "Exam 02", restrict: true });
-        newer.data.roles = superuserAndStaff;
-        await mockRoomTypePut(page, {
+        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
           status: 428,
-          json: { new_model: newer.data, message: "stale_model" },
+          json: {
+            new_model: { ...roomType.data, name: "Exam 02" },
+            message: "stale_model",
+          },
         });
         await page.getByTestId("room-types-save-button").click();
         await expect(page.getByTestId("stale-room-type-dialog")).toBeVisible();
 
-        const roomType = staleRoomType();
-        await mockRoomTypePut(page, { status: 200, json: roomType });
-        await mockRoomTypeGet(page, { json: roomType });
-
-        const saveRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "PUT" &&
-            request.url().includes("/api/v1/roomTypes/3"),
+        Object.assign(roomType.data, staleRoomType);
+        const saveMock = await mockMethod(
+          page,
+          "PUT",
+          "**/api/v1/roomTypes/3",
+          { status: 200, json: roomType },
         );
         await page.getByTestId("stale-dialog-accept-button").click();
 
-        expect((await saveRequest).postDataJSON()).toEqual(
-          toRequestBody(roomType),
-        );
+        expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
+          ...roomType.data,
+          server_pool: roomType.data.server_pool.id,
+          roles: roomType.data.roles.map((role) => role.id),
+        });
 
         await expect(page).toHaveURL(/\/admin\/room_types\/3$/);
         await expectAdminBreadcrumbs(
@@ -1551,8 +1183,7 @@ test.describe("Admin room types edit", () => {
     test("redirects to the index page if the room type was deleted", async ({
       page,
     }) => {
-      await interceptAdminRoomTypesIndexRequests(page);
-      await mockRoomTypePut(page, {
+      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
         status: 404,
         json: { message: "model_not_found", model: "room_type", ids: [3] },
       });
@@ -1562,11 +1193,14 @@ test.describe("Admin room types edit", () => {
 
       await expect(page).toHaveURL(/\/admin\/room_types$/);
       await indexRequest;
-      await expectToastAndClose(page, modelNotFound);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+        'app.flash.model_not_found.details_{"ids":"3"}',
+      ]);
     });
 
     test("redirects to the login page if unauthenticated", async ({ page }) => {
-      await mockRoomTypePut(page, { status: 401 });
+      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", { status: 401 });
 
       await page.getByTestId("room-types-save-button").click();
 
@@ -1575,16 +1209,25 @@ test.describe("Admin room types edit", () => {
   });
 
   test.describe("load room type errors", () => {
-    test("shows the error and allows to reload on 500", async ({ page }) => {
-      await mockRoomTypeGet(page, { status: 500, json: { message: "Test" } });
+    test("shows the error and allows to reload on 500", async ({
+      page,
+      roomType,
+    }) => {
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
+        status: 500,
+        json: { message: "Test" },
+      });
       await page.goto("/admin/room_types/3/edit");
 
       await expect(page.getByTestId("overlay")).toBeVisible();
-      await expectToastAndClose(page, serverError);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Reload with correct data
-      await mockRoomTypeGet(page, {
-        path: "tests/Playwright/fixtures/roomType.json",
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
+        json: roomType,
       });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -1597,8 +1240,7 @@ test.describe("Admin room types edit", () => {
     });
 
     test("redirects to the index page on 404", async ({ page }) => {
-      await interceptAdminRoomTypesIndexRequests(page);
-      await mockRoomTypeGet(page, {
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
         status: 404,
         json: { message: "model_not_found", model: "room_type", ids: [3] },
       });
@@ -1608,11 +1250,14 @@ test.describe("Admin room types edit", () => {
 
       await expect(page).toHaveURL(/\/admin\/room_types$/);
       await indexRequest;
-      await expectToastAndClose(page, modelNotFound);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.room_type"}',
+        'app.flash.model_not_found.details_{"ids":"3"}',
+      ]);
     });
 
     test("redirects to the login page on 401", async ({ page }) => {
-      await mockRoomTypeGet(page, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", { status: 401 });
 
       await page.goto("/admin/room_types/3/edit");
 
@@ -1621,10 +1266,12 @@ test.describe("Admin room types edit", () => {
   });
 
   test.describe("load roles errors", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockRoomTypeGet(page, {
-        json: roomTypeWith({ restrict: true, roles: superuserAndStaff }),
-      });
+    test.beforeEach(async ({ roomType }) => {
+      roomType.data.restrict = true;
+      roomType.data.roles = [
+        { id: 1, name: "Superuser" },
+        { id: 2, name: "Staff" },
+      ];
     });
 
     test("disables the dropdown and saving while the roles are loading", async ({
@@ -1642,14 +1289,23 @@ test.describe("Admin room types edit", () => {
       await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
       release();
-      await expectToastAndClose(page, serverError);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
     });
 
     test.describe("500 error", () => {
       test.beforeEach(async ({ page }) => {
-        await mockRolesGet(page, { status: 500, json: { message: "Test" } });
+        await mockMethod(page, "GET", "**/api/v1/roles*", {
+          status: 500,
+          json: { message: "Test" },
+        });
         await page.goto("/admin/room_types/3/edit");
-        await expectToastAndClose(page, serverError);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
       });
 
       test("keeps the roles and allows saving", async ({ page }) => {
@@ -1661,9 +1317,9 @@ test.describe("Admin room types edit", () => {
         await expect(page.getByTestId("room-types-save-button")).toBeEnabled();
       });
 
-      test("reloads the roles", async ({ page }) => {
-        await mockRolesGet(page, {
-          path: "tests/Playwright/fixtures/roles.json",
+      test("reloads the roles", async ({ page, roles }) => {
+        await mockMethod(page, "GET", "**/api/v1/roles*", {
+          json: roles,
         });
         await page.getByTestId("roles-reload-button").click();
 
@@ -1690,10 +1346,16 @@ test.describe("Admin room types edit", () => {
       const content = page.locator(".multiselect__content");
       await expect(content.locator(".multiselect__option")).toHaveCount(5);
 
-      await mockRolesGet(page, { status: 500, json: { message: "Test" } });
+      await mockMethod(page, "GET", "**/api/v1/roles*", {
+        status: 500,
+        json: { message: "Test" },
+      });
       await content.getByTestId("next-page-button").click();
 
-      await expectToastAndClose(page, serverError);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("role-dropdown")).toHaveClass(
         /multiselect--disabled/,
       );
@@ -1708,7 +1370,7 @@ test.describe("Admin room types edit", () => {
       await page.goto("/admin/room_types/3/edit");
       await expectRoleChips(page, ["Superuser", "Staff"]);
 
-      await mockRolesGet(page, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
       await page.locator("#restrict").click();
       await page.locator("#restrict").click();
 
@@ -1724,7 +1386,7 @@ test.describe("Admin room types edit", () => {
       const content = page.locator(".multiselect__content");
       await expect(content).toBeVisible();
 
-      await mockRolesGet(page, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
       await content.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/room_types/3/edit");
@@ -1732,15 +1394,6 @@ test.describe("Admin room types edit", () => {
   });
 
   test.describe("load server pools errors", () => {
-    const firstServerPoolPage = () => {
-      const serverPools = readFixture("serverPools.json");
-      serverPools.data = serverPools.data.slice(0, 1);
-      serverPools.meta.last_page = 2;
-      serverPools.meta.per_page = 1;
-      serverPools.meta.to = 1;
-      return serverPools;
-    };
-
     test("disables the dropdown and saving while the server pools are loading", async ({
       page,
     }) => {
@@ -1756,17 +1409,23 @@ test.describe("Admin room types edit", () => {
       await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
       release();
-      await expectToastAndClose(page, serverError);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
     });
 
     test.describe("500 error", () => {
       test.beforeEach(async ({ page }) => {
-        await mockServerPoolsGet(page, {
+        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
           status: 500,
           json: { message: "Test" },
         });
         await page.goto("/admin/room_types/3/edit");
-        await expectToastAndClose(page, serverError);
+        await expectToastAndClose(page, [
+          'app.flash.server_error.message_{"message":"Test"}',
+          'app.flash.server_error.error_code_{"statusCode":500}',
+        ]);
       });
 
       test("keeps the server pool and disables saving", async ({ page }) => {
@@ -1781,8 +1440,13 @@ test.describe("Admin room types edit", () => {
         await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
       });
 
-      test("reloads the server pools", async ({ page }) => {
-        await mockServerPoolsGet(page, { json: firstServerPoolPage() });
+      test("reloads the server pools", async ({
+        page,
+        serverPoolsFirstPage,
+      }) => {
+        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+          json: serverPoolsFirstPage,
+        });
         await page.getByTestId("server-pools-reload-button").click();
 
         const dropdown = page.getByTestId("server-pool-dropdown");
@@ -1801,21 +1465,27 @@ test.describe("Admin room types edit", () => {
 
     test("shows an error if switching the page fails with 500", async ({
       page,
+      serverPoolsFirstPage,
     }) => {
-      await mockServerPoolsGet(page, { json: firstServerPoolPage() });
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+        json: serverPoolsFirstPage,
+      });
       await page.goto("/admin/room_types/3/edit");
       await expect(page.locator("#room-type-name")).toHaveValue("Exam");
       await page.getByTestId("server-pool-dropdown").click();
       const content = page.locator(".multiselect__content");
       await expect(content.locator(".multiselect__option")).toHaveCount(3);
 
-      await mockServerPoolsGet(page, {
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
         status: 500,
         json: { message: "Test" },
       });
       await content.getByTestId("next-page-button").click();
 
-      await expectToastAndClose(page, serverError);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       const dropdown = page.getByTestId("server-pool-dropdown");
       await expect(dropdown).toHaveClass(/multiselect--disabled/);
       await expect(dropdown.locator(".multiselect__tags")).toContainText(
@@ -1830,7 +1500,7 @@ test.describe("Admin room types edit", () => {
     test("redirects to the login page on 401 when loading the server pools", async ({
       page,
     }) => {
-      await mockServerPoolsGet(page, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", { status: 401 });
 
       await page.goto("/admin/room_types/3/edit");
 
@@ -1839,14 +1509,17 @@ test.describe("Admin room types edit", () => {
 
     test("redirects to the login page on 401 when switching the page", async ({
       page,
+      serverPoolsFirstPage,
     }) => {
-      await mockServerPoolsGet(page, { json: firstServerPoolPage() });
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
+        json: serverPoolsFirstPage,
+      });
       await page.goto("/admin/room_types/3/edit");
       await page.getByTestId("server-pool-dropdown").click();
       const content = page.locator(".multiselect__content");
       await expect(content).toBeVisible();
 
-      await mockServerPoolsGet(page, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/serverPools*", { status: 401 });
       await content.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/room_types/3/edit");

@@ -1,9 +1,6 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptAdminUsersViewRequests,
-  interceptAdminUsersIndexRequests,
-} from "../support/mocks.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/adminUsersEdit.js";
+import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
@@ -11,23 +8,10 @@ import {
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import { mockMethod } from "../support/utils.js";
 
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-
-const USER_URL = "**/api/v1/users/2";
-
-const tabButtons = [
-  "base-tab-button",
-  "email-tab-button",
-  "security-tab-button",
-  "others-tab-button",
-];
-
 test.use({ authenticated: true });
 
 test.describe("Admin users edit", () => {
-  test.beforeEach(async ({ page, currentUser, config }) => {
-    await interceptAdminUsersViewRequests(page);
+  test.beforeEach(async ({ currentUser, config }) => {
     currentUser.data.permissions = [
       "admin.view",
       "users.viewAny",
@@ -65,8 +49,7 @@ test.describe("Admin users edit", () => {
   });
 
   test.describe("superuser", () => {
-    test.beforeEach(async ({ page }) => {
-      const user = readFixture("userDataUser.json");
+    test.beforeEach(async ({ user }) => {
       user.data.superuser = true;
       user.data.roles.push({
         id: 1,
@@ -74,7 +57,6 @@ test.describe("Admin users edit", () => {
         automatic: true,
         superuser: true,
       });
-      await mockMethod(page, "GET", USER_URL, { json: user });
     });
 
     test("edit page of a superuser is shown to a superuser", async ({
@@ -102,7 +84,12 @@ test.describe("Admin users edit", () => {
       await expect(saveButton).toBeEnabled();
       await expect(saveButton).toContainText("app.save");
 
-      for (const id of tabButtons) {
+      for (const id of [
+        "base-tab-button",
+        "email-tab-button",
+        "security-tab-button",
+        "others-tab-button",
+      ]) {
         await expect(page.getByTestId(id)).toBeVisible();
       }
     });
@@ -121,10 +108,10 @@ test.describe("Admin users edit", () => {
   });
 
   test.describe("visit edit user page", () => {
-    test("loading state hides buttons and tabs", async ({ page }) => {
-      const userRequest = await mockMethod(page, "GET", USER_URL, {
+    test("loading state hides buttons and tabs", async ({ page, user }) => {
+      const userRequest = await mockMethod(page, "GET", "**/api/v1/users/2", {
         hold: true,
-        json: readFixture("userDataUser.json"),
+        json: user,
       });
 
       await page.goto("/admin/users/2/edit");
@@ -140,7 +127,10 @@ test.describe("Admin users edit", () => {
         "users-reset-password-button",
         "users-delete-button",
         "user-tab-profile-save-button",
-        ...tabButtons,
+        "base-tab-button",
+        "email-tab-button",
+        "security-tab-button",
+        "others-tab-button",
       ]) {
         await expect(page.getByTestId(id)).toHaveCount(0);
       }
@@ -173,7 +163,12 @@ test.describe("Admin users edit", () => {
       await expect(saveButton).toBeEnabled();
       await expect(saveButton).toContainText("app.save");
 
-      for (const id of tabButtons) {
+      for (const id of [
+        "base-tab-button",
+        "email-tab-button",
+        "security-tab-button",
+        "others-tab-button",
+      ]) {
         await expect(page.getByTestId(id)).toBeVisible();
       }
     });
@@ -231,8 +226,11 @@ test.describe("Admin users edit", () => {
   });
 
   test.describe("errors", () => {
-    test("server error shows overlay and allows reload", async ({ page }) => {
-      await mockMethod(page, "GET", USER_URL, {
+    test("server error shows overlay and allows reload", async ({
+      page,
+      user,
+    }) => {
+      await mockMethod(page, "GET", "**/api/v1/users/2", {
         status: 500,
         json: { message: "Test" },
       });
@@ -246,8 +244,8 @@ test.describe("Admin users edit", () => {
       ]);
 
       // Reload with correct data
-      await mockMethod(page, "GET", USER_URL, {
-        json: readFixture("userDataUser.json"),
+      await mockMethod(page, "GET", "**/api/v1/users/2", {
+        json: user,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
@@ -261,7 +259,7 @@ test.describe("Admin users edit", () => {
 
     test("404 error redirects to users index", async ({ page }) => {
       await interceptAdminUsersIndexRequests(page);
-      await mockMethod(page, "GET", USER_URL, {
+      await mockMethod(page, "GET", "**/api/v1/users/2", {
         status: 404,
         json: { message: "model_not_found", model: "user", ids: [2] },
       });
@@ -276,7 +274,7 @@ test.describe("Admin users edit", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", USER_URL, { status: 401 });
+      await mockMethod(page, "GET", "**/api/v1/users/2", { status: 401 });
 
       await page.goto("/admin/users/2/edit");
 

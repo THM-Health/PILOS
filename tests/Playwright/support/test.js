@@ -1,9 +1,6 @@
 import { test as base, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
 import { coverageFixture } from "./coverage.js";
-
-const readFixture = (name) =>
-  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
+import { readFixture } from "./utils.js";
 
 /**
  * Shared `test` object for the frontend and visual suites (API is mocked, the Cypress fixtures are reused).

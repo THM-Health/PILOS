@@ -1,5 +1,8 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptAdminSettingsRequest } from "../support/mocks.js";
+import {
+  test,
+  expect,
+  expectToastAndClose,
+} from "../support/fixtures/adminSettingsOtherSettings.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
@@ -7,23 +10,15 @@ import {
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import { holdRequest } from "../support/utils.js";
 
-const settingsFixture = { path: "tests/Playwright/fixtures/settings.json" };
-const timezonesFixture = { path: "tests/Playwright/fixtures/timezones.json" };
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
 test.describe("Admin settings general", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = [
       "admin.view",
       "settings.viewAny",
       "settings.update",
     ];
-    await interceptAdminSettingsRequest(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -48,13 +43,12 @@ test.describe("Admin settings general", () => {
   test("loading state with view permission only", async ({
     page,
     currentUser,
+    settings,
   }) => {
     currentUser.data.permissions = ["admin.view", "settings.viewAny"];
-    const release = await holdRequest(
-      page,
-      "**/api/v1/settings",
-      settingsFixture,
-    );
+    const release = await holdRequest(page, "**/api/v1/settings", {
+      json: settings,
+    });
 
     await page.goto("/admin/settings");
 
@@ -71,12 +65,10 @@ test.describe("Admin settings general", () => {
     await expect(page.getByTestId("settings-save-button")).toHaveCount(0);
   });
 
-  test("loading state with edit permission", async ({ page }) => {
-    const release = await holdRequest(
-      page,
-      "**/api/v1/settings",
-      settingsFixture,
-    );
+  test("loading state with edit permission", async ({ page, settings }) => {
+    const release = await holdRequest(page, "**/api/v1/settings", {
+      json: settings,
+    });
 
     await page.goto("/admin/settings");
 
@@ -105,23 +97,32 @@ test.describe("Admin settings general", () => {
 
       await page.goto("/admin/settings");
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(page.getByTestId("loading-retry-button")).toHaveText(
         "app.reload",
       );
     });
 
-    test("retry after server error loads the settings", async ({ page }) => {
+    test("retry after server error loads the settings", async ({
+      page,
+      settings,
+    }) => {
       await page.route("**/api/v1/settings", (route) =>
         route.fulfill({ status: 500, json: { message: "Test" } }),
       );
 
       await page.goto("/admin/settings");
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await page.route("**/api/v1/settings", (route) =>
-        route.fulfill(settingsFixture),
+        route.fulfill({ json: settings }),
       );
       await page.getByTestId("loading-retry-button").click();
 
@@ -160,7 +161,10 @@ test.describe("Admin settings general", () => {
 
       release();
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await expect(dropdown).toHaveText("admin.settings.default_timezone");
       await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
@@ -169,16 +173,19 @@ test.describe("Admin settings general", () => {
       );
     });
 
-    test("reload timezones after error", async ({ page }) => {
+    test("reload timezones after error", async ({ page, timezones }) => {
       await page.route("**/api/v1/getTimezones", (route) =>
         route.fulfill({ status: 500, json: { message: "Test" } }),
       );
 
       await page.goto("/admin/settings");
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       await page.route("**/api/v1/getTimezones", (route) =>
-        route.fulfill(timezonesFixture),
+        route.fulfill({ json: timezones }),
       );
       await page.getByTestId("timezone-reload-button").click();
 

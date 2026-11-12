@@ -1,38 +1,28 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomIndexRequests,
-  interceptUserProfileRequests,
-} from "../support/mocks.js";
+import { test } from "../support/fixtures/userProfile.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
 } from "../support/general.js";
-
-const USER_URL = "**/api/v1/users/1";
-const USER_FIXTURE = "tests/Playwright/fixtures/userDataCurrentUser.json";
+import { mockMethod } from "../support/utils.js";
 
 test.use({ authenticated: true });
 
 test.describe("User profile", () => {
-  test.beforeEach(async ({ page }) => {
-    await interceptUserProfileRequests(page);
-  });
-
   test("visit with user that is not logged in", async ({ page }) => {
     await testVisitWithoutCurrentUser(page, "/profile");
   });
 
   test("open user profile from the navbar and show it after loading", async ({
     page,
+    profileUser,
   }) => {
     await interceptRoomIndexRequests(page);
 
-    let release;
-    const gate = new Promise((resolve) => (release = resolve));
-    await page.route(USER_URL, async (route) => {
-      await gate;
-      await route.fulfill({ path: USER_FIXTURE });
+    const user = await mockMethod(page, "GET", "**/api/v1/users/1", {
+      json: profileUser,
+      hold: true,
     });
 
     await page.goto("/rooms");
@@ -55,7 +45,7 @@ test.describe("User profile", () => {
     await expect(page.getByTestId("security-tab-button")).toHaveCount(0);
     await expect(page.getByTestId("others-tab-button")).toHaveCount(0);
 
-    release();
+    user.release();
 
     await expect(page.getByTestId("overlay")).toBeHidden();
     await expect(page.getByTestId("base-tab-button")).toBeVisible();
@@ -74,10 +64,11 @@ test.describe("User profile", () => {
     await expect(page).not.toHaveURL(/#tab=invalid/);
   });
 
-  test("hide edit controls when external_image is true", async ({ page }) => {
-    const userData = JSON.parse(readFileSync(USER_FIXTURE, "utf8"));
-    userData.data.external_image = true;
-    await page.route(USER_URL, (route) => route.fulfill({ json: userData }));
+  test("hide edit controls when external_image is true", async ({
+    page,
+    profileUser,
+  }) => {
+    profileUser.data.external_image = true;
 
     await page.goto("/profile");
 
@@ -87,10 +78,11 @@ test.describe("User profile", () => {
   });
 
   test.describe("loading errors", () => {
-    test("show error and allow reload", async ({ page }) => {
-      await page.route(USER_URL, (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
-      );
+    test("show error and allow reload", async ({ page, profileUser }) => {
+      await mockMethod(page, "GET", "**/api/v1/users/1", {
+        status: 500,
+        json: { message: "Test" },
+      });
 
       await page.goto("/profile");
 
@@ -101,9 +93,9 @@ test.describe("User profile", () => {
       ]);
 
       // Reload with correct data
-      await page.route(USER_URL, (route) =>
-        route.fulfill({ path: USER_FIXTURE }),
-      );
+      await mockMethod(page, "GET", "**/api/v1/users/1", {
+        json: profileUser,
+      });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toHaveText("app.reload");
@@ -114,14 +106,11 @@ test.describe("User profile", () => {
     });
 
     test("401 error on reload redirects to login", async ({ page }) => {
-      await page.route(USER_URL, (route) =>
-        route.fulfill({ path: USER_FIXTURE }),
-      );
       await page.goto("/profile");
       await expect(page.getByTestId("overlay")).toBeHidden();
       await expect(page.getByTestId("base-tab-button")).toBeVisible();
 
-      await page.route(USER_URL, (route) => route.fulfill({ status: 401 }));
+      await mockMethod(page, "GET", "**/api/v1/users/1", { status: 401 });
       await page.reload();
 
       await expectLoginRedirect(page, "/profile");

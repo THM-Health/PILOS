@@ -1,76 +1,17 @@
-import { readFileSync } from "node:fs";
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/roomsIndexMeetingsMeetings.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import {
-  interceptMeetingsIndexRequests,
-  interceptRoomViewRequests,
-} from "../support/mocks.js";
+import { interceptRoomViewRequests } from "../support/mocks.js";
 import { expectActivePage, holdRequest, queryOf } from "../support/utils.js";
 
-const meetingsUrl = "**/api/v1/meetings*";
-const serverErrorToast = [
-  'app.flash.server_error.message_{"message":"Test"}',
-  'app.flash.server_error.error_code_{"statusCode":500}',
-];
-
-/**
- * Meetings fixture, optionally reduced to a slice of the meetings with changed pagination meta data.
- * @param {{ slice?: number[], meta?: object }} [options]
- */
-function meetingsFixture({ slice, meta } = {}) {
-  const meetings = JSON.parse(
-    readFileSync("tests/Playwright/fixtures/meetings.json", "utf8"),
-  );
-  if (slice) {
-    meetings.data = meetings.data.slice(...slice);
-  }
-  Object.assign(meetings.meta, meta);
-  return meetings;
-}
-
-/** One meeting per page, 3 pages */
-const threePages = () =>
-  meetingsFixture({
-    slice: [0, 1],
-    meta: { last_page: 3, per_page: 1, to: 1 },
-  });
-
-/** Two meetings on 2 pages, first page */
-const twoPagesFirst = () =>
-  meetingsFixture({
-    slice: [0, 1],
-    meta: { last_page: 2, per_page: 1, to: 1, total: 2 },
-  });
-
-/** Two meetings on 2 pages, second page */
-const twoPagesSecond = () =>
-  meetingsFixture({
-    slice: [1, 2],
-    meta: {
-      current_page: 2,
-      from: 2,
-      last_page: 2,
-      per_page: 1,
-      to: 2,
-      total: 2,
-    },
-  });
-
-const emptyMeetings = (meta) =>
-  meetingsFixture({
-    slice: [0, 0],
-    meta: { from: null, per_page: 1, to: null, total: 0, ...meta },
-  });
+test.use({ authenticated: true });
 
 test.describe("Meetings index", () => {
-  test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page, currentUser }) => {
+  test.beforeEach(async ({ currentUser }) => {
     currentUser.data.permissions = ["rooms.viewAny", "meetings.viewAny"];
-    await interceptMeetingsIndexRequests(page);
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -95,9 +36,12 @@ test.describe("Meetings index", () => {
   });
 
   test.describe("loading", () => {
-    test("loading state while meetings are loaded", async ({ page }) => {
-      const release = await holdRequest(page, meetingsUrl, {
-        path: "tests/Playwright/fixtures/meetings.json",
+    test("loading state while meetings are loaded", async ({
+      page,
+      meetings,
+    }) => {
+      const release = await holdRequest(page, "**/api/v1/meetings*", {
+        json: meetings.json,
       });
 
       await page.goto("/meetings");
@@ -122,12 +66,12 @@ test.describe("Meetings index", () => {
       await expect(page.getByTestId("overlay")).toBeHidden();
     });
 
-    test("loading state during reload", async ({ page }) => {
+    test("loading state during reload", async ({ page, meetings }) => {
       await page.goto("/meetings");
       await expect(page.getByTestId("meeting-item")).toHaveCount(3);
 
-      const release = await holdRequest(page, meetingsUrl, {
-        path: "tests/Playwright/fixtures/meetings.json",
+      const release = await holdRequest(page, "**/api/v1/meetings*", {
+        json: meetings.json,
       });
 
       await page.getByTestId("meetings-reload-button").click();
@@ -276,16 +220,16 @@ test.describe("Meetings index", () => {
   });
 
   test.describe("load errors", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
-      );
-    });
+    test("initial load error with reload", async ({ page, meetings }) => {
+      meetings.status = 500;
+      meetings.json = { message: "Test" };
 
-    test("initial load error with reload", async ({ page }) => {
       await page.goto("/meetings");
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Overlay is shown, components are not disabled
       await expect(page.getByTestId("overlay")).toBeVisible();
@@ -295,9 +239,8 @@ test.describe("Meetings index", () => {
       await expect(page.getByTestId("meetings-reload-button")).toBeEnabled();
 
       // Reload with correct data
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+      meetings.status = 200;
+      meetings.showPage(1, 3);
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toContainText("app.reload");
@@ -312,22 +255,22 @@ test.describe("Meetings index", () => {
       await expect(items.nth(0)).toContainText("Meeting One");
     });
 
-    test("error on page change with reload", async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+    test("error on page change with reload", async ({ page, meetings }) => {
+      meetings.showPage(1, 3);
       await page.goto("/meetings");
       await expect(page.getByTestId("meeting-item")).toHaveCount(1);
 
       // Switch to next page with general error
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
-      );
-      const request = page.waitForRequest(meetingsUrl);
+      meetings.status = 500;
+      meetings.json = { message: "Test" };
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await page.getByTestId("paginator-next-button").nth(1).click();
       expect(queryOf(await request)).toMatchObject({ page: "2" });
 
-      await expectToastAndClose(page, serverErrorToast);
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
 
       // Overlay is shown, components are not disabled
       await expect(page.getByTestId("overlay")).toBeVisible();
@@ -337,12 +280,11 @@ test.describe("Meetings index", () => {
       await expect(page.getByTestId("meetings-reload-button")).toBeEnabled();
 
       // Reload with correct data, the page is reset
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+      meetings.status = 200;
+      meetings.showPage(1, 3);
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toContainText("app.reload");
-      const reloadRequest = page.waitForRequest(meetingsUrl);
+      const reloadRequest = page.waitForRequest("**/api/v1/meetings*");
       await retryButton.click();
       expect(queryOf(await reloadRequest)).toMatchObject({ page: "1" });
 
@@ -355,58 +297,53 @@ test.describe("Meetings index", () => {
       await expectActivePage(page, 0);
     });
 
-    test("unauthenticated on page change", async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+    test("unauthenticated on page change", async ({ page, meetings }) => {
+      meetings.showPage(1, 3);
       await page.goto("/meetings");
       await expect(page.getByTestId("meeting-item")).toHaveCount(1);
 
-      await page.route(meetingsUrl, (route) => route.fulfill({ status: 401 }));
+      meetings.status = 401;
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       await expectLoginRedirect(page, "/meetings");
     });
 
-    test("unauthenticated on page load", async ({ page }) => {
-      await page.route(meetingsUrl, (route) => route.fulfill({ status: 401 }));
+    test("unauthenticated on page load", async ({ page, meetings }) => {
+      meetings.status = 401;
       await page.goto("/meetings");
 
       await expectLoginRedirect(page, "/meetings");
     });
   });
 
-  test("load meetings page out of bounds", async ({ page }) => {
-    await page.route(meetingsUrl, (route) =>
-      route.fulfill({ json: twoPagesFirst() }),
-    );
+  test("load meetings page out of bounds", async ({ page, meetings }) => {
+    meetings.showPage(1, 2, { total: 2 });
     await page.goto("/meetings");
     await expect(page.getByTestId("meeting-item")).toHaveCount(1);
 
-    // Switch to next page but respond with no meetings on second page
-    const emptyPage = meetingsFixture({
-      slice: [0, 0],
-      meta: {
-        current_page: 2,
-        from: null,
-        per_page: 2,
-        to: null,
-        total: 2,
-        total_no_filter: 2,
-      },
-    });
+    // Switch to next page but respond with no meetings on second page, then with both meetings on the first page
     const requests = [];
-    await page.route(meetingsUrl, (route) => {
+    await page.route("**/api/v1/meetings*", (route) => {
       requests.push(queryOf(route.request()));
-      return route.fulfill({
-        json:
-          requests.length === 1
-            ? emptyPage
-            : meetingsFixture({
-                slice: [0, 2],
-                meta: { per_page: 2, to: 2, total: 2, total_no_filter: 2 },
-              }),
-      });
+      if (requests.length === 1) {
+        meetings.show({
+          slice: [0, 0],
+          meta: {
+            current_page: 2,
+            from: null,
+            per_page: 2,
+            to: null,
+            total: 2,
+            total_no_filter: 2,
+          },
+        });
+      } else {
+        meetings.show({
+          slice: [0, 2],
+          meta: { per_page: 2, to: 2, total: 2, total_no_filter: 2 },
+        });
+      }
+      return route.fallback();
     });
 
     await page.getByTestId("paginator-next-button").nth(1).click();
@@ -422,7 +359,7 @@ test.describe("Meetings index", () => {
 
   test.describe("search", () => {
     test("initial request has no query", async ({ page }) => {
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await page.goto("/meetings");
 
       const query = queryOf(await request);
@@ -433,15 +370,13 @@ test.describe("Meetings index", () => {
       ).toHaveValue("");
     });
 
-    test("no meetings found for search query", async ({ page }) => {
+    test("no meetings found for search query", async ({ page, meetings }) => {
       await page.goto("/meetings");
       await expect(page.getByTestId("meeting-item")).toHaveCount(3);
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: emptyMeetings() }),
-      );
+      meetings.showNoneFound();
 
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       const search = page.getByTestId("meeting-search");
       await search.locator("input").fill("Test");
       await search.getByRole("button").click();
@@ -454,15 +389,16 @@ test.describe("Meetings index", () => {
       await expect(page.getByTestId("meeting-item")).toHaveCount(0);
     });
 
-    test("no meetings available, search with enter", async ({ page }) => {
+    test("no meetings available, search with enter", async ({
+      page,
+      meetings,
+    }) => {
       await page.goto("/meetings");
       await expect(page.getByTestId("meeting-item")).toHaveCount(3);
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: emptyMeetings({ total_no_filter: 0 }) }),
-      );
+      meetings.showNoneAvailable();
 
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       const input = page.getByTestId("meeting-search").locator("input");
       await input.fill("Test2");
       await input.press("Enter");
@@ -478,15 +414,13 @@ test.describe("Meetings index", () => {
     });
 
     test.describe("with result on 2 pages", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, meetings }) => {
         await page.goto("/meetings");
         await expect(page.getByTestId("meeting-item")).toHaveCount(3);
 
-        await page.route(meetingsUrl, (route) =>
-          route.fulfill({ json: twoPagesFirst() }),
-        );
+        meetings.showPage(1, 2, { total: 2 });
 
-        const request = page.waitForRequest(meetingsUrl);
+        const request = page.waitForRequest("**/api/v1/meetings*");
         const search = page.getByTestId("meeting-search");
         await search.locator("input").fill("Meeting");
         await search.getByRole("button").click();
@@ -508,12 +442,11 @@ test.describe("Meetings index", () => {
 
       test("search query stays the same when changing the page", async ({
         page,
+        meetings,
       }) => {
-        await page.route(meetingsUrl, (route) =>
-          route.fulfill({ json: twoPagesSecond() }),
-        );
+        meetings.showPage(2, 2, { total: 2 });
 
-        const request = page.waitForRequest(meetingsUrl);
+        const request = page.waitForRequest("**/api/v1/meetings*");
         // nth(1) needed because there are two paginator components (small and larger devices)
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -532,18 +465,17 @@ test.describe("Meetings index", () => {
         await expect(items.nth(0)).toContainText("Meeting Two");
       });
 
-      test("page is reset when the search query changes", async ({ page }) => {
-        await page.route(meetingsUrl, (route) =>
-          route.fulfill({ json: twoPagesSecond() }),
-        );
+      test("page is reset when the search query changes", async ({
+        page,
+        meetings,
+      }) => {
+        meetings.showPage(2, 2, { total: 2 });
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        await page.route(meetingsUrl, (route) =>
-          route.fulfill({ json: twoPagesFirst() }),
-        );
+        meetings.showPage(1, 2, { total: 2 });
 
-        const request = page.waitForRequest(meetingsUrl);
+        const request = page.waitForRequest("**/api/v1/meetings*");
         const search = page.getByTestId("meeting-search");
         await search.locator("input").fill("Meet");
         await search.getByRole("button").click();
@@ -559,7 +491,7 @@ test.describe("Meetings index", () => {
 
   test.describe("sorting", () => {
     test.beforeEach(async ({ page }) => {
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await page.goto("/meetings");
       expect(queryOf(await request)).toMatchObject({
         page: "1",
@@ -605,13 +537,11 @@ test.describe("Meetings index", () => {
       }
     });
 
-    test("change sort type", async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+    test("change sort type", async ({ page, meetings }) => {
+      meetings.showPage(1, 3);
 
       const headers = page.getByTestId("meeting-header-cell");
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await headers.nth(4).click();
 
       expect(queryOf(await request)).toMatchObject({
@@ -632,30 +562,18 @@ test.describe("Meetings index", () => {
       await expectActivePage(page, 0);
     });
 
-    test("sorting stays the same when changing the page", async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+    test("sorting stays the same when changing the page", async ({
+      page,
+      meetings,
+    }) => {
+      meetings.showPage(1, 3);
       const headers = page.getByTestId("meeting-header-cell");
       await headers.nth(4).click();
       await expect(headers.nth(4)).toHaveAttribute("data-p-sorted", "true");
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({
-          json: meetingsFixture({
-            slice: [1, 2],
-            meta: {
-              current_page: 2,
-              from: 2,
-              last_page: 3,
-              per_page: 1,
-              to: 2,
-            },
-          }),
-        }),
-      );
+      meetings.showPage(2, 3);
 
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       expect(queryOf(await request)).toMatchObject({
@@ -676,35 +594,19 @@ test.describe("Meetings index", () => {
 
     test("page is reset when the sorting direction changes", async ({
       page,
+      meetings,
     }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+      meetings.showPage(1, 3);
       const headers = page.getByTestId("meeting-header-cell");
       await headers.nth(4).click();
       await expect(headers.nth(4)).toHaveAttribute("aria-sort", "ascending");
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({
-          json: meetingsFixture({
-            slice: [1, 2],
-            meta: {
-              current_page: 2,
-              from: 2,
-              last_page: 3,
-              per_page: 1,
-              to: 2,
-            },
-          }),
-        }),
-      );
+      meetings.showPage(2, 3);
       await page.getByTestId("paginator-next-button").nth(1).click();
       await expectActivePage(page, 1);
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
-      const request = page.waitForRequest(meetingsUrl);
+      meetings.showPage(1, 3);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await headers.nth(4).click();
 
       expect(queryOf(await request)).toMatchObject({
@@ -726,15 +628,14 @@ test.describe("Meetings index", () => {
 
     test("change sort type to listener count and change page", async ({
       page,
+      meetings,
     }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+      meetings.showPage(1, 3);
       const headers = page.getByTestId("meeting-header-cell");
       await headers.nth(4).click();
       await expect(headers.nth(4)).toHaveAttribute("data-p-sorted", "true");
 
-      const sortRequest = page.waitForRequest(meetingsUrl);
+      const sortRequest = page.waitForRequest("**/api/v1/meetings*");
       await headers.nth(5).click();
 
       expect(queryOf(await sortRequest)).toMatchObject({
@@ -746,21 +647,8 @@ test.describe("Meetings index", () => {
       await expect(headers.nth(5)).toHaveAttribute("data-p-sorted", "true");
       await expect(headers.nth(5)).toHaveAttribute("aria-sort", "ascending");
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({
-          json: meetingsFixture({
-            slice: [1, 2],
-            meta: {
-              current_page: 2,
-              from: 2,
-              last_page: 3,
-              per_page: 1,
-              to: 2,
-            },
-          }),
-        }),
-      );
-      const pageRequest = page.waitForRequest(meetingsUrl);
+      meetings.showPage(2, 3);
+      const pageRequest = page.waitForRequest("**/api/v1/meetings*");
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       expect(queryOf(await pageRequest)).toMatchObject({
@@ -779,35 +667,21 @@ test.describe("Meetings index", () => {
       await expect(items.nth(0)).toContainText("Meeting Two");
     });
 
-    test("page is reset when the sort type changes", async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
+    test("page is reset when the sort type changes", async ({
+      page,
+      meetings,
+    }) => {
+      meetings.showPage(1, 3);
       const headers = page.getByTestId("meeting-header-cell");
       await headers.nth(5).click();
       await expect(headers.nth(5)).toHaveAttribute("data-p-sorted", "true");
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({
-          json: meetingsFixture({
-            slice: [1, 2],
-            meta: {
-              current_page: 2,
-              from: 2,
-              last_page: 3,
-              per_page: 1,
-              to: 2,
-            },
-          }),
-        }),
-      );
+      meetings.showPage(2, 3);
       await page.getByTestId("paginator-next-button").nth(1).click();
       await expectActivePage(page, 1);
 
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: threePages() }),
-      );
-      const request = page.waitForRequest(meetingsUrl);
+      meetings.showPage(1, 3);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await headers.nth(6).click();
 
       expect(queryOf(await request)).toMatchObject({
@@ -827,7 +701,7 @@ test.describe("Meetings index", () => {
       await headers.nth(6).click();
       await expect(headers.nth(6)).toHaveAttribute("data-p-sorted", "true");
 
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await headers.nth(7).click();
 
       expect(queryOf(await request)).toMatchObject({
@@ -843,16 +717,14 @@ test.describe("Meetings index", () => {
   });
 
   test.describe("reload", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: twoPagesFirst() }),
-      );
+    test.beforeEach(async ({ page, meetings }) => {
+      meetings.showPage(1, 2, { total: 2 });
       await page.goto("/meetings");
       await expect(page.getByTestId("meeting-item")).toHaveCount(1);
     });
 
     test("reload first page", async ({ page }) => {
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await page.getByTestId("meetings-reload-button").click();
       expect(queryOf(await request)).toMatchObject({ page: "1" });
 
@@ -864,14 +736,12 @@ test.describe("Meetings index", () => {
       await expect(items.nth(0)).toContainText("Meeting One");
     });
 
-    test("reload keeps the current page", async ({ page }) => {
-      await page.route(meetingsUrl, (route) =>
-        route.fulfill({ json: twoPagesSecond() }),
-      );
+    test("reload keeps the current page", async ({ page, meetings }) => {
+      meetings.showPage(2, 2, { total: 2 });
       await page.getByTestId("paginator-next-button").nth(1).click();
       await expectActivePage(page, 1);
 
-      const request = page.waitForRequest(meetingsUrl);
+      const request = page.waitForRequest("**/api/v1/meetings*");
       await page.getByTestId("meetings-reload-button").click();
       expect(queryOf(await request)).toMatchObject({ page: "2" });
 
