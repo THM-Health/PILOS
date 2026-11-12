@@ -140,13 +140,10 @@ describe("Admin users edit base", function () {
       .should("be.visible")
       .and("include.text", "admin.users.image.crop");
 
-    // Check if image is loaded
-    cy.get('[data-test="crop-image-dialog"]')
-      .find("img")
-      .should("have.attr", "src");
-
+    // Wait for cropper readiness before saving
     cy.get('[data-test="dialog-save-button"]')
       .should("have.text", "admin.users.image.save")
+      .and("not.be.disabled")
       .click();
 
     cy.get('[data-test="crop-image-dialog"]').should("not.exist");
@@ -200,13 +197,10 @@ describe("Admin users edit base", function () {
       .should("be.visible")
       .and("include.text", "admin.users.image.crop");
 
-    // Check if image is loaded
-    cy.get('[data-test="crop-image-dialog"]')
-      .find("img")
-      .should("have.attr", "src");
-
+    // Wait for cropper readiness before saving
     cy.get('[data-test="dialog-save-button"]')
       .should("have.text", "admin.users.image.save")
+      .and("not.be.disabled")
       .click();
 
     cy.get('[data-test="crop-image-dialog"]').should("not.exist");

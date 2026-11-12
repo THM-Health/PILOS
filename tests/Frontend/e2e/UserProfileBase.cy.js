@@ -93,10 +93,8 @@ describe("User Profile Base", function () {
       .should("be.visible")
       .and("include.text", "admin.users.image.crop");
 
-    // Check if image is loaded
-    cy.get('[data-test="crop-image-dialog"]')
-      .find("img")
-      .should("have.attr", "src");
+    // Wait for cropper readiness before interacting
+    cy.get('[data-test="dialog-save-button"]').should("not.be.disabled");
 
     cy.get('[role="application"]').should(
       "have.attr",
@@ -178,10 +176,8 @@ describe("User Profile Base", function () {
       .should("be.visible")
       .and("include.text", "admin.users.image.crop");
 
-    // Check if image is loaded
-    cy.get('[data-test="crop-image-dialog"]')
-      .find("img")
-      .should("have.attr", "src");
+    // Wait for cropper readiness before interacting
+    cy.get('[data-test="dialog-save-button"]').should("not.be.disabled");
 
     // Zoom with plus/minus keys on the cropper
     cy.get('[role="application"]').should("have.focus");
