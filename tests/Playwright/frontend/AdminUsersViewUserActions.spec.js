@@ -5,12 +5,14 @@ import {
   interceptAdminUsersIndexRequests,
 } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockMethod,
+  nthRequest,
+  expectImageToMatchScreenshot,
+} from "../support/utils.js";
 
 const readFixture = (name) =>
   JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-const readBase64 = (name) =>
-  readFileSync(`tests/Playwright/fixtures/files/${name}`).toString("base64");
 
 const DELETE_URL = "**/api/v1/users/2";
 const RESET_PASSWORD_URL = "**/api/v1/users/2/resetPassword";
@@ -251,9 +253,8 @@ test.describe("Admin users view user actions", () => {
       const cropDialog = page.getByTestId("crop-image-dialog");
       await expect(cropDialog).toBeVisible();
       await expect(cropDialog).toContainText("admin.users.image.crop");
-      await expect
-        .poll(() => cropDialog.locator("img").first().getAttribute("src"))
-        .toContain(readBase64("profileImage.jpg"));
+      // The cropper is ready when the save button is enabled
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
 
       await expect(page.getByTestId("dialog-save-button")).toHaveText(
         "admin.users.image.save",
@@ -267,11 +268,10 @@ test.describe("Admin users view user actions", () => {
       ).toHaveCount(0);
       const preview = imageField.getByTestId("profile-image-preview");
       await expect(preview).toBeVisible();
-      await expect
-        .poll(() => preview.locator("img").getAttribute("src"))
-        .toEqual(
-          "data:image/jpeg;base64," + readBase64("profileImagePreview.jpg"),
-        );
+      await expectImageToMatchScreenshot(
+        preview.locator("img"),
+        "profile-image-preview.png",
+      );
       await expect(imageField.getByTestId("upload-file-button")).toBeVisible();
       await expect(imageField.getByTestId("delete-image-button")).toHaveCount(
         0,

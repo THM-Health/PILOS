@@ -38,24 +38,25 @@ const FILES = [
     name: "File1.pdf",
     date: "Sep 21, 2020, 09:08",
     guestDate: "Sep 21, 2020, 03:08",
-    download: "rooms.files.download_visible",
-    useInMeeting: "rooms.files.use_in_next_meeting_disabled",
+    download: "rooms.files.download_allowed",
+    useInMeeting: "rooms.files.not_available_in_next_meeting",
     url: "https://example.com/files/File1.pdf?signature=abc123",
   },
   {
     name: "File2.pdf",
     date: "Sep 21, 2020, 09:08",
     guestDate: "Sep 21, 2020, 03:08",
-    download: "rooms.files.download_visible",
-    useInMeeting: "rooms.files.use_in_next_meeting",
+    download: "rooms.files.download_allowed",
+    useInMeeting: "rooms.files.available_in_next_meeting",
+    isStartFile: true,
     url: "https://example.com/files/File2.pdf?signature=def456",
   },
   {
     name: "File3.pdf",
     date: "Sep 21, 2020, 09:09",
     guestDate: "Sep 21, 2020, 03:09",
-    download: "rooms.files.download_hidden",
-    useInMeeting: "rooms.files.use_in_next_meeting_disabled",
+    download: "rooms.files.download_not_allowed",
+    useInMeeting: "rooms.files.not_available_in_next_meeting",
     url: "https://example.com/files/File3.pdf?signature=ghi789",
   },
 ];
@@ -202,8 +203,9 @@ async function expectFile(
   await expect(item).toContainText(guest ? expected.guestDate : expected.date);
 
   const download = item.getByTestId("room-files-download-button");
-  const edit = item.getByTestId("room-files-edit-button");
+  const edit = item.getByTestId("room-files-configure-button");
   const remove = item.getByTestId("room-files-delete-button");
+  const startFile = item.getByTestId("room-files-start-file-button");
 
   await expect(download).toBeEnabled();
 
@@ -212,11 +214,21 @@ async function expectFile(
     await expect(item).toContainText(expected.useInMeeting);
     await expect(edit).toBeEnabled();
     await expect(remove).toBeEnabled();
+
+    if (expected.isStartFile) {
+      await expect(item).toContainText("rooms.files.start_file");
+      await expect(startFile).toHaveCount(0);
+    } else {
+      await expect(item).not.toContainText("rooms.files.start_file");
+      await expect(startFile).toBeEnabled();
+    }
   } else {
     await expect(item).not.toContainText(expected.download);
     await expect(item).not.toContainText(expected.useInMeeting);
+    await expect(item).not.toContainText("rooms.files.start_file");
     await expect(edit).toHaveCount(0);
     await expect(remove).toHaveCount(0);
+    await expect(startFile).toHaveCount(0);
   }
 
   // Without accepted terms of use the download is a button instead of a link
@@ -226,6 +238,12 @@ async function expectFile(
     await expect(anchor).toHaveAttribute("rel", "opener");
     await expect(anchor).toHaveAttribute("target", "_blank");
   }
+}
+
+const systemDefault = (page) => page.getByTestId("room-file-system-default");
+
+async function expectNoSystemDefault(page) {
+  await expect(systemDefault(page)).toHaveCount(0);
 }
 
 async function expectTermsOfUse(page) {
@@ -299,6 +317,102 @@ test.describe("Rooms view files", () => {
       });
     }
 
+    test("shows the system default presentation", async ({ page }) => {
+      await page.goto("/rooms/abc-def-123#tab=files");
+
+      await expect(page.getByTestId("room-file-item")).toHaveCount(3);
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.system_default",
+      );
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(systemDefault(page)).not.toContainText(
+        "rooms.files.start_file",
+      );
+      await expect(
+        systemDefault(page).locator(
+          'a[data-test="room-files-download-system-default-button"]',
+        ),
+      ).toHaveAttribute("href", "Default.pdf");
+    });
+
+    test("shows the system default as start presentation if no file is the start file", async ({
+      page,
+    }) => {
+      await mockFiles(page, (files) => {
+        files.data.forEach((file) => {
+          file.is_start_file = false;
+          file.use_in_meeting = false;
+        });
+        files.start_file = null;
+        files.system_default.prefer_as_start = true;
+      });
+
+      await page.goto("/rooms/abc-def-123#tab=files");
+
+      await expect(page.getByTestId("room-file-item")).toHaveCount(3);
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.system_default",
+      );
+      await expect(systemDefault(page)).toContainText("rooms.files.start_file");
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(
+        systemDefault(page).getByTestId("room-files-start-file-button"),
+      ).toHaveCount(0);
+
+      for (const item of await page.getByTestId("room-file-item").all()) {
+        await expect(item).not.toContainText("rooms.files.start_file");
+        await expect(
+          item.getByTestId("room-files-start-file-button"),
+        ).toBeVisible();
+      }
+    });
+
+    test("shows the system default as start presentation if there are no files", async ({
+      page,
+    }) => {
+      await mockFiles(page, (files) => {
+        noFiles()(files);
+        files.start_file = null;
+        files.system_default.prefer_as_start = true;
+      });
+
+      await page.goto("/rooms/abc-def-123#tab=files");
+
+      await expect(systemDefault(page)).toContainText("rooms.files.start_file");
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(page.getByTestId("room-file-item")).toHaveCount(0);
+      await expect(page.getByText("rooms.files.nodata")).toBeVisible();
+    });
+
+    test("shows the file as start presentation if the system default is preferred but not set", async ({
+      page,
+    }) => {
+      await mockFiles(page, (files) => {
+        files.system_default.file = null;
+        files.system_default.prefer_as_start = true;
+      });
+
+      await page.goto("/rooms/abc-def-123#tab=files");
+
+      await expect(page.getByTestId("room-file-item")).toHaveCount(3);
+      await expectNoSystemDefault(page);
+
+      const item = page.getByTestId("room-file-item").nth(1);
+      await expect(item).toContainText("File2.pdf");
+      await expect(item).toContainText("rooms.files.download_allowed");
+      await expect(item).toContainText("rooms.files.available_in_next_meeting");
+      await expect(item).toContainText("rooms.files.start_file");
+      await expect(
+        item.getByTestId("room-files-start-file-button"),
+      ).toHaveCount(0);
+    });
+
     test.describe("reload", () => {
       test.beforeEach(async ({ page }) => {
         await page.goto("/rooms/abc-def-123#tab=files");
@@ -320,7 +434,12 @@ test.describe("Rooms view files", () => {
         await expect(
           item.locator('button[data-test="room-files-download-button"]'),
         ).toBeDisabled();
-        await expect(item.getByTestId("room-files-edit-button")).toBeDisabled();
+        await expect(
+          item.getByTestId("room-files-start-file-button"),
+        ).toBeDisabled();
+        await expect(
+          item.getByTestId("room-files-configure-button"),
+        ).toBeDisabled();
         await expect(
           item.locator('button[data-test="room-files-delete-button"]'),
         ).toBeDisabled();
@@ -344,7 +463,12 @@ test.describe("Rooms view files", () => {
         await expect(
           item.locator('a[data-test="room-files-download-button"]'),
         ).toHaveAttribute("href", FILES[0].url);
-        await expect(item.getByTestId("room-files-edit-button")).toBeEnabled();
+        await expect(
+          item.getByTestId("room-files-start-file-button"),
+        ).toBeEnabled();
+        await expect(
+          item.getByTestId("room-files-configure-button"),
+        ).toBeEnabled();
         await expect(
           item.locator('button[data-test="room-files-delete-button"]'),
         ).toBeEnabled();
@@ -383,6 +507,7 @@ test.describe("Rooms view files", () => {
 
       await expect(page.getByText("rooms.files.title").first()).toBeVisible();
       await expect(page.getByTestId("room-files-upload-button")).toHaveCount(0);
+      await expectNoSystemDefault(page);
     });
 
     for (const index of [0, 1]) {
@@ -514,6 +639,7 @@ test.describe("Rooms view files", () => {
         await expect(page.getByTestId("room-files-upload-button")).toHaveCount(
           0,
         );
+        await expectNoSystemDefault(page);
       });
 
       for (const index of [0, 1]) {
@@ -783,6 +909,7 @@ test.describe("Rooms view files", () => {
           0,
         );
         await expect(page.getByTestId("terms-of-use-message")).toHaveCount(0);
+        await expectNoSystemDefault(page);
 
         await expectFile(page, 0, "limited", { guest: true });
         await expectFile(page, 1, "limited", { guest: true });
@@ -802,6 +929,7 @@ test.describe("Rooms view files", () => {
             page.getByTestId("room-files-upload-button"),
           ).toHaveCount(0);
           await expectTermsOfUse(page);
+          await expectNoSystemDefault(page);
 
           await expectFile(page, 0, "limited", { guest: true, link: false });
           await expectFile(page, 1, "limited", { guest: true, link: false });
@@ -822,7 +950,7 @@ test.describe("Rooms view files", () => {
           room.data.owner = { id: 2, name: "Max Doe" };
           room.data.current_user.permissions = ["rooms.viewAll"];
         });
-        await interceptRoomFilesRequest(page);
+        await interceptRoomFilesRequest(page, true);
       });
 
       test("shows only the download buttons without terms of use", async ({
@@ -830,21 +958,23 @@ test.describe("Rooms view files", () => {
       }) => {
         await page.goto("/rooms/abc-def-123#tab=files");
 
-        await expect(page.getByTestId("room-file-item")).toHaveCount(2);
+        await expect(page.getByTestId("room-file-item")).toHaveCount(3);
         await expect(page.getByTestId("room-files-upload-button")).toHaveCount(
           0,
         );
         await expect(page.getByTestId("terms-of-use-message")).toHaveCount(0);
+        await expectNoSystemDefault(page);
 
         await expectFile(page, 0, "limited");
         await expectFile(page, 1, "limited");
+        await expectFile(page, 2, "limited");
       });
 
       test.describe("with terms of use", () => {
         test.beforeEach(async ({ page, config }) => {
           config.data.room.file_terms_of_use = "Test terms of use";
           await page.goto("/rooms/abc-def-123#tab=files");
-          await expect(page.getByTestId("room-file-item")).toHaveCount(2);
+          await expect(page.getByTestId("room-file-item")).toHaveCount(3);
         });
 
         test("shows the terms of use and only the download buttons", async ({
@@ -854,9 +984,11 @@ test.describe("Rooms view files", () => {
             page.getByTestId("room-files-upload-button"),
           ).toHaveCount(0);
           await expectTermsOfUse(page);
+          await expectNoSystemDefault(page);
 
           await expectFile(page, 0, "limited", { link: false });
           await expectFile(page, 1, "limited", { link: false });
+          await expectFile(page, 2, "limited", { link: false });
         });
 
         test("hides the terms of use after accepting them", async ({
@@ -887,6 +1019,31 @@ test.describe("Rooms view files", () => {
         ).toBeVisible();
       });
 
+      test("shows the system default presentation with all buttons", async ({
+        page,
+      }) => {
+        await expect(systemDefault(page)).toContainText(
+          "rooms.files.system_default",
+        );
+        await expect(systemDefault(page)).toContainText(
+          "rooms.files.available_in_next_meeting",
+        );
+        await expect(systemDefault(page)).not.toContainText(
+          "rooms.files.start_file",
+        );
+        await expect(
+          systemDefault(page).getByTestId(
+            "room-files-download-system-default-button",
+          ),
+        ).toBeEnabled();
+        await expect(
+          systemDefault(page).getByTestId("room-files-start-file-button"),
+        ).toHaveText("rooms.files.set_start_file");
+        await expect(
+          systemDefault(page).getByTestId("room-files-start-file-button"),
+        ).toBeEnabled();
+      });
+
       for (const [index, file] of FILES.entries()) {
         test(`shows ${file.name} with all buttons`, async ({ page }) => {
           await expectFile(page, index, "full");
@@ -915,6 +1072,31 @@ test.describe("Rooms view files", () => {
         await expect(
           page.getByTestId("room-files-upload-button"),
         ).toBeVisible();
+      });
+
+      test("shows the system default presentation with all buttons", async ({
+        page,
+      }) => {
+        await expect(systemDefault(page)).toContainText(
+          "rooms.files.system_default",
+        );
+        await expect(systemDefault(page)).toContainText(
+          "rooms.files.available_in_next_meeting",
+        );
+        await expect(systemDefault(page)).not.toContainText(
+          "rooms.files.start_file",
+        );
+        await expect(
+          systemDefault(page).getByTestId(
+            "room-files-download-system-default-button",
+          ),
+        ).toBeEnabled();
+        await expect(
+          systemDefault(page).getByTestId("room-files-start-file-button"),
+        ).toHaveText("rooms.files.set_start_file");
+        await expect(
+          systemDefault(page).getByTestId("room-files-start-file-button"),
+        ).toBeEnabled();
       });
 
       for (const [index, file] of FILES.entries()) {

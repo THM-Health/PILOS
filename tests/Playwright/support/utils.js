@@ -66,6 +66,28 @@ export async function nthRequest(mock, count = 1) {
 }
 
 /**
+ * Tolerance for comparing cropped and resized images: the resampling differs slightly between browser versions,
+ * but a different crop or zoom is still detected.
+ */
+export const IMAGE_SNAPSHOT_OPTIONS = {
+  threshold: 0.3,
+  maxDiffPixelRatio: 0.05,
+};
+
+/**
+ * Checks that the (blob url) image is loaded and looks like the screenshot.
+ * The blob can't be fetched because of the CSP (connect-src).
+ * @param {import("@playwright/test").Locator} image
+ * @param {string} name file name of the screenshot, e.g. "profile-image.png"
+ */
+export async function expectImageToMatchScreenshot(image, name) {
+  await expect
+    .poll(() => image.evaluate((element) => element.naturalWidth))
+    .toBeGreaterThan(0);
+  await expect(image).toHaveScreenshot(name);
+}
+
+/**
  * Converts an ArrayBuffer (or Node Buffer) to a base64 string.
  * @param {ArrayBuffer|Uint8Array} buffer
  * @returns {string}

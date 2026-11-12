@@ -419,6 +419,46 @@ test.describe("General", () => {
     });
   });
 
+  test.describe("enforced color mode", () => {
+    test.describe("light", () => {
+      // Prefer dark mode to verify that light mode is actually enforced
+      test.use({ colorScheme: "dark" });
+
+      test("hides the dark mode button and forces light mode", async ({
+        page,
+        config,
+      }) => {
+        config.data.theme.enforced_color_mode = "light";
+
+        await page.goto("/");
+
+        // Wait for the navbar to render before asserting that the toggle is hidden
+        await expect(page.getByTestId("navbar-locale")).toBeVisible();
+        await expect(page.getByTestId("navbar-dark-mode")).toHaveCount(0);
+        await expect(page.locator("html")).not.toHaveClass(/dark/);
+      });
+    });
+
+    test.describe("dark", () => {
+      // Prefer light mode to verify that dark mode is actually enforced
+      test.use({ colorScheme: "light" });
+
+      test("hides the dark mode button and forces dark mode", async ({
+        page,
+        config,
+      }) => {
+        config.data.theme.enforced_color_mode = "dark";
+
+        await page.goto("/");
+
+        // Wait for the navbar to render before asserting that the toggle is hidden
+        await expect(page.getByTestId("navbar-locale")).toBeVisible();
+        await expect(page.getByTestId("navbar-dark-mode")).toHaveCount(0);
+        await expect(page.locator("html")).toHaveClass(/dark/);
+      });
+    });
+  });
+
   test.describe("invalid route params", () => {
     const invalidPaths = [
       "/rooms/..%2Fother",

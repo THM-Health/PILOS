@@ -10,13 +10,12 @@ import {
   mockMethod,
   nthRequest,
   parseFormData,
-  _arrayBufferToBase64,
+  expectImageToMatchScreenshot,
+  IMAGE_SNAPSHOT_OPTIONS,
 } from "../support/utils.js";
 
 const readFixture = (name) =>
   JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-const readBase64 = (name) =>
-  readFileSync(`tests/Playwright/fixtures/files/${name}`).toString("base64");
 
 const USER_URL = "**/api/v1/users/2";
 const TIMEZONES_URL = "**/api/v1/getTimezones";
@@ -148,7 +147,7 @@ test.describe("Admin users edit base", () => {
       await page.getByTestId("upload-file-input").setInputFiles(IMAGE);
     });
 
-    test("crop dialog shows the selected image", async ({ page }) => {
+    test("shows the crop dialog", async ({ page }) => {
       const dialog = page.getByTestId("crop-image-dialog");
       await expect(dialog).toBeVisible();
       await expect(dialog).toContainText("admin.users.image.crop");
@@ -156,9 +155,8 @@ test.describe("Admin users edit base", () => {
         "admin.users.image.save",
       );
 
-      await expect
-        .poll(() => dialog.locator("img").first().getAttribute("src"))
-        .toContain(readBase64("profileImage.jpg"));
+      // The cropper is ready when the save button is enabled
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
     });
 
     test("save crop shows the preview", async ({ page }) => {
@@ -172,11 +170,10 @@ test.describe("Admin users edit base", () => {
       ).toHaveCount(0);
       const preview = imageField.getByTestId("profile-image-preview");
       await expect(preview).toBeVisible();
-      await expect
-        .poll(() => preview.locator("img").getAttribute("src"))
-        .toEqual(
-          "data:image/jpeg;base64," + readBase64("profileImagePreview.jpg"),
-        );
+      await expectImageToMatchScreenshot(
+        preview.locator("img"),
+        "profile-image-preview.png",
+      );
 
       await expect(imageField.getByTestId("upload-file-button")).toBeVisible();
       await expect(imageField.getByTestId("delete-image-button")).toHaveCount(
@@ -217,9 +214,8 @@ test.describe("Admin users edit base", () => {
       const dialog = page.getByTestId("crop-image-dialog");
       await expect(dialog).toBeVisible();
       await expect(dialog).toContainText("admin.users.image.crop");
-      await expect
-        .poll(() => dialog.locator("img").first().getAttribute("src"))
-        .toContain(readBase64("profileImage.jpg"));
+      // The cropper is ready when the save button is enabled
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
 
       await page.getByTestId("dialog-save-button").click();
       await expect(dialog).toHaveCount(0);
@@ -227,16 +223,10 @@ test.describe("Admin users edit base", () => {
       await expect(
         imageField.getByTestId("default-profile-image-preview"),
       ).toHaveCount(0);
-      await expect
-        .poll(() =>
-          imageField
-            .getByTestId("profile-image-preview")
-            .locator("img")
-            .getAttribute("src"),
-        )
-        .toEqual(
-          "data:image/jpeg;base64," + readBase64("profileImagePreview.jpg"),
-        );
+      const image = imageField
+        .getByTestId("profile-image-preview")
+        .locator("img");
+      await expectImageToMatchScreenshot(image, "profile-image-preview.png");
       await expect(imageField.getByTestId("upload-file-button")).toBeVisible();
       await expect(imageField.getByTestId("delete-image-button")).toHaveCount(
         0,
@@ -391,8 +381,9 @@ test.describe("Admin users edit base", () => {
       const uploadedFile = formData.get("image");
       expect(uploadedFile.name).toEqual("image.jpg");
       expect(uploadedFile.type).toEqual("image/jpeg");
-      expect(_arrayBufferToBase64(await uploadedFile.arrayBuffer())).toEqual(
-        readBase64("profileImagePreview.jpg"),
+      expect(Buffer.from(await uploadedFile.arrayBuffer())).toMatchSnapshot(
+        "profile-image-preview.jpg",
+        IMAGE_SNAPSHOT_OPTIONS,
       );
 
       await expect(page).toHaveURL(/\/admin\/users\/2#tab=base/);

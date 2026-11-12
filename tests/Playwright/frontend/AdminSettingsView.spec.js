@@ -229,6 +229,22 @@ test.describe("Admin settings with view permission only", () => {
     await expect(rounded.locator("#theme-rounded")).toBeChecked();
     await expect(rounded.locator("#theme-rounded")).toBeDisabled();
 
+    const colorMode = page.getByTestId("theme-enforced-color-mode-field");
+    await expect(colorMode).toBeVisible();
+    await expect(colorMode).toContainText(
+      "admin.settings.theme.enforced_color_mode.title",
+    );
+    const colorModeDropdown = colorMode.getByTestId(
+      "theme-enforced-color-mode-dropdown",
+    );
+    await expect(colorModeDropdown).toHaveText(
+      "admin.settings.theme.enforced_color_mode.null",
+    );
+    await expect(colorModeDropdown.locator(".p-select-label")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+
     const customCss = page.getByTestId("theme-custom-css-field");
     await expect(customCss).toBeVisible();
     await expect(customCss).toContainText("admin.settings.theme.custom_css");

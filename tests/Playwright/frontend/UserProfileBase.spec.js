@@ -6,13 +6,12 @@ import {
   mockMethod,
   nthRequest,
   parseFormData,
-  _arrayBufferToBase64,
+  expectImageToMatchScreenshot,
+  IMAGE_SNAPSHOT_OPTIONS,
 } from "../support/utils.js";
 
 const readFixture = (name) =>
   JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
-const readBase64 = (name) =>
-  readFileSync(`tests/Playwright/fixtures/files/${name}`).toString("base64");
 
 const USER_URL = "**/api/v1/users/1";
 const TIMEZONES_URL = "**/api/v1/getTimezones";
@@ -142,17 +141,70 @@ test.describe("User profile base", () => {
       await page.getByTestId("upload-file-input").setInputFiles(IMAGE);
     });
 
-    test("crop dialog shows the selected image", async ({ page }) => {
+    test("shows the crop dialog", async ({ page }) => {
       const dialog = page.getByTestId("crop-image-dialog");
       await expect(dialog).toBeVisible();
       await expect(dialog).toContainText("admin.users.image.crop");
+      // The cropper is ready when the save button is enabled
       await expect(page.getByTestId("dialog-save-button")).toHaveText(
         "admin.users.image.save",
       );
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
+    });
 
-      await expect
-        .poll(() => dialog.locator("img").first().getAttribute("src"))
-        .toContain(readBase64("profileImage.jpg"));
+    test("zooms and moves the image with the keyboard", async ({ page }) => {
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
+
+      const cropper = page.getByRole("application");
+      await expect(cropper).toHaveAttribute(
+        "aria-label",
+        "admin.users.image.aria_instructions",
+      );
+
+      // Zoom into the image
+      await page.getByRole("slider").focus();
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("ArrowRight");
+      await expect(page.getByTestId("image-zoom-display")).toHaveText("120%");
+
+      // Move the image
+      await cropper.focus();
+      for (const key of [
+        "ArrowRight",
+        "ArrowRight",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowDown",
+        "ArrowDown",
+        "ArrowUp",
+      ]) {
+        await page.keyboard.press(key);
+      }
+
+      await page.getByTestId("dialog-save-button").click();
+      await expect(page.getByTestId("crop-image-dialog")).toHaveCount(0);
+
+      const image = page
+        .getByTestId("profile-image-field")
+        .getByTestId("profile-image-preview")
+        .locator("img");
+      await expectImageToMatchScreenshot(
+        image,
+        "profile-image-preview-moved-zoomed.png",
+      );
+    });
+
+    test("zooms the image with the plus and minus keys", async ({ page }) => {
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
+
+      const cropper = page.getByRole("application");
+      await expect(cropper).toBeFocused();
+      await page.keyboard.press("+");
+      await page.keyboard.press("+");
+      await expect(page.getByTestId("image-zoom-display")).toHaveText("120%");
+      await page.keyboard.press("-");
+      await page.keyboard.press("-");
+      await expect(page.getByTestId("image-zoom-display")).toHaveText("100%");
     });
 
     test("save crop shows the preview", async ({ page }) => {
@@ -166,11 +218,10 @@ test.describe("User profile base", () => {
       ).toHaveCount(0);
       const preview = imageField.getByTestId("profile-image-preview");
       await expect(preview).toBeVisible();
-      await expect
-        .poll(() => preview.locator("img").getAttribute("src"))
-        .toEqual(
-          "data:image/jpeg;base64," + readBase64("profileImagePreview.jpg"),
-        );
+      await expectImageToMatchScreenshot(
+        preview.locator("img"),
+        "profile-image-preview.png",
+      );
 
       await expect(imageField.getByTestId("upload-file-button")).toBeVisible();
       await expect(imageField.getByTestId("delete-image-button")).toHaveCount(
@@ -209,9 +260,7 @@ test.describe("User profile base", () => {
       const dialog = page.getByTestId("crop-image-dialog");
       await expect(dialog).toBeVisible();
       await expect(dialog).toContainText("admin.users.image.crop");
-      await expect
-        .poll(() => dialog.locator("img").first().getAttribute("src"))
-        .toContain(readBase64("profileImage.jpg"));
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
 
       await page.getByTestId("dialog-save-button").click();
       await expect(dialog).toHaveCount(0);
@@ -219,22 +268,72 @@ test.describe("User profile base", () => {
       await expect(
         imageField.getByTestId("default-profile-image-preview"),
       ).toHaveCount(0);
-      await expect
-        .poll(() =>
-          imageField
-            .getByTestId("profile-image-preview")
-            .locator("img")
-            .getAttribute("src"),
-        )
-        .toEqual(
-          "data:image/jpeg;base64," + readBase64("profileImagePreview.jpg"),
-        );
+      const image = imageField
+        .getByTestId("profile-image-preview")
+        .locator("img");
+      await expectImageToMatchScreenshot(image, "profile-image-preview.png");
       await expect(imageField.getByTestId("upload-file-button")).toBeVisible();
       await expect(imageField.getByTestId("delete-image-button")).toHaveCount(
         0,
       );
       await expect(imageField.getByTestId("undo-delete-button")).toHaveCount(0);
       await expect(reset).toBeVisible();
+    });
+  });
+
+  test.describe("image cropper errors", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto("/profile");
+      await expect(page.locator("#firstname")).toHaveValue("John");
+      await page.getByTestId("upload-file-input").setInputFiles({
+        name: "invalid.jpg",
+        mimeType: "image/jpeg",
+        buffer: Buffer.from("This is an invalid image"),
+      });
+    });
+
+    test("shows an error and disables saving for an invalid image", async ({
+      page,
+    }) => {
+      const dialog = page.getByTestId("crop-image-dialog");
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText("admin.users.image.crop");
+      await expect(dialog).toContainText("admin.users.image.cropper_error");
+
+      // The image cropper and zoom slider are hidden
+      await expect(dialog.getByRole("application")).toHaveCount(0);
+      await expect(dialog.getByTestId("image-zoom")).toHaveCount(0);
+      await expect(dialog.getByTestId("image-zoom-display")).toHaveCount(0);
+
+      await expect(page.getByTestId("dialog-save-button")).toBeDisabled();
+      await expect(page.getByTestId("dialog-cancel-button")).toBeFocused();
+      await expect(page.getByTestId("dialog-cancel-button")).toBeEnabled();
+    });
+
+    test("allows to upload a valid image after closing the dialog", async ({
+      page,
+    }) => {
+      await page.getByTestId("dialog-cancel-button").click();
+      await expect(page.getByTestId("crop-image-dialog")).toHaveCount(0);
+
+      await page
+        .getByTestId("profile-image-field")
+        .getByTestId("upload-file-input")
+        .setInputFiles(IMAGE);
+
+      const dialog = page.getByTestId("crop-image-dialog");
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText("admin.users.image.crop");
+      await expect(dialog).not.toContainText("admin.users.image.cropper_error");
+      await expect(dialog.locator("img").first()).toHaveAttribute("src", /.+/);
+
+      // The image cropper and zoom slider are visible
+      await expect(dialog.getByRole("application")).toBeVisible();
+      await expect(dialog.getByTestId("image-zoom")).toBeVisible();
+      await expect(dialog.getByTestId("image-zoom-display")).toHaveText("100%");
+
+      await expect(page.getByTestId("dialog-save-button")).toBeEnabled();
+      await expect(page.getByTestId("dialog-cancel-button")).toBeEnabled();
     });
   });
 
@@ -379,8 +478,9 @@ test.describe("User profile base", () => {
       const uploadedFile = formData.get("image");
       expect(uploadedFile.name).toEqual("image.jpg");
       expect(uploadedFile.type).toEqual("image/jpeg");
-      expect(_arrayBufferToBase64(await uploadedFile.arrayBuffer())).toEqual(
-        readBase64("profileImagePreview.jpg"),
+      expect(Buffer.from(await uploadedFile.arrayBuffer())).toMatchSnapshot(
+        "profile-image-preview.jpg",
+        IMAGE_SNAPSHOT_OPTIONS,
       );
     });
 

@@ -104,7 +104,7 @@ function withUploadedFiles(...names) {
         filename,
         download: false,
         use_in_meeting: false,
-        default: false,
+        is_start_file: false,
         uploaded: "2020-09-21T07:10:00.000000Z",
       });
     });
@@ -343,10 +343,10 @@ test.describe("Rooms view files file actions", () => {
           await expect(items.nth(index)).toContainText(name);
           await expect(items.nth(index)).toContainText("Sep 21, 2020, 09:10");
           await expect(items.nth(index)).toContainText(
-            "rooms.files.download_hidden",
+            "rooms.files.download_not_allowed",
           );
           await expect(items.nth(index)).toContainText(
-            "rooms.files.use_in_next_meeting_disabled",
+            "rooms.files.not_available_in_next_meeting",
           );
         }
       });
@@ -635,7 +635,6 @@ test.describe("Rooms view files file actions", () => {
     const changedFile = (files) => {
       files.data[0].download = false;
       files.data[0].use_in_meeting = true;
-      files.data[0].default = true;
     };
 
     test.beforeEach(async ({ page }) => {
@@ -645,18 +644,20 @@ test.describe("Rooms view files file actions", () => {
 
     test.describe("with open dialog", () => {
       test.beforeEach(async ({ page }) => {
-        await expect(page.getByTestId("room-files-edit-dialog")).toBeHidden();
+        await expect(
+          page.getByTestId("room-files-configure-dialog"),
+        ).toBeHidden();
         await page
           .getByTestId("room-file-item")
           .nth(0)
-          .getByTestId("room-files-edit-button")
+          .getByTestId("room-files-configure-button")
           .click();
       });
 
       test("shows the current settings", async ({ page }) => {
-        const dialog = page.getByTestId("room-files-edit-dialog");
+        const dialog = page.getByTestId("room-files-configure-dialog");
         await expect(dialog).toBeVisible();
-        await expect(dialog).toContainText("rooms.files.edit");
+        await expect(dialog).toContainText("rooms.files.configure");
 
         const download = dialog.getByTestId("download-field");
         await expect(download).toContainText("rooms.files.downloadable");
@@ -664,22 +665,17 @@ test.describe("Rooms view files file actions", () => {
 
         const useInMeeting = dialog.getByTestId("use-in-meeting-field");
         await expect(useInMeeting).toContainText(
-          "rooms.files.use_in_next_meeting",
+          "rooms.files.available_in_next_meeting",
         );
         await expect(useInMeeting.locator("#use_in_meeting")).not.toBeChecked();
-
-        const defaultField = dialog.getByTestId("default-field");
-        await expect(defaultField).toContainText("rooms.files.default");
-        await expect(defaultField.locator("#default")).not.toBeChecked();
       });
 
       test("shows the loading state while saving", async ({ page }) => {
-        const dialog = page.getByTestId("room-files-edit-dialog");
+        const dialog = page.getByTestId("room-files-configure-dialog");
         await dialog.locator("#download").click();
         await dialog.locator("#use_in_meeting").click();
-        await dialog.locator("#default").click();
 
-        const edit = await mockMethod(page, "PUT", editUrl(1), {
+        const edit = await mockMethod(page, "PATCH", editUrl(1), {
           status: 204,
           hold: true,
         });
@@ -693,7 +689,6 @@ test.describe("Rooms view files file actions", () => {
         await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
         await expect(dialog.locator("#download")).toBeDisabled();
         await expect(dialog.locator("#use_in_meeting")).toBeDisabled();
-        await expect(dialog.locator("#default")).toBeDisabled();
         await expect(dialog.getByTestId("dialog-cancel-button")).toHaveText(
           "app.cancel",
         );
@@ -705,19 +700,19 @@ test.describe("Rooms view files file actions", () => {
       });
 
       test("saves the changed settings", async ({ page }) => {
-        const dialog = page.getByTestId("room-files-edit-dialog");
+        const dialog = page.getByTestId("room-files-configure-dialog");
         await dialog.locator("#download").click();
         await dialog.locator("#use_in_meeting").click();
-        await dialog.locator("#default").click();
 
-        const edit = await mockMethod(page, "PUT", editUrl(1), { status: 204 });
+        const edit = await mockMethod(page, "PATCH", editUrl(1), {
+          status: 204,
+        });
         const files = await mockFiles(page, changedFile);
 
         await dialog.getByTestId("dialog-save-button").click();
 
         const request = await nthRequest(edit);
         expect(request.postDataJSON()).toEqual({
-          default: true,
           download: false,
           use_in_meeting: true,
         });
@@ -727,11 +722,13 @@ test.describe("Rooms view files file actions", () => {
 
         // Check that file settings were changed
         const item = page.getByTestId("room-file-item").nth(0);
-        await expect(item).toContainText("rooms.files.download_hidden");
-        await expect(item).toContainText("rooms.files.use_in_next_meeting");
-        await expect(item).not.toContainText("rooms.files.download_visible");
+        await expect(item).toContainText("rooms.files.download_not_allowed");
+        await expect(item).toContainText(
+          "rooms.files.available_in_next_meeting",
+        );
+        await expect(item).not.toContainText("rooms.files.download_allowed");
         await expect(item).not.toContainText(
-          "rooms.files.use_in_next_meeting_disabled",
+          "rooms.files.not_available_in_next_meeting",
         );
       });
     });
@@ -740,11 +737,10 @@ test.describe("Rooms view files file actions", () => {
       const validationErrors = [
         "The Downloadable field is required.",
         "The Use in the next meeting field is required.",
-        "The Default field is required.",
       ];
 
       test("reloads the files if the file is not found", async ({ page }) => {
-        await mockMethod(page, "PUT", editUrl(3), {
+        await mockMethod(page, "PATCH", editUrl(3), {
           status: 404,
           json: FILE_NOT_FOUND,
         });
@@ -753,17 +749,19 @@ test.describe("Rooms view files file actions", () => {
         await page
           .getByTestId("room-file-item")
           .nth(2)
-          .getByTestId("room-files-edit-button")
+          .getByTestId("room-files-configure-button")
           .click();
         await page
-          .getByTestId("room-files-edit-dialog")
+          .getByTestId("room-files-configure-dialog")
           .getByTestId("dialog-save-button")
           .click();
 
         await nthRequest(files);
 
         await expectToastAndClose(page, "rooms.flash.file_gone");
-        await expect(page.getByTestId("room-files-edit-dialog")).toBeHidden();
+        await expect(
+          page.getByTestId("room-files-configure-dialog"),
+        ).toBeHidden();
         await expect(page.getByTestId("room-file-item")).toHaveCount(2);
       });
 
@@ -775,7 +773,6 @@ test.describe("Rooms view files file actions", () => {
             errors: {
               download: [validationErrors[0]],
               use_in_meeting: [validationErrors[1]],
-              default: [validationErrors[2]],
             },
           },
         };
@@ -784,17 +781,17 @@ test.describe("Rooms view files file actions", () => {
           await page
             .getByTestId("room-file-item")
             .nth(1)
-            .getByTestId("room-files-edit-button")
+            .getByTestId("room-files-configure-button")
             .click();
           await expect(
-            page.getByTestId("room-files-edit-dialog"),
+            page.getByTestId("room-files-configure-dialog"),
           ).toBeVisible();
         });
 
         test("shows validation errors", async ({ page }) => {
-          await mockMethod(page, "PUT", editUrl(2), validationResponse);
+          await mockMethod(page, "PATCH", editUrl(2), validationResponse);
 
-          const dialog = page.getByTestId("room-files-edit-dialog");
+          const dialog = page.getByTestId("room-files-configure-dialog");
           await dialog.getByTestId("dialog-save-button").click();
 
           await expect(dialog).toBeVisible();
@@ -806,13 +803,13 @@ test.describe("Rooms view files file actions", () => {
         test("hides the validation errors after a server error", async ({
           page,
         }) => {
-          const dialog = page.getByTestId("room-files-edit-dialog");
+          const dialog = page.getByTestId("room-files-configure-dialog");
 
-          await mockMethod(page, "PUT", editUrl(2), validationResponse);
+          await mockMethod(page, "PATCH", editUrl(2), validationResponse);
           await dialog.getByTestId("dialog-save-button").click();
           await expect(dialog).toContainText(validationErrors[0]);
 
-          await mockMethod(page, "PUT", editUrl(2), {
+          await mockMethod(page, "PATCH", editUrl(2), {
             status: 500,
             json: SERVER_ERROR,
           });
@@ -836,13 +833,13 @@ test.describe("Rooms view files file actions", () => {
             await page
               .getByTestId("room-file-item")
               .nth(0)
-              .getByTestId("room-files-edit-button")
+              .getByTestId("room-files-configure-button")
               .click();
-            const dialog = page.getByTestId("room-files-edit-dialog");
+            const dialog = page.getByTestId("room-files-configure-dialog");
             await expect(dialog).toBeVisible();
             await dialog.getByTestId("dialog-save-button").click();
           },
-          "PUT",
+          "PATCH",
           editUrl(1),
           "files",
         );
@@ -852,7 +849,7 @@ test.describe("Rooms view files file actions", () => {
         page,
       }) => {
         await interceptRoomIndexRequests(page);
-        await mockMethod(page, "PUT", editUrl(1), {
+        await mockMethod(page, "PATCH", editUrl(1), {
           status: 404,
           json: ROOM_NOT_FOUND,
         });
@@ -860,12 +857,294 @@ test.describe("Rooms view files file actions", () => {
         await page
           .getByTestId("room-file-item")
           .nth(0)
-          .getByTestId("room-files-edit-button")
+          .getByTestId("room-files-configure-button")
           .click();
         await page
-          .getByTestId("room-files-edit-dialog")
+          .getByTestId("room-files-configure-dialog")
           .getByTestId("dialog-save-button")
           .click();
+
+        await expectRedirectToRoomIndex(page);
+        await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      });
+    });
+  });
+
+  test.describe("set start presentation file", () => {
+    const patchUrl = (id) => `**/api/v1/rooms/abc-def-123/files/${id}`;
+    const startFileButton = (page, index) =>
+      page
+        .getByTestId("room-file-item")
+        .nth(index)
+        .getByTestId("room-files-start-file-button");
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto("/rooms/abc-def-123#tab=files");
+      await expect(page.getByTestId("room-file-item")).toHaveCount(3);
+    });
+
+    test("shows which file is the start file", async ({ page }) => {
+      const first = page.getByTestId("room-file-item").nth(0);
+      await expect(first).toContainText("File1.pdf");
+      await expect(first).toContainText(
+        "rooms.files.not_available_in_next_meeting",
+      );
+      await expect(first).not.toContainText("rooms.files.start_file");
+      await expect(startFileButton(page, 0)).toHaveText(
+        "rooms.files.set_start_file",
+      );
+
+      const second = page.getByTestId("room-file-item").nth(1);
+      await expect(second).toContainText("File2.pdf");
+      await expect(second).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(second).toContainText("rooms.files.start_file");
+      await expect(startFileButton(page, 1)).toHaveCount(0);
+    });
+
+    test("shows the loading state while saving", async ({ page }) => {
+      const patch = await mockMethod(page, "PATCH", patchUrl(1), {
+        status: 204,
+        hold: true,
+      });
+      await mockFiles(page);
+
+      await startFileButton(page, 0).click();
+
+      await expect(startFileButton(page, 0)).toBeDisabled();
+      patch.release();
+    });
+
+    test("sets the file as start file", async ({ page }) => {
+      const patch = await mockMethod(page, "PATCH", patchUrl(1), {
+        status: 204,
+      });
+      const files = await mockFiles(page, (files) => {
+        files.data[0].is_start_file = true;
+        files.data[0].use_in_meeting = true;
+        files.data[1].is_start_file = false;
+        files.start_file = { ...files.data[0], room_id: "abc-def-123" };
+      });
+
+      await startFileButton(page, 0).click();
+
+      const request = await nthRequest(patch);
+      expect(request.postDataJSON()).toEqual({ is_start_file: true });
+      await nthRequest(files);
+
+      // The file is the start file now
+      const first = page.getByTestId("room-file-item").nth(0);
+      await expect(first).toContainText("rooms.files.start_file");
+      await expect(first).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(startFileButton(page, 0)).toHaveCount(0);
+
+      // The other file is not the start file anymore
+      const second = page.getByTestId("room-file-item").nth(1);
+      await expect(second).not.toContainText("rooms.files.start_file");
+      await expect(second).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(startFileButton(page, 1)).toHaveText(
+        "rooms.files.set_start_file",
+      );
+    });
+
+    test.describe("errors", () => {
+      test("reloads the files if the file is not found", async ({ page }) => {
+        await mockMethod(page, "PATCH", patchUrl(3), {
+          status: 404,
+          json: FILE_NOT_FOUND,
+        });
+        const files = await mockFiles(page, keepFiles(0, 2));
+
+        await startFileButton(page, 2).click();
+        await nthRequest(files);
+
+        await expectToastAndClose(page, "rooms.flash.file_gone");
+        await expect(page.getByTestId("room-file-item")).toHaveCount(2);
+      });
+
+      test("shows a server error", async ({ page }) => {
+        await mockMethod(page, "PATCH", patchUrl(1), {
+          status: 500,
+          json: SERVER_ERROR,
+        });
+
+        await startFileButton(page, 0).click();
+
+        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      });
+
+      test("handles auth errors", async ({ page }) => {
+        await checkRoomAuthErrors(
+          page,
+          async (page) => {
+            await startFileButton(page, 0).click();
+          },
+          "PATCH",
+          patchUrl(1),
+          "files",
+        );
+      });
+
+      test("redirects to the room index if the room is not found", async ({
+        page,
+      }) => {
+        await interceptRoomIndexRequests(page);
+        await mockMethod(page, "PATCH", patchUrl(1), {
+          status: 404,
+          json: ROOM_NOT_FOUND,
+        });
+
+        await startFileButton(page, 0).click();
+
+        await expectRedirectToRoomIndex(page);
+        await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
+      });
+    });
+  });
+
+  test.describe("set system wide default presentation as start presentation", () => {
+    const systemDefaultUrl = "**/api/v1/rooms/abc-def-123/files/system_default";
+    const systemDefault = (page) =>
+      page.getByTestId("room-file-system-default");
+    const systemDefaultButton = (page) =>
+      systemDefault(page).getByTestId("room-files-start-file-button");
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto("/rooms/abc-def-123#tab=files");
+      await expect(page.getByTestId("room-file-item")).toHaveCount(3);
+    });
+
+    test("shows the system default as not being the start file", async ({
+      page,
+    }) => {
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.system_default",
+      );
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(systemDefault(page)).not.toContainText(
+        "rooms.files.start_file",
+      );
+      await expect(systemDefaultButton(page)).toHaveText(
+        "rooms.files.set_start_file",
+      );
+
+      const startFile = page.getByTestId("room-file-item").nth(1);
+      await expect(startFile).toContainText("File2.pdf");
+      await expect(startFile).toContainText("rooms.files.start_file");
+    });
+
+    test("shows the loading state while saving", async ({ page }) => {
+      const patch = await mockMethod(page, "PATCH", systemDefaultUrl, {
+        status: 204,
+        hold: true,
+      });
+      await mockFiles(page);
+
+      await systemDefaultButton(page).click();
+
+      await expect(systemDefaultButton(page)).toBeDisabled();
+      patch.release();
+    });
+
+    test("sets the system default as start file", async ({ page }) => {
+      const patch = await mockMethod(page, "PATCH", systemDefaultUrl, {
+        status: 204,
+      });
+      const files = await mockFiles(page, (files) => {
+        files.system_default.prefer_as_start = true;
+      });
+
+      await systemDefaultButton(page).click();
+
+      const request = await nthRequest(patch);
+      expect(request.postDataJSON()).toEqual({ prefer_as_start: true });
+      await nthRequest(files);
+
+      // The system default is the start file now
+      await expect(systemDefault(page)).toContainText("rooms.files.start_file");
+      await expect(systemDefault(page)).toContainText(
+        "rooms.files.available_in_next_meeting",
+      );
+      await expect(systemDefaultButton(page)).toHaveCount(0);
+
+      // The file is not shown as start file anymore
+      const file = page.getByTestId("room-file-item").nth(1);
+      await expect(file).not.toContainText("rooms.files.start_file");
+      await expect(file).toContainText("rooms.files.available_in_next_meeting");
+      await expect(file.getByTestId("room-files-start-file-button")).toHaveText(
+        "rooms.files.set_start_file",
+      );
+    });
+
+    test.describe("errors", () => {
+      test("hides the system default if it is not set anymore", async ({
+        page,
+      }) => {
+        await mockMethod(page, "PATCH", systemDefaultUrl, {
+          status: 404,
+          json: { message: "system_default_presentation_not_set" },
+        });
+        const files = await mockFiles(page, (files) => {
+          files.system_default.file = null;
+        });
+
+        await systemDefaultButton(page).click();
+        await nthRequest(files);
+
+        await expect(systemDefault(page)).toHaveCount(0);
+        await expectToastAndClose(
+          page,
+          "rooms.flash.default_presentation_not_set",
+        );
+
+        // The file is still the start file
+        const file = page.getByTestId("room-file-item").nth(1);
+        await expect(file).toContainText("rooms.files.start_file");
+        await expect(
+          file.getByTestId("room-files-start-file-button"),
+        ).toHaveCount(0);
+      });
+
+      test("shows a server error", async ({ page }) => {
+        await mockMethod(page, "PATCH", systemDefaultUrl, {
+          status: 500,
+          json: SERVER_ERROR,
+        });
+
+        await systemDefaultButton(page).click();
+
+        await expectToastAndClose(page, SERVER_ERROR_TOAST);
+      });
+
+      test("handles auth errors", async ({ page }) => {
+        await checkRoomAuthErrors(
+          page,
+          async (page) => {
+            await systemDefaultButton(page).click();
+          },
+          "PATCH",
+          systemDefaultUrl,
+          "files",
+        );
+      });
+
+      test("redirects to the room index if the room is not found", async ({
+        page,
+      }) => {
+        await interceptRoomIndexRequests(page);
+        await mockMethod(page, "PATCH", systemDefaultUrl, {
+          status: 404,
+          json: ROOM_NOT_FOUND,
+        });
+
+        await systemDefaultButton(page).click();
 
         await expectRedirectToRoomIndex(page);
         await expectToastAndClose(page, MODEL_NOT_FOUND_TOAST);
@@ -1236,7 +1515,9 @@ test.describe("Rooms view files file actions", () => {
         await expect(
           item.getByTestId("room-files-download-button"),
         ).toBeEnabled();
-        await expect(item.getByTestId("room-files-edit-button")).toHaveCount(0);
+        await expect(
+          item.getByTestId("room-files-configure-button"),
+        ).toHaveCount(0);
         await expect(item.getByTestId("room-files-delete-button")).toHaveCount(
           0,
         );

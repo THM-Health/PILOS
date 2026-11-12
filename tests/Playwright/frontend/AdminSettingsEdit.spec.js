@@ -679,6 +679,7 @@ test.describe("Admin settings with edit permission", () => {
       data.theme_logo_dark = "/images/logo-dark2.svg";
       data.theme_primary_color = "#14b8a6";
       data.theme_rounded = false;
+      data.theme_enforced_color_mode = "dark";
     };
 
     test("shows the logo setting and handles file uploads", async ({
@@ -762,6 +763,40 @@ test.describe("Admin settings with edit permission", () => {
       await expect(roundedField.locator("#theme-rounded")).toBeChecked();
       await roundedField.locator("#theme-rounded").click();
 
+      const colorModeField = page.getByTestId(
+        "theme-enforced-color-mode-field",
+      );
+      const colorModeDropdown = page.getByTestId(
+        "theme-enforced-color-mode-dropdown",
+      );
+      await expect(
+        page.getByTestId("theme-enforced-color-mode-dropdown-items"),
+      ).toHaveCount(0);
+      await expect(colorModeField).toBeVisible();
+      await expect(colorModeField).toContainText(
+        "admin.settings.theme.enforced_color_mode.title",
+      );
+      await expect(colorModeDropdown).toHaveText(
+        "admin.settings.theme.enforced_color_mode.null",
+      );
+      await colorModeDropdown.click();
+
+      const colorModeItems = page.getByTestId(
+        "theme-enforced-color-mode-dropdown-items",
+      );
+      await expect(colorModeItems).toBeVisible();
+      const colorModeOptions = colorModeItems.getByTestId(
+        "theme-enforced-color-mode-dropdown-option",
+      );
+      await expect(colorModeOptions).toHaveCount(3);
+      await expect(colorModeOptions.nth(2)).toHaveText(
+        "admin.settings.theme.enforced_color_mode.dark",
+      );
+      await colorModeOptions.nth(2).click();
+      await expect(colorModeDropdown).toHaveText(
+        "admin.settings.theme.enforced_color_mode.dark",
+      );
+
       const save = await saveChanges(
         page,
         settingsState,
@@ -799,6 +834,7 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("theme_logo_dark")).toBeNull();
       expect(formData.get("theme_primary_color")).toBe("#14b8a6");
       expect(formData.get("theme_rounded")).toBe("0");
+      expect(formData.get("theme_enforced_color_mode")).toBe("dark");
       expect(formData.get("theme_custom_css")).toBeNull();
 
       await save.waitForConfigRequest();
@@ -811,6 +847,9 @@ test.describe("Admin settings with edit permission", () => {
       );
       await expectPrimaryColor(page, 3, "#14b8a6");
       await expect(page.locator("#theme-rounded")).not.toBeChecked();
+      await expect(
+        page.getByTestId("theme-enforced-color-mode-dropdown"),
+      ).toHaveText("admin.settings.theme.enforced_color_mode.dark");
 
       // Check that page was not reloaded
       expect(settingsState.getCount).toBe(1);
@@ -847,6 +886,7 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("theme_logo_dark")).toBe("/images/logo-dark2.svg");
       expect(formData.get("theme_primary_color")).toBe("#14b8a6");
       expect(formData.get("theme_rounded")).toBe("0");
+      expect(formData.get("theme_enforced_color_mode")).toBe("dark");
       // Make sure that custom css is null, even though it is set (not changed by the user)
       expect(formData.get("theme_custom_css")).toBeNull();
 
@@ -897,6 +937,7 @@ test.describe("Admin settings with edit permission", () => {
       expect(formData.get("theme_logo_dark")).toBe("/images/logo-dark3.svg");
       expect(formData.get("theme_primary_color")).toBe("#14b8a6");
       expect(formData.get("theme_rounded")).toBe("0");
+      expect(formData.get("theme_enforced_color_mode")).toBe("dark");
       expect(formData.get("theme_custom_css")).toBeNull();
 
       await save.waitForConfigRequest();
