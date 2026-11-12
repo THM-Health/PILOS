@@ -499,4 +499,42 @@ describe("General", function () {
     cy.get("@resourceGet.all").should("have.length", 0);
     cy.get("@resourcePost.all").should("have.length", 0);
   });
+
+  it("enforced light mode hides dark mode button and forces light mode", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.theme.enforced_color_mode = "light";
+
+      cy.intercept("GET", "/api/v1/config", config).as("configRequest");
+    });
+
+    // Prefer dark mode so we can verify light mode is actually enforced
+    cy.visit("/", {
+      onBeforeLoad() {
+        Cypress.expose("darkMode", true);
+      },
+    });
+    cy.wait("@configRequest");
+
+    // Wait for navbar to render before asserting the toggle is hidden
+    cy.get('[data-test="navbar-locale"]').should("be.visible");
+    cy.get('[data-test="navbar-dark-mode"]').should("not.exist");
+    cy.get("html").should("not.have.class", "dark");
+  });
+
+  it("enforced dark mode hides dark mode button and forces dark mode", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.theme.enforced_color_mode = "dark";
+
+      cy.intercept("GET", "/api/v1/config", config).as("configRequest");
+    });
+
+    // Prefer light mode so we can verify dark mode is actually enforced
+    cy.visit("/");
+    cy.wait("@configRequest");
+
+    // Wait for navbar to render before asserting the toggle is hidden
+    cy.get('[data-test="navbar-locale"]').should("be.visible");
+    cy.get('[data-test="navbar-dark-mode"]').should("not.exist");
+    cy.get("html").should("have.class", "dark");
+  });
 });
