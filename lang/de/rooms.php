@@ -113,16 +113,11 @@ return [
     'feature_disabled_system' => ':name ist deaktiviert. Bitte wenden Sie sich an den Administrator.',
     'files' => [
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
-        'default' => 'Standard',
         'delete' => 'Datei löschen',
         'delete_aria' => 'Datei löschen: :filename',
         'download' => 'Datei herunterladen',
         'download_aria' => 'Datei herunterladen: :filename',
-        'download_hidden' => 'Download verborgen',
-        'download_visible' => 'Download sichtbar',
         'downloadable' => 'Herunterladbar',
-        'edit' => 'Datei bearbeiten',
-        'edit_aria' => 'Datei bearbeiten: :filename',
         'filter' => [
             'all' => 'Alle Dateien',
             'downloadable' => 'Herunterladbare Dateien',
@@ -149,8 +144,6 @@ return [
         'title' => 'Dateien',
         'upload' => 'Dateien hochladen',
         'uploaded' => 'Datei ":name" hochgeladen',
-        'use_in_next_meeting' => 'In Videokonferenz verfügbar',
-        'use_in_next_meeting_disabled' => 'In Videokonferenz nicht verfügbar',
     ],
     'first_and_lastname' => 'Vor- und Nachname',
     'flash' => [
