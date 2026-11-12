@@ -197,10 +197,7 @@ const hashParams = useUrlSearchParams("hash-params");
 onMounted(async () => {
   // Check if tab selection is saved in URL hash and try to select it if it exists
   if (hashParams.tab) {
-    const tabIndex = availableTabs.value.findIndex(
-      (tab) => tab.key === hashParams.tab,
-    );
-    if (tabIndex !== -1) {
+    if (availableTabs.value.find((tab) => tab.key === hashParams.tab)) {
       activeTabKey.value = hashParams.tab;
       return;
     }
