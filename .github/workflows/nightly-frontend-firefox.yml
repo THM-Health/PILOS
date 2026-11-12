@@ -1,0 +1,71 @@
+name: Nightly Frontend Tests (Firefox)
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-firefox:
+    name: Frontend Tests (Firefox)
+    runs-on: ubuntu-latest
+    # Scheduled workflows run on the default branch only
+    if: ${{ github.repository == 'THM-Health/PILOS' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Build image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          file: docker/app/Dockerfile
+          context: .
+          load: true
+          tags: pilos:latest
+          cache-from: type=gha
+
+      - name: Copy .env
+        run: docker run --rm pilos:latest cat ./.env.ci > .env
+      - name: Generate key
+        run: |
+          docker run --rm \
+          --mount type=bind,source=${{ github.workspace }}/.env,target=/var/www/html/.env \
+          --entrypoint /bin/bash \
+          pilos:latest \
+          -c "chown www-data:www-data .env && pilos-cli key:generate"
+      - name: Adjust .env
+        run: |
+          sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
+          sed -i 's|APP_URL=.*|APP_URL=http://localhost:9080|g' .env
+      - name: Start app
+        run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps firefox
+      - name: Wait for app
+        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+      - name: Playwright run frontend tests in Firefox
+        run: npx playwright test --project=frontend-firefox
+        env:
+          APP_URL: "http://localhost:9080"
+      - name: Upload test report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: playwright-frontend-firefox-report
+          path: |
+            playwright-report
+            tests/Playwright/test-results

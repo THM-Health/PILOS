@@ -9,7 +9,7 @@ const baseUrl = process.env.APP_URL || "http://localhost";
 
 export default defineConfig({
   downloadsFolder: "tests/Frontend/downloads",
-  fixturesFolder: "tests/Frontend/fixtures",
+  fixturesFolder: "tests/Playwright/fixtures",
   screenshotsFolder: "tests/Frontend/screenshots",
   videosFolder: "tests/Frontend/videos",
 

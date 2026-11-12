@@ -144,40 +144,27 @@ Or you can run the tests headless with:
 npm run cypress:run -- -P ./tests/System
 ```
 
-## Visual Regression Testing with Happo.io
+## Visual Regression Testing with Playwright
 
-We aim to cover as much functionality as possible with our frontend tests. However, testing every aspect of the application can be challenging and sometimes simply not possible, e.g. layout shifts, svg rendered charts, etc.
+We aim to cover as much functionality as possible with our frontend tests. However, testing every aspect of the application can be challenging and sometimes simply not possible, e.g. layout shifts, canvas rendered charts, etc.
 
-PILOS relies on several third-party libraries, such as UI components (PrimeVue), charts (Chart.js) and others. While these libraries are generally high quality and well tested, they may occasionally introduce bugs, regressions or integration issues into our application. Frequent updates to these libraries also require us to ensure that our application continues to look and behave as expected.
+PILOS relies on several third-party libraries, such as UI components (PrimeVue), charts (Chart.js) and others. Frequent updates to these libraries require us to ensure that our application continues to look and behave as expected. To detect visual regressions we use the native screenshot comparison of [Playwright](https://playwright.dev/docs/test-snapshots).
 
-Manually identifying visual regressions is a time-consuming and error-prone process that has been a significant pain point in the past. To address this, we implemented visual regression testing using [Happo](https://happo.io/).
-
-Happo is a powerful tool that allows us to take screenshots of our application and compare them to previous versions to detect visual changes. Integrating Happo into our existing Cypress test system was straightforward and we will extend its use to all areas of the application where visual changes are expected.
-
-By using Happo for visual regression testing, we can maintain a high standard of visual quality in our application while minimising manual effort.
-
-### Automated Testing Environment
-
-To ensure consistent results, we run visual regression tests exclusively in the GitHub Action runner. This controlled environment minimizes discrepancies and provides reliable feedback.
-
-If a screenshot differs from the baseline, we can review the changes and determine whether this is a bug or an intentional change.
+The visual tests live in `tests/Playwright/visual` and are run with the `visual` project. Like the frontend tests they mock config, auth and page APIs, but they load English translations from the real `/api/v1/locale` API (same as the old Cypress visual suite). The baseline screenshots are committed to the repository next to the tests (`__screenshots__`).
 
 ### Adding Screenshots in Tests
 
-To capture a screenshot for visual regression testing, simply add the `.happoScreenshot()` command to the Cypress chain. For example:
-
 ```javascript
-cy.get("button").happoScreenshot();
+await expect(page.getByTestId("chart")).toHaveScreenshot("chart.png");
 ```
 
-### Debugging Tests Locally
+### Baseline Environment
 
-Although visual regression tests run exclusively in the GitHub Action runner, you can write and debug tests locally. Use the following command to open Cypress for interactive debugging:
-
-Before running the tests make sure you have correctly installed cypress as described in the [Installing cypress](#installing-cypress) section.
+Screenshots differ between operating systems (fonts, anti-aliasing), so baselines are only created in the Linux environment that is also used by the GitHub Action runner. Create or update them with the official Playwright image (the host name of `APP_URL` must be reachable from the container):
 
 ```bash
-npm run cypress:open -- -P ./tests/Visual --config experimentalInteractiveRunEvents=true
+docker run --rm -v "$PWD":/work -w /work --ipc=host mcr.microsoft.com/playwright:v1.65.0-noble \
+  npx playwright test --project=visual --update-snapshots
 ```
 
-This setup allows you to ensure your tests are functioning correctly before committing changes.
+If a screenshot differs from the baseline, the test fails and the actual, expected and diff images are available in the `playwright-visual-results` artifact of the workflow run. Review the change and either fix the bug or update the baseline.

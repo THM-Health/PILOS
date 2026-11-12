@@ -49,7 +49,7 @@ Cypress.Commands.add(
     cy.get("@fileInputClick").should("be.calledOnce");
 
     cy.get('[data-test="file-input-input"]').selectFile(
-      "tests/Frontend/fixtures/files/" + imageName,
+      "tests/Playwright/fixtures/files/" + imageName,
       {
         force: true,
       },
@@ -105,7 +105,7 @@ Cypress.Commands.add(
 
     // Upload image again
     cy.get('[data-test="file-input-input"]').selectFile(
-      "tests/Frontend/fixtures/files/" + imageName,
+      "tests/Playwright/fixtures/files/" + imageName,
       {
         force: true,
       },
@@ -210,7 +210,7 @@ Cypress.Commands.add(
     cy.get("@fileInputClick").should("be.calledOnce");
 
     cy.get('[data-test="file-input-input"]').selectFile(
-      "tests/Frontend/fixtures/files/" + fileName,
+      "tests/Playwright/fixtures/files/" + fileName,
       {
         force: true,
       },
@@ -255,7 +255,7 @@ Cypress.Commands.add(
 
     // Upload file again
     cy.get('[data-test="file-input-input"]').selectFile(
-      "tests/Frontend/fixtures/files/" + fileName,
+      "tests/Playwright/fixtures/files/" + fileName,
       {
         force: true,
       },

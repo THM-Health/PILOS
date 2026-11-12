@@ -84,7 +84,7 @@ describe("User Profile Base", function () {
 
         cy.get('[data-test="upload-file-input"]')
           .should("not.be.visible")
-          .selectFile("tests/Frontend/fixtures/files/profileImage.jpg", {
+          .selectFile("tests/Playwright/fixtures/files/profileImage.jpg", {
             force: true,
           });
       });
@@ -167,7 +167,7 @@ describe("User Profile Base", function () {
       // Upload image again
       cy.get('[data-test="upload-file-input"]')
         .should("not.be.visible")
-        .selectFile("tests/Frontend/fixtures/files/profileImage.jpg", {
+        .selectFile("tests/Playwright/fixtures/files/profileImage.jpg", {
           force: true,
         });
     });

@@ -1,0 +1,311 @@
+import { readFileSync } from "node:fs";
+import { test, expect, expectToastAndClose } from "../support/test.js";
+import { checkPermissionGroup } from "../support/admin.js";
+import {
+  interceptAdminRolesViewRequests,
+  interceptAdminRolesIndexRequests,
+} from "../support/mocks.js";
+import { expectLoginRedirect } from "../support/general.js";
+import { mockMethod } from "../support/utils.js";
+
+const readFixture = (name) =>
+  JSON.parse(readFileSync(`tests/Playwright/fixtures/${name}`, "utf8"));
+
+const ROLE_URL = "**/api/v1/roles/2";
+
+// [permission, explicit, included] in the order of the permission list, state of the unchanged role
+const pristinePermissions = [
+  ["rooms.create", true, true],
+  ["rooms.viewAll", true, true],
+  ["rooms.manage", false, false],
+  ["meetings.viewAny", true, true],
+  ["admin.view", false, true],
+  ["settings.viewAny", false, false],
+  ["settings.update", false, false],
+  ["system.monitor", false, false],
+  ["users.viewAny", true, true],
+  ["users.view", false, false],
+  ["users.update", false, false],
+  ["users.create", false, false],
+  ["users.delete", false, false],
+  ["users.updateOwnAttributes", false, false],
+  ["roles.viewAny", false, true],
+  ["roles.view", false, false],
+  ["roles.update", false, false],
+  ["roles.create", false, false],
+  ["roles.delete", false, false],
+  ["roomTypes.view", false, true],
+  ["roomTypes.update", true, true],
+  ["roomTypes.create", true, true],
+  ["roomTypes.delete", true, true],
+  ["servers.viewAny", false, false],
+  ["servers.view", false, false],
+  ["servers.update", false, false],
+  ["servers.create", false, false],
+  ["servers.delete", false, false],
+  ["serverPools.viewAny", false, true],
+  ["serverPools.view", false, false],
+  ["serverPools.update", false, false],
+  ["serverPools.create", false, false],
+  ["serverPools.delete", false, false],
+];
+
+/**
+ * Check all permission groups of the list.
+ * @param {import("@playwright/test").Page} page
+ * @param {boolean} disabled
+ */
+async function expectPristinePermissions(page, disabled) {
+  for (const [index, [permission, explicit, included]] of [
+    ...pristinePermissions.entries(),
+  ]) {
+    await checkPermissionGroup(
+      page,
+      index,
+      permission,
+      explicit,
+      included,
+      disabled,
+    );
+  }
+}
+
+/**
+ * Check the role data of the unchanged role.
+ * @param {import("@playwright/test").Page} page
+ * @param {boolean} disabled
+ */
+async function expectPristineRole(page, disabled) {
+  const name = page.locator("#name");
+  await expect(name).toHaveValue("Staff");
+  await expect(page.locator("#default")).toBeChecked();
+  await expect(page.locator("#unlimited")).not.toBeChecked();
+  await expect(page.locator("#custom")).not.toBeChecked();
+  await expect(page.locator("#room-limit")).toHaveCount(0);
+  for (const field of [
+    name,
+    ...["#default", "#unlimited", "#custom"].map((id) => page.locator(id)),
+  ]) {
+    if (disabled) {
+      await expect(field).toBeDisabled();
+    } else {
+      await expect(field).toBeEnabled();
+    }
+  }
+  await expectPristinePermissions(page, disabled);
+}
+
+test.describe("Admin roles view role actions", () => {
+  test.use({ authenticated: true });
+
+  test.beforeEach(async ({ page, currentUser }) => {
+    await interceptAdminRolesViewRequests(page);
+    currentUser.data.permissions = [
+      "admin.view",
+      "roles.viewAny",
+      "roles.view",
+      "roles.update",
+      "roles.create",
+      "roles.delete",
+    ];
+  });
+
+  test.describe("delete role", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto("/admin/roles/2");
+
+      await expect(page.locator("#name")).toHaveValue("Staff");
+      await expect(page.getByTestId("roles-delete-dialog")).toHaveCount(0);
+
+      await page.getByTestId("roles-delete-button").click();
+
+      await expect(page.getByTestId("roles-delete-dialog")).toBeVisible();
+    });
+
+    test("dialog shows title and role name", async ({ page }) => {
+      const dialog = page.getByTestId("roles-delete-dialog");
+      await expect(dialog).toContainText("admin.roles.delete.title");
+      await expect(dialog).toContainText(
+        'admin.roles.delete.confirm_{"name":"Staff"}',
+      );
+    });
+
+    test("confirm deletes the role and redirects to the index", async ({
+      page,
+    }) => {
+      const deleteRequest = await mockMethod(page, "DELETE", ROLE_URL, {
+        status: 204,
+        hold: true,
+      });
+
+      const roles = readFixture("roles.json");
+      roles.data = roles.data.filter((role) => role.id !== 2);
+      roles.meta.to = 2;
+      roles.meta.total = 2;
+      roles.meta.total_no_filter = 2;
+      await page.route("**/api/v1/roles*", (route) =>
+        route.request().method() === "GET"
+          ? route.fulfill({ json: roles })
+          : route.fallback(),
+      );
+
+      const dialog = page.getByTestId("roles-delete-dialog");
+      await expect(page.getByTestId("dialog-continue-button")).toHaveText(
+        "app.yes",
+      );
+      await page.getByTestId("dialog-continue-button").click();
+
+      // Check loading
+      await expect(page.getByTestId("dialog-cancel-button")).toHaveText(
+        "app.no",
+      );
+      await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
+      await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
+
+      deleteRequest.release();
+
+      // Check that redirect worked
+      await expect(page).toHaveURL(/\/admin\/roles$/);
+
+      // Check that role was deleted
+      await expect(page.getByTestId("role-item")).toHaveCount(2);
+
+      // Check that dialog was closed
+      await expect(dialog).toHaveCount(0);
+    });
+
+    test("server error keeps the dialog open", async ({ page }) => {
+      await mockMethod(page, "DELETE", ROLE_URL, {
+        status: 500,
+        json: { message: "Test" },
+      });
+
+      await page.getByTestId("dialog-continue-button").click();
+
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
+      await expect(page.getByTestId("roles-delete-dialog")).toBeVisible();
+    });
+
+    test("role linked to users keeps the dialog open", async ({ page }) => {
+      await mockMethod(page, "DELETE", ROLE_URL, {
+        status: 464,
+        json: {
+          message:
+            "The role is linked to users and therefore it can't be deleted!",
+        },
+      });
+
+      await page.getByTestId("dialog-continue-button").click();
+
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"The role is linked to users and therefore it can\'t be deleted!"}',
+        'app.flash.server_error.error_code_{"statusCode":464}',
+      ]);
+      await expect(page.getByTestId("roles-delete-dialog")).toBeVisible();
+    });
+
+    test("role not found redirects to the index", async ({ page }) => {
+      await mockMethod(page, "DELETE", ROLE_URL, {
+        status: 404,
+        json: { message: "model_not_found", model: "role", ids: [2] },
+      });
+      await interceptAdminRolesIndexRequests(page);
+
+      await page.getByTestId("dialog-continue-button").click();
+
+      await expect(page).toHaveURL(/\/admin\/roles$/);
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.role"}',
+        'app.flash.model_not_found.details_{"ids":"2"}',
+      ]);
+    });
+
+    test("unauthenticated redirects to the login page", async ({ page }) => {
+      await mockMethod(page, "DELETE", ROLE_URL, { status: 401 });
+
+      await page.getByTestId("dialog-continue-button").click();
+
+      await expectLoginRedirect(page, "/admin/roles/2");
+    });
+  });
+
+  test.describe("switch between edit and view", () => {
+    test("cancel edit discards changes and shows the view", async ({
+      page,
+    }) => {
+      await page.goto("/admin/roles/2/edit");
+
+      // Check values and change them
+      await expect(page.locator("#name")).toHaveValue("Staff");
+      await page.locator("#name").fill("Staff 2");
+
+      await expect(page.locator("#default")).toBeChecked();
+      await expect(page.locator("#unlimited")).not.toBeChecked();
+      await expect(page.locator("#room-limit")).toHaveCount(0);
+      await expect(page.locator("#custom")).not.toBeChecked();
+      await page.locator("#custom").click();
+      await expect(page.locator("#room-limit")).toHaveValue("0");
+      await page.locator("#room-limit").fill("10");
+
+      // Check each permission before it is toggled
+      for (const [index, [permission, explicit, included]] of [
+        ...pristinePermissions.entries(),
+      ]) {
+        let includedBefore = included;
+        if (permission === "users.updateOwnAttributes") {
+          includedBefore = true;
+        } else if (permission === "serverPools.viewAny") {
+          includedBefore = false;
+        }
+        await checkPermissionGroup(
+          page,
+          index,
+          permission,
+          explicit,
+          includedBefore,
+          false,
+        );
+        const id = permission.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
+        await page.locator(`[id="${id}"]`).click();
+      }
+
+      // Check that save button is shown
+      await expect(page.getByTestId("roles-save-button")).toBeVisible();
+      await expect(page.getByTestId("roles-save-button")).toBeEnabled();
+
+      // Switch to view
+      await page.getByTestId("roles-cancel-edit-button").click();
+
+      // Check if redirect worked
+      await expect(page).toHaveURL(/\/admin\/roles\/2$/);
+
+      // Check that changes were not saved
+      await expectPristineRole(page, true);
+
+      // Check that save button is not visible
+      await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
+    });
+
+    test("edit button switches from view to edit", async ({ page }) => {
+      await page.goto("/admin/roles/2");
+
+      await expect(page.locator("#name")).toHaveValue("Staff");
+      await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
+
+      await page.getByTestId("roles-edit-button").click();
+
+      // Check if redirect worked
+      await expect(page).toHaveURL(/\/admin\/roles\/2\/edit$/);
+
+      // Check that original values are shown
+      await expectPristineRole(page, false);
+
+      // Check that save button is shown
+      await expect(page.getByTestId("roles-save-button")).toBeVisible();
+      await expect(page.getByTestId("roles-save-button")).toBeEnabled();
+    });
+  });
+});

@@ -13,7 +13,6 @@ on:
 
 env:
   PHP_VERSION: 8.5
-  CYPRESS_PROJECT_ID: w8t3fx
 
 permissions:
   contents: read
@@ -220,36 +219,16 @@ jobs:
     name: Generate Frontend Matrix
     runs-on: ubuntu-latest
     outputs:
-      record: ${{ steps.generate-matrix.outputs.record }}
-      tag: ${{ steps.generate-matrix.outputs.tag }}
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
-      frontend_group: ${{ steps.generate-matrix.outputs.frontend_group }}
-      visual_group: ${{ steps.generate-matrix.outputs.visual_group }}
-      system_group: ${{ steps.generate-matrix.outputs.system_group }}
     steps:
       - name: Generate matrix
         id: generate-matrix
         run: |
           if [ ${{ (github.actor == 'dependabot[bot]' || github.event_name == 'push') && runner.debug != '1' }} = true ]; then
-              record=false
-              tag=''
-              frontend_group=''
-              visual_group=''
-              system_group=''
               matrix='{ "containers": [1] }'
           else
-              record=true
-              tag=${{ github.event_name }}
-              frontend_group="Frontend tests"
-              visual_group="Visual tests"
-              system_group="System tests"
               matrix='{ "containers": [1,2,3,4,5] }'
           fi
-          echo "record=$record" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "frontend_group=$frontend_group" >> "$GITHUB_OUTPUT"
-          echo "visual_group=$visual_group" >> "$GITHUB_OUTPUT"
-          echo "system_group=$system_group" >> "$GITHUB_OUTPUT"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
   frontend-tests:
     name: Frontend Tests
@@ -267,7 +246,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -301,28 +279,26 @@ jobs:
 
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
-      - name: Cypress run frontend tests
-        uses: cypress-io/github-action@18016a55674bd02cabf197de5762a1710cb5577c # v7.4.9
-        with:
-          wait-on: "http://localhost:9080" # Waits for above
-          group: ${{ needs.generate-frontend-matrix.outputs.frontend_group }}
-          parallel: ${{ needs.generate-frontend-matrix.outputs.record }}
-          record: ${{ needs.generate-frontend-matrix.outputs.record }}
-          tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Wait for app
+        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+      - name: Playwright run frontend tests
+        run: npx playwright test --project=frontend --shard=${{ matrix.containers }}/${{ strategy.job-total }}
         env:
-          CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
-          TZ: "America/New_York"
-      - name: Upload screenshots
+      - name: Upload test report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: cypress-frontend-screenshots
-          path: tests/Frontend/screenshots
+          name: playwright-frontend-report-${{ matrix.containers }}
+          path: |
+            playwright-report
+            tests/Playwright/test-results
+      - name: Create coverage report
+        run: npm run coverage:report
       - name: Upload coverage
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
@@ -339,14 +315,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
-      - name: Fetch develop branch
-        if: github.ref != 'refs/heads/develop'
-        run: git fetch origin develop:develop
       - name: Download artifact
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -375,28 +347,22 @@ jobs:
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
-      - name: Run cypress
-        uses: cypress-io/github-action@18016a55674bd02cabf197de5762a1710cb5577c # v7.4.9
-        with:
-          command-prefix: npx happo -- npx
-          group: ${{ needs.generate-frontend-matrix.outputs.visual_group }}
-          record: ${{ needs.generate-frontend-matrix.outputs.record }}
-          tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
-          project: ./tests/Visual
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Wait for app
+        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+      - name: Playwright run visual tests
+        run: npx playwright test --project=visual
         env:
-          NODE_OPTIONS: "--experimental-require-module"
-          HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
-          HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
-          HAPPO_DELETE_OLD_COMMENTS: true
-          HAPPO_CONFIG_FILE: "./tests/Visual/happo.config.js"
-          BASE_BRANCH: origin/develop
-          CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
-          TZ: "America/New_York"
+      - name: Upload visual test results
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: playwright-visual-results
+          path: tests/Playwright/test-results
   system-tests:
     name: System Tests
     runs-on: ubuntu-latest
@@ -410,7 +376,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -446,28 +411,24 @@ jobs:
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
-      - name: Cypress run system tests
-        uses: cypress-io/github-action@18016a55674bd02cabf197de5762a1710cb5577c # v7.4.9
-        with:
-          wait-on: "http://localhost:9080" # Waits for above
-          group: ${{ needs.generate-frontend-matrix.outputs.system_group }}
-          record: ${{ needs.generate-frontend-matrix.outputs.record }}
-          tag: ${{ needs.generate-frontend-matrix.outputs.tag }}
-          project: ./tests/System
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Wait for app
+        run: timeout 120 sh -c 'until curl -sf http://localhost:9080/ping; do sleep 2; done'
+      - name: Playwright run system tests
+        run: npm run playwright:run:system
         env:
-          CYPRESS_PROJECT_ID: ${{ env.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: "http://localhost:9080"
-          TZ: "America/New_York"
-      - name: Upload screenshots
+      - name: Upload test report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: cypress-system-screenshots
-          path: tests/System/screenshots
+          name: playwright-system-report
+          path: |
+            playwright-report
+            tests/Playwright/test-results
       - name: Upload laravel logs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()

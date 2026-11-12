@@ -14,7 +14,12 @@
     "cypress:open": "TZ=America/New_York cypress open",
     "cypress:run": "TZ=America/New_York cypress run",
     "create-coverage-report": "nyc report --reporter html -t coverage",
-    "happo": "happo"
+    "playwright:run": "playwright test --project=frontend",
+    "playwright:ui": "playwright test --ui",
+    "playwright:run:all": "playwright test",
+    "coverage:report": "nyc report --reporter json --report-dir coverage",
+    "playwright:run:system": "playwright test --project=system --workers=1",
+    "playwright:run:visual": "docker run --rm -v \"$PWD\":/work -w /work --ipc=host mcr.microsoft.com/playwright:v1.65.0-noble npx playwright test --project=visual"
   },
   "devDependencies": {
     "@cypress/code-coverage": "^4.0.3",
@@ -22,6 +27,7 @@
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^2.1.1",
     "@intlify/eslint-plugin-vue-i18n": "^4.5.1",
+    "@playwright/test": "^1.65.0",
     "@puppeteer/browsers": "^3.2.6",
     "cypress": "^16.2.0",
     "eslint": "^10.13.0",
@@ -29,9 +35,9 @@
     "eslint-plugin-cypress": "^7.0.2",
     "eslint-plugin-jsonc": "^3.4.2",
     "eslint-plugin-mocha": "^12.0.2",
+    "eslint-plugin-playwright": "^2.12.2",
     "eslint-plugin-vue": "^10.11.1",
     "globals": "^17.13.0",
-    "happo": "^6.25.3",
     "nyc": "^18.0.0",
     "pixelmatch": "^8.0.0",
     "prettier": "^3.9.10",

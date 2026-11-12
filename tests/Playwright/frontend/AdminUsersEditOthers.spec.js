@@ -1,0 +1,249 @@
+import { readFileSync } from "node:fs";
+import { test, expect, expectToastAndClose } from "../support/test.js";
+import {
+  interceptAdminUsersViewRequests,
+  interceptAdminUsersIndexRequests,
+} from "../support/mocks.js";
+import { expectLoginRedirect } from "../support/general.js";
+import { mockMethod, nthRequest } from "../support/utils.js";
+
+const USER_URL = "**/api/v1/users/2";
+
+const readUser = () =>
+  JSON.parse(
+    readFileSync("tests/Playwright/fixtures/userDataUser.json", "utf8"),
+  );
+
+test.use({ authenticated: true });
+
+test.describe("Admin users edit others", () => {
+  test.beforeEach(async ({ page, currentUser, config }) => {
+    currentUser.data.permissions = [
+      "admin.view",
+      "users.viewAny",
+      "users.view",
+      "users.update",
+      "users.create",
+      "users.delete",
+      "roles.viewAny",
+    ];
+    config.data.auth.local = true;
+    await interceptAdminUsersViewRequests(page);
+  });
+
+  test("view others tab and set the tab hash", async ({ page }) => {
+    await page.goto("/admin/users/2/edit");
+
+    await page.getByTestId("others-tab-button").click();
+
+    await expect(page).toHaveURL(/\/admin\/users\/2\/edit#tab=others/);
+    await expect(page.getByText("admin.users.bbb")).toBeVisible();
+
+    const field = page.getByTestId("bbb-skip-check-audio-field");
+    await expect(field).toBeVisible();
+    await expect(field).toContainText("admin.users.skip_check_audio");
+    await expect(field.locator("#bbb_skip_check_audio")).not.toBeChecked();
+    await expect(field.locator("#bbb_skip_check_audio")).toBeEnabled();
+  });
+
+  test.describe("save changes", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto("/admin/users/2/edit#tab=others");
+      await page.locator("#bbb_skip_check_audio").click();
+    });
+
+    test("loading state disables tabs, header buttons and form", async ({
+      page,
+    }) => {
+      const user = readUser();
+      user.data.bbb_skip_check_audio = true;
+      const save = await mockMethod(page, "POST", USER_URL, {
+        json: user,
+        hold: true,
+      });
+      await mockMethod(page, "GET", USER_URL, { json: user });
+
+      await page.getByTestId("user-tab-others-save-button").click();
+      await nthRequest(save);
+
+      for (const tab of ["base", "email", "security", "others"]) {
+        await expect(page.getByTestId(`${tab}-tab-button`)).toBeDisabled();
+      }
+
+      await expect(page.getByTestId("users-cancel-edit-button")).toBeVisible();
+      await expect(page.getByTestId("users-cancel-edit-button")).toBeDisabled();
+      await expect(
+        page.getByTestId("users-reset-password-button"),
+      ).toBeVisible();
+      await expect(
+        page.getByTestId("users-reset-password-button"),
+      ).toBeDisabled();
+      await expect(page.getByTestId("users-delete-button")).toBeVisible();
+      await expect(page.getByTestId("users-delete-button")).toBeDisabled();
+
+      await expect(page.locator("#bbb_skip_check_audio")).toBeDisabled();
+      await expect(
+        page.getByTestId("user-tab-others-save-button"),
+      ).toBeDisabled();
+
+      save.release();
+    });
+
+    test("save changes and redirect to the user view", async ({ page }) => {
+      const user = readUser();
+      user.data.bbb_skip_check_audio = true;
+      const save = await mockMethod(page, "POST", USER_URL, { json: user });
+      await mockMethod(page, "GET", USER_URL, { json: user });
+
+      const userRequest = page.waitForRequest(
+        (request) =>
+          request.method() === "GET" &&
+          new URL(request.url()).pathname === "/api/v1/users/2",
+      );
+      await page.getByTestId("user-tab-others-save-button").click();
+
+      const request = await nthRequest(save);
+      expect(request.postDataJSON()).toMatchObject({
+        bbb_skip_check_audio: true,
+      });
+
+      await expect(page).toHaveURL(/\/admin\/users\/2#tab=others/);
+      await expect(page).not.toHaveURL(/\/edit/);
+      await userRequest;
+    });
+
+    test("validation error (422) is shown in the field", async ({ page }) => {
+      await mockMethod(page, "POST", USER_URL, {
+        status: 422,
+        json: {
+          message: "The bbb skip check audio field is required.",
+          errors: {
+            bbb_skip_check_audio: [
+              "The bbb skip check audio field is required.",
+            ],
+          },
+        },
+      });
+
+      await page.getByTestId("user-tab-others-save-button").click();
+
+      await expectToastAndClose(
+        page,
+        "The bbb skip check audio field is required.",
+      );
+      await expect(page.locator("#bbb_skip_check_audio")).toBeChecked();
+      await expect(
+        page.getByTestId("bbb-skip-check-audio-field"),
+      ).toContainText("The bbb skip check audio field is required.");
+    });
+
+    test("server error (500) shows a toast and hides previous field errors", async ({
+      page,
+    }) => {
+      const save = await mockMethod(page, "POST", USER_URL, {
+        status: 422,
+        json: {
+          message: "The bbb skip check audio field is required.",
+          errors: {
+            bbb_skip_check_audio: [
+              "The bbb skip check audio field is required.",
+            ],
+          },
+        },
+      });
+      const field = page.getByTestId("bbb-skip-check-audio-field");
+
+      await page.getByTestId("user-tab-others-save-button").click();
+      await expectToastAndClose(
+        page,
+        "The bbb skip check audio field is required.",
+      );
+      await expect(field).toContainText(
+        "The bbb skip check audio field is required.",
+      );
+      expect(save.requests).toHaveLength(1);
+
+      await mockMethod(page, "POST", USER_URL, {
+        status: 500,
+        json: { message: "Test" },
+      });
+      await page.getByTestId("user-tab-others-save-button").click();
+
+      await expectToastAndClose(page, [
+        'app.flash.server_error.message_{"message":"Test"}',
+        'app.flash.server_error.error_code_{"statusCode":500}',
+      ]);
+      await expect(field).not.toContainText(
+        "The bbb skip check audio field is required.",
+      );
+    });
+
+    test("stale model (428) shows the stale dialog and reloads", async ({
+      page,
+    }) => {
+      const user = readUser();
+      user.data.bbb_skip_check_audio = true;
+      await mockMethod(page, "POST", USER_URL, {
+        status: 428,
+        json: { message: "stale_model", new_model: user.data },
+      });
+      await mockMethod(page, "GET", USER_URL, { json: user });
+
+      await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
+      await page.getByTestId("user-tab-others-save-button").click();
+
+      const dialog = page.getByTestId("stale-user-dialog");
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText(
+        'app.errors.stale_model_{"model":"app.model.user"}',
+      );
+
+      const userRequest = page.waitForRequest(
+        (request) =>
+          request.method() === "GET" &&
+          new URL(request.url()).pathname === "/api/v1/users/2",
+      );
+      await page.getByTestId("stale-dialog-reload-button").click();
+
+      await expect(page).toHaveURL(/\/admin\/users\/2/);
+      await expect(page).not.toHaveURL(/\/edit/);
+      await userRequest;
+    });
+
+    test("user not found (404) redirects to the users index", async ({
+      page,
+    }) => {
+      await interceptAdminUsersIndexRequests(page);
+      const usersRequest = page.waitForRequest(
+        (request) =>
+          request.method() === "GET" &&
+          new URL(request.url()).pathname === "/api/v1/users",
+      );
+      await mockMethod(page, "POST", USER_URL, {
+        status: 404,
+        json: { message: "model_not_found", model: "user", ids: [2] },
+      });
+
+      await page.getByTestId("user-tab-others-save-button").click();
+
+      await expect(page).not.toHaveURL(/\/admin\/users\/2\/edit/);
+      await expect(page).toHaveURL(/\/admin\/users/);
+      await usersRequest;
+
+      await expectToastAndClose(page, [
+        'app.flash.model_not_found.title_{"model":"app.model.user"}',
+        'app.flash.model_not_found.details_{"ids":"2"}',
+      ]);
+    });
+
+    test("unauthenticated (401) redirects to the login page", async ({
+      page,
+    }) => {
+      await mockMethod(page, "POST", USER_URL, { status: 401, json: {} });
+
+      await page.getByTestId("user-tab-others-save-button").click();
+
+      await expectLoginRedirect(page, "/admin/users/2/edit");
+    });
+  });
+});
