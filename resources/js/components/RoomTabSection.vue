@@ -13,7 +13,10 @@
         <!-- Tab navigation -->
         <div v-if="availableTabs.length > 1" role="tablist">
           <!-- Desktop layout, icons only-->
-          <div class="hidden flex-row gap-2 md:flex" @keydown="keydownHandler">
+          <div
+            class="room-tabs hidden flex-row gap-2 md:flex"
+            @keydown="keydownHandler"
+          >
             <Button
               v-for="tab in availableTabs"
               :id="'tab-' + tab.key"
@@ -325,7 +328,6 @@ const availableTabs = computed(() => {
             showDisabledFeatureModal(tab.label, tab.disabled);
             return;
           }
-
           activeTabKey.value = tab.key;
           // Save tab selection in URL hash
           hashParams.tab = tab.key;
@@ -340,25 +342,39 @@ const activeTab = computed(() => {
 });
 
 // Keyboard navigation
-const tabFocus = ref(0);
 const keydownHandler = function (event) {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+    return;
+  }
+
+  // Determine which tab is currently focused, and find the index of that tab in the availableTabs array
+  const focusedTabId = event.target.closest('[role="tab"]')?.id;
+  const currentTabIndex = availableTabs.value.findIndex(
+    (tab) => "tab-" + tab.key === focusedTabId,
+  );
+
+  if (currentTabIndex === -1) {
+    // Current tab is not in the availableTabs array
+    return;
+  }
+
   switch (event.key) {
-    case "ArrowLeft":
-      if (tabFocus.value - 1 < 0) {
-        tabFocus.value = availableTabs.value.length - 1;
-      } else {
-        tabFocus.value--;
-      }
-      focusTab(tabFocus.value);
+    case "ArrowLeft": {
+      // Calculate the index of the previous tab, wrapping around to the last tab if necessary
+      const previousTabIndex =
+        (currentTabIndex - 1 + availableTabs.value.length) %
+        availableTabs.value.length;
+
+      focusTab(previousTabIndex);
       break;
-    case "ArrowRight":
-      if (tabFocus.value + 1 > availableTabs.value.length - 1) {
-        tabFocus.value = 0;
-      } else {
-        tabFocus.value++;
-      }
-      focusTab(tabFocus.value);
+    }
+    case "ArrowRight": {
+      // Calculate the index of the next tab, wrapping around to the first tab if necessary
+      const nextTabIndex = (currentTabIndex + 1) % availableTabs.value.length;
+
+      focusTab(nextTabIndex);
       break;
+    }
     default:
   }
 };

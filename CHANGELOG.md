@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Always include system-wide default presentation ([#2662], [#2746])
 - User avatar cropper and preview now displayed in circular shape ([#3386])
 
+### Fixed
+
+- Keyboard navigation between room tabs after a mouse click or after opening a room with a tab hash ([#3631], [#3632])
+
 ## [v4.20.0] - 2026-11-09
 
 ### Changed
@@ -995,6 +999,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3588]: https://github.com/THM-Health/PILOS/pull/3588
 [#3603]: https://github.com/THM-Health/PILOS/issues/3603
 [#3604]: https://github.com/THM-Health/PILOS/pull/3604
+[#3631]: https://github.com/THM-Health/PILOS/issues/3631
+[#3632]: https://github.com/THM-Health/PILOS/pull/3632
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
