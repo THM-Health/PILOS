@@ -44,35 +44,47 @@ export async function _compareBase64Images(expectedImage, actualImage) {
 }
 
 async function blobToBase64(blob) {
-  return new Promise((res) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
-      res(reader.result);
+      resolve(reader.result);
+    });
+    reader.addEventListener("error", () => {
+      reject(reader.error ?? new Error("Failed to read blob"));
     });
     reader.readAsDataURL(blob);
   });
 }
 
 export async function _base64ToImageData(base64) {
-  return await new Promise((res) => {
+  return await new Promise((resolve, reject) => {
     const image = new Image();
-    image.src = base64;
 
     image.onload = async () => {
-      const { naturalWidth: width, naturalHeight: height } = image;
-      const canvas = new OffscreenCanvas(width, height);
-      const ctx = canvas.getContext("2d");
-      ctx.filter = "blur(1px)";
-      ctx.drawImage(image, 0, 0);
+      try {
+        const { naturalWidth: width, naturalHeight: height } = image;
+        const canvas = new OffscreenCanvas(width, height);
+        const ctx = canvas.getContext("2d");
+        ctx.filter = "blur(1px)";
+        ctx.drawImage(image, 0, 0);
 
-      const imageData = ctx.getImageData(0, 0, width, height);
-      const blob = await canvas.convertToBlob({
-        type: "image/jpeg",
-        quality: 1.0,
-      });
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const blob = await canvas.convertToBlob({
+          type: "image/jpeg",
+          quality: 1.0,
+        });
 
-      res({ imageData, blob });
+        resolve({ imageData, blob });
+      } catch (error) {
+        reject(error);
+      }
     };
+
+    image.onerror = () => {
+      reject(new Error("Failed to load image for comparison"));
+    };
+
+    image.src = base64;
   });
 }
 
