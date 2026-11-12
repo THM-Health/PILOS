@@ -103,7 +103,7 @@ To generate a code coverage report, the frontend must first be instrumented so t
 This command can be used to build the frontend with coverage instrumentation:
 
 ```bash
-./sail pnpm run build -- --config vite.config.coverage.js
+./sail pnpm run build --config vite.config.coverage.js
 ```
 
 After that you can run the tests with the coverage report:
@@ -135,13 +135,13 @@ Before running the tests make sure you have correctly installed cypress as descr
 You can then run the tests in the interactive mode with:
 
 ```bash
-pnpm run cypress:open -- -P ./tests/System
+pnpm run cypress:open -P ./tests/System
 ```
 
 Or you can run the tests headless with:
 
 ```bash
-pnpm run cypress:run -- -P ./tests/System
+pnpm run cypress:run -P ./tests/System
 ```
 
 ## Visual Regression Testing with Happo.io
@@ -177,7 +177,7 @@ Although visual regression tests run exclusively in the GitHub Action runner, yo
 Before running the tests make sure you have correctly installed cypress as described in the [Installing cypress](#installing-cypress) section.
 
 ```bash
-pnpm run cypress:open -- -P ./tests/Visual --config experimentalInteractiveRunEvents=true
+pnpm run cypress:open -P ./tests/Visual --config experimentalInteractiveRunEvents=true
 ```
 
 This setup allows you to ensure your tests are functioning correctly before committing changes.

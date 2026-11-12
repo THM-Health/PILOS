@@ -102,7 +102,7 @@ RUN if [ "$VITE_COVERAGE" != "true" ] ; then \
   else \
     echo "Build frontend for coverage (instrumented and with sourcemap)" && \
     su-exec www-data pnpm install && \
-    su-exec www-data pnpm run build -- --config vite.config.coverage.js; \
+    su-exec www-data pnpm run build --config vite.config.coverage.js; \
   fi
 
 # Run and optimize composer for production
