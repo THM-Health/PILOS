@@ -24,6 +24,7 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
+          cache: npm
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - name: Build image
@@ -52,13 +53,11 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Install dependencies
-        run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps firefox
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Wait for app
         run: timeout 120 sh -c 'until curl -sf -o /dev/null http://localhost:9080/; do sleep 2; done'
       - name: Playwright run frontend tests in Firefox
-        run: npx playwright test --project=frontend-firefox
+        run: tools/playwright-docker.sh --project=frontend-firefox
         env:
           APP_URL: "http://localhost:9080"
       - name: Upload test report
