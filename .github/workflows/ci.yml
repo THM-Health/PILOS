@@ -286,10 +286,12 @@ jobs:
       - name: Wait for app
         run: timeout 120 sh -c 'until curl -sf -o /dev/null http://localhost:9080/; do sleep 2; done'
       - name: Playwright run frontend tests
-        run: tools/playwright-docker.sh --project=frontend --shard=${{ matrix.containers }}/${{ strategy.job-total }}
+        run: tools/playwright-docker.sh --project=frontend --shard="$SHARD_INDEX/$SHARD_TOTAL"
         env:
           APP_URL: "http://localhost:9080"
           COVERAGE: "true"
+          SHARD_INDEX: ${{ matrix.containers }}
+          SHARD_TOTAL: ${{ strategy.job-total }}
       - name: Upload test report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
