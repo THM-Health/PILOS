@@ -18,7 +18,8 @@ const baseURL = process.env.APP_URL || "http://localhost";
 export default defineConfig({
   outputDir: "tests/Playwright/test-results",
   // Visual baselines are generated on Linux only (see the visual project), so no platform suffix in the path
-  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
+  snapshotPathTemplate:
+    "{testDir}/__screenshots__/{testFilePath}/{arg}{-projectName}{ext}",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   // Retries are enabled on CI to absorb infrastructure hiccups. Tests that only pass on a retry are reported as "flaky"

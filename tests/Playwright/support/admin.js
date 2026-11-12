@@ -1,5 +1,4 @@
-import { readFileSync } from "node:fs";
-import { expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const FILES_DIR = "tests/Playwright/fixtures/files/";
 
@@ -51,29 +50,6 @@ export async function expectMultiselectOptions(content, names, noDataText) {
   await expect(options.nth(names.length)).toBeHidden();
   await expect(options.nth(names.length + 1)).toContainText(noDataText);
   await expect(options.nth(names.length + 1)).toBeHidden();
-}
-
-const FILE_CONTENT_TYPES = {
-  svg: "image/svg+xml",
-  ico: "image/vnd.microsoft.icon",
-};
-
-/**
- * Returns the content type of a fixture file based on its extension.
- * @param {string} fileName
- * @returns {string}
- */
-function getFileContentType(fileName) {
-  const fileExtension = fileName.split(".").pop().toLowerCase();
-  const contentType = FILE_CONTENT_TYPES[fileExtension];
-
-  if (!contentType) {
-    throw new Error(
-      "No file content type listed for given file extension: " + fileExtension,
-    );
-  }
-
-  return contentType;
 }
 
 /**
@@ -236,53 +212,21 @@ async function checkFileInputButtonOpensChooser(root) {
 }
 
 /**
- * Checks if the image loaded from the blob url has the expected content and content type
- * @param {import('@playwright/test').Page} page
- * @param {string} blobSrc
- * @param {string} expectedBase64Content
- * @param {string} expectedContentType
- * @returns {Promise<void>}
- */
-export async function checkBlobSrcImage(
-  page,
-  blobSrc,
-  expectedBase64Content,
-  expectedContentType,
-) {
-  const { base64, contentType } = await page.evaluate(async (src) => {
-    const response = await fetch(src);
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    let binary = "";
-    for (const byte of bytes) {
-      binary += String.fromCharCode(byte);
-    }
-    return {
-      base64: btoa(binary),
-      contentType: response.headers.get("content-type"),
-    };
-  }, blobSrc);
-
-  expect(contentType).toEqual(expectedContentType);
-  expect(base64).toEqual(expectedBase64Content);
-}
-
-/**
- * Checks that the image preview shows the uploaded fixture file (blob url)
- * @param {import('@playwright/test').Page} page
+ * Checks that the image preview shows the uploaded fixture file (blob url).
+ * The blob can't be fetched (CSP connect-src), so the rendered preview is compared to a screenshot.
  * @param {import('@playwright/test').Page|import('@playwright/test').Locator} root
  * @param {string} originalSrc
- * @param {string} imageName
  * @returns {Promise<void>}
  */
-async function checkUploadedImagePreview(page, root, originalSrc, imageName) {
-  const content = readFileSync(FILES_DIR + imageName).toString("base64");
+async function checkUploadedImagePreview(root, originalSrc) {
   const preview = root.getByTestId("settings-image-preview");
 
-  await expect(preview).toHaveAttribute("src", /.+/);
-  const src = await preview.getAttribute("src");
-  expect(src).not.toContain(originalSrc);
+  await expect(preview).toHaveAttribute("src", /^blob:/);
+  expect(await preview.getAttribute("src")).not.toContain(originalSrc);
 
-  await checkBlobSrcImage(page, src, content, getFileContentType(imageName));
+  // The same image is used by several settings with different preview sizes, so the name has to be per test
+  const name = test.info().title.replace(/\W+/g, "-");
+  await expect(preview).toHaveScreenshot(`${name}.png`);
 }
 
 /**
@@ -344,7 +288,7 @@ export async function checkSettingsImageSelector(
   await expect(undoDeleteButton).toHaveCount(0);
 
   // Check that correct image is shown
-  await checkUploadedImagePreview(page, root, originalSrc, imageName);
+  await checkUploadedImagePreview(root, originalSrc);
 
   // Cancel upload
   await cancelButton.click();
@@ -359,7 +303,7 @@ export async function checkSettingsImageSelector(
   await fileInput.setInputFiles(FILES_DIR + imageName);
 
   // Check that correct image is shown
-  await checkUploadedImagePreview(page, root, originalSrc, imageName);
+  await checkUploadedImagePreview(root, originalSrc);
 }
 
 /**
