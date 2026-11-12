@@ -1,43 +1,34 @@
-import { mkdirSync, writeFileSync } from "node:fs";
-import { randomUUID } from "node:crypto";
-
-const nycOutputDir = ".nyc_output";
+import MCR from "monocart-coverage-reports";
 
 /**
- * Automatic fixture that collects the istanbul code coverage of the instrumented frontend build
- * (vite-plugin-istanbul, see vite.config.coverage.js). It is a no-op if the app is not instrumented.
+ * Code coverage of the frontend (opt-in with `COVERAGE=true`, Chromium only).
  *
- * The coverage object `window.__coverage__` is lost when the page unloads (navigation, reload), so it is sent to Node
- * before every unload and at the end of the test. Every chunk is written as its own file into `.nyc_output`;
- * `npm run coverage:report` merges them with nyc (reporter and includes are configured in `.nycrc.json`).
+ * The coverage is measured by the browser itself (V8) and mapped back to the source files (`resources/js/**`, including
+ * the `<script>` of the Vue SFCs) with the source maps of the build. No instrumentation is needed, but the frontend must
+ * be built with source maps and without minification: `npm run build -- --config vite.config.coverage.js`.
+ * Every test adds its coverage to a shared cache, the report is created after the run (see `coverage-setup.js`).
  */
+export const coverageOptions = {
+  name: "PILOS frontend coverage",
+  outputDir: "coverage",
+  reports: [["lcovonly"], ["json"], ["console-summary"]],
+  sourceFilter: (sourcePath) => sourcePath.startsWith("resources/js/"),
+  // Only the app chunks have source maps (not the vendor and runtime chunks)
+  entryFilter: (entry) =>
+    entry.url.includes("/build/assets/") && !/vendor|runtime/.test(entry.url),
+};
+
 export const coverageFixture = [
-  async ({ context }, use) => {
-    mkdirSync(nycOutputDir, { recursive: true });
-
-    await context.exposeFunction("__collectCoverage", (coverage) => {
-      writeFileSync(`${nycOutputDir}/${randomUUID()}.json`, coverage);
-    });
-    await context.addInitScript(() => {
-      window.addEventListener("beforeunload", () => {
-        if (window.__coverage__) {
-          window.__collectCoverage(JSON.stringify(window.__coverage__));
-        }
-      });
-    });
-
-    await use();
-
-    for (const page of context.pages()) {
-      const coverage = await page
-        .evaluate(
-          () => window.__coverage__ && JSON.stringify(window.__coverage__),
-        )
-        .catch(() => null);
-      if (coverage) {
-        writeFileSync(`${nycOutputDir}/${randomUUID()}.json`, coverage);
-      }
+  async ({ page, browserName }, use) => {
+    if (!process.env.COVERAGE || browserName !== "chromium") {
+      await use();
+      return;
     }
+
+    await page.coverage.startJSCoverage({ resetOnNavigation: false });
+    await use();
+    const coverage = await page.coverage.stopJSCoverage();
+    await MCR(coverageOptions).add(coverage);
   },
   { auto: true },
 ];

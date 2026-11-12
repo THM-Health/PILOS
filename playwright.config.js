@@ -25,7 +25,16 @@ export default defineConfig({
   // (GitHub annotation + HTML report). Set `failOnFlakyTests: true` to turn them into failures instead.
   retries: process.env.CI ? 2 : 0,
   failOnFlakyTests: false,
-  reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
+  // Code coverage (opt-in): the report is created after the run, see tests/Playwright/support/coverage.js
+  globalSetup: process.env.COVERAGE
+    ? "./tests/Playwright/support/coverage-setup.js"
+    : undefined,
+  // On CI: one line per test with its duration (list), annotations on failures (github) and the HTML report as artifact
+  reporter: process.env.CI
+    ? [["list"], ["github"], ["html", { open: "never" }]]
+    : "list",
+  // Print the slowest test files at the end of the run
+  reportSlowTests: { max: 10, threshold: 30_000 },
 
   use: {
     baseURL,

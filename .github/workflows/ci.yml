@@ -289,6 +289,7 @@ jobs:
         run: tools/playwright-docker.sh --project=frontend --shard=${{ matrix.containers }}/${{ strategy.job-total }}
         env:
           APP_URL: "http://localhost:9080"
+          COVERAGE: "true"
       - name: Upload test report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
@@ -297,8 +298,6 @@ jobs:
           path: |
             playwright-report
             tests/Playwright/test-results
-      - name: Create coverage report
-        run: npm run coverage:report
       - name: Upload coverage
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:

@@ -11,7 +11,7 @@ VERSION=$(node -p "require('./node_modules/@playwright/test/package.json').versi
 exec docker run --rm --init --ipc=host --network host \
   --user "$(id -u):$(id -g)" \
   -e HOME=/tmp \
-  -e CI -e APP_URL -e TZ \
+  -e CI -e APP_URL -e TZ -e COVERAGE \
   -v "$PWD":/work -w /work \
   "mcr.microsoft.com/playwright:v${VERSION}-noble" \
   npx playwright test "$@"

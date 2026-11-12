@@ -99,24 +99,19 @@ npm run cypress:run
 
 ### Coverage
 
-To generate a code coverage report, the frontend must first be instrumented so that the coverage can be measured.
-This command can be used to build the frontend with coverage instrumentation:
+The code coverage of the frontend tests is measured by the browser itself (V8, Chromium only) and mapped back to the sources, including the `<script>` of the Vue components, with source maps. The frontend must be built with source maps and without minification:
 
 ```bash
 ./sail npm run build -- --config vite.config.coverage.js
 ```
 
-After that you can run the tests with the coverage report:
+After that you can run the tests with coverage enabled. The report is created in the `coverage` directory (`lcov.info`, `coverage-final.json`) and a summary is printed:
 
 ```bash
-npm run cypress:run
+COVERAGE=true npx playwright test --project=frontend
 ```
 
-To generate a code coverage report in HTML format you can use the following command:
-
-```bash
-./sail npm run create-coverage-report
-```
+Remember to build the frontend normally again (`./sail npm run build`) afterwards. The template of a Vue component is compiled to a render function, so only the script part is shown line by line.
 
 ## System Testing with Cypress
 
