@@ -120,6 +120,7 @@ class CreateDemoSystem extends Command
         $anatomyRoom->owner()->associate($daniel);
         $anatomyRoom->roomType()->associate($lecture);
         $anatomyRoom->expert_mode = true;
+        $anatomyRoom->prefer_system_default_presentation_as_start = false;
         $anatomyRoom->save();
 
         $mathRoom = new Room;
@@ -176,7 +177,7 @@ class CreateDemoSystem extends Command
         $introduction->filename = 'anatomy-introduction.pdf';
         $introduction->download = true;
         $introduction->use_in_meeting = true;
-        $introduction->default = false;
+        $introduction->is_start_file = false;
         $introduction->room()->associate($anatomyRoom);
         $introduction->save();
 
@@ -185,7 +186,7 @@ class CreateDemoSystem extends Command
         $foot->filename = 'anatomy-foot.pdf';
         $foot->download = false;
         $foot->use_in_meeting = true;
-        $foot->default = true;
+        $foot->is_start_file = true;
         $foot->room()->associate($anatomyRoom);
         $foot->save();
 

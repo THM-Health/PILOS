@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Option in room file management to set system-wide default presentation as start presentation ([#2662], [#2746])
+- Keyboard and focus support for the user avatar cropper to improve accessibility ([#3386])
+- Option to enforce light or dark color mode ([#3557])
+
+### Changed
+
+- Always include system-wide default presentation ([#2662], [#2746])
+- User avatar cropper and preview now displayed in circular shape ([#3386])
+
 ## [v4.20.0] - 2026-11-09
 
 ### Changed
@@ -885,12 +896,14 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2613]: https://github.com/THM-Health/PILOS/pull/2613
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616
 [#2660]: https://github.com/THM-Health/PILOS/issues/2660
+[#2662]: https://github.com/THM-Health/PILOS/issues/2662
 [#2664]: https://github.com/THM-Health/PILOS/issues/2664
 [#2665]: https://github.com/THM-Health/PILOS/pull/2665
 [#2686]: https://github.com/THM-Health/PILOS/pull/2686
 [#2726]: https://github.com/THM-Health/PILOS/pull/2726
 [#2728]: https://github.com/THM-Health/PILOS/pull/2728
 [#2742]: https://github.com/THM-Health/PILOS/pull/2742
+[#2746]: https://github.com/THM-Health/PILOS/pull/2746
 [#2751]: https://github.com/THM-Health/PILOS/issues/2751
 [#2752]: https://github.com/THM-Health/PILOS/pull/2752
 [#2765]: https://github.com/THM-Health/PILOS/issues/2765
@@ -975,6 +988,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3535]: https://github.com/THM-Health/PILOS/pull/3535
 [#3537]: https://github.com/THM-Health/PILOS/issues/3537
 [#3540]: https://github.com/THM-Health/PILOS/pull/3540
+[#3557]: https://github.com/THM-Health/PILOS/pull/3557
 [#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [#3561]: https://github.com/THM-Health/PILOS/pull/3561
 [#3588]: https://github.com/THM-Health/PILOS/pull/3588

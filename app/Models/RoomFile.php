@@ -14,7 +14,7 @@ class RoomFile extends Model
     use HasFactory;
 
     protected $casts = [
-        'default' => 'boolean',
+        'is_start_file' => 'boolean',
         'download' => 'boolean',
         'use_in_meeting' => 'boolean',
     ];

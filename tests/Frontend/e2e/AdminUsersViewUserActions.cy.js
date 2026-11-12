@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+import { _compareBase64Images } from "../support/utils/fileHelper.js";
 
 describe("Admin users view user actions", function () {
   beforeEach(function () {
@@ -324,16 +325,10 @@ describe("Admin users view user actions", function () {
       .should("be.visible")
       .and("include.text", "admin.users.image.crop");
 
-    // Check if correct image is shown
-    cy.fixture("files/profileImage.jpg", "base64").then((content) => {
-      cy.get('[data-test="crop-image-dialog"]')
-        .find("img")
-        .should("have.attr", "src")
-        .and("include", content);
-    });
-
+    // Wait for cropper readiness before saving
     cy.get('[data-test="dialog-save-button"]')
       .should("have.text", "admin.users.image.save")
+      .and("not.be.disabled")
       .click();
 
     cy.get('[data-test="crop-image-dialog"]').should("not.exist");
@@ -347,8 +342,11 @@ describe("Admin users view user actions", function () {
         .should("have.attr", "src")
         .then((src) => {
           cy.fixture("files/profileImagePreview.jpg", "base64").then(
-            (content) => {
-              expect(src).to.eql("data:image/jpeg;base64," + content);
+            async (content) => {
+              await _compareBase64Images(
+                "data:image/jpeg;base64," + content,
+                src,
+              );
             },
           );
         });
