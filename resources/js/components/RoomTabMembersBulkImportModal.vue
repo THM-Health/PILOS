@@ -25,6 +25,13 @@
         class="flex w-full flex-col justify-end gap-2 sm:flex-row"
       >
         <Button
+          :label="$t('app.cancel')"
+          severity="secondary"
+          :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
+          @click="modalVisible = false"
+        />
+        <Button
           :disabled="isLoadingAction"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
@@ -268,6 +275,7 @@ defineExpose({
 function showModal() {
   step.value = 0;
   rawList.value = "";
+  newUsersRole.value = null;
   formErrors.clear();
   modalVisible.value = true;
 }
