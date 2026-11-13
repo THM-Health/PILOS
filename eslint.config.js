@@ -1,6 +1,7 @@
 import vueI18n from "@intlify/eslint-plugin-vue-i18n";
 import pluginMocha from "eslint-plugin-mocha";
 import pluginCypress from "eslint-plugin-cypress";
+import pluginPlaywright from "eslint-plugin-playwright";
 import pluginVue from "eslint-plugin-vue";
 import js from "@eslint/js";
 import json from "@eslint/json";
@@ -104,7 +105,6 @@ export default defineConfig([
       "**/*.cy.js",
       "tests/Utils/cypress/**/*.js",
       "tests/Frontend/**/*.js",
-      "tests/Visual/**/*.js",
       "tests/System/**/*.js",
     ],
     extends: [
@@ -117,6 +117,34 @@ export default defineConfig([
       "mocha/no-exclusive-tests": "error",
       "mocha/no-pending-tests": "error",
       "mocha/no-mocha-arrows": "off",
+    },
+  },
+  {
+    files: ["tests/Playwright/**/*.js", "playwright.config.js"],
+    extends: [pluginPlaywright.configs["flat/recommended"]],
+    rules: {
+      // Assertions are mostly in helpers (expectXyz / checkXyz), which the rule cannot see
+      "playwright/expect-expect": "off",
+      // Loops over roles/permissions generate tests and share assertions
+      "playwright/no-conditional-in-test": "off",
+      "playwright/no-conditional-expect": "off",
+    },
+  },
+  {
+    // The mocked suites mock and wait for API requests only through the fixtures and `mockApiRequest`, see
+    // `.ai/rules/playwright.md`. The system suite talks to the real backend and is not affected.
+    files: ["tests/Playwright/**/*.js"],
+    ignores: ["tests/Playwright/system/**"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.object.name='page'][callee.property.name=/^(route|waitForRequest|waitForResponse)$/]",
+          message:
+            "Mock API requests with a fixture handle or `mockApiRequest` and wait for them with `waitForRequest` / `waitForNextRequest` / `waitForNextResponse` of the handle (see .ai/rules/playwright.md).",
+        },
+      ],
     },
   },
   eslintConfigPrettier,

@@ -75,7 +75,7 @@ describe("Rooms view files file actions", function () {
         });
 
         cy.get("#file").selectFile(
-          "tests/Frontend/fixtures/files/testFile.txt",
+          "tests/Playwright/fixtures/files/testFile.txt",
           {
             force: true,
           },
@@ -165,7 +165,7 @@ describe("Rooms view files file actions", function () {
 
         // Upload another file
         cy.get("#file").selectFile(
-          "tests/Frontend/fixtures/files/testFile2.txt",
+          "tests/Playwright/fixtures/files/testFile2.txt",
           {
             force: true,
           },
@@ -255,7 +255,7 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-files-upload-dialog"]')
       .find("#file")
-      .selectFile("tests/Frontend/fixtures/files/testFile.txt", {
+      .selectFile("tests/Playwright/fixtures/files/testFile.txt", {
         force: true,
       });
 
@@ -279,7 +279,7 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-files-upload-dialog"]')
       .find("#file")
-      .selectFile("tests/Frontend/fixtures/files/testFile.txt", {
+      .selectFile("tests/Playwright/fixtures/files/testFile.txt", {
         force: true,
       });
 
@@ -300,7 +300,7 @@ describe("Rooms view files file actions", function () {
 
     cy.get('[data-test="room-files-upload-dialog"]')
       .find("#file")
-      .selectFile("tests/Frontend/fixtures/files/testFile.txt", {
+      .selectFile("tests/Playwright/fixtures/files/testFile.txt", {
         force: true,
       });
 
@@ -327,7 +327,7 @@ describe("Rooms view files file actions", function () {
         cy.get('[data-test="room-files-upload-dialog"]')
           .should("be.visible")
           .find("#file")
-          .selectFile("tests/Frontend/fixtures/files/testFile.txt", {
+          .selectFile("tests/Playwright/fixtures/files/testFile.txt", {
             force: true,
           });
       },
@@ -357,7 +357,7 @@ describe("Rooms view files file actions", function () {
     cy.get('[data-test="room-files-upload-dialog"]')
       .should("be.visible")
       .find("#file")
-      .selectFile("tests/Frontend/fixtures/files/testFile.txt", {
+      .selectFile("tests/Playwright/fixtures/files/testFile.txt", {
         force: true,
       });
 

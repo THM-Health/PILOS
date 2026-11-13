@@ -21,6 +21,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Prometheus/**              | .ai/rules/prometheus.md    |
 | app/Http/Resources/**          | .ai/rules/resources.md     |
 | routes/api.php                 | .ai/rules/routes.md        |
+| tests/Playwright/**            | .ai/rules/playwright.md    |
 | app/Services/**                | .ai/rules/services.md      |
 | app/Settings/**                | .ai/rules/settings.md      |
 | app/**, tests/** (uploads)     | .ai/rules/uploads.md       |

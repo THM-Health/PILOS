@@ -5,6 +5,10 @@ services:
     image: "${CONTAINER_IMAGE:-pilos/pilos:latest}"
     ports:
       - "9080:80"
+    environment:
+      # The array cache is not shared between requests, so rate limiters (e.g. login: 5 attempts per minute) never
+      # throttle the system tests, which log in as the same users all the time
+      CACHE_DRIVER: array
     sysctls:
       net.core.somaxconn: 65536
       net.ipv4.ip_local_port_range: "2000 65535"
