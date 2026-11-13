@@ -107,7 +107,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             });
 
             // Recording operations
-            Route::middleware('can:manageRecordings,room')->group(function () {
+            Route::middleware(['enable_if_config:recording.enabled', 'can:manageRecordings,room'])->group(function () {
                 Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class, 'update'])->name('rooms.recordings.update');
                 Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class, 'destroy'])->name('rooms.recordings.destroy');
             });
@@ -192,7 +192,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
             Route::post('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
             Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get');
-            Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index');
+            Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index')->middleware('enable_if_config:recording.enabled');
 
         });
 
